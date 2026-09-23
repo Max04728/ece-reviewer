@@ -1,0 +1,118 @@
+{
+  "scope": "Apply the classic fourth-order Runge-Kutta method, build its four-stage table by hand, and use the O(h^4) error scaling to pick a step size.",
+  "intuition": "Four slope samples are taken across each step — at the start, twice at the midpoint, and once at the end — and combined with weights 1-2-2-1. The two midpoint samples are what make the single step agree with the Taylor series through the $h^{4}$ term.",
+  "concept": [
+    "**The four stages.** $k_1=f(x_i,y_i)$; $k_2=f\\!\\left(x_i+\\frac{h}{2},y_i+\\frac{h}{2}k_1\\right)$; $k_3=f\\!\\left(x_i+\\frac{h}{2},y_i+\\frac{h}{2}k_2\\right)$; $k_4=f(x_i+h,\\,y_i+h k_3)$. The single update is: $y_{i+1}=y_i+\\frac{h}{6}(k_1+2k_2+2k_3+k_4)$, with $k_1$ and $k_4$ carrying weight $1/6$ and the two midpoint slopes $k_2$ and $k_3$ carrying weight $1/3$ each. The weights sum to 6, so dividing by 6 makes them a weighted average — 1/6, 1/3, 1/3, 1/6. This is Simpson's rule applied to the slope function $f$.",
+    "**Why the order is four.** The combination of stages reproduces the Taylor series of the exact solution through the $h^{4}$ term, so the local truncation error is $O(h^{5})$ and the global error is $O(h^{4})$. The operational consequence: **halving $h$ divides the error by 16**. Accuracy per unit work is why RK4, not Euler, is the default general-purpose solver.",
+    "**Reading the stage table.** Each stage is a slope, not a solution value. $k_2$ and $k_3$ are evaluated at $x_i+h/2$ with different $y$-estimates; $k_4$ uses the full step. If $k_1=k_2=k_3=k_4$ (which happens when $f$ is constant in $x$ and $y$, or when $h=0$) the update collapses to $y_{i+1}=y_i+h f$ — a useful sanity check.",
+    "**Cost and comparison.** Four function evaluations per step against Euler's one and Heun's two. On $y'=x+y$, $y(0)=1$ at $x=1$ with $h=0.1$: Euler is wrong by $2.5\\times10^{-1}$, Heun by $8.4\\times10^{-3}$, RK4 by $4.2\\times10^{-6}$ — for four evaluations instead of one. RK4 is unstable for stiff problems (its stability interval on the real axis is about $-2.78\\le\\lambda h\\le0$), where implicit methods are required.",
+    "**The automated step-size control idea.** Because the error is $O(h^{4})$, an embedded pair (RKF45) can estimate the local error by comparing a fourth- and a fifth-order result and shrink or grow $h$ automatically. The board exam does not ask for the embedded coefficients, but it does ask 'estimate the error after halving $h$' — and the answer is always 'divide by 16'.",
+    "**When RK4 is exact.** For $y'=f(x)$ with $f$ a polynomial of degree $\\le3$, RK4 reproduces Simpson's rule and is exact. It is also exact for any problem whose solution is a polynomial of degree $\\le4$ in $x$. Everything else carries an $h^{4}$ error that the exam expects you to bound, not eliminate."
+  ],
+  "formulas": [
+    { "q": "RK4 stage 1", "e": "k_1 = f(x_i,\\,y_i)", "n": "Start-of-step slope." },
+    { "q": "RK4 stage 2", "e": "k_2 = f\\!\\left(x_i+\\frac{h}{2},\\ y_i+\\frac{h}{2}k_1\\right)", "n": "Midpoint slope using the k1 estimate." },
+    { "q": "RK4 stage 3", "e": "k_3 = f\\!\\left(x_i+\\frac{h}{2},\\ y_i+\\frac{h}{2}k_2\\right)", "n": "Midpoint slope using the improved k2 estimate." },
+    { "q": "RK4 stage 4", "e": "k_4 = f(x_i+h,\\ y_i+h k_3)", "n": "End-of-step slope using the k3 estimate." },
+    { "q": "RK4 update", "e": "y_{i+1} = y_i + \\frac{h}{6}\\left(k_1+2k_2+2k_3+k_4\\right)", "n": "Weights sum to 6. Same as Simpson's 1/3 rule on the four slopes." },
+    { "q": "Local truncation error", "e": "E_{\\mathrm{local}} = O(h^{5})", "n": "Per step, one order better than Heun's O(h^3)." },
+    { "q": "Global error order", "e": "E_{\\mathrm{global}} = O(h^{4})", "n": "Halving h divides the error by 16. This is the number the exam wants." },
+    { "q": "Stability interval (real lambda)", "e": "-2.78 \\le \\lambda h \\le 0", "n": "For y' = lambda y. Not suitable for stiff problems." },
+    { "q": "Work per step", "e": "4\\ \\mathrm{function\\ evaluations}", "n": "Versus 1 for Euler and 2 for Heun." }
+  ],
+  "problems": [
+    {
+      "prompt": "Use RK4 with $h=0.1$ on $\\dfrac{dy}{dx}=x+y$, $y(0)=1$ to find $y(0.2)$.",
+      "give": ["f(x,y) = x + y", "y(0) = 1", "h = 0.1"],
+      "steps": [
+        "Step 1: k1 = f(0,1) = 1.000000",
+        "k2 = f(0.05, 1 + 0.05(1)) = f(0.05, 1.05) = 0.05 + 1.05 = 1.100000",
+        "k3 = f(0.05, 1 + 0.05(1.1)) = f(0.05, 1.055) = 1.105000",
+        "k4 = f(0.1, 1 + 0.1(1.105)) = f(0.1, 1.1105) = 1.210500",
+        "y1 = 1 + (0.1/6)(1.000000 + 2(1.100000) + 2(1.105000) + 1.210500) = 1 + (0.1/6)(6.620500) = 1.110342",
+        "Step 2: k1 = f(0.1, 1.110342) = 1.210342",
+        "k2 = f(0.15, 1.110342 + 0.05(1.210342)) = f(0.15, 1.170859) = 1.320859",
+        "k3 = f(0.15, 1.110342 + 0.05(1.320859)) = f(0.15, 1.176385) = 1.326385",
+        "k4 = f(0.2, 1.110342 + 0.1(1.326385)) = f(0.2, 1.242980) = 1.442980",
+        "y2 = 1.110342 + (0.1/6)(1.210342 + 2(1.320859) + 2(1.326385) + 1.442980) = 1.110342 + (0.1/6)(7.947810) = 1.242805",
+        "Exact: y(0.2) = 2e^{0.2} - 0.2 - 1 = 1.242806; error = 1e-6"
+      ],
+      "ans": "$y(0.2) \\approx 1.242805$ versus the exact $1.242806$ — an error of $10^{-6}$ where Euler's error is $2\\times10^{-2}$.",
+      "trap": "Evaluating $k_2$ and $k_3$ at the same argument or at $x_i+h$. Both midpoint stages use $x_i+h/2$; using $x_i+h$ for $k_3$ silently reduces the method to something third-order or worse, and the answer still looks reasonable."
+    },
+    {
+      "prompt": "Work one full RK4 step for $\\dfrac{dy}{dx}=y-x^{2}+1$, $y(0)=0.5$, $h=0.2$, and compare with the exact $y(0.2)=0.829299$.",
+      "give": ["f(x,y) = y - x^2 + 1", "y(0) = 0.5", "h = 0.2"],
+      "steps": [
+        "k1 = f(0, 0.5) = 0.5 - 0 + 1 = 1.500000",
+        "k2 = f(0.1, 0.5 + 0.1(1.5)) = f(0.1, 0.65) = 0.65 - 0.01 + 1 = 1.640000",
+        "k3 = f(0.1, 0.5 + 0.1(1.64)) = f(0.1, 0.664) = 0.664 - 0.01 + 1 = 1.654000",
+        "k4 = f(0.2, 0.5 + 0.2(1.654)) = f(0.2, 0.8308) = 0.8308 - 0.04 + 1 = 1.790800",
+        "Increment = (0.2/6)(1.5 + 2(1.64) + 2(1.654) + 1.7908) = (0.033333)(9.8788) = 0.329293",
+        "y(0.2) = 0.5 + 0.329293 = 0.829293",
+        "Exact: 0.04 + 0.4 + 1 - 0.5e^{0.2} = 1.44 - 0.610351 = 0.829299; error = -6e-6",
+        "Compare plain Euler at the same h = 0.2, which gives 0.800000 — an error of 0.029, about 4700 times larger"
+      ],
+      "ans": "$y(0.2) \\approx 0.829293$ versus the exact $0.829299$; error $6\\times10^{-6}$.",
+      "trap": "Substituting the wrong $x$ into the $-x^{2}$ term for the midpoint stages. Both $k_2$ and $k_3$ use $x=0.1$, so the term is $-0.01$; using $-0.04$ (the end-of-step value) corrupts $k_2$ and $k_3$ and costs three orders of accuracy."
+    },
+    {
+      "prompt": "Verify the fourth-order claim: for $y'=x+y$, $y(0)=1$ on $[0,1]$, the RK4 errors are $-6.14\\times10^{-5}$ at $h=0.2$, $-4.17\\times10^{-6}$ at $h=0.1$ and $-2.72\\times10^{-7}$ at $h=0.05$. What do the ratios show, and what error should $h=0.025$ give?",
+      "give": ["exact y(1) = 3.43656366"],
+      "steps": [
+        "Ratio 1: 6.14e-5 / 4.17e-6 = 14.7",
+        "Ratio 2: 4.17e-6 / 2.72e-7 = 15.3",
+        "Both are close to 16, the factor expected when h is halved for an O(h^4) method",
+        "Prediction for h = 0.025: 2.72e-7 / 16 = 1.70e-8",
+        "For comparison, Heun's method at h = 0.1 has an error of 8.40e-3, about 2000 times larger than RK4 at the same step"
+      ],
+      "ans": "Ratios of about 15 confirm $O(h^{4})$; the predicted error at $h=0.025$ is $\\approx1.7\\times10^{-8}$.",
+      "trap": "Using a factor of 4 (the $O(h^{2})$ rule) or 2. Fourth order means $2^{4}=16$ when $h$ is halved. Quoting the wrong factor is a wrong answer even if the arithmetic of the ratio is right."
+    },
+    {
+      "prompt": "One RK4 step is taken on $y'=y$, $y(0)=1$ with $h=0.5$, giving $y(0.5)=1.64843750$. Do the second step and compare with $e^{1}=2.71828183$.",
+      "give": ["f(x,y) = y", "h = 0.5", "y(0.5) = 1.64843750"],
+      "steps": [
+        "k1 = f(0.5, 1.6484375) = 1.6484375",
+        "k2 = f(0.75, 1.6484375 + 0.25(1.6484375)) = f(0.75, 2.06054688) = 2.06054688",
+        "k3 = f(0.75, 1.6484375 + 0.25(2.06054688)) = f(0.75, 2.16357422) = 2.16357422",
+        "k4 = f(1.0, 1.6484375 + 0.5(2.16357422)) = f(1.0, 2.73022461) = 2.73022461",
+        "Increment = (0.5/6)(1.6484375 + 2(2.06054688) + 2(2.16357422) + 2.73022461)",
+        "= (0.0833333)(12.82690430) = 1.06890869",
+        "y(1) = 1.64843750 + 1.06890869 = 2.71734619",
+        "Exact e = 2.71828183; error = -9.36e-4 (0.034%)"
+      ],
+      "ans": "$y(1) \\approx 2.717346$ versus $e = 2.718282$; error $9.4\\times10^{-4}$ at this very coarse $h=0.5$.",
+      "trap": "Forgetting that the $x$-arguments of $k_2$ and $k_3$ are $0.75$, not $0.5$ or $1.0$. The increments in $y$ are half-step amounts ($h k_1/2 = 0.25k_1$); using the full $0.5k_1$ doubles the $y$-advance in both midpoint stages."
+    },
+    {
+      "prompt": "A designer needs $y(1)$ accurate to $10^{-6}$ for $y'=x+y$, $y(0)=1$. Starting from the RK4 error at $h=0.2$ of $6.1\\times10^{-5}$, what step size and how many steps are needed?",
+      "give": ["error at h = 0.2 is 6.14e-5", "target 1e-6", "O(h^4) scaling"],
+      "steps": [
+        "Write the error as E = C h^4, so C = 6.14e-5 / (0.2^4) = 6.14e-5/1.6e-3 = 0.0384",
+        "Required: 0.0384 h^4 <= 1e-6  ->  h^4 <= 2.60e-5",
+        "h <= (2.60e-5)^(1/4) = 0.0714",
+        "n = (1 - 0)/h >= 14.0, so use n = 14 steps of exactly h = 1/14 = 0.0714 (15 would also work but is not needed)",
+        "Cross-check with the observed h = 0.1 error of 4.17e-6: to reach 1e-6, reduce h by (4.17)^(1/4) = 1.43, so h = 0.1/1.43 = 0.070 — the same answer",
+        "Four evaluations per step means about 56 evaluations of f"
+      ],
+      "ans": "$h \\approx 0.07$, about 14 steps (56 function evaluations).",
+      "trap": "Scaling the error linearly in $h$ (as if the method were Euler) and answering $h\\approx3\\times10^{-3}$, or scaling as $h^{2}$ and answering $h\\approx0.039$. Both give many more steps than necessary and show the wrong order."
+    }
+  ],
+  "traps": [
+    "**Using the wrong factor when the step changes.** RK4 is $O(h^{4})$: halving $h$ divides the error by 16, not 4 or 2. Every step-size question on this topic turns on that number.",
+    "**Evaluating $k_3$ at the end of the step.** $k_3$ uses the same midpoint $x_i+h/2$ as $k_2$, with the improved $y$-estimate. Moving it to $x_i+h$ breaks the derivation and drops the order.",
+    "**Advancing $y$ by the full step inside the midpoint stages.** The $k_2$ and $k_3$ estimates are $y_i+\\frac{h}{2}k_1$ and $y_i+\\frac{h}{2}k_2$ — half steps. Using $h k_1$ doubles the predicted advance.",
+    "**Summing the weights to 4 instead of 6.** The bracket is $k_1+2k_2+2k_3+k_4=6$ when all stages are equal, so the coefficient is $h/6$. Simplifying to $h/4$ gives an answer 50% too large in the constant-$f$ limit.",
+    "**Reporting the stages as intermediate solutions.** $k_1,\\dots,k_4$ are slopes. Only $y_{i+1}$ is a solution value; quoting $k_4$ as $y$ answers the wrong question.",
+    "**Assuming RK4 fixes stiffness.** Its real-axis stability interval is roughly $-2.78\\le\\lambda h\\le0$ — a modest improvement on Euler's $-2$ and nowhere near enough for stiff systems, which need implicit methods.",
+    "**Expecting exactness for non-polynomial solutions.** RK4 is exact only when the solution is a polynomial of degree $\\le4$. For $y'=y$ it is not exact at any $h$, and rounding the result to the exact value hides a real error."
+  ],
+  "refs": [
+    "[[09_Modified_Euler_and_Heun’s_Method]]",
+    "[[08_Euler’s_Method]]",
+    "[[07_Simpson’s_One-Third_and_Three-Eighth_Rules]]"
+  ],
+  "prereqs": ["[[09_Modified_Euler_and_Heun’s_Method]]"]
+}

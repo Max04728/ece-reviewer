@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Damped Oscillator Regimes — mx″ + cx′ + kx = 0</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The exam question is almost never "solve this ODE". It is "classify the motion", and the
+// classification comes from one number the discriminant c^2 - 4mk. All four regimes are
+// reachable from the three sliders here, including the knife-edge critical case, and the
+// readout always shows the m, c, k triple that makes the current regime, so the student can
+// reproduce the classification by hand and check it.
+
+/** Exact solution of m x'' + c x' + k x = 0 for x(0) = x0, x'(0) = v0, with dx/dt. */
+function makeSolution(m, c, k, x0, v0) {
+  const disc = c * c - 4 * m * k;
+  const wn = Math.sqrt(k / m);
+  const alpha = c / (2 * m);           // = zeta * wn
+  const tol = Math.max(1, c * c, 4 * m * k) * 1e-9;
+
+  if (Math.abs(disc) <= tol) {
+    // repeated root r = -c/(2m):  x = (A + Bt) e^{rt}
+    const r = -c / (2 * m);
+    const A = x0;
+    const B = v0 - r * x0;
+    return { disc, wn, alpha, zeta: 1, kind: c === 0 ? 'undamped' : 'critical', r, A, B,
+             f: (t) => (A + B * t) * Math.exp(r * t),
+             df: (t) => (B + r * (A + B * t)) * Math.exp(r * t) };
+  }
+  if (disc < 0) {
+    const wd = Math.sqrt(-disc) / (2 * m);
+    if (c === 0) {
+      // undamped: pure sinusoid at exactly wn
+      const A = x0, B = v0 / wn;
+      return { disc, wn, alpha: 0, zeta: 0, kind: 'undamped', wd: wn,
+               f: (t) => A * Math.cos(wn * t) + B * Math.sin(wn * t), A, B, amp: Math.hypot(A, B) };
+    }
+    const A = x0;
+    const B = (v0 + alpha * x0) / wd;
+    return { disc, wn, alpha, zeta: alpha / wn, kind: 'under', wd, A, B, amp: Math.hypot(A, B),
+             f: (t) => Math.exp(-alpha * t) * (A * Math.cos(wd * t) + B * Math.sin(wd * t)),
+             df: (t) => Math.exp(-alpha * t) * (-alpha * (A * Math.cos(wd * t) + B * Math.sin(wd * t))
+                        + wd * (-A * Math.sin(wd * t) + B * Math.cos(wd * t))) };
+  }
+  const sq = Math.sqrt(disc);
+  const r1 = (-c + sq) / (2 * m);      // shallower root
+  const r2 = (-c - sq) / (2 * m);      // steeper root
+  const A = (v0 - r2 * x0) / (r1 - r2);
+  const B = (r1 * x0 - v0) / (r1 - r2);
+  return { disc, wn, alpha, zeta: alpha / wn, kind: 'over', r1, r2, A, B,
+           f: (t) => A * Math.exp(r1 * t) + B * Math.exp(r2 * t),
+           df: (t) => A * r1 * Math.exp(r1 * t) + B * r2 * Math.exp(r2 * t) };
+}
+
+/** Human-readable roots of the auxiliary equation for the current case. */
+function rootLine(s) {
+  if (s.kind === 'over') return 'r₁ = ' + fmt(s.r1, 5) + ' ,  r₂ = ' + fmt(s.r2, 5) + '   (both real, both negative)';
+  if (s.kind === 'critical') return 'r = ' + fmt(s.r, 5) + '   (repeated)';
+  if (s.kind === 'undamped') return 'r = ± j' + fmt(s.wd, 5) + '   (purely imaginary — no damping at all)';
+  return 'r = ' + fmt(-s.alpha, 5) + ' ± j' + fmt(s.wd, 5);
+}
+
+widget({
+  title: 'Damped Oscillator Regimes — mx″ + cx′ + kx = 0',
+  description:
+    'Three sliders decide which of the four behaviours you get, and the only thing that matters is the discriminant c² − 4mk (equivalently ζ = c/2√(mk)). Watch the shape change at ζ = 1 and at c = 0, and check the hand classification against the roots shown on the canvas.',
+  height: 470,
+  range: { xMin: 0, xMax: 6, yMin: -0.3, yMax: 0.3 },
+  controls: [
+    { id: 'm', label: 'mass m (kg)', min: 0.2, max: 10, step: 0.1, value: 1 },
+    { id: 'c', label: 'damping c (N·s/m)', min: 0, max: 20, step: 0.1, value: 2 },
+    { id: 'k', label: 'stiffness k (N/m)', min: 0.2, max: 60, step: 0.1, value: 10 },
+    { id: 'x0', label: 'initial displacement x(0) (m)', min: -0.5, max: 0.5, step: 0.01, value: 0.1 },
+    { id: 'v0', label: 'initial velocity x′(0) (m/s)', min: -2, max: 2, step: 0.05, value: 0 },
+    { id: 'T', label: 'time window (s)', min: 0.5, max: 20, step: 0.5, value: 6 },
+  ],
+  compute: (v) => {
+    const { m, c, k, x0, v0, T } = v;
+    const sol = makeSolution(m, c, k, x0, v0);
+    const cc = 2 * Math.sqrt(m * k);
+    const zeta = c / cc;
+    // Regime label from the discriminant, and the number that proves it. NOTE the operand
+    // order: Math.max(...) * 5e-4, never 5e-4 * Math.max(...) — in classic-script sloppy
+    // mode a literal on the left coerces the whole expression to a STRING comparison,
+    // which silently reports every case as underdamped.
+    const tol = Math.max(c * c, 4 * m * k) * 5e-4;
+    let regime, regimeShort;
+    if (c === 0) {
+      // exact test first: c*c - 4*m*k can land a few ulps off zero, and treating a
+      // genuinely undamped system as "critical" would hide the only perpetual oscillator.
+      regime = 'undamped (c = 0): oscillates forever at ωn';
+      regimeShort = 'undamped';
+    } else if (Math.abs(sol.disc) <= tol) {
+      regime = 'critically damped (ζ ≈ 1): repeated root, fastest non-oscillatory return';
+      regimeShort = 'critical';
+    } else if (sol.disc < 0) {
+      regime = 'underdamped (ζ < 1): complex roots, decaying oscillation';
+      regimeShort = 'under';
+    } else {
+      regime = 'overdamped (ζ > 1): two distinct real roots, no oscillation';
+      regimeShort = 'over';
+    }
+    const wd = sol.kind === 'under' || sol.kind === 'undamped' ? sol.wd : NaN;
+    const tau = sol.alpha > 0 ? 1 / sol.alpha : Infinity;
+    const Td = isFinite(wd) && wd > 0 ? (2 * Math.PI) / wd : NaN;
+    return { m, c, k, x0, v0, T, sol, cc, zeta, regime, regimeShort, wd, tau, Td,
+             disc: sol.disc, wn: sol.wn, alpha: sol.alpha };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const { sol, T } = out;
+    const f = sol.f;
+
+    // ---- vertical window from the actual extremes of this run
+    let ymax = Math.max(Math.abs(out.x0), 1e-3);
+    let ymin = Math.min(out.x0, 0);
+    for (let i = 0; i <= 600; i++) {
+      const y = f((i / 600) * T);
+      if (Number.isFinite(y)) { ymax = Math.max(ymax, y); ymin = Math.min(ymin, y); }
+    }
+    const m0 = Math.max(0.02, 0.18 * (ymax - ymin));
+    plot.setRange({ xMin: 0, xMax: T, yMin: ymin - m0, yMax: ymax + m0 });
+    plot.clear().grid(0.5, Math.max(0.01, (ymax - ymin) / 8)).axes();
+
+    // ---- zero and initial-value references
+    plot.segment(0, 0, T, 0, { color: PALETTE.grid, width: 1 });
+    plot.segment(0, out.x0, T, out.x0, { color: 'rgba(160,160,190,0.35)', width: 1, dash: [4, 4] });
+
+    // ---- the decaying envelope, the thing that carries the time constant
+    if (sol.kind === 'under' && sol.alpha > 0) {
+      const amp = sol.amp;
+      for (const sgn of [1, -1]) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(166,227,161,0.55)';
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        for (let i = 0; i <= 400; i++) {
+          const t = (i / 400) * T;
+          const y = sgn * amp * Math.exp(-sol.alpha * t);
+          i === 0 ? ctx.moveTo(plot.X(t), plot.Y(y)) : ctx.lineTo(plot.X(t), plot.Y(y));
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+      plot.label('envelope ±A e^(−ζωn t)', T * 0.03, amp * 0.86,
+        { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+    if (sol.kind === 'critical') {
+      plot.fn((t) => Math.abs(out.x0) * Math.exp(-out.alpha * t), 0, T,
+        { color: 'rgba(166,227,161,0.55)', width: 1.4, dash: [5, 4] });
+    }
+
+    // ---- the displacement curve (custom loop so the stub-safe helpers stay untouched)
+    ctx.save();
+    ctx.strokeStyle = out.regimeShort === 'over' ? PALETTE.accent4
+                    : out.regimeShort === 'critical' ? PALETTE.warn
+                    : out.regimeShort === 'undamped' ? PALETTE.accent5
+                    : PALETTE.accent;
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= 900; i++) {
+      const t = (i / 900) * T;
+      const y = f(t);
+      if (!Number.isFinite(y)) { started = false; continue; }
+      const px = plot.X(t), py = plot.Y(y);
+      if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // ---- mark the first peak of the oscillation, if there is one
+    if (isFinite(out.wd) && out.wd > 0) {
+      let best = 0, bt = 0;
+      for (let i = 1; i < 4000; i++) {
+        const t = (i / 4000) * T;
+        const y = Math.abs(f(t));
+        if (y > best) { best = y; bt = t; }
+      }
+      plot.dot(bt, f(bt), { color: PALETTE.accent2, r: 4 });
+      plot.label('peak |x| = ' + fmt(best, 4) + ' at t = ' + fmt(bt, 4) + ' s', bt, f(bt),
+        { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+      // period marker
+      if (bt + out.Td <= T) {
+        plot.segment(bt, plot.yMin, bt + out.Td, plot.yMin, { color: PALETTE.accent5, width: 2 });
+        plot.label('Td = 2π/ωd = ' + fmt(out.Td, 4) + ' s', bt, plot.yMin,
+          { color: PALETTE.accent5, font: '11px ui-monospace, monospace' });
+      }
+    }
+    // time constant marker
+    if (isFinite(out.tau) && out.tau <= T) {
+      plot.segment(out.tau, 0, out.tau, out.x0, { color: PALETTE.accent3, width: 1.6, dash: [3, 3] });
+      plot.label('t = τ = ' + fmt(out.tau, 4) + ' s', out.tau, 0,
+        { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+    plot.dot(0, out.x0, { color: PALETTE.warn, r: 4, label: 'x(0)' });
+
+    // ---- formula + substituted values
+    const pad = plot.pad;
+    plot.text('m x″ + c x′ + k x = 0      discriminant  c² − 4mk',
+      pad + 8, pad + 15, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('(' + fmt(out.m, 4) + ')x″ + (' + fmt(out.c, 4) + ')x′ + (' + fmt(out.k, 4) +
+      ')x = 0      c² − 4mk = ' + fmt(out.disc, 6) + '      c_crit = 2√(mk) = ' + fmt(out.cc, 5),
+      pad + 8, pad + 32, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text('roots  r = [ −c ± √(c² − 4mk) ] / 2m  =  ' + rootLine(out.sol),
+      pad + 8, pad + 49, { color: PALETTE.accent2, font: '12px ui-monospace, monospace' });
+    plot.text('ωn = √(k/m) = ' + fmt(out.wn, 5) + ' rad/s    ζ = c / (2√(mk)) = ' + fmt(out.zeta, 5),
+      pad + 8, pad + 66, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+
+    // regime banner bottom-left, the answer to the exam question
+    const banner = out.regime;
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.85)';
+    ctx.fillRect(pad + 6, plot.h - pad - 40, Math.min(plot.iw - 8, 640), 32);
+    ctx.restore();
+    plot.text(banner, pad + 14, plot.h - pad - 19,
+      { color: out.regimeShort === 'over' ? PALETTE.accent4
+             : out.regimeShort === 'critical' ? PALETTE.warn
+             : out.regimeShort === 'undamped' ? PALETTE.accent5 : PALETTE.accent,
+        font: 'bold 12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const s = out.sol;
+    let rootStr;
+    if (s.kind === 'over') rootStr = 'r₁ = ' + fmt(s.r1, 5) + ', r₂ = ' + fmt(s.r2, 5);
+    else if (s.kind === 'critical') rootStr = 'r = ' + fmt(s.r, 5) + ' (repeated)';
+    else if (s.kind === 'undamped') rootStr = 'r = ±j' + fmt(s.wd, 5);
+    else rootStr = 'r = ' + fmt(-out.alpha, 5) + ' ± j' + fmt(out.wd, 5);
+    return {
+      'regime': out.regime,
+      'discriminant c² − 4mk': fmt(out.disc, 6),
+      'critical damping cc': fmt(out.cc, 5) + ' N·s/m',
+      'ζ = c / cc': fmt(out.zeta, 5),
+      'ωn = √(k/m)': fmt(out.wn, 5) + ' rad/s',
+      'decay rate ζωn': fmt(out.alpha, 5) + ' Np/s',
+      'roots r': rootStr,
+      'damped frequency ωd': isFinite(out.wd) ? fmt(out.wd, 5) + ' rad/s' : 'none — no oscillation',
+      'damped period Td': isFinite(out.Td) ? fmt(out.Td, 5) + ' s' : '—',
+      'time constant τ = 1/ζωn': isFinite(out.tau) ? fmt(out.tau, 5) + ' s' : '∞ (undamped)',
+      'x(T) at window end': fmt(s.f(out.T), 6) + ' m',
+      'oscillatory?': isFinite(out.wd) && out.wd > 0 ? 'YES' : 'NO',
+    };
+  },
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'damped-note';
+document.getElementById('app').appendChild(note);
+
+note.innerHTML =
+  '<strong>The one number that decides everything is c² − 4mk</strong> (equivalently ζ = c / 2√(mk)). ' +
+  'Push c until ζ reads 1.000 and you have the critical case: exactly one repeated root, x = (A + Bt)e^(−ζωn t), ' +
+  'and the fastest return to zero <em>without</em> overshoot. Go below it and the roots turn complex — the ' +
+  'solution becomes e^(−ζωn t)(A cos ωd t + B sin ωd t) and the green envelope ±A e^(−ζωn t) is what the ' +
+  'oscillation is trapped inside. Set c = 0 and nothing decays at all: the undamped case oscillates forever at ωn. ' +
+  '<br><strong>Traps this widget is built to prevent.</strong> (1) Reading ωd as ωn − ζωn or similar: it is ' +
+  '<code>ωd = ωn√(1 − ζ²)</code>, a subtraction of <em>squares</em> under the root, which is why ωd sits only ' +
+  'slightly below ωn when ζ is small. (2) Writing ωd in the overdamped case — <code>√(1 − ζ²)</code> is ' +
+  'imaginary there, and the correct form is two real exponentials A e^(r₁t) + B e^(r₂t), never a sine. ' +
+  '(3) Computing c_crit as √(mk) instead of <code>2√(mk)</code>: at m = 1, k = 10 that is 3.162 s⁻¹ instead of ' +
+  '6.325, so a genuinely overdamped system is reported as underdamped. (4) Forgetting that ζ is dimensionless ' +
+  'while c is not — ζ = c/(2√(mk)) only balances because c carries N·s/m.';
+</script>
+</body>
+</html>

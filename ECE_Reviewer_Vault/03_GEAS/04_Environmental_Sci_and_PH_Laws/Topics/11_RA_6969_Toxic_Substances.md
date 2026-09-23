@@ -1,0 +1,76 @@
+---
+id: GEAS-04-11
+title: "RA 6969 Toxic Substances"
+part: "03_GEAS"
+area: "04_Environmental_Sci_and_PH_Laws"
+topic: 11
+tier: 3
+depth: full
+problem_count: 0
+prereqs: ["[[06_Solid,_Hazardous_and_E-Waste]]"]
+tags: ["ece", "geas", "environmental_sci_and_ph_laws"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 11 — RA 6969 Toxic Substances
+
+> [!abstract] Scope
+> Recall the Toxic Substances and Hazardous and Nuclear Wastes Control Act by number, year and agency, the chemical inventory and testing machinery, the waste-import prohibition and its penalties, and the hazardous-waste categories and treatment routes.
+
+## Core Concept
+
+> [!tip] Intuition
+> RA 6969 puts a gate on both ends of the chemical economy: nothing new enters manufacture or import without being notified and screened, and nothing hazardous or nuclear enters the country at all — not even in transit.
+
+**The statute and the agency.** Republic Act No. **6969**, the **Toxic Substances and Hazardous and Nuclear Wastes Control Act of 1990**, was approved on **26 October 1990**. It covers the importation, manufacture, processing, handling, storage, transportation, sale, distribution, use and disposal of all **unregulated** chemical substances and mixtures in the Philippines, and — emphatically — the **entry, even in transit, as well as the keeping, storage and disposal of hazardous and nuclear wastes into the country for whatever purpose**. The **DENR** is the implementing agency through the **Environmental Management Bureau**, supported by an **Inter-Agency Technical Advisory Council** chaired by the DENR Secretary with the DOH, PNRI, DTI, DOST, DND, DFA, DOLE, DOF, DA and an NGO representative as members. The Department maintains an updated **inventory of chemicals presently manufactured, imported or used** — the **Philippine Inventory of Chemicals and Chemical Substances (PICCS)** — and a separate **Priority Chemicals List (PCL)** of substances requiring annual reporting from handlers; DENR Administrative Order **DAO 2013-22** provides the current hazardous waste management rules, having replaced DAO 2004-36. Section 10 gives the Secretary **ninety days** from the filing of a notice of manufacture, processing or importation to decide whether to regulate or prohibit the substance.
+
+**The gatekeeping tools.** Before a **new** chemical substance or mixture can be manufactured, processed or imported for the first time, the manufacturer, processor or importer must submit a **Pre-Manufacture and Pre-Importation Notification (PMPIN)** with the substance name, chemical identity and molecular structure, proposed categories of use, an estimate of quantity, processing and disposal, and any test data on health and environmental effects. Testing may be required where there is reason to believe a substance presents unreasonable risk, where data are insufficient to predict effects, or where testing is necessary to develop that data — and the **manufacturer, processor or importer shoulders the cost**. Section 11 exempts substances already on the inventory, small quantities for research and development, substances presenting no unreasonable risk, and transient intermediates with no human or environmental exposure. Section 12 gives the public access to records and safety data, subject to a trade-secret claim. Section 13 lists the prohibited acts: knowingly using a substance imported, manufactured, processed or distributed in violation of the Act; failure or refusal to submit reports or permit inspection; failure or refusal to comply with the pre-manufacture and pre-importation requirements; and causing, aiding or facilitating the storage, importation or bringing into Philippine territory — **including the maritime economic zone and even in transit** — of any amount of hazardous or nuclear waste.
+
+**Penalties, and how hazardous waste is actually managed.** Section 14(a) punishes violations of §13(a) to (c) with **imprisonment of 6 months and 1 day to 6 years and 1 day and a fine of P600 to P4,000**, not subject to the Probation Law; a foreigner is deported and barred after sentence, and a government official is automatically dismissed and permanently disqualified. Section 14(b) punishes the §13(d) waste-import offence far more severely: **12 years and 1 day to 20 years imprisonment**, with exemplary damages of at least **P500,000** for a juridical offender and barment of foreign officers; the responsible party must also transport the waste back out of the country. Section 15 separately allows the DENR Secretary to impose **administrative fines of not less than P10,000 but not more than P50,000**, which accrue to a special fund for toxic substances projects and research. Hazardous waste is classified under **DAO 2013-22** into **four categories: (1) wastes with cyanide, (2) wastes with acids, (3) wastes with heavy metals, and (4) wastes with toxic organics** — each stream carrying an alphanumeric **waste-number code** that the generator declares in its registration. Generators, transporters and treaters of hazardous waste must all be **registered with the DENR-EMB**, and every movement is documented by **hazardous waste manifest**. Because importation is prohibited, hazardous waste generated here is either treated onshore by a registered treater or **exported** for treatment, in which case the transboundary movement follows the **Basel Convention** and its **prior informed consent** procedure. Treatment is matched to the category: chemical oxidation for cyanide, neutralisation for acids, solidification and stabilisation (cement or pozzolanic fixation) for heavy metals, and high-temperature destruction or solvent recovery for toxic organics. Electronic waste is a priority stream under RA 6969 because of lead, mercury, cadmium and brominated flame retardants, and it is managed in conjunction with RA 9003's rule that separated toxic components of the waste stream must not be incinerated or landfilled.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Statute identification | $RA\ 6969,\ 26\ October\ 1990\ \mathrm{-}\ Toxic\ Substances\ and\ Hazardous\ and\ Nuclear\ Wastes\ Control\ Act\ of\ 1990$ | RA 6969 governs chemicals and hazardous waste; RA 9003 governs non-hazardous municipal solid waste and expressly excludes hazardous waste. |
+| Implementing agency | $DENR\ \mathrm{-}\ EMB,\ \mathrm{with\ the\ Inter-Agency\ Technical\ Advisory\ Council}$ | The Council is chaired by the DENR Secretary, with DOH, PNRI, DTI, DOST, DND, DFA, DOLE, DOF, DA and an NGO representative. The PNRI covers nuclear and radioactive materials. |
+| Chemical inventory | $PICCS = Philippine\ Inventory\ of\ Chemicals\ and\ Chemical\ Substances$ | The list of chemicals already manufactured, imported or used in the Philippines. A substance on the PICCS is exempt from pre-manufacture notification. |
+| Priority chemicals list | $PCL\ \mathrm{-}\ \mathrm{substances\ requiring\ annual\ reporting\ from\ handlers}$ | Separate from the PICCS; being listed means yearly reporting obligations, not prohibition. Both are maintained by the DENR-EMB. |
+| Pre-manufacture notification | $PMPIN\ \mathrm{required\ before\ first\ manufacture,\ processing\ or\ importation}$ | Must state name, chemical identity and structure, proposed uses, estimated quantity, processing and disposal, and test data on health and environmental effects. |
+| Decision period | $90\ \mathrm{days}\ \mathrm{from\ filing\ the\ notice\ (\S\ 10)}$ | Within which the Secretary decides whether to regulate or prohibit; extendible for justifiable reasons. |
+| Who pays for testing | $\mathrm{manufacturer,\ processor\ or\ importer\ bears\ the\ cost}$ | Section 9. Testing is triggered by suspected unreasonable risk, insufficient data, or the need to develop such data. |
+| Pre-manufacture exemptions | $\mathrm{inventory-listed;\ research\ quantities;\ no\ unreasonable\ risk;\ transient\ intermediates}$ | Section 11. Note that small-quantity research exemptions do not legalise disposal of the resulting waste. |
+| Waste import prohibition | $\mathrm{entry,\ even\ in\ transit,\ of\ hazardous\ and\ nuclear\ wastes\ prohibited}$ | Section 13(d). Includes the maritime economic zone, and covers keeping or storage as well as importation. Export is permitted only under the Basel Convention prior informed consent procedure. |
+| Penalty for chemical violations | $6\ \mathrm{months}\ \mathrm{and}\ 1\ \mathrm{day} - 6\ \mathrm{yrs}\ \mathrm{and}\ 1\ \mathrm{day};\ P600-P4{,}000$ | Section 14(a) for §13(a) to (c). Not covered by the Probation Law; deportation for foreigners and automatic dismissal for public officers. |
+| Penalty for waste importation | $12\ \mathrm{yrs}\ \mathrm{and}\ 1\ \mathrm{day} - 20\ \mathrm{yrs};\ \geq P500{,}000\ \mathrm{exemplary\ damages\ for\ a\ juridical\ offender}$ | Section 14(b). The offender must also transport the waste back out of the country, and the transport vehicles or vessels may be forfeited. |
+| Administrative fine | $P10{,}000 \leq \mathrm{fine} \leq P50{,}000$ | Section 15, imposed by the DENR Secretary and accruing to a special fund for toxic substances projects and research. Note these administrative fines are far smaller than the criminal penalties. |
+| DAO 2013-22 categories | $(1)\ \mathrm{cyanide};\ (2)\ \mathrm{acids};\ (3)\ \mathrm{heavy\ metals};\ (4)\ \mathrm{toxic\ organics}$ | Four categories, each stream assigned an alphanumeric waste-number code declared in the generator's registration. Replaced DAO 2004-36. |
+| Registration and manifest | $\mathrm{generator,\ transporter\ and\ treater\ must\ register;\ movement\ tracked\ by\ manifest}$ | Registration is with the DENR-EMB. An unregistered transporter or a movement without a manifest is a violation regardless of the waste's category. |
+| Basel Convention / PIC | $prior\ informed\ consent\ \mathrm{for\ transboundary\ movement\ of\ hazardous\ waste}$ | The Philippines is a party. PIC applies to exports for treatment, because importation into the Philippines is prohibited outright by §13(d). |
+| Treatment by category | $\mathrm{cyanide} \to \mathrm{oxidation};\ \mathrm{acids} \to \mathrm{neutralisation};\ \mathrm{metals} \to \mathrm{solidification};\ \mathrm{organics} \to \mathrm{incineration/recovery}$ | Solidification immobilises but does not destroy the contaminant, so the monofill still needs leachate control. Physical treatment cannot be substituted for the correct category route. |
+| E-waste linkage | $RA\ 6969\ \mathrm{-}\ lead,\ mercury,\ cadmium,\ brominated\ flame\ retardants$ | E-waste is special waste under RA 9003 §3(pp) and toxic under RA 6969; RA 9003 §28 requires separated toxic components not to be incinerated or landfilled. |
+
+## Traps & Exam Notes
+
+- Quoting RA 6969 as the year 1996 or 1999. It is the Toxic Substances and Hazardous and Nuclear Wastes Control Act of **1990**, approved 26 October 1990.
+- Saying hazardous waste is managed under RA 9003. RA 9003 §3(kk) expressly excludes hazardous, infectious and mining waste; those fall under **RA 6969**, so a sanitary landfill cannot take them.
+- Calling the import prohibition an 'export' prohibition. Section 13(d) forbids bringing hazardous and nuclear waste **into** the Philippines, even in transit; legitimate export of locally generated waste for treatment is allowed with Basel prior informed consent.
+- Quoting the wrong penalty tier. The §14(a) chemical violation carries only P600-P4,000 and 6 months to 6 years, while the §13(d) waste-import offence carries **12 years and 1 day to 20 years**; the §15 administrative fine is P10,000-P50,000. Mixing these up is the single most-punished error in this note.
+- Naming the DENR as the agency for nuclear and radioactive materials. The **Philippine Nuclear Research Institute (PNRI)** is the technical member for nuclear matters; the DENR-EMB is the implementing agency for the Act.
+- Confusing PICCS with the Priority Chemicals List. PICCS is the inventory of existing chemicals (which exempts a substance from pre-manufacture notification); the PCL is the reporting list. Being on the PCL does not mean prohibited.
+- Stating that DAO 2013-22 replaced RA 6969. The DAO is the **implementing administrative order** for hazardous waste; it replaced DAO 2004-36, and RA 6969 remains the statute.
+- Assuming one treatment method fits all hazardous waste. Cyanide needs oxidation, acids need neutralisation, metals need solidification or stabilisation, and organics need destruction or recovery — an incorrect route is a violation even with a valid registration.
+- Forgetting that costs of compliance testing fall on the proponent. Section 9 places the testing cost on the manufacturer, processor or importer, not on the DENR.
+
+## See Also
+
+- [[06_Solid,_Hazardous_and_E-Waste]]
+- [[10_RA_9003_Solid_Waste_Management]]
+- [[09_RA_9275_Clean_Water_Act]]
+- [[03_Air_Pollution_and_Criteria_Pollutants]]
+
+---
+
+[[10_RA_9003_Solid_Waste_Management|⬅ 10]] · [[_MOC_Environmental_Sci_and_PH_Laws|MOC]] · [[00_Dashboard|Dashboard]] · *end* ➡

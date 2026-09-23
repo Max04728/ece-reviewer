@@ -1,0 +1,111 @@
+{
+  "scope": "Derive the inverting conversion ratio from inductor volt-second balance, then size the inductor, capacitor and switches from the ripple, CCM-boundary and voltage-stress results, with the Cuk and SEPIC as non-inverting alternatives.",
+  "intuition": "The buck-boost stores energy in the inductor while the switch is on, then dumps it into the output while the switch is off. The diode forces the inductor's switch end below the input return during that dump, so the energy arrives at the output with the opposite polarity: the same stored energy, delivered as an inverted voltage.",
+  "concept": [
+    "**The two states of the circuit.** The power stage is a switch, an inductor, a diode and an output capacitor. With the switch on for the interval $DT_s$ the inductor sits directly across the input, so $v_L = +V_{in}$, the diode is reverse-biased, and the output capacitor alone supplies the load. With the switch off for $(1-D)T_s$ the inductor current freewheels through the diode into the output capacitor and load, and the inductor is now clamped across the output. It is the diode orientation that fixes the sign: the switch node is pulled *below* the input return while the current continues in the same direction, so the output node is driven negative with respect to the input ground. That is the entire physical origin of the inversion, and it is not a sign convention that may be dropped.",
+    "**Volt-second balance gives the ratio.** In steady state the inductor cannot accumulate net volt-seconds, otherwise its current would grow without bound cycle after cycle. During the on-interval the inductor collects $V_{in}DT_s$; during the off-interval it gives back $|V_o|(1-D)T_s$. Setting the two equal: $$V_{in}DT_s = |V_o|(1-D)T_s \\quad\\Rightarrow\\quad \\frac{|V_o|}{V_{in}} = \\frac{D}{1-D}, \\qquad V_o = -V_{in}\\frac{D}{1-D}.$$ Solved the other way, the duty needed for a required output magnitude is $$D = \\frac{|V_o|}{|V_o| + V_{in}}.$$ The pivot is $D = 0.5$, where $|V_o| = V_{in}$. Below 0.5 the converter steps the magnitude down (an inverting buck), above 0.5 it steps up (an inverting boost), and as $D \\to 1$ the ideal output magnitude runs away - a real converter stops where conduction loss and device ratings take over.",
+    "**Charge accounting fixes the currents.** The inductor is not connected to the output continuously, so $I_L \\ne I_o$. The diode delivers charge to the output only during $(1-D)T_s$, hence $I_o = I_L(1-D)$ and $I_L = I_o/(1-D)$; the source feeds the inductor only during $DT_s$, hence $I_{in} = D I_L$. The lossless power-balance check is $V_{in}I_{in} = |V_o|I_o$. At $D = 0.6$ a 3 A output needs 7.5 A of average inductor current, so the inductor, switch and diode are sized by $I_L$, never by $I_o$. The ripple is set by the on-state voltage exactly as in the buck, $\\Delta I_L = V_{in}D/(Lf_s)$. Discontinuous conduction begins when the current just reaches zero at the end of the off-interval, $I_L = \\Delta I_L/2$, which solves to the boundary inductance $L_{min} = (1-D)^2R/(2f_s)$ - evaluated at the heaviest load, that is the smallest $R$. On the output side the capacitor carries $I_o$ alone for the whole on-interval, so its capacitive ripple is $\\Delta V_C \\approx I_oD/(Cf_s)$, and the ESR term $I_{L,peak}\\times ESR$ is usually the larger of the two.",
+    "**Stress, limits and non-inverting alternatives.** When the switch is off it holds the input voltage plus the output magnitude, and so does the reverse-biased diode: $V_{SW} = V_{in} + |V_o| = V_{in}/(1-D)$. At $D = 0.8$ that is $5V_{in}$, so a 5 V input driving a 20 V output needs 25 V devices, not 5 V ones. The switch also interrupts the full peak inductor current with no series inductance to soften the edge, so the commutation loop must be short. When the inverted polarity is unacceptable there are two standard escapes with the *same* duty relation: the **Cuk** converter keeps the inverting output but adds an energy-transfer capacitor so that both the input and output currents are continuous, and the **SEPIC** adds a series inductor plus a coupling capacitor and delivers a positive output with $|V_o|/V_{in} = D/(1-D)$. Both inherit the same voltage stress $V_{in} + |V_o|$, so the design equations above still apply."
+  ],
+  "formulas": [
+    { "q": "Inverting conversion ratio", "e": "\\frac{V_o}{V_{in}} = -\\frac{D}{1-D}", "n": "CCM only. The magnitude is D/(1-D); the minus sign is the polarity inversion measured against the input ground." },
+    { "q": "Duty ratio for a required output magnitude", "e": "D = \\frac{\\lvert V_o \\rvert}{\\lvert V_o \\rvert + V_{in}}", "n": "D = 0.5 gives |V_o| = V_in and D > 0.5 boosts the magnitude. Not |V_o|/V_in (that is the boost form) and not V_in/(V_in + |V_o|)." },
+    { "q": "Inductor volt-second balance", "e": "V_{in}DT_s = \\lvert V_o \\rvert(1-D)T_s", "n": "On-state v_L = +V_in, off-state v_L = -|V_o|. Setting the net volt-seconds to zero is the derivation of the ratio." },
+    { "q": "Inductor current ripple", "e": "\\Delta I_L = \\frac{V_{in}D}{Lf_s}", "n": "Identical to the buck because the on-state voltage across L is V_in. Peak current is I_L + delta I_L/2." },
+    { "q": "CCM boundary inductance", "e": "L_{min} = \\frac{(1-D)^2R}{2f_s}", "n": "Use the heaviest load (smallest R). Below L_min the converter enters DCM and D/(1-D) no longer predicts the output." },
+    { "q": "Average inductor current", "e": "I_L = \\frac{I_o}{1-D} = \\frac{I_{in}}{D}", "n": "The diode conducts for (1-D)T_s and the source for DT_s. At D = 0.6 the inductor carries 2.5x the output current." },
+    { "q": "Output capacitor ripple", "e": "\\Delta V_C \\approx \\frac{I_oD}{Cf_s}", "n": "Capacitive part only; the ESR term I_L,peak x ESR usually dominates it. Size C for ripple-current rating too." },
+    { "q": "Switch and diode voltage stress", "e": "V_{SW} = V_{in} + \\lvert V_o \\rvert = \\frac{V_{in}}{1-D}", "n": "Both the off switch and the reverse diode hold this. At D = 0.8 it is 5 V_in." }
+  ],
+  "problems": [
+    {
+      "prompt": "A buck-boost converter runs at $f_s = 100\\ \\mathrm{kHz}$ with $V_{in} = 12\\ \\mathrm{V}$, $D = 0.4$ and a 10 ohm load. Find the output voltage and its polarity, the output current, the input current and the average inductor current.",
+      "give": ["V_in = 12 V", "D = 0.4", "R = 10 ohm", "f_s = 100 kHz"],
+      "steps": [
+        "|V_o| = V_in D/(1-D) = 12(0.4)/(0.6) = 8.00 V, so V_o = -8.00 V with respect to the input ground",
+        "I_o = |V_o|/R = 8.00/10 = 0.800 A",
+        "Lossless power balance: I_in = |V_o| I_o/V_in = 8.00(0.800)/12 = 0.533 A",
+        "I_L = I_o/(1-D) = 0.800/0.600 = 1.333 A",
+        "Check: I_in = D I_L = 0.4(1.333) = 0.533 A, and V_in I_in = 12(0.533) = 6.40 W = 8.00(0.800)"
+      ],
+      "ans": "$|V_o| = 8.00\\ \\mathrm{V}$ (that is $V_o = -8.00\\ \\mathrm{V}$), $I_o = 0.800\\ \\mathrm{A}$, $I_{in} = 0.533\\ \\mathrm{A}$, $I_L = 1.333\\ \\mathrm{A}$.",
+      "trap": "Writing $V_o = +8\\ \\mathrm{V}$. The magnitude is right but the polarity is the whole point of this topology; a grounded load or a scope ground clip on the output shorts the converter."
+    },
+    {
+      "prompt": "The same topology must deliver $-36\\ \\mathrm{V}$ at 3 A from a 24 V source, switching at 100 kHz with $L = 50\\ \\mu\\mathrm{H}$. Find the duty ratio, the input and inductor currents, the inductor ripple, the peak current and the device voltage rating.",
+      "give": ["V_in = 24 V", "V_o = -36 V", "I_o = 3 A", "f_s = 100 kHz", "L = 50 uH"],
+      "steps": [
+        "D = |V_o|/(|V_o| + V_in) = 36/(36 + 24) = 36/60 = 0.600",
+        "I_L = I_o/(1-D) = 3.00/0.400 = 7.50 A",
+        "I_in = D I_L = 0.600(7.50) = 4.50 A; check V_in I_in = 24(4.50) = 108 W = |V_o| I_o = 36(3.00)",
+        "delta I_L = V_in D/(L f_s) = 24(0.6)/(50e-6 x 100e3) = 14.4/5.00 = 2.88 A",
+        "I_L,peak = I_L + delta I_L/2 = 7.50 + 1.44 = 8.94 A",
+        "Voltage stress = V_in + |V_o| = 24 + 36 = 60 V, so specify 100 V switches and diodes"
+      ],
+      "ans": "$D = 0.600$, $I_{in} = 4.50\\ \\mathrm{A}$, $I_L = 7.50\\ \\mathrm{A}$, $\\Delta I_L = 2.88\\ \\mathrm{A}$, $I_{L,peak} = 8.94\\ \\mathrm{A}$, device stress $60\\ \\mathrm{V}$.",
+      "trap": "Setting $I_L = I_o = 3\\ \\mathrm{A}$ and sizing the inductor and switch for 3 A. The inductor actually carries 7.5 A average and 8.94 A peak, so a 3 A-rated part saturates and the current limit trips."
+    },
+    {
+      "prompt": "For $V_{in} = 12\\ \\mathrm{V}$, $D = 0.5$, a 20 ohm load and $f_s = 50\\ \\mathrm{kHz}$, find the CCM boundary inductance and confirm the result with the ripple formula.",
+      "give": ["V_in = 12 V", "D = 0.5", "R = 20 ohm", "f_s = 50 kHz"],
+      "steps": [
+        "|V_o| = V_in D/(1-D) = 12(0.5)/(0.5) = 12.0 V",
+        "I_o = 12.0/20 = 0.600 A, so I_L = I_o/(1-D) = 0.600/0.5 = 1.20 A",
+        "Boundary: L_min = (1-D)^2 R/(2 f_s) = (0.5)^2(20)/(2 x 50e3) = 5.00/1.00e5 = 50.0 uH",
+        "Confirmation: delta I_L = V_in D/(L f_s) = 12(0.5)/(50e-6 x 50e3) = 6.00/2.50 = 2.40 A = 2 I_L, so the current reaches exactly zero at the end of the off-interval"
+      ],
+      "ans": "$L_{min} = 50.0\\ \\mu\\mathrm{H}$; at that inductance $\\Delta I_L = 2I_L = 2.40\\ \\mathrm{A}$ and the converter sits exactly on the CCM-DCM boundary.",
+      "trap": "Evaluating the boundary at the nominal load instead of the heaviest load. $L_{min}$ is proportional to $R$, so if the load can fall to 200 ohm the required inductance is ten times 50 uH - sizing at 20 ohm puts the converter in DCM at light load."
+    },
+    {
+      "prompt": "With $V_{in} = 12\\ \\mathrm{V}$, $D = 0.4$, $I_o = 0.500\\ \\mathrm{A}$, $L = 220\\ \\mu\\mathrm{H}$, $C = 470\\ \\mu\\mathrm{F}$ and $f_s = 100\\ \\mathrm{kHz}$, find the inductor ripple, the peak inductor current, the capacitive output ripple, and the ripple that a 0.5 ohm ESR would add.",
+      "give": ["V_in = 12 V", "D = 0.4", "I_o = 0.500 A", "L = 220 uH", "C = 470 uF", "f_s = 100 kHz", "ESR = 0.5 ohm"],
+      "steps": [
+        "|V_o| = 12(0.4)/(0.6) = 8.00 V, so R = 8.00/0.500 = 16.0 ohm",
+        "delta I_L = V_in D/(L f_s) = 12(0.4)/(220e-6 x 100e3) = 4.80/22.0 = 0.218 A",
+        "I_L = I_o/(1-D) = 0.500/0.600 = 0.833 A, so I_L,peak = 0.833 + 0.109 = 0.942 A",
+        "delta V_C = I_o D/(C f_s) = 0.500(0.4)/(470e-6 x 100e3) = 0.200/47.0 = 4.26 mV",
+        "ESR term = I_L,peak x ESR = 0.942(0.5) = 0.471 V",
+        "Capacitive ripple as a fraction: 4.26 mV/8.00 V = 0.053%; the ESR term is 0.471/8.00 = 5.9%"
+      ],
+      "ans": "$\\Delta I_L = 0.218\\ \\mathrm{A}$, $I_{L,peak} = 0.942\\ \\mathrm{A}$, capacitive ripple $4.26\\ \\mathrm{mV}$ (0.053%), ESR ripple $0.471\\ \\mathrm{V}$ (5.9%).",
+      "trap": "Reporting the 4.26 mV capacitive ripple as the output ripple. The ESR term is about 110x larger for a 0.5 ohm capacitor, so a real 470 uF electrolytic would show roughly half a volt of ripple while the formula promises 4 mV."
+    },
+    {
+      "prompt": "A buck-boost delivers $-15\\ \\mathrm{V}$ at 1 A from a 9 V source. Find the duty ratio, the ideal input current, the average inductor current and the device voltage stress; then find the efficiency when the measured input current is 1.85 A.",
+      "give": ["V_in = 9 V", "|V_o| = 15 V", "I_o = 1 A", "measured I_in = 1.85 A"],
+      "steps": [
+        "D = |V_o|/(|V_o| + V_in) = 15/(15 + 9) = 15/24 = 0.625",
+        "Ideal I_in = |V_o| I_o/V_in = 15(1)/9 = 1.667 A, and the lossless check is 9(1.667) = 15.0 W = 15(1)",
+        "I_L = I_o/(1-D) = 1/0.375 = 2.667 A, and I_in = D I_L = 0.625(2.667) = 1.667 A agrees",
+        "Voltage stress = V_in + |V_o| = 9 + 15 = 24 V",
+        "Efficiency from the measured current: eta = P_o/P_in = 15/(9 x 1.85) = 15/16.65 = 0.901 = 90.1%",
+        "Loss = 16.65 - 15.0 = 1.65 W, mostly conduction loss at 2.667 A average inductor current"
+      ],
+      "ans": "$D = 0.625$, $I_{in} = 1.667\\ \\mathrm{A}$ ideal, $I_L = 2.667\\ \\mathrm{A}$, stress $24\\ \\mathrm{V}$, measured $\\eta = 90.1\\%$ (1.65 W lost).",
+      "trap": "Computing eta = |V_o|/V_in = 15/9 = 167%. A converter may have |V_o| greater than V_in and still be lossy; efficiency must come from the measured input current, and here the 2.667 A inductor current makes conduction loss the dominant term."
+    }
+  ],
+  "traps": [
+    "**Dropping the minus sign in $V_o/V_{in} = -D/(1-D)$.** At $D = 0.4$ and $V_{in} = 12\\ \\mathrm{V}$ the output is $-8.00\\ \\mathrm{V}$, not $+8.00\\ \\mathrm{V}$, and the lost sign hides the polarity reversal the exam asks about.",
+    "**Using the boost ratio $V_o = V_{in}/(1-D)$.** At $V_{in} = 12\\ \\mathrm{V}$ and $D = 0.4$ it returns 20 V instead of 8 V - a factor of 2.5 error.",
+    "**Inverting the duty formula to $D = |V_o|/V_{in}$.** For 8 V out of 12 V it gives $D = 0.667$ instead of the correct 0.400, which then corrupts every current and ripple number downstream.",
+    "**Assuming $I_L = I_o$.** The inductor carries $I_o/(1-D)$; at $D = 0.6$ a 3 A output needs 7.5 A average and 8.94 A peak, so a 3 A inductor saturates and the peak current limit trips.",
+    "**Using the buck or boost boundary inductance.** This topology needs $L_{min} = (1-D)^2R/(2f_s)$, and it must be evaluated at the heaviest load: $D = 0.5$, $R = 20\\ \\Omega$, $f_s = 50\\ \\mathrm{kHz}$ gives $50\\ \\mu\\mathrm{H}$, ten times that if the load can fall to 200 ohm.",
+    "**Sizing the switch for $V_{in}$ only.** The off switch and the reverse diode both hold $V_{in} + |V_o| = V_{in}/(1-D)$; at $D = 0.8$ that is $5V_{in}$, so a 12 V input demands a 60 V device.",
+    "**Grounding the load to the input return.** The buck-boost output is negative with respect to the input ground, so tying the load return to that ground shorts the converter; use a floating load, or the Cuk or SEPIC which keep the $D/(1-D)$ magnitude with a defined output reference.",
+    "**Ignoring capacitor ESR.** For $I_{L,peak} = 0.94\\ \\mathrm{A}$ and $ESR = 0.5\\ \\Omega$ the ESR ripple is 0.471 V, roughly 110x the 4.26 mV capacitive ripple, so the data-sheet capacitance is not the ripple spec that matters."
+  ],
+  "refs": [
+    "[[04_Buck_Converter]]",
+    "[[05_Boost_Converter]]",
+    "[[01_Power_Switches_MOSFET,_IGBT,_GTO,_TRIAC]]",
+    "[[08_PWM_Techniques]]",
+    "[[09_Linear_Voltage_Regulators]]"
+  ],
+  "prereqs": [
+    "[[04_Buck_Converter]]",
+    "[[05_Boost_Converter]]",
+    "[[11_First_Order_RC_and_RL_Transients]]"
+  ]
+}

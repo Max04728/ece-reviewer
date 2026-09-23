@@ -1,0 +1,112 @@
+{
+  "scope": "Locate and use the Fermi energy — compute it for a metal, find where it sits in intrinsic and doped semiconductors, and read Fermi-Dirac probabilities at a given temperature.",
+  "intuition": "The Fermi level is the reference energy at which the occupation probability is exactly one half. Everything about a material's electrical behaviour is then read off as a distance from it: below it in a metal the states are full, and in a semiconductor its distance from the band edges sets the carrier concentration.",
+  "concept": [
+    "**The distribution, and the one temperature that is exact.** $f(E) = \\dfrac{1}{1+e^{(E-E_F)/kT}}$. At any temperature at all, $f(E_F) = 0.5$ — that is the definition of $E_F$ and the safest fact to quote. At $T = 0\\ \\mathrm{K}$ the function is a perfect step: $1$ below $E_F$, $0$ above, and $E_F$ coincides with the highest filled level. At 300 K the step is smeared over only a few $kT$ (about 0.1 eV), which is why the free-electron picture of a sharp Fermi sea survives at room temperature. Because the smearing is so narrow, a state 0.5 eV above $E_F$ has an occupancy of about $10^{-9}$ and a state 0.5 eV below is full to within $10^{-9}$ — the two decades either side of $E_F$ are the only ones where the distribution does anything interesting.",
+    "**The Fermi energy of a metal is enormous, and that is the point.** Treating the conduction electrons as a free-electron gas, $N = \\int_0^{E_F} g(E)\\,dE$ with the parabolic density of states gives $E_F = \\dfrac{h^2}{8m}\\left(\\dfrac{3N}{\\pi V}\\right)^{2/3}$. For copper ($8.5\\times10^{22}$ electrons per cm³) this is about $7\\ \\mathrm{eV}$ — more than 250 times $kT$ at room temperature. So the electron gas in a metal is **degenerate**: almost all the thermally accessible action happens in a shell of width $\\sim kT$ at the Fermi surface, and only a fraction $\\sim T/T_F$ of the electrons can be excited. This single fact explains why the electronic heat capacity of a metal is about 100 times smaller than the classical Drude prediction, why it is linear in $T$ rather than constant, and why the Pauli paramagnetic susceptibility of conduction electrons is nearly temperature-independent.",
+    "**Where the Fermi level sits in a pure semiconductor.** For an intrinsic semiconductor, charge neutrality forces $E_F$ to within about $kT$ of mid-gap. The exact expression is $E_F = \\dfrac{E_c+E_v}{2} + \\dfrac{kT}{2}\\ln\\dfrac{N_v}{N_c}$; the second term is the reason $E_F$ sits a touch *above* mid-gap in silicon, where the effective density of states in the conduction band is the larger. Mid-gap placement is not a law of nature — it is a consequence of $n = p$, and it holds only while the material is intrinsic.",
+    "**Doping moves the Fermi level, and the mass-action law moves the other carrier.** Adding donors of concentration $N_D$ raises $n$ toward $N_D$ and pushes $E_F$ **up** toward the conduction band; $E_F - E_i = kT\\ln(n/n_i)$. Adding a shallow donor at $10^{17}\\ \\mathrm{cm^{-3}}$ to silicon ($n_i = 10^{10}$) moves $E_F$ up by $0.0259\\ln(10^{7}) = 0.42\\ \\mathrm{eV}$ — most of the way from mid-gap to the conduction band. The same shift lowers the hole concentration by seven orders of magnitude through $np = n_i^2$. The rule to hold onto is the direction: **n-type pushes $E_F$ up, p-type pushes it down**, and the shift is logarithmic in doping, so a tenfold increase in doping adds only about $60\\ \\mathrm{mV}$ at room temperature.",
+    "**Fermi level versus temperature in a doped semiconductor.** Three regimes exist. At very low temperature (freeze-out) there is not enough thermal energy to ionise the donors, so carriers are few and $E_F$ sits between the donor level and the conduction band. In the **saturation (extrinsic) range** — the operating range of every device — every donor is ionised, $n\\approx N_D$, and $E_F$ is nearly pinned at $kT\\ln(N_c/N_D)$ below $E_c$. At high temperature the intrinsic generation term overtakes the doping, $n\\to n_i$, and $E_F$ drifts back to mid-gap. This is why extrinsic behaviour is a window, not a permanent property, and why a device has a maximum operating temperature.",
+    "**What the Fermi level is not.** It is not a physical particle level, not a band, and not an orbital — it is a chemical potential, the energy at which adding one more electron costs nothing. Two materials in contact exchange electrons until their Fermi levels equalise, and that single condition generates the contact potential, the built-in field of a p-n junction, and the thermocouple emf. When a question says 'the Fermi level is constant across the junction at equilibrium', that is the whole physics of the diode's depletion region in one sentence."
+  ],
+  "formulas": [
+    { "q": "Fermi-Dirac distribution", "e": "f(E) = \\frac{1}{1+e^{(E-E_F)/kT}}", "n": "Probability that a state at energy E is occupied. At E = E_F it is exactly 0.5 for every temperature — the definition of the Fermi level." },
+    { "q": "Occupancy above the Fermi level", "e": "f(E) \\approx e^{-(E-E_F)/kT}\\ \\mathrm{for}\\ E-E_F > 3kT", "n": "Boltzmann tail, and the form used for semiconductor band edges. kT = 0.02585 eV at 300 K." },
+    { "q": "Occupancy below the Fermi level (hole probability)", "e": "1-f(E) \\approx e^{-(E_F-E)/kT}\\ \\mathrm{for}\\ E_F-E > 3kT", "n": "Same exponential, opposite direction. The two forms must sum to 1." },
+    { "q": "Fermi energy of a metal (free-electron)", "e": "E_F = \\frac{h^2}{8m}\\left(\\frac{3N}{\\pi V}\\right)^{2/3}", "n": "N/V is the conduction-electron density, about 8.5\\times10^{22}\\ \\mathrm{cm^{-3}} for copper giving 7.0 eV. Uses the free-electron mass; effective-mass corrections are in the density-of-states formula instead." },
+    { "q": "Fermi temperature", "e": "T_F = \\frac{E_F}{k}", "n": "About 81 000 K for copper. Since T_room/T_F \\approx 0.004, only a small fraction of electrons are thermally excited, which is why the electron heat capacity is so small." },
+    { "q": "Fermi velocity", "e": "v_F = \\sqrt{\\frac{2E_F}{m}}", "n": "About 1.57\\times10^{6}\\ \\mathrm{m/s} for copper — roughly 0.5% of c, and the speed that sets the mean free path in the Drude model." },
+    { "q": "Intrinsic Fermi level", "e": "E_i = \\frac{E_c+E_v}{2}+\\frac{kT}{2}\\ln\\frac{N_v}{N_c}", "n": "Mid-gap plus a small correction. Because N_c > N_v in silicon, E_i lies slightly above mid-gap." },
+    { "q": "Fermi level shift with doping", "e": "E_F - E_i = kT\\ln\\frac{n}{n_i}", "n": "n-type gives a positive shift (toward E_c), p-type a negative shift. Logarithmic, so 10x doping adds only 60 mV at 300 K." },
+    { "q": "Electron concentration from Fermi position", "e": "n = N_c\\,e^{-(E_c-E_F)/kT}", "n": "N_c \\approx 2.8\\times10^{19}\\ \\mathrm{cm^{-3}} for silicon. A large (E_c - E_F) means few electrons; a negative value means degenerate material." },
+    { "q": "Hole concentration from Fermi position", "e": "p = N_v\\,e^{-(E_F-E_v)/kT}", "n": "N_v \\approx 1.04\\times10^{19}\\ \\mathrm{cm^{-3}} for silicon. Note the reversed sign in the exponent." },
+    { "q": "Mass-action law", "e": "n\\,p = n_i^2", "n": "Holds at a fixed temperature regardless of doping, and fails if the material is degenerate or if the temperature changes." },
+    { "q": "Occupation exactly at the Fermi level", "e": "f(E_F) = 0.5", "n": "True at every temperature and in every material — the single most examinable fact about the Fermi function." },
+    { "q": "Fermi energy at nonzero temperature", "e": "E_F(T) \\approx E_F(0)\\left[1-\\frac{\\pi^2}{12}\\left(\\frac{kT}{E_F(0)}\\right)^2\\right]", "n": "The Sommerfeld correction. For metals at 300 K the shift is about 0.01%, so E_F is almost always treated as temperature-independent." }
+  ],
+  "problems": [
+    {
+      "prompt": "The Fermi energy of copper is $7.0\\ \\mathrm{eV}$. At $T = 300\\ \\mathrm{K}$, find the probability that a state $0.10\\ \\mathrm{eV}$ above $E_F$ is occupied, and the probability that a state $0.10\\ \\mathrm{eV}$ below $E_F$ is empty.",
+      "give": ["$E_F = 7.0\\ \\mathrm{eV}$", "$\\Delta E = 0.10\\ \\mathrm{eV}$", "$kT = 0.02585\\ \\mathrm{eV}$"],
+      "steps": [
+        "ΔE/kT = 0.10/0.02585 = 3.868",
+        "f(E) = 1/(1 + exp(3.868)) = 1/(1 + 47.85) = 1/48.85",
+        "f = 0.0205, so about 2.0% of states 0.1 eV above E_F are occupied",
+        "For the state below: 1 - f = 1/(1+exp(-3.868)) = 1/(1+0.0209) = 0.9795",
+        "So about 2.05% of the states 0.1 eV below E_F are empty"
+      ],
+      "ans": "$f(E_F+0.1) = 0.0205$ and the hole probability at $E_F-0.1$ is $0.0205$ — symmetric, as the distribution requires.",
+      "trap": "Using the Boltzmann approximation and getting $e^{-3.868} = 0.0209$, then quoting three significant figures. The approximation is only good to about 2% at $3.9\\,kT$; the exact value is 0.0205. Quote two figures or use the exact form."
+    },
+    {
+      "prompt": "Copper has one conduction electron per atom, a density of $8.96\\ \\mathrm{g/cm^3}$ and $A = 63.55\\ \\mathrm{g/mol}$. Compute the conduction-electron density and the Fermi energy from the free-electron model.",
+      "give": ["$\\rho = 8.96\\ \\mathrm{g/cm^3}$", "$A = 63.55\\ \\mathrm{g/mol}$", "$N_A = 6.022\\times10^{23}\\ \\mathrm{mol^{-1}}$", "$h = 6.626\\times10^{-34}\\ \\mathrm{J\\cdot s}$, $m = 9.109\\times10^{-31}\\ \\mathrm{kg}$"],
+      "steps": [
+        "Atoms per cm^3 = ρ N_A/A = 8.96 x 6.022e23/63.55 = 8.49e22 cm^-3",
+        "One free electron per atom, so N/V = 8.49e28 m^-3",
+        "(3N/πV) = 3(8.49e28)/π = 8.11e28 m^-3",
+        "(3N/πV)^(2/3) = (8.11e28)^(2/3) = 1.874e19 m^-2",
+        "E_F = (6.626e-34)^2(1.874e19)/[8(9.109e-31)]",
+        "Numerator 4.390e-67 x 1.874e19 = 8.227e-48; denominator 7.287e-30",
+        "E_F = 1.129e-18 J = 7.05 eV"
+      ],
+      "ans": "$N/V = 8.49\\times10^{22}\\ \\mathrm{cm^{-3}}$ and $E_F = 1.13\\times10^{-18}\\ \\mathrm{J} = 7.05\\ \\mathrm{eV}$.",
+      "trap": "Dividing by $A = 63.55$ without multiplying by $N_A$, or leaving the electron density in $\\mathrm{cm^{-3}}$ while $h$ and $m$ are in SI. The density must be in $\\mathrm{m^{-3}}$ (multiply by $10^{6}$) or the Fermi energy comes out $10^{4}$ times too small."
+    },
+    {
+      "prompt": "Silicon at 300 K has $n_i = 1.0\\times10^{10}\\ \\mathrm{cm^{-3}}$, $N_c = 2.8\\times10^{19}\\ \\mathrm{cm^{-3}}$ and $N_v = 1.04\\times10^{19}\\ \\mathrm{cm^{-3}}$, with $E_g = 1.12\\ \\mathrm{eV}$. Find the position of the intrinsic Fermi level with respect to the conduction-band edge.",
+      "give": ["$n_i = 1.0\\times10^{10}\\ \\mathrm{cm^{-3}}$", "$N_c = 2.8\\times10^{19}\\ \\mathrm{cm^{-3}}$", "$N_v = 1.04\\times10^{19}\\ \\mathrm{cm^{-3}}$", "$E_g = 1.12\\ \\mathrm{eV}$", "$kT = 0.02585\\ \\mathrm{eV}$"],
+      "steps": [
+        "Use n = N_c exp[-(E_c - E_F)/kT]: E_c - E_F = kT ln(N_c/n_i)",
+        "N_c/n_i = 2.8e19/1.0e10 = 2.8e9; ln(2.8e9) = 21.75",
+        "E_c - E_F = 0.02585 x 21.75 = 0.562 eV",
+        "Check from the valence side: E_F - E_v = kT ln(N_v/n_i) = 0.02585 ln(1.04e9) = 0.02585(20.76) = 0.537 eV",
+        "Sum 0.562 + 0.537 = 1.099 eV ≈ E_g = 1.12 eV, confirming consistency"
+      ],
+      "ans": "$E_F$ lies $0.562\\ \\mathrm{eV}$ below $E_c$ and $0.537\\ \\mathrm{eV}$ above $E_v$ — about $0.012\\ \\mathrm{eV}$ above exact mid-gap, matching the $\\frac{kT}{2}\\ln(N_v/N_c)$ correction.",
+      "trap": "Assuming $E_F$ is exactly at mid-gap and answering $0.560\\ \\mathrm{eV}$. The correction is small but real, and it is the correct answer when the two effective densities of states differ. The error is only 2 mV here, but the *method* is what is being marked."
+    },
+    {
+      "prompt": "Phosphorus is diffused into silicon to $N_D = 1.0\\times10^{17}\\ \\mathrm{cm^{-3}}$, fully ionised, at 300 K. Given $n_i = 1.0\\times10^{10}\\ \\mathrm{cm^{-3}}$, $N_c = 2.8\\times10^{19}\\ \\mathrm{cm^{-3}}$ and $E_g = 1.12\\ \\mathrm{eV}$, find the electron concentration, the hole concentration and the position of $E_F$ relative to $E_c$.",
+      "give": ["$N_D = 1.0\\times10^{17}\\ \\mathrm{cm^{-3}}$", "$n_i = 1.0\\times10^{10}\\ \\mathrm{cm^{-3}}$", "$N_c = 2.8\\times10^{19}\\ \\mathrm{cm^{-3}}$"],
+      "steps": [
+        "n ≈ N_D = 1.0e17 cm^-3 (saturation range, all donors ionised)",
+        "p = n_i^2/n = (1.0e10)^2/1.0e17 = 1.0e3 cm^-3",
+        "E_c - E_F = kT ln(N_c/n) = 0.02585 ln(2.8e19/1.0e17)",
+        "N_c/n = 280; ln(280) = 5.635",
+        "E_c - E_F = 0.02585 x 5.635 = 0.146 eV",
+        "Shift from intrinsic: 0.562 - 0.146 = 0.416 eV upward"
+      ],
+      "ans": "$n = 1.0\\times10^{17}\\ \\mathrm{cm^{-3}}$, $p = 1.0\\times10^{3}\\ \\mathrm{cm^{-3}}$, and $E_F$ sits $0.146\\ \\mathrm{eV}$ below $E_c$ (up $0.416\\ \\mathrm{eV}$ from mid-gap).",
+      "trap": "Computing the Fermi shift as proportional to doping and answering 'four orders of magnitude up'. The shift is logarithmic: going from $n_i = 10^{10}$ to $10^{17}$ moves $E_F$ by $0.0259\\ln(10^{7}) = 0.42\\ \\mathrm{eV}$, not by a factor. Only $60\\ \\mathrm{mV}$ is gained per decade of doping."
+    },
+    {
+      "prompt": "Germanium at 300 K has $E_g = 0.67\\ \\mathrm{eV}$ and $n_i = 2.4\\times10^{13}\\ \\mathrm{cm^{-3}}$. Estimate $n_i$ at $400\\ \\mathrm{K}$ using $\\sqrt{N_cN_v}$ proportional to $T^{3/2}$, and comment on the result for device operation.",
+      "give": ["$E_g = 0.67\\ \\mathrm{eV}$", "$n_i(300) = 2.4\\times10^{13}\\ \\mathrm{cm^{-3}}$", "$k = 8.617\\times10^{-5}\\ \\mathrm{eV/K}$"],
+      "steps": [
+        "n_i ∝ T^(3/2) exp(-E_g/2kT)",
+        "Pre-factor ratio: (400/300)^(3/2) = 1.5396",
+        "Exponent at 300 K: -0.67/(2 x 0.02585) = -12.96; at 400 K: -0.67/(2 x 0.03447) = -9.718",
+        "Exponential ratio = exp(-9.718 + 12.96) = exp(3.242) = 25.6",
+        "n_i(400) = 2.4e13 x 1.5396 x 25.6 = 9.46e14 cm^-3"
+      ],
+      "ans": "$n_i(400\\ \\mathrm{K}) \\approx 9.5\\times10^{14}\\ \\mathrm{cm^{-3}}$ — a 39-fold increase over 300 K.",
+      "trap": "Scaling $n_i$ linearly with $T$ and answering $3.2\\times10^{13}\\ \\mathrm{cm^{-3}}$. The exponential dominates completely: a 100 K rise multiplies $n_i$ by about 39 in germanium (and about 350 in silicon), which is why leakage current and thermal runaway are the limiting issues in device design."
+    }
+  ],
+  "traps": [
+    "**Reporting $f(E)$ as a percentage of *all* states without stating the energy.** The Fermi function is a probability per state at a given energy, not a fraction of the electron population. Only about $10^{-9}$ of the states near the Fermi level are involved in conduction in a metal — quoting '50% of the electrons are at $E_F$' is wrong twice over.",
+    "**Treating the Fermi level as temperature-independent in a semiconductor.** In a metal the Sommerfeld shift is negligible, but in a doped semiconductor $E_F$ moves by hundreds of millielectronvolts between freeze-out, saturation and intrinsic ranges. Pinning $E_F$ at mid-gap for an n-type sample in the saturation range is off by 0.42 eV in silicon at $10^{17}\\ \\mathrm{cm^{-3}}$.",
+    "**Using the free-electron mass when the question supplies an effective mass.** $m^*$ enters the density of states; substituting the bare electron mass for $m^* = 0.26\\,m_0$ changes $N_c$ by $(1/0.26)^{3/2} = 7.5$ times and shifts the computed Fermi position by about $130\\ \\mathrm{meV}$ at 300 K.",
+    "**Forgetting that metals have a partly filled band, not a gap.** A 'Fermi level inside a band' is the defining feature of a conductor; a Fermi level inside the *gap* defines a semiconductor or insulator. Reading a mid-gap Fermi level as metallic because 'there are states at $E_F$' inverts the classification.",
+    "**Mixing $kT$ in eV with $E_F$ in joules.** $E_F = 7.0\\ \\mathrm{eV} = 1.12\\times10^{-18}\\ \\mathrm{J}$, and $kT = 4.14\\times10^{-21}\\ \\mathrm{J} = 0.0259\\ \\mathrm{eV}$. Dividing a joule-valued $E_F$ by an eV-valued $kT$ throws the ratio off by $10^{19}$, turning a computed occupancy into either 0 or 1.",
+    "**Assuming $np = n_i^2$ survives heavy doping or a changed temperature.** The mass-action law holds only at fixed temperature and only in non-degenerate material. In degenerate material the Boltzmann tail is invalid and $np < n_i^2$; at a higher temperature $n_i$ itself has grown, so the old product is stale.",
+    "**Calling the Fermi energy an energy an electron 'has'.** It is a chemical potential, not a particle energy. Saying 'electrons at the Fermi level have $7\\ \\mathrm{eV}$ of kinetic energy' confuses the reference level with the energy of a specific carrier (whose total energy is measured from the band bottom)."
+  ],
+  "refs": [
+    "[[07_Energy_Bands_and_Classification]]",
+    "[[09_Dielectric_Properties_and_Breakdown]]",
+    "[[10_Magnetic_Properties_and_Hysteresis]]"
+  ],
+  "prereqs": ["[[07_Energy_Bands_and_Classification]]"]
+}

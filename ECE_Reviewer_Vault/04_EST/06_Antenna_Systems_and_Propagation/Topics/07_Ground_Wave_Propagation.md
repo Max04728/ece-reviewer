@@ -1,0 +1,177 @@
+---
+id: EST-06-07
+title: "Ground Wave Propagation"
+part: "04_EST"
+area: "06_Antenna_Systems_and_Propagation"
+topic: 7
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[04_Marconi,_Folded_Dipole,_Yagi-Uda]]", "[[01_Antenna_Parameters_Directivity,_Gain,_EIRP]]"]
+tags: ["ece", "est", "antenna_systems_and_propagation"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 07 — Ground Wave Propagation
+
+> [!abstract] Scope
+> Compute ground-wave field strength and range over real earth, and explain how frequency, ground conductivity and atmospheric conditions set the attenuation factor A.
+
+## Core Concept
+
+> [!tip] Intuition
+> The ground wave is the radio signal that hugs the earth. Because the earth is a lossy conductor, the wavefront tilts forward as it travels and drags along the surface, so it decays faster than the free-space $1/d$ law — and the better the ground conducts, the less it drags. Over sea water at medium frequencies it can reach hundreds of kilometres; over dry sand it dies within tens.
+
+**What the ground wave is, and the price of following the curve of the earth.** The ground wave travels along the earth's surface, tightly bound to it, and it is the only one of the three propagation modes that follows the curvature of the earth rather than escaping into space. Compare it with its two siblings: the **space wave** is the direct plus ground-reflected ray, limited by the radio horizon and therefore roughly line-of-sight, and the **sky wave** is the ray refracted back down by the ionosphere, which is the only mode that gives genuine long-haul HF communication. The ground wave has no horizon limit in the same brutal sense, but it pays for that with loss. It is **vertically polarized** by necessity: a horizontally polarized wave would have its electric field tangential to a conducting earth and would be short-circuited, so the surface wave exists in practice only for vertical polarization. That single fact fixes the design of every AM broadcast mast.
+
+**Two loss mechanisms, and why both are worse at high frequency.** (a) **Diffraction** around the curvature of the earth, which is significant once the path exceeds the radio horizon. (b) **Induction and ohmic loss** in the ground itself. The conducting earth forces the wavefront to tilt forward, so the field acquires a component in the direction of travel; that tilt both redistributes energy into the ground and means the field falls off faster than $1/d$. Both mechanisms scale badly with frequency: the higher the frequency, the higher the induced ground currents and the greater the tilt, so the attenuation factor $A$ shrinks. This is why the ground wave is a low-frequency phenomenon, dominating at **MF and LF and the low end of HF, roughly below $2$ to $3\ \mathrm{MHz}$**. That is precisely the AM broadcast band, and it is not a coincidence — the band was chosen where the ground wave works.
+
+**Ground conductivity is the dominant design variable.** The attenuation depends on frequency $f$, ground conductivity $\sigma$ and permittivity $\varepsilon$. The conductivity spread across real terrain is enormous: sea water is $4$ to $5\ \mathrm{S/m}$, good agricultural soil about $10^{-2}\ \mathrm{S/m}$, and dry sand or rock $10^{-3}$ to $10^{-4}\ \mathrm{S/m}$ — a range of four orders of magnitude. Since the loss falls as conductivity rises, a coastal station can deliver *several times* the field at a given distance over sea water that it manages over dry sand, which is why broadcast coverage maps have the coastline drawn on them and why a station's service area looks nothing like a circle. The practical rule for exam work: the field falls as $1/d$ in free space, but near the ground it decays faster, approaching $1/d^2$ over poor ground at the frequencies where loss is heavy.
+
+**The field equations, and the one that has the $\sqrt{P}$ in it.** The free-space field at distance $d$ from a radiating system is $E = \sqrt{30\,\mathrm{EIRP}}/d$ with $\mathrm{EIRP} = P_t D$. In the mixed units broadcast engineers use this takes the form:
+$$E(\mathrm{mV/m}) = 173\sqrt{\mathrm{EIRP}(\mathrm{kW})}/d(\mathrm{km})$$
+It works because $\sqrt{30\times10^{3}}/10^{3} = 173$ — and **that $173$ is the isotropic constant, so it must be fed EIRP, never the transmitter power**. A quarter-wave monopole over a perfect ground has $D = 3.28$, so its practical form is $314\sqrt{P_t(\mathrm{kW})}/d(\mathrm{km})$, where $314 = 173\sqrt{3.28}$; feeding bare transmitter power to the $173$ understates a monopole's field by $\sqrt{3.28} = 1.81$, a $5.15\ \mathrm{dB}$ error. The real earth multiplies the correct free-space value by an attenuation factor $A$ from the Sommerfeld-Norton solution, $E = E_0 A$, with $A$ between roughly $0.1$ and $1$ and decreasing with distance, frequency and worsening conductivity. Note what the $\sqrt{P}$ does: **field strength scales as the square root of radiated power**, so to double the field at a fixed distance you must quadruple the power, which is $+6\ \mathrm{dB}$ for a factor of two in field. Equivalently, since $E \propto \sqrt{P}/d$, doubling the power extends the range by only $\sqrt{2} = 1.41$, and quadrupling it doubles the range. Range increases painfully slowly with transmitter power — the reason AM stations chase conductivity and antenna height instead.
+
+**When the ground wave fails, and how the other modes take over.** At night the $D$ layer of the ionosphere fades, so sky-wave absorption drops and distant AM stations arrive by reflection from the $E$ and $F$ layers — this is the classic nighttime interference problem, and it is an *ionospheric* effect, not a ground-wave one, so follow it to `[[09_Sky_Wave_and_Ionospheric_Layers]]` and `[[10_Critical_Frequency,_MUF_and_Skip_Distance]]`. Above roughly $3\ \mathrm{MHz}$ the ground-wave loss becomes so severe that the mode is useless beyond a few tens of kilometres and the space wave or sky wave takes over; this is why FM broadcast and television rely on the space wave and a clear radio horizon rather than on ground-wave coverage. Finally, the attenuation factor $A$ is a *field* ratio, not a power ratio. Confusing the two, or applying $A$ to a quantity that is already a power, is the arithmetic error that ruins otherwise correct ground-wave calculations.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Free-space field from an isotropic radiator | $E_0 = \frac{\sqrt{30 P_t}}{d}$ | P_t in W, d in m, E in V/m. Isotropic means D = 1; multiply by sqrt(D) for a directive antenna. |
+| Free-space field from power and directivity | $E_0 = \frac{\sqrt{30 P_t D}}{d} = \frac{\sqrt{30\,\mathrm{EIRP}}}{d}$ | The general form. EIRP = P_t D replaces P_t when the antenna has gain. |
+| Free-space field, practical broadcast form | $E_0(\mathrm{mV/m}) = \frac{173\sqrt{\mathrm{EIRP}(\mathrm{kW})}}{d(\mathrm{km})}$ | 173 = sqrt(30e3)/1e3 is the ISOTROPIC constant: feed it EIRP, never bare transmitter power. 1 kW of EIRP gives 173 mV/m at 1 km. |
+| Free-space field, practical form for a monopole | $E_0(\mathrm{mV/m}) = \frac{314\sqrt{P_t(\mathrm{kW})}}{d(\mathrm{km})}, \qquad 314 \approx 173\sqrt{3.28}$ | Only for a quarter-wave monopole over a PERFECT ground (D = 3.28). Half-wave dipole in free space: 222. Using 173 with transmitter power understates a monopole field by 5.15 dB. |
+| Field with ground-wave attenuation | $E = E_0 A$ | A is a FIELD ratio, typically 0.1-1, from the Sommerfeld-Norton solution. Never apply A to a power. |
+| Typical attenuation factor A | $A \approx 0.5-0.75\ (\mathrm{sea}), \qquad A \approx 0.3\ (\mathrm{dry\ sand})$ | Decreases with distance and frequency; increases with conductivity. Values are indicative only. |
+| Ground conductivity values | $\sigma_\mathrm{sea} \approx 4-5\ \mathrm{S/m},\ \ \sigma_\mathrm{soil} \approx 10^{-2},\ \ \sigma_\mathrm{dry\ sand} \approx 10^{-3}-10^{-4}\ \mathrm{S/m}$ | Four orders of magnitude of spread. Loss falls as conductivity rises, so sea water gives many times the range of dry sand. |
+| EIRP of a monopole | $\mathrm{EIRP} = P_t D = 3.28\,P_t$ | For a quarter-wave monopole over a perfect ground. A 50 kW station gives EIRP = 164 kW = 52.1 dBkW. |
+| Field-to-power-density conversion | $S = \frac{E^2}{\eta_0}, \quad \eta_0 = 377\ \Omega$ | E in V/m gives S in W/m^2. 1 V/m is 1e3 mV/m; 1 mW/m^2 is 1e3 microwatt/m^2. |
+| Field and range scaling with power | $E \propto \sqrt{P_t}, \qquad d_\mathrm{range} \propto \sqrt{P_t}\ (\mathrm{fixed}\ E)$ | Doubling field needs 4x power (+6 dB). Doubling range needs 4x power as well, at fixed attenuation. |
+| Wavelength from frequency | $\lambda = \frac{c}{f}$ | At 1 MHz, lambda = 300 m. The ground wave dominates below about 2-3 MHz. |
+
+## Interactive Widget
+
+**Signal Strength vs Location**
+
+![[Signal_Strength_vs_Location.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. A $50\ \mathrm{kW}$ AM broadcast station uses a quarter-wave monopole ($D = 3.28$) over a perfect ground at $1\ \mathrm{MHz}$. Find the free-space field at $50\ \mathrm{km}$ and the actual field if the ground-wave attenuation factor there is $A = 0.5$.
+
+**Given:** P_t = 50 kW; D = 3.28 (quarter-wave monopole); d = 50 km; A = 0.5
+
+**Solution:**
+
+1. Convert to EIRP first: $\mathrm{EIRP} = P_t D = 50(3.28) = 164\ \mathrm{kW}$ — the $173$ constant is isotropic, so it needs EIRP and not transmitter power
+2. Free-space field: $E_0 = 173\sqrt{164}/50 = 173(12.806)/50$
+3. $E_0 = 2215.5/50 = 44.3\ \mathrm{mV/m}$
+4. Cross-check in SI: $E_0 = \sqrt{30(164{,}000)}/50{,}000 = \sqrt{4.92\times10^{6}}/50{,}000 = 44.4\ \mathrm{mV/m}$ ✓
+5. Apply the ground attenuation (a field ratio): $E = E_0 A = 44.3(0.5)$
+6. $E = 22.2\ \mathrm{mV/m}$
+
+> [!success]- Answer
+> **$E_0 = 44.3\ \mathrm{mV/m}$ free space; $E = 22.2\ \mathrm{mV/m}$ after attenuation.**
+
+> [!warning] Trap
+> Feeding the bare transmitter power into $E_0 = 173\sqrt{P_t}/d$ and getting $24.5\ \mathrm{mV/m}$. The $173$ is the isotropic constant and takes EIRP; a monopole's $D = 3.28$ raises the field by $\sqrt{3.28} = 1.81$, and omitting it costs $5.15\ \mathrm{dB}$. The companion error is applying $A^2$ instead of $A$: $A$ is a *field* ratio, so it multiplies $E$ once.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `50×3.28` → EIRP = **164** kW. The 173 constant is isotropic, so it must never see the bare 50 kW.
+> 2. `173×√(Ans)÷50` → $E_0$ = **44.31** mV/m.
+> 3. `Ans×0.5` → $E$ = **22.15** mV/m: $A$ is a field ratio, applied once, never squared.
+
+### P2. A station with an EIRP of $10\ \mathrm{kW}$ delivers $5.47\ \mathrm{mV/m}$ at $50\ \mathrm{km}$ with $A = 0.5$. What EIRP is needed to double that field at the same distance, and what EIRP is needed to hold the same field out to $100\ \mathrm{km}$?
+
+**Given:** EIRP_1 = 10 kW; E at 50 km = 5.47 mV/m with A = 0.5; A = 0.5 throughout
+
+**Solution:**
+
+1. Field scales as the square root of EIRP: $E = 173\sqrt{\mathrm{EIRP}}\,A/d$
+2. To double the field: $E_2/E_1 = \sqrt{\mathrm{EIRP}_2/\mathrm{EIRP}_1} = 2$, so the EIRP ratio is $4$
+3. $\mathrm{EIRP}_2 = 4(10) = 40\ \mathrm{kW}$, which is $+6\ \mathrm{dB}$ over $10\ \mathrm{kW}$
+4. Check: $E = 173\sqrt{40}(0.5)/50 = 173(6.325)(0.5)/50 = 10.94\ \mathrm{mV/m} = 2(5.47)$ ✓
+5. For the same field at $100\ \mathrm{km}$: $E \propto \sqrt{\mathrm{EIRP}}/d$ so $\mathrm{EIRP} \propto d^{2}$, another factor of $4$: $\mathrm{EIRP} = 160\ \mathrm{kW}$
+
+> [!success]- Answer
+> **$40\ \mathrm{kW}$ of EIRP to double the field at $50\ \mathrm{km}$; a further $4\times$ (to $160\ \mathrm{kW}$) to hold the same field out to $100\ \mathrm{km}$.**
+
+> [!warning] Trap
+> Doubling the power to double the field. Field goes as $\sqrt{\mathrm{EIRP}}$, so doubling the field costs $4\times$ the power (+6 dB), and doubling the *range* at constant field also costs $4\times$. Engineers used to $6\ \mathrm{dB}$ per doubling of power in a link budget often double-count this.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `2²` → the field ratio 2 needs EIRP × **4**, i.e. `10×4` = **40** kW, which is `20log(4)` = **6.02** dB.
+> 2. `173×√40×0.5÷50` → $E$ = **10.94** mV/m = 2 × 5.47, confirming $E \propto \sqrt{\mathrm{EIRP}}$.
+> 3. `40×4` → **160** kW to hold the same field out to 100 km, since EIRP itself goes as $d^2$.
+
+### P3. A transmitter with an EIRP of $10\ \mathrm{kW}$ at $1\ \mathrm{MHz}$ is received at $100\ \mathrm{km}$. Compare the field over sea water ($A = 0.75$) and over dry sand ($A = 0.30$), starting from the free-space value.
+
+**Given:** EIRP = 10 kW; d = 100 km; f = 1 MHz; A_sea = 0.75, A_sand = 0.30
+
+**Solution:**
+
+1. Free-space field: $E_0 = 173\sqrt{10}/100 = 173(3.162)/100$
+2. $E_0 = 547.1/100 = 5.47\ \mathrm{mV/m}$
+3. Sea water: $E = 5.47(0.75) = 4.10\ \mathrm{mV/m}$
+4. Dry sand: $E = 5.47(0.30) = 1.64\ \mathrm{mV/m}$
+5. Ratio: $0.75/0.30 = 2.5$, so the sea-water path delivers $2.5\times$ the field, which is $20\log_{10}(2.5) = 7.96\ \mathrm{dB}$ better
+
+> [!success]- Answer
+> **$E_\mathrm{sea} = 4.10\ \mathrm{mV/m}$ vs $E_\mathrm{sand} = 1.64\ \mathrm{mV/m}$; a ratio of $2.5$ ($7.96\ \mathrm{dB}$) in field.**
+
+> [!warning] Trap
+> Assuming the same coverage over land and sea, or treating the conductivity difference as a small correction. Conductivity spans four orders of magnitude ($4\ \mathrm{S/m}$ sea water versus $10^{-3}$-$10^{-4}\ \mathrm{S/m}$ dry sand), and the resulting field ratio is large enough to decide whether a station is receivable at all.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `173×√10÷100` → $E_0$ = **5.471** mV/m.
+> 2. `Ans×0.75` → sea = **4.10** mV/m; `5.471×0.30` → dry sand = **1.64** mV/m.
+> 3. `20log(0.75÷0.30)` → **7.96** dB in favour of the sea path (field ratio 2.5).
+
+### P4. The same monopole station is upgraded from $50\ \mathrm{kW}$ to $200\ \mathrm{kW}$, so its EIRP rises from $164\ \mathrm{kW}$ to $656\ \mathrm{kW}$, with $A = 0.5$. Find the new field at $50\ \mathrm{km}$ and the distance at which the new field equals the old field at $50\ \mathrm{km}$.
+
+**Given:** P_old = 50 kW, P_new = 200 kW; EIRP: 164 kW -> 656 kW; A = 0.5; old field at 50 km = 22.2 mV/m
+
+**Solution:**
+
+1. EIRP ratio: $656/164 = 4$, so the field multiplier is $\sqrt{4} = 2$
+2. New free-space field at $50\ \mathrm{km}$: $E_0 = 173\sqrt{656}/50 = 173(25.61)/50 = 88.6\ \mathrm{mV/m}$
+3. With attenuation: $E = 88.6(0.5) = 44.3\ \mathrm{mV/m}$, exactly $2\times$ the old $22.2\ \mathrm{mV/m}$, confirming the $\sqrt{P}$ law
+4. Range at which the new field falls back to the old value: $E \propto \sqrt{\mathrm{EIRP}}/d$, so $d_\mathrm{new} = d_\mathrm{old}\sqrt{4} = 50(2) = 100\ \mathrm{km}$
+5. Check at $100\ \mathrm{km}$: $173\sqrt{656}(0.5)/100 = 44.3(0.5) = 22.2\ \mathrm{mV/m}$, matching the old $50\ \mathrm{km}$ figure ✓
+
+> [!success]- Answer
+> **$44.3\ \mathrm{mV/m}$ at $50\ \mathrm{km}$ (double the old field); the old $22.2\ \mathrm{mV/m}$ is now delivered out to $100\ \mathrm{km}$.**
+
+> [!warning] Trap
+> Assuming $4\times$ power gives $4\times$ range or $4\times$ field. It gives $2\times$ field and $2\times$ range — because $E \propto \sqrt{\mathrm{EIRP}}/d$ and $d \propto \sqrt{\mathrm{EIRP}}$. A $6\ \mathrm{dB}$ power increase buys only a $1.41\times$ range increase at a fixed target field.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `656÷164` → EIRP ratio **4**, so the field multiplier is `√4` = **2**.
+> 2. `173×√656÷50` → $E_0$ = **88.62** mV/m; `Ans×0.5` → **44.31** mV/m = 2 × 22.15.
+> 3. `50×√4` → the old field now reaches **100** km: $d \propto \sqrt{\mathrm{EIRP}}$.
+
+## Traps & Exam Notes
+
+- **Treating $A$ as a power ratio.** The attenuation factor is a *field* ratio, $E = E_0A$, so it is applied once to the field. Squaring it (or applying it to the power) doubles the apparent loss in dB and can halve the computed range.
+- **Thinking field scales linearly with power.** $E \propto \sqrt{P}$, so doubling the field demands $4\times$ the power (+6 dB), and doubling the range at a fixed field also demands $4\times$ the power. Coverage maps change very slowly with transmitter power.
+- **Using horizontally polarized antennas for ground wave.** The electric field of a horizontally polarized wave is tangential to the conducting earth and is effectively short-circuited, so the surface wave is a vertical-polarization mode only. Vertical masts are mandatory for AM broadcast.
+- **Extending ground-wave coverage to VHF.** The loss rises steeply with frequency, so the ground wave dominates only below about $2$-$3\ \mathrm{MHz}$. FM broadcast and television coverage comes from the space wave and the radio horizon, not from the ground wave.
+- **Blaming the ground wave for nighttime AM interference.** The night-time rise in distant AM reception is reduced $D$-layer absorption of *sky* waves, an ionospheric effect. The ground-wave field itself does not improve at night.
+- **Assuming a circular coverage area.** Attenuation depends on ground conductivity, which spans four orders of magnitude between sea water ($4$-$5\ \mathrm{S/m}$) and dry sand ($10^{-3}$-$10^{-4}\ \mathrm{S/m}$). Real service areas follow the coastline and the soil, not a circle.
+- **Feeding transmitter power to the $173$ constant.** $173$ is the *isotropic* constant: it is $\sqrt{30\times10^{3}}/10^{3}$, so it must be given **EIRP**, not $P_t$. A quarter-wave monopole over a perfect ground has $D = 3.28$ and its constant is $314 = 173\sqrt{3.28}$; using $173$ with bare $P_t$ understates the field by $5.15\ \mathrm{dB}$. Always form $\mathrm{EIRP} = P_t D$ first.
+- **Mixing the units baked into $E = 173\sqrt{\mathrm{EIRP}(\mathrm{kW})}/d(\mathrm{km})$.** The constant assumes kW in, km in and mV/m out. Substituting watts and metres gives an answer wrong by a factor of $1000/\sqrt{1000} = 31.6$.
+- **Forgetting that a $1/d$ decay is optimistic near the ground.** Free-space spreading is $1/d$, but the tilted wavefront and induced ground currents make the decay faster — roughly $1/d^2$ over poor ground at higher frequencies. Extrapolating the free-space law overestimates range badly.
+
+## See Also
+
+- [[08_Space_Wave_and_Radio_Horizon]]
+- [[09_Sky_Wave_and_Ionospheric_Layers]]
+- [[04_Marconi,_Folded_Dipole,_Yagi-Uda]]
+- [[06_FSPL_and_Friis_Transmission_Equation]]
+
+---
+
+[[06_FSPL_and_Friis_Transmission_Equation|⬅ 06]] · [[_MOC_Antenna_Systems_and_Propagation|MOC]] · [[00_Dashboard|Dashboard]] · [[08_Space_Wave_and_Radio_Horizon|08 ➡]]

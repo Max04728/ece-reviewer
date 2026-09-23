@@ -1,0 +1,190 @@
+---
+id: EST-01-01
+title: "Time vs Frequency and Line Spectra"
+part: "04_EST"
+area: "01_Signals_Spectra_and_Noise"
+topic: 1
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[11_Fourier_Series_Trigonometric_and_Exponential]]"]
+tags: ["ece", "est", "signals_spectra_and_noise"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 01 — Time vs Frequency and Line Spectra
+
+> [!abstract] Scope
+> Move between a periodic waveform and its discrete line spectrum, and read harmonic spacing, amplitude and the spectral envelope straight off the plot.
+
+## Core Concept
+
+> [!tip] Intuition
+> A periodic signal is a sum of sinusoids whose frequencies are whole-number multiples of one fundamental. The line spectrum is simply that shopping list drawn as spikes: one vertical line per harmonic, whose height is that harmonic's amplitude and whose position is n f0.
+
+**Two complete descriptions of one signal.** The time-domain view v(t) is what an oscilloscope shows; the frequency-domain view is what a spectrum analyzer shows. For a *periodic* signal the spectrum is **discrete** — isolated lines called a line spectrum. The lines sit at $f = 0, f_0, 2f_0, 3f_0,\dots$ where $f_0 = 1/T$ is the fundamental, so the **line spacing equals the reciprocal of the period**. A spectrum analyzer with a narrow resolution bandwidth that resolves individual lines is showing exactly this picture; the analyzer's sweep is the hardware version of computing Fourier coefficients.
+
+**Amplitude bookkeeping: one-sided versus two-sided.** The trigonometric series uses one-sided amplitudes $A_n$ at positive frequencies only. The exponential series uses two-sided coefficients $c_n$ at $\pm n f_0$, and $c_{-n} = c_n^{*}$. The bridge is $A_n = 2|c_n|$ for $n\ge 1$, while the DC term is $c_0 = a_0$ with **no factor of 2**. Textbook line spectra are usually drawn one-sided (all lines above the axis, height $A_n$); the two-sided version is symmetric and each line is half as tall. Mixing the two conventions is the single largest source of wrong answers here.
+
+**The rectangular pulse train is the exam workhorse.** For a pulse train of amplitude $A$, pulse width $\tau$ and period $T$, with duty cycle $d = \tau/T$, the coefficients are $c_n = A d\,\mathrm{sinc}(n d)$ where $\mathrm{sinc}(x) = \sin(\pi x)/(\pi x)$. Two facts fall straight out of that expression. First, the **DC value is $Ad$** (the average of the waveform). Second, the envelope has nulls wherever $nd$ is a nonzero integer, i.e. at $f = n/T = 1/\tau, 2/\tau,\dots$ — the null positions depend only on the **pulse width**, while the line positions depend only on the **period**. That separation is why narrow pulses give a broad spectrum: shrinking $\tau$ pushes the first null $1/\tau$ outward while the lines stay put.
+
+**Power, not amplitude, adds.** Parseval's theorem says the average power of the signal is the sum of the powers in its lines:
+$$P = c_0^{2} + 2\sum_{n\ge1}|c_n|^{2} = a_0^{2} + \tfrac{1}{2}\sum_{n\ge1}A_n^{2}$$
+A spectrum plot is an amplitude plot, so to get power you must **square each line height and halve the AC terms**. Reading the RMS value of a harmonic directly off a line-spectrum plot is a classic mistake.
+
+**When the line spectrum does not apply.** A line spectrum exists only for signals that repeat forever. A single pulse, a transient, or a random process has a *continuous* spectrum, described by a spectral density (V/Hz or W/Hz) rather than by discrete lines — see [[02_Power_Spectral_Density]]. A common exam distractor gives a non-periodic waveform and asks for 'the fundamental frequency'; there is none. Also note that shifting the waveform in time changes the *phases* of the coefficients but never their magnitudes, so amplitude spectra are shift-invariant while phase spectra are not.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Fundamental and line spacing | $f_0 = \frac{1}{T}$ | T is the period in seconds. Lines occur only at integer multiples of f0; a periodic signal has no energy between lines. |
+| Trigonometric Fourier series | $v(t) = a_0 + \sum_{n=1}^{\infty} A_n \cos(2\pi n f_0 t + \theta_n)$ | One-sided form. a0 is the DC average; An is the one-sided amplitude of the nth harmonic. |
+| Exponential Fourier series | $v(t) = \sum_{n=-\infty}^{\infty} c_n e^{j 2\pi n f_0 t}$ | Two-sided form. Includes negative frequencies; c(-n) is the conjugate of c(n) for a real signal. |
+| Fourier coefficient | $c_n = \frac{1}{T}\int_{T} v(t)\, e^{-j 2\pi n f_0 t}\, dt$ | Integrate over any one full period. c0 is the DC average of v(t). |
+| One-sided amplitude from two-sided coefficient | $A_n = 2\lvert c_n \rvert \quad (n \ge 1), \qquad \mathrm{DC} = c_0$ | The factor 2 applies to AC harmonics only. Applying it to c0 doubles the DC level. |
+| Rectangular pulse train coefficients | $c_n = A\, d\; \mathrm{sinc}(n d), \qquad \mathrm{sinc}(x) = \frac{\sin(\pi x)}{\pi x}$ | A = pulse height, d = duty cycle = tau/T. sinc(0) = 1, so c0 = A d. |
+| Envelope nulls (zero crossings) | $f = \frac{1}{\tau}, \frac{2}{\tau}, \frac{3}{\tau}, \dots$ | Set only by pulse width tau. Harmonics falling exactly on a null are absent regardless of A and T. |
+| Parity of a 50 percent square wave | $\mathrm{only\ odd\ harmonics;\ no\ DC\ term}$ | True only for d = 0.5. Any other duty cycle produces DC and even harmonics. |
+| Parseval average power | $P = c_0^{2} + 2\sum_{n=1}^{\infty} \lvert c_n \rvert^{2} = a_0^{2} + \frac{1}{2}\sum_{n=1}^{\infty} A_n^{2}$ | Gives average power in W for a voltage waveform across 1 ohm. A spectrum plot shows amplitude, so square before summing. |
+| Time scaling of a pulse train | $T \uparrow \Rightarrow f_0 \downarrow \mathrm{\ and\ lines\ pack\ closer;\ } \tau \uparrow \Rightarrow \mathrm{nulls\ move\ inward}$ | Changing T never moves the nulls; changing tau never moves the line positions. |
+
+## Worked Problems
+
+### P1. A rectangular pulse train has amplitude $A = 10\ \mathrm{V}$, pulse width $\tau = 1\ \mathrm{ms}$ and period $T = 5\ \mathrm{ms}$. Find the duty cycle, the DC level, the fundamental frequency, the frequency of the first spectral null, and the one-sided amplitude of the fundamental.
+
+**Given:** A = 10 V; tau = 1 ms; T = 5 ms
+
+**Solution:**
+
+1. d = tau/T = 1 ms / 5 ms = 0.2
+2. f0 = 1/T = 1/(5e-3) = 200 Hz, so lines sit at 200, 400, 600 Hz, ...
+3. DC = A d = (10)(0.2) = 2 V
+4. First null when n d = 1, i.e. n = 1/d = 5, so f = 5(200) = 1000 Hz = 1/tau
+5. |c1| = A d sinc(0.2) = (2)(sin(0.2 pi)/(0.2 pi)) = (2)(0.58779/0.62832) = 1.871 V
+6. One-sided fundamental amplitude A1 = 2|c1| = 3.742 V
+
+> [!success]- Answer
+> **d = 0.2; DC = 2 V; f0 = 200 Hz; first null at 1 kHz; fundamental amplitude = 3.74 V (peak).**
+
+> [!warning] Trap
+> Reporting A1 = 1.87 V by forgetting the one-sided factor of 2, or reporting the 5th harmonic as 'missing' when the null is at n = 1/d = 5 exactly — the 5th harmonic is genuinely zero, not merely small.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1E-3÷5E-3` → **0.2** = $d$; store it with `SHIFT` `STO` `A` (recall with `ALPHA` `A`).
+> 2. `10×A : 1÷5E-3 : 1÷1E-3` → DC = **2.0** V → $f_0$ = **200** Hz → first null = **1000** Hz.
+> 3. `2×10×A×sin(πA)÷(πA)` → $A_1$ = **3.742** V one-sided (the half-height $\lvert c_1\rvert$ = 1.871 V).
+>
+> There is no sinc key, so key sinc as `sin(πA)÷(πA)`, angle unit Rad; keep the leading 2 or you land on the 1.871 V trap.
+
+### P2. A line spectrum shows spectral lines spaced $2\ \mathrm{kHz}$ apart, and the envelope reaches its first null at $20\ \mathrm{kHz}$. Find the period, the pulse width and the duty cycle.
+
+**Given:** line spacing = 2 kHz; first envelope null = 20 kHz
+
+**Solution:**
+
+1. Line spacing equals f0 for a periodic signal: f0 = 2 kHz
+2. T = 1/f0 = 1/(2000) = 500 us = 0.5 ms
+3. The first null is at 1/tau: tau = 1/(20e3) = 50 us
+4. d = tau/T = 50 us / 500 us = 0.1
+
+> [!success]- Answer
+> **T = 0.5 ms, tau = 50 us, d = 0.1.**
+
+> [!warning] Trap
+> Using the null frequency as the period. Null positions come from the pulse width, line positions from the period; they are independent numbers that only coincide when d = 1.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1÷2E3` → **5E-4** s = **0.5** ms = $T$ (the line spacing *is* $f_0$); store with `SHIFT` `STO` `A`.
+> 2. `1÷20E3` → **5E-5** s = **50** µs = $\tau$ (from the null, not from the line spacing).
+> 3. `Ans÷A` → **0.1** = $d$.
+>
+> Two different reciprocals: line spacing gives $T$, the null gives $\tau$. Dividing the null by the period is the whole problem.
+
+### P3. A square wave of amplitude $\pm 5\ \mathrm{V}$ (peak-to-peak $10\ \mathrm{V}$, 50 percent duty) is applied across $1\ \Omega$. Use Parseval's theorem on the first three nonzero harmonics to estimate its average power and compare with the exact value.
+
+**Given:** A = 5 V (peak); 50 percent duty; odd harmonics only
+
+**Solution:**
+
+1. For a 50 percent square wave, An = 4A/(n pi) = 20/(n pi) for n = 1, 3, 5, ...
+2. A1 = 20/pi = 6.366 V, A3 = 20/(3 pi) = 2.122 V, A5 = 20/(5 pi) = 1.273 V
+3. Power in each: A1^2/2 = 20.26 W, A3^2/2 = 2.252 W, A5^2/2 = 0.811 W
+4. Partial sum = 20.26 + 2.252 + 0.811 = 23.33 W
+5. Exact: a square wave has RMS = peak = 5 V, so P = 5^2/1 = 25 W
+6. Remaining harmonics account for 25 - 23.33 = 1.67 W
+
+> [!success]- Answer
+> **First three harmonics give 23.3 W versus the exact 25 W; the odd-harmonic tail supplies the missing 1.7 W.**
+
+> [!warning] Trap
+> Summing the amplitudes 6.37 + 2.12 + 1.27 = 9.76 V and calling it the RMS. Amplitudes add in power (each squared and halved), and the series' slow 1/n decay is why a square wave needs many harmonics to look sharp.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `20÷π : 20÷(3π) : 20÷(5π)` → **6.366** V → **2.122** V → **1.273** V (the odd-harmonic amplitudes $4A/n\pi$).
+> 2. `0.5×((20÷π)²+(20÷(3π))²+(20÷(5π))²)` → **23.33** W in those three harmonics (each contributes $A_n^2/2$).
+> 3. `5²` → exact **25.0** W ($V_{\mathrm{rms}}$ = peak for a square wave); `25-23.33` → **1.67** W left in the odd-harmonic tail.
+>
+> Square before summing: amplitudes add 6.37 + 2.12 + 1.27 = 9.76 V, which is the trap the note warns about.
+
+### P4. For a rectangular pulse train, which harmonics are exactly absent when the duty cycle is 25 percent? What is the DC level if $A = 8\ \mathrm{V}$?
+
+**Given:** d = 0.25; A = 8 V
+
+**Solution:**
+
+1. c_n = A d sinc(n d) vanishes when n d is a nonzero integer
+2. n d = 1, 2, 3, ... gives n = 4, 8, 12, ...
+3. So every 4th harmonic (and all its multiples) is zero
+4. DC = A d = (8)(0.25) = 2 V
+
+> [!success]- Answer
+> **Harmonics n = 4, 8, 12, ... vanish; DC = 2 V.**
+
+> [!warning] Trap
+> Assuming harmonics are missing because d is 'even' or because the pulse looks square. The nulls are at integer multiples of 1/d, so a 25 percent duty kills every 4th harmonic, not the even ones.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — TABLE
+> 1. `MODE` `6` TABLE, angle unit Rad: `f(X) = sin(π×0.25X)÷(π×0.25X)`, Start 1, End 12, Step 1.
+> 2. Reading the table: $X$ = 4, 8, 12 come back as **0** (residue below 1e-14); every other line is non-zero, so harmonics 4, 8, 12 vanish.
+> 3. Back in `MODE` `1` COMP: `8×0.25` → DC = **2.0** V.
+>
+> The zeros sit only at whole multiples of $1/d$ = 4, so the table kills the 'the even harmonics are missing' answer at a glance.
+
+### P5. A pulse train has $A = 6\ \mathrm{V}$, $\tau = 100\ \mu\mathrm{s}$. Compare the line spacing, the first null and the DC level for $T = 1\ \mathrm{ms}$ and then for $T = 2\ \mathrm{ms}$.
+
+**Given:** A = 6 V; tau = 100 us; T = 1 ms then 2 ms
+
+**Solution:**
+
+1. Case T = 1 ms: f0 = 1 kHz, lines every 1 kHz, first null at 1/tau = 10 kHz, DC = A tau/T = 6(0.1) = 0.6 V
+2. Case T = 2 ms: f0 = 500 Hz, lines every 500 Hz, first null still at 1/tau = 10 kHz, DC = 6(0.05) = 0.3 V
+3. Line positions and density changed; the envelope nulls did not move at all
+
+> [!success]- Answer
+> **Doubling T halves the line spacing and halves the DC level, but the first null stays at 10 kHz.**
+
+> [!warning] Trap
+> Believing that stretching the period also stretches the envelope. Only the pulse width sets the nulls; changing T changes how densely the lines sample a fixed envelope.
+
+## Traps & Exam Notes
+
+- **Dropping the factor 2 on one-sided amplitudes.** $A_n = 2|c_n|$ for $n\ge1$ but DC $= c_0$. A spectrum drawn with $|c_n|$ at every line and then labelled as a one-sided spectrum is off by 6 dB on every AC harmonic and correct at DC.
+- **Confusing line spacing with null spacing.** Lines sit at multiples of $1/T$; envelope nulls sit at multiples of $1/\tau$. An exam that changes the period while holding the pulse width fixed moves the lines and leaves the nulls untouched.
+- **Treating a line spectrum as a power plot.** Height on a line-spectrum plot is amplitude (V, or A). Power in the nth harmonic is $A_n^{2}/2$ (or $|c_n|^{2}$ for the two-sided line), so reading heights as power overstates by the square and by the one-sided factor.
+- **Assuming every pulse train has only odd harmonics.** 'Odd harmonics only, no DC' is true *only* at exactly 50 percent duty. Any other duty cycle produces a DC term and all harmonics, with periodic nulls where $nd$ is an integer. A nonzero DC line on a spectrum is proof that $d \neq 0.5$.
+- **Applying Fourier series to a non-periodic signal.** A single pulse or a random waveform has no fundamental and no lines; its spectrum is continuous and is described as a density, not as line heights.
+- **Thinking a phase reversal changes the spectrum.** Inverting $v(t)$ or delaying it by half a period flips signs of phases (and can cancel particular harmonics) but leaves $|c_n|$ unchanged; the amplitude spectrum is insensitive to a pure time shift.
+
+## See Also
+
+- [[02_Power_Spectral_Density]]
+- [[11_Fourier_Series_Trigonometric_and_Exponential]]
+- [[13_Fourier_Transform_Properties]]
+- [[11_DFT_and_FFT]]
+
+---
+
+⬅ *start* · [[_MOC_Signals_Spectra_and_Noise|MOC]] · [[00_Dashboard|Dashboard]] · [[02_Power_Spectral_Density|02 ➡]]

@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal Strength vs Location — Free Space, Two-Ray Ground Reflection and the Crossover</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, clamp } from '../../../Assets/vault.js';
+
+// Two propagation models, one picture. Free space is a straight 20 dB/decade line on a
+// log-distance plot. Add the ground reflection and the received field is the PHASOR SUM of a
+// direct and a reflected ray, so it starts at the free-space value, oscillates through
+// interference nulls, and beyond the breakpoint  d_c = 4 h_t h_r / lambda  settles onto a
+// 40 dB/decade slope - the fourth-power law. The nulls are not a curiosity: they are why a
+// 2 m handheld fades when it moves 30 cm, and why raising the antenna helps so much.
+
+const LOG10 = Math.log(10);
+
+widget({
+  title: 'Signal Strength vs Location — FSPL, Two-Ray Ground Reflection and Fade Nulls',
+  description:
+    'Left: received power against distance for free space and for the two-ray ground-reflection model, with the crossover distance marked. Right: the coverage map - received power over a distance-by-height grid at the receiver height you choose. The vertical stripes on that map are multipath nulls: places where the direct and reflected rays cancel.',
+  height: 620,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'pt', label: 'transmitter power P_t (dBm)', min: 0, max: 50, step: 1, value: 30 },
+    { id: 'gt', label: 'transmitter antenna gain G_t (dBi)', min: 0, max: 20, step: 0.5, value: 6 },
+    { id: 'gr', label: 'receiver antenna gain G_r (dBi)', min: 0, max: 20, step: 0.5, value: 0 },
+    { id: 'f', label: 'frequency f (MHz)', min: 100, max: 6000, step: 10, value: 900 },
+    { id: 'ht', label: 'transmitter height h_t (m)', min: 2, max: 120, step: 1, value: 30 },
+    { id: 'hr', label: 'receiver height h_r (m)', min: 0.5, max: 30, step: 0.5, value: 2 },
+    { id: 'dmark', label: 'marker distance d (m)', min: 1, max: 20000, step: 1, value: 1000 },
+    { id: 'dmax', label: 'plot range (m)', min: 100, max: 50000, step: 100, value: 20000 },
+    { id: 'model', label: 'model', type: 'select', value: 'both',
+      options: [
+        { value: 'both', label: 'both: FSPL and two-ray' },
+        { value: 'fspl', label: 'free space only' },
+        { value: 'two', label: 'two-ray only' },
+      ] },
+    { id: 'map', label: 'show the coverage map', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const lam = 299.792458 / v.f;            // metres
+    const ht = v.ht, hr = v.hr, dmax = v.dmax;
+    const lamDb = 20 * Math.log10(lam);
+
+    // path loss, dB.  FSPL = 20log10(4 pi d / lambda)
+    const fspl = (d) => 20 * Math.log10((4 * Math.PI * Math.max(d, 1e-3)) / lam);
+    // Two-ray with a perfectly reflecting ground (Gamma = -1):
+    //   |E/E0|^2 = [2 sin(2 pi h_t h_r / (lambda d))]^2   for d >> h_t, h_r
+    // The exact geometric path difference is used, so the model is also right at short range.
+    const dRefl = (d) => Math.sqrt(d * d + (ht + hr) * (ht + hr));
+    const dDir = (d) => Math.sqrt(d * d + (ht - hr) * (ht - hr));
+    const phi = (d) => (2 * Math.PI * (dRefl(d) - dDir(d))) / lam;
+    const twoRayFactor = (d) => {
+      const p = phi(d);
+      // 4 sin^2(phi/2) = 2 - 2cos(phi) - the phasor sum of two unit rays
+      return Math.max(2 - 2 * Math.cos(p), 1e-9);
+    };
+    const twoRayLoss = (d) => fspl(d) - 10 * Math.log10(twoRayFactor(d));
+
+    const eirpDbm = v.pt + v.gt;
+    const pRxFspl = (d) => eirpDbm + v.gr - fspl(d);
+    const pRxTwo = (d) => eirpDbm + v.gr - twoRayLoss(d);
+
+    const dc = (4 * ht * hr) / lam;                      // breakpoint distance
+    const dMark = v.dmark;
+    const prMark = pRxTwo(dMark);
+    const prMarkFspl = pRxFspl(dMark);
+    const fsplMark = fspl(dMark);
+    const twoMark = twoRayLoss(dMark);
+    const excess = fsplMark - twoMark;                   // positive = ground reflection costs extra dB
+
+    // slope check: measured dB per decade of the two-ray curve well past the breakpoint
+    const dA = Math.max(dc * 4, dmax * 0.35);
+    const dB2 = Math.min(dmax, dA * 1.6);
+    const slope = (pRxTwo(dB2) - pRxTwo(dA)) / (Math.log10(dB2) - Math.log10(dA));
+
+    // extra path loss of the two-ray model over free space at the breakpoint
+    const twoAtDc = twoRayLoss(dc);
+
+    // coverage grid: distance x height, so the vertical fringes are visible
+    const nx = 72, ny = 26;
+    const grid = [];
+    for (let j = 0; j < ny; j++) {
+      const hh = 0.4 + (j / (ny - 1)) * (2 * Math.max(hr, 3) - 0.4);
+      const row = new Float64Array(nx);
+      for (let i = 0; i < nx; i++) {
+        const d = Math.pow(10, Math.log10(2) + (i / (nx - 1)) * (Math.log10(dmax) - Math.log10(2)));
+        // The path difference depends on THIS row's receiver height, so it is recomputed
+        // for every grid point rather than once per distance.
+        const pr = Math.sqrt(d * d + (ht + hh) * (ht + hh));
+        const dr = Math.sqrt(d * d + (ht - hh) * (ht - hh));
+        const phh = (2 * Math.PI * (pr - dr)) / lam;
+        const f2 = Math.max(2 - 2 * Math.cos(phh), 1e-9);
+        row[i] = eirpDbm + v.gr - (fspl(d) - 10 * Math.log10(f2));
+      }
+      grid.push({ h: hh, p: row });
+    }
+    let pmin = Infinity, pmax = -Infinity;
+    for (const g of grid) for (const p of g.p) { if (p < pmin) pmin = p; if (p > pmax) pmax = p; }
+
+    return {
+      lam, lamDb, ht, hr, dmax, dc, dMark, prMark, prMarkFspl, fsplMark, twoMark, excess,
+      slope, twoAtDc, grid, pmin, pmax, nx, ny, eirpDbm,
+      fspl, twoRayLoss, pRxFspl, pRxTwo, phi, twoRayFactor,
+      valid: true,
+      breakpointInRange: dc <= dmax,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    const useMap = v.map;
+    const L = 74, T = 74, B = H - 96;
+    const Rr = useMap ? Math.round(W * 0.52) : W - 40;
+    const xlo = Math.log10(2), xhi = Math.log10(out.dmax);
+    const yTop = 0, yBot = -150;
+    const X = (d) => L + ((Math.log10(Math.max(d, 2)) - xlo) / (xhi - xlo)) * (Rr - L);
+    const Y = (dbm) => B - ((clamp(dbm, yBot, yTop) - yBot) / (yTop - yBot)) * (B - T);
+
+    // ---- frame and axes ----------------------------------------------------
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(L, T, Rr - L, B - T);
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    for (let e = Math.ceil(xlo); e <= xhi; e++) {
+      const x = X(Math.pow(10, e));
+      ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, B); ctx.stroke();
+    }
+    for (let db = 0; db >= -150; db -= 20) {
+      ctx.beginPath(); ctx.moveTo(L, Y(db)); ctx.lineTo(Rr, Y(db)); ctx.stroke();
+    }
+    ctx.restore();
+    for (let e = Math.ceil(xlo); e <= xhi; e++) {
+      const d = Math.pow(10, e);
+      plot.text(fmt(d, 3), X(d), B + 15, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    for (let db = 0; db >= -150; db -= 20) {
+      plot.text(String(db), L - 6, Y(db) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('distance d (m, log scale)', (L + Rr) / 2, B + 33,
+      { color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center' });
+    ctx.save();
+    ctx.translate(16, (T + B) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = PALETTE.text;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('received power (dBm)', 0, 0);
+    ctx.restore();
+
+    // ---- the two models ----------------------------------------------------
+    if (v.model !== 'two') {
+      plot.fn((d) => out.pRxFspl(d), 2, out.dmax, { color: PALETTE.accent, width: 2.2, samples: 500 });
+      plot.text('free space (FSPL), 20 dB/decade', X(3), Y(out.pRxFspl(3)) - 8,
+        { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    }
+    if (v.model !== 'fspl') {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent3;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      let started = false;
+      for (let i = 0; i <= 1400; i++) {
+        const d = Math.pow(10, xlo + (i / 1400) * (xhi - xlo));
+        const p = out.pRxTwo(d);
+        if (!Number.isFinite(p)) { started = false; continue; }
+        const px = X(d), py = Y(p);
+        if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+      plot.text('two-ray (direct + ground reflection)', X(Math.max(out.dc * 1.3, 6)),
+        Y(out.pRxTwo(Math.max(out.dc * 1.3, 6))) + 14,
+        { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+      // the 40 dB/decade asymptote
+      const d1 = Math.max(out.dc * 2, 10);
+      plot.fn((d) => out.pRxTwo(d1) - 40 * Math.log10(d / d1), d1, out.dmax,
+        { color: 'rgba(166,227,161,0.5)', width: 1.4, dash: [6, 4], samples: 200 });
+      plot.text('40 dB/decade asymptote (1/d^4)', X(out.dmax * 0.35), Y(out.pRxTwo(d1) - 40 * Math.log10(out.dmax * 0.35 / d1)) - 8,
+        { color: 'rgba(166,227,161,0.75)', font: '10px ui-monospace, monospace' });
+    }
+
+    // ---- crossover / breakpoint -------------------------------------------
+    const xc = X(out.dc);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(xc, T); ctx.lineTo(xc, B); ctx.stroke();
+    ctx.restore();
+    plot.text('breakpoint d_c = 4h_t h_r/\u03BB', xc + 4, T + 12,
+      { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    plot.text('= ' + fmt(out.dc, 4) + ' m', xc + 4, T + 24,
+      { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+
+    // ---- marker ------------------------------------------------------------
+    const xm = X(out.dMark);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(249,226,175,0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xm, Y(out.prMark)); ctx.lineTo(xm, B); ctx.stroke();
+    ctx.restore();
+    if (v.model !== 'fspl') plot.dot(out.dMark, out.prMark, { color: PALETTE.warn, r: 5 });
+    if (v.model !== 'two') plot.dot(out.dMark, out.prMarkFspl, { color: PALETTE.accent, r: 4 });
+    plot.text('d = ' + fmt(out.dMark, 5) + ' m', xm, B + 15,
+      { color: PALETTE.warn, font: 'bold 10px ui-monospace, monospace', align: 'center' });
+
+    // ================================================= coverage map
+    if (useMap) {
+      const mx0 = Rr + 34, mx1 = W - 26, my0 = T, my1 = B;
+      const hMax = 2 * Math.max(out.hr, 3);
+      const HX = (i) => mx0 + (i / (out.nx - 1)) * (mx1 - mx0);
+      const HY = (h) => my1 - ((h - 0.4) / (hMax - 0.4)) * (my1 - my0);
+      const span = Math.max(out.pmax - out.pmin, 15);
+      for (let j = 0; j < out.ny; j++) {
+        const row = out.grid[j];
+        const yTopPx = HY(row.h + (hMax - 0.4) / (out.ny - 1) / 2);
+        const yBotPx = HY(row.h - (hMax - 0.4) / (out.ny - 1) / 2);
+        for (let i = 0; i < out.nx; i++) {
+          const t = clamp((row.p[i] - out.pmin) / span, 0, 1);
+          // dark blue (weak) -> orange/yellow (strong)
+          const rr = Math.round(40 + t * 215);
+          const gg = Math.round(70 + t * 120);
+          const bb = Math.round(160 - t * 120);
+          ctx.save();
+          ctx.fillStyle = 'rgb(' + rr + ',' + gg + ',' + bb + ')';
+          ctx.fillRect(HX(i) - (mx1 - mx0) / (2 * out.nx), yTopPx,
+            (mx1 - mx0) / out.nx + 1, Math.max(1, yBotPx - yTopPx));
+          ctx.restore();
+        }
+      }
+      ctx.save();
+      ctx.strokeStyle = PALETTE.axis;
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(mx0, my0, mx1 - mx0, my1 - my0);
+      ctx.restore();
+      plot.text('coverage map: P_r over distance \u00D7 height', (mx0 + mx1) / 2, my0 - 22,
+        { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace', align: 'center' });
+      plot.text('receiver height (m)', (mx0 + mx1) / 2, my1 + 28,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+      for (const e of [1, 10, 100, 1000, 10000]) {
+        if (e > out.dmax) continue;
+        plot.text(fmt(e, 3), mx0 + ((Math.log10(e) - xlo) / (xhi - xlo)) * (mx1 - mx0), my1 + 14,
+          { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      }
+      for (let k = 0; k <= 4; k++) {
+        const h = 0.4 + (k / 4) * (hMax - 0.4);
+        plot.text(fmt(h, 3), mx0 - 5, HY(h) + 4,
+          { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'right' });
+      }
+      // the chosen receiver height
+      const yhr = HY(out.hr);
+      ctx.save();
+      ctx.strokeStyle = PALETTE.warn;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath(); ctx.moveTo(mx0, yhr); ctx.lineTo(mx1, yhr); ctx.stroke();
+      ctx.restore();
+      plot.text('receiver height ' + fmt(out.hr, 3) + ' m', mx1 - 4, yhr - 5,
+        { color: PALETTE.warn, font: '9px ui-monospace, monospace', align: 'right' });
+      // the chosen distance
+      const xdm = mx0 + ((Math.log10(Math.max(out.dMark, 2)) - xlo) / (xhi - xlo)) * (mx1 - mx0);
+      ctx.save();
+      ctx.strokeStyle = PALETTE.warn;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(xdm, my0); ctx.lineTo(xdm, my1); ctx.stroke();
+      ctx.restore();
+      plot.text('dark = fade null', mx0 + 5, my1 - 6,
+        { color: '#ffffff', font: 'bold 10px ui-monospace, monospace' });
+      plot.text('bright = constructive', mx1 - 5, my0 + 14,
+        { color: '#ffffff', font: 'bold 10px ui-monospace, monospace', align: 'right' });
+    }
+
+    // ---- formula strip -----------------------------------------------------
+    plot.text('EIRP = P_t + G_t = ' + fmt(v.pt, 4) + ' + ' + fmt(v.gt, 4) + ' = ' + fmt(out.eirpDbm, 5) +
+      ' dBm        \u03BB = c/f = ' + fmt(out.lam, 5) + ' m        h_t = ' + fmt(out.ht, 4) +
+      ' m, h_r = ' + fmt(out.hr, 4) + ' m',
+      16, 18, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('FSPL(d) = 20 log(4\u03C0d/\u03BB);   two-ray  P_r = EIRP + G_r \u2212 FSPL + 10 log[2 \u2212 2cos(2\u03C0\u0394d/\u03BB)],  \u0394d = \u221A(d\u00B2+(h_t+h_r)\u00B2) \u2212 \u221A(d\u00B2+(h_t\u2212h_r)\u00B2)',
+      16, 36, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+    plot.text('at d = ' + fmt(out.dMark, 5) + ' m:  \u0394d = ' + fmt(out.phi(out.dMark) * out.lam / (2 * Math.PI), 5) +
+      ' m = ' + fmt(out.phi(out.dMark) / (2 * Math.PI), 5) + ' \u03BB        FSPL = ' + fmt(out.fsplMark, 5) +
+      ' dB, two-ray = ' + fmt(out.twoMark, 5) + ' dB (' + fmt(out.excess, 4) + ' dB relative to free space)',
+      16, 54, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+
+    // ---- verdict -----------------------------------------------------------
+    let verdict;
+    if (!out.breakpointInRange) {
+      verdict = 'Breakpoint d_c = ' + fmt(out.dc, 4) + ' m is beyond the plotted range: the whole plot is inside the ' +
+        'free-space region, where the two-ray model hugs the 20 dB/decade line but still ripples through nulls.';
+    } else if (out.dMark < out.dc) {
+      verdict = 'd = ' + fmt(out.dMark, 5) + ' m is INSIDE the breakpoint (' + fmt(out.dc, 4) +
+        ' m): the two-ray model is ' + fmt(out.excess, 4) + ' dB from free space, so FSPL alone is a fair approximation.';
+    } else {
+      verdict = 'd = ' + fmt(out.dMark, 5) + ' m is BEYOND the breakpoint (' + fmt(out.dc, 4) + ' m): ground ' +
+        'reflection changes the loss by ' + fmt(out.excess, 4) + ' dB relative to free space (positive = extra ' +
+        'loss, negative = constructive) and the asymptotic slope is ' + fmt(out.slope, 4) +
+        ' dB/decade heading for 1/d^4.';
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, H - 30, W - 20, 24);
+    ctx.restore();
+    plot.text(verdict, 16, H - 13, { color: PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'EIRP (P_t + G_t)': fmt(out.eirpDbm, 5) + ' dBm',
+    'wavelength': fmt(out.lam, 5) + ' m',
+    'received power two-ray at d': fmt(out.prMark, 5) + ' dBm',
+    'received power FSPL at d': fmt(out.prMarkFspl, 5) + ' dBm',
+    'received power in watts': fmt(Math.pow(10, out.prMark / 10) / 1000, 4) + ' W',
+    'field strength E at d': fmt(1000 * Math.sqrt(30 * (Math.pow(10, out.eirpDbm / 10) / 1000)) / Math.max(out.dMark, 1), 5) +
+      ' mV/m   (E = \u221A(30 P_EIRP)/d, P in W)',
+    'free-space path loss FSPL': fmt(out.fsplMark, 5) + ' dB',
+    'two-ray path loss': fmt(out.twoMark, 5) + ' dB',
+    'ground-reflection excess loss': fmt(out.excess, 5) + ' dB',
+    'crossover / breakpoint d_c': fmt(out.dc, 5) + ' m   (4 h_t h_r / \u03BB)',
+    'path difference at d': fmt((out.phi(out.dMark) * out.lam) / (2 * Math.PI), 5) + ' m',
+    'path difference in wavelengths': fmt(out.phi(out.dMark) / (2 * Math.PI), 5) + ' \u03BB',
+    'peak-to-null ripple': (out.pmax - out.pmin).toFixed(2) + ' dB across the map',
+    'two-ray slope past breakpoint': fmt(out.slope, 4) + ' dB/decade  (free space is \u221220)',
+    'two-ray loss at d_c': fmt(out.twoAtDc, 5) + ' dB',
+    'which model applies at d': out.dMark < out.dc ? 'free space (inside breakpoint)' : 'two-ray / 1/d^4 (past breakpoint)',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Two rays, one phasor sum, and a hard 4th-power wall past the breakpoint.</strong> ' +
+  'The ground-reflected ray travels an extra <code>\u0394d = \u221A(d\u00B2 + (h_t+h_r)\u00B2) \u2212 \u221A(d\u00B2 + (h_t\u2212h_r)\u00B2)</code>, ' +
+  'and the received field is the vector sum of direct and reflected. Because the ground reflection flips the phase ' +
+  '(\u0393 \u2248 \u22121 at grazing incidence), the sum is <code>2 sin(2\u03C0 h_t h_r / \u03BB d)</code>: it goes to zero whenever ' +
+  '<code>2 h_t h_r / (\u03BB d)</code> is an integer. That is a <em>null</em> - a real hole in coverage, not a rounding ' +
+  'artefact, and the reason the coverage map is striped.<br>' +
+  '<strong>The breakpoint is where the two models part company.</strong> ' +
+  '<code>d_c = 4 h_t h_r / \u03BB</code>. Inside it the two-ray curve hovers around the free-space value; past it the ' +
+  'small-angle approximation <code>\u0394d \u2248 2 h_t h_r / d</code> gives <code>|E| \u221D 1/d\u00B2</code>, so power falls as ' +
+  '<code>1/d\u2074</code> - 40 dB per decade instead of 20. Watch the readout switch from "\u221220 dB/decade" to ' +
+  '"\u221240 dB/decade" as you push the marker past d_c.<br>' +
+  '<strong>The exam trap.</strong> Candidates apply the free-space formula at any distance and get an ' +
+  'optimistic answer - often 12 dB or more too high at a few kilometres with a 30 m mast. The trigger words are ' +
+  '"over flat ground", "earth reflection", "mobile at 1.5 m". Conversely, do not apply the 1/d\u2074 law at ' +
+  '100 m: it is only the <em>asymptote</em>, and using it near the transmitter is just as wrong in the other ' +
+  'direction. Compute d_c first and pick the branch - that is the whole question.<br>' +
+  '<strong>Two practical consequences worth remembering.</strong> (1) Frequency matters twice: a higher frequency ' +
+  'means a smaller wavelength, so d_c = 4 h_t h_r / \u03BB grows and the free-space region extends - higher bands ' +
+  'behave "more free-space-like" over the same ground. (2) Because the nulls move with height, raising an antenna ' +
+  'by a fraction of a wavelength can move a receiver out of a null: that is why a 5 cm shuffle fixes a dropped ' +
+  'call. Notice also that the map is a comb, so a receiver that works at one distance may fail at a slightly ' +
+  'different one.';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

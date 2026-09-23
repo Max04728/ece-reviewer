@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flip-Flop Timing — Setup, Hold and Propagation Delay</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Setup and hold violations are the classic exam question, and the failure is easy to
+// describe but hard to picture. Drawing the clock edge, the data transition relative to
+// it, and the shaded setup/hold windows makes the violation visible rather than abstract.
+
+widget({
+  title: 'Flip-Flop Timing — Setup and Hold Windows',
+  description:
+    'Slide the data transition earlier or later relative to the clock edge. Landing inside the setup or hold window is a violation — the output becomes unpredictable.',
+  height: 430,
+  range: { xMin: 0, xMax: 100, yMin: -0.2, yMax: 4.4 },
+  controls: [
+    { id: 'tdata', label: 'data transition time (ns)', min: 0, max: 100, step: 0.5, value: 30 },
+    { id: 'tsu', label: 'setup time t_su (ns)', min: 1, max: 20, step: 0.5, value: 5 },
+    { id: 'th', label: 'hold time t_h (ns)', min: 0.5, max: 15, step: 0.5, value: 3 },
+    { id: 'tclk', label: 'clock period (ns)', min: 20, max: 100, step: 1, value: 50 },
+  ],
+  compute: (v) => {
+    const edge = 40; // active clock edge at t = 40 ns
+    const tdata = v.tdata;
+    const tsu = v.tsu;
+    const th = v.th;
+    const setupStart = edge - tsu;      // data must be stable from here
+    const holdEnd = edge + th;          // until here
+    const stableFrom = tdata;
+    // The data transition must complete BEFORE setupStart (ie tdata <= setupStart),
+    // and must not begin again before holdEnd. With a single transition, the data
+    // becomes stable at tdata and stays stable, so:
+    //   setup satisfied  <=> tdata <= setupStart
+    //   hold satisfied   <=> tdata <= holdEnd (transition is not inside the hold window)
+    // A transition inside (setupStart, edge) violates setup.
+    // A transition inside (edge, holdEnd) violates hold.
+    const setupOk = tdata <= setupStart;
+    const holdOk = tdata <= edge || tdata >= holdEnd;
+    // classify precisely
+    let verdict;
+    if (tdata > setupStart && tdata <= edge) verdict = 'SETUP VIOLATION';
+    else if (tdata > edge && tdata < holdEnd) verdict = 'HOLD VIOLATION';
+    else verdict = 'timing satisfied';
+    const margin = setupStart - tdata; // positive is good
+    return { edge, tdata, tsu, th, setupStart, holdEnd, setupOk, holdOk, verdict, margin };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: 0, xMax: 100, yMin: -0.2, yMax: 4.4 });
+    plot.clear().grid(10, 1).axes();
+
+    const rowY = (n) => 4.0 - n * 1.3;
+    const hi = 0.75, lo = 0.0;
+
+    // ---- clock -----------------------------------------------------------
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const clk = (t) => (t % v.tclk < v.tclk / 2 ? hi : lo);
+    let started = false;
+    for (let t = 0; t <= 100; t += 0.25) {
+      const y = plot.Y(rowY(0) + clk(t));
+      if (!started) { ctx.moveTo(plot.X(t), y); started = true; } else ctx.lineTo(plot.X(t), y);
+    }
+    ctx.stroke();
+    ctx.restore();
+    plot.text('CLK', plot.pad + 4, plot.Y(rowY(0) + hi) - 6, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+
+    // ---- data ------------------------------------------------------------
+    const d = (t) => (t < out.tdata ? lo : hi);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(plot.X(0), plot.Y(rowY(1) + d(0)));
+    ctx.lineTo(plot.X(out.tdata), plot.Y(rowY(1) + lo));
+    ctx.lineTo(plot.X(out.tdata), plot.Y(rowY(1) + hi));
+    ctx.lineTo(plot.X(100), plot.Y(rowY(1) + hi));
+    ctx.stroke();
+    ctx.restore();
+    plot.text('D', plot.pad + 4, plot.Y(rowY(1) + hi) - 6, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+
+    // ---- timing windows --------------------------------------------------
+    const drawWindow = (x0, x1, color, label) => {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.fillRect(plot.X(x0), plot.Y(rowY(1) + hi + 0.25), Math.max(1, plot.X(x1) - plot.X(x0)), 24);
+      ctx.restore();
+      plot.text(label, plot.X((x0 + x1) / 2), plot.Y(rowY(1) + hi + 0.25) - 3, {
+        color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center',
+      });
+    };
+    drawWindow(out.setupStart, out.edge, 'rgba(249,226,175,0.45)', 'setup window t_su');
+    drawWindow(out.edge, out.holdEnd, 'rgba(243,139,168,0.45)', 'hold window t_h');
+
+    // ---- active clock edge marker ---------------------------------------
+    plot.segment(out.edge, plot.yMin, out.edge, plot.yMax, { color: PALETTE.warn, dash: [3, 3], width: 1.5 });
+    plot.label('active edge', out.edge + 1, rowY(2), { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+
+    // ---- stable / unstable region for D ---------------------------------
+    ctx.save();
+    ctx.fillStyle = out.verdict === 'timing satisfied' ? 'rgba(166,227,161,0.18)' : 'rgba(243,139,168,0.22)';
+    ctx.fillRect(plot.X(0), plot.Y(rowY(2) + 0.6), plot.X(out.tdata) - plot.X(0), 22);
+    ctx.restore();
+    plot.text(out.verdict === 'timing satisfied' ? 'setup + hold satisfied' : out.verdict,
+      plot.pad + 4, plot.Y(rowY(2) + 0.6) - 4,
+      { color: out.verdict === 'timing satisfied' ? PALETTE.accent3 : PALETTE.accent2, font: '12px ui-monospace, monospace' });
+  },
+  readout: (out) => ({
+    'verdict': out.verdict,
+    'data transition at': fmt(out.tdata, 4) + ' ns',
+    'active clock edge at': fmt(out.edge, 4) + ' ns',
+    'setup window opens': fmt(out.setupStart, 4) + ' ns',
+    'hold window closes': fmt(out.holdEnd, 4) + ' ns',
+    'setup slack': fmt(out.margin, 4) + ' ns',
+    'status': out.verdict === 'timing satisfied' ? 'OK' : 'VIOLATION — output is undefined',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The two windows.</strong> Data must be stable <em>before</em> the active clock edge (setup) and remain stable <em>after</em> it (hold). ' +
+  'A transition inside either shaded window makes the flip-flop output unpredictable — metastability, not a clean wrong answer. ' +
+  'Note the asymmetry: moving the data transition <strong>earlier</strong> always helps setup but can never break hold, because the hold requirement is about the data not <em>changing</em> right after the edge. ' +
+  'In a real design the constraint becomes <code>t_clk ≥ t_cq + t_comb + t_su</code> for the critical path, plus a hold check <code>t_cq + t_comb ≥ t_h</code> on the shortest path.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

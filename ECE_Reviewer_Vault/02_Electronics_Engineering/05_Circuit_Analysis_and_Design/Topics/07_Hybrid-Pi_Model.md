@@ -1,0 +1,185 @@
+---
+id: ECE-05-07
+title: "Hybrid-Pi Model"
+part: "02_Electronics_Engineering"
+area: "05_Circuit_Analysis_and_Design"
+topic: 7
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[01_BJT_DC_Biasing_Configurations]]", "[[02_Load_Lines_and_Q_Point]]"]
+tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 07 — Hybrid-Pi Model
+
+> [!abstract] Scope
+> Replace a forward-active BJT with its g_m / r_pi / r_o small-signal equivalent, evaluate the midband gain and port resistances of a common-emitter stage, and translate the hybrid-pi elements into h-parameters and Miller capacitance.
+
+## Core Concept
+
+> [!tip] Intuition
+> Once the DC bias fixes I_C, the transistor stops being a nonlinear device and becomes a linear controlled source: a base-emitter resistance r_pi that draws current, and a current source g_m v_pi that pushes that current into the collector. Every AC quantity follows from two numbers, I_C and beta.
+
+**Getting from the DC bias to the numbers.** The hybrid-pi model is only valid after the Q point is known, because every element is set by DC. Start with I_C from the bias analysis, then use the thermal voltage $V_T = kT/q \approx 26\ \mathrm{mV}$ at 300 K (25.85 mV exactly). The transconductance is $g_m = I_C/V_T$, which at room temperature is a startlingly simple $g_m \approx 38.5\ I_C$ with $I_C$ in mA and $g_m$ in mS. The base-emitter resistance follows from the definition $r_\pi = \beta/g_m = \beta V_T / I_C$. The emitter resistance is:
+$$r_e = \alpha/g_m = V_T/I_E \approx V_T/I_C$$
+**The trap that catches everyone:** $g_m$ depends only on $I_C$, never on $\beta$, while $r_\pi$ is proportional to $\beta$. Students who reach for "r_e = 26 mV / I_C" and then also divide by beta get $r_\pi$ wrong by a factor of beta.
+
+**Why the current source is controlled by v_pi, not by i_b.** The physical transistor is voltage-driven at the base-emitter junction:
+$$I_C = I_S e^{V_{BE}/V_T}$$
+so a small-signal change gives $i_c = g_m v_{be}$. That is why the model is *transconductance* based. The input current is a side effect, $i_b = v_{be}/r_\pi$, and the current gain is recovered as $\beta = g_m r_\pi = h_{fe}$, not assumed. r_o is the Early effect: the collector current rises slightly with $V_{CE}$ because the base width modulates, giving $r_o = V_A/I_C$ and an output conductance $h_{oe} = 1/r_o$. In hand analysis r_o is very often dropped because $r_o \gg R_C$ (a 100 V Early voltage at 1 mA gives 100 kohm against a few kohm load), but when the question says "include r_o" the collector load becomes $R_C \parallel r_o$.
+
+**The four canonical results for a common-emitter stage.** (1) The midband voltage gain is:
+$$A_v = -g_m(R_C \parallel R_L \parallel r_o)$$
+negative because a rising base voltage raises $I_C$ and *drops* the collector voltage. (2) Input resistance $R_{in} = r_\pi \parallel R_B$ where $R_B$ is the total bias network seen from the base; the bias resistors usually dominate and cut $R_{in}$ far below $r_\pi$. (3) Output resistance $R_{out} = R_C \parallel r_o$, measured with the source zeroed. (4) With the emitter bypassed by $C_E$, the gain expression above holds; if $R_E$ is left unbypassed, replace $R_C$ by nothing and write the degenerated gain:
+$$A_v = -\beta R_C / (r_\pi + (\beta+1)R_E)$$
+which can be a factor of 10 smaller. **Always check whether the emitter is bypassed before applying the midband formula.**
+
+**Bridging to the h-parameter and the high frequencies.** The two small-signal models are the same circuit re-labelled: $h_{ie} = r_\pi$, $h_{fe} = \beta = g_m r_\pi$, $h_{oe} = 1/r_o$, and the reverse voltage feedback $h_{re} = r_\pi/r_\mu \approx 10^{-4}$ is set to zero in every hand analysis. An exam that gives you $h_{ie}$ and $h_{fe}$ is giving you $r_\pi$ and $\beta$. At high frequency the two junction capacitances appear: $C_\pi$ ($C_{be}$) shunts $r_\pi$ directly, while $C_\mu$ ($C_{bc}$) bridges input and output and is multiplied by the gain through Miller's theorem, $C_{Mi} = C_{bc}(1 + |A_v|)$. Those two capacitors, with the source and load resistances, produce the upper cutoff $f_H$, which is where the next topic picks up.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Transconductance | $g_m = \frac{I_C}{V_T}$ | Forward-active, midband. V_T = 26 mV at 300 K. Numerically g_m = 38.5*I_C with I_C in mA and g_m in mS. Independent of beta. |
+| Base-emitter resistance of the model | $r_\pi = \frac{\beta}{g_m} = \frac{\beta V_T}{I_C} = \beta r_e$ | Uses small-signal beta = h_fe at the Q point. Do NOT divide by beta again: at I_C = 1 mA and beta = 100 this is 2.6 kohm, while the naive 26 ohm answer is r_e. |
+| Emitter resistance (re model form) | $r_e = \frac{V_T}{I_E} \approx \frac{V_T}{I_C}$ | The approximation drops I_B, valid to about 1 percent for beta above 100. This is the number that appears inside the unbypassed-emitter gain formula. |
+| Collector output resistance | $r_o = \frac{V_A}{I_C}$ | Early voltage V_A is typically 75-150 V for small-signal BJTs, 20-50 V for power devices. Set r_o to infinity only when the problem allows it. |
+| Midband voltage gain, bypassed common emitter | $A_v = -g_m (R_C \parallel R_L \parallel r_o)$ | Negative sign is mandatory: the CE stage inverts. Valid only with C_E bypassing R_E and with all coupling capacitors acting as shorts. |
+| Input resistance at the base | $R_{in} = r_\pi \parallel R_B$ | R_B is the whole bias network looking back from the base node. With r_o finite, r_pi is replaced by the r_o-corrected input resistance r_pi + (beta+1)(r_o \|\| R_C \|\| R_L); with unbypassed R_E it becomes r_pi + (beta+1)R_E. |
+| Hybrid-pi to h-parameter translation | $h_{ie} = r_\pi, \quad h_{fe} = \beta = g_m r_\pi, \quad h_{oe} = \frac{1}{r_o}, \quad h_{re} = \frac{r_\pi}{r_\mu} \approx 0$ | Lets you move between the two model families. h_re is dropped in hand analysis; r_mu is the (very large) reverse feedback resistance. |
+| Miller input capacitance from C_bc | $C_{Mi} = C_{bc}(1 + \lvert A_v \rvert)$ | High-frequency model only. Multiplies the tiny feedback capacitance by the voltage gain; at \|A_v\| = 120 a 2 pF C_bc becomes 242 pF, which usually dominates C_pi. |
+
+## Worked Problems
+
+### P1. A silicon NPN is biased at $I_C = 1\ \mathrm{mA}$ with $\beta = 100$ and $V_A = 100\ \mathrm{V}$. Find $g_m$, $r_\pi$, $r_e$ and $r_o$.
+
+**Given:** I_C = 1 mA; beta = 100; V_A = 100 V; V_T = 26 mV
+
+**Solution:**
+
+1. g_m = I_C / V_T = (1 mA)/(26 mV) = 38.46 mS
+2. r_pi = beta / g_m = 100 / 38.46 mS = 2.60 kohm
+3. Cross-check: r_pi = beta*V_T/I_C = (100)(26 mV)/(1 mA) = 2.60 kohm, which matches
+4. r_e = V_T / I_E = (26 mV)/(1.01 mA) = 25.7 ohm, essentially V_T/I_C = 26 ohm
+5. r_o = V_A / I_C = (100 V)/(1 mA) = 100 kohm
+6. Consistency check: r_pi / r_e = 2600/25.7 = 101.2 = beta + 1, as the model requires
+
+> [!success]- Answer
+> **g_m = 38.5 mS, r_pi = 2.60 kohm, r_e = 25.7 ohm, r_o = 100 kohm.**
+
+> [!warning] Trap
+> Reporting r_pi = 26 ohm by computing V_T/I_C and calling it r_pi. That is r_e. r_pi is beta times larger, so the error understates the input resistance by a factor of 100 and makes every following gain calculation inconsistent with the source loading.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1E-3 ÷ 26E-3` → $g_m$ = **38.46** mS; `100 ÷ 38.46E-3` → $r_\pi$ = **2.60** k$\Omega$.
+> 2. `26E-3 ÷ 1.01E-3` → $r_e$ = **25.7** $\Omega$; `100 ÷ 1E-3` → $r_o$ = **100** k$\Omega$.
+> 3. `2600 ÷ 25.7` → **101.2** = $\beta + 1$, the model's own consistency check.
+
+### P2. A common-emitter stage has $V_{CC}=12\ \mathrm{V}$, $R_C=4.7\ \mathrm{k\Omega}$, $R_L=10\ \mathrm{k\Omega}$, $R_B=47\ \mathrm{k\Omega}$ at the base, and $r_o=\infty$. At the Q point $g_m = 38.5\ \mathrm{mS}$ and $r_\pi = 2.6\ \mathrm{k\Omega}$. Find the midband voltage gain, the input resistance and the output resistance.
+
+**Given:** V_CC = 12 V; R_C = 4.7 kohm; R_L = 10 kohm; R_B = 47 kohm; g_m = 38.5 mS; r_pi = 2.6 kohm; r_o = infinity
+
+**Solution:**
+
+1. R_C || R_L = (4.7)(10)/(4.7 + 10) = 47/14.7 = 3.197 kohm
+2. A_v = -g_m (R_C || R_L || r_o) = -(38.5 mS)(3.197 kohm) = -123.1 V/V
+3. R_in = r_pi || R_B = (2.6)(47)/(2.6 + 47) = 122.2/49.6 = 2.464 kohm
+4. R_out = R_C || r_o = 4.7 kohm, since r_o is infinite
+5. In dB: A_v = 20 log10(123.1) = 41.8 dB, with the sign carried separately as a 180 degree phase inversion
+
+> [!success]- Answer
+> **A_v = -123 V/V (41.8 dB, inverted), R_in = 2.46 kohm, R_out = 4.7 kohm.**
+
+> [!warning] Trap
+> Using R_C = 4.7 kohm alone and answering A_v = -181 V/V. Once R_L is connected through the coupling capacitor it sits in parallel with R_C at AC and cuts the gain by about 3.4 dB. The second error is quoting R_in = r_pi = 2.6 kohm while ignoring that the 47 kohm bias resistor is in parallel with it.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `4.7 × 10 ÷ 14.7` → $R_C \parallel R_L$ = **3.197** k$\Omega$.
+> 2. `−38.5 × 3.197` → $A_v$ = **−123.1**; `2.6 × 47 ÷ 49.6` → $R_{in}$ = **2.464** k$\Omega$.
+> 3. `20 log(123.1)` → **41.8** dB, with the minus sign carried separately as the 180° inversion.
+
+### P3. A CE stage runs at $I_C = 1\ \mathrm{mA}$ with $\beta = 100$, $V_A = 100\ \mathrm{V}$, $R_C = 3\ \mathrm{k\Omega}$ and an open output (no $R_L$). Find the voltage gain with and without the Early effect, and state the percentage error from ignoring $r_o$.
+
+**Given:** I_C = 1 mA; beta = 100; V_A = 100 V; R_C = 3 kohm; R_L = open; V_T = 26 mV
+
+**Solution:**
+
+1. g_m = I_C/V_T = 1 mA / 26 mV = 38.46 mS
+2. r_o = V_A/I_C = 100 V / 1 mA = 100 kohm
+3. Ignoring r_o: A_v = -g_m R_C = -(38.46 mS)(3 kohm) = -115.4 V/V
+4. Including r_o: R_C || r_o = (3)(100)/(103) = 2.913 kohm, so A_v = -(38.46 mS)(2.913 kohm) = -112.0 V/V
+5. Error = (115.4 - 112.0)/112.0 = 0.030, i.e. 3.0 percent low when r_o is ignored
+
+> [!success]- Answer
+> **A_v = -115.4 V/V ignoring r_o and -112.0 V/V including it; ignoring r_o overstates the gain by 3.0 percent.**
+
+> [!warning] Trap
+> Putting r_o in parallel with the *input* side, or writing R_C || r_o = 2.91 kohm but then multiplying by r_pi instead of g_m. The controlled source is g_m*v_pi, so the multiplier is always g_m and the collector-side resistance is always 3 kohm || 100 kohm.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `−38.46 × 3` → $A_v$ = **−115.4** V/V with the Early effect ignored.
+> 2. `3 × 100 ÷ 103` → $R_C \parallel r_o$ = **2.913** k$\Omega$; `−38.46 × 2.913` → $A_v$ = **−112.0** V/V.
+> 3. `(115.4 − 112.0) ÷ 112.0` → **3.0** % overstatement when $r_o$ is dropped.
+
+### P4. The same CE stage delivers its output to a $10\ \mathrm{k\Omega}$ load. Working from a 10 mV peak base-emitter signal, find the collector-node voltage swing and the voltage actually developed across the load, and explain the difference.
+
+**Given:** g_m = 38.5 mS; R_C = 4.7 kohm; R_L = 10 kohm; r_o = 100 kohm; v_pi = 10 mV peak
+
+**Solution:**
+
+1. Collector-node (unloaded by R_L) swing: v_c = -g_m (R_C || r_o) v_pi = -(38.46 mS)(4.49 kohm)(10 mV) = -1.727 V peak
+2. R_C || r_o = (4.7)(100)/(104.7) = 4.489 kohm
+3. With R_L connected, the output network divides: R_C || R_L || r_o = (4.7 || 10 || 100) kohm = (3.197 || 100) kohm = 3.097 kohm
+4. Loaded output: v_L = -(38.46 mS)(3.097 kohm)(10 mV) = -1.191 V peak
+5. Attenuation factor = 3.097/4.489 = 0.690, i.e. the load costs 3.2 dB
+
+> [!success]- Answer
+> **v_c = 1.73 V peak at the collector node and v_L = 1.19 V peak across the 10 kohm load; the load network attenuates by 0.690 (about -3.2 dB).**
+
+> [!warning] Trap
+> Applying the loaded gain to the collector node and then applying the R_C/(R_C+R_L) divider a second time. The parallel combination already contains the divider; double-counting gives 0.56 V instead of 1.19 V. Also note the 1.73 V swing at a 12 V supply with a 4.7 kohm resistor is already near the 12 V rail-to-rail limit, so the small-signal assumption is strained.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `4.7 × 100 ÷ 104.7` → $R_C \parallel r_o$ = **4.489** k$\Omega$; `38.46 × 4.489 × 10` → $v_c$ = **1.727** V peak.
+> 2. `1 ÷ (1 ÷ 4.7 + 1 ÷ 10 + 1 ÷ 100)` → **3.097** k$\Omega$; `38.46 × 3.097 × 10` → $v_L$ = **1.191** V peak.
+> 3. `3.097 ÷ 4.489` → **0.690**, that is **3.2** dB lost across the load network.
+
+### P5. A CE stage has |A_v| = 120, $C_{bc} = 2\ \mathrm{pF}$ and $C_{be} = 20\ \mathrm{pF}$. Find the Miller input capacitance and the total input capacitance, then repeat for a cascode version of the same stage whose first-stage gain is only |A_v| = 1.
+
+**Given:** |A_v| = 120 (CE); C_bc = 2 pF; C_be = 20 pF; |A_v| = 1 (cascode first stage)
+
+**Solution:**
+
+1. C_Mi = C_bc (1 + |A_v|) = 2 pF * (1 + 120) = 2 pF * 121 = 242 pF
+2. C_in(total) = C_be + C_Mi = 20 pF + 242 pF = 262 pF
+3. Cascode: C_Mi = 2 pF * (1 + 1) = 4 pF
+4. Cascode total = 20 pF + 4 pF = 24 pF
+5. Ratio = 262/24 = 10.9, so the cascode input capacitance is about 11 times smaller
+
+> [!success]- Answer
+> **CE: C_Mi = 242 pF and C_in = 262 pF. Cascode: C_Mi = 4 pF and C_in = 24 pF, about 11 times smaller.**
+
+> [!warning] Trap
+> Writing C_Mi = C_bc*|A_v| = 240 pF and dropping the '+1'. That alone is a 0.8 percent error here, but the same carelessness in a low-gain stage (|A_v| = 1) returns 2 pF instead of 4 pF, a factor-of-two error. Also do not add C_bc a second time on the output side after folding it into C_Mi.
+
+## Traps & Exam Notes
+
+- **Reporting $r_\pi = V_T/I_C$.** That expression is $r_e$. At $I_C = 1\ \mathrm{mA}$ and $\beta = 100$ the correct $r_\pi$ is $2.6\ \mathrm{k\Omega}$, not $26\ \Omega$; the error is exactly a factor of $\beta$ and it propagates into every input-resistance answer.
+- **Making $g_m$ depend on $\beta$.** $g_m = I_C/V_T$ only. Two transistors at the same $I_C$ with $\beta = 50$ and $\beta = 300$ have identical $g_m$ but $r_\pi$ values that differ by 6 times (1.3 kohm against 7.8 kohm at 1 mA).
+- **Forgetting the inversion.** Dropping the minus sign in $A_v = -g_m(R_C \parallel R_L \parallel r_o)$ costs the answer. A CE stage has $180^\circ$ of phase shift; if the problem asks for the phase of the output relative to the input, it is $180^\circ$, not $0^\circ$.
+- **Applying the bypassed-emitter gain formula when $R_E$ is unbypassed.** With $R_E = 1\ \mathrm{k\Omega}$ unbypassed at $I_C = 1\ \mathrm{mA}$, $A_v$ falls from $-123$ to $-\beta R_C/(r_\pi + (\beta+1)R_E) \approx -100\times3\,\mathrm{k}/(2.6\,\mathrm{k}+101\,\mathrm{k}) = -2.9$, a factor of 40, and $R_{in}$ rises to about $103\ \mathrm{k\Omega}$.
+
+## See Also
+
+- [[05_BJT_Small-Signal_h-Parameter_Model]]
+- [[06_Small-Signal_re_Model_CE,_CB,_CC]]
+- [[12_Miller’s_Theorem_and_High-Frequency_Effects]]
+- [[13_Gain-Bandwidth_Product_and_fT]]
+
+---
+
+[[06_Small-Signal_re_Model_CE,_CB,_CC|⬅ 06]] · [[_MOC_Circuit_Analysis_and_Design|MOC]] · [[00_Dashboard|Dashboard]] · [[08_FET_Amplifiers_CS,_CD,_CG|08 ➡]]

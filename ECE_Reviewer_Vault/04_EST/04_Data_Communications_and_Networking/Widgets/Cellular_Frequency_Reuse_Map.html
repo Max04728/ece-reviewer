@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cellular Frequency Reuse — Cluster Size N, Reuse Distance and S/I</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Frequency reuse is one hexagon and three formulas, and the exam always tests the trade:
+//   D = R sqrt(3N)          the co-channel reuse distance
+//   Q = D/R = sqrt(3N)      the co-channel reuse ratio
+//   S/I = (1/6) Q^n         worst case, first tier of six co-channel cells
+// Raise N and S/I improves (Q grows as sqrt N, and the exponent n makes it grow fast) but the
+// number of channels per cell falls as the total channel count is divided by N. The widget
+// draws a real hexagonal lattice built from the i,j construction so N is not just a number.
+
+/** Axial hex neighbours in the "odd-q" offset layout used for the drawing. */
+function hexCorners(cx, cy, R) {
+  const p = [];
+  for (let k = 0; k < 6; k++) {
+    const a = (Math.PI / 180) * (60 * k);
+    p.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]);
+  }
+  return p;
+}
+const hexKey = (q, r) => q + ',' + r;
+/** odd-q offset -> axial cube coordinates. */
+function offsetToAxial(col, row, R) {
+  const x = R * Math.sqrt(3) * (col + (row & 1) / 2);
+  const y = R * 1.5 * row;
+  const aq = col - (row - (row & 1)) / 2;
+  const ar = row;
+  return { x, y, q: aq, r: ar };
+}
+function axialToOffset(aq, ar) {
+  const col = aq + (ar - (ar & 1)) / 2;
+  return { col, row: ar };
+}
+
+/**
+ * Exact co-channel test on the drawn lattice, done in AXIAL coordinates (the frame in
+ * which lattice vectors add linearly): the cell at offset (col,row) shares a channel with
+ * the centre iff its axial coordinate equals some cluster member (i,j), because the centre
+ * is at axial (0,0).
+ */
+function isCoChannel(col, row, pairs) {
+  const aq = col - (row - (row & 1)) / 2;
+  const ar = row;
+  for (const q of pairs) if (q.i === aq && q.j === ar) return true;
+  return false;
+}
+
+widget({
+  title: 'Cellular Frequency Reuse — Cluster Size N, Reuse Distance D and S/I',
+  description:
+    'Hexagonal cells grouped into a reuse cluster of size N. Every cell carries the same group as the cells of its colour elsewhere in the lattice, and those co-channel cells are what interfere. Bigger N pushes the co-channel cells further away (better S/I) but stamps the same limited spectrum onto more cells (fewer channels each).',
+  height: 640,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'N', label: 'cluster size N', type: 'select', value: '7',
+      options: [
+        { value: '1', label: 'N = 1  (no reuse cluster)' },
+        { value: '3', label: 'N = 3' },
+        { value: '4', label: 'N = 4' },
+        { value: '7', label: 'N = 7  (the classic AMPS pattern)' },
+        { value: '9', label: 'N = 9' },
+        { value: '12', label: 'N = 12' },
+      ] },
+    { id: 'R', label: 'cell radius R (km)', min: 0.5, max: 30, step: 0.5, value: 5 },
+    { id: 'n', label: 'path-loss exponent n', min: 2, max: 5, step: 0.05, value: 4 },
+    { id: 'ch', label: 'total channels available', min: 50, max: 1000, step: 10, value: 400 },
+    { id: 'ring', label: 'reuse rings drawn', min: 1, max: 3, step: 1, value: 2 },
+    { id: 'showD', label: 'show reuse distance D', type: 'checkbox', value: true },
+    { id: 'label', label: 'label reuse groups', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const N = Number(v.N) || 7;
+    const R = v.R;
+    const n = v.n;
+    const D = R * Math.sqrt(3 * N);
+    const Q = Math.sqrt(3 * N);
+    const SI = (1 / 6) * Math.pow(3 * N, n / 2);
+    const SIdB = 10 * Math.log10(Math.max(SI, 1e-12));
+    const channelsPerCell = v.ch / N;
+    const reuseFactor = 1 / N;
+    const trafficPerCell = channelsPerCell;
+    // co-channel cells in the first tier
+    const firstTier = 6;
+    const coChannelDistance = D;
+
+    // build the cluster: all (i,j) with i^2 + i j + j^2 = N
+    const pairs = [];
+    for (let i = -6; i <= 6; i++) {
+      for (let j = -6; j <= 6; j++) {
+        if (i * i + i * j + j * j === N) pairs.push({ i, j });
+      }
+    }
+    // sort deterministically so the cell colours never jump between renders
+    pairs.sort((a, b) => (a.i - b.i) || (a.j - b.j));
+    const groupOf = new Map();
+    for (let k = 0; k < pairs.length; k++) {
+      // precompute the offset coordinate of every cell in the cluster, relative to (0,0)
+      const aq = pairs[k].i, ar = pairs[k].j;
+      const o = axialToOffset(aq, ar);
+      groupOf.set(hexKey(o.col, o.row), k + 1);
+    }
+
+    return {
+      N, R, n, D, Q, SI, SIdB, channelsPerCell, reuseFactor, trafficPerCell,
+      pairs, groupOf, firstTier, coChannelDistance,
+      valid: true,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    const R = out.R;
+
+    // ---- geometry: how many cells fit on screen --------------------------
+    const spanX = 2 * R * Math.sqrt(3) * (out.N <= 4 ? 3.4 : 3.0);
+    const spanY = 3 * R * (out.N <= 4 ? 3.2 : 2.8);
+    const cx = W / 2, cy = H / 2 + 10;
+    const scale = Math.min((W - 150) / spanX, (H - 210) / spanY);
+    const rp = Math.max(16, R * scale);
+
+    const colMin = -4, colMax = 4;
+    const rowMin = -3, rowMax = 3;
+
+    // ---- draw the lattice -------------------------------------------------
+    for (let row = rowMin; row <= rowMax; row++) {
+      for (let col = colMin; col <= colMax; col++) {
+        const p = offsetToAxial(col, row, rp);
+        const x = cx + p.x;
+        const y = cy + p.y;
+        const corners = hexCorners(x, y, rp);
+        // is this cell the same reuse group as the centre cell?
+        const key = hexKey(col, row);
+        const g = out.groupOf.get(key);
+        const inCluster = g !== undefined;
+        const isCentre = col === 0 && row === 0;
+        // A cell is co-channel with the centre iff the offset between them is one of the
+        // cluster lattice vectors, i.e. (dcol, drow) offset equals (q.i, q.j) of some
+        // cluster member for some member q. That is exact on the drawn lattice.
+        const sameGroup = isCoChannel(col, row, out.pairs);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(corners[0][0], corners[0][1]);
+        for (let k = 1; k < 6; k++) ctx.lineTo(corners[k][0], corners[k][1]);
+        ctx.closePath();
+        let fill = 'rgba(39,39,58,0.75)';
+        if (isCentre) fill = 'rgba(137,180,250,0.55)';
+        else if (sameGroup) fill = 'rgba(243,139,168,0.42)';
+        else if (inCluster) fill = 'rgba(166,227,161,0.24)';
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = inCluster ? PALETTE.accent3 : PALETTE.grid;
+        ctx.lineWidth = (isCentre || sameGroup) ? 2.2 : 1.2;
+        ctx.stroke();
+        ctx.restore();
+
+        if (v.label && rp > 20) {
+          const txt = isCentre ? 'C' : (inCluster ? String(g) : '');
+          if (txt) {
+            plot.text(txt, x, y + 4, {
+              color: isCentre ? '#ffffff' : (sameGroup ? '#ffd9e2' : PALETTE.dim),
+              font: 'bold ' + (isCentre ? 13 : 11) + 'px ui-monospace, monospace', align: 'center',
+            });
+          }
+        }
+        if (sameGroup && !isCentre) {
+          ctx.save();
+          ctx.fillStyle = PALETTE.accent2;
+          ctx.beginPath(); ctx.arc(x, y, 3.4, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+      }
+    }
+
+    // ---- centre marker and D -------------------------------------------------
+    ctx.save();
+    ctx.fillStyle = PALETTE.accent;
+    ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    plot.text('C = centre cell', cx, cy - rp - 10, { color: PALETTE.accent, font: 'bold 11px ui-monospace, monospace', align: 'center' });
+
+    if (v.showD) {
+      // distance to the nearest co-channel cell in the drawn lattice
+      let best = null;
+      for (let row = rowMin; row <= rowMax; row++) {
+        for (let col = colMin; col <= colMax; col++) {
+          if (col === 0 && row === 0) continue;
+          if (!isCoChannel(col, row, out.pairs)) continue;
+          const o = offsetToAxial(col, row, rp);
+          const dist = Math.hypot(o.x, o.y);
+          if (!best || dist < best.dist) best = { dist, x: cx + o.x, y: cy + o.y };
+        }
+      }
+      if (best) {
+        ctx.save();
+        ctx.strokeStyle = PALETTE.warn;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(best.x, best.y); ctx.stroke();
+        ctx.restore();
+        plot.text('D = R\u221A(3N) = ' + fmt(out.D, 5) + ' km', (cx + best.x) / 2, (cy + best.y) / 2 - 8,
+          { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace', align: 'center' });
+      }
+    }
+
+    // ---- legend + formulas ------------------------------------------------
+    const lx = 16, ly = 16;
+    const legend = [
+      [PALETTE.accent, 'centre cell C'],
+      [PALETTE.accent2, 'co-channel cells (same group as C) \u2014 these interfere'],
+      [PALETTE.accent3, 'other cells of the reuse cluster'],
+    ];
+    for (let k = 0; k < legend.length; k++) {
+      ctx.save();
+      ctx.fillStyle = legend[k][0];
+      ctx.fillRect(lx, ly + k * 15 - 8, 10, 10);
+      ctx.restore();
+      plot.text(legend[k][1], lx + 16, ly + k * 15, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    }
+
+    plot.text('D = R\u221A(3N) = ' + fmt(out.R, 4) + '\u221A(3\u00D7' + fmt(out.N, 3) + ') = ' + fmt(out.D, 6) + ' km' +
+      '        Q = D/R = \u221A(3N) = ' + fmt(out.Q, 6),
+      16, H - 74, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('S/I = (1/6)(3N)^(n/2) = (1/6)\u00D7' + fmt(3 * out.N, 4) + '^(' + fmt(out.n, 3) + '/2) = ' +
+      fmt(out.SI, 6) + '  = ' + fmt(out.SIdB, 6) + ' dB        channels/cell = ' + fmt(out.channelsPerCell, 5),
+      16, H - 56, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+    plot.text('cluster: N = i\u00B2 + ij + j\u00B2 = ' +
+      out.pairs.map((p) => '(' + p.i + ',' + p.j + ')').slice(0, 4).join(' ') +
+      (out.pairs.length > 4 ? ' \u2026' : '') + '   \u2014 ' + out.pairs.length + ' equivalent lattice vectors',
+      16, H - 38, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    let verdict;
+    if (out.N === 1) {
+      verdict = 'N = 1: every cell uses the whole spectrum and the co-channel cells are your immediate neighbours. ' +
+        'S/I = 1/6 = ' + fmt(out.SIdB, 5) + ' dB \u2014 unusable, which is why real systems always reuse in clusters.';
+    } else if (out.SIdB < 17) {
+      verdict = 'S/I = ' + fmt(out.SIdB, 5) + ' dB is below the 17-18 dB that analogue FM voice needs: raise N.';
+    } else {
+      verdict = 'S/I = ' + fmt(out.SIdB, 5) + ' dB clears the ~18 dB analogue-FM requirement with ' +
+        fmt(out.channelsPerCell, 5) + ' channels per cell. Increasing N further buys margin but costs capacity 1/N.';
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, H - 26, W - 20, 22);
+    ctx.restore();
+    plot.text(verdict, 16, H - 11, { color: PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'cluster size N': fmt(out.N, 3) + '  (i\u00B2+ij+j\u00B2)',
+    'cell radius R': fmt(out.R, 5) + ' km',
+    'reuse distance D = R\u221A(3N)': fmt(out.D, 6) + ' km',
+    'co-channel reuse ratio Q = \u221A(3N)': fmt(out.Q, 6),
+    'co-channel cells (first tier)': String(out.firstTier),
+    'path-loss exponent n': fmt(out.n, 4),
+    'S/I = (1/6)(3N)^(n/2)': fmt(out.SI, 6),
+    'S/I in dB': fmt(out.SIdB, 6) + ' dB',
+    'reuse factor 1/N': fmt(out.reuseFactor, 5),
+    'channels per cell': fmt(out.channelsPerCell, 5),
+    'capacity relative to N=1': fmt(out.reuseFactor * 100, 4) + ' %',
+    'analogue FM needs \u224818 dB': out.SIdB >= 18 ? 'MET' : 'NOT met \u2014 increase N',
+    'co-channel distance in cell radii': fmt(out.D / out.R, 5) + ' R',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>One relation drives everything: D = R\u221A(3N), so Q = D/R = \u221A(3N).</strong> ' +
+  'The cluster size N is not arbitrary - it is <code>N = i\u00B2 + ij + j\u00B2</code> for integers i, j, which ' +
+  'is why only 1, 3, 4, 7, 9, 12, 13, 16, 19 \u2026 are realisable. N = 5, 6, 8 and 11 look plausible and are ' +
+  'geometrically impossible; a question that offers N = 6 as an option is testing exactly this.<br>' +
+  '<strong>The S/I formula uses the first tier of six.</strong> ' +
+  '<code>S/I = (1/6)(3N)^(n/2)</code> assumes six equidistant co-channel interferers and a path-loss exponent n. ' +
+  'The 1/6 is the number of first-tier interferers - not a fudge factor - and the exponent is n/2, not n, because ' +
+  'the distance ratio is Q = \u221A(3N) and it is then raised to n. Writing <code>(3N)^n</code> or forgetting the ' +
+  '1/6 are the two most common slips. For N = 7, n = 4: <code>S/I = (1/6)(21)\u00B2 = 73.5 = 18.7 dB</code>, ' +
+  'the textbook design point for analogue FM.<br>' +
+  '<strong>The trade is capacity against quality.</strong> Group the lattice by colour: increasing N from 7 to 12 ' +
+  'raises Q from 4.58 to 6.0 and S/I from 18.7 dB to 26.3 dB at n = 4, but each cell now gets only 1/12 of the ' +
+  'spectrum instead of 1/7 - roughly 42 % less capacity. Trunking efficiency makes it worse: with fewer channels ' +
+  'per cell the Erlang capacity per channel falls too. That is why operators use the smallest N that meets the ' +
+  'S/I target, and why sectoring (which cuts the number of first-tier interferers from six to two or three) is ' +
+  'preferred over simply raising N.<br>' +
+  '<strong>Do not confuse R with D.</strong> R is the cell radius; D is the reuse distance between co-channel ' +
+  'cells. Co-channel cells are D away, adjacent cells are only \u221A3 R away, and the mobile at the cell edge is ' +
+  'R from its own base station. Substituting R for D in the S/I expression overstates the ratio by 3^2 = 9 times ' +
+  '(about 9.5 dB) at n = 4.';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

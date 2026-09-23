@@ -1,0 +1,99 @@
+{
+  "scope": "Evaluate public projects by dividing discounted benefits by discounted costs, in conventional, modified and incremental form.",
+  "intuition": "The benefit-cost ratio asks how many pesos of public benefit each peso of cost buys. It is the present-worth test rewritten as a fraction, so it answers the same yes-or-no question — but the fraction itself is fragile, because moving a cost between numerator and denominator changes the number without changing the project.",
+  "concept": [
+    "**Conventional benefit-cost ratio.** Discount all benefits and all costs to a common point, then divide: $(B/C)_{conv} = \\frac{PW_B - PW_D}{PW_{FC} + PW_{O\\&M}}$, where $B$ is user benefit, $D$ is disbenefit (a harm suffered by the public, such as lost business or added noise) and $O\\&M$ is the operating and maintenance cost. Accept the project when $B/C \\ge 1$. The logic is exactly the present-worth test: $B/C \\ge 1$ if and only if $PW_{net} \\ge 0$ at the same discount rate, so the ratio is a presentation of the PW result rather than an independent criterion.",
+    "**Modified benefit-cost ratio.** The modified form moves operating and maintenance cost out of the denominator and subtracts it from benefits instead: $(B/C)_{mod} = \\frac{PW_B - PW_D - PW_{O\\&M}}{PW_{FC}}$. Only the initial investment sits in the denominator, which is what some funding agencies mean by 'return on the capital'. The two forms give different numbers for the same project — a conventional 1.32 can correspond to a modified 1.47 — but they always agree on accept or reject, because the underlying net present worth is the same. Answer the form the question asks for, and never mix one form's numerator with the other's denominator.",
+    "**Incremental analysis for mutually exclusive projects.** Ranking projects by their absolute $B/C$ is wrong, because a small project with a spectacular ratio can be beaten by a larger one with a modest ratio that produces far more net benefit. The correct procedure orders alternatives by increasing initial cost, starts with the cheapest as the current best, and compares each challenger against it on the *increments*: $\\Delta B/\\Delta C = (B_2-B_1)/(C_2-C_1)$. Switch to the challenger when $\\Delta B/\\Delta C \\ge 1$, that is, when the extra benefits justify the extra cost. This is the same incremental logic that governs rate-of-return comparisons of mutually exclusive alternatives.",
+    "**What goes where, and the Philippine framing.** Benefits are the reductions in cost or increases in welfare that accrue to the public — travel-time savings, avoided accidents, flood damage prevented. Disbenefits are losses imposed on a identifiable group and go in the numerator with a minus sign. Salvage value is a cost reduction and belongs in the denominator with a minus sign; putting it in the numerator changes the reported ratio even though the net present worth is unaffected, so state the convention you use. For public projects the discount rate is normally prescribed (in the Philippines, a social discount rate issued by NEDA) rather than a private MARR, all cash flows are assumed to occur at end of period, and equal-life alternatives may be compared on an annual-worth ratio because a common factor cancels."
+  ],
+  "formulas": [
+    { "q": "Conventional benefit-cost ratio", "e": "(B/C)_{conv} = \\frac{PW_B - PW_D}{PW_{FC} + PW_M}", "n": "PW_M is the present worth of operating and maintenance cost. Disbenefits reduce benefits; first cost and O&M both sit in the denominator. Accept when >= 1." },
+    { "q": "Modified benefit-cost ratio", "e": "(B/C)_{mod} = \\frac{PW_B - PW_D - PW_M}{PW_{FC}}", "n": "PW_M is the present worth of operating and maintenance cost. Only the initial investment is in the denominator. Never mix it with the conventional numerator." },
+    { "q": "Annual-worth form", "e": "(B/C) = \\frac{AW_B - AW_D}{AW_{FC} + AW_M}", "n": "Same ratio as the PW form when lives are equal, because the (A/P) factor cancels top and bottom." },
+    { "q": "Acceptance test", "e": "(B/C) \\ge 1 \\iff PW_{net} \\ge 0", "n": "Both tests use the same discount rate; a ratio below 1 means a negative net present worth." },
+    { "q": "Incremental benefit-cost ratio", "e": "\\Delta B/\\Delta C = \\frac{B_2 - B_1}{C_2 - C_1}", "n": "Compare in increasing order of cost; adopt the costlier alternative when the ratio is >= 1." },
+    { "q": "Disbenefit treatment", "e": "B_{net} = PW_B - PW_D", "n": "Disbenefits are subtracted from benefits in the numerator, not added to costs, in the conventional form." },
+    { "q": "Net benefit", "e": "NB = PW_B - PW_D - PW_{FC} - PW_M", "n": "Use NB to rank projects when budgets are limited; B/C alone ignores the size of the net gain." },
+    { "q": "Salvage as a cost reduction", "e": "PW_{cost} = PW_{FC} + PW_M - PW_{SV}", "n": "Salvage lowers the denominator. Treating it as a benefit instead changes the ratio, so declare the convention." }
+  ],
+  "problems": [
+    {
+      "prompt": "A public project has a first cost of ₱10,000,000, annual O&M of ₱500,000, annual public benefits of ₱2,000,000, a 20-year life and no salvage. At 8%, find the conventional benefit-cost ratio.",
+      "give": ["$FC = 10000000$", "$A_{O\\&M} = 500000$", "$B = 2000000$ per year", "$n = 20$", "$i = 0.08$"],
+      "steps": [
+        "$(P/A,8\\%,20) = [1-(1.08)^{-20}]/0.08 = 9.818147$.",
+        "$PW_B = 2000000(9.818147) = 19636295$.",
+        "$PW_{O\\&M} = 500000(9.818147) = 4909074$; total cost $= 10000000 + 4909074 = 14909074$.",
+        "$(B/C)_{conv} = 19636295/14909074 = 1.317$."
+      ],
+      "ans": "$(B/C)_{conv} = 1.32$, so the project is acceptable.",
+      "trap": "Leaving O&M out of the denominator, 19636295/10000000 = 1.96. The conventional ratio charges the project with every cost, including the recurring ones.", "calc": {"mode":"COMP","steps":["`((1.08)^20−1)÷(0.08(1.08)^20)` `SHIFT` `STO` `A` → $(P/A,8\\%,20)$ = **9.818147**.","`2000000A÷(10000000+500000A)` → $(B/C)_{conv}$ = **1.317070**, i.e. **1.32** — O&M sits in the denominator, where the conventional form wants it."]}
+    },
+    {
+      "prompt": "For the same project, find the modified benefit-cost ratio and explain why it differs from the conventional figure.",
+      "give": ["$PW_B = 19636295$", "$PW_{O\\&M} = 4909074$", "$FC = 10000000$"],
+      "steps": [
+        "$(B/C)_{mod} = (PW_B - PW_{O\\&M})/PW_{FC}$.",
+        "$PW_B - PW_{O\\&M} = 19636295 - 4909074 = 14727221$.",
+        "$(B/C)_{mod} = 14727221/10000000 = 1.473$."
+      ],
+      "ans": "$(B/C)_{mod} = 1.47$; the project still passes.",
+      "trap": "Quoting 1.32 and 1.47 interchangeably. Both describe the same project; the difference is purely where O&M is placed, and a question that says 'modified' wants the version with O&M subtracted from benefits."
+    },
+    {
+      "prompt": "Two mutually exclusive projects over 10 years at 10%. A: ₱5,000,000 first cost, ₱150,000 annual O&M, ₱1,200,000 annual benefits. B: ₱8,000,000 first cost, ₱250,000 annual O&M, ₱1,900,000 annual benefits. Which should be chosen?",
+      "give": ["$i = 0.10$", "$n = 10$ years", "A: $FC = 5000000$, $B = 1200000$, $O\\&M = 150000$", "B: $FC = 8000000$, $B = 1900000$, $O\\&M = 250000$"],
+      "steps": [
+        "$(P/A,10\\%,10) = 6.144567$.",
+        "A: $PW_B = 1200000(6.144567) = 7373480$; cost $= 5000000 + 150000(6.144567) = 5921685$; $(B/C)_A = 1.245$.",
+        "B: $PW_B = 1900000(6.144567) = 11674677$; cost $= 8000000 + 250000(6.144567) = 9536142$; $(B/C)_B = 1.224$.",
+        "Absolute ratios favour A, so test the increment: $\\Delta B = 11674677 - 7373480 = 4301197$ and $\\Delta C = 9536142 - 5921685 = 3614457$.",
+        "$\\Delta B/\\Delta C = 4301197/3614457 = 1.190 \\ge 1$, so upgrade to B."
+      ],
+      "ans": "Choose B. The absolute ratios are 1.245 (A) and 1.224 (B), but the incremental ratio is 1.19.",
+      "trap": "Ranking by the absolute B/C and selecting A because 1.245 > 1.224. The extra ₱3.61M of cost buys ₱4.30M of extra benefit, an incremental ratio of 1.19, so the larger project is the correct choice.", "calc": {"mode":"COMP","steps":["`((1.1)^10−1)÷(0.1(1.1)^10)` `SHIFT` `STO` `A` → $(P/A,10\\%,10)$ = **6.144567**.","Absolute ratios from the stored factor: `1200000A÷(5000000+150000A)` → **1.245166** against `1900000A÷(8000000+250000A)` → **1.224256**.","Increments in one entry: `(1900000−1200000)A÷(3000000+100000A)` → $\\Delta B/\\Delta C$ = **1.189998** $\\ge$ 1, so upgrade to B."]}
+    },
+    {
+      "prompt": "Project A from the previous question also imposes ₱100,000 per year of disbenefits on local businesses. Recompute its conventional ratio.",
+      "give": ["$PW_B = 7373480$", "$PW_{O\\&M} = 921685$", "$FC = 5000000$", "$D = 100000$ per year"],
+      "steps": [
+        "$PW_D = 100000(6.144567) = 614457$.",
+        "Net benefits: $7373480 - 614457 = 6759023$.",
+        "Cost: $5000000 + 921685 = 5921685$.",
+        "$(B/C)_{conv} = 6759023/5921685 = 1.141$."
+      ],
+      "ans": "$(B/C)_{conv} = 1.14$; the project still passes.",
+      "trap": "Adding the disbenefit to the cost denominator, which gives 6759023/(5921685+614457) = 1.03 for the wrong reason. Disbenefits are subtracted from benefits in the conventional form."
+    },
+    {
+      "prompt": "A project costs ₱2,000,000, yields ₱700,000 per year in benefits, spends ₱250,000 per year on O&M, lasts 8 years and has a ₱500,000 salvage. Find the conventional ratio at 12% if the salvage is treated as a cost reduction.",
+      "give": ["$FC = 2000000$", "$B = 700000$", "$O\\&M = 250000$", "$SV = 500000$", "$n = 8$", "$i = 0.12$"],
+      "steps": [
+        "$(P/A,12\\%,8) = 4.967640$ and $(P/F,12\\%,8) = 0.403883$.",
+        "$PW_B = 700000(4.967640) = 3477348$.",
+        "$PW_{cost} = 2000000 + 250000(4.967640) - 500000(0.403883) = 2000000 + 1241910 - 201942 = 3039968$.",
+        "$(B/C)_{conv} = 3477348/3039968 = 1.144$."
+      ],
+      "ans": "$(B/C)_{conv} = 1.14$, so the project passes.",
+      "trap": "Adding the salvage to benefits instead of subtracting it from costs: (3477348+201942)/(2000000+1241910) = 1.135. The net present worth is unchanged, but the reported ratio is not, so state the convention you used.", "calc": {"mode":"COMP","steps":["`((1.12)^8−1)÷(0.12(1.12)^8)` `SHIFT` `STO` `A` → **4.967640**; `1.12^-8` `SHIFT` `STO` `B` → **0.403883**.","`700000A÷(2000000+250000A−500000B)` → $(B/C)_{conv}$ = **1.143876**, i.e. **1.14**."]}
+    }
+  ],
+  "traps": [
+    "**Putting O&M in the wrong place.** Conventional B/C charges O&M in the denominator; modified B/C subtracts it from benefits. Mixing the two produces a ratio that matches neither definition.",
+    "**Ranking mutually exclusive projects by absolute B/C.** A cheap project with a high ratio can hide a larger project with more net benefit. Compare increments in increasing order of cost.",
+    "**Treating disbenefits as costs.** Disbenefits reduce benefits in the numerator of the conventional ratio; adding them to the denominator changes the number.",
+    "**Forgetting that B/C and PW must agree on accept or reject.** A ratio above 1 with a negative present worth means one of the two computations used a different discount rate or a different set of cash flows.",
+    "**Ignoring project scale.** A ratio says nothing about how much benefit is created; when the budget is limited, rank by net benefit or by incremental ratio, not by B/C alone.",
+    "**Discounting benefits and costs at different rates.** Both sides must use the same social discount rate, or the ratio is meaningless."
+  ],
+  "refs": [
+    "[[07_PW,_FW_and_AW_Methods]]",
+    "[[08_Rate_of_Return_and_Payback]]",
+    "[[06_Capitalized_Cost]]"
+  ],
+  "prereqs": [
+    "[[07_PW,_FW_and_AW_Methods]]",
+    "[[03_Ordinary_Annuity_and_Annuity_Due]]"
+  ]
+}

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smith Chart — Load Impedance, VSWR Circle and Line Transformation</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, deg, rad } from '../../../Assets/vault.js';
+
+// The Smith chart is one equation drawn once:
+//     Gamma = (z - 1) / (z + 1)          z = Z_L / Z0
+// Constant-r and constant-x loci in the impedance plane are CIRCLES in the Gamma plane,
+// which is the whole reason the chart exists. Moving along a lossless line rotates Gamma by
+// -2 beta l, i.e. it slides the point clockwise around a circle centred on the origin whose
+// radius is |Gamma| - the VSWR circle. This widget draws the graticule from those circle
+// equations (not from an image), so every point on it can be checked by hand.
+
+const TAU = Math.PI * 2;
+
+/** Gamma from normalised impedance. */
+function gammaOf(r, x) {
+  const dr = r + 1, di = x;
+  const den = dr * dr + di * di;
+  return { re: (r * r + x * x - 1) / den, im: (2 * x) / den };
+}
+/** Normalised impedance from Gamma. */
+function zOf(g) {
+  const dr = 1 - g.re, di = -g.im;
+  const den = dr * dr + di * di;
+  if (den < 1e-15) return { r: Infinity, x: Infinity };
+  return { r: (1 - g.re * g.re - g.im * g.im) / den, x: (2 * g.im) / den };
+}
+/** Gamma at distance l (wavelengths, lossless) from the load. */
+function gammaAt(g, l) {
+  const th = -4 * Math.PI * l;
+  const c = Math.cos(th), s = Math.sin(th);
+  return { re: g.re * c - g.im * s, im: g.re * s + g.im * c };
+}
+/** Attenuated Gamma at distance l for a line with loss alphaDb dB per wavelength. */
+function gammaLossy(g, l, alphaDb) {
+  const f = Math.pow(10, -(alphaDb * l) / 20);
+  return { re: g.re * f, im: g.im * f };
+}
+function mag(g) { return Math.hypot(g.re, g.im); }
+function phaseDeg(g) { return deg(Math.atan2(g.im, g.re)); }
+
+// ---------------------------------------------------------------------------
+// graticule cache: identical for every load, built once
+// ---------------------------------------------------------------------------
+let GRAT = null;
+function graticule() {
+  if (GRAT) return GRAT;
+  const rez = [];
+  const rx = [];
+  const rVals = [0, 0.2, 0.5, 1, 2, 5, 10, 20, 50];
+  for (const r of rVals) {
+    const cR = r / (1 + r), rad2 = 1 / (1 + r);
+    const pts = [];
+    for (let k = 0; k <= 96; k++) {
+      const th = TAU * (k / 96);
+      pts.push([cR + rad2 * Math.cos(th), rad2 * Math.sin(th)]);
+    }
+    rez.push({ r, pts });
+  }
+  const xAbs = [0.1, 0.2, 0.5, 1, 2, 5, 10];
+  for (const sgn of [1, -1]) {
+    for (const xv of xAbs) {
+      const x = sgn * xv;
+      const cX = 1, cY = 1 / x, rad2 = 1 / Math.abs(x);
+      const pts = [];
+      for (let k = 0; k <= 96; k++) {
+        const th = TAU * (k / 96);
+        const px = cX + rad2 * Math.cos(th);
+        const py = cY + rad2 * Math.sin(th);
+        if (px * px + py * py <= 1.0001) pts.push([px, py]);
+      }
+      if (pts.length > 1) rx.push({ x, pts });
+    }
+  }
+  GRAT = { rez, rx };
+  return GRAT;
+}
+
+widget({
+  title: 'Smith Chart — Load Impedance, VSWR Circle and Impedance at Any Line Length',
+  description:
+    'Enter Z_L normalised to Z0. The graticule is built from the constant-resistance and constant-reactance circle equations, so every intersection can be checked by hand. The dashed circle through the load is the VSWR circle: adding line rotates the point clockwise around it by 2 beta l, and the readout shows the impedance at whatever length you set.',
+  height: 660,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'r', label: 'normalised load resistance r = R/Z0', min: 0, max: 10, step: 0.01, value: 2 },
+    { id: 'x', label: 'normalised load reactance x = X/Z0', min: -6, max: 6, step: 0.01, value: 1 },
+    { id: 'l', label: 'line length l (wavelengths)', min: 0, max: 2, step: 0.005, value: 0.2 },
+    { id: 'z0', label: 'characteristic impedance Z0 (ohm)', min: 10, max: 300, step: 1, value: 50 },
+    { id: 'f', label: 'frequency (MHz)', min: 1, max: 3000, step: 1, value: 300 },
+    { id: 'att', label: 'line loss (dB per wavelength)', min: 0, max: 3, step: 0.01, value: 0 },
+    { id: 'rot', label: 'show the rotation to l', type: 'checkbox', value: true },
+    { id: 'read', label: 'show the impedance grid', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const r = v.r, x = v.x, z0 = v.z0, L = v.l;
+    const gL = gammaOf(r, x);
+    const gLmag = mag(gL);
+    const gLph = phaseDeg(gL);                       // degrees, -180..180
+
+    // VSWR from |Gamma|; guard the |Gamma| -> 1 pole explicitly
+    const denom = 1 - gLmag;
+    const vswr = denom < 1e-9 ? Infinity : (1 + gLmag) / denom;
+    const rlDb = gLmag < 1e-9 ? -Infinity : 20 * Math.log10(gLmag);
+    const mismatchLoss = -10 * Math.log10(Math.max(1 - gLmag * gLmag, 1e-12));
+    const retLoss = gLmag < 1e-9 ? Infinity : -20 * Math.log10(gLmag);
+
+    // impedance at the user's line length
+    const gAt = gammaLossy(gL, L, v.att);
+    const zAt = zOf(gAt);
+    const reflCoefAt = mag(gAt);
+
+    // voltage extrema along the line: |V(d)| peaks where the phase of Gamma(d) is a
+    // multiple of pi. With Gamma(d) = |G| e^{j(phi - 4 pi d)} that gives d = (phi - n pi)/(4 pi).
+    const maxs = [], mins = [];
+    const phaseRad = Math.atan2(gL.im, gL.re);
+    for (let n = -8; n <= 10; n++) {
+      const dMax = (phaseRad - n * Math.PI) / (4 * Math.PI);
+      const dMin = (phaseRad - (n + 0.5) * Math.PI) / (4 * Math.PI);
+      if (dMax > 1e-9 && dMax <= 0.5 + 1e-9) maxs.push(dMax);
+      if (dMin > 1e-9 && dMin <= 0.5 + 1e-9) mins.push(dMin);
+    }
+    maxs.sort((a, b) => a - b); mins.sort((a, b) => a - b);
+    const firstMax = maxs.length ? maxs[0] : 0.25;
+    const firstMin = mins.length ? mins[0] : 0.25;
+
+    // wavelength on the line (assume air / TEM, v_p = c unless the frequency says otherwise)
+    const lambda = 299.792458 / v.f;                 // metres, MHz -> m
+
+    // distance the point travels for the chosen l
+    const rotations = 2 * L;                          // full turns (each 0.5 lambda = 1 turn)
+
+    return {
+      r, x, z0, L, gL, gLmag, gLph, vswr, rlDb, mismatchLoss, retLoss,
+      gAt, zAt, reflCoefAt, firstMax, firstMin, maxs, mins, lambda, rotations, att: v.att,
+      valid: Number.isFinite(r) && Number.isFinite(x),
+      pureShort: r < 1e-9 && Math.abs(x) < 1e-9,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+
+    // ---- layout: square chart on the left, text panel on the right ---------
+    const size = Math.min(H - 108, W - 330);
+    const ccx = 34 + size / 2;
+    const ccy = 62 + size / 2;
+    const rad2 = size / 2;
+    const X = (gx) => ccx + gx * rad2;
+    const Y = (gy) => ccy - gy * rad2;
+    // so that a point with positive Im{Gamma} draws ABOVE the centre, as always stated.
+
+    plot.text('Smith chart  (Gamma plane: u = Re{Gamma}, v = Im{Gamma})', 16, 18,
+      { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('z = R/Z0 + jX/Z0 = ' + fmt(out.r, 4) + ' ' + (out.x < 0 ? '\u2212 ' : '+ ') +
+      fmt(Math.abs(out.x), 4) + 'j        Gamma = (z \u2212 1)/(z + 1) = ' + fmt(out.gL.re, 5) +
+      (out.gL.im < 0 ? ' \u2212 ' : ' + ') + fmt(Math.abs(out.gL.im), 5) + 'j',
+      16, 36, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+
+    // ---- unit circle (|Gamma| = 1, the r = 0 locus) ------------------------
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.6)';
+    ctx.beginPath(); ctx.arc(ccx, ccy, rad2, 0, TAU); ctx.fill();
+    ctx.strokeStyle = PALETTE.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(ccx, ccy, rad2, 0, TAU); ctx.stroke();
+    ctx.restore();
+
+    // ---- graticule ---------------------------------------------------------
+    if (v.read) {
+      const G = graticule();
+      ctx.save();
+      ctx.strokeStyle = 'rgba(138,138,168,0.42)';
+      ctx.lineWidth = 1;
+      for (const c of G.rez) {
+        ctx.beginPath();
+        for (let i = 0; i < c.pts.length; i++) {
+          const px = X(c.pts[i][0]), py = Y(c.pts[i][1]);
+          i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.closePath(); ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(138,138,168,0.34)';
+      for (const c of G.rx) {
+        ctx.beginPath();
+        for (let i = 0; i < c.pts.length; i++) {
+          const px = X(c.pts[i][0]), py = Y(c.pts[i][1]);
+          i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+      // resistance labels along the real axis
+      for (const rv of [0, 0.5, 1, 2, 5]) {
+        const g = gammaOf(rv, 0);
+        plot.text(fmt(rv, 3), X(g.re), Y(0) + 14,
+          { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      }
+      plot.text('r = 0', X(-1) + 6, Y(0) + 14, { color: PALETTE.dim, font: '9px ui-monospace, monospace' });
+      plot.text('r \u2192 \u221E', X(1) - 6, Y(0) + 14,
+        { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'right' });
+      plot.text('+jx', X(0.62), Y(-0.86), { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      plot.text('\u2212jx', X(0.62), Y(0.86), { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      plot.text('x = 0', X(0.02), Y(0) - 6, { color: PALETTE.dim, font: '9px ui-monospace, monospace' });
+    }
+
+    // ---- axes of the Gamma plane ------------------------------------------
+    ctx.save();
+    ctx.strokeStyle = 'rgba(160,160,190,0.5)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(X(-1), Y(0)); ctx.lineTo(X(1), Y(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0), Y(-1)); ctx.lineTo(X(0), Y(1)); ctx.stroke();
+    ctx.restore();
+
+    // ---- VSWR circle -------------------------------------------------------
+    const gAt = out.gAt;
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.lineWidth = 2.2;
+    ctx.setLineDash([7, 5]);
+    ctx.beginPath();
+    ctx.arc(ccx, ccy, out.gLmag * rad2, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
+    plot.text('VSWR circle |Gamma| = ' + fmt(out.gLmag, 5) + '  (VSWR ' +
+      (isFinite(out.vswr) ? fmt(out.vswr, 5) : '\u221E') + ')',
+      ccx, ccy - out.gLmag * rad2 - 8,
+      { color: PALETTE.accent3, font: '10px ui-monospace, monospace', align: 'center' });
+
+    // ---- rotation arc from the load to l ----------------------------------
+    if (v.rot && out.gLmag > 1e-6) {
+      const a0 = Math.atan2(out.gL.im, out.gL.re);
+      const a1 = Math.atan2(gAt.im, gAt.re);
+      // walk clockwise (decreasing phase) from the load to the point at l
+      let sweep = a1 - a0;
+      while (sweep > 0) sweep -= TAU;
+      ctx.save();
+      ctx.strokeStyle = PALETTE.warn;
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      const rArc = out.gLmag * rad2 * 0.78;
+      ctx.arc(ccx, ccy, rArc, -a0, -(a0 + sweep), true);
+      ctx.stroke();
+      ctx.restore();
+      plot.text('rotation 2 beta l = ' + fmt(2 * out.L * 360, 5) + '\u00B0 clockwise',
+        ccx, ccy + out.gLmag * rad2 + 16,
+        { color: PALETTE.warn, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+
+    // ---- voltage max / min markers on the VSWR circle ---------------------
+    const uMax = out.gLmag, uMin = -out.gLmag;
+    ctx.save();
+    ctx.fillStyle = PALETTE.accent2;
+    ctx.beginPath(); ctx.arc(X(uMax), Y(0), 4, 0, TAU); ctx.fill();
+    ctx.fillStyle = PALETTE.accent;
+    ctx.beginPath(); ctx.arc(X(uMin), Y(0), 4, 0, TAU); ctx.fill();
+    ctx.restore();
+    plot.text('V max @ l = ' + fmt(out.firstMax, 4) + ' \u03BB', X(uMax) + 6, Y(0) - 6,
+      { color: PALETTE.accent2, font: '9px ui-monospace, monospace' });
+    plot.text('V min @ l = ' + fmt(out.firstMin, 4) + ' \u03BB', X(uMin) - 6, Y(0) + 14,
+      { color: PALETTE.accent, font: '9px ui-monospace, monospace', align: 'right' });
+
+    // ---- the load point ----------------------------------------------------
+    plot.dot(out.gL.re, out.gL.im, { color: PALETTE.accent5, r: 6 });
+    plot.text('Z_L', X(out.gL.re) + 9, Y(out.gL.im) - 9,
+      { color: PALETTE.accent5, font: 'bold 11px ui-monospace, monospace' });
+    ctx.save();
+    ctx.strokeStyle = 'rgba(203,166,247,0.55)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(ccx, ccy); ctx.lineTo(X(out.gL.re), Y(out.gL.im)); ctx.stroke();
+    ctx.restore();
+
+    // ---- the point at the user's line length ------------------------------
+    plot.dot(gAt.re, gAt.im, { color: PALETTE.warn, r: 6 });
+    plot.text('Z(l = ' + fmt(out.L, 4) + ' \u03BB)', X(gAt.re) + 9, Y(gAt.im) + 14,
+      { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+
+    // ---- generator / short markers ----------------------------------------
+    plot.dot(0, 0, { color: PALETTE.text, r: 3 });
+    plot.text('r = 1 (matched)', X(0) + 6, Y(0) - 6, { color: PALETTE.dim, font: '9px ui-monospace, monospace' });
+
+    // ================================================= text panel
+    const px0 = ccx + rad2 + 24;
+    const lines = [
+      ['GAMMA (load)', PALETTE.accent5],
+      ['rectangular  = ' + fmt(out.gL.re, 5) + (out.gL.im < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.gL.im), 5), PALETTE.text],
+      ['polar        = ' + fmt(out.gLmag, 5) + ' \u2220 ' + fmt(out.gLph, 5) + '\u00B0', PALETTE.text],
+      ['|Gamma|      = ' + fmt(out.gLmag, 5), PALETTE.text],
+      ['return loss  = ' + (isFinite(out.retLoss) ? fmt(out.retLoss, 5) + ' dB' : '\u221E (total reflection)'), PALETTE.text],
+      ['', PALETTE.text],
+      ['VSWR', PALETTE.accent3],
+      ['VSWR = (1+|G|)/(1\u2212|G|) = ' + (isFinite(out.vswr) ? fmt(out.vswr, 5) : '\u221E'), PALETTE.text],
+      ['reflection loss = ' + fmt(out.mismatchLoss, 5) + ' dB', PALETTE.text],
+      ['', PALETTE.text],
+      ['AT l = ' + fmt(out.L, 4) + ' \u03BB FROM THE LOAD', PALETTE.warn],
+      ['rotated Gamma = ' + fmt(gAt.re, 5) + (gAt.im < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(gAt.im), 5), PALETTE.text],
+      ['|Gamma(l)|   = ' + fmt(out.reflCoefAt, 5) + (out.att > 0 ? '  (' + fmt(out.att, 3) + ' dB/\u03BB)' : '  (lossless: unchanged)'), PALETTE.text],
+      ['Z(l)         = ' + (isFinite(out.zAt.r) ? fmt(out.zAt.r * out.z0, 5) : '\u221E') +
+        (out.zAt.x < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.zAt.x * out.z0), 5) + ' ohm', PALETTE.warn],
+      ['z(l)         = ' + (isFinite(out.zAt.r) ? fmt(out.zAt.r, 5) : '\u221E') +
+        (out.zAt.x < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.zAt.x), 5), PALETTE.warn],
+      ['', PALETTE.text],
+      ['LAMBDA ON THE LINE', PALETTE.accent4],
+      ['lambda = c/f = ' + fmt(out.lambda, 5) + ' m at ' + fmt(v.f, 5) + ' MHz', PALETTE.text],
+      ['l = ' + fmt(out.L, 4) + ' \u03BB = ' + fmt(out.L * out.lambda, 5) + ' m', PALETTE.text],
+      ['', PALETTE.text],
+      ['EXTREMA (from the load)', PALETTE.accent2],
+      ['first V max at ' + fmt(out.firstMax, 5) + ' \u03BB  (|V| = ' + fmt(1 + out.gLmag, 5) + ')', PALETTE.text],
+      ['first V min at ' + fmt(out.firstMin, 5) + ' \u03BB  (|V| = ' + fmt(1 - out.gLmag, 5) + ')', PALETTE.text],
+      ['spacing max to max = 0.5 \u03BB', PALETTE.dim],
+      ['load is at ' + (out.gLmag < 1e-9 ? 'the centre (matched)' :
+        (Math.abs(out.gLph) < 1e-6 ? 'a V max' : (Math.abs(Math.abs(out.gLph) - 180) < 1e-6 ? 'a V min' : 'neither'))), PALETTE.text],
+    ];
+    let ly = 62;
+    for (const [txt, col] of lines) {
+      if (txt === '') { ly += 7; continue; }
+      plot.text(txt, px0, ly, { color: col, font: '11px ui-monospace, monospace' });
+      ly += 15;
+    }
+
+    // ---- bottom verdict ----------------------------------------------------
+    let verdict;
+    if (out.pureShort) {
+      verdict = 'Z_L = 0 (short circuit): |Gamma| = 1, VSWR = infinity. The point sits on the rim, the VSWR circle IS the rim, and every line length simply walks the rim clockwise.';
+    } else if (out.gLmag < 1e-6) {
+      verdict = 'Z_L = Z0 (matched): Gamma = 0, VSWR = 1. The point is the centre of the chart and adding line changes nothing \u2014 that is what "matched" means.';
+    } else if (out.att > 0) {
+      verdict = 'Lossy line: |Gamma| shrinks as you move away from the load, so the locus spirals inward, VSWR improves toward 1 and the extrema migrate. A lossless line would keep |Gamma| constant and the extrema exactly 0.5 lambda apart.';
+    } else {
+      verdict = 'Lossless line: |Gamma| is constant, so the locus is a closed circle. l = ' + fmt(out.L, 4) +
+        ' \u03BB rotates the point ' + fmt(2 * out.L * 360, 5) + '\u00B0 clockwise = ' + fmt(out.rotations * 2, 5) +
+        ' full turns of the chart (0.5 \u03BB per turn).';
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, H - 30, W - 20, 24);
+    ctx.restore();
+    plot.text(verdict, 16, H - 13, { color: PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'load z = R/Z0 + jX/Z0': fmt(out.r, 5) + (out.x < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.x), 5),
+    'load impedance Z_L': (isFinite(out.r * out.z0) ? fmt(out.r * out.z0, 5) : '\u221E') +
+      (out.x < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.x * out.z0), 5) + ' ohm',
+    'Gamma (rectangular)': fmt(out.gL.re, 5) + (out.gL.im < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.gL.im), 5),
+    'Gamma (polar)': fmt(out.gLmag, 5) + ' \u2220 ' + fmt(out.gLph, 5) + '\u00B0',
+    '|Gamma|': fmt(out.gLmag, 5),
+    'VSWR': isFinite(out.vswr) ? fmt(out.vswr, 5) : '\u221E (|Gamma| = 1)',
+    'return loss': isFinite(out.retLoss) ? fmt(out.retLoss, 5) + ' dB' : '\u221E dB',
+    'mismatch (reflection) loss': fmt(out.mismatchLoss, 5) + ' dB',
+    'V max position from load': fmt(out.firstMax, 5) + ' \u03BB   (|V| = ' + fmt(1 + out.gLmag, 5) + ')',
+    'V min position from load': fmt(out.firstMin, 5) + ' \u03BB   (|V| = ' + fmt(1 - out.gLmag, 5) + ')',
+    'max-to-max spacing': '0.5 \u03BB exactly (lossless)',
+    'line length l': fmt(out.L, 5) + ' \u03BB',
+    'rotation 2 beta l': fmt(2 * out.L * 360, 5) + '\u00B0 clockwise',
+    'Gamma at l': fmt(out.gAt.re, 5) + (out.gAt.im < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.gAt.im), 5),
+    '|Gamma| at l': fmt(out.reflCoefAt, 5) + (out.att > 0 ? '   (loss ' + fmt(out.att, 3) + ' dB/\u03BB)' : '   (constant)'),
+    'Z at l': (isFinite(out.zAt.r * out.z0) ? fmt(out.zAt.r * out.z0, 5) : '\u221E') +
+      (out.zAt.x < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.zAt.x * out.z0), 5) + ' ohm',
+    'z at l (normalised)': (isFinite(out.zAt.r) ? fmt(out.zAt.r, 5) : '\u221E') +
+      (out.zAt.x < 0 ? ' \u2212 j' : ' + j') + fmt(Math.abs(out.zAt.x), 5),
+    'wavelength on the line': fmt(out.lambda, 5) + ' m',
+    'physical length of l': fmt(out.L * out.lambda, 5) + ' m',
+    'line is': out.att > 0 ? 'lossy \u2014 Gamma spirals inward' : 'lossless \u2014 |Gamma| constant',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Adding line does not change |Gamma| \u2014 it changes its angle.</strong> This is the single fact ' +
+  'the Smith chart is built to make obvious. On a lossless line ' +
+  '<code>Gamma(l) = Gamma_L e^(\u2212j2 beta l)</code>, so the magnitude is frozen and only the phase rotates. ' +
+  'That is why the point slides <em>clockwise</em> around a circle centred on the origin: one full turn per ' +
+  'half wavelength toward the generator, and the same impedance repeats every <code>lambda/2</code>. ' +
+  'Rotate the wrong way and every answer is off by the round trip - the chart rotates clockwise toward the ' +
+  'generator and counter-clockwise toward the load.<br>' +
+  '<strong>Why the VSWR circle is a circle.</strong> Constant |Gamma| means constant VSWR, so the whole locus ' +
+  'of impedances produced by adding line is one circle. Where it crosses the real axis you find the extrema: ' +
+  'the right-hand crossing is <code>V_max</code> (where r = VSWR, x = 0) and the left-hand crossing is ' +
+  '<code>V_min</code> (where r = 1/VSWR). The readout reports both positions in wavelengths from the load, and ' +
+  'their separation is always <code>lambda/4</code> - the single most examinable property of the chart.<br>' +
+  '<strong>The mistake to avoid.</strong> "The VSWR on the line depends on its length" is false for a lossless ' +
+  'line and true only for a lossy one. Slide the loss slider off zero and watch |Gamma| shrink and the locus ' +
+  'spiral inward: attenuation is the <em>only</em> thing that improves VSWR along a line, which is exactly why a ' +
+  'long lossy feed can hide a badly matched antenna from the transmitter but not from the receiver.<br>' +
+  '<strong>Reading the chart.</strong> The graticule here is drawn from the actual circle equations: ' +
+  'constant resistance r is the circle with centre <code>(r/(1+r), 0)</code> and radius <code>1/(1+r)</code>, and ' +
+  'constant reactance x is the arc of the circle with centre <code>(1, 1/x)</code> and radius ' +
+  '<code>1/|x|</code>. Every one of those circles passes through the point (1, 0), which is the open circuit - ' +
+  'that is why the chart looks like it is fanning out from the right-hand rim. If you can reproduce those two ' +
+  'line equations you never need to memorise where the gridlines are.';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

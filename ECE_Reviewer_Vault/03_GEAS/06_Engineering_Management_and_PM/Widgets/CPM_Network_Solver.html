@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CPM Network Solver</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+/* ============================================================================
+ * CPM / PERT activity-on-node network solver.
+ *
+ * Forward pass   ES = max(EF of all predecessors),  EF = ES + duration
+ * Backward pass  LF = min(LS of all successors),    LS = LF - duration
+ *                (the terminal activity's LF is the project duration)
+ * Total float    TF = LS - ES = LF - EF
+ * Free float     FF = min(ES of successors) - EF
+ * The critical path is the chain with TF = 0 throughout; it fixes the project
+ * duration, and every other activity has float to spare.
+ *
+ * THE TRAP: float belongs to the ACTIVITY, not to the path, and a delay only
+ * extends the project once it exceeds that activity's TOTAL float. Students
+ * routinely add up the floats along a path and conclude the project can slip by
+ * their sum - the floats along a chain are not additive, because they overlap.
+ * The second trap is confusing total float with free float: free float is the
+ * delay that harms nobody at all, total float is the delay that harms nobody
+ * provided no other activity also slips.
+ * ==========================================================================*/
+
+/** Baseline durations for the 7-activity example network. */
+const BASE = [
+  { id: 'A', dur: 3, deps: [] },
+  { id: 'B', dur: 5, deps: ['A'] },
+  { id: 'C', dur: 4, deps: ['A'] },
+  { id: 'D', dur: 6, deps: ['B', 'C'] },
+  { id: 'E', dur: 8, deps: ['B'] },
+  { id: 'F', dur: 9, deps: ['D', 'E'] },
+  { id: 'G', dur: 3, deps: ['C'] },
+];
+
+const ACTS = [
+  { id: 'A', label: 'site survey and permits' },
+  { id: 'B', label: 'civil works' },
+  { id: 'C', label: 'procurement of equipment' },
+  { id: 'D', label: 'equipment installation' },
+  { id: 'E', label: 'cable pulling and termination' },
+  { id: 'F', label: 'testing and commissioning' },
+  { id: 'G', label: 'as-built documentation' },
+];
+
+const LABEL = new Map(ACTS.map((a) => [a.id, a.label]));
+
+/** @returns {object} forward/backward pass results */
+function solve(net) {
+  const byId = new Map(net.map((a) => [a.id, a]));
+  const succ = new Map(net.map((a) => [a.id, []]));
+  for (const a of net) for (const d of a.deps) if (succ.has(d)) succ.get(d).push(a.id);
+
+  // topological order (Kahn)
+  const indeg = new Map(net.map((a) => [a.id, a.deps.filter((d) => byId.has(d)).length]));
+  const order = [];
+  const queue = net.filter((a) => indeg.get(a.id) === 0).map((a) => a.id);
+  while (queue.length) {
+    const id = queue.shift();
+    order.push(id);
+    for (const s of succ.get(id)) {
+      indeg.set(s, indeg.get(s) - 1);
+      if (indeg.get(s) === 0) queue.push(s);
+    }
+  }
+  const memo = new Map();
+  const ES = (id) => {
+    if (memo.has(id)) return memo.get(id);
+    const a = byId.get(id);
+    const deps = a.deps.filter((d) => byId.has(d));
+    const v = deps.length ? Math.max(...deps.map(EF)) : 0;
+    memo.set(id, v);
+    return v;
+  };
+  const EF = (id) => ES(id) + byId.get(id).dur;
+  const project = net.length ? Math.max(...net.map((a) => EF(a.id))) : 0;
+  const memoL = new Map();
+  const LF = (id) => {
+    if (memoL.has(id)) return memoL.get(id);
+    const s = succ.get(id);
+    const v = s.length ? Math.min(...s.map(LS)) : project;
+    memoL.set(id, v);
+    return v;
+  };
+  const LS = (id) => LF(id) - byId.get(id).dur;
+  const rows = net.map((a) => {
+    const es = ES(a.id), ef = EF(a.id), ls = LS(a.id), lf = LF(a.id);
+    const s = succ.get(a.id);
+    const ff = (s.length ? Math.min(...s.map(ES)) : project) - ef;
+    // The descriptions live in ACTS, not BASE, so the label must be joined in here.
+    // Without it every "selected: X label" readout row printed undefined, because the
+    // row objects were spread from BASE which carries only id/dur/deps.
+    const desc = ACTS.find((x) => x.id === a.id);
+    return { ...a, label: desc ? desc.label : a.id, es, ef, ls, lf, tf: ls - es, ff, good: s };
+  });
+  // longest path (the critical chain), by walking zero-float predecessors
+  const byIdRow = new Map(rows.map((r) => [r.id, r]));
+  const crit = rows.filter((r) => Math.abs(r.tf) < 1e-9);
+  const start = crit.filter((r) => !r.deps.some((d) => byIdRow.has(d) && Math.abs(byIdRow.get(d).tf) < 1e-9));
+  const chainIds = [];
+  const walk = (id) => {
+    chainIds.push(id);
+    const next = crit.find((r) => r.deps.includes(id));
+    if (next) walk(next.id);
+  };
+  if (start.length) walk(start[0].id);
+  return { rows, project, succ, byIdRow, chainIds, critCount: crit.length, order };
+}
+
+widget({
+  title: 'CPM Network Solver — Forward Pass, Backward Pass, Float and Critical Path',
+  description:
+    'A 7-activity activity-on-node network with editable durations. Earliest and latest start and finish, total ' +
+    'and free float, and the critical path are computed and drawn.',
+  height: 520,
+  range: { xMin: -1, xMax: 30, yMin: -0.5, yMax: 6.5 },
+  controls: [
+    { id: 'dA', label: 'A  site survey and permits (days)', min: 1, max: 20, step: 1, value: 3 },
+    { id: 'dB', label: 'B  civil works (days)', min: 1, max: 20, step: 1, value: 5 },
+    { id: 'dC', label: 'C  procurement of equipment (days)', min: 1, max: 20, step: 1, value: 4 },
+    { id: 'dD', label: 'D  equipment installation (days)', min: 1, max: 20, step: 1, value: 6 },
+    { id: 'dE', label: 'E  cable pulling and termination (days)', min: 1, max: 20, step: 1, value: 8 },
+    { id: 'dF', label: 'F  testing and commissioning (days)', min: 1, max: 20, step: 1, value: 9 },
+    { id: 'dG', label: 'G  as-built documentation (days)', min: 1, max: 20, step: 1, value: 3 },
+    {
+      id: 'sel', label: 'inspect activity', type: 'select',
+      options: ACTS.map((a) => ({ value: a.id, label: a.id + ' — ' + a.label })), value: 'E',
+    },
+    { id: 'showFloat', label: 'shade each activity float window', type: 'checkbox', value: true },
+    { id: 'showDeps', label: 'show the dependency arrows', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const net = BASE.map((a) => ({ ...a, dur: Math.max(1, Math.round(v['d' + a.id])), label: LABEL.get(a.id) }));
+    const R = solve(net);
+    const selRow = R.byIdRow.get(v.sel) ?? R.rows[0];
+    // level each activity by longest chain from a start node, for the drawing
+    const level = new Map();
+    const lvl = (id) => {
+      if (level.has(id)) return level.get(id);
+      const r = R.byIdRow.get(id);
+      const deps = r.deps.filter((d) => R.byIdRow.has(d));
+      const L = deps.length ? Math.max(...deps.map(lvl)) + 1 : 0;
+      level.set(id, L);
+      return L;
+    };
+    R.rows.forEach((r) => lvl(r.id));
+    const maxLevel = Math.max(...R.rows.map((r) => level.get(r.id)), 0);
+    // place nodes on a time axis at their earliest start
+    const placed = R.rows.map((r) => ({ ...r, level: level.get(r.id) }));
+    return {
+      ...R, placed, maxLevel, selId: v.sel, selRow, showFloat: !!v.showFloat, showDeps: !!v.showDeps,
+      durations: net.map((a) => a.id + '=' + a.dur).join(' '),
+      totalFloatSum: R.rows.reduce((s, r) => s + r.tf, 0),
+      critChain: R.chainIds.join(' -> '),
+      minSlack: Math.min(...R.rows.map((r) => r.tf)),
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h;
+    const padL = 58, padR = 40, padT = 44, padB = 60;
+    const T = Math.max(out.project, 1);
+    const xOf = (t) => padL + (t / T) * (W - padL - padR);
+    const levels = Math.max(out.maxLevel, 1);
+    const rowH = (H - padT - padB) / (levels + 1);
+    const yOf = (L) => padT + (L + 0.5) * rowH;
+
+    plot.setRange({ xMin: 0, xMax: 1, yMin: 0, yMax: 1 });
+    plot.clear();
+    ctx.save();
+
+    // time gridlines
+    ctx.font = '10px ui-monospace, monospace';
+    const stepT = T <= 12 ? 1 : (T <= 30 ? 2 : 5);
+    for (let t = 0; t <= T; t += stepT) {
+      const x = xOf(t);
+      ctx.strokeStyle = 'rgba(58,58,82,0.75)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, padT - 16); ctx.lineTo(x, H - padB + 8); ctx.stroke();
+      ctx.fillStyle = PALETTE.dim;
+      ctx.textAlign = 'center';
+      ctx.fillText(String(t), x, H - padB + 24);
+      ctx.textAlign = 'left';
+    }
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('project day', W - padR - 62, H - padB + 24);
+
+    const boxW = 62, boxH = 34;
+    const pos = new Map();
+    for (const r of out.placed) {
+      pos.set(r.id, { x: xOf(r.es), y: yOf(r.level), r });
+    }
+
+    // dependency arrows first, so the boxes sit on top
+    for (const r of out.placed) {
+      if (!out.showDeps) break;
+      const p = pos.get(r.id);
+      for (const d of r.deps) {
+        if (!pos.has(d)) continue;
+        const q = pos.get(d);
+        const x1 = q.x + boxW / 2, y1 = q.y;
+        const x2 = p.x - boxW / 2, y2 = p.y;
+        const bothCrit = Math.abs(q.r.tf) < 1e-9 && Math.abs(r.tf) < 1e-9;
+        ctx.save();
+        ctx.strokeStyle = bothCrit ? PALETTE.accent2 : PALETTE.grid;
+        ctx.fillStyle = bothCrit ? PALETTE.accent2 : PALETTE.grid;
+        ctx.lineWidth = bothCrit ? 2.6 : 1.6;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        const midX = (x1 + x2) / 2;
+        ctx.lineTo(midX, y1);
+        ctx.lineTo(midX, y2);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        // arrowhead
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - 9, y2 - 5);
+        ctx.lineTo(x2 - 9, y2 + 5);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // nodes: id + duration on the top line, ES/EF/LS/LF/TF stacked inside
+    for (const r of out.placed) {
+      const p = pos.get(r.id);
+      const critical = Math.abs(r.tf) < 1e-9;
+      const selected = r.id === out.selId;
+      const col = critical ? PALETTE.accent2 : PALETTE.accent;
+      // float window bar
+      if (out.showFloat && r.tf > 1e-9) {
+        const x0 = xOf(r.ef), x1 = xOf(r.ef + r.tf);
+        ctx.save();
+        ctx.fillStyle = 'rgba(166,227,161,0.22)';
+        ctx.fillRect(x0, p.y - 4, Math.max(2, x1 - x0), 8);
+        ctx.restore();
+        ctx.fillStyle = PALETTE.accent3;
+        ctx.font = '9px ui-monospace, monospace';
+        ctx.fillText('float ' + fmt(r.tf, 4), x0 + 2, p.y - 8);
+      }
+      ctx.save();
+      ctx.fillStyle = PALETTE.panel;
+      ctx.strokeStyle = selected ? PALETTE.warn : col;
+      ctx.lineWidth = selected ? 3.4 : 2.2;
+      ctx.beginPath();
+      const bx = p.x - boxW / 2, by = p.y - boxH / 2;
+      ctx.rect(bx, by, boxW, boxH);
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = col;
+      ctx.font = 'bold 13px ui-monospace, monospace';
+      ctx.fillText(r.id, bx + 6, by + 15);
+      ctx.fillStyle = PALETTE.dim;
+      ctx.font = '10px ui-monospace, monospace';
+      ctx.fillText('d=' + r.dur, bx + 22, by + 15);
+      ctx.fillStyle = critical ? PALETTE.accent2 : PALETTE.dim;
+      ctx.font = '9px ui-monospace, monospace';
+      ctx.fillText(r.es + '/' + r.ef + '  ' + r.ls + '/' + r.lf, bx + 5, by + 28);
+    }
+
+    // project duration marker
+    ctx.strokeStyle = PALETTE.warn;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(xOf(T), padT - 16); ctx.lineTo(xOf(T), H - padB + 8); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = PALETTE.warn;
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText('project duration = ' + fmt(out.project, 5) + ' days', xOf(T) - 190, padT - 22);
+
+    ctx.fillStyle = PALETTE.text;
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText('activity-on-node CPM network  —  boxes show ES/EF then LS/LF; red = critical (zero float)',
+      12, 18);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText('node x position = earliest start, so a box shifted right of its arrow head has float to spare',
+      12, 34);
+    ctx.restore();
+  },
+
+  readout: (out) => {
+    const rows = {
+      'project duration': fmt(out.project, 6) + ' days',
+      'critical path': out.critChain,
+      'critical activities': String(out.critCount) + ' of ' + out.placed.length,
+      'sum of all total floats': fmt(out.totalFloatSum, 6),
+    };
+    for (const r of out.placed) {
+      rows['  ' + r.id + '  ES/EF/LS/LF/TF'] =
+        r.es + ' / ' + r.ef + ' / ' + r.ls + ' / ' + r.lf + ' / ' + r.tf + (r.tf === 0 ? '  CRITICAL' : '');
+    }
+    rows['  selected: ' + out.selRow.id + ' free float'] = String(out.selRow.ff);
+    rows['  selected: ' + out.selRow.id + ' total float'] = String(out.selRow.tf);
+    rows['  selected: ' + out.selRow.id + ' successors'] =
+      out.selRow.good && out.selRow.good.length ? out.selRow.good.join(', ') : 'none (terminal)';
+    rows['  selected: ' + out.selRow.id + ' predecessors'] =
+      out.selRow.deps.length ? out.selRow.deps.join(', ') : 'none (start)';
+    rows['  selected: ' + out.selRow.id + ' label'] = out.selRow.label;
+    return rows;
+  },
+
+  onChange: (v) => renderNote(v),
+});
+
+function renderNote(v) {
+  const net = BASE.map((a) => ({ ...a, dur: Math.max(1, Math.round(v['d' + a.id])), label: LABEL.get(a.id) }));
+  const R = solve(net);
+  const rows = R.rows;
+  const table = '<table class="vault-mono" style="border-collapse:collapse;font-size:0.78rem;margin-top:6px">'
+    + '<thead><tr><th>act</th><th>dur</th><th>deps</th><th>ES</th><th>EF</th><th>LS</th><th>LF</th>'
+    + '<th>total float</th><th>free float</th><th>critical</th></tr></thead><tbody>'
+    + rows.map((r) => '<tr style="color:' + (r.tf === 0 ? PALETTE.accent2 : PALETTE.text) + '">'
+      + '<td>' + r.id + '</td><td>' + r.dur + '</td><td>' + (r.deps.join(',') || '-') + '</td>'
+      + '<td>' + r.es + '</td><td>' + r.ef + '</td><td>' + r.ls + '</td><td>' + r.lf + '</td>'
+      + '<td>' + r.tf + '</td><td>' + r.ff + '</td><td>' + (r.tf === 0 ? 'YES' : '') + '</td></tr>').join('')
+    + '</tbody></table>';
+  note.innerHTML =
+    '<div class="vault-mono">'
+    + 'durations: ' + net.map((a) => a.id + '=' + a.dur).join(', ') + '<br>'
+    + 'forward pass: ES = max(EF of predecessors), EF = ES + dur '
+    + '&rarr; project duration = max(EF) = <strong>' + fmt(R.project, 6) + ' days</strong><br>'
+    + 'backward pass: LF = min(LS of successors), LS = LF - dur, with LF = project duration at the terminal '
+    + 'activity<br>'
+    + 'total float TF = LS - ES = LF - EF; the critical path is the zero-float chain: <strong>'
+    + R.chainIds.join(' &rarr; ') + '</strong></div>'
+    + table
+    + '<div style="margin-top:8px"><strong>Exam trap this widget kills:</strong> float is a property of each '
+    + 'ACTIVITY, not of the path, and floats along one chain are NOT additive. Adding up the total floats of the '
+    + 'non-critical activities and calling that the permissible overall slippage is wrong, because those floats '
+    + 'overlap in time &mdash; here they sum to ' + fmt(R.rows.reduce((s, r) => s + r.tf, 0), 5)
+    + ' days, yet the project can only slip by the smallest of them before a different chain becomes critical. '
+    + 'Second, do not confuse total float with free float: FREE float is the delay that disturbs no successor at '
+    + 'all, TOTAL float is the delay that disturbs no successor provided no other activity on the chain also '
+    + 'slips. Third, the critical path is the LONGEST path, not the path with the most activities &mdash; the '
+    + 'shortest path can be critical if its activities are long enough, and on a large network there can be more '
+    + 'than one critical path. Change any duration above and the whole schedule re-solves.</div>';
+}
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'cpm-note';
+document.getElementById('app').appendChild(note);
+renderNote({ dA: 3, dB: 5, dC: 4, dD: 6, dE: 8, dF: 9, dG: 3, sel: 'E', showFloat: true, reset: true });
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+{
+  "scope": "Compute forces between point charges and the electric field they produce, including fields of continuous line and surface charge found by integration and superposition.",
+  "intuition": "Coulomb's law is Newton's law with charge instead of mass and a possible sign flip. Everything else in electrostatics is superposition: chop the charge distribution into pieces, add the field vectors, and let the pieces shrink to integrals.",
+  "concept": [
+    "**Coulomb's law and the constant that hides the geometry.** Two point charges interact along the line joining them, and the constant hides all of the geometry: $k=1/(4\\pi\\varepsilon_0)=8.988\\times10^{9}\\ \\mathrm{N\\,m^2/C^2}$. The force magnitude is $F=k|q_1q_2|/r^2$. Like signs repel, unlike attract, and the two forces are equal in magnitude and opposite in direction regardless of how different the charges are. The $4\\pi$ is not arbitrary: it is the solid angle of a full sphere, and it reappears in every spherically symmetric law in the area.",
+    "**The field is force per unit positive test charge.** $\\mathbf{E}=\\mathbf{F}/q_t$ is defined by the force on a positive test charge, so its direction is the direction a positive charge would be pushed. For a point charge $Q$ at the origin the field points outward for $Q>0$ and inward for $Q<0$, with magnitude: $\\mathbf{E}=\\dfrac{Q}{4\\pi\\varepsilon_0 r^2}\\mathbf{a}_r$. The units are N/C, which is identical to V/m; that identity is worth remembering because exam questions mix the two. Note that $\\mathbf{E}$ exists whether or not a test charge is present.",
+    "**Superposition and the standard limits.** For many charges $\\mathbf{E}=\\sum_i\\mathbf{E}_i$ — vector addition, so components must be resolved before summing; for a continuous distribution the sum becomes an integral over the charge element: $\\int dq\\,\\mathbf{a}_r/(4\\pi\\varepsilon_0 r^2)$. Three results are worth memorising because they are used constantly: an infinite line charge gives $E=\\lambda/(2\\pi\\varepsilon_0\\rho)$ directed radially away, an infinite sheet gives $E=\\sigma/(2\\varepsilon_0)$ directed normally away, and a charged conducting surface gives $E=\\sigma/\\varepsilon_0$ just outside. The first has $2\\pi$ instead of $4\\pi$ because the symmetry is cylindrical, not spherical.",
+    "**Why the idealised results need their assumptions.** The line result assumes infinite length so that end effects are negligible and the field is purely radial; the sheet result assumes infinite extent so the field is uniform. Near an edge, or close to a finite wire relative to its length, both fail and the honest method is direct integration. A charged ring on its axis, $E_z=\\dfrac{kQz}{(z^2+a^2)^{3/2}}$, is the classic integration example: on the axis the perpendicular components cancel pairwise, which is exactly the symmetry argument that justifies the closed-form limits."
+  ],
+  "formulas": [
+    {
+      "q": "Coulomb's law (magnitude)",
+      "e": "F=\\frac{1}{4\\pi\\varepsilon_0}\\frac{\\lvert q_1q_2\\rvert}{r^2}=k\\frac{\\lvert q_1q_2\\rvert}{r^2}",
+      "n": "k = 8.988e9 N m^2/C^2 = 1/(4 pi eps0). Force in newtons; use metres and coulombs."
+    },
+    {
+      "q": "Coulomb's law (vector)",
+      "e": "\\mathbf{F}_{12}=\\frac{q_1q_2}{4\\pi\\varepsilon_0 r^2}\\mathbf{a}_{12}",
+      "n": "a_12 points from charge 1 to charge 2. Negative product gives attraction automatically."
+    },
+    {
+      "q": "Electric field definition",
+      "e": "\\mathbf{E}=\\frac{\\mathbf{F}}{q_t}",
+      "n": "Force per unit positive test charge. Units N/C = V/m."
+    },
+    {
+      "q": "Field of a point charge",
+      "e": "\\mathbf{E}=\\frac{Q}{4\\pi\\varepsilon_0 r^2}\\mathbf{a}_r",
+      "n": "a_r points away from Q. For negative Q the field points toward the charge."
+    },
+    {
+      "q": "Point charge at r'",
+      "e": "\\mathbf{E}=\\frac{Q}{4\\pi\\varepsilon_0}\\frac{\\mathbf{r}-\\mathbf{r}'}{\\lvert\\mathbf{r}-\\mathbf{r}'\\rvert^3}",
+      "n": "Use this vector form for charges off the origin; the denominator is cubed, not squared."
+    },
+    {
+      "q": "Superposition",
+      "e": "\\mathbf{E}=\\sum_i\\mathbf{E}_i=\\int\\frac{dq}{4\\pi\\varepsilon_0 r^2}\\mathbf{a}_r",
+      "n": "Vector sum: resolve into components before adding. Charges do not shield each other."
+    },
+    {
+      "q": "Infinite line charge",
+      "e": "E=\\frac{\\lambda}{2\\pi\\varepsilon_0\\rho}",
+      "n": "Radially outward from the line by a_rho. 2 pi, not 4 pi, because of cylindrical symmetry."
+    },
+    {
+      "q": "Infinite sheet of charge",
+      "e": "E=\\frac{\\sigma}{2\\varepsilon_0}",
+      "n": "Uniform, independent of distance from the sheet, on each side."
+    },
+    {
+      "q": "Field just outside a conductor",
+      "e": "E=\\frac{\\sigma}{\\varepsilon_0}",
+      "n": "Twice the sheet result, because inside the conductor E = 0 so all flux exits one way."
+    },
+    {
+      "q": "Force on a charge in a field",
+      "e": "\\mathbf{F}=q\\mathbf{E}",
+      "n": "Direction follows the sign of q; mass never enters, so acceleration is F/m."
+    },
+    {
+      "q": "Charged ring on axis",
+      "e": "E_z=\\frac{kQz}{(z^2+a^2)^{3/2}}",
+      "n": "Ring radius a, axial distance z. Maximum at z = a/sqrt(2); zero at the centre."
+    }
+  ],
+  "problems": [
+    {
+      "prompt": "A charge $q_1=+2\\ \\mu\\mathrm{C}$ sits at the origin and $q_2=-3\\ \\mu\\mathrm{C}$ at $x=0.5$ m. Find the magnitude and direction of the force between them.",
+      "give": [
+        "q1 = +2 uC at x = 0",
+        "q2 = -3 uC at x = 0.5 m"
+      ],
+      "steps": [
+        "F = k|q1 q2|/r^2 with k = 8.988e9",
+        "|q1 q2| = (2e-6)(3e-6) = 6e-12 C^2",
+        "F = (8.988e9)(6e-12)/(0.5)^2 = (8.988e9)(6e-12)/0.25",
+        "= 0.053928/0.25 = 0.2157 N",
+        "Signs are opposite, so the force is attractive: q2 is pulled toward the origin, along -a_x"
+      ],
+      "ans": "$F=0.216$ N, attractive (each charge pulled toward the other).",
+      "trap": "Multiplying $10^{-6}\\times10^{-6}$ as $10^{-6}$ instead of $10^{-12}$. Charge products are the most common place a factor of $10^{6}$ disappears.", "calc": {"mode":"COMP","steps":["`8.988E9×2E-6×3E-6÷0.5²=` → $F$ = **0.2157** N.","Powers-of-ten check: `2E-6×3E-6=` → **6E-12** C², not `6E-6` — that is where the $10^{6}$ disappears.","Opposite signs make the product negative, so the same magnitudes with like signs would give **0.2157** N of repulsion instead of attraction."]}
+    },
+    {
+      "prompt": "A charge $Q=5$ nC is at the origin. Find $\\mathbf{E}$ at the point $(0,3,4)$ m.",
+      "give": [
+        "Q = 5 nC at origin",
+        "field point (0,3,4) m"
+      ],
+      "steps": [
+        "r = sqrt(0 + 9 + 16) = 5 m",
+        "|E| = kQ/r^2 = (8.988e9)(5e-9)/25 = 44.94/25 = 1.798 V/m",
+        "Unit vector: a_r = (0,3,4)/5 = 0.6a_y + 0.8a_z",
+        "E = 1.798(0.6a_y + 0.8a_z) = 1.079a_y + 1.438a_z"
+      ],
+      "ans": "$\\mathbf{E}=1.08\\mathbf{a}_y+1.44\\mathbf{a}_z$ V/m, magnitude $1.80$ V/m.",
+      "trap": "Using $r=3$ or $r=4$ (a single coordinate) instead of the full distance $r=\\sqrt{x^2+y^2+z^2}=5$. Also, the field vector must be scaled by the *unit* vector, not divided by the coordinate.", "calc": {"mode":"COMP","steps":["`√(0+3²+4²)=` → $r$ = **5** m; `8.988E9×5E-9÷Ans²=` → $\\lvert\\mathbf{E}\\rvert$ = **1.7976** V/m.","Scale by the unit vector: `0.6×1.7976` `ALPHA` `:` `0.8×1.7976` `=` → **1.079** → **1.438** V/m.","The point is $(0,3,4)$, so $\\mathbf{a}_r=(0,\\,0.6,\\,0.8)$ — divide each coordinate by $r=5$."],"note":"Using `3` or `4` alone for $r$ is the trap: `8.988E9×5E-9÷9=` gives 4.99 V/m, off by 2.8x."}
+    },
+    {
+      "prompt": "Charge $q_1=+4\\ \\mu\\mathrm{C}$ is at the origin and $q_2=+1\\ \\mu\\mathrm{C}$ at $x=1$ m. Find the point on the line between them where $\\mathbf{E}=0$.",
+      "give": [
+        "q1 = +4 uC at origin",
+        "q2 = +1 uC at x = 1 m"
+      ],
+      "steps": [
+        "The null point must lie between the charges, where the two fields are opposite",
+        "Let it be at distance x from q1, hence (1 - x) from q2",
+        "Set magnitudes equal: k(4e-6)/x^2 = k(1e-6)/(1-x)^2",
+        "Cancel k and 1e-6: 4/x^2 = 1/(1-x)^2, so 2/x = 1/(1-x)",
+        "2 - 2x = x gives x = 2/3 m = 0.667 m"
+      ],
+      "ans": "$x=0.667$ m from the 4 $\\mu$C charge, i.e. 0.333 m from the 1 $\\mu$C charge.",
+      "trap": "Placing the null point outside the interval. For like charges the zero-field point is always *between* them; for unlike charges it is outside, on the side of the smaller magnitude charge.", "calc": {"mode":"EQN","steps":["From $4/x^2=1/(1-x)^2$: `MODE` `5`, page 2, `1` quadratic, enter 3, -8, 4 for $3x^2-8x+4=0$ `=` → x = **2** and **0.6667**.","Reject $x=2$ because it lies outside $0<x<1$, leaving **0.6667** m from the 4 uC charge.","Cross-check the field balance there: `4÷0.6667²=` → **9.00** and `1÷(1-0.6667)²=` → **9.00**."],"note":"Squaring $2/x=1/(1-x)$ introduces a root; only the one between the charges is physical."}
+    },
+    {
+      "prompt": "An infinite line charge has $\\lambda=20$ nC/m. Find $E$ at $\\rho=0.1$ m from the line.",
+      "give": [
+        "lambda = 20 nC/m",
+        "rho = 0.1 m"
+      ],
+      "steps": [
+        "E = lambda/(2 pi eps0 rho)",
+        "2 pi eps0 = 2 pi (8.854e-12) = 5.5635e-11",
+        "Denominator: (5.5635e-11)(0.1) = 5.5635e-12",
+        "E = (20e-9)/(5.5635e-12) = 3.595e3 V/m"
+      ],
+      "ans": "$E=3.60$ kV/m directed radially away from the line.",
+      "trap": "Using $4\\pi\\varepsilon_0$ (the point-charge constant) for a line charge. The cylindrical symmetry gives $2\\pi$; the error is a factor of 2.", "calc": {"mode":"COMP","steps":["`2\\pi×` `SHIFT` `CVALUE` `32` `×0.1=` → **5.5635E-12**, the $2\\pi\\varepsilon_0\\rho$ denominator.","`20E-9÷Ans=` → $E$ = **3.595E3** V/m = **3.60** kV/m.","`4\\pi` in place of `2\\pi` gives **5.39E4** V/m — half, the point-charge slip in one keystroke."],"note":"Code `32` is $\\varepsilon_0$; the cylindrical symmetry gives $2\\pi$, not $4\\pi$."}
+    },
+    {
+      "prompt": "Two infinite parallel sheets carry $+5$ nC/m² and $-5$ nC/m². Find $\\mathbf{E}$ between them and outside them.",
+      "give": [
+        "sheet 1: +5 nC/m2",
+        "sheet 2: -5 nC/m2"
+      ],
+      "steps": [
+        "Each sheet alone gives E = sigma/(2 eps0) = (5e-9)/(2 x 8.854e-12) = 282.4 V/m directed away from it",
+        "Between the sheets the two contributions point the same way (from + to -)",
+        "E_between = 282.4 + 282.4 = 564.8 V/m",
+        "Outside, the two contributions are equal and opposite",
+        "E_outside = 282.4 - 282.4 = 0"
+      ],
+      "ans": "$E_{\\mathrm{between}}=565$ V/m directed from the positive to the negative sheet; $E_{\\mathrm{outside}}=0$.",
+      "trap": "Using $E=\\sigma/\\varepsilon_0$ for each sheet separately (that is the conductor-surface result), which doubles the field between the plates to 1130 V/m. A free charge sheet contributes $\\sigma/2\\varepsilon_0$ on each side.", "calc": {"mode":"COMP","steps":["`5E-9÷(2×` `SHIFT` `CVALUE` `32` `)=` → one sheet gives $E$ = **282.4** V/m, its $\\sigma/2\\varepsilon_0$.","Between: `2×Ans=` → **564.7** V/m, from the $+$ to the $-$ sheet.","Outside: `282.4−282.4=` → **0** V/m, the two equal and opposite contributions cancelling."],"note":"Code `32` is $\\varepsilon_0$; using $E=\\sigma/\\varepsilon_0$ for a free sheet doubles the gap field to 1130 V/m."}
+    }
+  ],
+  "traps": [
+    "**Forgetting that $k$ already contains $1/(4\\pi\\varepsilon_0)$.** Writing $F=q_1q_2/(\\varepsilon_0r^2)$ instead of $q_1q_2/(4\\pi\\varepsilon_0r^2)$ inflates the force by $4\\pi\\approx12.57$.",
+    "**Charge-product powers of ten.** $(2\\ \\mu\\mathrm{C})(3\\ \\mu\\mathrm{C})=6\\times10^{-12}\\ \\mathrm{C^2}$, not $6\\times10^{-6}$. Check the exponent before dividing by $r^2$.",
+    "**Field direction for a negative source.** $\\mathbf{E}=\\frac{Q}{4\\pi\\varepsilon_0r^2}\\mathbf{a}_r$ with $\\mathbf{a}_r$ pointing away from $Q$ handles the sign automatically. Substituting $|Q|$ and then drawing arrows outward from a negative charge is wrong.",
+    "**Mixing the sheet and conductor results.** An isolated charge sheet gives $\\sigma/(2\\varepsilon_0)$ on each side; the surface of a conductor gives $\\sigma/\\varepsilon_0$ just outside, because the field inside the conductor is zero and all the flux leaves through one face.",
+    "**Using the line-charge formula too close to a finite wire.** $E=\\lambda/(2\\pi\\varepsilon_0\\rho)$ assumes infinite length. When $\\rho$ is comparable to the wire length the end effects dominate and only direct integration is valid.",
+    "**Adding field magnitudes instead of vectors.** Superposition is a vector sum: two equal fields at $90^\\circ$ give $\\sqrt{2}E$, not $2E$."
+  ],
+  "refs": [
+    "[[01_Coordinate_Systems_and_Vector_Algebra]]",
+    "[[05_Gauss_Law_and_Applications]]",
+    "[[06_Electric_Potential_and_Gradient]]"
+  ],
+  "prereqs": [
+    "[[01_Coordinate_Systems_and_Vector_Algebra]]"
+  ]
+}

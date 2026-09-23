@@ -1,0 +1,104 @@
+{
+  "scope": "Estimate the transmission bandwidth of an FM signal from its deviation and highest modulating frequency, and use it to choose channel spacing.",
+  "intuition": "Carson's rule says the bandwidth is twice the sum of the deviation and the highest modulating frequency: the carrier wanders over twice the deviation, and each of those instantaneous frequencies carries sidebands out to fm.",
+  "concept": [
+    "**The rule and where it comes from.** Carson's rule states $BW = 2(\\Delta f + f_m)$ for a single tone, or $BW = 2(\\Delta f + f_{m(max)})$ for a general message: twice the sum of the *peak deviation* and the *highest modulating frequency*. It is not an exact result — the true spectrum is infinite — but it is an engineering bandwidth that contains about 98 percent of the total power, which is why every regulatory and design calculation uses it. The rule can be read directly off the Bessel analysis: the number of significant sidebands on each side is $n_{max}\\approx\\beta+1$, which gives the same result: $BW = 2n_{max}f_m = 2(\\beta+1)f_m = 2(\\Delta f+f_m)$. This matches Carson exactly.",
+    "**The two limiting cases.** In the **narrowband** limit $\\beta\\ll1$, the deviation term is negligible and $BW\\approx2f_m$: the signal is no wider than an AM signal carrying the same message, which is why NBFM fits into existing channels. In the **wideband** limit $\\beta\\gg1$, the message term is negligible and $BW\\approx2\\Delta f$: the bandwidth is set by the deviation alone and is essentially independent of the audio frequency. FM broadcast sits firmly in the wideband regime ($\\beta=5$ at the highest audio frequency), so its 180 kHz bandwidth is much closer to $2\\Delta f=150$ kHz than to $2f_m=30$ kHz. Real systems live between the limits, and Carson's rule is the interpolation.",
+    "**Where the two inputs come from.** The deviation $\\Delta f$ is set by the *peak message amplitude* through $\\Delta f = k_f A_m$; the highest modulating frequency $f_{m(max)}$ is a property of the message baseband. With several tones they are generally different tones: the loudest tone sets the deviation and the highest-frequency tone sets $f_{m(max)}$, so a two-tone test signal can produce a bandwidth wider than either tone alone would suggest. For a PM transmitter, substitute $\\Delta f = m_pf_m$ to get $BW = 2f_m(m_p+1)$, which grows with the modulating frequency and is the clearest practical distinction between FM and PM.",
+    "**Choosing channel spacing.** Carson's bandwidth is the occupied bandwidth; a channel must be wider than that to allow for imperfect filters and for the deviation of neighbouring transmitters. FM broadcast uses $200\\ \\mathrm{kHz}$ channels for a $180\\ \\mathrm{kHz}$ Carson bandwidth — only a $20\\ \\mathrm{kHz}$ guard, which is why broadcast FM is tightly deviation-limited. Land-mobile service with $5\\ \\mathrm{kHz}$ maximum deviation and $3\\ \\mathrm{kHz}$ maximum audio occupies $16\\ \\mathrm{kHz}$, which fits a $25\\ \\mathrm{kHz}$ channel with a generous guard (and is why $12.5\\ \\mathrm{kHz}$ narrowband channels require both deviation and audio bandwidth to be reduced). The general design procedure is: pick the deviation from the required SNR, compute Carson's bandwidth, then round the channel up to the next standard spacing.",
+    "**Carson versus the exact Bessel bandwidth.** Given a specific index and a Bessel table, the bandwidth can be computed exactly as $BW = 2n_{max}f_m$, where $n_{max}$ is the highest order whose sidebands are still significant. Carson's rule gives the same answer to within a sideband or so: for $\\beta=5$ it predicts $n_{max}=6$ and $180\\ \\mathrm{kHz}$ at $f_m=15\\ \\mathrm{kHz}$, while the table shows $J_7=0.053$, which is about $1.5\\ \\mathrm{dB}$ below the largest term and arguably still significant. Exams therefore ask for one or the other and expect the stated method: if a Bessel table is provided, use it; if only $\\Delta f$ and $f_m$ are given, use Carson.",
+    "**When the rule misleads.** Carson's rule says nothing about spectral *shape*. It gives no sidelobe structure, no statement about how fast the spectrum decays outside the band, and no account of the modulation's statistics: a voice signal spends most of its time well below peak deviation, so the *average* bandwidth is much less than the peak Carson bandwidth even though the allocation must cover the peak. It also assumes a single, steady deviation; a transmitter with a deviation limiter will meet Carson's bandwidth only because the limiter enforces the peak deviation. Finally, the rule is for angle modulation only — for AM, DSB and SSB the occupied bandwidth is $2W$ or $W$ as in [[02_AM_Spectrum,_Bandwidth_and_Power]], and applying $2(\\Delta f+f_m)$ there is meaningless."
+  ],
+  "formulas": [
+    { "q": "Carson's rule (single tone)", "e": "BW = 2(\\Delta f + f_m)", "n": "Peak deviation plus highest modulating frequency, doubled. Contains about 98 percent of the power." },
+    { "q": "Carson's rule (general message)", "e": "BW = 2\\left(\\Delta f + f_{m(max)}\\right)", "n": "Use the HIGHEST modulating frequency, not the sum or the average." },
+    { "q": "Index form", "e": "BW = 2f_m(1 + \\beta), \\qquad \\beta = \\frac{\\Delta f}{f_m}", "n": "Identical to Carson; convenient when the index is given." },
+    { "q": "Sideband-count form", "e": "BW = 2\\,n_{max}\\,f_m, \\qquad n_{max} \\approx \\beta + 1", "n": "Use with a Bessel table when a specific index is given." },
+    { "q": "Narrowband limit", "e": "\\beta \\ll 1: \\quad BW \\approx 2f_m", "n": "Same bandwidth as AM with the same message; fits existing channels." },
+    { "q": "Wideband limit", "e": "\\beta \\gg 1: \\quad BW \\approx 2\\Delta f", "n": "Broadcast FM: 150 kHz of deviation-driven width against only 30 kHz of audio-driven width." },
+    { "q": "PM bandwidth", "e": "BW = 2f_m(m_p + 1), \\qquad \\Delta f = m_p f_m", "n": "Grows with the modulating frequency, unlike FM's roughly constant bandwidth." },
+    { "q": "Frequency-multiplied signal", "e": "f_c \\rightarrow n f_c, \\qquad \\Delta f \\rightarrow n\\Delta f", "n": "Deviation and carrier scale together; the index is unchanged by multiplication." },
+    { "q": "Channel spacing with guard", "e": "\\mathrm{spacing} \\ge BW + \\mathrm{guard}", "n": "Broadcast FM: 180 kHz Carson into 200 kHz channels. Land mobile: 16 kHz into 25 kHz." },
+    { "q": "Broadcast FM numbers", "e": "\\Delta f_{max} = 75\\ \\mathrm{kHz}, \\ f_{m(max)} = 15\\ \\mathrm{kHz} \\Rightarrow BW = 180\\ \\mathrm{kHz}", "n": "Deviation ratio D = 5. The standard regulatory limit." },
+    { "q": "Land-mobile narrowband numbers", "e": "\\Delta f_{max} = 5\\ \\mathrm{kHz}, \\ f_{m(max)} = 3\\ \\mathrm{kHz} \\Rightarrow BW = 16\\ \\mathrm{kHz}", "n": "Fits a 25 kHz channel; 12.5 kHz channels need reduced deviation and audio bandwidth." }
+  ],
+  "problems": [
+    {
+      "prompt": "An FM signal has a peak deviation of $30\\ \\mathrm{kHz}$ and a highest modulating frequency of $3\\ \\mathrm{kHz}$. Find the transmission bandwidth and the modulation index.",
+      "give": ["df = 30 kHz", "fm = 3 kHz"],
+      "steps": [
+        "beta = df/fm = 30/3 = 10",
+        "Carson: BW = 2(df + fm) = 2(30 + 3) = 66 kHz",
+        "Check with the sideband rule: n_max = beta + 1 = 11, BW = 2(11)(3) = 66 kHz"
+      ],
+      "ans": "BW = 66 kHz; beta = 10.",
+      "trap": "Answering 2 df = 60 kHz. The wideband approximation ignores the fm term, which is 10 percent of the answer here (0.8 dB in bandwidth terms), and the error grows rapidly as beta falls.", "calc": {"mode":"COMP","steps":["`30÷3 : 2×(30+3) : 2×(10+1)×3`","`=` down the chain: $\\beta$ = **10** → Carson $BW$ = **66** kHz → **66** kHz again from `2(β+1)fm` = `2×11×3`."],"note":"Use Carson, not $2\\Delta f$: the $f_m$ term is `2×3` = **6** kHz of the **66** kHz, and dropping it gives the trap answer 60 kHz."}
+    },
+    {
+      "prompt": "An FM signal has a modulation index of $5$ and a modulating frequency of $15\\ \\mathrm{kHz}$. Find the peak deviation and the Carson bandwidth.",
+      "give": ["beta = 5", "fm = 15 kHz"],
+      "steps": [
+        "df = beta fm = 5(15) = 75 kHz",
+        "BW = 2f_m(1 + beta) = 2(15)(6) = 180 kHz",
+        "Equivalently BW = 2(75 + 15) = 180 kHz"
+      ],
+      "ans": "df = 75 kHz; BW = 180 kHz.",
+      "trap": "Using BW = 2 beta f_m = 150 kHz by dropping the 1 in (1+beta). At beta = 5 that is 30 kHz short — the fm term never disappears entirely.", "calc": {"mode":"COMP","steps":["`5×15 : 2×15×(1+5)`","`=` down the chain: $\\Delta f$ = **75** kHz → $BW$ = **180** kHz; the long form `2×(75+15)` agrees."],"note":"`2(1+β)fm` keeps the 1: writing `2βf_m` = **150** kHz deletes the message term and is **30** kHz short — the trap."}
+    },
+    {
+      "prompt": "A narrowband FM transmitter has a peak deviation of $500\\ \\mathrm{Hz}$ and a $3\\ \\mathrm{kHz}$ modulating tone. Compare its Carson bandwidth with the $2f_m$ approximation.",
+      "give": ["df = 0.5 kHz", "fm = 3 kHz"],
+      "steps": [
+        "beta = 0.5/3 = 0.167, so this is definitely narrowband",
+        "Carson: BW = 2(0.5 + 3) = 7 kHz",
+        "Narrowband approximation: BW = 2 fm = 6 kHz",
+        "Difference = 7 - 6 = 1 kHz, about 14 percent of the true bandwidth"
+      ],
+      "ans": "BW = 7 kHz by Carson versus 6 kHz by the 2fm approximation — a 14 percent error.",
+      "trap": "Using BW = 2 df = 1 kHz for NBFM. In the narrowband regime the deviation is the *small* term and the bandwidth is dominated by 2fm, the opposite of the wideband case.", "calc": {"mode":"COMP","steps":["`0.5÷3 : 2×(0.5+3) : 2×3 : (7−6)÷7`","`=` down the chain: $\\beta$ = **0.167** → Carson $BW$ = **7** kHz → the $2f_m$ shortcut **6** kHz → short by **14.3** %."],"note":"NBFM is dominated by $2f_m$: the deviation contributes only `2×0.5` = **1** kHz, and $2\\Delta f$ = **1** kHz is the trap."}
+    },
+    {
+      "prompt": "A land-mobile FM service allows a $5\\ \\mathrm{kHz}$ peak deviation with audio up to $3\\ \\mathrm{kHz}$. Find the occupied bandwidth and the guard band inside a $25\\ \\mathrm{kHz}$ channel.",
+      "give": ["df_max = 5 kHz", "fm_max = 3 kHz", "channel = 25 kHz"],
+      "steps": [
+        "BW = 2(5 + 3) = 16 kHz",
+        "Guard = 25 - 16 = 9 kHz, which is 36 percent of the channel",
+        "The index at the highest audio frequency is beta = 5/3 = 1.67, i.e. wideband relative to NBFM"
+      ],
+      "ans": "BW = 16 kHz; 9 kHz guard in a 25 kHz channel.",
+      "trap": "Forgetting that the channel must exceed the Carson bandwidth, or using 2 df = 10 kHz and concluding that a 12.5 kHz channel would do. Regulatory spacing always includes a guard on top of the occupied bandwidth.", "calc": {"mode":"COMP","steps":["`2×(5+3) : 25−Ans : Ans÷25 : 5÷3`","`=` down the chain: $BW$ = **16** kHz → guard **9** kHz → **36** % of the channel → $\\beta$ = **1.67** at the highest audio frequency."],"note":"`2Δf` = **10** kHz is not the occupied bandwidth, and 16 kHz does not fit a 12.5 kHz channel — the guard is part of the allocation."}
+    },
+    {
+      "prompt": "A phase modulator with $m_p = 3\\ \\mathrm{rad}$ is driven by a $2\\ \\mathrm{kHz}$ tone. Find the equivalent deviation and the transmission bandwidth. What happens to each if the tone frequency doubles?",
+      "give": ["mp = 3 rad", "fm = 2 kHz"],
+      "steps": [
+        "df = mp fm = 3(2) = 6 kHz",
+        "BW = 2(df + fm) = 2(6 + 2) = 16 kHz",
+        "If fm doubles to 4 kHz: mp stays 3 rad, but df = 3(4) = 12 kHz",
+        "New BW = 2(12 + 4) = 32 kHz - the bandwidth doubled"
+      ],
+      "ans": "df = 6 kHz, BW = 16 kHz at 2 kHz; at 4 kHz, df = 12 kHz and BW = 32 kHz.",
+      "trap": "Assuming the bandwidth is unchanged because the phase deviation is unchanged. In PM the index is constant but $\\Delta f = m_pf_m$ grows with the tone, so the bandwidth grows too — the opposite of FM's behaviour.", "calc": {"mode":"COMP","steps":["`3×2 : 2×(Ans+2) : 3×4 : 2×(Ans+4)`","`=` down the chain: $\\Delta f$ = **6** kHz → $BW$ = **16** kHz at 2 kHz → at 4 kHz $\\Delta f$ = **12** kHz → $BW$ = **32** kHz, while $m_p$ stays **3** rad."],"note":"In PM the index is unchanged by $f_m$ but $\\Delta f = m_pf_m$ doubles — so `2×(12+4)` = **32** kHz, not a constant 16 kHz."}
+    }
+  ],
+  "traps": [
+    "**Using $BW = 2\\Delta f$ in general.** That is the wideband approximation only. Carson's full form $2(\\Delta f+f_m)$ is required whenever $\\beta$ is small or moderate, and at $\\beta=1$ the omitted term is a full 50 percent of the bandwidth.",
+    "**Dropping the 1 in $2f_m(1+\\beta)$.** Algebraically identical to Carson, but writing it as $2\\beta f_m$ silently deletes the message term and understates the bandwidth by $2f_m$ — 30 kHz at broadcast FM's maximum audio frequency.",
+    "**Using the sum of modulating frequencies.** Bandwidth follows the *highest* frequency present. A message with tones at 1, 5 and 12 kHz and a given peak deviation has $BW = 2(\\Delta f + 12\\ \\mathrm{kHz})$, not twice the sum.",
+    "**Applying the narrowband form $2f_m$ to a wideband signal.** At $\\beta = 5$ the true bandwidth is 180 kHz against a $2f_m$ value of 30 kHz — a factor of six, and a spectrum that would be sliced by the receiver's IF filter.",
+    "**Confusing Carson's bandwidth with channel spacing.** Carson gives the occupied bandwidth that contains about 98 percent of the power; the channel must be wider to allow a guard band and imperfect filters. Broadcast FM: 180 kHz of signal in a 200 kHz channel.",
+    "**Assuming Carson's rule gives the exact spectrum.** It says nothing about sidelobe shape or out-of-band emission, and nothing about average versus peak bandwidth. A voice-modulated transmitter meets its allocation only because a deviation limiter guarantees the peak.",
+    "**Forgetting the scaling under frequency multiplication.** A frequency multiplier multiplies *both* the carrier and the deviation by $n$ while leaving the index unchanged, so a ×3 multiplier turns a 25 kHz deviation into 75 kHz and moves the carrier from 5 MHz to 15 MHz. Mixing is then required to reach the final channel.",
+    "**Treating PM bandwidth as constant.** Because $\\Delta f = m_pf_m$, a PM signal's bandwidth grows in direct proportion to the modulating frequency; only FM's deviation is independent of $f_m$."
+  ],
+  "refs": [
+    "[[05_FM_and_PM_Fundamentals]]",
+    "[[06_FM_Sidebands_and_Bessel_Functions]]",
+    "[[08_NBFM_vs_WBFM]]",
+    "[[09_FM_Noise_and_Threshold_Effect]]",
+    "[[02_AM_Spectrum,_Bandwidth_and_Power]]"
+  ],
+  "prereqs": [
+    "[[05_FM_and_PM_Fundamentals]]"
+  ]
+}

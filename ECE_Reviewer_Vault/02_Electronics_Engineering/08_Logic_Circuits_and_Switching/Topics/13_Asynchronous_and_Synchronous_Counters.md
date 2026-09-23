@@ -1,0 +1,172 @@
+---
+id: ECE-08-13
+title: "Asynchronous and Synchronous Counters"
+part: "02_Electronics_Engineering"
+area: "08_Logic_Circuits_and_Switching"
+topic: 13
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[10_Latches_and_Flip-Flops]]", "[[06_Karnaugh_Maps]]"]
+tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 13 — Asynchronous and Synchronous Counters
+
+> [!abstract] Scope
+> Design ripple and synchronous counters of any modulus, and account for ripple delay, decoding glitches and unused-state lock-up.
+
+## Core Concept
+
+> [!tip] Intuition
+> A counter is a state machine whose next state is its present state plus one. Asynchronous counters let the carry ripple from stage to stage with no common clock; synchronous counters clock every flip-flop together and decode the next state in combinational logic.
+
+**Asynchronous (ripple) counters.** Chain toggle flip-flops so that each stage is clocked by the output of the previous one. Every stage divides by two, so $n$ flip-flops give a modulus of $2^n$: 4 flip-flops count 0 to 15 and roll over, with each output running at half the frequency of the one before. The attractive part is simplicity — no combinational logic at all. The cost is that the stages do not change simultaneously: the last flip-flop cannot change until the carry has propagated through every stage, so the total settling time is about $n$ flip-flop delays and the maximum clock frequency is $1/(n\,t_{pd})$.
+
+**Truncated (modulus-N) counters.** To count to a modulus that is not a power of two, detect the terminal state and reset. For a mod-10 counter built from a 4-bit ripple counter, decode 1010 (ten) with a NAND and feed it to the asynchronous clear: the counter runs 0000 through 1001, then briefly enters 1010 and is cleared. Note that the counter *does* reach the terminal state for a short time; if the decode must never appear on the outputs, use a synchronous reset decoded one state earlier (1001 for mod 10) or a presettable counter loaded on the terminal count.
+
+**Decoding glitches are the ripple counter's real weakness.** Because the stages settle one after another, the binary word passes through intermediate values while the carry ripples. A decoder watching those bits produces short spurious pulses — for example, a counter going from 0111 to 1000 momentarily reads 1111 or 1011, and a NAND of the intermediate states fires. The counter itself still counts correctly; it is the decoding that glitches. The cures are to register the decoded signal with the clock, to decode only one bit (as in a one-hot ring counter), or to use a synchronous counter where all bits change together.
+
+**Synchronous counters.** Here every flip-flop shares the clock, so all outputs change on the same edge and no ripple carry exists. The design procedure is standard: write the state sequence, list the present-to-next transition of each bit, use the flip-flop excitation table to find the required inputs, and minimise each input with a K-map. For D flip-flops the excitation is $D = Q^+$, so the next-state equations *are* the input equations. For JK flip-flops the excitation table gives don't-cares for the no-change cases, which frequently reduces to fewer gates. A mod-6 counter using three JK flip-flops, for example, needs $J_0=K_0=1$, $J_1=K_1=\bar Q_2Q_0$, $J_2=Q_1Q_0$ and $K_2=Q_0$.
+
+**Unused states and lock-up.** A truncated counter with $n$ flip-flops has $2^n - N$ unused codes. In a 3-bit mod-6 counter, 110 and 111 never appear in normal operation, but a glitch or a power-up transient can drop the counter into one of them, and if the next-state logic maps them back into the unused set the counter is stuck forever. Robust designs either include the unused states in the sequence (self-correcting) or detect them and force a reset. Synchronous counters are otherwise the standard choice for anything that must be decoded, cascaded or presettable: up/down control is just a multiplexer on the input equations, presetting is a parallel load, and cascading multiplies the moduli.
+
+**Choosing between them.** Ripple counters win on parts count and are fine when nothing decodes their intermediate states — a divide-by-256 clock prescaler is the classic use. Synchronous counters win whenever the count is decoded, when the clock is fast, or when a single-bit-wide control (up/down, load, enable) must gate all stages together. On a board question, if the problem mentions glitches, decoding, or a maximum frequency, the expected answer is synchronous.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Ripple counter modulus | $M = 2^n$ | n toggle flip-flops in a chain. 4 flip-flops count 0-15, giving a divide-by-16 output. |
+| Truncated counter reset | $\mathrm{CLR} = \mathrm{NAND}(\mathrm{terminal\ state\ bits})$ | Asynchronous clear. The counter enters the terminal state briefly before resetting. |
+| Synchronous reset decode | $\mathrm{LOAD/CLR} = \mathrm{decode}(M-1)$ | Decode one state earlier than the modulus so the terminal code never appears on the outputs. |
+| Ripple settling time | $t_{settle} \approx n\,t_{pd},\quad f_{max} = \frac{1}{n\,t_{pd}}$ | Worst case is the carry propagating through every stage, before decode logic is even considered. |
+| Flip-flops for a modulus | $n = \lceil \log_2 M \rceil$ | Mod-10 needs 4 flip-flops (16 codes); mod-100 needs 7 (128 codes). |
+| Unused state count | $\mathrm{unused} = 2^n - M$ | A mod-10 counter has 6 unused codes; each one is a possible lock-up state unless handled. |
+| D flip-flop excitation | $D = Q^+$ | The next-state equation is the input equation, which is why D is preferred for FSMs. |
+| JK excitation for a transition | $0\to1: J=1,K=X;\quad 1\to0: J=X,K=1;\quad \mathrm{no\ change}: J=K=0$ | The X entries become don't-cares in the K-map and usually cut the gate count. |
+| Cascaded modulus | $M = M_1 \times M_2 \times \cdots$ | Chain the terminal carry of one counter into the clock or enable of the next. |
+| Up/down control | $Q_i^+ = U\,(\mathrm{up\ next}) + \bar U\,(\mathrm{down\ next})$ | A multiplexer on each excitation input selects the direction; U is the up/down control line. |
+
+## Interactive Widget
+
+**Counter Modulo Explorer**
+
+![[Counter_Modulo_Explorer.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. How many flip-flops does a 4-bit ripple counter need, what is its modulus, and what is the frequency at its last output for a 1 MHz clock?
+
+**Given:** 4-bit ripple counter; f_clk = 1 MHz
+
+**Solution:**
+
+1. A chain of n toggle flip-flops divides by 2^n
+2. n = 4 gives modulus 2^4 = 16
+3. The counter cycles through 0000 to 1111 and rolls over
+4. Each stage halves the frequency: 1 MHz / 16 = 62.5 kHz at the last output
+
+> [!success]- Answer
+> **4 flip-flops, modulus 16, output $62.5$ kHz**
+
+> [!warning] Trap
+> Saying the modulus is 15 because the counter reaches 1111. Sixteen distinct codes are produced (0 through 15), so the modulus is $2^n$, not $2^n-1$.
+
+### P2. Design a mod-10 counter from a 4-bit binary counter using a NAND-fed asynchronous clear. Which state is decoded, and what is the resulting count sequence?
+
+**Given:** 4-bit ripple counter; asynchronous CLR; modulus 10
+
+**Solution:**
+
+1. Count states 0 to 9 are 0000 through 1001
+2. The next state, 1010, must be detected and cleared
+3. NAND the bits that are 1 in 1010: Q3 and Q1, so CLR = NAND(Q3, Q1)
+4. At 1010 that NAND output goes low and clears the counter to 0000
+5. The visible sequence is 0,1,2,...,9 then 0; 1010 exists only for the propagation delay of the clear path
+
+> [!success]- Answer
+> **Decode $1010$ with $\mathrm{CLR} = \overline{Q_3Q_1}$; sequence 0-9, modulus 10**
+
+> [!warning] Trap
+> Decoding 1001 and calling it a mod-10 counter. Clearing at 1001 produces the sequence 0 through 8 and then 0, a modulus of 9; the terminal state that must be decoded for mod 10 is 1010.
+
+### P3. A 4-bit ripple counter uses flip-flops with $t_{pd}=10$ ns. Find the worst-case settling time and the maximum clock frequency.
+
+**Given:** 4 flip-flops; t_pd = 10 ns each
+
+**Solution:**
+
+1. Worst case: the LSB toggles and the carry propagates through all 4 stages
+2. t_settle = 4 x 10 ns = 40 ns
+3. The clock cannot be faster than the settling time, so f_max = 1 / 40 ns
+4. f_max = 25 MHz
+
+> [!success]- Answer
+> **$t_{settle} = 40$ ns and $f_{max} = 25$ MHz**
+
+> [!warning] Trap
+> Using a single flip-flop delay (10 ns, giving 100 MHz) or forgetting that any decode logic attached to the outputs adds more delay. The carry chain, not one stage, sets the limit.
+
+### P4. Design a synchronous mod-6 counter (counts 0 to 5, then repeats) using three JK flip-flops $Q_2Q_1Q_0$. Derive the excitation equations.
+
+**Given:** states 000 to 101; 3 JK flip-flops; synchronous, common clock
+
+**Solution:**
+
+1. Sequence: 000->001->010->011->100->101->000
+2. Q0 toggles on every clock, so J0 = K0 = 1
+3. Q1 changes 0->1 at 001 and 1->0 at 011: J1 = K1 = (NOT Q2)Q0
+4. Q2 changes 0->1 at 011 (J2 = Q1Q0 = 1 there) and 1->0 at 101 (K2 = Q0 = 1 there)
+5. So J2 = Q1Q0 and K2 = Q0
+6. Verify state 011: J2 = 1, K2 = 1, so Q2 toggles 0->1 and the next state is 100, correct
+7. Verify state 101: J1 = (NOT 1)(1) = 0, K2 = 1, so Q2 clears and the next state is 000, correct
+
+> [!success]- Answer
+> **$J_0=K_0=1$, $J_1=K_1=\bar Q_2Q_0$, $J_2=Q_1Q_0$, $K_2=Q_0$**
+
+> [!warning] Trap
+> Treating states 110 and 111 as impossible and ignoring them entirely. They are don't-cares for minimisation, but the final logic must be checked so that a glitch into 110 or 111 does not lock the counter; here 110 goes to 111 and 111 goes to 010, so the counter rejoins the sequence.
+
+### P5. Two mod-10 counters are cascaded. Give the overall modulus, the number of distinct states, and the output frequency for a 1 MHz clock.
+
+**Given:** two mod-10 counters; cascade; f_clk = 1 MHz
+
+**Solution:**
+
+1. Cascaded moduli multiply: M = 10 x 10 = 100
+2. The counter produces 100 distinct states, 00 to 99 in BCD
+3. The final output completes one cycle per 100 input clocks
+4. f_out = 1 MHz / 100 = 10 kHz
+5. A BCD implementation needs 8 flip-flops (4 per decade), even though 7 would suffice for a binary mod-100 counter
+
+> [!success]- Answer
+> **Modulus 100, 100 states, output $10$ kHz; 8 flip-flops in BCD form**
+
+> [!warning] Trap
+> Adding the moduli (20) instead of multiplying them, and assuming 7 flip-flops are enough. BCD cascading uses 4 flip-flops per decade, so 8 are needed even though $\lceil\log_2 100\rceil = 7$.
+
+## Traps & Exam Notes
+
+- **Decoding the wrong terminal state for a truncated counter.** To count 0 to 9 the decode is 1010, not 1001. Clearing on 1001 gives a modulus of 9, and the mistake hides because the counter still 'counts to nine' on a display.
+- **Ignoring the brief terminal state of an asynchronous reset.** A ripple counter with a NAND clear does reach 1010 for one clear-propagation delay. If that code drives a decoder, a spurious pulse appears; use a synchronous load/reset or register the decode.
+- **Glitchy decoding of a ripple counter.** Because the bits settle sequentially, intermediate patterns such as 1111 or 1011 are momentarily present, and a decoder built on several bits fires on them. Register the decode or use a synchronous counter.
+- **Calculating $f_{max}$ from one flip-flop.** The carry must ripple through every stage: $t_{settle} \approx n\,t_{pd}$, so four 10 ns stages limit the clock to 25 MHz, not 100 MHz.
+- **Clock cascading with the wrong signal.** Chaining counts by feeding one counter's clock from the previous counter's *last output* is a ripple connection and reintroduces delay; for a synchronous cascade use the terminal count as a clock *enable*.
+- **Leaving unused states to lock up.** A mod-6 counter built with three flip-flops has two unused codes. Verify where they go on the next clock; if they map into each other the counter hangs after a glitch or a power-up.
+- **Assuming a synchronous counter needs no enable.** Without a common enable, a presettable or up/down counter can change state during a load; the load and direction inputs must be stable across the clock edge.
+
+## See Also
+
+- [[10_Latches_and_Flip-Flops]]
+- [[11_Flip-Flop_Timing,_Setup_and_Hold]]
+- [[12_Shift_Registers]]
+- [[14_Finite_State_Machines]]
+- [[06_Karnaugh_Maps]]
+
+---
+
+[[12_Shift_Registers|⬅ 12]] · [[_MOC_Logic_Circuits_and_Switching|MOC]] · [[00_Dashboard|Dashboard]] · [[14_Finite_State_Machines|14 ➡]]

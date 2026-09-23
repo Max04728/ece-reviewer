@@ -1,0 +1,605 @@
+[
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/01_Primary_Constants_R,_L,_G,_C.json",
+    "problem": 1,
+    "expect": "polyethylene-filled coaxial cable has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×2.26×8.854E-12÷ln(3.5)` → **1.004e-10** F/m = **100.4** pF/m. Store it with `SHIFT` `STO` `A`. The `8.854E-12` is `SHIFT` `CVALUE` `32` for $\\varepsilon_0$.",
+        "`2E-7×ln(3.5)` → **2.506e-7** H/m = **250.6** nH/m; store as `SHIFT` `STO` `B`, then `√(B÷A)` → **49.96** Ω and `1÷√(A×B)` → **1.994e8** m/s."
+      ],
+      "note": "Both geometry logs are `ln`, never `log` — mixing them is a factor $\\ln 10 = 2.303$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/01_Primary_Constants_R,_L,_G,_C.json",
+    "problem": 2,
+    "expect": "An air-spaced two-wire line has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`π×8.854E-12÷ln(100)` → **6.04e-12** F/m = **6.04** pF/m; store with `SHIFT` `STO` `A` (`8.854E-12` is `SHIFT` `CVALUE` `32`; the log form of $\\mathrm{arccosh}(50)$ is $\\ln(2D/d) = \\ln 100 = 4.6052$).",
+        "`4E-7×ln(100)` → **1.842e-6** H/m = **1.84** µH/m (`SHIFT` `STO` `B`); `√(B÷A)` → **552.2** Ω and `1÷√(A×B)` → **2.998e8** m/s."
+      ],
+      "note": "The log argument is $2D/d = 100$, not $D/d = 50$ — using 50 inflates $C$ by 18 %."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/01_Primary_Constants_R,_L,_G,_C.json",
+    "problem": 3,
+    "expect": "A 100 m run of the coaxial cable",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `100.4E-12×100 : 0.415×100 : 100÷1.994E8`",
+        "`=` down the chain: $C_{\\mathrm{tot}}$ = **1.004e-8** F = **10.0** nF → $R_{\\mathrm{tot}}$ = **41.5** Ω → $t$ = **5.015e-7** s = **501** ns.",
+        "Cross-check the delay from the primaries: `100×√(2.506E-7×1.004E-10)` → **5.016e-7** s = **501.6** ns."
+      ],
+      "note": "Every total is the per-metre value times $l$; $v$ is the one quantity that does not scale with length."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/01_Primary_Constants_R,_L,_G,_C.json",
+    "problem": 4,
+    "expect": "A round copper conductor has radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(π×1E8×1.2566E-6÷5.8E7)` → **2.609e-3** Ω (the `1.2566E-6` is `SHIFT` `CVALUE` `33` for $\\mu_0$), then `÷(2π×1E-3)` → **0.4152** Ω/m.",
+        "`0.415×√(1÷100)` → **0.0415** Ω/m at 1 MHz; `1÷(5.8E7×π×1E-6)` → **5.49e-3** Ω/m at DC.",
+        "Crossover where skin depth equals $a$: `1÷(π×1.2566E-6×5.8E7×1E-6)` → **4.37e3** Hz. Below it the $\\sqrt{f}$ law has no meaning."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/02_Secondary_Constants_Z0_and_Gamma.json",
+    "problem": 1,
+    "expect": "A lossless line has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(2.5E-7÷1E-10) : 1÷√(2.5E-7×1E-10)`",
+        "`=`: $Z_0$ = **50.0** Ω → $v$ = **2.00e8** m/s.",
+        "`Ans÷3E8` → **0.6667** (the velocity factor); then `2.0E8÷1E8` → **2.00** m ($\\lambda$) and `2π÷Ans` → **3.142** rad/m."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/02_Secondary_Constants_Z0_and_Gamma.json",
+    "problem": 2,
+    "expect": "A coaxial cable has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`60÷√2.26×ln(3.5)` → **50.0** Ω (the 60 form pairs with `ln`); cross-check `138÷√2.26×log(3.5)` → **49.94** Ω (the 138 form pairs with $\\log_{10}$).",
+        "Invert for the 50 Ω design: `10^(50×√2.26÷138)` → **3.50**, the standard polyethylene coax geometry."
+      ],
+      "note": "Never cross the pairs: 60/120 take $\\ln$, 138/276 take $\\log_{10}$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/02_Secondary_Constants_Z0_and_Gamma.json",
+    "problem": 3,
+    "expect": "A 100 m line has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.02×100×8.686` → **17.37** dB (2 Np over the run).",
+        "`10^(-17.37÷10)` → **1.833e-2**, so $P_{\\mathrm{out}}$ = **0.183** W from 10 W; the same number from `10×e^(−2×0.02×100)` = **0.183** W."
+      ],
+      "note": "The 2 Np is an amplitude ratio, so power falls as $e^{-4}$; the factor 2 is already inside 8.686."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/02_Secondary_Constants_Z0_and_Gamma.json",
+    "problem": 4,
+    "expect": "A coaxial cable at 100 MHz has",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `√((0.415+i157.4)(1.261E-5+i0.06306))` → **0.00447 + i3.1505** — the displayed pair *is* $\\alpha + j\\beta$ (0.00447 Np/m and 3.15 rad/m, the note's 0.00447 + j3.1507).",
+        "`√((0.415+i157.4)÷(1.261E-5+i0.06306))` → **49.96 − i0.061** Ω, which `Apps` `▶r∠θ` shows as **49.96∠−0.07°**.",
+        "Validity and loss: `0.415÷157.4 : 1.261E-5÷0.06306 : 0.00447×8.686` → **2.64e-3** → **2.0e-4** (both far below 1) → **0.0388** dB/m."
+      ],
+      "note": "`i` is the `MODE` `2` imaginary unit; the note writes it $j$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/03_Lossless_and_Distortionless_Lines.json",
+    "problem": 1,
+    "expect": "Is it distortionless? If not",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10÷250E-9 : 40E-6÷100E-12` → **4.0e7** s⁻¹ → **4.0e5** s⁻¹: the ratio is **100**, so the line is not distortionless.",
+        "The two repairs: `10÷250E-9×1E-10` → **4.0e-3** S/m (= 4 mS/m); `10×1E-10÷40E-6` → **2.5e-5** H/m (= 25 µH/m)."
+      ],
+      "note": "The condition compares the rates $R/L$ and $G/C$, never $R$ against $G$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/03_Lossless_and_Distortionless_Lines.json",
+    "problem": 2,
+    "expect": "Make the line of the previous problem distortionless",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Condition check first: `10÷2.5E-5` → **4.0e5** s⁻¹, equal to `40E-6÷100E-12` = **4.0e5** ✓.",
+        "`√(10×40E-6) : √(2.5E-5÷1E-10) : 1÷√(2.5E-5×1E-10)` → $\\alpha$ = **0.02** Np/m → $Z_0$ = **500** Ω → $v$ = **2.0e7** m/s.",
+        "`6.2832E8×√(2.5E-5×1E-10)` → **31.4** rad/m; `0.02×8.686` → **0.174** dB/m."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/03_Lossless_and_Distortionless_Lines.json",
+    "problem": 3,
+    "expect": "Make the same line distortionless by increasing its conductance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(10×4E-3) : Ans×8.686 : Ans×100`",
+        "`=`: $\\alpha$ = **0.2** Np/m → **1.737** dB/m → **173.7** dB over 100 m.",
+        "Compare with the inductance repair: `√(10×40E-6)` → **0.02** Np/m, ten times less. `10^(-173.7÷10)` → **4.2e-18** of the input power."
+      ],
+      "note": "Distortionless is not lossless: only $R = G = 0$ makes $\\alpha$ zero."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/03_Lossless_and_Distortionless_Lines.json",
+    "problem": 4,
+    "expect": "compute the exact",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `√((10+i1.571)(4E-5+i6.283E-4))` → **0.05379 + i0.05899** — $\\alpha$ + $j\\beta$ at 1 MHz.",
+        "`6.2832E6÷Imag(Ans)` → **1.065e8** m/s (the group of the two velocities that matters: $v = \\omega/\\beta$).",
+        "At 100 MHz: `√((10+i157.1)(4E-5+i0.06283))` → **0.1010 + i3.1432**, then `6.2832E8÷Imag(Ans)` → **2.00e8** m/s — the spread is a factor of two, so the line is dispersive."
+      ],
+      "note": "`Imag` is angle-mode independent, unlike `Arg` — use it for $\\beta$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/04_Reflection_Coefficient_and_VSWR.json",
+    "problem": 1,
+    "expect": "lossless line is terminated in a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(100−50)÷(100+50)` → **0.33333** — positive and real, so the voltage maximum sits at the load.",
+        "`(1+Ans)÷(1−Ans) : −20log(0.33333) : −10log(1−0.33333²)`",
+        "`=`: $\\mathrm{VSWR}$ = **2.000** → return loss = **9.542** dB → mismatch loss = **0.512** dB."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/04_Reflection_Coefficient_and_VSWR.json",
+    "problem": 2,
+    "expect": "now terminated in a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(25−50)÷(25+50)` → **−0.33333**.",
+        "Take the magnitude inside the formula: `(1+Abs(Ans))÷(1−Abs(Ans))` → **2.000** — identical to the 100 Ω load."
+      ],
+      "note": "Carrying the sign in gives 0.5, and a VSWR below 1 is the tell that $\\lvert\\Gamma\\rvert$ was skipped."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/04_Reflection_Coefficient_and_VSWR.json",
+    "problem": 4,
+    "expect": "purely reactive load",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `(i50−50)÷(i50+50)` → **0 + i1**, i.e. $\\Gamma = +j1$ — its `Abs` is 1 and its `Arg` is **+90°** in Degree mode.",
+        "`Abs(Ans) : 1−Ans²` → **1** → **0**: the load absorbs none of the incident power, so $\\mathrm{VSWR}$ → ∞ and the return loss = **0** dB."
+      ],
+      "note": "`i` is the `MODE` `2` imaginary unit (the note writes $j$). Any purely reactive load gives $\\lvert\\Gamma\\rvert = 1$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/04_Reflection_Coefficient_and_VSWR.json",
+    "problem": 5,
+    "expect": "voltage maximum is found right at the load",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(3−1)÷(3+1)` → **0.5000**; a maximum at the load makes $\\Gamma$ real and positive.",
+        "`50×(1+Ans)÷(1−Ans)` → **150** Ω."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/04_Reflection_Coefficient_and_VSWR.json",
+    "problem": 6,
+    "expect": "voltage *minimum* at the load",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(3−1)÷(3+1)` → **0.5000**; a minimum at the load inverts the phasor, so $\\Gamma = -0.5$.",
+        "`50×(1−Ans)÷(1+Ans)` → **16.67** Ω."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/04_Reflection_Coefficient_and_VSWR.json",
+    "problem": 7,
+    "expect": "measures a return loss of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(−20÷20)` → **0.1000** — return loss is a voltage ratio, so 20 log. Store with `SHIFT` `STO` `A`.",
+        "`(1+A)÷(1−A) : A²` → **1.222** → **0.0100**, i.e. 1 % of the power reflected."
+      ],
+      "note": "Reading 20 dB as a power ratio gives $\\lvert\\Gamma\\rvert = 0.01$ and VSWR 1.02."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/04_Reflection_Coefficient_and_VSWR.json",
+    "problem": 8,
+    "expect": "Find the reflection coefficient and the input impedance",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "Degree, `MODE` `2`: `0.5×(cos(90)−i sin(90))` → **0 − i0.5** (a λ/8 line rotates $\\Gamma$ by $2\\beta l = 90°$).",
+        "`50×(1+Ans)÷(1−Ans)` → **30 − i40** Ω, matching the $\\tan$ route with $\\tan 45° = 1$."
+      ],
+      "note": "The rotation is $e^{-2j\\beta l}$: a quarter turn of $\\Gamma$ is λ/8, not λ/4."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/05_Input_Impedance_and_Quarter-Wave_Transformer.json",
+    "problem": 1,
+    "expect": "Design the quarter-wave transformer",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `√(75×300) : 150²÷300 : 3E8÷3E8 : Ans÷4 : Ans×0.66`",
+        "`=` down the chain: $Z_0'$ = **150** Ω → $Z_{\\mathrm{in}} = Z_0'^{2}/Z_L$ = **75** Ω ✓ → $\\lambda$ = **1.00** m → $l$ = **0.250** m in air → **0.165** m at VF = 0.66."
+      ],
+      "note": "The section impedance is the geometric mean; the arithmetic mean 187.5 Ω leaves a VSWR of 1.56."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/05_Input_Impedance_and_Quarter-Wave_Transformer.json",
+    "problem": 2,
+    "expect": "is operated at",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "Degree: `tan(135)` → **−1**; then `MODE` `2`: `150×(300+i150×(−1))÷(150+i300×(−1))` → **120 + i90** Ω.",
+        "`(Ans−75)÷(Ans+75)` → **0.3659 + i0.2927**; `Abs(Ans)` → **0.4685**, i.e. $\\Gamma = 0.469\\angle 38.7°$.",
+        "`(1+Ans)÷(1−Ans)` → **2.76**."
+      ],
+      "note": "`i` is the `MODE` `2` imaginary unit (the note writes $j$). $\\tan$ is negative in the second quadrant, so 135° injects a capacitive-looking reactance."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/05_Input_Impedance_and_Quarter-Wave_Transformer.json",
+    "problem": 3,
+    "expect": "lossless line is terminated by a",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `50×(100+i50)÷(50+i100)` → **40 − i30** Ω at $l = \\lambda/8$ ($\\beta l = 45°$, so $\\tan\\beta l = 1$).",
+        "The two landmarks: `50²÷100` → **25** Ω at $\\lambda/4$; at $\\lambda/2$ the line repeats the load, **100** Ω."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/05_Input_Impedance_and_Quarter-Wave_Transformer.json",
+    "problem": 4,
+    "expect": "Use the reflection coefficient to find",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `(100+i50−50)÷(100+i50+50)` → **0.4000 + i0.2000** ($\\lvert\\Gamma\\rvert = 0.4472$, $\\mathrm{VSWR} = 2.62$).",
+        "`Ans×(−i)` → **0.2000 − i0.4000** — the λ/8 rotation $e^{-j90°}$.",
+        "`50×(1+Ans)÷(1−Ans)` → **50 − i50** Ω, matching the $\\tan$ form."
+      ],
+      "note": "`i` is the `MODE` `2` imaginary unit (the note writes $j$). The exponent is $2\\beta l$, never $\\beta l$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/06_Smith_Chart.json",
+    "problem": 1,
+    "expect": "Locate the point on the Smith chart",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `i1÷(2+i1)` → **0.2000 + i0.4000** — normalise first, $z_L = 1 + j1$.",
+        "`Apps` `▶r∠θ` on that result → **0.4472∠63.43°** (Degree mode): magnitude and angle in one move.",
+        "`(1+0.4472)÷(1−0.4472)` → **2.618**."
+      ],
+      "note": "`i` is the `MODE` `2` imaginary unit (the note writes $j$)."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/06_Smith_Chart.json",
+    "problem": 3,
+    "expect": "find the input impedance a quarter-wavelength from",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `1÷(1+i1)` → **0.5000 − i0.5000** — a quarter wave is a 180° rotation, i.e. the inversion $z \\to 1/z$.",
+        "`Ans×50` → **25 − i25** Ω; the inverter agrees: `50²÷(50+i50)` → **25 − i25** Ω."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/06_Smith_Chart.json",
+    "problem": 5,
+    "expect": "Read the normalized admittance",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `1÷(1+i1)` → **0.5000 − i0.5000** — the admittance point is a half turn (λ/4) from the impedance point.",
+        "`Ans÷50` → **0.01 − i0.01** S = **10 − i10** mS."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/06_Smith_Chart.json",
+    "problem": 6,
+    "expect": "first voltage *minimum* is",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "Degree, `MODE` `2`: `−0.3333×(cos(108)+i sin(108))` → **0.1030 − i0.3170**, since $2\\beta l = 2(360°)(0.15) = 108°$.",
+        "`(1+Ans)÷(1−Ans)×50` → **49.1 − i35.0** Ω."
+      ],
+      "note": "Rotating back to the load takes $e^{+j2\\beta l}$; the wrong sign gives the conjugate $49.1 + j35.0$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/06_Smith_Chart.json",
+    "problem": 7,
+    "expect": "find the distance from the load to the first voltage maximum",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "Degree, `MODE` `2`: `Arg(0.2+i0.4)` → **63.43°**, the angle of $\\Gamma_L$.",
+        "`Ans÷720` → **0.0881**$\\lambda$ (first maximum); `Ans+0.25` → **0.3381**$\\lambda$ (first minimum, a quarter wave further on)."
+      ],
+      "note": "One full turn of $\\Gamma$ is $\\lambda/2$, so the divisor is 720 and not 360."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/06_Smith_Chart.json",
+    "problem": 8,
+    "expect": "Find $Z_L$ and the VSWR",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "Degree: `SHIFT` `Rec(0.5, 120)` → $X$ = **−0.25**, $Y$ = **0.4330**, so $\\Gamma_L = X + jY$.",
+        "`MODE` `2`, recalling with `ALPHA` `X` and `ALPHA` `Y`: `(1+X+iY)÷(1−X−iY)×50` → **21.4 + i24.7** Ω.",
+        "VSWR from the magnitude: `(1+0.5)÷(1−0.5)` → **3.00**."
+      ],
+      "note": "`i` is the `MODE` `2` imaginary unit (the note writes $j$). `Rec(` leaves the pair in $X$ and $Y$, not in `Ans`."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/06_Smith_Chart.json",
+    "problem": 9,
+    "expect": "find the two distances from the load at which the normalized",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "Degree, `MODE` `2`: `Arg(−0.2+i0.4)` → **116.57°** and `Arg(−0.2−i0.4)` → **−116.57°**; the load itself sits at **63.43°**.",
+        "`(63.43+116.57)÷720` → **0.250**$\\lambda$; `(63.43+360−116.57)÷720` → **0.426**$\\lambda$."
+      ],
+      "note": "Both crossings are real answers — the VSWR circle always cuts the $g = 1$ circle twice."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/07_Stub_Matching.json",
+    "problem": 1,
+    "expect": "resistive load to a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Degree mode, one line — `√2 : tan⁻¹(Ans)÷360 : 1÷√2 : tan⁻¹(1÷Ans)÷360`",
+        "`=` down the chain: $t = \\tan\\beta d$ = **1.4142** → $d$ = **0.152**$\\lambda$ → $b$ = **0.7071** → stub $l$ = **0.152**$\\lambda$ (from $-\\cot\\beta l = -0.7071$).",
+        "Second crossing: `180−tan⁻¹(√2)` → **125.26°**, so `Ans÷360` = **0.348**$\\lambda$ for both $d$ and $l$."
+      ],
+      "note": "For a real load $g = 1$ collapses to $t^{2} = r$, so the crossings are at $\\tan\\beta d = \\pm\\sqrt{r}$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/07_Stub_Matching.json",
+    "problem": 2,
+    "expect": "Find the length of a short-circuited shunt stub that matches the line",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Degree: `tan⁻¹(−1)` returns **−45°**; the stub wants the second-quadrant angle, so `180+Ans` → **135°** and `Ans÷360` = **0.375**$\\lambda$ (shorted stub).",
+        "Open stub with the same susceptance: `tan⁻¹(1)÷360` → **0.125**$\\lambda$, exactly $\\lambda/4$ shorter."
+      ],
+      "note": "A shorted stub obeys $-\\cot\\beta l$; using the open-stub $\\tan$ form here gives the wrong 0.125$\\lambda$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/07_Stub_Matching.json",
+    "problem": 3,
+    "expect": "Repeat the single-stub design for a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Degree mode, one line — `√0.5 : tan⁻¹(Ans)÷360 : 180−tan⁻¹(√2) : Ans÷360`",
+        "`=` down the chain: $t$ = **0.7071** → first $d$ = **0.0980**$\\lambda$ → $\\beta l$ = **125.26°** → $l$ = **0.348**$\\lambda$.",
+        "Other crossing: `180−tan⁻¹(√0.5)` → **144.74°** → $d$ = **0.402**$\\lambda$, paired with the *short* stub `tan⁻¹(√0.5)÷360` = **0.152**$\\lambda$."
+      ],
+      "note": "The shortest stub goes with the longer distance — never mix the two solutions."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/07_Stub_Matching.json",
+    "problem": 4,
+    "expect": "is used at",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "Degree: `1.2×54.7356` → **65.68°**; `tan(Ans)` → **2.213**.",
+        "`MODE` `2`: `50×(2+i2.213)÷(1+i4.426) : 1÷Ans` → **28.64 − i16.12** Ω → **0.02651 + i0.01492** S.",
+        "Stub and total: `0.02651+i(0.01492−(1÷50)÷tan(65.6827)) : 1÷Ans : (Ans−50)÷(Ans+50) : Abs(Ans) : (1+Ans)÷(1−Ans)` → **0.02651 + i0.005881** S → **35.94 − i7.98** Ω → **−0.154 − i0.107** → **0.1871** → VSWR = **1.46**."
+      ],
+      "note": "`i` is the `MODE` `2` imaginary unit (the note writes $j$). $\\cot 65.68° = 0.4519$: the design's 0.7071 has decayed 36 %."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/08_Waveguide_TE_and_TM_Modes.json",
+    "problem": 1,
+    "expect": "WR-90 waveguide has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `3E8÷(2×0.02286) : 2×Ans : 3E8÷(2×0.01016)`",
+        "`=` down the chain: $f_{c,\\mathrm{TE}_{10}}$ = **6.562** GHz → $f_{c,\\mathrm{TE}_{20}}$ = **13.12** GHz → $f_{c,\\mathrm{TE}_{01}}$ = **14.76** GHz, so the single-mode band is 6.56–13.12 GHz."
+      ],
+      "note": "`3E8` is `SHIFT` `CVALUE` `28` for $c_0$, and it needs $a$ and $b$ in metres."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/08_Waveguide_TE_and_TM_Modes.json",
+    "problem": 2,
+    "expect": "which modes can propagate at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`377÷√(1−(6.5617÷9)²)` → **550.8** Ω for $\\mathrm{TE}_{10}$ at 9 GHz.",
+        "The next candidate: `(3E8÷2)×√((1÷0.02286)²+(1÷0.01016)²)` → **1.616e10** Hz, still above 9 GHz, so $\\mathrm{TE}_{11}$/$\\mathrm{TM}_{11}$ are evanescent too."
+      ],
+      "note": "Inside a guide $Z \\neq 377$ Ω; the wave impedance is mode- and frequency-dependent."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/08_Waveguide_TE_and_TM_Modes.json",
+    "problem": 3,
+    "expect": "Design an air-filled rectangular guide",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `3E8÷(2×5E9) : Ans÷2 : 3E8÷(2×Ans)`",
+        "`=` down the chain: $a$ = **0.0300** m → $b$ = **0.0150** m → $f_{c,\\mathrm{TE}_{01}}$ = **1.00e10** Hz. $\\mathrm{TE}_{20}$ is `2×5E9` = **1.00e10** Hz as well, so the band is 5.0–10.0 GHz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/08_Waveguide_TE_and_TM_Modes.json",
+    "problem": 4,
+    "expect": "is completely filled with polyethylene",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `√2.25 : 6.562÷1.5 : 13.123÷1.5 : 14.764÷1.5 : 377÷1.5`",
+        "`=` down the chain: $\\sqrt{\\varepsilon_r}$ = **1.5** → $f_{c,\\mathrm{TE}_{10}}$ = **4.375** GHz → $f_{c,\\mathrm{TE}_{20}}$ = **8.749** GHz → $f_{c,\\mathrm{TE}_{01}}$ = **9.843** GHz (still above $\\mathrm{TE}_{20}$) → $\\eta_d$ = **251.3** Ω."
+      ],
+      "note": "Every cutoff divides by $\\sqrt{\\varepsilon_r} = 1.5$, never by $\\varepsilon_r$ itself."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/09_Cutoff_Frequency_and_Guide_Wavelength.json",
+    "problem": 1,
+    "expect": "WR-90 waveguide ($a = 2.286",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `3E8÷1E10 : 2×0.02286 : 0.03÷√(1−(6.5617÷10)²) : 2π÷Ans`",
+        "`=` down the chain: $\\lambda_0$ = **0.0300** m → $\\lambda_c$ = **0.04572** m → $\\lambda_g$ = **0.03976** m → $\\beta_g$ = **158.0** rad/m."
+      ],
+      "note": "`3E8` is `SHIFT` `CVALUE` `28` for $c_0$; the `0.03` in the third statement is $\\lambda_0$ from the first."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/09_Cutoff_Frequency_and_Guide_Wavelength.json",
+    "problem": 2,
+    "expect": "The same WR-90 guide operates at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `3E8÷8E9 : √(1−(6.5617÷8)²) : 3E8÷Ans : Ans÷8E9 : 3E8×0.57206`",
+        "`=` down the chain: $\\lambda_0$ = **0.0375** m → stretch factor **0.5721** → $v_p$ = **5.244e8** m/s → $\\lambda_g$ = **0.06555** m → $v_g$ = **1.716e8** m/s."
+      ],
+      "note": "The fourth statement is $\\lambda_g = v_p/f$; the check is $v_pv_g$ = **9.00e16** = $c^{2}$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/09_Cutoff_Frequency_and_Guide_Wavelength.json",
+    "problem": 3,
+    "expect": "A guide with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `3E8÷0.06 : 2×0.03 : 3E8÷6E9 : 0.05÷√(1−(5÷6)²) : 2π÷Ans`",
+        "`=` down the chain: $f_c$ = **5.00** GHz → $\\lambda_c$ = **0.0600** m → $\\lambda_0$ = **0.0500** m → $\\lambda_g$ = **0.09045** m → $\\beta_g$ = **69.5** rad/m.",
+        "The follow-up: `3E8÷4E9` → **0.0750** m, longer than $\\lambda_c$ = 0.060 m, so at 4 GHz the mode is evanescent and no $\\lambda_g$ exists."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/09_Cutoff_Frequency_and_Guide_Wavelength.json",
+    "problem": 4,
+    "expect": "For WR-90 ($a = 2.286",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line, statements separated by `ALPHA` `:` — `3E8÷12E9 : √(1−(6.5617÷12)²) : 0.025÷Ans : 3E8÷0.02286`",
+        "`=` down the chain: $\\lambda_0$ = **0.0250** m → stretch factor **0.8373** → $\\lambda_g$ = **0.02986** m = **2.986** cm → $f_{c,\\mathrm{TE}_{20}}$ = **13.12** GHz."
+      ],
+      "note": "For $\\mathrm{TE}_{20}$ the cutoff wavelength is $a = 2.286$ cm, not $2a$; 12 GHz is below its 13.12 GHz cutoff."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/10_Phase_and_Group_Velocity.json",
+    "problem": 1,
+    "expect": "verify their product",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(1−(6.5617÷10)²) : 3E8÷Ans : 9E16÷Ans`",
+        "`=`: stretch factor **0.7546** → $v_p$ = **3.976e8** m/s → $v_g$ = **2.264e8** m/s, the second obtained from $v_g = c^{2}/v_p$."
+      ],
+      "note": "`3E8` is `SHIFT` `CVALUE` `28` for $c_0$; the `9E16` is the $v_pv_g = c^{2}$ check built into the chain."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/10_Phase_and_Group_Velocity.json",
+    "problem": 2,
+    "expect": "Find the group delay, compare it with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10÷2.264E8 : 10÷3E8` → **44.17** ns in the guide → **33.33** ns in free space.",
+        "`10÷2.264E8−10÷3E8 : Ans×1E9 : Ans×1E-9×3E8` → **1.084e-8** s → **10.84** ns → **3.25** m of extra free-space path."
+      ],
+      "note": "Group delay uses $v_g$ — never $v_p$, and never $c$, inside a guide."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/10_Phase_and_Group_Velocity.json",
+    "problem": 3,
+    "expect": "has polyethylene dielectric with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3E8÷√2.25` → **2.00e8** m/s: on a TEM line $v_p = v_g = c/\\sqrt{\\varepsilon_r}$, the same at every frequency.",
+        "`10÷Ans` → **5.00e-8** s = **50.0** ns for the 10 m run (an air line would give 33.3 ns).",
+        "`2.00E8÷1E9` → **0.200** m = **20.0** cm wavelength on the line; $\\beta$ linear in $\\omega$ means no dispersion, so the pulse keeps its shape."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/05_Transmission_Lines_and_Waveguides/10_Phase_and_Group_Velocity.json",
+    "problem": 4,
+    "expect": "is now driven at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(1−(6.5617÷7)²) : Ans×3E8 : 1E9÷Ans`",
+        "`=`: stretch factor **0.3483** → $v_g$ = **1.045e8** m/s → group delay **9.57** ns/m — more than double the 4.42 ns/m at 10 GHz.",
+        "`9E16÷(3E8×0.34829)` → **8.61e8** m/s ($v_p = c^{2}/v_g$); `Ans÷7E9` → **0.1230** m = **12.3** cm ($\\lambda_g = v_p/f$, against $\\lambda_0$ = 4.286 cm)."
+      ]
+    }
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "scope": "Recall the trade-off table for AM, DSB-SC, SSB-SC and VSB, and know why vestigial sideband exists.",
+  "concept": [
+    "**The one-line picture.** All four schemes are linear (amplitude) modulation: the message spectrum is translated around the carrier, and only the question of *which* parts are transmitted changes. AM sends carrier plus both sidebands; DSB-SC sends both sidebands only; SSB-SC sends one sideband; VSB sends one complete sideband plus a narrow **vestige** (a tapering remnant) of the other. Nothing is gained in noise performance by removing the carrier or a sideband — the benefit is purely in transmitted power and occupied bandwidth, at the cost of receiver complexity."
+  ],
+  "formulas": [
+    { "q": "AM (DSB with large carrier, DSB-LC)", "e": "BW = 2W, \\quad P_t = P_c\\left(1+\\frac{m^2}{2}\\right), \\quad \\eta_{max} = \\frac{1}{3}", "n": "Simplest receiver (envelope detector, carrier-derived AGC). Standard for medium-wave broadcast." },
+    { "q": "DSB-SC", "e": "BW = 2W, \\quad P_t = \\frac{P_c m^2}{2}", "n": "Carrier suppressed by a balanced modulator; requires coherent detection; saves power but no bandwidth." },
+    { "q": "SSB-SC", "e": "BW = W, \\quad P_t = \\frac{P_c m^2}{4}", "n": "One sideband; product detector plus BFO; HF voice, marine, point-to-point. Peak envelope power rating." },
+    { "q": "VSB (vestigial sideband)", "e": "BW = W + f_v \\approx 1.25W", "n": "One full sideband plus a vestige of the other; used for analogue TV video and some data links." },
+    { "q": "VSB symmetry condition", "e": "H(f_c-f) + H(f_c+f) = \\mathrm{constant\\ over\\ the\\ vestige}", "n": "Vestigial symmetry. It is what makes distortionless detection possible with a simple envelope detector." },
+    { "q": "Power and bandwidth comparison at m = 1", "e": "P:\\ 1.5 : 0.5 : 0.25\\ P_c \\quad BW:\\ 2W : 2W : W", "n": "AM : DSB-SC : SSB-SC. Savings versus AM: 4.77 dB and 7.78 dB respectively." },
+    { "q": "Detector required", "e": "\\mathrm{envelope:\\ AM,\\ VSB} \\qquad \\mathrm{coherent/BFO:\\ DSB-SC,\\ SSB}", "n": "A transmitted (or reinserted) carrier is what makes envelope detection possible." },
+    { "q": "Vestige width rule", "e": "f_v \\gtrsim f_{min}\\ \\mathrm{of\\ the\\ baseband}", "n": "Wide enough to cover the lowest message frequency; TV video uses 0.75 MHz of a 4.2 MHz baseband." },
+    { "q": "Analogue TV example", "e": "4.2\\ \\mathrm{MHz}\\ \\mathrm{video} \\rightarrow 6\\ \\mathrm{MHz}\\ \\mathrm{channel}", "n": "VSB saves about 1.25 MHz per channel compared with DSB and allows an envelope detector in a cheap receiver." },
+    { "q": "Carrier reinsertion error", "e": "\\mathrm{phase\\ error} \\rightarrow \\cos\\phi\\ \\mathrm{scaling\\ or\\ distortion}; \\quad \\mathrm{freq\\ error} \\rightarrow \\mathrm{audio\\ shift}", "n": "DSB-SC has a quadrature null at 90 degrees; SSB shifts all audio by the BFO error in hertz." },
+    { "q": "Why VSB instead of SSB for video", "e": "\\mathrm{SSB\\ filter\\ at\\ } f_c\\ \\mathrm{with\\ baseband\\ to\\ DC\\ is\\ unrealisable}", "n": "Video has significant energy near DC, so the sidebands touch at the carrier and no practical filter can separate them." }
+  ],
+  "traps": [
+    "**Treating VSB as 'SSB with a bit of the other sideband left over by accident'.** The vestige is deliberate and the filter is designed so that $H(f_c-f)+H(f_c+f)$ is constant across it. Remove the vestige, or filter it asymmetrically, and the envelope-detected video is distorted.",
+    "**Claiming SSB is 'twice as efficient in power' as DSB-SC.** SSB is half of DSB-SC in power and half in bandwidth; versus AM at $m=1$ it is a quarter of the power ($7.78\\ \\mathrm{dB}$) and half the bandwidth. Mixing the baselines produces wrong dB figures.",
+    "**Assuming removing the carrier improves the *noise* performance.** Carrier suppression saves transmitted power and nothing else; the post-detection SNR at equal received sideband power is unchanged. Noise performance is a property of the modulation *type* (linear versus angle), not of which sidebands are kept — compare with [[10_AM_vs_FM_Noise_Comparison]].",
+    "**Forgetting that VSB still needs a small carrier.** VSB is normally transmitted with a carrier (or a pilot) so that a simple envelope detector works; that is why its power efficiency is close to AM's rather than SSB's.",
+    "**Using the wrong bandwidth for VSB.** $BW = W + f_v$, not $W$ and not $2W$: one full sideband of width $W$ plus a vestige $f_v$ on the other side of the carrier."
+  ],
+  "refs": [
+    "[[03_DSB-SC_and_SSB-SC]]",
+    "[[02_AM_Spectrum,_Bandwidth_and_Power]]",
+    "[[01_AM_Fundamentals_and_Modulation_Index]]",
+    "[[10_AM_vs_FM_Noise_Comparison]]"
+  ],
+  "prereqs": [
+    "[[03_DSB-SC_and_SSB-SC]]"
+  ]
+}

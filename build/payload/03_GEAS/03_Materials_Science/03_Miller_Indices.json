@@ -1,0 +1,108 @@
+{
+  "scope": "Index a plane or direction inside a unit cell from its intercepts or coordinates, and use those indices to get interplanar spacing, planar density and slip geometry.",
+  "intuition": "Miller indices are a compact address. A plane's address is the reciprocal of where it cuts the axes; a direction's address is the vector between two lattice points. Once you have the address, the geometry of the whole crystal follows.",
+  "concept": [
+    "**Planes: reciprocals of the intercepts, cleared of fractions.** Find where the plane cuts the $x$, $y$ and $z$ axes, measured in units of $a$, $b$ and $c$. Take the reciprocal of each intercept, then multiply all three by the smallest number that clears the fractions, and reduce to the smallest integer triple. A plane that cuts at $a$, $a/2$ and $\\infty$ (parallel to $z$) gives $1, 2, 0$ and is the $(210)$ plane. A plane parallel to an axis has intercept $\\infty$, whose reciprocal is $0$ — that zero is meaningful, not a mistake. **A plane that passes through the origin is undefined by this recipe** because its intercepts are all zero: you must first shift the origin to an equivalent lattice point in the next cell, then re-read the intercepts. This is the single most-missed step in the topic, and it is why the $(111)$, $(200)$ and $(020)$ planes of a cubic cell must be indexed using the neighbouring cell.",
+    "**The bar notation and the four-index form.** If a plane cuts an axis on the negative side of the origin, that index is negative and is written with a bar over it: $(\\bar{1}10)$ is a plane cutting the negative $x$ axis, the positive $y$ axis, and running parallel to $z$. In plain text write $\\bar{1}$; do not write $-110$, which is not standard and is easy to mis-transcribe. For hexagonal crystals a four-index Miller–Bravais notation $(hkil)$ is used with $i = -(h+k)$, and directions are written $[uvtw]$ with $t = -(u+v)$. The three-index form still works for HCP geometry but does not reveal the six-fold symmetry, which is the only reason the fourth index exists.",
+    "**Directions: coordinates, not reciprocals.** A direction $[uvw]$ is the vector $u\\mathbf{a} + v\\mathbf{b} + w\\mathbf{c}$ between two lattice points. Subtract the tail coordinates from the head coordinates, clear fractions, reduce to the smallest integers, and wrap the result in square brackets. The notation is deliberate and examinable: **round brackets $(hkl)$ for a plane, square brackets $[uvw]$ for a direction, curly braces $\\{hkl\\}$ for the family of all planes equivalent by symmetry, and angle brackets $\\langle uvw\\rangle$ for the family of equivalent directions.** In a cubic crystal $[hkl]$ is exactly perpendicular to $(hkl)$, which is why the two notations can be confused without consequence in cubic work — but in a non-cubic crystal that perpendicularity fails, and the identity must not be assumed.",
+    "**Interplanar spacing and the angle between planes.** For a cubic crystal, the perpendicular distance between adjacent $(hkl)$ planes is $d_{hkl} = \\dfrac{a}{\\sqrt{h^2+k^2+l^2}}$. Higher indices mean closer planes: $d_{111} = a/\\sqrt{3}$ is larger than $d_{210} = a/\\sqrt{5}$. The same quadratic form gives the angle between two planes, $\\cos\\theta = \\dfrac{h_1h_2+k_1k_2+l_1l_2}{\\sqrt{h_1^2+k_1^2+l_1^2}\\sqrt{h_2^2+k_2^2+l_2^2}}$. **Both formulas are cubic-only.** In a tetragonal cell the denominators carry $1/a^2$, $1/b^2$, $1/c^2$ and the clean square root disappears — quoting $a/\\sqrt{h^2+k^2+l^2}$ for a non-cubic crystal is a guaranteed wrong answer.",
+    "**Why indices matter: slip and density.** Plastic deformation in metals happens by slip on close-packed planes in close-packed directions. The planar density (atoms per unit area) is highest on close-packed planes and the linear density (atoms per unit length) is highest along close-packed directions, and slip chooses the pairing that minimises the slip distance. FCC has four $\\{111\\}$ planes, each containing three $\\langle 110\\rangle$ directions, giving $4\\times3 = 12$ slip systems — the reason FCC metals such as copper and aluminium are ductile. HCP has only three effective slip systems at room temperature (the basal $(0001)$ plane), so magnesium and zinc are relatively brittle. BCC has no truly close-packed plane but slips on $\\{110\\}\\langle 111\\rangle$ with 12 systems as well, plus additional pencil-glide systems at higher temperature.",
+    "**Reading index families correctly.** $\\{111\\}$ for a cubic crystal means all eight sign-and-permutation variants: $(111)$, $(\\bar{1}11)$, $(1\\bar{1}1)$, $(11\\bar{1})$, $(\\bar{1}\\bar{1}1)$, $(\\bar{1}1\\bar{1})$, $(1\\bar{1}\\bar{1})$, $(\\bar{1}\\bar{1}\\bar{1})$. Multiplying all three indices by a negative sign does not produce a new plane, because $(hkl)$ and $(\\bar{h}\\bar{k}\\bar{l})$ describe the same set of parallel planes. Multiplying all three indices by an integer *does* change the plane (from the $n$th plane to the $2n$th), which is why indices are always reduced to the smallest integer triple and why $(200)$ is a different plane from $(100)$ even though they are parallel."
+  ],
+  "formulas": [
+    { "q": "Miller indices of a plane", "e": "(hkl) = \\mathrm{reciprocals\\ of\\ intercepts},\\ \\mathrm{then\\ clear\\ fractions}", "n": "Intercepts measured in a, b, c units. A parallel axis has intercept \\infty and index 0; a plane through the origin must be shifted first." },
+    { "q": "Miller indices of a direction", "e": "[uvw] = \\mathrm{head} - \\mathrm{tail},\\ \\mathrm{reduced\\ to\\ smallest\\ integers}", "n": "Coordinates, never reciprocals. Square brackets for directions, round brackets for planes." },
+    { "q": "Bar notation", "e": "(\\bar{h}kl) \\equiv \\mathrm{negative\\ intercept\\ on\\ } x", "n": "Written with an overbar, not a minus sign before the digit. In text use \\bar{1}." },
+    { "q": "Interplanar spacing (cubic)", "e": "d_{hkl} = \\frac{a}{\\sqrt{h^2+k^2+l^2}}", "n": "Cubic crystals only. Tetragonal, hexagonal and orthorhombic cells need the full 1/a^2, 1/b^2, 1/c^2 form." },
+    { "q": "Interplanar spacing (general)", "e": "\\frac{1}{d^2} = \\frac{h^2}{a^2}+\\frac{k^2}{b^2}+\\frac{l^2}{c^2}", "n": "Reduces to the cubic form when a = b = c. Valid only for orthogonal axes." },
+    { "q": "Angle between two planes", "e": "\\cos\\theta = \\frac{h_1h_2+k_1k_2+l_1l_2}{\\sqrt{h_1^2+k_1^2+l_1^2}\\sqrt{h_2^2+k_2^2+l_2^2}}", "n": "Cubic only. A zero dot product means the planes are perpendicular (for example (100) and (010))." },
+    { "q": "Direction in a plane (Weiss zone law)", "e": "hu + kv + lw = 0", "n": "The direction [uvw] lies in the plane (hkl). Used to check whether a slip direction belongs to a slip plane." },
+    { "q": "Miller-Bravais fourth index", "e": "i = -(h+k),\\qquad t = -(u+v)", "n": "Hexagonal systems only. The extra index carries no new information but exposes six-fold symmetry." },
+    { "q": "Planar density", "e": "PD = \\frac{\\mathrm{atoms\\ centred\\ on\\ the\\ plane}}{\\mathrm{plane\\ area}}", "n": "Count shared atoms by their in-plane sharing factor. Highest on close-packed planes such as FCC (111)." },
+    { "q": "Linear density", "e": "LD = \\frac{\\mathrm{atoms\\ centred\\ on\\ the\\ line}}{\\mathrm{line\\ length}}", "n": "Use the actual line length from lattice geometry, for example \\sqrt{2}a for [110] or \\sqrt{3}a for [111]." },
+    { "q": "Interplanar spacing of a family", "e": "d_{nh,nk,nl} = \\frac{d_{hkl}}{n}", "n": "Doubling all indices halves the spacing. Indices are never multiplied by a negative — that gives the same planes." },
+    { "q": "Slip systems in FCC", "e": "4\\ \\{111\\}\\ \\mathrm{planes} \\times 3\\ \\langle110\\rangle\\ \\mathrm{directions} = 12", "n": "The ductility argument. HCP offers only 3 easy systems at room temperature." }
+  ],
+  "problems": [
+    {
+      "prompt": "A plane in a cubic crystal cuts the $x$ axis at $a/2$, the $y$ axis at $a/3$, and is parallel to the $z$ axis. Determine its Miller indices.",
+      "give": ["intercepts: $x = a/2$, $y = a/3$, $z = \\infty$"],
+      "steps": [
+        "Express the intercepts in units of the lattice parameter: 1/2, 1/3, infinity",
+        "Take reciprocals: 2, 3, 1/infinity = 0",
+        "The triple (2 3 0) is already integral with no common factor",
+        "Indices: (230)"
+      ],
+      "ans": "$(230)$.",
+      "trap": "Taking the intercepts directly as $(\\frac{1}{2}\\frac{1}{3}0)$ and clearing fractions to $(130)$-style answers. Miller indices are *reciprocals* of the intercepts; skipping the reciprocal inverts the plane."
+    },
+    {
+      "prompt": "For BCC iron with $a = 2.866\\ \\hat{A}$, compute $d_{110}$, $d_{111}$ and $d_{200}$, and state which plane has the atoms closest together.",
+      "give": ["cubic", "$a = 2.866\\ \\hat{A}$"],
+      "steps": [
+        "d_110 = a/sqrt(1+1+0) = 2.866/sqrt(2) = 2.866/1.4142 = 2.027 Å",
+        "d_111 = a/sqrt(1+1+1) = 2.866/sqrt(3) = 2.866/1.7321 = 1.655 Å",
+        "d_200 = a/sqrt(4+0+0) = 2.866/2 = 1.433 Å",
+        "Smallest spacing is d_200; note d_200 = d_100/2 as the family rule requires"
+      ],
+      "ans": "$d_{110} = 2.027\\ \\hat{A}$, $d_{111} = 1.655\\ \\hat{A}$, $d_{200} = 1.433\\ \\hat{A}$; the $(200)$ planes are the closest together.",
+      "trap": "Using $d_{hkl}$ to mean the distance from the origin to the nearest plane of that family. It is the *interplanar* spacing — the perpendicular gap between adjacent parallel planes — so it shrinks as the indices grow."
+    },
+    {
+      "prompt": "Aluminium is FCC with $a = 4.05\\ \\hat{A}$. Find the linear density of atoms along the $[110]$ direction in atoms per nanometre.",
+      "give": ["FCC", "$a = 4.05\\ \\hat{A}$", "direction $[110]$"],
+      "steps": [
+        "Length of one [110] repeat in a cubic cell = sqrt(2) a = 1.4142(0.405 nm) = 0.5728 nm",
+        "Atoms centred on this repeat: the two corner atoms at the ends (each shared with the neighbouring repeat, so 1/2 + 1/2 = 1) plus the face-centre atom in the middle of the face diagonal = 2 atoms",
+        "LD = 2/0.5728 nm = 3.49 atoms/nm",
+        "Cross-check from the nearest-neighbour spacing: atoms along [110] are close-packed, 2R = sqrt(2)a/2 = 1.4142(0.405)/2 = 0.2864 nm apart, so LD = 1/0.2864 = 3.49 atoms/nm. Counting 3 atoms instead of 2 double-counts the shared corner atoms and inflates the answer by 3/2"
+      ],
+      "ans": "$LD = 3.49\\ \\mathrm{atoms/nm}$ (about $3.5\\times10^{9}\\ \\mathrm{atoms/m}$).",
+      "trap": "Using the cell edge $a$ as the line length instead of $\\sqrt{2}a$, which overstates the density by 41%. The line length must follow the direction, not the cube edge."
+    },
+    {
+      "prompt": "A plane in a cubic crystal cuts the axes at $x = a$, $y = a/2$ and $z = a$. Write its indices, then write the indices of the plane parallel to it that passes through the origin of the next cell.",
+      "give": ["intercepts: $a$, $a/2$, $a$"],
+      "steps": [
+        "Intercepts in units of a: 1, 1/2, 1",
+        "Reciprocals: 1, 2, 1",
+        "Indices of the given plane: (121)",
+        "A plane through the origin cannot be indexed directly; shift the origin by one lattice vector along y and re-read",
+        "In the shifted frame the intercepts become x = 1, y = -1/2, z = 1 (the plane now cuts the negative y side)",
+        "Reciprocals: 1, -2, 1, so the parallel plane is (1 2bar 1)"
+      ],
+      "ans": "The given plane is $(121)$; the parallel plane through the origin is $(1\\bar{2}1)$.",
+      "trap": "Trying to index a plane through the origin from its 'intercepts' and getting $(000)$. A plane through the origin has no finite intercepts in that frame — you must shift the origin to a neighbouring lattice point and re-read, which usually introduces a bar index."
+    },
+    {
+      "prompt": "For FCC copper ($a = 3.615\\ \\hat{A}$), compute the planar density of atoms on the $(111)$ plane, expressed in atoms per square ångström.",
+      "give": ["FCC", "$a = 3.615\\ \\hat{A}$", "plane $(111)$"],
+      "steps": [
+        "Atoms in one (111) plane form a triangular array with nearest-neighbour spacing d = a/sqrt(2)",
+        "d = 3.615/1.4142 = 2.556 Å",
+        "Each atom owns the smallest equilateral triangle of side d: 3 corners x 1/6 = 1/2 atom per triangle",
+        "Area per triangle = (sqrt(3)/4)d^2 = 0.4330(2.556)^2 = 0.4330 x 6.533 = 2.829 Å^2",
+        "Atoms per triangle = 0.5, so area per atom = 2 x 2.829 = 5.658 Å^2",
+        "PD = 1/5.658 = 0.177 atoms/Å^2"
+      ],
+      "ans": "$PD = 0.177\\ \\mathrm{atoms/\\hat{A}^2} = 1.77\\times10^{19}\\ \\mathrm{atoms/m^2}$; equivalently one atom per $5.66\\ \\hat{A}^2$ of $(111)$ surface.",
+      "trap": "Using the cube-face area $a^2 = 13.07\\ \\hat{A}^2$ as the area per atom. The atom spacing *within* the $(111)$ plane is $a/\\sqrt{2} = 2.556\\ \\hat{A}$, not $a$, so $a^2$ is 2.3 times too large and the planar density comes out 2.3 times too small."
+    }
+  ],
+  "traps": [
+    "**Indexing a plane that passes through the origin without shifting it.** Every intercept is zero, the reciprocal is undefined, and the naive answer is $(000)$. Shift the origin to the next lattice point, re-read the intercepts, and expect a bar index to appear.",
+    "**Forgetting to take reciprocals.** Treating the intercepts $\\frac{1}{2},\\frac{1}{3},\\infty$ as indices and reporting $(130)$ instead of $(230)$. The reciprocal step is the definition of a Miller index; without it the notation means nothing.",
+    "**Leaving fractions or common factors in the indices.** $(2\\frac{1}{2}1)$ or $(240)$ instead of $(120)$. Indices are always the smallest integer triple; $(240)$ and $(120)$ are parallel but not the same plane.",
+    "**Using $d = a/\\sqrt{h^2+k^2+l^2}$ on a non-cubic crystal.** The formula is cubic-only. Applying it to tetragonal $\\beta$-tin or hexagonal zinc gives a spacing wrong by 5–15%, and the error is invisible because the answer still looks reasonable.",
+    "**Confusing brackets.** $(hkl)$ is a plane, $[uvw]$ is a direction, $\\{hkl\\}$ is the family of equivalent planes, $\\langle uvw\\rangle$ is the family of equivalent directions. Writing $\\{110\\}$ when the question asks for a single $[110]$ direction is a lost mark.",
+    "**Multiplying indices by $-1$ and calling it a new plane.** $(hkl)$ and $(\\bar{h}\\bar{k}\\bar{l})$ are the same set of parallel planes. Multiplying by an integer $n$ does give a different plane and halves the spacing.",
+    "**Assuming $[hkl] \\perp (hkl)$ in every system.** True in cubic crystals by symmetry; false in tetragonal, hexagonal and lower-symmetry cells, where the plane normal and the direction with the same indices are not parallel.",
+    "**Forgetting the $i$ index rule for hexagonal cells.** In $(hkil)$, $i = -(h+k)$ must hold; a handwritten $(1010)$ that violates the rule is not a valid Miller–Bravais plane."
+  ],
+  "refs": [
+    "[[01_Crystal_Structures_and_Unit_Cells]]",
+    "[[04_Crystal_Imperfections]]",
+    "[[02_Atomic_Packing_Factor_and_Density]]"
+  ],
+  "prereqs": ["[[01_Crystal_Structures_and_Unit_Cells]]"]
+}

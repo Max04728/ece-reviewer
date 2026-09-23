@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Counter — Modulo and Terminal Count Explorer</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+// A sequential counter is easier to understand as a table of states than as a
+// schematic. This steps a counter through its states, shows the flip-flop outputs,
+// the terminal-count condition and the modulus, and makes the difference between a
+// natural modulus (2^n) and a truncated one explicit.
+
+const state = {
+  bits: 4,
+  mod: 10,
+  truncated: true,
+  count: 0,
+};
+
+function build() {
+  const host = document.getElementById('app');
+  host.classList.add('vault-widget');
+
+  const head = document.createElement('header');
+  head.className = 'vault-widget-head';
+  head.innerHTML =
+    '<h2 class="vault-widget-title">Counter — Modulo and Terminal Count</h2>' +
+    '<p class="vault-widget-desc">Step an asynchronous binary counter through its states. Toggle truncation to build a modulo-N counter and see exactly when the reset fires.</p>';
+  host.appendChild(head);
+
+  const out = document.createElement('div');
+  out.className = 'vault-widget-readout';
+  host.appendChild(out);
+
+  const grid = document.createElement('div');
+  grid.style.marginTop = '14px';
+  host.appendChild(grid);
+
+  const detail = document.createElement('div');
+  detail.className = 'vault-widget-note';
+  host.appendChild(detail);
+
+  const panel = document.createElement('div');
+  panel.className = 'vault-widget-controls';
+
+  const mk = (label, el) => {
+    const w = document.createElement('label');
+    w.className = 'vault-widget-control';
+    const s = document.createElement('span');
+    s.className = 'vault-widget-label';
+    s.textContent = label;
+    w.appendChild(s);
+    w.appendChild(el);
+    return w;
+  };
+
+  const bitsSel = document.createElement('select');
+  bitsSel.className = 'vault-widget-input';
+  [2, 3, 4, 5].forEach((b) => {
+    const o = document.createElement('option');
+    o.value = String(b);
+    o.textContent = b + ' flip-flops (natural modulus ' + Math.pow(2, b) + ')';
+    if (b === 4) o.selected = true;
+    bitsSel.appendChild(o);
+  });
+  bitsSel.addEventListener('change', () => {
+    state.bits = Number(bitsSel.value);
+    state.mod = Math.min(state.mod, Math.pow(2, state.bits));
+    modInput.max = String(Math.pow(2, state.bits));
+    if (Number(modInput.value) > Math.pow(2, state.bits)) modInput.value = String(Math.pow(2, state.bits));
+    state.count = 0;
+    render();
+  });
+  panel.appendChild(mk('counter width', bitsSel));
+
+  const modInput = document.createElement('input');
+  modInput.type = 'number';
+  modInput.className = 'vault-widget-input';
+  modInput.min = '2';
+  modInput.max = '16';
+  modInput.value = '10';
+  modInput.style.width = '120px';
+  modInput.addEventListener('input', () => {
+    const max = Math.pow(2, state.bits);
+    state.mod = Math.max(2, Math.min(max, Number(modInput.value) || 2));
+    state.count = state.count % state.mod;
+    render();
+  });
+  panel.appendChild(mk('modulus N', modInput));
+
+  const truncBox = document.createElement('input');
+  truncBox.type = 'checkbox';
+  truncBox.className = 'vault-widget-input';
+  truncBox.checked = true;
+  truncBox.addEventListener('change', () => {
+    state.truncated = truncBox.checked;
+    state.count = 0;
+    render();
+  });
+  panel.appendChild(mk('truncate to modulus N', truncBox));
+
+  host.appendChild(panel);
+
+  const btns = document.createElement('div');
+  btns.className = 'vault-widget-controls';
+  const mkBtn = (label, fn) => {
+    const b = document.createElement('button');
+    b.className = 'vault-widget-btn';
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    const w = document.createElement('label');
+    w.className = 'vault-widget-control';
+    w.appendChild(b);
+    return w;
+  };
+  btns.appendChild(mkBtn('step once', () => { step(); }));
+  btns.appendChild(mkBtn('run to terminal count', () => { runToTerminal(); }));
+  btns.appendChild(mkBtn('reset count', () => { state.count = 0; render(); }));
+  host.appendChild(btns);
+
+  function maxCount() {
+    return state.truncated ? state.mod - 1 : Math.pow(2, state.bits) - 1;
+  }
+
+  function step() {
+    const tc = maxCount();
+    if (state.count >= tc) state.count = 0;   // terminal count clears the counter
+    else state.count++;
+    render();
+  }
+
+  function runToTerminal() {
+    const tc = maxCount();
+    state.count = tc;
+    render();
+  }
+
+  function render() {
+    const n = state.bits;
+    const natural = Math.pow(2, n);
+    const tc = maxCount();
+    const atTC = state.count === tc;
+    const binary = state.count.toString(2).padStart(n, '0');
+
+    // flip-flop outputs
+    grid.innerHTML = '';
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.gap = '10px';
+    row.style.justifyContent = 'center';
+    row.style.margin = '10px 0';
+    for (let i = 0; i < n; i++) {
+      const bit = binary[i];
+      const idx = n - 1 - i; // label Q0 as the LSB, rightmost
+      const cell = document.createElement('div');
+      cell.style.minWidth = '64px';
+      cell.style.padding = '10px';
+      cell.style.textAlign = 'center';
+      cell.style.border = '1px solid var(--vw-border)';
+      cell.style.borderRadius = '6px';
+      cell.style.background = bit === '1' ? 'rgba(137,180,250,0.4)' : 'var(--vw-panel)';
+      cell.innerHTML =
+        '<div style="font-size:0.72rem;color:var(--vw-dim)">Q' + idx + '</div>' +
+        '<div style="font-size:1.4rem;font-family:ui-monospace,monospace;color:' +
+        (bit === '1' ? '#fff' : 'var(--vw-dim)') + '">' + bit + '</div>';
+      row.appendChild(cell);
+    }
+    grid.appendChild(row);
+
+    // state table of the next few states
+    const table = document.createElement('table');
+    table.style.borderCollapse = 'collapse';
+    table.style.margin = '12px auto 0';
+    table.style.fontFamily = 'ui-monospace, monospace';
+    table.style.fontSize = '13px';
+    const head = document.createElement('tr');
+    ['state', 'binary', 'Q' + (n - 1) + '..Q0', 'terminal count?'].forEach((h) => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      th.style.padding = '5px 10px';
+      th.style.border = '1px solid var(--vw-border)';
+      th.style.color = 'var(--vw-accent)';
+      head.appendChild(th);
+    });
+    table.appendChild(head);
+    const cycle = state.truncated ? state.mod : natural;
+    for (let k = 0; k < Math.min(cycle, 16); k++) {
+      const tr = document.createElement('tr');
+      const isTC = k === tc;
+      const cells = [String(k), k.toString(2).padStart(n, '0'), '\u2014', isTC ? 'YES \u2192 reset' : ''];
+      cells.forEach((c, ci) => {
+        const td = document.createElement('td');
+        td.textContent = ci === 2 ? '' : c;
+        if (ci === 2) {
+          // show the individual Q outputs
+          const b = k.toString(2).padStart(n, '0');
+          td.textContent = b.split('').join(' ');
+        }
+        td.style.padding = '4px 10px';
+        td.style.border = '1px solid var(--vw-border)';
+        td.style.textAlign = ci === 0 ? 'right' : 'center';
+        if (k === state.count) td.style.background = 'rgba(137,180,250,0.25)';
+        if (isTC) td.style.color = 'var(--vw-warn)';
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    }
+    grid.appendChild(table);
+
+    // readout
+    out.innerHTML = '';
+    const add = (key, val) => {
+      const c = document.createElement('div');
+      c.className = 'vault-widget-readout-item';
+      const k = document.createElement('span');
+      k.className = 'vault-widget-readout-key';
+      k.textContent = key;
+      const v = document.createElement('span');
+      v.className = 'vault-widget-readout-val';
+      v.textContent = val;
+      c.appendChild(k);
+      c.appendChild(v);
+      out.appendChild(c);
+    };
+    add('current state', String(state.count));
+    add('binary', binary);
+    add('natural modulus', '2^' + n + ' = ' + natural);
+    add('actual modulus', (state.truncated ? state.mod : natural) + ' states');
+    add('terminal count', String(tc));
+    add('at terminal count?', atTC ? 'YES \u2014 next clock clears it' : 'no');
+    add('flip-flops needed', String(n) + '  (natural max ' + natural + ')');
+
+    if (state.truncated && state.mod < natural) {
+      const unused = natural - state.mod;
+      detail.innerHTML =
+        '<strong>Truncated counter.</strong> A ' + n + '-flip-flop binary counter naturally has ' + natural +
+        ' states, but only ' + state.mod + ' are used \u2014 so ' + unused + ' state' + (unused === 1 ? ' is' : 's are') + ' skipped. ' +
+        'The terminal count is <strong>' + tc + '</strong>, and the next clock edge asynchronously (or synchronously, depending on the design) clears the counter to 0. ' +
+        'Two things examiners test: (1) the modulus is set by the <em>decode</em> of the terminal state, not by the number of flip-flops, and ' +
+        '(2) an <em>asynchronous</em> clear can glitch, because the reset propagates through the flip-flops and a decoded state can appear momentarily during a transition. ' +
+        'A synchronous design avoids that by qualifying the clear with the clock.';
+    } else {
+      detail.innerHTML =
+        '<strong>Natural binary counter.</strong> With ' + n + ' flip-flops every one of the ' + natural +
+        ' states is used, so the modulus is 2^' + n + ' and the terminal count is ' + tc + '. ' +
+        'No decode logic is needed \u2014 the counter simply rolls over from all-ones to all-zeros. ' +
+        'Each flip-flop divides the previous one by 2, so the output of Q0 is the input clock divided by 2, Q1 by 4, and in general Q' + (n - 1) + ' by ' + natural + '. ' +
+        'That is why an n-stage counter is also an n-bit frequency divider.';
+    }
+  }
+
+  render();
+}
+
+build();
+</script>
+</body>
+</html>

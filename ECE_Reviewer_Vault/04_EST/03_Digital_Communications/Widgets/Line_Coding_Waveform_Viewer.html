@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Line Coding Waveform Viewer — NRZ, RZ, AMI, Pseudoternary, Manchester</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Line coding is examined as a table, and the table has only five examinable columns:
+//   (1) DC component  — does the average level sit away from zero?
+//   (2) transitions   — enough edges to recover the clock (self-clocking)?
+//   (3) bandwidth     — in units of the bit rate R (and its first null)
+//   (4) polarity      — AMI/pseudoternary need alternating polarity; a long run of 0s
+//                       (AMI) or 1s (pseudoternary) produces NO transitions at all;
+//   (5) Manchester    — guaranteed mid-bit transition, but needs 2x the bandwidth.
+// The widget draws the waveform, the bit cells and a clock reference together, and then
+// MEASURES the average level and the transition count from the drawn waveform instead of
+// asking the student to trust a table.
+//
+// Normalised levels: unipolar schemes use {0, +1}; polar schemes use {-1, +1}; RZ schemes
+// return to 0 for the second half of every bit. Bit time Tb = 1/R, so the bit rate R is
+// 1 in normalised units and every bandwidth figure below is a multiple of R.
+
+// Each scheme returns the constant level on [0,0.5) and [0.5,1) of bit i.
+const SCHEMES = {
+  'nrz-l': {
+    name: 'NRZ-L (polar, level)',
+    rule: 'level = bit value: 1 → +1, 0 → −1 for the whole bit',
+    f: (bits, i, last) => [bits[i] ? 1 : -1, bits[i] ? 1 : -1],
+    self: 'no', bw: '≈ 0.5R (first null at R); textbook B = R',
+    dc: 'zero only if the pattern is balanced — long runs shift the average',
+  },
+  'nrz-i': {
+    name: 'NRZ-I (polar, inverted / differential)',
+    rule: 'a 1 inverts the level, a 0 holds it — the level carries no absolute meaning',
+    f: (bits, i, last) => {
+      const lvl = (last === 0 ? -1 : last) * (bits[i] ? -1 : 1);
+      return [lvl, lvl];
+    },
+    self: 'no (but immune to polarity reversal)',
+    bw: '≈ 0.5R, same as NRZ-L',
+    dc: 'zero for a balanced pattern; depends on the run structure, not the bit values',
+  },
+  'unipolar-rz': {
+    name: 'Unipolar RZ',
+    rule: '1 → +1 for the first half of the bit, then back to 0; 0 → 0 all bit long',
+    f: (bits) => (bits[0] ? [1, 0] : [0, 0]),
+    self: 'partially — a 0 has no transition, so a run of 0s still loses the clock',
+    bw: '≈ R (first null at 2R; the half-width pulse doubles the bandwidth)',
+    dc: 'always positive (nonzero mean) — a DC offset the channel cannot pass',
+  },
+  'ami': {
+    name: 'Bipolar AMI (alternate mark inversion)',
+    rule: '0 → 0 V; each 1 alternates between +1 and −1',
+    f: (bits) => [bits[0] ? 1 : 0, bits[0] ? 1 : 0],
+    self: 'no — a long run of 0s is a flat line (this is why HDB3/ B8ZS exist)',
+    bw: '≈ 0.5R (narrower than RZ because the 1s last a whole bit)',
+    dc: 'exactly zero for any pattern — the marks alternate, so +1 and −1 cancel',
+  },
+  'pseudoternary': {
+    name: 'Pseudoternary',
+    rule: 'AMI with the roles swapped: 1 → 0 V, each 0 alternates between +1 and −1',
+    f: (bits) => [bits[0] ? 0 : 1, bits[0] ? 0 : 1],
+    self: 'no — a long run of 1s is now the flat line',
+    bw: '≈ 0.5R, identical to AMI',
+    dc: 'zero for a balanced pattern; the mirror image of AMI',
+  },
+  'manchester': {
+    name: 'Manchester (biphase-L)',
+    rule: 'every bit has a mid-bit transition: 1 → low-to-high, 0 → high-to-low',
+    f: (bits) => (bits[0] ? [-1, 1] : [1, -1]),
+    self: 'YES — a transition inside every single bit, whatever the data',
+    bw: '≈ 2R (the fundamental occupies 0.5R–R, and the first null is at 2R)',
+    dc: 'exactly zero — every bit is half +1 and half −1',
+  },
+  'diff-manchester': {
+    name: 'Differential Manchester',
+    rule: 'always a mid-bit transition; a 0 also has a transition at the start of the bit, a 1 does not',
+    f: (bits, i, last) => {
+      const start = bits[i] ? (last === 0 ? -1 : last) : -(last === 0 ? -1 : last);
+      return [start, -start];
+    },
+    self: 'YES — mid-bit transition always present',
+    bw: '≈ 2R, identical to Manchester',
+    dc: 'exactly zero',
+  },
+};
+
+const PATTERNS = {
+  '10110010': 'mixed 1s and 0s',
+  '11111111': 'all 1s (kills AMI transitions: no marks to alternate)',
+  '00000000': 'all 0s (kills pseudoternary transitions)',
+  '10101010': 'alternating (worst case for NRZ bandwidth)',
+  '11010000': 'long tail of 0s (clock recovery problem)',
+  'custom…': 'type any 0/1 string in the box',
+};
+
+const frame = (ctx, plot, { top, bottom, yMin, yMax }) => {
+  const px0 = plot.pad, px1 = plot.w - plot.pad;
+  return {
+    px0, px1, top, bottom, yMin, yMax,
+    X: (x, xMin, xMax) => px0 + ((x - xMin) / (xMax - xMin)) * (px1 - px0),
+    Y: (y) => bottom - ((y - yMin) / (yMax - yMin)) * (bottom - top),
+    line(x1, y1, x2, y2, color, width = 1.5, dash = null) {
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color;
+      ctx.lineWidth = width; ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    },
+    text(s, x, y, color = PALETTE.text, align = 'left', font = '11px ui-monospace, monospace') {
+      ctx.save(); ctx.fillStyle = color; ctx.textAlign = align; ctx.font = font;
+      ctx.fillText(s, x, y); ctx.restore();
+    },
+  };
+};
+
+let customPattern = '';
+
+widget({
+  title: 'Line Coding — Waveform, Transitions, DC Level and Bandwidth',
+  description:
+    'Pick a bit pattern and a line code and compare the actual waveform against a clock reference. The transition count and the average level are measured from the drawn wave, not quoted from a table.',
+  height: 600,
+  controls: [
+    { id: 'pattern', label: 'bit pattern (preset)', type: 'select', options: Object.keys(PATTERNS), value: '10110010' },
+    { id: 'scheme', label: 'line code', type: 'select', options: Object.keys(SCHEMES).map((k) => ({ value: k, label: SCHEMES[k].name })), value: 'nrz-l' },
+    { id: 'amp', label: 'waveform amplitude (V)', min: 0.5, max: 5, step: 0.1, value: 1, unit: 'V' },
+    { id: 'custom', label: 'custom pattern (used by the "custom…" preset)', type: 'select', options: [
+      { value: '1100', label: '1100' }, { value: '10110', label: '10110' },
+      { value: '100000001', label: '100000001' }, { value: '01110', label: '01110' },
+    ], value: '1100' },
+  ],
+  compute: (v) => {
+    const raw = v.pattern === 'custom…' ? String(v.custom) : String(v.pattern);
+    const bits = raw.split('').filter((c) => c === '0' || c === '1').map(Number);
+    const list = bits.length ? bits : [1, 0, 1];
+    const S = SCHEMES[v.scheme];
+    const segs = [];
+    let last = -1;
+    let marks = 0, zeros = 0;
+    for (let i = 0; i < list.length; i++) {
+      const pair = S.f(list, i, last);
+      let a = pair[0], b = pair[1];
+      if (v.scheme === 'ami') { if (list[i]) { marks++; a = (marks % 2) ? 1 : -1; b = a; } else { a = 0; b = 0; } }
+      if (v.scheme === 'pseudoternary') { if (list[i]) { a = 0; b = 0; } else { zeros++; a = (zeros % 2) ? 1 : -1; b = a; } }
+      segs.push([a, b]);
+      last = b;
+    }
+    const A = v.amp;
+    // measurements taken from the drawn waveform: exact time average and transitions
+    const n = list.length;
+    let sum = 0, transitions = 0;
+    for (let i = 0; i < n; i++) {
+      const [a, b] = segs[i];
+      sum += a * 0.5 + b * 0.5;
+      if (i > 0 && segs[i - 1][1] !== a) transitions++;
+      if (a !== b) transitions++;                    // mid-bit transition (RZ / Manchester)
+    }
+    const dcLevel = (sum / n) * A;                   // volts
+    const dcFraction = sum / n;                      // normalised
+    const selfClocking = transitions >= n ? 'YES' : (transitions >= n / 2 ? 'partial' : 'NO');
+    const nyq = list.length / 2;                     // Nyquist rate for this pattern, in bits
+    const bwTable = S.bw;
+    // peak-to-peak actually used, and whether the pattern exercises every level
+    const levels = [...new Set(segs.flat())].sort((x, y) => x - y);
+    return {
+      bits: list, raw, segs, A, dcLevel, dcFraction, transitions, selfClocking,
+      scheme: v.scheme, S, levels, n, nyq, bwTable,
+      ones: list.filter((x) => x).length, zerosCount: list.length - list.filter((x) => x).length,
+      maxRun: maxRun(list),
+    };
+  },
+  draw: (ctx, v, o, plot) => {
+    plot.clear();
+    const n = o.n;
+    const A = o.A;
+    const yTop = 1.75 * A, yBot = -1.75 * A;
+
+    // ------------------------------------------------------------ bit ruler --
+    const R = frame(ctx, plot, { top: 78, bottom: 300, yMin: yBot, yMax: yTop });
+    // bit cells
+    for (let i = 0; i < n; i++) {
+      const x0 = R.X(i, 0, n), x1 = R.X(i + 1, 0, n);
+      ctx.save();
+      ctx.fillStyle = i % 2 ? 'rgba(58,58,82,0.45)' : 'rgba(58,58,82,0.20)';
+      ctx.fillRect(x0, R.top, x1 - x0, R.bottom - R.top);
+      ctx.restore();
+      R.text(String(o.bits[i]), (x0 + x1) / 2, R.top - 6, o.bits[i] ? PALETTE.accent3 : PALETTE.dim, 'center', '13px ui-monospace, monospace');
+      R.text('T' + i, (x0 + x1) / 2, R.bottom + 14, PALETTE.dim, 'center', '9px ui-monospace, monospace');
+      R.line(x0, R.top, x0, R.bottom, 'rgba(160,160,190,0.35)', 1, [3, 3]);
+    }
+    R.line(R.X(n, 0, n), R.top, R.X(n, 0, n), R.bottom, 'rgba(160,160,190,0.35)', 1, [3, 3]);
+    R.text('bit cells (one shaded column per bit interval Tb = 1/R)', R.px0, R.top - 20, PALETTE.dim);
+    // voltage gridlines
+    for (const lv of [1, 0, -1]) {
+      const Y = R.Y(lv * A);
+      R.line(R.px0, Y, R.px1, Y, lv === 0 ? PALETTE.axis : 'rgba(160,160,190,0.28)', lv === 0 ? 1.5 : 1, lv === 0 ? null : [4, 4]);
+      R.text(fmt(lv * A, 3) + ' V', R.px0 - 4, Y + 4, PALETTE.dim, 'right', '10px ui-monospace, monospace');
+    }
+    // the waveform
+    ctx.save(); ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.6; ctx.beginPath();
+    let penX = null;
+    for (let i = 0; i < n; i++) {
+      const [a, b] = o.segs[i];
+      const x0 = R.X(i, 0, n), xm = R.X(i + 0.5, 0, n), x1 = R.X(i + 1, 0, n);
+      const ya = R.Y(a * A), yb = R.Y(b * A);
+      if (penX === null) { ctx.moveTo(x0, ya); } else { ctx.lineTo(x0, ya); }
+      ctx.lineTo(xm, ya); ctx.lineTo(xm, yb); ctx.lineTo(x1, yb);
+      penX = x1;
+    }
+    ctx.stroke(); ctx.restore();
+    // transition markers
+    let tcount = 0;
+    for (let i = 0; i < n; i++) {
+      const [a, b] = o.segs[i];
+      if (a !== b) { const X = R.X(i + 0.5, 0, n); R.line(X, R.top, X, R.bottom, 'rgba(249,226,175,0.55)', 1.2, [2, 3]); tcount++; }
+      if (i > 0 && o.segs[i - 1][1] !== a) { const X = R.X(i, 0, n); R.line(X, R.top, X, R.bottom, 'rgba(166,227,161,0.6)', 1.2, [2, 3]); tcount++; }
+    }
+    // DC level as a horizontal line, and the mean marker
+    const dcY = R.Y(o.dcFraction * A);
+    R.line(R.px0, dcY, R.px1, dcY, PALETTE.accent2, 2, [7, 4]);
+    R.text('DC = ' + fmt(o.dcFraction, 4) + ' (normalised) = ' + fmt(o.dcLevel, 4) + ' V', R.px1, dcY - 6, PALETTE.accent2, 'right');
+    R.text(o.S.name + '   •   ' + o.S.rule, R.px0, 24, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    R.text('green = bit-boundary transition, yellow = mid-bit transition — ' + o.transitions + ' transitions in ' + n + ' bit intervals',
+      R.px0, 42, PALETTE.dim);
+
+    // ------------------------------------------------------------- clock --
+    const C = frame(ctx, plot, { top: 356, bottom: 424, yMin: -1.5, yMax: 1.5 });
+    C.line(C.px0, C.Y(0), C.px1, C.Y(0), 'rgba(160,160,190,0.3)', 1, [4, 4]);
+    ctx.save(); ctx.strokeStyle = PALETTE.accent5; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x0 = C.X(i, 0, n), xm = C.X(i + 0.5, 0, n), x1 = C.X(i + 1, 0, n);
+      const yh = C.Y(1), yl = C.Y(-1);
+      if (i === 0) ctx.moveTo(x0, yh); else ctx.lineTo(x0, yh);
+      ctx.lineTo(xm, yh); ctx.lineTo(xm, yl); ctx.lineTo(x1, yl);
+    }
+    ctx.stroke(); ctx.restore();
+    C.text('clock reference — one period per bit; a receiver needs the waveform to change often enough to recover THIS',
+      C.px0, C.top - 6, PALETTE.accent5, 'left', '11px ui-monospace, monospace');
+
+    // ------------------------------------------------- metric strip -------
+    const M = frame(ctx, plot, { top: 470, bottom: 546, yMin: 0, yMax: 1 });
+    const cells = [
+      ['DC component', o.dcFraction === 0 ? 'exactly 0' : fmt(o.dcFraction, 4), o.dcFraction === 0 ? PALETTE.accent3 : PALETTE.accent2],
+      ['transitions', o.transitions + ' in ' + n + ' bits', o.transitions >= n ? PALETTE.accent3 : PALETTE.accent4],
+      ['self-clocking', o.selfClocking, o.selfClocking === 'YES' ? PALETTE.accent3 : PALETTE.accent2],
+      ['bandwidth', o.bwTable.split('(')[0].trim(), PALETTE.warn],
+      ['levels used', o.levels.map((x) => fmt(x, 2)).join(', '), PALETTE.dim],
+    ];
+    const cw = (M.px1 - M.px0) / cells.length;
+    cells.forEach((c, i) => {
+      const x = M.px0 + i * cw;
+      ctx.save(); ctx.fillStyle = 'rgba(47,47,69,0.85)';
+      ctx.fillRect(x + 4, M.top, cw - 8, M.bottom - M.top); ctx.restore();
+      M.text(c[0].toUpperCase(), x + cw / 2, M.top + 18, PALETTE.dim, 'center', '9px ui-monospace, monospace');
+      M.text(String(c[1]), x + cw / 2, M.top + 42, c[2], 'center', '13px ui-monospace, monospace');
+    });
+
+    // -------------------------------------------------------- substituted --
+    const F = document.getElementById('lc-formula');
+    if (F) {
+      F.innerHTML =
+        '<div><strong>Pattern:</strong> ' + o.raw + '  (' + o.ones + ' ones, ' + o.zerosCount + ' zeros, longest run = ' + o.maxRun
+        + ' bits, ' + n + ' bit intervals) &nbsp;|&nbsp; <strong>' + o.S.name + '</strong> — ' + o.S.rule + '</div>'
+        + '<div><strong>DC component</strong> = (1/n)Σ levels = ' + fmt(o.dcFraction, 5) + ' (normalised), so at A = ' + fmt(o.A, 3)
+        + ' V the line sits at <strong>' + fmt(o.dcLevel, 5) + ' V</strong>. ' + o.S.dc + '.</div>'
+        + '<div><strong>Transitions</strong> (measured from the drawn wave) = <strong>' + o.transitions + '</strong> in ' + n
+        + ' bit intervals → ' + fmt(o.transitions / n, 4) + ' transitions per bit. Self-clocking: <strong>' + o.selfClocking
+        + '</strong>. ' + o.S.self + '.</div>'
+        + '<div><strong>Bandwidth:</strong> ' + o.S.bw + '. With Tb = 1/R the first spectral null is at '
+        + (o.scheme === 'manchester' || o.scheme === 'diff-manchester' ? '2R' : (o.scheme === 'unipolar-rz' ? '2R' : 'R'))
+        + ', and for THIS pattern the Nyquist minimum is ' + fmt(n / 2, 3) + ' cycles over the ' + n + '-bit frame.</div>'
+        + '<div><strong>Why it matters:</strong> a DC component cannot cross a transformer or a capacitive coupling, so a '
+        + 'nonzero mean makes the decision threshold drift; and a long run with no transitions lets the receiver clock '
+        + 'drift, which is why AMI is paired with HDB3/B8ZS substitution in real PCM links and why Manchester is used on '
+        + '10 Mbit/s Ethernet where the 2R bandwidth penalty is affordable.</div>';
+    }
+  },
+  readout: (out) => ({
+    'line code': out.S.name,
+    'pattern': out.raw,
+    'DC component': fmt(out.dcFraction, 5) + (out.dcFraction === 0 ? '  (zero)' : ''),
+    'DC voltage at A': fmt(out.dcLevel, 5) + ' V',
+    'transitions': String(out.transitions) + ' / ' + out.n,
+    'self-clocking': out.selfClocking,
+    'bandwidth': out.bwTable.split('(')[0].trim(),
+    'longest run': String(out.maxRun) + ' bits',
+    'levels used': out.levels.map((x) => fmt(x, 2)).join(' , '),
+  }),
+});
+
+function maxRun(bits) {
+  let best = 0, cur = 0, prev = null;
+  for (const b of bits) { if (b === prev) cur++; else { cur = 1; prev = b; } best = Math.max(best, cur); }
+  return best;
+}
+
+const host = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'lc-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight: every line code is a trade of bandwidth against clock recovery and DC balance.</strong> '
+  + 'The two properties a receiver actually needs are (i) enough transitions to keep its clock locked and (ii) a zero '
+  + 'average level so that a transformer or AC-coupled front end does not charge up. NRZ-L is the cheapest in '
+  + 'bandwidth (about R, first null at R) and the worst at both jobs. Manchester is the most expensive (about 2R) and '
+  + 'perfect at both — a guaranteed mid-bit transition and an exactly zero mean for every bit. AMI sits in the middle: '
+  + 'zero DC by construction, narrow bandwidth, but it dies on a run of zeros.'
+  + '<br><strong>Three mistakes this widget prevents.</strong> '
+  + '(1) <em>Reading the AMI rule backwards.</em> In AMI a 0 is 0 V and a 1 is a pulse whose polarity alternates. So a '
+  + 'constant stream of zeros — not ones — is the flat line that kills the clock. The all-0s and all-1s presets make '
+  + 'the failure visible in one click: switch to pseudoternary and the failure swaps to the all-1s pattern, because '
+  + 'pseudoternary is AMI with the roles of 0 and 1 exchanged. '
+  + '(2) <em>Expecting a nonzero DC from a polar code.</em> NRZ-L is only balanced when the pattern is balanced; the '
+  + 'readout shows the average actually measured from the wave, so 11110000 reads exactly 0 while 11111111 reads +1. '
+  + 'The textbook phrase "polar codes have no DC" is a statement about balanced data, not about the code. '
+  + '(3) <em>Confusing the bandwidth of RZ with NRZ.</em> Returning to zero in the second half of each bit halves the '
+  + 'pulse width, which doubles the bandwidth. That is the real price of unipolar RZ, and it is why AMI (which keeps '
+  + 'the mark at full width but alternates polarity) gets the same DC benefit for less bandwidth.'
+  + '<br><strong>Exam reflex:</strong> asked for "the bandwidth of a Manchester-coded 10 Mbit/s link", remember the '
+  + 'mid-bit transition means the fundamental spans 5–10 MHz with a first null at 20 MHz; for NRZ at the same rate the '
+  + 'null is at 10 MHz. Always answer in terms of R, then substitute — the ratio is what is being tested.';
+host.appendChild(note);
+</script>
+</body>
+</html>

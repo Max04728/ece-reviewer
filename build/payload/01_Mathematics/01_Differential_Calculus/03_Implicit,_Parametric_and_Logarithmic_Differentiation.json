@@ -1,0 +1,132 @@
+{
+  "scope": "Differentiate functions defined implicitly, parametrically, or as variable powers using logarithmic differentiation.",
+  "intuition": "All three methods are the same trick: when $y$ is tangled up with $x$, differentiate the whole relationship and then isolate $\\frac{dy}{dx}$ instead of trying to untangle it first.",
+  "concept": [
+    "**Implicit differentiation.** If $F(x,y) = 0$ defines $y$ as a function of $x$, differentiate both sides with respect to $x$, applying the chain rule to every $y$: $\\frac{d}{dx}[y^n] = ny^{n-1}\\frac{dy}{dx}$, and to products of $x$ and $y$ apply the product rule. Then collect the $\\frac{dy}{dx}$ terms and solve. The result usually still contains $y$ — that is normal and acceptable; you substitute the point's coordinates to get a numeric slope.",
+    "**Why the derivative can still contain $y$.** The slope of an implicit curve generally depends on *where* you are on it, and the location is given by both coordinates. A derivative in terms of $x$ alone is only possible when the relation is solvable for $y$, which is exactly the case implicit differentiation was invented to avoid. A useful consequence: to find where the tangent is horizontal, set the numerator of $\\frac{dy}{dx}$ to zero; vertical tangents come from the denominator going to zero.",
+    "**Parametric differentiation.** For a curve traced by $x(t), y(t)$, the slope is the ratio of the rates: $\\frac{dy}{dx} = \\frac{dy/dt}{dx/dt}$, valid when $\\frac{dx}{dt} \\neq 0$. The parameter $t$ does not disappear; that is the point, because the curve may not be a function of $x$ at all (a circle, for instance).",
+    "**The parametric second derivative.** Because $\\frac{dy}{dx}$ is itself a function of $t$, differentiating it with respect to $x$ requires the chain rule in reverse: $\\frac{d^2y}{dx^2} = \\frac{d}{dt}\\left[\\frac{dy}{dx}\\right]\\Big/\\frac{dx}{dt}$. Writing $\\frac{d^2y/dt^2}{d^2x/dt^2}$ is the classic error and gives a wrong answer for every curve.",
+    "**Logarithmic differentiation.** For $y = f(x)^{g(x)}$ or a long product/quotient, take $\\ln$ of both sides. This converts powers into multiplicative factors and products into sums, so the differentiation becomes trivial, after which you multiply back by $y$. It is the only reliable method when the variable appears in both the base and the exponent."
+  ],
+  "formulas": [
+    { "q": "Implicit, differentiated term", "e": "\\frac{d}{dx}\\left[y^n\\right] = ny^{n-1}\\frac{dy}{dx}", "n": "The dy/dx is the chain rule factor. Never omit it." },
+    { "q": "Implicit, differentiated product", "e": "\\frac{d}{dx}(xy) = y + x\\frac{dy}{dx}", "n": "Product rule with y treated as y(x)." },
+    { "q": "Parametric first derivative", "e": "\\frac{dy}{dx} = \\frac{dy/dt}{dx/dt}", "n": "Undefined where dx/dt = 0: vertical tangent there." },
+    { "q": "Parametric second derivative", "e": "\\frac{d^2y}{dx^2} = \\frac{1}{dx/dt}\\cdot\\frac{d}{dt}\\left(\\frac{dy}{dx}\\right)", "n": "Divide by dx/dt a second time; do not use d2y/dt2 over d2x/dt2." },
+    { "q": "Horizontal tangent", "e": "\\frac{dy}{dx} = 0 \\iff \\mathrm{numerator} = 0", "n": "For implicit derivatives in quotient form, only the numerator matters." },
+    { "q": "Vertical tangent", "e": "\\frac{dx}{dy} = 0 \\iff \\mathrm{denominator} = 0", "n": "Slope is infinite; check the point is on the curve." },
+    { "q": "Logarithmic differentiation", "e": "\\frac{d}{dx}\\ln y = \\frac{y'}{y} \\Rightarrow y' = y\\,\\frac{d}{dx}\\ln y", "n": "Take ln, differentiate, multiply back by y." },
+    { "q": "Inverse function derivative", "e": "\\frac{dx}{dy} = \\frac{1}{dy/dx}", "n": "Useful when differentiating the inverse is easier than the function." }
+  ],
+  "problems": [
+    {
+      "prompt": "Find $\\dfrac{dy}{dx}$ for $x^3 + y^3 = 6xy$ (the folium of Descartes).",
+      "give": ["implicit cubic relation"],
+      "steps": [
+        "Differentiate each term with respect to x: 3x^2 + 3y^2 y' = 6(y + x y')",
+        "Expand the right side: 3x^2 + 3y^2 y' = 6y + 6x y'",
+        "Collect y' terms: y'(3y^2 - 6x) = 6y - 3x^2",
+        "y' = (6y - 3x^2)/(3y^2 - 6x) = (2y - x^2)/(y^2 - 2x)"
+      ],
+      "ans": "$y' = \\dfrac{2y-x^2}{y^2-2x}$",
+      "trap": "Differentiating 6xy as 6y only, or as 6x y' only. It is a product: 6(y + xy')."
+    },
+    {
+      "prompt": "Find the slope of the tangent to $x^2 + y^2 = 25$ at $(3,4)$.",
+      "give": ["circle", "point (3,4)"],
+      "steps": [
+        "Differentiate: 2x + 2y y' = 0",
+        "y' = -x/y",
+        "Substitute (3,4): y' = -3/4"
+      ],
+      "ans": "$-3/4$",
+      "trap": "Solving for y = sqrt(25 - x^2) and forgetting the negative branch, or substituting into the wrong variable order (getting -4/3)."
+    },
+    {
+      "prompt": "For $x = 2\\cos t$, $y = 3\\sin t$, find $\\dfrac{dy}{dx}$ and $\\dfrac{d^2y}{dx^2}$.",
+      "give": ["parametric ellipse"],
+      "steps": [
+        "dx/dt = -2 sin t, dy/dt = 3 cos t",
+        "dy/dx = 3cos t / (-2 sin t) = -(3/2) cot t",
+        "Differentiate with respect to t: d/dt[-(3/2)cot t] = (3/2)csc^2 t",
+        "Divide by dx/dt = -2 sin t: d2y/dx2 = (3/2)csc^2 t / (-2 sin t) = -(3/4) csc^3 t"
+      ],
+      "ans": "$\\dfrac{dy}{dx} = -\\dfrac{3}{2}\\cot t$, $\\dfrac{d^2y}{dx^2} = -\\dfrac{3}{4}\\csc^3 t$",
+      "trap": "Dividing by dx/dt only once, or using d2y/dt2 = -3 sin t over d2x/dt2 = -2 cos t. Both are wrong."
+    },
+    {
+      "prompt": "For $x = t^2 - 1$, $y = t^3 + t$, find $\\dfrac{dy}{dx}$ at $t = 2$.",
+      "give": ["parametric", "t = 2"],
+      "steps": [
+        "dx/dt = 2t, dy/dt = 3t^2 + 1",
+        "dy/dx = (3t^2 + 1)/(2t)",
+        "At t = 2: (12 + 1)/4 = 13/4"
+      ],
+      "ans": "$13/4$",
+      "trap": "Substituting t = 2 into x and y first, then differentiating the resulting point - there is nothing to differentiate."
+    },
+    {
+      "prompt": "Differentiate $y = (\\sin x)^x$.",
+      "give": ["variable base and variable exponent"],
+      "steps": [
+        "ln y = x ln(sin x)",
+        "y'/y = ln(sin x) + x * (cos x / sin x)",
+        "y'/y = ln(sin x) + x cot x",
+        "y' = (sin x)^x [ln(sin x) + x cot x]"
+      ],
+      "ans": "$y' = (\\sin x)^x\\left[\\ln(\\sin x) + x\\cot x\\right]$",
+      "trap": "Treating it as a power (x(sin x)^{x-1} cos x) or as an exponential ((sin x)^x ln(sin x)). Both are incomplete."
+    },
+    {
+      "prompt": "Find the equation of the tangent line to $e^{xy} = x + y$ at $(0,1)$.",
+      "give": ["implicit exponential relation", "point (0,1)"],
+      "steps": [
+        "Differentiate: e^{xy}(y + x y') = 1 + y'",
+        "At (0,1): e^0 = 1, so (1)(1 + 0) = 1 + y'",
+        "1 = 1 + y', so y' = 0",
+        "Tangent: y - 1 = 0(x - 0), i.e. y = 1"
+      ],
+      "ans": "$y = 1$",
+      "trap": "Differentiating e^{xy} as e^{xy} alone, or as e^{xy}(xy' ) without the product rule's y term."
+    },
+    {
+      "prompt": "Find where $x^2 + xy + y^2 = 3$ has a horizontal tangent.",
+      "give": ["implicit relation", "horizontal tangent condition"],
+      "steps": [
+        "Differentiate: 2x + y + x y' + 2y y' = 0",
+        "y'(x + 2y) = -(2x + y), so y' = -(2x + y)/(x + 2y)",
+        "Horizontal tangent requires the numerator zero: 2x + y = 0, so y = -2x",
+        "Substitute into the curve: x^2 + x(-2x) + 4x^2 = 3, giving 3x^2 = 3, x = ±1",
+        "Points: (1, -2) and (-1, 2)"
+      ],
+      "ans": "$(1,-2)$ and $(-1,2)$",
+      "trap": "Setting the denominator to zero instead - that gives the vertical tangents. Also forgetting to verify the points actually lie on the curve."
+    },
+    {
+      "prompt": "For $x = e^t$, $y = e^{-t}$, find $\\dfrac{dy}{dx}$.",
+      "give": ["parametric exponentials"],
+      "steps": [
+        "dx/dt = e^t, dy/dt = -e^{-t}",
+        "dy/dx = -e^{-t}/e^t",
+        "Simplify: -e^{-2t}"
+      ],
+      "ans": "$\\dfrac{dy}{dx} = -e^{-2t}$",
+      "trap": "Substituting y = 1/x and differentiating to get -1/x^2 = -e^{-2t} is actually equivalent here - but only because these parametrisations happen to be invertible. Do not rely on that shortcut in general."
+    }
+  ],
+  "traps": [
+    "**Omitting $\\frac{dy}{dx}$ on a $y$-term.** In implicit problems every differentiated $y$ carries a $\\frac{dy}{dx}$. One omission and the isolation algebra is ruined.",
+    "**Parametric second derivative.** $\\frac{d^2y}{dx^2} \\neq \\frac{d^2y/dt^2}{d^2x/dt^2}$. Differentiate $\\frac{dy}{dx}$ with respect to $t$, then divide by $\\frac{dx}{dt}$.",
+    "**Leaving $y'$ mixed into both sides.** Collect all $\\frac{dy}{dx}$ terms on one side and factor before dividing. Skipping this step is the usual cause of a wrong final expression.",
+    "**Forgetting to multiply back by $y$** after logarithmic differentiation, and answering with $\\frac{y'}{y}$ instead of $y'$.",
+    "**Using the power rule with a variable exponent.** Any expression of the form $f(x)^{g(x)}$ requires logarithmic differentiation.",
+    "**Tangent vs normal.** A question asking for the normal wants the negative reciprocal slope; reading past that word is a common, entirely avoidable loss.",
+    "**Implicit point verification.** After solving for a tangent condition you must confirm the resulting points satisfy the original equation."
+  ],
+  "refs": [
+    "[[02_Differentiation_Rules]]",
+    "[[05_Extrema,_Concavity_and_Inflection]]",
+    "[[04_Related_Rates]]"
+  ],
+  "prereqs": ["[[02_Differentiation_Rules]]"]
+}

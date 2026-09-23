@@ -1,0 +1,179 @@
+---
+id: ECE-05-08
+title: "FET Amplifiers: CS, CD, CG"
+part: "02_Electronics_Engineering"
+area: "05_Circuit_Analysis_and_Design"
+topic: 8
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[11_JFET_Characteristics_and_Pinch-Off]]", "[[12_MOSFET_Types_and_Regions]]"]
+tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 08 — FET Amplifiers: CS, CD, CG
+
+> [!abstract] Scope
+> Pick the right FET amplifier configuration for a required gain, polarity, input resistance and output resistance, and evaluate all four quantities from a single transconductance value.
+
+## Core Concept
+
+> [!tip] Intuition
+> The FET is a voltage-controlled current source: the gate voltage squeezes the channel and sets the drain current, so the drain current is g_m times the gate-source signal. Where you take the output and where you inject the input decides the name, the polarity and the port resistances.
+
+**One number does all the work: g_m.** After the DC bias is solved, the FET becomes a current source $i_d = g_m v_{gs}$ in parallel with the drain resistance $r_d = 1/y_{os}$. Everything else is Ohm's law around it. The transconductance has three equivalent textbook forms and the problem statement tells you which to use. For a JFET or depletion MOSFET in the square-law region it is:
+$$g_m = \frac{2I_{DSS}}{|V_P|}\left(1 - \frac{V_{GS}}{V_P}\right)$$
+which simplifies to $g_m = g_{m0}(1 - V_{GS}/V_P)$ with $g_{m0} = 2I_{DSS}/|V_P|$; for an enhancement MOSFET $g_m = 2\sqrt{I_D k}$ with $k$ the device constant; and from the transfer curve directly $g_m = \Delta I_D / \Delta V_{GS}$. The arithmetic shortcut worth memorising: at $V_{GS} = 0$ the JFET transconductance equals $g_{m0}$, and at $V_{GS} = V_P/2$ it is exactly half of $g_{m0}$.
+
+**Why the CS stage inverts and the CD and CG stages do not.** In the common-source amplifier the input is at the gate and the output at the drain, with the source at AC ground. A rising $v_{gs}$ increases $i_d$, so the drop across $R_D$ increases and the drain voltage *falls*:
+$$A_v = -g_m(R_D \parallel R_L \parallel r_d)$$
+inverting, and the magnitude is the largest of the three configurations. In the common-drain (source follower) the output is taken at the source, so a rising gate voltage raises $v_{gs}$, raises $i_d$, and raises the source voltage right along with it — the source *follows* the gate, so the gain is:
+$$A_v = +\frac{g_m(R_S \parallel R_L)}{1 + g_m(R_S \parallel R_L)}$$
+positive and strictly less than 1. In the common-gate stage the input is injected at the source, and a rising source voltage reduces $v_{gs}$, which reduces $i_d$, which raises the drain voltage:
+$$A_v = +g_m(R_D \parallel R_L)$$
+non-inverting with the same magnitude as the CS stage.
+
+**The port resistances are set by where the gate goes.** In the CS configuration the gate is the input terminal and a FET gate draws essentially no DC current, so $R_{in} \approx R_G$ — the gate bias resistor, typically 1 Mohm, not the device itself. The output looks back into the drain and sees $R_{out} \approx R_D \parallel r_d$. In the CD configuration the input resistance is still $R_G$ (very high — this is why the source follower is the standard buffer) and the output resistance collapses to the low value:
+$$R_{out} \approx R_S \parallel \frac{1}{g_m}$$
+which at $g_m = 2.5\ \mathrm{mS}$ is about $400\ \Omega$ looking back into the source. In the CG configuration the input is at the source, so the input resistance is low, a few hundred ohms:
+$$R_{in} \approx \frac{1}{g_m} \parallel R_S$$
+exactly the property that makes the CG stage the upper half of a cascode. **Remember at least once: the CS input resistance is set by the bias resistor, not by g_m.**
+
+**Near-unity gain of the source follower, and how these stages are actually used.** The CD gain expression can be rewritten $A_v = \frac{g_m R_S'}{1 + g_m R_S'}$, and when $g_m R_S' \gg 1$ the gain approaches 1 from below — it can never reach or exceed it, because the source can never move faster than the gate that drives it. The gap is the gate-source signal needed to produce the output current. The CS stage is the workhorse voltage amplifier; the CD stage is the buffer that lets a high-impedance source drive a heavy load without loss; the CG stage is the low-input-impedance, non-inverting stage used above a CS stage in a cascode, or as a wideband input stage matched to a low-impedance source. r_d is often omitted because $r_d \gg R_D$, but a MOSFET with $\lambda \neq 0$ or a JFET with $r_d = 100\ \mathrm{k\Omega}$ against $R_D = 3\ \mathrm{k\Omega}$ changes the gain by only a few percent — quote the exact parallel combination when the problem gives you $r_d$.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Common-source voltage gain | $A_v = -g_m (R_D \parallel R_L \parallel r_d)$ | Inverting. Use R_D \|\| r_d when R_L is not connected; dropping r_d is safe only when r_d >> R_D. Requires the source to be bypassed by C_S. |
+| Common-drain (source follower) voltage gain | $A_v = \frac{g_m (R_S \parallel R_L)}{1 + g_m (R_S \parallel R_L)}$ | Positive and always less than 1. Approaches unity as g_m*R_S' grows; at g_m*R_S' = 10 the gain is 0.909, a 9 percent shortfall that is not negligible. |
+| Common-gate voltage gain | $A_v = +g_m (R_D \parallel R_L \parallel r_d)$ | Non-inverting, magnitude equal to the CS stage. The gate must be at AC ground (bypassed); a floating gate ruins both the gain and the input resistance. |
+| JFET / depletion MOSFET transconductance | $g_m = \frac{2I_{DSS}}{\lvert V_P \rvert}\left(1 - \frac{V_{GS}}{V_P}\right) = g_{m0}\left(1 - \frac{V_{GS}}{V_P}\right)$ | Square-law region only. g_m0 = 2 I_DSS/\|V_P\| is the maximum, reached at V_GS = 0. V_P is negative for an n-channel JFET, so use its magnitude in the denominator and keep the ratio V_GS/V_P positive. |
+| MOSFET transconductance from the device constant | $g_m = 2\sqrt{I_D k} = \frac{2I_D}{V_{GS} - V_{th}}$ | Enhancement MOSFET in saturation. k = (1/2) k' (W/L) in A/V^2. Both forms are equal only in the square-law region with the given I_D. |
+| Input resistance of CS and CD | $R_{in} \approx R_G$ | Set by the gate bias resistor, not by the device, because the gate current is essentially zero (1E-9 A for a JFET, 1E-12 A and below for a MOSFET). R_G is typically 1 Mohm; a 10 Mohm R_G with a 1 Mohm source gives a 9 percent divider loss. |
+| Output resistance of CS and CD | $R_{out}(CS) \approx R_D \parallel r_d, \qquad R_{out}(CD) \approx R_S \parallel \frac{1}{g_m}$ | CS looks into the drain; CD looks into the source and is low. The CD output resistance is what makes it a buffer, and it falls as g_m rises. |
+| Input resistance of the common-gate stage | $R_{in}(CG) \approx \frac{1}{g_m} \parallel R_S$ | Low, a few hundred ohms at millisiemens transconductance. This low input resistance is intentional: it is what kills the Miller effect in a cascode. |
+
+## Worked Problems
+
+### P1. An n-channel JFET has $I_{DSS}=10\ \mathrm{mA}$, $V_P=-4\ \mathrm{V}$, $r_d=100\ \mathrm{k\Omega}$, and is self-biased with $R_S=1\ \mathrm{k\Omega}$. The drain resistor is $R_D=2.2\ \mathrm{k\Omega}$ with a $R_L=6.8\ \mathrm{k\Omega}$ load, and $C_S$ bypasses $R_S$. Find $I_D$, $g_m$ and the common-source voltage gain including $r_d$.
+
+**Given:** I_DSS = 10 mA; V_P = -4 V; R_S = 1 kohm (bypassed); R_D = 2.2 kohm; R_L = 6.8 kohm; r_d = 100 kohm
+
+**Solution:**
+
+1. Self-bias: V_GS = -I_D R_S, so V_GS/V_P = -I_D(1 kohm)/(-4 V) = +0.25 I_D with I_D in mA. Square law: I_D = I_DSS(1 - V_GS/V_P)^2 = 10 mA (1 - I_D/4)^2
+2. Let x = I_D (mA): x = 10(1 - x/4)^2, i.e. 0.625x^2 - 6x + 10 = 0, giving x = 2.147 mA and x = 7.453 mA; the upper root is rejected because it needs |V_GS| = 7.45 V > |V_P| = 4 V, outside the square-law region
+3. V_GS = -I_D R_S = -(2.147 mA)(1 kohm) = -2.147 V, and the check (-2.147)/(-4) = 0.537 is between 0 and 1, so the device is in the square-law region
+4. g_m = (2 I_DSS/|V_P|)(1 - V_GS/V_P) = (2*10 mA / 4 V)(1 - 0.537) = 5 mS * 0.463 = 2.32 mS
+5. R_D || R_L || r_d = (2.2 || 6.8 || 100) kohm = (1.663 || 100) kohm = 1.636 kohm
+6. A_v = -g_m (1.636 kohm) = -(2.32 mS)(1.636 kohm) = -3.79 V/V
+
+> [!success]- Answer
+> **I_D = 2.15 mA, V_GS = -2.15 V, g_m = 2.32 mS, A_v = -3.79 V/V (inverting).**
+
+> [!warning] Trap
+> Dropping the sign in the self-bias relation and writing I_D = I_DSS(1 + V_GS/V_P)^2 as 10 mA(1 + I_D/4)^2, which has no real root at all. V_GS is negative here, so V_GS/V_P is positive and the bracket must read (1 - I_D/4). The related trap is forgetting the bypass: if C_S is removed, R_S appears in the source and the gain collapses to A_v = -g_m R_D'/(1 + g_m R_S) = -3.79/3.32 = -1.14 V/V. Check whether C_S is present before choosing the formula.
+
+### P2. The same JFET ($g_m = 2.32\ \mathrm{mS}$, $r_d = 100\ \mathrm{k\Omega}$) is rewired as a source follower with $R_S = 2.2\ \mathrm{k\Omega}$, $R_L = 10\ \mathrm{k\Omega}$ and $R_G = 1\ \mathrm{M\Omega}$. Find the voltage gain, input resistance and output resistance.
+
+**Given:** g_m = 2.32 mS; R_S = 2.2 kohm; R_L = 10 kohm; R_G = 1 Mohm; r_d = 100 kohm
+
+**Solution:**
+
+1. R_S || R_L = (2.2)(10)/(12.2) = 1.803 kohm
+2. g_m R_S' = (2.32 mS)(1.803 kohm) = 4.183
+3. A_v = g_m R_S'/(1 + g_m R_S') = 4.183/5.183 = 0.807 V/V
+4. R_in = R_G = 1 Mohm (the gate draws no current; r_d never enters the input path)
+5. R_out = R_S || (1/g_m) = 2.2 kohm || 431 ohm = (2200*431)/(2631) = 360 ohm
+
+> [!success]- Answer
+> **A_v = 0.807 V/V (positive, non-inverting), R_in = 1 Mohm, R_out = 360 ohm.**
+
+> [!warning] Trap
+> Assuming a source follower always has essentially unity gain. Here g_m R_S' is only 4.18, so the gain is 0.807 — a 19 percent loss, or 1.9 dB. The gain approaches 1 only when g_m R_S' is large, and a low-g_m JFET driving a heavy load is exactly the case where it is not.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `2.2 × 10 ÷ 12.2` → $R_S \parallel R_L$ = **1.803** k$\Omega$.
+> 2. `2.32 × 1.803` → $g_mR_S'$ = **4.183**; `Ans ÷ (1 + Ans)` → $A_v$ = **0.807**.
+> 3. `1 ÷ 2.32E-3` → $1/g_m$ = **431** $\Omega$; `2200 × 431 ÷ 2631` → $R_{out}$ = **360** $\Omega$, with $R_{in} = R_G$ = **1** M$\Omega$.
+
+### P3. A JFET with $g_m = 4\ \mathrm{mS}$ and $r_d = 50\ \mathrm{k\Omega}$ is used as a common-gate stage with $R_S = 1\ \mathrm{k\Omega}$ at the source, $R_D = 3.3\ \mathrm{k\Omega}$ at the drain and $R_L = 10\ \mathrm{k\Omega}$. Find the input resistance at the source, the voltage gain and the output resistance.
+
+**Given:** g_m = 4 mS; r_d = 50 kohm; R_S = 1 kohm; R_D = 3.3 kohm; R_L = 10 kohm
+
+**Solution:**
+
+1. 1/g_m = 1/(4 mS) = 250 ohm
+2. R_in = R_S || (1/g_m) = 1000 || 250 = (1000*250)/1250 = 200 ohm
+3. R_D || R_L = (3.3)(10)/(13.3) = 2.481 kohm; including r_d: 2.481 || 50 = (2.481*50)/52.481 = 2.364 kohm
+4. A_v = +g_m (2.364 kohm) = (4 mS)(2.364 kohm) = +9.46 V/V
+5. R_out = R_D || r_d = (3.3)(50)/53.3 = 3.096 kohm
+
+> [!success]- Answer
+> **R_in = 200 ohm, A_v = +9.46 V/V (non-inverting), R_out = 3.10 kohm.**
+
+> [!warning] Trap
+> Reporting the common-gate gain as negative by copying the common-source result. The CG stage is non-inverting: the source is the input, so raising the source lowers v_gs and raises the drain. The related error is dropping R_S from the input-resistance expression and answering 250 ohm instead of 200 ohm.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1 ÷ 4E-3` → $1/g_m$ = **250** $\Omega$; `1000 × 250 ÷ 1250` → $R_{in}$ = **200** $\Omega$.
+> 2. `1 ÷ (1 ÷ 3.3 + 1 ÷ 10 + 1 ÷ 50)` → the drain-side AC load including $r_d$ = **2.364** k$\Omega$.
+> 3. `4 × 2.364` → $A_v$ = **+9.46** V/V (non-inverting); `3.3 × 50 ÷ 53.3` → $R_{out}$ = **3.10** k$\Omega$.
+
+### P4. An enhancement MOSFET has $k = 2\ \mathrm{mA/V^2}$ and is biased at $I_D = 4\ \mathrm{mA}$ with $R_D = 1.8\ \mathrm{k\Omega}$, $R_L = 4.7\ \mathrm{k\Omega}$, $r_d = 40\ \mathrm{k\Omega}$ and $R_G = 1\ \mathrm{M\Omega}$. Find $V_{GS} - V_{th}$, $g_m$, the CS voltage gain and the output resistance.
+
+**Given:** k = 2 mA/V^2; I_D = 4 mA; R_D = 1.8 kohm; R_L = 4.7 kohm; r_d = 40 kohm; R_G = 1 Mohm
+
+**Solution:**
+
+1. g_m = 2*sqrt(I_D k) = 2*sqrt(4 mA * 2 mA/V^2) = 2*sqrt(4e-3 * 2e-3) = 2*sqrt(8e-6 A^2/V^2) = 2*2.828e-3 S = 5.66 mS
+2. Equivalently V_GS - V_th = 2 I_D/g_m = (8 mA)/(5.66 mS) = 1.41 V, a comfortable overdrive
+3. R_D || R_L || r_d = (1.8 || 4.7 || 40) kohm = (1.305 || 40) kohm = 1.263 kohm
+4. A_v = -g_m (1.263 kohm) = -(5.66 mS)(1.263 kohm) = -7.15 V/V
+5. R_out = R_D || r_d = (1.8)(40)/41.8 = 1.723 kohm
+
+> [!success]- Answer
+> **g_m = 5.66 mS, A_v = -7.15 V/V, R_out = 1.72 kohm, with V_GS - V_th = 1.41 V.**
+
+> [!warning] Trap
+> Keying k = 2 mA/V^2 into the root as 2 instead of 2e-3. g_m = 2*sqrt(I_D k) needs both currents in amperes: 2*sqrt(4e-3 * 2e-3) = 5.66 mS, whereas using k = 2 A/V^2 inflates g_m by sqrt(1000) = 31.6 times to 178.9 mS. Cross-check with the overdrive: the inflated g_m would need V_GS - V_th = 2 I_D/g_m = 44.7 mV, which is a threshold-voltage-sized error, not a bias point.
+
+### P5. Compare all three configurations built on one device with $g_m = 5\ \mathrm{mS}$, $r_d = \infty$, $R_D = R_S = 2\ \mathrm{k\Omega}$, $R_L = 2\ \mathrm{k\Omega}$ and $R_G = 1\ \mathrm{M\Omega}$. Give the gain, input resistance and output resistance of each.
+
+**Given:** g_m = 5 mS; R_D = 2 kohm; R_S = 2 kohm; R_L = 2 kohm; R_G = 1 Mohm; r_d = infinity
+
+**Solution:**
+
+1. Common source: R_D || R_L = 1 kohm, so A_v = -(5 mS)(1 kohm) = -5 V/V; R_in = R_G = 1 Mohm; R_out = R_D = 2 kohm
+2. Common drain: R_S || R_L = 1 kohm, g_m R_S' = 5, so A_v = 5/6 = +0.833 V/V; R_in = 1 Mohm; R_out = R_S || (1/g_m) = 2 kohm || 200 ohm = 182 ohm
+3. Common gate: R_D || R_L = 1 kohm, so A_v = +(5 mS)(1 kohm) = +5 V/V; R_in = R_S || (1/g_m) = 2 kohm || 200 ohm = 182 ohm; R_out = R_D = 2 kohm
+4. Summary of polarity: CS inverting, CD non-inverting with A_v < 1, CG non-inverting with the same magnitude as CS
+5. Output-resistance ranking: CD (182 ohm) << CS = CG (2 kohm), which is why the CD is the buffer and the CS is the voltage amplifier
+
+> [!success]- Answer
+> **CS: A_v = -5, R_in = 1 Mohm, R_out = 2 kohm. CD: A_v = +0.833, R_in = 1 Mohm, R_out = 182 ohm. CG: A_v = +5, R_in = 182 ohm, R_out = 2 kohm.**
+
+> [!warning] Trap
+> Giving the common-gate stage a high input resistance because it is a 'gate' configuration. In the CG stage the input is the *source*, so R_in = 1/g_m || R_S = 182 ohm. Likewise do not give the source follower a low input resistance: its input is still the gate, so R_in is 1 Mohm.
+
+## Traps & Exam Notes
+
+- **Sign errors between configurations.** A common-source stage has $A_v = -g_m R_D'$ (inverting), a common-gate stage has $A_v = +g_m R_D'$ (non-inverting, same magnitude), and a common-drain stage is $+0.8$ to $+0.99$. Matching the wrong sign to the wrong configuration is the single most common FET-amplifier mistake.
+- **Assuming a source follower has unity gain.** At $g_m = 2.32\ \mathrm{mS}$ and $R_S' = 1.80\ \mathrm{k\Omega}$ the gain is $0.807$, not $1.00$ — a 19 percent error, or 1.9 dB, that propagates through any multistage calculation and makes the composite gain wrong.
+- **Using $R_D$ alone and ignoring $r_d$.** With $R_D = 3.3\ \mathrm{k\Omega}$ and $r_d = 10\ \mathrm{k\Omega}$ the true AC drain load is $2.48\ \mathrm{k\Omega}$, so quoting $A_v$ from $R_D$ alone overstates the gain by 33 percent.
+- **Putting the CS input resistance at the device instead of the bias network.** $R_{in} = R_G$, typically $1\ \mathrm{M\Omega}$, never $g_m$-dependent. A common failure is to answer $R_{in} = \infty$ and then not notice that the 1 Mohm gate resistor is what actually loads the previous stage.
+- **Substituting $|V_P|$ with the wrong sign or using $V_{GS}$ without its sign.** For an n-channel JFET, $V_P = -4\ \mathrm{V}$ and $V_{GS} = -2.15\ \mathrm{V}$ give the ratio $+0.537$; writing $V_{GS} = +2.15\ \mathrm{V}$ returns $g_m = 5\ \mathrm{mS}\times1.537 = 7.7\ \mathrm{mS}$, more than triple the correct $2.32\ \mathrm{mS}$.
+
+## See Also
+
+- [[04_FET_Biasing_Configurations]]
+- [[07_Hybrid-Pi_Model]]
+- [[09_Multistage,_Cascade_and_Cascode]]
+
+---
+
+[[07_Hybrid-Pi_Model|⬅ 07]] · [[_MOC_Circuit_Analysis_and_Design|MOC]] · [[00_Dashboard|Dashboard]] · [[09_Multistage,_Cascade_and_Cascode|09 ➡]]

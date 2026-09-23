@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three-Phase Phasor Viewer — Wye and Delta Relationships</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, rad, deg } from '../../../Assets/vault.js';
+
+// Three-phase is one idea repeated: three equal phasors 120 degrees apart, whose vector sum
+// is zero. Everything else -- the sqrt(3), the 30 degree lead of V_ab over V_an, the fact
+// that the neutral current vanishes -- is a consequence. The two panels show the phasor
+// picture and the time picture of exactly the same thing, and the readout always evaluates
+// the two power formulas side by side (3 V_ph I_ph cos phi and sqrt(3) V_L I_L cos phi) so
+// the sqrt(3) can be checked rather than memorised.
+
+widget({
+  title: 'Three-Phase Phasor Viewer — Wye / Delta, sqrt(3) and the Neutral',
+  description:
+    'A balanced three-phase source feeding a balanced load. The left panel is the phasor diagram (phase voltages, the line-to-line voltage showing the sqrt(3) and 30 degree lead, and the line currents); the right panel is the same system in the time domain, where the neutral current is visibly zero at every instant.',
+  height: 500,
+  range: { xMin: -1, xMax: 1, yMin: -1, yMax: 1 },
+  controls: [
+    { id: 'connection', label: 'connection', type: 'select', options: [
+      { value: 'wye', label: 'wye (star) — V_L = sqrt(3) V_ph, I_L = I_ph' },
+      { value: 'delta', label: 'delta (mesh) — V_L = V_ph, I_L = sqrt(3) I_ph' },
+    ], value: 'wye' },
+    { id: 'Vph', label: 'V_ph (V rms) — voltage across one phase winding', min: 100, max: 500, step: 5, value: 230 },
+    { id: 'Z', label: '|Z| per phase (ohms)', min: 1, max: 100, step: 1, value: 10 },
+    { id: 'phi', label: 'load angle phi (degrees, lagging positive)', min: 0, max: 85, step: 1, value: 30 },
+    { id: 'rot', label: 'phase rotation of the snapshot (degrees)', min: 0, max: 360, step: 5, value: 0 },
+  ],
+
+  compute: (v) => {
+    const wye = v.connection !== 'delta';
+    const Vph = Math.max(1, v.Vph);
+    const Zmag = Math.max(0.1, v.Z);
+    const phiDeg = v.phi;
+    const phi = rad(phiDeg);
+    const rot = rad(v.rot);
+
+    const Iph = Vph / Zmag;
+    const VL = wye ? Math.sqrt(3) * Vph : Vph;
+    const IL = wye ? Iph : Math.sqrt(3) * Iph;
+
+    const pf = Math.cos(phi);
+    const P = 3 * Vph * Iph * pf;
+    const Q = 3 * Vph * Iph * Math.sin(phi);
+    const S = 3 * Vph * Iph;
+    const Pcheck = Math.sqrt(3) * VL * IL * pf;
+
+    const Z = { re: Zmag * Math.cos(phi), im: Zmag * Math.sin(phi) };
+
+    // instantaneous values over two cycles
+    const w = 2 * Math.PI * 60;              // 60 Hz, the Philippine mains frequency
+    const Vpk = Math.SQRT2 * Vph;
+    const Ipk = Math.SQRT2 * Iph;
+    const va = (t) => Vpk * Math.sin(w * t + rot);
+    const vb = (t) => Vpk * Math.sin(w * t + rot - 2 * Math.PI / 3);
+    const vc = (t) => Vpk * Math.sin(w * t + rot + 2 * Math.PI / 3);
+    const vab = (t) => va(t) - vb(t);
+    const ia = (t) => Ipk * Math.sin(w * t + rot - phi);
+    const ib = (t) => Ipk * Math.sin(w * t + rot - phi - 2 * Math.PI / 3);
+    const ic = (t) => Ipk * Math.sin(w * t + rot - phi + 2 * Math.PI / 3);
+    const iN = (t) => ia(t) + ib(t) + ic(t);
+
+    // check the balanced set really sums to zero at a few instants
+    let worstIN = 0;
+    for (let i = 0; i <= 200; i++) worstIN = Math.max(worstIN, Math.abs(iN((i / 200) * (2 / 60))));
+
+    return { wye, Vph, Zmag, phiDeg, phi, rot, Iph, VL, IL, pf, P, Q, S, Pcheck, Z,
+             Vpk, Ipk, f: 60, va, vb, vc, vab, ia, ib, ic, iN, worstIN,
+             maxV: Math.SQRT2 * VL, maxI: Math.SQRT2 * IL,
+             ratio: VL / Vph, iratio: IL / Iph };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const pad = plot.pad;
+
+    // ============================================================== phasor panel
+    const cx = 214, cy = 236, RV = 100, RI = 74;
+    const rot = out.rot || 0;
+    const Vx = (mag, ang) => ({ x: cx + (mag / (out.VL || 1)) * RV * Math.cos(ang), y: cy - (mag / (out.VL || 1)) * RV * Math.sin(ang) });
+    const Ix = (mag, ang) => ({ x: cx + (mag / Math.max(1e-9, out.IL)) * RI * Math.cos(ang), y: cy - (mag / Math.max(1e-9, out.IL)) * RI * Math.sin(ang) });
+
+    const arrow = (x1, y1, x2, y2, color, w) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = w;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+      const hl = 9;
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - hl * Math.cos(ang - 0.42), y2 - hl * Math.sin(ang - 0.42));
+      ctx.lineTo(x2 - hl * Math.cos(ang + 0.42), y2 - hl * Math.sin(ang + 0.42));
+      ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+      ctx.restore();
+    };
+
+    // polar grid
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let r = 1; r <= 3; r++) {
+      ctx.beginPath(); ctx.arc(cx, cy, (r / 3) * RV, 0, Math.PI * 2); ctx.stroke();
+    }
+    for (let a = 0; a < 360; a += 30) {
+      const ar = rad(a);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + RV * 1.12 * Math.cos(ar), cy - RV * 1.12 * Math.sin(ar));
+      ctx.stroke();
+    }
+    ctx.restore();
+    plot.text('+' + fmt(out.VL, 5) + ' V', cx, cy - RV - 8, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    plot.text('0 deg', cx + RV * 1.12 + 3, cy + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // phase voltages
+    const aA = rot, aB = rot - 2 * Math.PI / 3, aC = rot + 2 * Math.PI / 3;
+    const pA = Vx(out.Vph, aA), pB = Vx(out.Vph, aB), pC = Vx(out.Vph, aC);
+    arrow(cx, cy, pA.x, pA.y, PALETTE.accent, 2.6);
+    arrow(cx, cy, pB.x, pB.y, PALETTE.accent, 2.2);
+    arrow(cx, cy, pC.x, pC.y, PALETTE.accent, 2.2);
+    plot.text('V_an', pA.x + 6, pA.y - 6, { color: PALETTE.accent, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('V_bn', pB.x + 6, pB.y - 6, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    plot.text('V_cn', pC.x + 6, pC.y + 14, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+
+    // line-to-line voltage V_ab = V_an - V_bn  (the sqrt(3) and the 30 deg lead)
+    if (out.wye) {
+      const pAB = Vx(Math.sqrt(3) * out.Vph, aA + Math.PI / 6);
+      ctx.save();
+      ctx.setLineDash([6, 4]);
+      arrow(cx, cy, pAB.x, pAB.y, PALETTE.warn, 2.2);
+      ctx.restore();
+      plot.text('V_ab = sqrt(3) V_an at +30 deg', pAB.x + 6, pAB.y - 6,
+        { color: PALETTE.warn, font: 'bold 10px ui-monospace, monospace' });
+      // construction: from the tip of V_an to the tip of V_bn
+      ctx.save();
+      ctx.strokeStyle = 'rgba(249,226,175,0.5)';
+      ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pAB.x, pAB.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pB.x, pB.y); ctx.lineTo(pAB.x, pAB.y); ctx.stroke();
+      ctx.restore();
+    } else {
+      // delta: the three line-to-line voltages ARE the winding voltages
+      const pAB = Vx(out.Vph, aA + Math.PI / 6);
+      const pBC = Vx(out.Vph, aA + Math.PI / 6 - 2 * Math.PI / 3);
+      const pCA = Vx(out.Vph, aA + Math.PI / 6 + 2 * Math.PI / 3);
+      ctx.save();
+      ctx.setLineDash([6, 4]);
+      arrow(cx, cy, pAB.x, pAB.y, PALETTE.warn, 2.2);
+      ctx.restore();
+      arrow(cx, cy, pBC.x, pBC.y, PALETTE.accent5, 2.0);
+      arrow(cx, cy, pCA.x, pCA.y, PALETTE.accent5, 2.0);
+      plot.text('V_ab', pAB.x + 6, pAB.y - 6, { color: PALETTE.warn, font: 'bold 10px ui-monospace, monospace' });
+      plot.text('V_bc', pBC.x + 6, pBC.y - 6, { color: PALETTE.accent5, font: '10px ui-monospace, monospace' });
+      plot.text('V_ca', pCA.x + 6, pCA.y + 14, { color: PALETTE.accent5, font: '10px ui-monospace, monospace' });
+    }
+
+    // line currents
+    const iaA = rot - out.phi, iaB = iaA - 2 * Math.PI / 3, iaC = iaA + 2 * Math.PI / 3;
+    const qA = Ix(out.IL, iaA), qB = Ix(out.IL, iaB), qC = Ix(out.IL, iaC);
+    arrow(cx, cy, qA.x, qA.y, PALETTE.accent3, 2.4);
+    arrow(cx, cy, qB.x, qB.y, PALETTE.accent3, 2.0);
+    arrow(cx, cy, qC.x, qC.y, PALETTE.accent3, 2.0);
+    plot.text('I_a', qA.x + 6, qA.y + 14, { color: PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('I_b', qB.x + 6, qB.y + 14, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    plot.text('I_c', qC.x + 6, qC.y - 6, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+
+    plot.text('PHASOR DIAGRAM — ' + (out.wye ? 'WYE' : 'DELTA') + ' connection',
+      pad + 8, pad + 16, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('voltage scale: circle radius = V_L = ' + fmt(out.VL, 5) + ' V     current scale: radius = I_L = ' + fmt(out.IL, 5) + ' A',
+      pad + 8, pad + 34, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    plot.text('phi = ' + fmt(out.phiDeg, 4) + ' deg lagging (current behind its voltage by ' + fmt(out.phiDeg, 4) + ' deg)',
+      pad + 8, pad + 50, { color: PALETTE.accent4, font: '10px ui-monospace, monospace' });
+
+    // ============================================================ waveform panel
+    const WX0 = 424, WX1 = plot.w - 36, WY0 = 108, WY1 = 412;
+    const cyW = (WY0 + WY1) / 2;
+    const amp = Math.max(1e-9, out.maxV);
+    const TW = 2 / 60;                        // two cycles at 60 Hz
+    const XT = (t) => WX0 + (t / TW) * (WX1 - WX0);
+    const YT = (y) => cyW - (y / (amp * 1.12)) * ((WY1 - WY0) / 2);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let k = 0; k <= 4; k++) {
+      const t = (k / 4) * TW;
+      ctx.beginPath(); ctx.moveTo(XT(t), WY0); ctx.lineTo(XT(t), WY1); ctx.stroke();
+    }
+    for (let k = -2; k <= 2; k++) {
+      const y = (k / 2) * amp;
+      ctx.beginPath(); ctx.moveTo(WX0, YT(y)); ctx.lineTo(WX1, YT(y)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.strokeRect(WX0, WY0, WX1 - WX0, WY1 - WY0);
+    ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(WX0, cyW); ctx.lineTo(WX1, cyW); ctx.stroke();
+    ctx.restore();
+
+    const trace = (fn, color, width, dash, scale) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      for (let i = 0; i <= 800; i++) {
+        const t = (i / 800) * TW;
+        const y = fn(t) * (scale || 1);
+        const px = XT(t), py = YT(y);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    if (out.wye) {
+      trace(out.va, PALETTE.accent, 2.2);
+      trace(out.vb, PALETTE.accent, 1.6);
+      trace(out.vc, PALETTE.accent, 1.6);
+      trace(out.vab, PALETTE.warn, 2.0, [6, 4]);
+      plot.text('v_an (solid), v_bn, v_cn   and   v_ab = v_an - v_bn (dashed, sqrt(3) x taller and 30 deg ahead)',
+        WX0, WY0 - 10, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    } else {
+      trace(out.vab, PALETTE.warn, 2.2);
+      trace((t) => out.vab(t - 1 / 180), PALETTE.accent5, 1.8);
+      trace((t) => out.vab(t + 1 / 180), PALETTE.accent5, 1.8);
+      plot.text('v_ab, v_bc, v_ca — in delta the winding voltage IS the line voltage, so V_L = V_ph',
+        WX0, WY0 - 10, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    }
+
+    // the neutral current: identically zero
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 3.4;
+    ctx.beginPath(); ctx.moveTo(WX0, cyW); ctx.lineTo(WX1, cyW); ctx.stroke();
+    ctx.restore();
+    plot.text('i_N = i_a + i_b + i_c = 0 at EVERY instant (largest computed value: ' + fmt(out.worstIN, 4) + ' A)',
+      WX0 + 4, cyW - 8, { color: PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('time (two cycles at 60 Hz)  ->', (WX0 + WX1) / 2, WY1 + 16,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    plot.text('+' + fmt(out.maxV, 4) + ' V', WX0 - 5, YT(out.maxV) + 4,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('-' + fmt(out.maxV, 4) + ' V', WX0 - 5, YT(-out.maxV) + 4,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // ---------------------------------------------------------------- formulas
+    plot.text((out.wye
+        ? 'WYE:   V_L = sqrt(3) V_ph = sqrt(3) x ' + fmt(out.Vph, 5) + ' = ' + fmt(out.VL, 5) + ' V        I_L = I_ph = ' + fmt(out.IL, 5) + ' A'
+        : 'DELTA: V_L = V_ph = ' + fmt(out.Vph, 5) + ' V        I_L = sqrt(3) I_ph = sqrt(3) x ' + fmt(out.Iph, 5) + ' = ' + fmt(out.IL, 5) + ' A'),
+      pad + 8, cy + RV + 18, { color: PALETTE.accent, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('I_ph = V_ph/|Z| = ' + fmt(out.Vph, 5) + '/' + fmt(out.Zmag, 5) + ' = ' + fmt(out.Iph, 5) + ' A',
+      pad + 8, cy + RV + 36, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    plot.text('P = 3 V_ph I_ph cos phi = ' + fmt(out.P, 6) + ' W   and   sqrt(3) V_L I_L cos phi = ' + fmt(out.Pcheck, 6) + ' W',
+      pad + 8, cy + RV + 54, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    plot.text('Z per phase = ' + fmt(out.Zmag, 5) + ' ohm at ' + fmt(out.phiDeg, 4) + ' deg  ->  R = ' + fmt(out.Z.re, 5) + ' ohm, X = ' + fmt(out.Z.im, 5) + ' ohm',
+      pad + 8, cy + RV + 72, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // ---------------------------------------------------------------- verdict bar
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(pad + 4, plot.h - pad - 32, plot.iw, 32);
+    ctx.restore();
+    plot.text('BALANCED system: the three phasors are equal in magnitude and 120 deg apart, so their sum is exactly zero — that is why the neutral carries no current and why only three wires are needed.',
+      pad + 14, plot.h - pad - 11, { color: PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'connection': out.wye ? 'wye (star)' : 'delta (mesh)',
+    'phase voltage V_ph': fmt(out.Vph, 6) + ' V rms',
+    'line voltage V_L': fmt(out.VL, 6) + ' V rms',
+    'V_L / V_ph': fmt(out.ratio, 6) + (out.wye ? '   = sqrt(3), with V_L leading by 30 deg' : '   = 1 in delta'),
+    'phase current I_ph': fmt(out.Iph, 6) + ' A rms',
+    'line current I_L': fmt(out.IL, 6) + ' A rms',
+    'I_L / I_ph': fmt(out.iratio, 6) + (out.wye ? '   = 1 in wye' : '   = sqrt(3), with I_L lagging by 30 deg'),
+    'power factor cos phi': fmt(out.pf, 6) + '   (phi = ' + fmt(out.phiDeg, 5) + ' deg)',
+    'total real power P': fmt(out.P, 6) + ' W   [3 V_ph I_ph cos phi]',
+    'P the other way': fmt(out.Pcheck, 6) + ' W   [sqrt(3) V_L I_L cos phi] — identical',
+    'total reactive power Q': fmt(out.Q, 6) + ' var   [3 V_ph I_ph sin phi]',
+    'total apparent power S': fmt(out.S, 6) + ' VA   [3 V_ph I_ph]',
+    'neutral current I_N': fmt(0, 4) + ' A — exactly zero, balanced (largest instantaneous value computed: ' + fmt(out.worstIN, 4) + ' A)',
+    'impedance per phase': fmt(out.Z.re, 5) + ' + j' + fmt(out.Z.im, 5) + ' ohm   (|Z| = ' + fmt(out.Zmag, 5) + ', angle ' + fmt(out.phiDeg, 5) + ' deg)',
+    'line-to-line lead angle': out.wye ? '+30 deg (V_ab leads V_an)' : 'not applicable — the line voltages are the winding voltages',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Everything follows from "three equal phasors 120&deg; apart".</strong> Their vector sum is zero, ' +
+  'which is why a balanced wye needs no neutral current and a balanced delta has no circulating current. ' +
+  'Subtracting two of them gives a phasor of magnitude &radic;3 times as large, rotated +30&deg; &mdash; that is ' +
+  'the entire origin of the &radic;3 and the 30&deg;. Wye puts the &radic;3 in the <em>voltage</em> ' +
+  '(V_L = &radic;3 V_ph, I_L = I_ph); delta puts it in the <em>current</em> (V_L = V_ph, ' +
+  'I_L = &radic;3 I_ph). ' +
+  '<br><br><strong>One power formula, two costumes.</strong> Because 3 V_ph I_ph = &radic;3 V_L I_L, the total ' +
+  'power is P = 3 V_ph I_ph cos&phi; = &radic;3 V_L I_L cos&phi; whichever connection you use. Note carefully ' +
+  'that &phi; is the angle between the phase voltage and the phase current of the SAME winding &mdash; not the ' +
+  'angle between V_L and I_L in general, and not the 30&deg; of the delta. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> applying the &radic;3 to both voltage and current at once. ' +
+  'A wye connection steps the voltage up by &radic;3 and leaves the current alone; a delta does the opposite. ' +
+  'Multiplying both gives a power 3x too large. The second classic slip is using V_L = 230 V from the ' +
+  'nameplate when the load is wye: if the nameplate says 230 V line-to-line, the winding sees ' +
+  '230/&radic;3 = 132.8 V, and using 230 V for V_ph inflates P by exactly 3. Third: assuming "balanced" ' +
+  'means "no neutral wire is needed" in a real installation &mdash; the neutral is still run so that ' +
+  'unbalanced loads keep their phase voltages near nominal.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

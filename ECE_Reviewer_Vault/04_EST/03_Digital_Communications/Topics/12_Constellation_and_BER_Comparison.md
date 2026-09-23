@@ -1,0 +1,169 @@
+---
+id: EST-03-12
+title: "Constellation and BER Comparison"
+part: "04_EST"
+area: "03_Digital_Communications"
+topic: 12
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[11_M-ary_PSK_and_16-QAM]]"]
+tags: ["ece", "est", "digital_communications"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 12 — Constellation and BER Comparison
+
+> [!abstract] Scope
+> Read a constellation as a geometric object: distance between points sets the BER, so compute minimum distances and the Eb/N0 penalties that separate BPSK, QPSK, 8-PSK and 16-QAM.
+
+## Core Concept
+
+> [!tip] Intuition
+> Every constellation is a set of points on a plane and noise is a circular cloud around the received point. An error happens when the cloud crosses the boundary to a neighbour, so the whole error performance is governed by one number: how far apart the closest two points are.
+
+**The constellation picture.** A passband digital signal can be written as $s(t) = I\cos(2\pi f_c t) - Q\sin(2\pi f_c t)$, so each symbol is a point $(I,Q)$ in a two-dimensional plane. Plotting all $M$ points gives the constellation diagram. The axes are the in-phase and quadrature carriers; the distance from the origin is the symbol amplitude and the angle is the phase. Every linear modulation scheme — ASK, PSK, QAM, and even FSK viewed in a signal space — has such a picture.
+
+**Why minimum distance decides everything.** With additive white Gaussian noise the received point is the transmitted point plus a circular Gaussian cloud of variance $N_0/2$ per dimension. The optimum receiver picks the nearest constellation point, so an error occurs when the noise pushes the received point across the perpendicular bisector to a neighbouring point. The probability of that is governed by how far the nearest neighbour is: $d_{min}$, the *minimum Euclidean distance*, is the single figure of merit for power efficiency at high SNR.
+
+**The approximate BER formula.** For a constellation whose points are equally likely and well separated, the symbol error probability is $P_s \approx N_{near}\,Q\!\left(\dfrac{d_{min}}{\sqrt{2N_0}}\right)$ where $N_{near}$ is the number of nearest neighbours (about 2 for a linear constellation, 2 or 3 for QPSK, up to 4 for interior points of 16-QAM). Under Gray coding — adjacent points differing in exactly one bit — a symbol error translates into one bit error, so $P_b \approx P_s/\log_2 M$. That is the whole reason Gray mapping is used everywhere.
+
+**The reference distances.** BPSK has $d_{min} = 2\sqrt{E_b}$ and QPSK has $d_{min} = 2\sqrt{E_b}$ as well, once $E_s = 2E_b$ is substituted — which is exactly why their BER curves coincide. For $M$-PSK generally, $d_{min} = 2\sqrt{E_s}\sin(\pi/M)$: with $M = 8$ this is $0.765\sqrt{E_s} = 1.326\sqrt{E_b}$, and with $M = 16$ it falls to $0.390\sqrt{E_s}$. For square 16-QAM, $d_{min} = \sqrt{0.4E_s} = 1.265\sqrt{E_b}$.
+
+**Turning distances into decibels.** To compare two schemes at a target BER, remember that the required $E_b/N_0$ scales as the inverse square of the distance expressed in units of $\sqrt{E_b}$. So the power penalty between scheme A and scheme B is $20\log_{10}\!\left(\dfrac{d_A/\sqrt{E_b}}{d_B/\sqrt{E_b}}\right)$ with B the baseline. Working the standard comparisons: 8-PSK costs about $3.6\ \mathrm{dB}$ over QPSK, 16-PSK costs about $8.2\ \mathrm{dB}$ over QPSK, 16-QAM about $4.0\ \mathrm{dB}$, and 64-QAM about $8.5\ \mathrm{dB}$. These are the numbers a board question is checking.
+
+**Reading the pattern in an exam.** Two things reliably appear. First, a constellation sketch with a rotated or offset variant, asking whether BER improves — rotation never changes $d_{min}$, so it never changes BER; it only changes the phase reference the receiver must establish. Second, a comparison at *equal average power* rather than equal $E_b$, which shifts every penalty by $10\log_{10}(\log_2 M)$ dB. Establish which energy is held constant before doing any arithmetic.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Signal space representation | $s(t) = I\cos(2\pi f_c t) - Q\sin(2\pi f_c t)$ | I and Q are the constellation coordinates; each symbol is a point (I, Q). |
+| Minimum distance, BPSK | $d_{min} = 2\sqrt{E_b}$ | Antipodal points separated by the full diameter. The best binary scheme. |
+| Minimum distance, QPSK | $d_{min} = \sqrt{2E_s} = 2\sqrt{E_b}$ | Points on a circle at 90 degree spacing; Es = 2Eb makes it equal to BPSK. |
+| Minimum distance, M-PSK | $d_{min} = 2\sqrt{E_s}\sin\!\left(\frac{\pi}{M}\right)$ | Constant-envelope family. Falls quickly: 8-PSK gives 0.765 sqrt(Es). |
+| Minimum distance, square M-QAM | $d_{min} = \sqrt{\frac{6 E_s}{M-1}}$ | 16-QAM: sqrt(0.4 Es). 64-QAM: sqrt(6Es/63). |
+| Approximate symbol error rate | $P_s \approx N_{near}\, Q\!\left(\frac{d_{min}}{\sqrt{2N_0}}\right)$ | High-SNR nearest-neighbour bound. N_near is the count of equidistant neighbours. |
+| Gray-coded bit error rate | $P_b \approx \frac{P_s}{\log_2 M}$ | Valid when adjacent constellation points differ in exactly one bit. |
+| Power penalty between schemes | $\Delta_{dB} = 20\log_{10}\!\left(\frac{d_A/\sqrt{E_b}}{d_B/\sqrt{E_b}}\right)$ | At equal Eb. Halving the normalized distance costs 6.02 dB. |
+| Equal-Es to equal-Eb shift | $\Delta_{dB} = 10\log_{10}\!\left(\frac{k_A}{k_B}\right)$ | k = log2 M. For 16-QAM versus QPSK, k = 4 versus 2, so an equal-Es comparison is 3.01 dB harsher than an equal-Eb one. |
+| Q function landmarks | $Q(3.09)=10^{-3},\ Q(3.72)=10^{-4},\ Q(4.27)=10^{-5},\ Q(4.75)=10^{-6}$ | Use these to invert a BER target into a required normalised distance. |
+
+## Interactive Widget
+
+**Constellation Diagram Explorer**
+
+![[Constellation_Diagram_Explorer.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. Sketch the geometry: find $d_{min}/\sqrt{E_b}$ for QPSK and for 8-PSK, and hence the $E_b/N_0$ penalty of 8-PSK.
+
+**Given:** M = 4 and M = 8; equal Eb; compare at a common BER
+
+**Solution:**
+
+1. QPSK: d = sqrt(2 Es) with Es = 2 Eb -> d = 2 sqrt(Eb), so d/sqrt(Eb) = 2.000
+2. 8-PSK: d = 2 sqrt(Es) sin(pi/8) = 2 sqrt(3Eb) x 0.38268
+3. sin(pi/8) = 0.38268 and sqrt(3) = 1.7321, so d = 2 x 1.7321 x 0.38268 sqrt(Eb) = 1.326 sqrt(Eb)
+4. Ratio = 2.000/1.326 = 1.508
+5. Penalty = 20 log10(1.508) = 3.57 dB
+
+> [!success]- Answer
+> **8-PSK costs about $3.6\ \mathrm{dB}$ more $E_b/N_0$ than QPSK**
+
+> [!warning] Trap
+> Using $\sin(\pi/8)$ in radians and forgetting it is $22.5^\circ$, or using $\pi/M$ with $M = 8$ but writing $\pi/4$. The angle between *adjacent* points is $2\pi/M$, and the half-angle $\pi/M$ is what appears in the distance formula.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. 8-PSK distance: `2×√3×sin(π÷8)` → **1.32565** in $\sqrt{E_b}$ units; QPSK's value is exactly **2.000**.
+> 2. `20×log(2÷1.32565)` → **3.5720** dB ≈ **3.6** dB penalty.
+>
+> Set the angle unit to Rad (`SHIFT` `DRG`): `sin(π÷8)` = sin 22.5° = 0.38268, the half-angle $\pi/M$.
+
+### P2. Find the $E_b/N_0$ penalty of 16-QAM relative to QPSK at equal $E_b$, then repeat the comparison at equal $E_s$.
+
+**Given:** M = 16 versus M = 4; target BER fixed
+
+**Solution:**
+
+1. At equal Eb: 16-QAM d = sqrt(1.6 Eb) = 1.265 sqrt(Eb); QPSK d = 2 sqrt(Eb)
+2. Penalty = 20 log10(2.000/1.265) = 20 log10(1.581) = 3.98 dB
+3. At equal Es: 16-QAM d = sqrt(0.4 Es) = 0.632 sqrt(Es); QPSK d = 1.414 sqrt(Es)
+4. Penalty = 20 log10(1.414/0.632) = 20 log10(2.236) = 6.99 dB
+5. Difference between the two answers = 6.99 - 3.98 = 3.01 dB
+6. That 3.01 dB is 10 log10(2): at equal Eb, 16-QAM's symbol energy is twice QPSK's (k = 4 versus k = 2), so an equal-Es comparison is harsher by exactly that factor
+
+> [!success]- Answer
+> **About $4.0\ \mathrm{dB}$ at equal $E_b$; about $7.0\ \mathrm{dB}$ at equal $E_s$**
+
+> [!warning] Trap
+> Quoting a single number without stating the energy convention. The same two schemes are 4 dB or 7 dB apart depending on whether $E_b$ or $E_s$ is held constant.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `20×log(2÷√1.6)` → **3.9794** dB at equal $E_b$ ($2\sqrt{E_b}$ against $\sqrt{1.6E_b}$).
+> 2. `20×log(√2÷√0.4)` → **6.9897** dB at equal $E_s$ (**1.4142** against **0.6325** in $\sqrt{E_s}$ units).
+> 3. `6.9897−3.9794` → **3.0103** dB = `10×log(2)`, the equal-$E_s$ to equal-$E_b$ shift.
+
+### P3. A QPSK link runs at $E_b/N_0 = 8\ \mathrm{dB}$. Find the BER, then find the $E_b/N_0$ an 8-PSK link needs for the same BER.
+
+**Given:** Eb/N0 = 8 dB for QPSK; 8-PSK penalty = 3.57 dB
+
+**Solution:**
+
+1. Eb/N0 = 10^(8/10) = 6.310 (linear)
+2. Argument = sqrt(2 x 6.310) = sqrt(12.62) = 3.553
+3. Pe = Q(3.553); interpolating between Q(3.5) = 2.33e-4 and Q(3.6) = 1.59e-4 gives about 1.9e-4
+4. For 8-PSK at the same BER: Eb/N0 = 8 + 3.57 = 11.57 dB
+
+> [!success]- Answer
+> **QPSK $P_e \approx 1.9\times10^{-4}$; 8-PSK needs $11.6\ \mathrm{dB}$**
+
+> [!warning] Trap
+> Applying the 3.57 dB penalty to the *linear* ratio instead of the dB value, or adding it to the argument of the Q function. Penalties in dB add to dB.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — STAT
+> 1. `MODE` `3` STAT, then `Apps` `Distr` `R(` with the argument `√(2×10^(8÷10))` = **√12.619** = **3.5523**.
+> 2. `=` → QPSK $P_e$ = **1.91×10^{-4}**.
+> 3. `8+3.57` → 8-PSK needs **11.57** dB for the same BER, since penalties in dB add to dB.
+>
+> Adding the penalty inside the Q argument instead of to the dB value is the trap; the linear ratio is `10^(8÷10)` = 6.3096.
+
+### P4. A constellation diagram shows a rotated QPSK constellation (points at $0^\circ$, $90^\circ$, $180^\circ$, $270^\circ$ instead of $45^\circ$ offsets). Does the BER change, and what does change?
+
+**Given:** rotation by 45 degrees; same average energy; same Gray mapping
+
+**Solution:**
+
+1. Rotation is an isometry: it preserves every pairwise distance
+2. d_min is unchanged at sqrt(2 Es), so the BER formula is unchanged
+3. What changes is the phase reference: the receiver's carrier recovery must lock to the new orientation
+4. The peaks of the I and Q components now align with the constellation points, which changes the peak-to-average power ratio
+
+> [!success]- Answer
+> **BER is unchanged; only the required phase reference (and the envelope statistics) change**
+
+> [!warning] Trap
+> Assuming a rotated constellation is worse because the points are no longer aligned with the axes. Rotation preserves minimum distance, so it preserves power efficiency; it changes implementation, not performance.
+
+## Traps & Exam Notes
+
+- **Comparing schemes without stating whether $E_b$ or $E_s$ is held constant.** The 16-QAM versus QPSK gap is 4 dB at equal $E_b$ and 7 dB at equal $E_s$. Both are correct answers to different questions.
+- **Using $2\pi/M$ instead of $\pi/M$ in the M-PSK distance formula.** The *angle between adjacent points* is $2\pi/M$; the half-angle inside the sine is $\pi/M$. Doubling the angle roughly doubles the distance and hides the whole PSK penalty.
+- **Believing Gray coding improves the minimum distance.** It does not touch $d_{min}$ at all. Gray coding only reduces the number of *bit* errors per symbol error, converting a symbol error rate into a bit error rate. Power efficiency is set by geometry alone.
+- **Assuming a denser constellation can be rescued by more transmit power.** Doubling power buys 3 dB, but each doubling of $M$ costs 4–6 dB. The trade is systematically unfavourable, which is why adaptive modulation is used instead of brute force.
+- **Forgetting the nearest-neighbour count.** For 16-QAM the corner points have 2 neighbours, edge points 3 and interior points 4, so the average $N_{near}$ is about 3; using 2 understates $P_s$ by roughly 1.8 dB.
+- **Treating the constellation as an abstraction with no implementation cost.** 16-QAM and higher have amplitude variation, so they need linear amplifiers and a lower average power to avoid distortion — a real penalty that the ideal AWGN analysis omits entirely.
+
+## See Also
+
+- [[10_BPSK_and_QPSK]]
+- [[11_M-ary_PSK_and_16-QAM]]
+- [[13_Matched_Filter_and_Optimum_Detection]]
+- [[15_Shannon-Hartley_Capacity]]
+
+---
+
+[[11_M-ary_PSK_and_16-QAM|⬅ 11]] · [[_MOC_Digital_Communications|MOC]] · [[00_Dashboard|Dashboard]] · [[13_Matched_Filter_and_Optimum_Detection|13 ➡]]

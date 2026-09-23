@@ -1,0 +1,95 @@
+{
+  "scope": "Identify the CPU registers and bus signals that carry out a transfer, and size a memory from its address lines, data width and timing.",
+  "intuition": "The CPU never touches memory directly. Every access travels one road — the address bus out, the data bus back — and the control bus says which direction and when.",
+  "concept": [
+    "**The registers that run the fetch cycle.** The *program counter* (PC) holds the address of the next instruction. The *memory address register* (MAR) holds the address currently on the address bus; the *memory data register* (MDR) holds the value currently on the data bus. The *instruction register* (IR) holds the opcode being decoded, the *stack pointer* (SP) points at the top of the stack, the *accumulator* or general-purpose registers hold operands, and the *flags/status register* holds carry, zero, sign, overflow and interrupt-enable bits. A fetch is the sequence PC → MAR, memory read, MDR → IR, PC + 1. Keeping MAR and MDR straight is the whole trick: MAR is an address, MDR is data.",
+    "**The three buses.** The *address bus* is unidirectional, sourced by the CPU or a bus master, and its width fixes the address space as $2^{n}$ locations. The *data bus* is bidirectional and its width fixes the transfer granule — an 8-bit data bus moves one byte per cycle, a 32-bit bus moves four. The *control bus* carries the read/write strobes, the clock, interrupt request lines, and the bus request/grant pair used for DMA arbitration. Address width and data width are independent: a 16-bit address bus with a 32-bit data bus is perfectly ordinary.",
+    "**Memory organization.** A *byte-addressable* machine gives every byte its own address; a *word-addressable* machine gives one address per word, so an address of $k$ means byte $k \\times w/8$. Endianness fixes how a multi-byte value is laid out: big-endian puts the most significant byte at the lowest address, little-endian puts the least significant byte there. In a byte-wide memory dump of $0x12345678$ stored at $0x2000$, little-endian reads $78\\ 56\\ 34\\ 12$ from $0x2000$ upward and big-endian reads $12\\ 34\\ 56\\ 78$.",
+    "**The memory map and chip select.** The full address space is not memory. Boot ROM, RAM, memory-mapped peripherals, and often unmapped holes are carved out by the address decoder, which asserts a chip select only when the high-order address lines match that device's region. Memory-mapped I/O gives a peripheral register an ordinary address, so `LD` and `ST` reach it; isolated (port-mapped) I/O uses a separate address space and separate `IN`/`OUT` instructions.",
+    "**Bus timing and bandwidth.** A bus cycle costs a whole number of clock periods. Slow memory inserts *wait states*, each adding one clock. Bandwidth is the transfer granule times the transfer rate, $BW = w \\times f_{bus}$, so a 16-bit bus at 8 MHz peaks at 128 Mbit/s = 16 MB/s. Any wait state or arbitration gap divides that down. Cache exists precisely because the CPU's appetite exceeds affordable memory bandwidth."
+  ],
+  "formulas": [
+    { "q": "Addressable locations", "e": "N = 2^{n}", "n": "n = number of address lines. On a byte-addressable machine this is a number of *bytes*, whatever the data bus width." },
+    { "q": "Address lines needed", "e": "n = \\lceil \\log_2 N \\rceil", "n": "N = required number of addressable units. 512 KiB needs 19 lines because 2^{19} = 524288." },
+    { "q": "Memory capacity", "e": "C = 2^{n} \\times w", "n": "Total bits, w = data bus width in bits. Divide by 8 for bytes." },
+    { "q": "Address range of a device", "e": "\\mathrm{range} = [\\,B,\\ B + 2^{n} - 1\\,]", "n": "B = base address, n = address lines decoded by that device. A 4 KiB block spans 0x1000 addresses and ends at B + 0x0FFF." },
+    { "q": "Bus bandwidth", "e": "BW = w \\times f_{bus}", "n": "w in bits gives bit/s; divide by 8 for bytes/s. Assumes one transfer every bus clock with no wait states." },
+    { "q": "Bus cycle with wait states", "e": "t_{cyc} = (T_{base} + WS) \\times T_{clk}", "n": "T_base = clocks in the nominal cycle, WS = wait states inserted. Each wait state is one whole clock, never a fraction." },
+    { "q": "Address space with mapped windows", "e": "\\mathrm{Unmapped\\ hole} = 2^{n} - \\sum_i \\mathrm{size}_i", "n": "Holes respond to nothing; reading one returns floating-bus data, which is why firmware vectors are placed away from them." }
+  ],
+  "problems": [
+    {
+      "prompt": "A byte-addressable CPU has 16 address lines $A_0$–$A_{15}$ and a 16-bit data bus. How much memory can it address, and what is the full address range?",
+      "give": ["16 address lines", "byte addressable", "16-bit data bus"],
+      "steps": [
+        "Number of locations: $N = 2^{16} = 65{,}536$",
+        "Byte-addressable, so that is $65{,}536$ bytes $= 64$ KiB",
+        "Range: $0x0000$ to $0xFFFF$ inclusive",
+        "The 16-bit data bus does not change the count — it changes how many bytes move per cycle"
+      ],
+      "ans": "$64$ KiB, range $0x0000$–$0xFFFF$.",
+      "trap": "Multiplying by the data bus width. On a byte-addressable machine $n$ address lines give $2^{n}$ *bytes*; the 16-bit bus only means two of those bytes can be fetched at once."
+    },
+    {
+      "prompt": "A system needs 512 KiB of RAM. How many address lines must the decoder provide, and how wide must the MAR be?",
+      "give": ["capacity = 512 KiB", "byte addressable"],
+      "steps": [
+        "$512\\ \\mathrm{KiB} = 512 \\times 1024 = 524{,}288$ bytes",
+        "$524{,}288 = 2^{19}$",
+        "So 19 address lines $A_0$–$A_{18}$ are required",
+        "The MAR must be at least 19 bits wide"
+      ],
+      "ans": "$19$ address lines; MAR $\\geq 19$ bits.",
+      "trap": "Using $512 \\times 1000 = 512{,}000$, which is not a power of two and gives $\\log_2 512000 = 18.97$, rounded wrongly to 18. Binary capacities are multiples of 1024."
+    },
+    {
+      "prompt": "A bus runs at 8 MHz with a 16-bit data bus and transfers one word per clock. Find the peak bandwidth in Mbit/s and MB/s.",
+      "give": ["$f_{bus} = 8$ MHz", "$w = 16$ bits", "one transfer per clock"],
+      "steps": [
+        "$BW = w \\times f_{bus} = 16 \\times 8 \\times 10^{6}$",
+        "$= 1.28 \\times 10^{8}$ bit/s $= 128$ Mbit/s",
+        "Convert: $128/8 = 16$ MB/s"
+      ],
+      "ans": "$128$ Mbit/s $= 16$ MB/s.",
+      "trap": "Quoting 128 MB/s by forgetting the bit-to-byte conversion. Bus bandwidth is quoted in both units and the factor of 8 is the usual lost mark."
+    },
+    {
+      "prompt": "The same 8 MHz bus inserts 2 wait states on every 16-bit transfer. What is the real bandwidth?",
+      "give": ["$f_{bus} = 8$ MHz", "$w = 16$ bits", "2 wait states"],
+      "steps": [
+        "Nominal cycle = 1 clock, plus 2 wait states = 3 clocks per transfer",
+        "Transfer rate $= 8 \\times 10^{6}/3 = 2.667 \\times 10^{6}$ transfers/s",
+        "Bandwidth $= 2.667 \\times 10^{6} \\times 2$ bytes",
+        "$= 5.33$ MB/s"
+      ],
+      "ans": "$5.33$ MB/s — one third of the peak.",
+      "trap": "Subtracting a fixed time instead of whole clocks. Wait states are counted in clock periods, so 2 wait states divides the rate by 3, not by 1.25."
+    },
+    {
+      "prompt": "A program stores the 32-bit value $0x12345678$ to byte address $0x2000$. Give the memory contents from $0x2000$ upward for a little-endian and a big-endian machine.",
+      "give": ["value = 0x12345678", "address = 0x2000", "byte-wide memory"],
+      "steps": [
+        "Little-endian: least significant byte at the lowest address",
+        "$0x2000 = 0x78$, $0x2001 = 0x56$, $0x2002 = 0x34$, $0x2003 = 0x12$",
+        "Big-endian: most significant byte at the lowest address",
+        "$0x2000 = 0x12$, $0x2001 = 0x34$, $0x2002 = 0x56$, $0x2003 = 0x78$"
+      ],
+      "ans": "Little-endian: $78\\ 56\\ 34\\ 12$. Big-endian: $12\\ 34\\ 56\\ 78$ (ascending addresses).",
+      "trap": "Reversing the whole 4-byte word for little-endian. Only the byte *order* reverses; the bit order inside each byte is unchanged."
+    }
+  ],
+  "traps": [
+    "**Using the data bus width when sizing memory.** $n$ address lines on a byte-addressable machine give $2^{n}$ bytes no matter whether the data bus is 8, 16 or 32 bits wide.",
+    "**Computing a device's last address as base + size.** A 4 KiB block starting at $0x8000$ ends at $0x8FFF$, not $0x9000$; the range is base to base + size − 1.",
+    "**Mixing up MAR and MDR.** MAR carries the address out of the CPU, MDR carries data in or out. Swapping them is the standard distractor in register-transfer questions.",
+    "**Confusing Mbit/s with MB/s.** Bus bandwidth differs by a factor of 8 between the two units; state which one the answer is in.",
+    "**Assuming every address in the map is memory.** Regions assigned to ROM, peripherals or nothing at all sit in the same $2^{n}$ space, so an unmapped address returns floating-bus data rather than an error."
+  ],
+  "refs": [
+    "[[01_CPU_Architecture_CISC_and_RISC]]",
+    "[[03_Memory_Technologies_and_Address_Decoding]]",
+    "[[04_Instruction_and_Machine_Cycles]]",
+    "[[07_DMA_and_Bus_Arbitration]]"
+  ],
+  "prereqs": ["[[01_CPU_Architecture_CISC_and_RISC]]"]
+}

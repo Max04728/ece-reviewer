@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCR Phase Control — Firing Angle, V_dc and Power Factor</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, rad, deg } from '../../../Assets/vault.js';
+
+// Phase control is the highest-yield power-electronics topic on the ECE board, and it is
+// almost always tested as one of three substitutions:
+//   full-wave (bridge) R load : V_dc = (Vm/pi)(1 + cos a)
+//   half-wave         R load : V_dc = (Vm/2pi)(1 + cos a)     <-- factor 2, the classic slip
+//   power factor              : pf = V_rms,out / V_rms,in  for a resistive load
+// The widget integrates the actual waveform numerically so the closed form can be checked
+// against the picture rather than memorised blind.
+
+/** Composite Simpson over [a,b] of f. */
+function simpson(f, a, b, n) {
+  if (n % 2) n += 1;
+  const h = (b - a) / n;
+  let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+  return (s * h) / 3;
+}
+
+widget({
+  title: 'SCR Phase Control — Firing Angle, Average Output and Power Factor',
+  description:
+    'A phase-controlled rectifier with a resistive load. Delay the gate pulse by alpha and the conduction interval shrinks: the average output falls from Vm/pi at alpha = 0 to exactly 0 at alpha = 180 degrees. The shaded bands are the intervals in which the thyristor actually conducts.',
+  height: 620,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'topo', label: 'rectifier', type: 'select', value: 'bridge',
+      options: [
+        { value: 'bridge', label: 'full-wave bridge (2 pulses / cycle)' },
+        { value: 'half', label: 'single thyristor, half-wave (1 pulse / cycle)' },
+      ] },
+    { id: 'alpha', label: 'firing angle alpha (deg)', min: 0, max: 180, step: 1, value: 60 },
+    { id: 'Vm', label: 'peak supply voltage Vm (V)', min: 10, max: 400, step: 1, value: 170 },
+    { id: 'f', label: 'supply frequency f (Hz)', min: 25, max: 60, step: 1, value: 60 },
+    { id: 'R', label: 'load resistance R (ohm)', min: 1, max: 100, step: 1, value: 10 },
+    { id: 'pulses', label: 'show gate pulses', type: 'checkbox', value: true },
+    { id: 'shade', label: 'shade conduction intervals', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const bridge = v.topo === 'bridge';
+    const Vm = v.Vm;
+    const a = rad(v.alpha);              // radians
+    const half = Math.PI;                // half period in rad
+    const period = bridge ? Math.PI : 2 * Math.PI;
+
+    // output voltage over one full period of the output (0 .. period)
+    const vo = (t) => {
+      const ph = ((t % 2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+      if (bridge) {
+        // two identical pulses per supply cycle, one per half bridge
+        if (ph >= a && ph <= Math.PI) return Vm * Math.sin(ph);
+        if (ph >= Math.PI + a && ph <= 2 * Math.PI) return -Vm * Math.sin(ph);
+        return 0;
+      }
+      // half-wave: conducts only on the positive half cycle
+      return ph >= a && ph <= Math.PI ? Vm * Math.sin(ph) : 0;
+    };
+
+    // --- exact average ------------------------------------------------------
+    const VdcClosed = bridge
+      ? (Vm / Math.PI) * (1 + Math.cos(a))
+      : (Vm / (2 * Math.PI)) * (1 + Math.cos(a));
+    const Vdc = simpson(vo, 0, period, 2000);
+
+    // --- rms ---------------------------------------------------------------
+    const Vrms = Math.sqrt(simpson((t) => vo(t) * vo(t), 0, period, 4000) / period);
+    const VrmsIn = bridge ? Vm / Math.SQRT2 : Vm / 2;   // supply rms seen by the converter
+
+    const form = Vdc > 0 ? Vrms / Vdc : NaN;
+    const ripple = Vdc > 0 ? Math.sqrt(Math.max(0, form * form - 1)) : NaN;
+
+    // --- fundamental of the output, for the distortion factor ---------------
+    const w0 = bridge ? 2 : 1;          // output fundamental order (x supply frequency)
+    const a1 = (2 / period) * simpson((t) => vo(t) * Math.cos(w0 * t), 0, period, 4000);
+    const b1 = (2 / period) * simpson((t) => vo(t) * Math.sin(w0 * t), 0, period, 4000);
+    const V1peak = Math.hypot(a1, b1);
+    const V1rms = V1peak / Math.SQRT2;
+
+    const Pout = (Vrms * Vrms) / v.R;
+    const S = VrmsIn * (VrmsIn / v.R);      // V_rms,in x I_rms,in (I_rms,in = V_rms,in / R)
+    // For a purely resistive load I_rms,in = V_rms,out / R, so pf = V_rms,out / V_rms,in.
+    const pf = VrmsIn > 0 ? Vrms / VrmsIn : 0;
+    const df = Vrms > 0 ? V1rms / Vrms : 0;      // distortion factor
+    const dpf = Math.cos(a / 2);                 // displacement factor (approximate)
+    const thd = V1rms > 0 ? Math.sqrt(Math.max(0, Vrms * Vrms - V1rms * V1rms)) / V1rms : NaN;
+
+    const beta = Math.PI;                        // extinction angle, resistive load
+    const condAngle = Math.PI - a;
+
+    return {
+      bridge, Vm, a, alpha: v.alpha, f: v.f, R: v.R,
+      Vdc, VdcClosed, Vrms, VrmsIn, V1rms, V1peak, form, ripple, pf, df, dpf, thd, Pout, S,
+      beta, condAngle, period, vo,
+      betaDeg: 180,
+      condDeg: 180 - v.alpha,
+      valid: Vdc > 1e-9,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    const L = 74, Rr = W - 96, T = 46, B = H - 42;
+    const DEG = Math.PI / 180;
+    const X = (d) => L + (d / 720) * (Rr - L);
+    const vs = (d) => out.Vm * Math.sin(d * DEG);
+    const vload = (d) => out.vo(d * DEG);
+    const isBridge = out.bridge;
+
+    // ---- three stacked panels, each with its own voltage scale -------------
+    const panels = [
+      { name: 'AC supply  v_s = Vm sin(wt)', color: PALETTE.accent4, y0: 66, y1: 196, ymax: out.Vm * 1.12 },
+      { name: 'gate pulses  (alpha measured from the zero crossing)', color: PALETTE.warn, y0: 226, y1: 300, ymax: 1.3 },
+      { name: 'load voltage  v_o', color: PALETTE.accent3, y0: 330, y1: 470, ymax: out.Vm * 1.12 },
+    ];
+    const Yof = (p, val) => p.y1 - ((val + p.ymax) / (2 * p.ymax)) * (p.y1 - p.y0);
+
+    // ---- conduction shading behind everything ------------------------------
+    if (v.shade) {
+      const bands = [];
+      for (let c = 0; c < 2; c++) {
+        const base = c * 360;
+        bands.push([base + out.alpha, base + 180]);
+        if (isBridge) bands.push([base + 180 + out.alpha, base + 360]);
+      }
+      ctx.save();
+      ctx.fillStyle = 'rgba(166,227,161,0.13)';
+      for (const [d1, d2] of bands) ctx.fillRect(X(d1), 56, X(d2) - X(d1), 420);
+      ctx.restore();
+    }
+
+    // ---- grid + panels -----------------------------------------------------
+    for (const p of panels) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(39,39,58,0.55)';
+      ctx.fillRect(L, p.y0, Rr - L, p.y1 - p.y0);
+      ctx.strokeStyle = PALETTE.grid;
+      ctx.lineWidth = 1;
+      for (let d = 0; d <= 720; d += 30) {
+        ctx.beginPath(); ctx.moveTo(X(d), p.y0); ctx.lineTo(X(d), p.y1); ctx.stroke();
+      }
+      ctx.strokeStyle = PALETTE.border || PALETTE.grid;
+      ctx.strokeRect(L, p.y0, Rr - L, p.y1 - p.y0);
+      ctx.restore();
+      // zero line
+      const yz = p.name.indexOf('gate') >= 0 ? p.y1 : Yof(p, 0);
+      ctx.save();
+      ctx.strokeStyle = PALETTE.axis;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(L, yz); ctx.lineTo(Rr, yz); ctx.stroke();
+      ctx.restore();
+      plot.text(p.name, L, p.y0 - 7, { color: p.color, font: 'bold 11px ui-monospace, monospace' });
+    }
+
+    // time axis
+    for (let d = 0; d <= 720; d += 60) {
+      plot.text(fmt(d, 3) + '\u00B0', X(d), B + 16,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('phase angle wt (degrees, two supply cycles)', (L + Rr) / 2, B + 32,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+
+    // ---- panel 1: supply ---------------------------------------------------
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent4;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= 900; i++) {
+      const d = (i / 900) * 720;
+      const px = X(d), py = Yof(panels[0], vs(d));
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    plot.text('Vm = ' + fmt(out.Vm, 4) + ' V', L + 4, panels[0].y0 + 14,
+      { color: PALETTE.accent4, font: '10px ui-monospace, monospace' });
+    plot.text('0 V', L - 6, Yof(panels[0], 0) + 4,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // alpha markers on the first two zero crossings
+    for (let c = 0; c < 2; c++) {
+      const base = c * 360;
+      const xa = X(base + out.alpha);
+      ctx.save();
+      ctx.strokeStyle = PALETTE.warn;
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(xa, 56); ctx.lineTo(xa, 470); ctx.stroke();
+      ctx.restore();
+      plot.text('alpha=' + fmt(out.alpha, 3) + '\u00B0', xa + 3, panels[0].y0 - 7,
+        { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    }
+
+    // ---- panel 2: gate pulses ---------------------------------------------
+    if (v.pulses) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.warn;
+      ctx.lineWidth = 2.2;
+      const p = panels[1];
+      const yTop = p.y0 + 8, yBot = p.y1;
+      const pulse = (d0) => {
+        ctx.beginPath();
+        ctx.moveTo(X(d0), yBot); ctx.lineTo(X(d0), yTop);
+        ctx.lineTo(X(d0 + 9), yTop); ctx.lineTo(X(d0 + 9), yBot);
+        ctx.stroke();
+      };
+      pulse(out.alpha);
+      pulse(180 + out.alpha);
+      if (isBridge) { pulse(out.alpha + 360); pulse(180 + out.alpha + 360); }
+      ctx.restore();
+      plot.text('gate width drawn 9\u00B0 (idealised)', L + 260, panels[1].y0 + 16,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    }
+
+    // ---- panel 3: load voltage -------------------------------------------
+    ctx.save();
+    ctx.fillStyle = 'rgba(166,227,161,0.28)';
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= 1440; i++) {
+      const d = (i / 1440) * 720;
+      const y = vload(d);
+      const px = X(d), py = Yof(panels[2], y);
+      if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // horizontal line at V_dc
+    const yd = Yof(panels[2], out.Vdc);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(L, yd); ctx.lineTo(Rr, yd); ctx.stroke();
+    ctx.restore();
+    plot.text('V_dc = ' + fmt(out.Vdc, 5) + ' V', Rr - 4, yd - 7,
+      { color: PALETTE.accent2, font: '11px ui-monospace, monospace', align: 'right' });
+    plot.text(fmt(out.Vm, 4) + ' V', L - 6, Yof(panels[2], out.Vm) + 4,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('0 V', L - 6, Yof(panels[2], 0) + 4,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // ---- formula strip with substituted values ----------------------------
+    const gate = isBridge
+      ? 'V_dc = (Vm/pi)(1 + cos alpha)'
+      : 'V_dc = (Vm/2pi)(1 + cos alpha)';
+    const subs = isBridge
+      ? '= (' + fmt(out.Vm, 4) + '/pi)(1 + cos ' + fmt(out.alpha, 3) + '\u00B0) = ' + fmt(out.VdcClosed, 5) + ' V'
+      : '= (' + fmt(out.Vm, 4) + '/2pi)(1 + cos ' + fmt(out.alpha, 3) + '\u00B0) = ' + fmt(out.VdcClosed, 5) + ' V';
+    plot.text(gate + '   ' + subs, 16, 20,
+      { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    const integr = 'numeric integral of the drawn waveform: ' + fmt(out.Vdc, 5) + ' V   (closed form matches: ' +
+      (Math.abs(out.Vdc - out.VdcClosed) < Math.max(Math.abs(out.VdcClosed), 1) * 1e-6 ? 'YES' : 'no') + ')';
+    plot.text(integr, 16, 37, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // ---- verdict / limiting cases ----------------------------------------
+    let verdict;
+    if (out.alpha === 0) {
+      verdict = 'alpha = 0: FULL CONDUCTION. ' + (isBridge
+        ? 'The thyristors act as a plain diode bridge, V_dc = 2Vm/pi = ' + fmt(2 * out.Vm / Math.PI, 5) + ' V, pf = 1.'
+        : 'The thyristor acts as a plain diode, V_dc = Vm/pi = ' + fmt(out.Vm / Math.PI, 5) + ' V, pf = 1/sqrt(2) at best.');
+    } else if (out.alpha >= 180) {
+      verdict = 'alpha = 180\u00B0: ZERO OUTPUT. The gate pulse arrives exactly at the zero crossing, so there is no forward voltage left to latch into; V_dc = 0 and pf = 0.';
+    } else {
+      verdict = 'Conduction interval ' + fmt(out.condDeg, 3) + '\u00B0 of each ' + (isBridge ? '180\u00B0' : '360\u00B0') +
+        '. Average output is ' + fmt((out.Vdc / (isBridge ? 2 * out.Vm / Math.PI : out.Vm / Math.PI)) * 100, 4) +
+        '% of the uncontrolled (alpha = 0) value.';
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, H - 30, W - 20, 24);
+    ctx.restore();
+    plot.text(verdict, 16, H - 13, { color: PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'topology': out.bridge ? 'full-wave bridge (2 pulses/cycle)' : 'half-wave, single SCR (1 pulse/cycle)',
+    'firing angle alpha': fmt(out.alpha, 4) + '\u00B0   (' + fmt(out.a, 5) + ' rad)',
+    'conduction angle': fmt(out.condDeg, 4) + '\u00B0   (pi - alpha)',
+    'extinction angle beta': fmt(out.betaDeg, 4) + '\u00B0   (pi, resistive load)',
+    'V_dc closed form': fmt(out.VdcClosed, 6) + ' V',
+    'V_dc numeric': fmt(out.Vdc, 6) + ' V',
+    'V_rms output': fmt(out.Vrms, 6) + ' V',
+    'V_rms supply (at input)': fmt(out.VrmsIn, 6) + ' V',
+    'power factor = Vrms,o/Vrms,i': fmt(out.pf, 5),
+    'form factor Vrms/Vdc': isFinite(out.form) ? fmt(out.form, 5) : 'undefined (V_dc = 0)',
+    'ripple factor': isFinite(out.ripple) ? fmt(out.ripple, 5) : 'undefined (V_dc = 0)',
+    'displacement factor cos(alpha/2)': fmt(out.dpf, 5),
+    'distortion factor V1/Vrms': fmt(out.df, 5),
+    'output fundamental V1,rms': fmt(out.V1rms, 6) + ' V',
+    'output THD': isFinite(out.thd) ? fmt(out.thd * 100, 4) + ' %' : 'undefined (V_dc = 0)',
+    'P_out in R': fmt(out.Pout, 6) + ' W',
+    'device PIV (bridge / half)': fmt(out.Vm, 5) + ' V / ' + fmt(2 * out.Vm, 5) + ' V',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The two substitutions that decide the mark.</strong> For a resistive load the average output is ' +
+  '<code>V_dc = (Vm/pi)(1 + cos alpha)</code> for the <em>full-wave bridge</em> but ' +
+  '<code>V_dc = (Vm/2pi)(1 + cos alpha)</code> for a <em>single-thyristor half-wave</em> circuit. ' +
+  'Half-wave carries the extra factor 2 because the load sees only one pulse per supply cycle. ' +
+  'Check the end points before you trust your algebra: at alpha = 0 the bridge must give 2Vm/pi and the ' +
+  'half-wave Vm/pi, and at alpha = 180\u00B0 both must give exactly zero.<br>' +
+  '<strong>The extinction angle trap.</strong> With a purely resistive load the current stops the instant the ' +
+  'supply voltage crosses zero, so the extinction angle is always beta = 180\u00B0 and the conduction angle is ' +
+  'pi - alpha. But the moment you add inductance or a freewheeling diode the current keeps flowing past 180\u00B0, ' +
+  'beta becomes larger than 180\u00B0, the (1 + cos alpha) formula is no longer valid, and you must integrate ' +
+  'the waveform instead. Every year somebody applies the cos formula to an RL load and loses the item.<br>' +
+  '<strong>Power factor is not cos alpha.</strong> The supply current is a chopped sinusoid, so the input pf has a ' +
+  'distortion component as well as a displacement component: pf = (V1/Vrms)cos alpha, not cos alpha. ' +
+  'For a resistive load it collapses to the clean ratio pf = V_rms,out / V_rms,in, which is why the readout shows ' +
+  'the ratio directly. Raise alpha and the pf falls twice over - the displacement angle grows and the current ' +
+  'becomes spikier.';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

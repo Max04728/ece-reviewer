@@ -1,0 +1,179 @@
+---
+id: GEAS-02-14
+title: "Sound and Doppler"
+part: "03_GEAS"
+area: "02_University_Physics"
+topic: 14
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[13_SHM_and_Waves]]"]
+tags: ["ece", "geas", "university_physics"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 14 — Sound and Doppler
+
+> [!abstract] Scope
+> Relate the speed of sound to its medium, convert between intensity and decibel level, and apply the Doppler shift for a source or a listener in motion.
+
+## Core Concept
+
+> [!tip] Intuition
+> Sound is a pressure wave, so its speed depends on how stiff and how heavy the medium is, not on how loud the source is. The Doppler effect is not a change in the source at all — it is the bunching or stretching of wavefronts caused by relative motion, so the listener hears a different frequency than the source emits.
+
+**Speed of sound is a medium property.** In air at $20\ ^\circ\mathrm{C}$, $v = 343\ \mathrm{m/s}$; the exam approximation is $v\approx331 + 0.6\,t$ with $t$ in Celsius, which is accurate to a fraction of a percent over ordinary room temperatures. Sound travels roughly $4.3$ times faster in water ($\approx1480\ \mathrm{m/s}$) and about $17$ times faster in steel ($\approx5960\ \mathrm{m/s}$). Because the medium sets $v$ and the source sets $f$, a sound crossing from air into water keeps its frequency and lengthens its wavelength by the same factor of $4.3$.
+
+**Intensity falls as the inverse square, level falls logarithmically.** A point source spreads its power over a sphere, so $I = P/(4\pi r^2)$ — move twice as far and the intensity drops by a factor of 4, which is only $6\ \mathrm{dB}$. The level scale is $\beta = 10\log_{10}(I/I_0)$ with the reference $I_0 = 1\times10^{-12}\ \mathrm{W/m^2}$; doubling the intensity adds only $3\ \mathrm{dB}$. Two identical sources together give $93\ \mathrm{dB}$ where one gives $90\ \mathrm{dB}$, never $180\ \mathrm{dB}$.
+
+**Use the ratio form of the level formula whenever a ratio is given.** Because $\beta$ is logarithmic, the ratio form is:
+$$\beta_2 - \beta_1 = 10\log_{10}(I_2/I_1)$$
+which is what makes 'how many dB louder is a jet than a whisper' answerable without the reference at all. The board also tests the inverse: a $+20\ \mathrm{dB}$ change means a 100x intensity change, and $+10\ \mathrm{dB}$ means 10x — not 2x.
+
+**Doppler: identify what moves before writing the formula.** The general result is $f' = f\,(v \pm v_o)/(v \mp v_s)$, where the top sign of each pair corresponds to *approaching*. The clean way to remember it: motion that closes the gap raises the pitch, motion that opens the gap lowers it. If the source moves and the listener is still, only $v_s$ appears; if the listener moves and the source is still, only $v_o$ appears. Putting a listener's speed into the source slot is the most common structural error.
+
+**The two Doppler cases are not symmetric.** For a listener moving toward a stationary source, the shift factor is $(v+v_o)/v$, which for $v_o = 20\ \mathrm{m/s}$ is $1.058$. For a source moving toward a stationary listener at the same $20\ \mathrm{m/s}$, the factor is $v/(v-v_s) = 1.062$ — slightly larger, because the source also shortens the wavelength it lays down. Equal speeds in the numerator and denominator do **not** cancel, and that asymmetry is a favourite board discrimination.
+
+**Resonance and beats complete the picture.** A pipe open at both ends has the same harmonic series as a fixed-fixed string, $f_n = nv/(2L)$; a pipe closed at one end has only odd harmonics, $f_n = nv/(4L)$ with $n$ odd, so its fundamental is half that of an open pipe of the same length. Superposing two nearly equal frequencies produces beats at $f_{beat} = |f_1-f_2|$, which is how a tuner is used: beat until the difference goes to zero.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Speed of sound in air vs temperature | $v \approx 331 + 0.6\,t$ | t in degrees Celsius, v in m/s. Gives 343 m/s at 20 C and 331 m/s at 0 C, the exam-rounded values. |
+| Intensity of a point source | $I = \frac{P}{4\pi r^{2}}$ | Spherical spreading. Double r quarters the intensity; the distance must be in metres. |
+| Intensity level | $\beta = 10\log_{10}\frac{I}{I_0}$ | I_0 = 1e-12 W/m^2, the threshold of hearing. Beta is dimensionless but reported in decibels. |
+| Level difference from an intensity ratio | $\Delta\beta = 10\log_{10}\frac{I_2}{I_1}$ | Ratio form: no reference needed. +10 dB is a 10x intensity, +3 dB is a 2x intensity. |
+| Doppler, general | $f' = f\left(\frac{v \pm v_o}{v \mp v_s}\right)$ | Top signs for approaching. v = 343 m/s in air. Only the speeds that actually exist in the problem appear. |
+| Doppler, moving listener only | $f' = f\left(\frac{v + v_o}{v}\right)$ | Approaching gives +; receding gives -. The source frequency is unchanged. |
+| Doppler, moving source only | $f' = f\left(\frac{v}{v - v_s}\right)$ | Approaching gives - in the denominator. Receding gives v + v_s. Not the mirror of the listener case. |
+| Pipe open at both ends | $f_n = \frac{nv}{2L},\ n = 1,2,3,\dots$ | All harmonics present. Antinodes at both ends, node in the middle for the fundamental. |
+| Pipe closed at one end | $f_n = \frac{nv}{4L},\ n = 1,3,5,\dots$ | Odd harmonics only, and the fundamental is half that of an open pipe of the same length. |
+| Beat frequency | $f_{beat} = \lvert f_1 - f_2 \rvert$ | Magnitude of the difference. Two forks at 440 and 444 Hz beat 4 times per second. |
+
+## Worked Problems
+
+### P1. Find the speed of sound in air at $0\ ^\circ\mathrm{C}$, at $20\ ^\circ\mathrm{C}$ and at $30\ ^\circ\mathrm{C}$ using $v \approx 331 + 0.6\,t$.
+
+**Given:** $v \approx 331 + 0.6t$; $t = 0,\ 20,\ 30\ ^\circ\mathrm{C}$
+
+**Solution:**
+
+1. At $0\ ^\circ\mathrm{C}$: $v = 331 + 0.6(0) = 331\ \mathrm{m/s}$
+2. At $20\ ^\circ\mathrm{C}$: $v = 331 + 0.6(20) = 331 + 12 = 343\ \mathrm{m/s}$
+3. At $30\ ^\circ\mathrm{C}$: $v = 331 + 0.6(30) = 331 + 18 = 349\ \mathrm{m/s}$
+
+> [!success]- Answer
+> **$331\ \mathrm{m/s}$ at $0\ ^\circ\mathrm{C}$, $343\ \mathrm{m/s}$ at $20\ ^\circ\mathrm{C}$ (the standard exam value), and $349\ \mathrm{m/s}$ at $30\ ^\circ\mathrm{C}$.**
+
+> [!warning] Trap
+> Using $343\ \mathrm{m/s}$ for every item regardless of the stated temperature, or putting $t$ in kelvin. At $0\ ^\circ\mathrm{C}$ that is a $3.5\%$ error, which is enough to shift a Doppler answer by several hertz and to move a resonance wavelength off the given choices.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — TABLE
+> 1. `MODE` `6` TABLE: `f(X)=331+0.6X` with Start 0, End 30, Step 10.
+> 2. The table returns **331**, **343** and **349** m/s for 0, 20 and 30 °C — all three temperatures in one sweep.
+
+### P2. A small loudspeaker radiates $10.0\ \mathrm{W}$ of acoustic power uniformly in all directions. Find the intensity and the intensity level at $10.0\ \mathrm{m}$.
+
+**Given:** $P = 10.0\ \mathrm{W}$; $r = 10.0\ \mathrm{m}$; $I_0 = 1.00\times10^{-12}\ \mathrm{W/m^2}$
+
+**Solution:**
+
+1. $I = P/(4\pi r^2) = 10.0/[4\pi(10.0)^2] = 10.0/1257$
+2. $I = 7.96\times10^{-3}\ \mathrm{W/m^2}$
+3. $\beta = 10\log_{10}(I/I_0) = 10\log_{10}(7.96\times10^{-3}/1.00\times10^{-12})$
+4. $I/I_0 = 7.96\times10^{9}$, so $\log_{10} = 9.901$
+5. $\beta = 10(9.901) = 99.0\ \mathrm{dB}$
+
+> [!success]- Answer
+> **$I = 7.96\times10^{-3}\ \mathrm{W/m^2}$ and $\beta = 99.0\ \mathrm{dB}$.**
+
+> [!warning] Trap
+> Using $I = P/r^2$ and dropping the $4\pi$. The intensity comes out $12.6$ times too large, which adds $10\log_{10}(4\pi) = 11\ \mathrm{dB}$ and turns a $99\ \mathrm{dB}$ answer into $110\ \mathrm{dB}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `10.0÷(4π×10.0²)` → $I$ = **7.96E-3** W/m².
+> 2. `10×log(Ans÷1E-12)` → $\beta$ = **99.0** dB; dropping the $4\pi$ raises it by about **11** dB.
+
+### P3. Two tuning forks of frequency $440\ \mathrm{Hz}$ and $444\ \mathrm{Hz}$ are struck together. How many beats per second are heard, and what happens to the beat rate if a small piece of tape slows the $444\ \mathrm{Hz}$ fork?
+
+**Given:** $f_1 = 440\ \mathrm{Hz}$; $f_2 = 444\ \mathrm{Hz}$
+
+**Solution:**
+
+1. $f_{beat} = |f_1 - f_2| = |440 - 444| = 4\ \mathrm{Hz}$
+2. Adding mass to a fork lowers its frequency, so $444\ \mathrm{Hz}$ falls toward $440\ \mathrm{Hz}$
+3. As the two frequencies converge the beat frequency decreases, reaching zero when both are $440\ \mathrm{Hz}$
+
+> [!success]- Answer
+> **$4$ beats per second, and the beat rate decreases as the taped fork drops toward $440\ \mathrm{Hz}$.**
+
+> [!warning] Trap
+> Adding the frequencies and reporting $884\ \mathrm{Hz}$. Beats are the difference; the sum is present in the sound but is not what you hear pulsing. Also wrong: assuming tape raises the pitch.
+
+### P4. A stationary source emits $440\ \mathrm{Hz}$. A listener moves toward it at $15.0\ \mathrm{m/s}$ in air at $20\ ^\circ\mathrm{C}$. Find the frequency heard.
+
+**Given:** $f = 440\ \mathrm{Hz}$; $v_o = 15.0\ \mathrm{m/s}$ approaching; $v_s = 0$; $v = 343\ \mathrm{m/s}$
+
+**Solution:**
+
+1. Only the listener moves, and the motion is approaching, so use the plus sign in the numerator
+2. $f' = f(v + v_o)/v = 440(343 + 15.0)/343$
+3. $= 440(358/343) = 440(1.0437)$
+4. $f' = 459\ \mathrm{Hz}$
+
+> [!success]- Answer
+> **$f' \approx 4.59\times10^{2}\ \mathrm{Hz}$ (a shift of about $+19\ \mathrm{Hz}$).**
+
+> [!warning] Trap
+> Placing the listener's speed in the denominator as $v/(v - v_o)$. That is the moving-*source* form; here the source is at rest, and the wrong structure gives $460.2\ \mathrm{Hz}$ instead of $459.2\ \mathrm{Hz}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `440×(343+15.0)÷343` → $f'$ = **459.2** Hz: closing the gap raises the pitch.
+> 2. The moving-source shape `440×343÷(343−15.0)` gives **460.1** Hz — a different number, so the two cases are not interchangeable.
+
+### P5. An ambulance siren emits $430\ \mathrm{Hz}$ and the ambulance travels at $20.0\ \mathrm{m/s}$ toward a stationary pedestrian, then away at the same speed. Find the frequency heard in each case. Use $v = 343\ \mathrm{m/s}$.
+
+**Given:** $f = 430\ \mathrm{Hz}$; $v_s = 20.0\ \mathrm{m/s}$; $v_o = 0$; $v = 343\ \mathrm{m/s}$
+
+**Solution:**
+
+1. Approaching source: $f' = f\,v/(v - v_s) = 430(343)/(343 - 20.0)$
+2. $= 430(343/323) = 430(1.0619) = 456.6\ \mathrm{Hz}$
+3. Receding source: $f'' = f\,v/(v + v_s) = 430(343)/(343 + 20.0)$
+4. $= 430(343/363) = 430(0.9449) = 406.3\ \mathrm{Hz}$
+5. Both shifts are consistent with closing the gap raising the pitch and opening it lowering the pitch
+
+> [!success]- Answer
+> **$456.6\ \mathrm{Hz}$ approaching and $406.3\ \mathrm{Hz}$ receding (about $457\ \mathrm{Hz}$ and $406\ \mathrm{Hz}$).**
+
+> [!warning] Trap
+> Assuming the shift is symmetric, i.e. $+26.6\ \mathrm{Hz}$ on approach and $-26.6\ \mathrm{Hz}$ on recession. It is not: the approach gives $+26.6\ \mathrm{Hz}$ but the recession gives $-23.7\ \mathrm{Hz}$, because the denominator is $v \pm v_s$ in both cases.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `430×343÷(343−20.0)` → **456.6** Hz approaching.
+> 2. `430×343÷(343+20.0)` → **406.3** Hz receding: +26.6 Hz against −23.7 Hz, so the shift is not symmetric.
+
+## Traps & Exam Notes
+
+- **Using $343\ \mathrm{m/s}$ when the stem specifies a temperature.** The speed must match the stated medium temperature; a $20\ \mathrm{K}$ error moves the answer by roughly $3.5\%$ and off the intended choice.
+- **Dropping the $4\pi$ in $P/(4\pi r^2)$.** The intensity becomes $12.6$ times too large, which adds about $11\ \mathrm{dB}$ to the level.
+- **Treating the decibel scale as linear.** $+3\ \mathrm{dB}$ is a doubling of intensity and $+10\ \mathrm{dB}$ is a tenfold increase, not a $10\%$ increase. Ten identical machines give $100\ \mathrm{dB}$ where one gives $90\ \mathrm{dB}$.
+- **Adding sound levels arithmetically.** Two identical $60\ \mathrm{dB}$ sources give $63\ \mathrm{dB}$, not $120\ \mathrm{dB}$; add the intensities, not the levels.
+- **Mixing the two Doppler forms.** A moving listener uses $(v+v_o)/v$; a moving source uses $v/(v-v_s)$. The two differ for equal speeds, so 'they cancel' is wrong.
+- **Getting the Doppler sign backwards.** The formula must make an approaching source sound higher. If your answer is below the emitted frequency for an approaching siren, the signs are inverted.
+- **Assuming the frequency changes with the medium.** Crossing from air into water changes $v$ and $\lambda$, never $f$. A $440\ \mathrm{Hz}$ tone is still $440\ \mathrm{Hz}$ underwater.
+- **Mixing up open and closed pipes.** A closed pipe has only odd harmonics and a fundamental of $v/(4L)$, half that of an open pipe of the same length. Using the even series puts the fundamental an octave too high.
+
+## See Also
+
+- [[13_SHM_and_Waves]]
+- [[15_Reflection_and_Refraction]]
+- [[16_Lenses_and_Mirrors]]
+- [[_MOC_University_Physics]]
+
+---
+
+[[13_SHM_and_Waves|⬅ 13]] · [[_MOC_University_Physics|MOC]] · [[00_Dashboard|Dashboard]] · [[15_Reflection_and_Refraction|15 ➡]]

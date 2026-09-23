@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class-B Crossover Distortion — Dead Zone, Efficiency and the Class-AB Fix</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Class B is two emitter followers taking turns, and it has one defect and one virtue.
+// The defect is the dead zone of width 2 V_BE around zero, which flattens every zero
+// crossing -- crossover distortion, which no amount of feedback removes cleanly because it
+// is a discontinuity in slope. The virtue is efficiency: pi/4 = 78.5 % at full swing, twice
+// the maximum of class A. Both are computed here by numerically integrating the ACTUAL
+// distorted waveform, so the efficiency number responds to the dead zone rather than
+// quoting the ideal formula.
+
+widget({
+  title: 'Class-B Crossover Distortion — Dead Zone, Efficiency, Dissipation',
+  description:
+    'A complementary class-B push-pull emitter follower. The left panel is the transfer characteristic V_out against V_in, with the dead zone of width 2V_BE shaded where neither transistor conducts; the right panel is the resulting output for a sine input, where the crossover notch is visible at every zero crossing. Efficiency and dissipation come from integrating the real, distorted waveform.',
+  height: 500,
+  range: { xMin: -1, xMax: 1, yMin: -1, yMax: 1 },
+  controls: [
+    { id: 'VCC', label: 'supply rail V_CC (V)', min: 3, max: 30, step: 0.5, value: 12 },
+    { id: 'RL', label: 'load resistance R_L (ohms)', min: 2, max: 32, step: 1, value: 8 },
+    { id: 'VBE', label: 'transistor base-emitter drop V_BE (V)', min: 0, max: 1.2, step: 0.05, value: 0.7 },
+    { id: 'A', label: 'input amplitude A (V peak)', min: 0, max: 30, step: 0.5, value: 12 },
+  ],
+
+  compute: (v) => {
+    const VCC = Math.max(0.5, v.VCC);
+    const RL = Math.max(0.1, v.RL);
+    const VBE = Math.max(0, v.VBE);
+    const A = Math.max(0, v.A);
+
+    // Complementary emitter-follower transfer characteristic with the dead zone and the
+    // rail clamps. |V_in| <= V_BE: neither device conducts, so V_out is exactly zero.
+    const xfer = (vin) => {
+      if (vin > VBE) return Math.min(vin - VBE, VCC);
+      if (vin < -VBE) return Math.max(vin + VBE, -VCC);
+      return 0;
+    };
+
+    // --------------------------------------------- integrate the ACTUAL waveform
+    const N = 4000;
+    let sumV2 = 0, sumAbs = 0, peakOut = 0;
+    for (let i = 0; i < N; i++) {
+      const th = (i + 0.5) * (2 * Math.PI) / N;
+      const vo = xfer(A * Math.sin(th));
+      sumV2 += vo * vo;
+      sumAbs += Math.abs(vo);
+      peakOut = Math.max(peakOut, Math.abs(vo));
+    }
+    const meanV2 = sumV2 / N;
+    const meanAbs = sumAbs / N;
+    const PL = meanV2 / RL;                     // average power in the load
+    const PS = (VCC * meanAbs) / RL;            // average power drawn from the two rails
+    const PD = PS - PL;                         // total dissipation in both devices
+    const eta = PS > 1e-12 ? PL / PS : 0;
+
+    // ------------------------------------------------ ideal (no dead zone) references
+    const VpIdeal = Math.min(A, VCC);
+    const etaIdeal = (Math.PI / 4) * (VpIdeal / VCC);
+    const peakIdeal = VpIdeal;
+    const PLideal = (VpIdeal * VpIdeal) / (2 * RL);
+    const PSideal = (2 * VCC * VpIdeal) / (Math.PI * RL);
+    const etaIdealNumeric = PSideal > 1e-12 ? PLideal / PSideal : 0;
+
+    // --------------------------------------- maximum dissipation and its operating point
+    const VpAtMaxPD = (2 * VCC) / Math.PI;
+    const PDmaxTotal = (2 * VCC * VCC) / (Math.PI * Math.PI * RL);
+    const PDmaxEach = PDmaxTotal / 2;
+    const PLatMaxPD = (VpAtMaxPD * VpAtMaxPD) / (2 * RL);
+    const PSatMaxPD = (2 * VCC * VpAtMaxPD) / (Math.PI * RL);
+    const etaAtMaxPD = PSatMaxPD > 1e-12 ? PLatMaxPD / PSatMaxPD : 0;
+
+    // ------------------------------------------------------- class-AB bias for the fix
+    const VbiasPerDevice = VBE;                 // bias each device just to the edge of conduction
+    const deadWidth = 2 * VBE;
+    const notchPct = A > 0 ? (2 * Math.asin(Math.min(1, VBE / A)) / Math.PI) * 100 : 100;
+
+    return { VCC, RL, VBE, A, xfer, PL, PS, PD, eta, etaIdeal, etaIdealNumeric,
+             VpIdeal, peakIdeal, peakOut, VpAtMaxPD, PDmaxTotal, PDmaxEach,
+             PLatMaxPD, PSatMaxPD, etaAtMaxPD, deadWidth, notchPct, VbiasPerDevice,
+             PI4: Math.PI / 4 };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const pad = plot.pad;
+    const VCC = out.VCC || 12;
+    const VBE = out.VBE || 0;
+    const A = out.A || 0;
+
+    const AX = { x0: pad + 66, x1: 452, y0: pad + 86, y1: plot.h - pad - 40 };
+    const BX = { x0: 512, x1: plot.w - pad - 20, y0: pad + 86, y1: plot.h - pad - 40 };
+
+    const vinMax = Math.max(1.5, VCC + VBE + 1, A * 1.05);
+    const voutMax = VCC * 1.18;
+
+    const XA = (vin) => AX.x0 + ((vin + vinMax) / (2 * vinMax)) * (AX.x1 - AX.x0);
+    const YA = (vo) => (AX.y0 + AX.y1) / 2 - (vo / voutMax) * ((AX.y1 - AX.y0) / 2);
+
+    const segA = (x1, y1, x2, y2, o) => {
+      ctx.save();
+      ctx.strokeStyle = o.color || PALETTE.axis;
+      ctx.lineWidth = o.width || 1.4;
+      if (o.dash) ctx.setLineDash(o.dash);
+      ctx.beginPath(); ctx.moveTo(XA(x1), YA(y1)); ctx.lineTo(XA(x2), YA(y2)); ctx.stroke();
+      ctx.restore();
+    };
+
+    // dead-zone wash in the transfer characteristic
+    ctx.save();
+    ctx.fillStyle = 'rgba(243,139,168,0.18)';
+    ctx.fillRect(XA(-VBE), AX.y0, XA(VBE) - XA(-VBE), AX.y1 - AX.y0);
+    ctx.restore();
+
+    // grid + frame
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let k = -4; k <= 4; k++) {
+      const g = (k / 4) * vinMax;
+      ctx.beginPath(); ctx.moveTo(XA(g), AX.y0); ctx.lineTo(XA(g), AX.y1); ctx.stroke();
+      const gy = (k / 4) * voutMax;
+      ctx.beginPath(); ctx.moveTo(AX.x0, YA(gy)); ctx.lineTo(AX.x1, YA(gy)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.strokeRect(AX.x0, AX.y0, AX.x1 - AX.x0, AX.y1 - AX.y0);
+    ctx.strokeRect(BX.x0, BX.y0, BX.x1 - BX.x0, BX.y1 - BX.y0);
+    ctx.restore();
+
+    // axes of the transfer plot
+    segA(-vinMax, 0, vinMax, 0, { color: PALETTE.axis, width: 1.4 });
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(XA(0), AX.y0); ctx.lineTo(XA(0), AX.y1); ctx.stroke();
+    ctx.restore();
+    plot.text('V_in (V)', (AX.x0 + AX.x1) / 2, AX.y1 + 16, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    plot.text('V_out (V)', AX.x0, AX.y0 - 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('+' + fmt(VCC, 4) + ' V rail', AX.x1, YA(VCC) - 4, { color: PALETTE.accent2, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('-' + fmt(VCC, 4) + ' V rail', AX.x1, YA(-VCC) + 12, { color: PALETTE.accent2, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // the ideal follower line for comparison
+    segA(-vinMax, -vinMax, vinMax, vinMax, { color: 'rgba(160,160,190,0.55)', width: 1.4, dash: [5, 5] });
+    plot.text('ideal follower V_out = V_in', XA(vinMax * 0.45), YA(vinMax * 0.45) - 8,
+      { color: 'rgba(180,180,205,0.9)', font: '10px ui-monospace, monospace' });
+
+    // the actual transfer characteristic
+    const xfer = out.xfer || ((x) => x);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3; ctx.lineWidth = 2.8;
+    ctx.beginPath();
+    for (let i = 0; i <= 1200; i++) {
+      const vin = -vinMax + (2 * vinMax) * (i / 1200);
+      const px = XA(vin), py = YA(xfer(vin));
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    plot.text('TRANSFER CHARACTERISTIC — the dead zone is ' + fmt(out.deadWidth, 4) + ' V wide',
+      AX.x0, AX.y0 - 28, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('|V_in| <= V_BE = ' + fmt(VBE, 4) + ' V:  NEITHER device conducts,  V_out = 0',
+      XA(-VBE) + 4, AX.y1 - 10, { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    plot.text('NPN conducts', XA(vinMax * 0.62), YA(vinMax * 0.30), { color: PALETTE.accent3, font: '10px ui-monospace, monospace' });
+    plot.text('PNP conducts', XA(-vinMax * 0.92), YA(-vinMax * 0.30), { color: PALETTE.accent3, font: '10px ui-monospace, monospace' });
+
+    // ------------------------------------------------------ output waveform panel
+    const TW = 2 / 1000;
+    const XB = (t) => BX.x0 + (t / TW) * (BX.x1 - BX.x0);
+    const YB = (vo) => (BX.y0 + BX.y1) / 2 - (vo / voutMax) * ((BX.y1 - BX.y0) / 2);
+    const w = 2 * Math.PI * 1000;
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(BX.x0, YB(0)); ctx.lineTo(BX.x1, YB(0)); ctx.stroke();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let k = 1; k < 4; k++) {
+      const t = (k / 4) * TW;
+      ctx.beginPath(); ctx.moveTo(XB(t), BX.y0); ctx.lineTo(XB(t), BX.y1); ctx.stroke();
+    }
+    for (let k = -2; k <= 2; k++) {
+      const gy = (k / 2) * voutMax;
+      ctx.beginPath(); ctx.moveTo(BX.x0, YB(gy)); ctx.lineTo(BX.x1, YB(gy)); ctx.stroke();
+    }
+    ctx.restore();
+
+    const trace = (fn, color, width, dash) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      for (let i = 0; i <= 1600; i++) {
+        const t = (i / 1600) * TW;
+        const px = XB(t), py = YB(fn(t));
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    trace((t) => Math.max(-voutMax, Math.min(voutMax, A * Math.sin(w * t))), 'rgba(160,160,190,0.75)', 1.5, [5, 4]);
+    trace((t) => xfer(A * Math.sin(w * t)), PALETTE.accent3, 2.8, null);
+
+    // mark the notch
+    const tNotch = Math.asin(Math.min(1, VBE / Math.max(1e-9, A))) / w;
+    if (A > VBE && tNotch < TW) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(XB(0), YB(0)); ctx.lineTo(XB(2 * tNotch), YB(0)); ctx.stroke();
+      ctx.restore();
+      plot.text('crossover notch: V_out is flat at 0 for ' + fmt(out.notchPct, 4) + '% of each half cycle',
+        XB(0) + 4, YB(0) - 10, { color: PALETTE.accent2, font: 'bold 10px ui-monospace, monospace' });
+    }
+
+    plot.text('OUTPUT WAVEFORM — input (dashed) and output (solid)',
+      BX.x0, BX.y0 - 28, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('time (two cycles)', (BX.x0 + BX.x1) / 2, BX.y1 + 16,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    plot.text('peak output = ' + fmt(out.peakOut, 4) + ' V   (ideal would be ' + fmt(out.peakIdeal, 4) + ' V)',
+      BX.x1, BX.y1 + 16, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // ---------------------------------------------------------------- header text
+    plot.text('CLASS-B COMPLEMENTARY PUSH-PULL          max theoretical efficiency = pi/4 = ' +
+      fmt(out.PI4 * 100, 5) + ' %          dissipation peaks at V_out,peak = 2V_CC/pi = ' + fmt(out.VpAtMaxPD, 5) + ' V',
+      pad + 4, pad + 16, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('P_L = V_p^2/(2R_L) = ' + fmt(out.PL, 5) + ' W      P_S = 2 V_CC V_p/(pi R_L) = ' + fmt(out.PS, 5) +
+      ' W      P_D = P_S - P_L = ' + fmt(out.PD, 5) + ' W      eta = P_L/P_S = ' + fmt(out.eta * 100, 5) + ' %',
+      pad + 4, pad + 34, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    plot.text('with V_CC = ' + fmt(VCC, 4) + ' V, R_L = ' + fmt(out.RL, 4) + ' ohm, V_BE = ' + fmt(VBE, 4) +
+      ' V, A = ' + fmt(A, 4) + ' V:      P_D,max(total) = 2V_CC^2/(pi^2 R_L) = ' + fmt(out.PDmaxTotal, 5) +
+      ' W  (' + fmt(out.PDmaxEach, 5) + ' W per device)',
+      pad + 4, pad + 52, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+    plot.text('at that worst case V_p = 2V_CC/pi the efficiency is only ' + fmt(out.etaAtMaxPD * 100, 5) +
+      ' % — a convenient exam check, because it is exactly 50 %',
+      pad + 4, pad + 70, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // ---------------------------------------------------------------- verdict bar
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(pad + 4, plot.h - pad - 32, plot.iw, 32);
+    ctx.restore();
+    const v1 = VBE <= 1e-9
+      ? 'V_BE = 0: no dead zone — the output is a clean sine and the efficiency is exactly pi/4 = 78.54 % at full swing.'
+      : 'THE FIX IS CLASS AB: forward-bias both bases by about V_BE = ' + fmt(VBE, 4) + ' V with a V_BE multiplier or two diodes,';
+    const v2 = VBE <= 1e-9
+      ? 'Now raise V_BE and watch the notch appear and the efficiency fall.  Actual efficiency here: ' + fmt(out.eta * 100, 5) + ' %'
+      : 'so each device idles at a small I_Q. The transfer curve becomes continuous through zero, the notch vanishes, and the efficiency stays near pi/4.  Actual here: ' + fmt(out.eta * 100, 5) + ' % vs ' + fmt(out.etaIdealNumeric * 100, 5) + ' % ideal';
+    plot.text(v1, pad + 14, plot.h - pad - 21,
+      { color: VBE <= 1e-9 ? PALETTE.accent3 : PALETTE.warn, font: 'bold 10px ui-monospace, monospace' });
+    plot.text(v2, pad + 14, plot.h - pad - 7,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'maximum theoretical efficiency': fmt(out.PI4 * 100, 5) + ' %   = pi/4 (class B, full swing)',
+    'efficiency at this amplitude (numeric, with the dead zone)': fmt(out.eta * 100, 5) + ' %',
+    'efficiency if the dead zone were removed': fmt(out.etaIdealNumeric * 100, 5) + ' %   [pi/4 x V_p/V_CC]',
+    'ideal peak output': fmt(out.peakIdeal, 5) + ' V   [min(A, V_CC)]',
+    'actual peak output': fmt(out.peakOut, 5) + ' V   [the dead zone eats V_BE = ' + fmt(out.VBE, 4) + ' V]',
+    'load power P_L': fmt(out.PL, 6) + ' W   [numeric mean of V_out^2 / R_L]',
+    'supply power P_S': fmt(out.PS, 6) + ' W   [V_CC x mean|I_L|]',
+    'total device dissipation P_D': fmt(out.PD, 6) + ' W   both devices together',
+    'maximum dissipation': fmt(out.PDmaxTotal, 6) + ' W total (' + fmt(out.PDmaxEach, 6) + ' W per device) at V_out,peak = 2V_CC/pi = ' + fmt(out.VpAtMaxPD, 5) + ' V',
+    'efficiency at the maximum-dissipation point': fmt(out.etaAtMaxPD * 100, 5) + ' %   (exactly 50 % — a useful sanity check)',
+    'dead zone width': fmt(out.deadWidth, 5) + ' V   (|V_in| <= V_BE neither device conducts)',
+    'fraction of a half cycle spent in the notch': fmt(out.notchPct, 5) + ' %',
+    'class-AB remedy': 'Forward-bias both bases by about V_BE = ' + fmt(out.VbiasPerDevice, 4) +
+      ' V with a V_BE multiplier or two diodes so each device idles at a small I_Q. The transfer curve becomes continuous through zero and the notch vanishes, while the efficiency stays close to pi/4 because I_Q is small.',
+    'heat-sink consequence': 'Each device must survive ' + fmt(out.PDmaxEach, 6) + ' W with NO signal, which is the worst case — a class-B stage is hottest when it is quiet.',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Why the notch exists.</strong> A class-B pair is two emitter followers in parallel, one for each ' +
+  'half cycle, and an emitter follower only conducts once its base-emitter junction is forward biased. For ' +
+  '|V_in| &lt; V_BE &asymp; 0.7 V neither device turns on, so the output sits at zero and the transfer curve ' +
+  'has a flat step through the origin. The result is a slope discontinuity &mdash; not a small offset &mdash; ' +
+  'which is why it generates a spray of odd harmonics and why negative feedback only reduces it rather than ' +
+  'removing it. Set V_BE to 0 in this widget to see the clean case. ' +
+  '<br><br><strong>Where 78.5 % comes from.</strong> With a full-swing sine, P_L = V_CC&sup2;/(2R_L) and the ' +
+  'rails deliver P_S = 2V_CC&sup2;/(&pi;R_L) because the average of |sin| is 2/&pi;. The ratio is &pi;/4 = 78.54 %. ' +
+  'It is a ceiling, reached only at full swing; at any smaller amplitude &eta; = (&pi;/4)(V_p/V_CC), so the ' +
+  'efficiency falls linearly with the output level &mdash; a quiet amplifier is an inefficient one. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> assuming the transistors are hottest at full output. ' +
+  'Dissipation P_D = P_S &minus; P_L peaks at V_p = 2V_CC/&pi; &asymp; 0.64 V_CC, where &eta; is exactly 50 %, ' +
+  'and it is <em>lower</em> at full swing. That is why the heat-sink calculation uses ' +
+  '2V_CC&sup2;/(&pi;&sup2;R_L) and not the full-power figure. Second trap: quoting 78.5 % as the answer for a ' +
+  'class-AB stage. Class AB keeps the same &pi;/4 ceiling at full swing but idles at a small I_Q, so at low ' +
+  'output it is <em>less</em> efficient than class B &mdash; it buys linearity with quiescent current. Third: ' +
+  'confusing class B with class AB in words. Class B = each device conducts for exactly half a cycle and there ' +
+  'is no bias; class AB = each conducts for more than half a cycle because of the bias network. If an exam ' +
+  'question says "no crossover distortion", it is describing class AB.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

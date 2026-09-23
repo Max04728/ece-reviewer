@@ -1,0 +1,89 @@
+{
+  "scope": "Compute the distributed line parameters of a coaxial or two-wire cable from its geometry and dielectric, and use them to get the wave velocity, the loss mechanisms and the total values of a run of given length.",
+  "intuition": "A transmission line is a cross-section repeated a million times: each metre of it has a little series resistance and inductance in the conductors and a little shunt conductance and capacitance across the dielectric. Everything else in the topic is built from these four numbers.",
+  "concept": [
+    "**What the four constants describe.** A line is modelled as a cascade of infinitesimal series impedances and shunt admittances: $R$ ($\\Omega/\\mathrm{m}$) dissipates energy in the conductors, $L$ ($\\mathrm{H/m}$) stores it in the magnetic field, $G$ ($\\mathrm{S/m}$) leaks it through the dielectric and $C$ ($\\mathrm{F/m}$) stores it in the electric field. All four are **per metre** — they are properties of the cross-section, not of the drum of cable you are holding. $R$ and $G$ are the loss terms and both are frequency dependent; $L$ and $C$ are set by geometry and dielectric and stay essentially constant up to microwave frequencies.",
+    "**Coaxial geometry.** With an inner conductor of radius $a$ and a shield of inner radius $b$, the fields live in the annulus between them, so $C = 2\\pi\\varepsilon/\\ln(b/a)$ and $L = (\\mu/2\\pi)\\ln(b/a)$, with the dielectric constant given by: $\\varepsilon = \\varepsilon_r\\varepsilon_0$, and $\\mu = \\mu_0$ for ordinary non-magnetic dielectrics. The logarithm is the price of cylindrical symmetry: the field of a line charge falls as $1/r$ and $\\int_a^b dr/r = \\ln(b/a)$. Because both formulas carry the *same* logarithm, changing the radii moves $L$ and $C$ in opposite directions.",
+    "**Two-wire geometry.** For conductors of diameter $d$ separated centre-to-centre by $D$ the exact forms carry $\\mathrm{arccosh}(D/d)$; for $D/d \\gtrsim 3$ that is indistinguishable from $\\ln(2D/d)$, which is the form to use under exam pressure. The ratio is $2D/d$, not $D/d$, because the effective separation is measured with the image-charge correction; for $D/d = 50$, using $\\ln(D/d)$ instead of $\\ln(2D/d)$ inflates $C$ by 18% and deflates $L$ by the same factor, leaving the product $LC$ wrong.",
+    "**Why $LC = \\mu\\varepsilon$ is the key identity.** The inductance and capacitance of a line are not independent: $\\sqrt{LC} = \\sqrt{\\mu\\varepsilon}$ for *any* cross-section. The same dielectric that sets $C$ also sets how fast the wave travels. The velocity is: $v = 1/\\sqrt{LC} = c/\\sqrt{\\varepsilon_r}$. That value depends only on the dielectric — no rearrangement of the conductors can make a polyethylene line run at $c$. Two useful corollaries: $v$ is unchanged by changing $b/a$, and $Z_0 = \\sqrt{L/C} = 1/(vC)$, so geometry buys you impedance but never speed.",
+    "**Where the losses come from, and when the formulas fail.** Conductor loss enters as $R = R_s/(2\\pi a)$ with surface resistance $R_s = \\sqrt{\\pi f\\mu/\\sigma}$, hence $R \\propto \\sqrt{f}$: as frequency rises the current crowds into a skin of depth $\\delta \\propto 1/\\sqrt{f}$ and the working cross-section shrinks. Dielectric loss enters as $G = \\omega C\\tan\\delta$, which is **linear** in $f$. The $\\sqrt{f}$ law for $R$ holds only above the crossover at which $\\delta = a$ (about 4.4 kHz for 1 mm copper); at DC the whole conductor works and $R = 1/(\\sigma\\pi a^2)$. These closed forms also ignore the proximity effect, surface roughness, radiation from an open two-wire pair, and the slow fall of $\\varepsilon_r$ with frequency, so treat them as first-order design values."
+  ],
+  "formulas": [
+    { "q": "Coaxial capacitance", "e": "C = \\frac{2\\pi\\varepsilon}{\\ln(b/a)}", "n": "F/m. $\\varepsilon = \\varepsilon_r\\varepsilon_0$ — using $\\varepsilon_0$ alone is low by the factor $\\varepsilon_r$." },
+    { "q": "Coaxial inductance", "e": "L = \\frac{\\mu}{2\\pi}\\ln\\left(\\frac{b}{a}\\right)", "n": "H/m. $\\mu = \\mu_0$ unless the dielectric is magnetic; geometry-only term." },
+    { "q": "Two-wire capacitance", "e": "C = \\frac{\\pi\\varepsilon}{\\mathrm{arccosh}(D/d)} \\approx \\frac{\\pi\\varepsilon}{\\ln(2D/d)}", "n": "F/m. $D$ = centre-to-centre spacing, $d$ = conductor diameter; the log form is good to 0.1% for $D/d>3$." },
+    { "q": "Two-wire inductance", "e": "L = \\frac{\\mu}{\\pi}\\,\\mathrm{arccosh}\\!\\left(\\frac{D}{d}\\right) \\approx \\frac{\\mu}{\\pi}\\ln\\!\\left(\\frac{2D}{d}\\right)", "n": "H/m, external inductance only; valid when $D/d \\gg 1$." },
+    { "q": "Dielectric-locked product", "e": "L\\,C = \\mu\\varepsilon", "n": "Any lossless cross-section. Fixes $v$ from the dielectric alone." },
+    { "q": "Phase velocity from the primaries", "e": "v = \\frac{1}{\\sqrt{LC}} = \\frac{1}{\\sqrt{\\mu\\varepsilon}} = \\frac{c}{\\sqrt{\\varepsilon_r}}", "n": "m/s. Equals $c$ only for air; polyethylene ($\\varepsilon_r = 2.26$) gives $0.665c$." },
+    { "q": "Dielectric conductance", "e": "G = \\omega C\\tan\\delta", "n": "S/m. Linear in $f$, so it overtakes the conductor loss at high frequency." },
+    { "q": "Skin-effect resistance", "e": "R = \\frac{R_s}{2\\pi a}, \\qquad R_s = \\sqrt{\\frac{\\pi f\\mu}{\\sigma}}", "n": "$\\Omega$/m for a round conductor of radius $a$; valid only above the frequency at which skin depth $= a$." },
+    { "q": "Loss scaling with frequency", "e": "R \\propto \\sqrt{f}, \\qquad G \\propto f", "n": "Different laws: $R$ tracks the shrinking conducting annulus, $G$ tracks $\\omega C$." },
+    { "q": "DC resistance of a round conductor", "e": "R_{\\mathrm{DC}} = \\frac{1}{\\sigma\\pi a^{2}}", "n": "$\\Omega$/m. The low-frequency limit; the $\\sqrt{f}$ law does not extrapolate down to it." },
+    { "q": "Per-metre bookkeeping", "e": "R_{\\mathrm{tot}} = R\\,l, \\qquad C_{\\mathrm{tot}} = C\\,l, \\qquad t_{\\mathrm{delay}} = l\\sqrt{LC}", "n": "Every total is the per-metre value times $l$ in metres; $v$ is the one quantity that does *not* scale with length." },
+    { "q": "Lossless characteristic impedance from the primaries", "e": "Z_0 = \\sqrt{\\frac{L}{C}} = \\frac{1}{vC}", "n": "$\\Omega$. The $1/(vC)$ form is the fastest unit check on a new cable." }
+  ],
+  "problems": [
+    {
+      "prompt": "A polyethylene-filled coaxial cable has inner-conductor radius $a = 1\\ \\mathrm{mm}$ and shield inner radius $b = 3.5\\ \\mathrm{mm}$; $\\varepsilon_r = 2.26$. Find its capacitance and inductance per metre.",
+      "give": ["a = 1 mm", "b = 3.5 mm", "ε_r = 2.26 (polyethylene)", "μ = μ_0"],
+      "steps": [
+        "$\\varepsilon = \\varepsilon_r\\varepsilon_0 = 2.26 \\times 8.854\\times10^{-12} = 2.001\\times10^{-11}\\ \\mathrm{F/m}$",
+        "$C = \\dfrac{2\\pi\\varepsilon}{\\ln(b/a)} = \\dfrac{6.2832\\,(2.001\\times10^{-11})}{1.2528} = \\dfrac{1.2573\\times10^{-10}}{1.2528} = 1.004\\times10^{-10}\\ \\mathrm{F/m} \\approx 100\\ \\mathrm{pF/m}$",
+        "$L = \\dfrac{\\mu_0}{2\\pi}\\ln(b/a) = 2\\times10^{-7}(1.2528) = 2.506\\times10^{-7}\\ \\mathrm{H/m} \\approx 251\\ \\mathrm{nH/m}$",
+        "Check: $LC = 2.506\\times10^{-7} \\times 1.004\\times10^{-10} = 2.515\\times10^{-17}$ and $\\mu_0\\varepsilon_0\\varepsilon_r = 1.2566\\times10^{-6} \\times 8.854\\times10^{-12} \\times 2.26 = 2.515\\times10^{-17}$"
+      ],
+      "ans": "$C \\approx 100\\ \\mathrm{pF/m}$ and $L \\approx 251\\ \\mathrm{nH/m}$, giving $Z_0 = \\sqrt{L/C} \\approx 50\\ \\Omega$ and $v = 1.99\\times10^{8}\\ \\mathrm{m/s}$.",
+      "trap": "Using $\\log_{10}$ where the formula needs $\\ln$: $1.2573\\times10^{-10}/\\log_{10}(3.5) = 2.31\\times10^{-10}\\ \\mathrm{F/m}$ — 231 pF/m, a factor $\\ln 10 = 2.303$ too big. Dropping $\\varepsilon_r$ instead gives 44.4 pF/m, low by exactly 2.26.", "calc": {"mode":"COMP","steps":["`2π×2.26×8.854E-12÷ln(3.5)` → **1.004e-10** F/m = **100.4** pF/m. Store it with `SHIFT` `STO` `A`. The `8.854E-12` is `SHIFT` `CVALUE` `32` for $\\varepsilon_0$.","`2E-7×ln(3.5)` → **2.506e-7** H/m = **250.6** nH/m; store as `SHIFT` `STO` `B`, then `√(B÷A)` → **49.96** Ω and `1÷√(A×B)` → **1.994e8** m/s."],"note":"Both geometry logs are `ln`, never `log` — mixing them is a factor $\\ln 10 = 2.303$."}
+    },
+    {
+      "prompt": "An air-spaced two-wire line has conductors of diameter $d = 2\\ \\mathrm{mm}$ spaced $D = 10\\ \\mathrm{cm}$ centre-to-centre. Find $C$, $L$, the wave velocity and the characteristic impedance.",
+      "give": ["D = 10 cm", "d = 2 mm", "air dielectric, ε_r = 1", "μ = μ_0"],
+      "steps": [
+        "$\\mathrm{arccosh}(D/d) = \\ln\\!\\left(50 + \\sqrt{50^{2}-1}\\right) = \\ln(99.99) = 4.6051$, i.e. $\\ln(2D/d) = \\ln(100)$ to four figures",
+        "$C = \\dfrac{\\pi\\varepsilon_0}{\\mathrm{arccosh}(D/d)} = \\dfrac{\\pi(8.854\\times10^{-12})}{4.6051} = \\dfrac{2.782\\times10^{-11}}{4.6051} = 6.04\\times10^{-12}\\ \\mathrm{F/m}$",
+        "$L = \\dfrac{\\mu_0}{\\pi}\\,\\mathrm{arccosh}(D/d) = 4\\times10^{-7}(4.6051) = 1.842\\times10^{-6}\\ \\mathrm{H/m}$",
+        "$v = \\dfrac{1}{\\sqrt{LC}} = \\dfrac{1}{\\sqrt{(1.842\\times10^{-6})(6.04\\times10^{-12})}} = 2.998\\times10^{8}\\ \\mathrm{m/s}$",
+        "$Z_0 = \\sqrt{L/C} = \\sqrt{1.842\\times10^{-6}/6.04\\times10^{-12}} = 552\\ \\Omega$, matching $276\\log_{10}(2D/d) = 276\\log_{10}100 = 552\\ \\Omega$"
+      ],
+      "ans": "$C \\approx 6.04\\ \\mathrm{pF/m}$, $L \\approx 1.84\\ \\mathrm{\\mu H/m}$, $v \\approx 3.0\\times10^{8}\\ \\mathrm{m/s}$ (air), $Z_0 \\approx 552\\ \\Omega$.",
+      "trap": "Substituting $\\ln(D/d) = \\ln 50$ instead of $\\ln(2D/d) = \\ln 100$: $C$ comes out 7.11 pF/m (18% high) and $L$ 1.57 $\\mu$H/m (15% low). The exact $\\mathrm{arccosh}$ form and the log form agree only when the log argument is $2D/d$.", "calc": {"mode":"COMP","steps":["`π×8.854E-12÷ln(100)` → **6.04e-12** F/m = **6.04** pF/m; store with `SHIFT` `STO` `A` (`8.854E-12` is `SHIFT` `CVALUE` `32`; the log form of $\\mathrm{arccosh}(50)$ is $\\ln(2D/d) = \\ln 100 = 4.6052$).","`4E-7×ln(100)` → **1.842e-6** H/m = **1.84** µH/m (`SHIFT` `STO` `B`); `√(B÷A)` → **552.2** Ω and `1÷√(A×B)` → **2.998e8** m/s."],"note":"The log argument is $2D/d = 100$, not $D/d = 50$ — using 50 inflates $C$ by 18 %."}
+    },
+    {
+      "prompt": "A 100 m run of the coaxial cable of the first problem ($C = 100.4\\ \\mathrm{pF/m}$, $L = 250.6\\ \\mathrm{nH/m}$, $R = 0.415\\ \\Omega/\\mathrm{m}$ at 100 MHz, $v = 1.994\\times10^{8}\\ \\mathrm{m/s}$) carries a 100 MHz signal. Find the total shunt capacitance, the total series resistance and the one-way transit time.",
+      "give": ["l = 100 m", "C = 100.4 pF/m", "L = 250.6 nH/m", "R = 0.415 Ω/m at 100 MHz", "v = 1.994e8 m/s"],
+      "steps": [
+        "$C_{\\mathrm{tot}} = C\\,l = 100.4\\times10^{-12} \\times 100 = 1.004\\times10^{-8}\\ \\mathrm{F} = 10.0\\ \\mathrm{nF}$",
+        "$R_{\\mathrm{tot}} = R\\,l = 0.415 \\times 100 = 41.5\\ \\Omega$",
+        "$t = \\dfrac{l}{v} = \\dfrac{100}{1.994\\times10^{8}} = 5.01\\times10^{-7}\\ \\mathrm{s} = 501\\ \\mathrm{ns}$",
+        "Independent check: $t = l\\sqrt{LC} = 100\\sqrt{(2.506\\times10^{-7})(1.004\\times10^{-10})} = 100\\,(5.014\\times10^{-9}) = 501\\ \\mathrm{ns}$"
+      ],
+      "ans": "$C_{\\mathrm{tot}} \\approx 10.0\\ \\mathrm{nF}$, $R_{\\mathrm{tot}} \\approx 41.5\\ \\Omega$, delay $\\approx 501\\ \\mathrm{ns}$.",
+      "trap": "Answering with the per-metre numbers: 0.415 $\\Omega$ total is 100$\\times$ low and 0.1 nF total is 100$\\times$ low. Using $c$ instead of $v$ for the delay gives 334 ns — 33% short — because $\\varepsilon_r = 2.26$ slows the wave by $1/\\sqrt{2.26} = 0.665$.", "calc": {"mode":"COMP","steps":["One line, statements separated by `ALPHA` `:` — `100.4E-12×100 : 0.415×100 : 100÷1.994E8`","`=` down the chain: $C_{\\mathrm{tot}}$ = **1.004e-8** F = **10.0** nF → $R_{\\mathrm{tot}}$ = **41.5** Ω → $t$ = **5.015e-7** s = **501** ns.","Cross-check the delay from the primaries: `100×√(2.506E-7×1.004E-10)` → **5.016e-7** s = **501.6** ns."],"note":"Every total is the per-metre value times $l$; $v$ is the one quantity that does not scale with length."}
+    },
+    {
+      "prompt": "A round copper conductor has radius $a = 1\\ \\mathrm{mm}$ and $\\sigma = 5.8\\times10^{7}\\ \\mathrm{S/m}$; its measured resistance is $0.415\\ \\Omega/\\mathrm{m}$ at 100 MHz. Find $R$ at 1 MHz, find the DC resistance, and explain the disagreement.",
+      "give": ["a = 1 mm", "σ = 5.8e7 S/m", "R(100 MHz) = 0.415 Ω/m", "μ = μ_0 = 4πe-7 H/m"],
+      "steps": [
+        "$R_s = \\sqrt{\\dfrac{\\pi f\\mu_0}{\\sigma}} = \\sqrt{\\dfrac{\\pi(10^{8})(1.2566\\times10^{-6})}{5.8\\times10^{7}}} = 2.609\\times10^{-3}\\ \\Omega$, so $R = \\dfrac{R_s}{2\\pi a} = \\dfrac{2.609\\times10^{-3}}{6.283\\times10^{-3}} = 0.415\\ \\Omega/\\mathrm{m}$",
+        "Because $R \\propto \\sqrt{f}$: $R(1\\ \\mathrm{MHz}) = 0.415\\sqrt{1/100} = 0.0415\\ \\Omega/\\mathrm{m}$",
+        "At DC the whole cross-section conducts: $R_{\\mathrm{DC}} = \\dfrac{1}{\\sigma\\pi a^{2}} = \\dfrac{1}{(5.8\\times10^{7})\\pi(10^{-3})^{2}} = 5.49\\times10^{-3}\\ \\Omega/\\mathrm{m}$",
+        "Crossover where skin depth equals $a$: $f = \\dfrac{1}{\\pi\\mu_0\\sigma a^{2}} = 4.37\\ \\mathrm{kHz}$. Above it the $\\sqrt{f}$ law holds; below it $R \\to 5.49\\ \\mathrm{m\\Omega/m}$"
+      ],
+      "ans": "$R(1\\ \\mathrm{MHz}) \\approx 41.5\\ \\mathrm{m\\Omega/m}$ from $\\sqrt{f}$ scaling, versus $R_{\\mathrm{DC}} = 5.49\\ \\mathrm{m\\Omega/m}$ — the $\\sqrt{f}$ line does not apply down to DC.",
+      "trap": "Scaling $R$ linearly with frequency (0.00415 $\\Omega$/m at 1 MHz, 10$\\times$ low) or treating it as constant (0.415 $\\Omega$/m, 10$\\times$ high). Extrapolating $\\sqrt{f}$ to 1 kHz predicts 1.31 m$\\Omega$/m, *below* the true DC value — the tell that the law has been used outside its range.", "calc": {"mode":"COMP","steps":["`√(π×1E8×1.2566E-6÷5.8E7)` → **2.609e-3** Ω (the `1.2566E-6` is `SHIFT` `CVALUE` `33` for $\\mu_0$), then `÷(2π×1E-3)` → **0.4152** Ω/m.","`0.415×√(1÷100)` → **0.0415** Ω/m at 1 MHz; `1÷(5.8E7×π×1E-6)` → **5.49e-3** Ω/m at DC.","Crossover where skin depth equals $a$: `1÷(π×1.2566E-6×5.8E7×1E-6)` → **4.37e3** Hz. Below it the $\\sqrt{f}$ law has no meaning."]}
+    }
+  ],
+  "traps": [
+    "**Forgetting the per-metre nature of $R$, $L$, $G$, $C$.** On a 100 m run, $R = 0.415\\ \\Omega/\\mathrm{m}$ is 41.5 $\\Omega$ of series resistance and $C = 100\\ \\mathrm{pF/m}$ is 10 nF of shunt capacitance. Answers that carry the per-metre number into a total are low by a factor $l$.",
+    "**$\\ln$ versus $\\log_{10}$ in the geometry formulas.** Both coaxial and two-wire forms use natural logs. With $b/a = 3.5$, using $\\log_{10}$ gives 231 pF/m instead of 100 pF/m — a factor $\\ln 10 = 2.303$. Only the 138/276 engineering forms use base 10.",
+    "**Omitting $\\varepsilon_r$.** Substituting $\\varepsilon_0$ for $\\varepsilon_r\\varepsilon_0$ in a polyethylene cable gives 44.4 pF/m where 100 pF/m is correct: low by 2.26, and it breaks the $LC = \\mu\\varepsilon$ check.",
+    "**Treating $R$ and $G$ alike.** $R \\propto \\sqrt{f}$ (skin effect) but $G \\propto f$ (dielectric loss). Assuming $R \\propto f$ gives 4.15 m$\\Omega$/m at 1 MHz where 41.5 m$\\Omega$/m is right; assuming $G$ is constant makes the dielectric term vanish at high frequency, exactly where it matters.",
+    "**Expecting geometry to change the velocity.** $LC = \\mu\\varepsilon$ means $v = c/\\sqrt{\\varepsilon_r}$ is fixed by the dielectric. Widening $b/a$ from 3.5 to 10 lowers $Z_0$ but leaves $v$ at $1.99\\times10^{8}$ m/s; a student who reports a faster line has changed the dielectric, not the shape.",
+    "**Using the per-metre model on a short structure.** $R$, $L$, $G$, $C$ describe a line only when the length is a sizeable fraction of a wavelength — roughly $l \\gtrsim \\lambda/10$. A 1 cm pad at 1 MHz is $\\lambda/20000$ and must be treated as a lumped element."
+  ],
+  "refs": [
+    "[[02_Secondary_Constants_Z0_and_Gamma]]",
+    "[[03_Lossless_and_Distortionless_Lines]]",
+    "[[05_Input_Impedance_and_Quarter-Wave_Transformer]]"
+  ]
+}

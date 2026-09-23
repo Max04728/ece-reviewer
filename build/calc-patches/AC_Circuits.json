@@ -1,0 +1,705 @@
+[
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/01_Sinusoid,_RMS,_Average,_Form_and_Crest.json",
+    "problem": 1,
+    "expect": "Find the peak value, the peak-to-peak value",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`169.7×√2 : Ans×2 : 2π×60 : 1÷60` — chain with `ALPHA` `:`, `=` down the line: $V_m$ = **240.0** V → $V_{pp}$ = **480.0** V → $\\omega$ = **377.0** rad/s → $T$ = **16.67** ms.",
+        "Angle unit Deg: `376.991×4.63E-3 : Ans×180÷π : 240×sin(Ans)` → **1.7455** rad → **100.0**° → $v$ = **236.4** V."
+      ],
+      "note": "`Ans×180÷π` is the radian-to-degree conversion; in Rad mode skip it and key `240×sin(376.991×4.63E-3)`."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/01_Sinusoid,_RMS,_Average,_Form_and_Crest.json",
+    "problem": 2,
+    "expect": "of this waveform",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×100÷π : 100÷√2 : Ans÷63.662 : 100÷70.711` → $V_{avg}$ = **63.66** V → $V_{rms}$ = **70.71** V → $F_F$ = **1.111** → $F_C$ = **1.414**.",
+        "`√(70.711²−63.662²)` → the AC ripple $V_{ac}$ = **30.78** V rms, the standard unfiltered full-wave figure (≈48 % of $V_{avg}$)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/01_Sinusoid,_RMS,_Average,_Form_and_Crest.json",
+    "problem": 3,
+    "expect": "A half-wave rectified sine has a peak of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`240÷π : 240÷2` → $V_{avg}$ = **76.39** V → $V_{rms}$ = **120.0** V.",
+        "`Ans÷76.394 : 240÷120` → $F_F$ = **1.571** (= $\\pi/2$) → $F_C$ = **2.000**."
+      ],
+      "note": "Both factors are amplitude-independent: the chain reproduces the shape constants, so any peak gives the same 1.571 and 2.000."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/01_Sinusoid,_RMS,_Average,_Form_and_Crest.json",
+    "problem": 4,
+    "expect": "as seen by the element",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4÷√2 : √(9+Ans²)` → $I_{ac}$ = **2.828** A → $I_{rms}$ = **4.123** A.",
+        "`Ans÷3 : 7÷4.123` → $F_F$ = **1.374** → $F_C$ = **1.698**."
+      ],
+      "note": "The square root of the sum, `√(9+Ans²)`, is the quadrature combination — keying `3+2.828` gives the trap answer 5.83 A."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/01_Sinusoid,_RMS,_Average,_Form_and_Crest.json",
+    "problem": 5,
+    "expect": "A symmetric triangular voltage wave alternates between",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`50÷√3 : 50÷2` → $V_{rms}$ = **28.87** V → half-period average **25.0** V (full-period average **0** V).",
+        "`28.868÷25 : 50÷28.868` → $F_F$ = **1.155** → $F_C$ = **1.732** $= \\sqrt{3}$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/02_Phasors_and_Complex_Impedance.json",
+    "problem": 2,
+    "expect": "in both rectangular and polar form",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×60×0.1` → $X_L$ = **37.70** Ω, so $\\mathbf{Z} = 30 + j37.70$ Ω.",
+        "`SHIFT` `Pol(` `30` `,` `37.70` `)` → $r$ = **48.18** Ω lands in `X`, $\\theta$ = **51.49**° lands in `Y`, i.e. $\\mathbf{Z} = 48.18\\angle51.5^\\circ$ Ω."
+      ],
+      "note": "Angle unit Deg. Feed `Pol(` the rectangular pair $R$ then $X$, sign included."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/02_Phasors_and_Complex_Impedance.json",
+    "problem": 3,
+    "expect": "and $C = 50",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷(2π×60×50E-6)` → $X_C$ = **53.05** Ω, so $\\mathbf{Z} = 40 - j53.05$ Ω.",
+        "`SHIFT` `Pol(` `40` `,` `−53.05` `)` → $r$ = **66.44** Ω, $\\theta$ = **−52.98**°."
+      ],
+      "note": "Enter the reactance with its minus sign — that is what puts the angle in the fourth quadrant."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/02_Phasors_and_Complex_Impedance.json",
+    "problem": 4,
+    "expect": "are in parallel at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷10 : −1÷(200×0.05)+200×100E-6` → $G$ = **0.100** S → $B$ = **−0.0800** S, so $\\mathbf{Y} = 0.1 - j0.08$ S.",
+        "`SHIFT` `Pol(` `0.1` `,` `−0.08` `)` → $\\lvert \\mathbf{Y} \\rvert$ = **0.1281** S in `X`, $\\angle\\mathbf{Y}$ = **−38.66**° in `Y`.",
+        "`SHIFT` `Rec(` `1÷0.12806` `,` `38.66` `)` → $X$ = **6.10**, $Y$ = **4.88**, so $\\mathbf{Z} = 6.10 + j4.88$ Ω $= 7.81\\angle38.66^\\circ$ Ω."
+      ],
+      "note": "Inverting an admittance negates its angle, so feed `Rec(` the magnitude $1/\\lvert \\mathbf{Y} \\rvert$ and $+38.66^\\circ$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/02_Phasors_and_Complex_Impedance.json",
+    "problem": 5,
+    "expect": "Find the current phasor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `Pol(` `6` `,` `8` `)` → $\\lvert \\mathbf{Z} \\rvert$ = **10** Ω in `X`, $\\angle\\mathbf{Z}$ = **53.13**° in `Y`.",
+        "`SHIFT` `Rec(` `100÷X` `,` `−Y` `)` → $X$ = **6.00**, $Y$ = **−8.00**, so $\\mathbf{I} = 6 - j8$ A $= 10\\angle-53.13^\\circ$ A."
+      ],
+      "note": "One `Pol(` then one `Rec(` does the whole division: divide the magnitudes, negate the impedance angle."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/02_Phasors_and_Complex_Impedance.json",
+    "problem": 6,
+    "expect": "find the phasor voltage across the resistor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `Pol(` `6` `,` `−8` `)` → $\\lvert \\mathbf{I} \\rvert$ = **10** A in `X`, $\\angle\\mathbf{I}$ = **−53.13**° in `Y`.",
+        "`SHIFT` `Rec(` `6×X` `,` `Y` `)` → $X$ = **36**, $Y$ = **−48**, so $\\mathbf{V}_R = 36 - j48$ V (60 V).",
+        "`SHIFT` `Rec(` `8×10` `,` `36.87` `)` → $X$ = **64**, $Y$ = **48**, so $\\mathbf{V}_L = 64 + j48$ V (80 V); $36+64 = 100$ and $-48+48 = 0$ is the KVL check."
+      ],
+      "note": "Multiplying by $j$ adds $90^\\circ$ to the angle: $-53.13^\\circ + 90^\\circ = 36.87^\\circ$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/02_Phasors_and_Complex_Impedance.json",
+    "problem": 7,
+    "expect": "in series and in parallel",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3+6 : 4−8 : 3×6−4×−8 : 3×−8+4×6` → series $\\mathbf{Z} = 9 - j4$ Ω → and $\\mathbf{Z}_1\\mathbf{Z}_2 = 50 + j0$.",
+        "`50×9÷(9²+4²) : 50×4÷(9²+4²)` → **4.639** and **2.062**, so the parallel result is $4.64 + j2.06$ Ω.",
+        "`SHIFT` `Pol(` `4.639` `,` `2.062` `)` → $\\mathbf{Z}_{parallel}$ = **5.077** Ω at **23.96**°."
+      ],
+      "note": "Division by $c+jd$ is $[(ac+bd) + j(bc-ad)]/(c^2+d^2)$ — one line of real arithmetic, no complex mode needed."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/02_Phasors_and_Complex_Impedance.json",
+    "problem": 8,
+    "expect": "Find the equivalent impedance of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6²+8²` → **100**, the conjugate product $\\mathbf{Z}_1\\mathbf{Z}_2$, purely real.",
+        "`Ans÷(2×6)` → **8.333** Ω, since the sum $\\mathbf{Z}_1+\\mathbf{Z}_2 = 2R = 12$ Ω."
+      ],
+      "note": "For $R+jX$ in parallel with $R-jX$ the answer is always $(R^2+X^2)/(2R)$, with no angle at all."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/03_Series_and_Parallel_AC_Analysis.json",
+    "problem": 1,
+    "expect": "Find the total impedance, the current phasor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×60 : Ans×0.04 : 1÷(376.991×25E-6)` → $\\omega$ = **376.99** rad/s → $X_L$ = **15.08** Ω → $X_C$ = **106.10** Ω.",
+        "`SHIFT` `Pol(` `30` `,` `15.08−106.1` `)` → $\\lvert \\mathbf{Z} \\rvert$ = **95.84** Ω in `X`, $\\theta$ = **−71.77**° in `Y`.",
+        "`120÷95.84 : Ans²×30` → $\\lvert \\mathbf{I} \\rvert$ = **1.252** A → $P$ = **47.0** W; the current angle is $0-(-71.77^\\circ)$ = **+71.77**°, so $\\mathbf{I} = 1.252\\angle71.77^\\circ$ A."
+      ],
+      "note": "One `Pol(` turns the series sum into polar form; the current angle is the source angle minus the impedance angle."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/03_Series_and_Parallel_AC_Analysis.json",
+    "problem": 2,
+    "expect": "Find the total admittance and impedance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷100 : 1÷(1000×0.05) : 1000×20E-6 : 0.02−0.02` → $Y_R$ = **0.0100** S → $Y_L$ = **0.0200** S → $Y_C$ = **0.0200** S → net susceptance **0**.",
+        "`1÷0.01 : 10÷100 : 10÷50` → $\\mathbf{Z}$ = **100** Ω at **0**° → $\\mathbf{I}_R$ = **0.100** A → $\\mathbf{I}_L = \\mathbf{I}_C$ = **0.200** A."
+      ],
+      "note": "The susceptance collapsing to exactly 0 in the chain is the resonance test, and it pins $\\omega_0 = 1000$ rad/s."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/03_Series_and_Parallel_AC_Analysis.json",
+    "problem": 3,
+    "expect": "Find the phasor voltage across the load",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(100×350+50×50)÷(350²+50²) : (50×350−100×50)÷(350²+50²)` → **0.3000** → **0.1000**, the complex ratio $\\mathbf{Z}_L/\\mathbf{Z}_{tot}$.",
+        "`20×0.3 : 20×0.1` → $\\mathbf{V}_L = 6.00 + j2.00$ V rms.",
+        "`SHIFT` `Pol(` `6` `,` `2` `)` → $\\lvert \\mathbf{V}_L \\rvert$ = **6.325** V at **18.43**°; `400×100÷(350²+50²)` → $P$ = **0.3200** W."
+      ],
+      "note": "`(ac+bd)÷(c²+d²)` and `(bc−ad)÷(c²+d²)` is complex division on one line, and $\\lvert \\mathbf{Z}_{tot} \\rvert^2 = 125000$ is the same denominator the power shortcut needs."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/03_Series_and_Parallel_AC_Analysis.json",
+    "problem": 4,
+    "expect": "Reduce the network",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(3200×120+2400×60)÷(120²+60²) : (2400×120−3200×60)÷(120²+60²)` → **29.33** → **5.333**, so $\\mathbf{Z}_2 \\parallel \\mathbf{Z}_3 = 29.33 + j5.33$ Ω.",
+        "`SHIFT` `Pol(` `59.33` `,` `5.333` `)` → $\\lvert \\mathbf{Z}_{eq} \\rvert$ = **59.57** Ω, $\\theta$ = **5.13**°; then `215÷X` → $\\lvert \\mathbf{I}_s \\rvert$ = **3.609** A.",
+        "`3.6093×29.81 : Ans÷40 : Ans²×40` → $\\lvert \\mathbf{V}_p \\rvert$ = **107.6** V → $I_2$ = **2.690** A → $P_{Z_2}$ = **289.4** W."
+      ],
+      "note": "`215÷X` reads the magnitude `Pol(` left in `X`; the pair voltage is $\\lvert \\mathbf{I}_s \\rvert$ times 29.81, not the source current times 40."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/03_Series_and_Parallel_AC_Analysis.json",
+    "problem": 5,
+    "expect": "Find the resonant frequency, the current at resonance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(1÷(0.1×10E-6)) : 1000×0.1÷10 : 1000÷10` → $\\omega_0$ = **1000** rad/s → $Q$ = **10.0** → $BW$ = **100** rad/s.",
+        "`800×0.1 : 1÷(800×10E-6)` → $X_L$ = **80** Ω → $X_C$ = **125** Ω; `SHIFT` `Pol(` `10` `,` `80−125` `)` → $\\lvert \\mathbf{Z} \\rvert$ = **46.10** Ω at **−77.47**°.",
+        "`12÷46.10 : Ans×80` → $\\lvert \\mathbf{I} \\rvert$ = **0.2603** A → $\\lvert \\mathbf{V}_L \\rvert$ = **20.83** V, at $77.47^\\circ + 90^\\circ$ = **167.5**°."
+      ],
+      "note": "The current angle is $-(-77.47^\\circ) = +77.47^\\circ$, and multiplying by $jX_L$ adds another $90^\\circ$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/04_AC_Thevenin,_Norton_and_Max_Power.json",
+    "problem": 1,
+    "expect": "of the network at those terminals",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×0.08÷(0.08²+0.04²) : −2×0.04÷(0.08²+0.04²)` → $\\mathbf{V}_{oc} = 20 - j10$ V rms ($22.36\\angle-26.57^\\circ$ V rms).",
+        "`20÷2 : −10÷2` → $\\mathbf{Z}_{Th} = 10 - j5$ Ω; `SHIFT` `Pol(` `10` `,` `−5` `)` → **11.18** Ω at **−26.57**°.",
+        "`0.08÷(0.08²+0.04²) : −0.04÷(0.08²+0.04²)` → **10** and **−5** again, so the test-source route $1/\\mathbf{Y}$ agrees."
+      ],
+      "note": "The dependent source stays alive: its $0.04\\mathbf{V}_{oc}$ merges into the 0.08 S conductance, it is not deleted with the independent source."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/04_AC_Thevenin,_Norton_and_Max_Power.json",
+    "problem": 2,
+    "expect": "Find the best purely resistive load",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(30²+40²) : 40²÷(8×30)` → $\\lvert \\mathbf{Z}_{Th} \\rvert = R_L$ = **50** Ω → $P_{max}$ = **6.667** W.",
+        "`SHIFT` `Pol(` `80` `,` `40` `)` → $\\lvert \\mathbf{Z}_{total} \\rvert$ = **89.443** Ω; `0.5×(40÷X)²×50` → $P$ = **5.000** W for the purely resistive load."
+      ],
+      "note": "The factor 8 belongs to a peak phasor; an RMS $\\mathbf{V}_{Th}$ needs $\\lvert \\mathbf{V}_{Th} \\rvert^2/(4R_{Th})$ instead."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/04_AC_Thevenin,_Norton_and_Max_Power.json",
+    "problem": 3,
+    "expect": "the load for maximum average power",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(8×14−6×2)÷(14²+2²) : (−6×14−8×2)÷(14²+2²) : 100×0.5 : 100×−0.5` → divider ratio $0.5 - j0.5$ → $\\mathbf{V}_{Th} = 50 - j50$ V rms.",
+        "`6×8+8×6 : 6×−6+8×8 : (96×14+28×2)÷(14²+2²) : (28×14−96×2)÷(14²+2²)` → $\\mathbf{Z}_1\\mathbf{Z}_2 = 96 + j28$ → divided by $14+j2$ gives **7** and **1**, so $\\mathbf{Z}_{Th} = 7 + j1$ Ω.",
+        "`70.71÷14 : Ans²×7 : 5000÷(4×7)` → $\\lvert \\mathbf{I}_{rms} \\rvert$ = **5.051** A → $P_{max}$ = **178.6** W → **178.6** W by the closed form."
+      ],
+      "note": "Every phasor here descends from a 100 V rms source, so $R_{Th}$ takes the factor 4, not 8."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/04_AC_Thevenin,_Norton_and_Max_Power.json",
+    "problem": 4,
+    "expect": "Find the Norton equivalent",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100×10÷(10²+10²)` → **5**, so $\\mathbf{Z}_N = 5 + j5$ Ω (both parts come out equal here); `SHIFT` `Pol(` `5` `,` `5` `)` → $7.071\\angle45^\\circ$ Ω.",
+        "`6×√(5²+5²)` → $\\lvert \\mathbf{V}_{Th} \\rvert$ = **42.43** V rms at **45**°, i.e. $\\mathbf{V}_{Th} = 30 + j30$ V rms.",
+        "`42.43÷10 : Ans²×5 : 1800÷(4×5)` → $\\lvert \\mathbf{I}_{rms} \\rvert$ = **4.243** A → $P_{max}$ = **90.0** W → **90.0** W."
+      ],
+      "note": "$\\mathbf{Z}_N$ is the parallel $R \\parallel jX_L = 5 + j5$ Ω, never the series sum $10 + j10$ Ω."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 1,
+    "expect": "then the power factor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10²×6 : 10²×8 : √(600²+800²) : 100×10` → $P$ = **600** W → $Q$ = **+800** var → $S$ = **1000** VA → $VI$ check **1000** VA.",
+        "`600÷1000 : cos⁻¹(Ans)` → $\\mathrm{pf}$ = **0.6** → $\\theta$ = **53.13**° lagging, since $Q > 0$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 2,
+    "expect": "A load consumes $800",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(800²+600²) : 800÷1000` → $S$ = **1000** VA → $\\mathrm{pf}$ = **0.8** lagging.",
+        "`tan⁻¹(600÷800) : cos(Ans)` → $\\theta$ = **36.87**° → **0.8** again, so the triangle closes."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 3,
+    "expect": "Find the complex power and the power factor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`120×10 : 0−(−30)` → $\\lvert \\mathbf{S} \\rvert$ = **1200** VA at **+30**°, the conjugate $\\mathbf{I}^* = 10\\angle+30^\\circ$ A.",
+        "`1200cos(30) : 1200sin(30)` → $P$ = **1039.2** W → $Q$ = **+600** var, so $\\mathbf{S} = 1039.2 + j600$ VA.",
+        "`cos(30)` → $\\mathrm{pf}$ = **0.866** lagging."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 4,
+    "expect": "For $v(t) = 311",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`311÷√2 : 14.14÷√2 : 219.9×10` → $V_{rms}$ = **219.9** V → $I_{rms}$ = **10.00** A → $S$ = **2199** VA.",
+        "`2199cos(45) : 2199sin(45)` → $P$ = **1555** W → $Q$ = **+1555** var, with $\\theta = 45^\\circ$ read straight off the phase difference."
+      ],
+      "note": "311 V and 14.14 A are peaks — divide each by $\\sqrt{2}$ before the power formulas, never after."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 5,
+    "expect": "Load 1 draws $1000",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000÷0.8 : Ans×sin(cos⁻¹(0.8)) : 500÷0.9 : Ans×sin(cos⁻¹(0.9))` → $S_1$ = **1250** VA → $Q_1$ = **+750** var → $S_2$ = **555.6** VA → $Q_2$ = **242.2** var, leading, so take it as $-242.2$.",
+        "`1000+500 : 750−242.2 : √(1500²+507.8²) : 1500÷1583.6` → $P$ = **1500** W → $Q$ = **+507.8** var → $S$ = **1583.6** VA → $\\mathrm{pf}$ = **0.947** lagging."
+      ],
+      "note": "Never average the power factors; the leading load subtracts from $Q$, not from $P$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 6,
+    "expect": "the terminal voltage and the power factor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(3²+4²) : 20×Ans` → $\\lvert \\mathbf{Z} \\rvert$ = **5** Ω → $V$ = **100** V rms.",
+        "`20²×3 : 20²×4 : 20²×5 : 3÷5` → $P$ = **1200** W → $Q$ = **+1600** var → $S$ = **2000** VA → $\\mathrm{pf}$ = **0.6** lagging."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 7,
+    "expect": "A load nameplate reads",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5000×0.8 : 5000×0.6` → $P$ = **4000** W → $Q$ = **+3000** var, since $\\cos\\theta = 0.8$ forces $\\sin\\theta = 0.6$.",
+        "`5000÷230` → $I$ = **21.74** A rms, the apparent-power current, not $P/V$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 8,
+    "expect": "Find $S$, $P$, $Q$ and the load impedance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`230×12 : Ans×0.75 : cos⁻¹(0.75)` → $S$ = **2760** VA → $P$ = **2070** W → $\\theta$ = **41.41**°.",
+        "`2760×0.6614 : 230÷12` → $Q$ = **1825** var, with $\\sin 41.41^\\circ = 0.6614$ → $\\lvert \\mathbf{Z} \\rvert$ = **19.17** Ω.",
+        "`SHIFT` `Rec(` `19.17` `,` `41.41` `)` → $X$ = **14.38**, $Y$ = **12.68**, so $\\mathbf{Z} = 14.38 + j12.68$ Ω."
+      ],
+      "note": "Once $\\theta$ is known the real part uses $\\cos$ and the reactive part uses $\\sin$; reusing $\\cos$ gives $Q = P$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/05_AC_Power,_PQS_and_Triangle.json",
+    "problem": 9,
+    "expect": "is connected across a $100",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(8²+6²) : 100÷Ans` → $\\lvert \\mathbf{Z} \\rvert$ = **10** Ω → $I$ = **10.00** A rms.",
+        "`10²×8 : 10²×−6 : 10²×10 : 8÷10` → $P$ = **800** W → $Q$ = **−600** var → $S$ = **1000** VA → $\\mathrm{pf}$ = **0.8** leading."
+      ],
+      "note": "Keep the sign on $X$: the $-6$ is what makes $Q$ negative, and a negative $Q$ is what makes the factor leading."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/06_Power_Factor_and_Correction.json",
+    "problem": 1,
+    "expect": "Find the apparent power, the line current, the reactive power",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10000÷0.75 : Ans÷230` → $S$ = **13333** VA → $I$ = **57.97** A rms.",
+        "`10000×tan(cos⁻¹(0.75)) : √(10²+8.819²)` → $Q$ = **8819** var → **13.33** kVA, closing the triangle."
+      ],
+      "note": "`cos⁻¹` feeds `tan` directly, so $\\tan\\theta$ never has to be read off a displayed angle."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/06_Power_Factor_and_Correction.json",
+    "problem": 2,
+    "expect": "is to be corrected to 0.95 lagging",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10000(tan(cos⁻¹(0.75))−tan(cos⁻¹(0.95)))` → $Q_C$ = **5532** var = **5.532** kvar.",
+        "`Ans÷(2π×60×230²)` → **2.774E-4** F = **277.4** µF.",
+        "`10000÷(230×0.95)` → $I_{new}$ = **45.77** A rms, down from 57.97 A."
+      ],
+      "note": "`Ans` carries $Q_C$ into the capacitance step, and $V$ there must be the RMS value actually across the bank."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/06_Power_Factor_and_Correction.json",
+    "problem": 3,
+    "expect": "A single-phase 230 V, 60 Hz motor winding",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×60×0.02 : √(8²+Ans²) : 230÷Ans` → $X_L$ = **7.540** Ω → $\\lvert \\mathbf{Z} \\rvert$ = **10.993** Ω → $I$ = **20.92** A rms.",
+        "`Ans²×8 : Ans×7.54÷8 : 8÷10.993` → $P$ = **3502** W → $Q$ = **3300** var ($= PX_L/R$) → $\\mathrm{pf}$ = **0.7277** lagging.",
+        "`3300÷(2π×60×230²)` → **1.655E-4** F = **165.5** µF for unity power factor."
+      ],
+      "note": "For unity pf the bank supplies the whole $Q$; the parallel-resonance check $C = L/(R^2+X_L^2)$ gives the same 165.5 µF."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/06_Power_Factor_and_Correction.json",
+    "problem": 4,
+    "expect": "Two loads share a 230 V, 60 Hz bus",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`15×tan(cos⁻¹(0.8)) : 10×0.6 : −10×sin(cos⁻¹(0.6))` → $Q_1$ = **+11.25** kvar → $P_2$ = **6.00** kW → $Q_2$ = **−8.00** kvar.",
+        "`15+6 : 11.25−8 : √(21²+3.25²) : 21÷21.25` → $P$ = **21.0** kW → $Q$ = **+3.25** kvar → $S$ = **21.25** kVA → $\\mathrm{pf}$ = **0.9882** lagging.",
+        "`21×(3.25÷21−tan(cos⁻¹(0.95)))` → $Q_C$ = **−3.652** kvar, and the minus sign is the answer: no capacitor is needed."
+      ],
+      "note": "A kVA nameplate needs $P = S\\,\\mathrm{pf}$ first, and the leading load's $Q$ stays negative all the way through."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/06_Power_Factor_and_Correction.json",
+    "problem": 5,
+    "expect": "A 200 kW industrial plant operates at 0.70 power factor lagging",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`200000(tan(cos⁻¹(0.7))−tan(cos⁻¹(0.9)))` → $Q_C$ = **107176** var = **107.2** kvar.",
+        "`Ans÷(2π×60×230²)` → **5.374E-3** F = **5374** µF.",
+        "`200000÷(230×0.7) : 200000÷(230×0.9) : 1242−966.2` → $I_1$ = **1242** A → $I_2$ = **966.2** A → **276** A less, a 22.2 % drop."
+      ],
+      "note": "Size the bank from $\\tan\\theta_1-\\tan\\theta_2$; the apparent-power difference would under-size it to 85.7 kvar."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/07_Series_Resonance.json",
+    "problem": 1,
+    "expect": "Then find the voltages across",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷√(0.05×5E-6) : Ans÷2π : 2000×0.05÷10 : 318.31÷10` → $\\omega_0$ = **2000** rad/s → $f_0$ = **318.31** Hz → $Q_0$ = **10.0** → $BW$ = **31.83** Hz.",
+        "`1÷(2×10) : √(1+Ans²) : 318.31×(1.00125+0.05) : 318.31×(1.00125−0.05)` → $1/(2Q_0)$ = **0.05** → **1.00125** → $f_2$ = **334.62** Hz → $f_1$ = **302.79** Hz.",
+        "`10×20 : Ans×√2` → $V_L = V_C$ = **200** V rms → **282.8** V peak across each reactive element."
+      ],
+      "note": "`Ans÷2π` is what keeps $Q_0$ in rad/s; using $f_0$ would give 1.59 and a 200 Hz bandwidth."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/07_Series_Resonance.json",
+    "problem": 2,
+    "expect": "must resonate at 1 kHz with a bandwidth of 100 Hz",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000÷100 : 10÷(2π×100)` → $Q_0$ = **10.0** → $L$ = **0.015915** H = **15.92** mH.",
+        "`1÷((2π×1000)²×0.015915) : 2π×1000×0.015915` → $C$ = **1.5915E-6** F = **1.5915** µF → $X_L = X_C$ = **100.0** Ω."
+      ],
+      "note": "`BW = R/(2πL)` needs no $\\omega_0$, so $L$ falls straight out of the specification."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/07_Series_Resonance.json",
+    "problem": 3,
+    "expect": "then verify that the current at $f_1$",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷√(0.02×1E-6) : Ans÷2π : 7071.1×0.02÷5 : 1125.4÷28.284` → $\\omega_0$ = **7071.1** rad/s → $f_0$ = **1125.4** Hz → $Q_0$ = **28.28** → $BW$ = **39.79** Hz.",
+        "`1÷(2×28.284) : √(1+Ans²) : 1125.4×(1.000156+0.017678) : 1125.4×(1.000156−0.017678)` → $f_2$ = **1145.47** Hz and $f_1$ = **1105.68** Hz.",
+        "`2π×1105.68 : √(5²+(Ans×0.02−1÷(Ans×1E-6))²)` → $\\omega_1$ = **6947.2** rad/s → $\\lvert \\mathbf{Z} \\rvert$ = **7.071** Ω $= R\\sqrt{2}$, so $I = I_0/\\sqrt{2}$."
+      ],
+      "note": "Both reactances must be evaluated at the same $\\omega_1$; the half-power condition is exactly $\\lvert X_L-X_C \\rvert = R$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/07_Series_Resonance.json",
+    "problem": 4,
+    "expect": "is driven at resonance by $V_s = 12$ V rms",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷√(0.002×0.5E-6) : Ans÷2π` → $\\omega_0$ = **31623** rad/s → $f_0$ = **5032.9** Hz.",
+        "`31623×0.002÷4 : Ans×12 : Ans×√2` → $Q_0$ = **15.81** → $V_L = V_C$ = **189.7** V rms → **268.3** V peak."
+      ],
+      "note": "The capacitor rating is the peak of $Q_0V_s$ — neither $Q_0V_s$ itself nor the 12 V source."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/07_Series_Resonance.json",
+    "problem": 5,
+    "expect": "is tuned to resonance at 60 Hz by choosing $C$",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷((2π×60)²×0.1)` → $C$ = **7.036E-5** F = **70.36** µF for 60 Hz resonance.",
+        "`2π×50×0.1 : 1÷(2π×50×70.36E-6) : SHIFT` `Pol(` `5` `,` `31.416−45.24` `)` → $X_L$ = **31.42** Ω → $X_C$ = **45.24** Ω → $\\lvert \\mathbf{Z} \\rvert$ = **14.70** Ω at **−70.1**°.",
+        "`120÷14.70 : 120÷5 : 60÷7.540` → $I$ = **8.164** A leading by 70.1° → $I_0$ = **24.00** A → $BW$ = **7.958** Hz."
+      ],
+      "note": "$X_C$ must be recomputed at 50 Hz: $1/(\\omega C)$ = 45.24 Ω, not the resonant 37.70 Ω."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/09_Balanced_Wye_and_Delta_Systems.json",
+    "problem": 1,
+    "expect": "Find the phase voltage magnitude, and write",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`400÷√3 : √3×230.94` → $V_{ph}$ = **230.94** V rms → $V_{ab}$ = **400** V at **30**°, since the line voltage leads its phase voltage by 30°.",
+        "`SHIFT` `Rec(` `230.94` `,` `−120` `)` → $X$ = **−115.5**, $Y$ = **−200.0**, the rectangular form of $\\mathbf{V}_{bn} = 230.94\\angle-120^\\circ$ V.",
+        "`SHIFT` `Rec(` `230.94` `,` `120` `)` → $X$ = **−115.5**, $Y$ = **200.0**; subtracting gives $0 - j400$ V, so $\\mathbf{V}_{bc} = 400\\angle-90^\\circ$ V."
+      ],
+      "note": "`Rec(` gives the rectangular form of one phasor, so two `Rec(` results subtracted is a law-of-cosines check with no complex mode."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/09_Balanced_Wye_and_Delta_Systems.json",
+    "problem": 2,
+    "expect": "find the phase current $I_{ab}$ and the line current $I_a$",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`400÷30 : 0−30` → $\\mathbf{I}_{ab}$ = **13.33** A rms at **−30**°.",
+        "`13.33×√3 : −30−30` → $I_L$ = **23.09** A rms at **−60**°.",
+        "`SHIFT` `Rec(` `13.33` `,` `−30` `)` and `SHIFT` `Rec(` `13.33` `,` `90` `)` → $(11.55, -6.667)$ and $(0, 13.33)$; their difference is $11.55 - j20.0$ = **23.09∠−60°** A, the KCL check."
+      ],
+      "note": "In delta $I_L = \\sqrt{3}I_{ph}$ and the line current *lags* by 30°; dividing by $\\sqrt{3}$ belongs only to the wye voltage."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/09_Balanced_Wye_and_Delta_Systems.json",
+    "problem": 3,
+    "expect": "Find the line current, the power factor, and the total three-phase real and reactive power",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`400÷√3 : √(10²+8²) : 230.94÷12.806 : 10÷12.806` → $V_{ph}$ = **230.94** V → $\\lvert \\mathbf{Z}_Y \\rvert$ = **12.806** Ω → $I_L$ = **18.03** A → $\\mathrm{pf}$ = **0.7809** lagging.",
+        "`3×18.03²×10 : 3×18.03²×8 : √3×400×18.03×0.7809` → $P$ = **9756** W → $Q$ = **7805** var → line-form check **9.76** kW."
+      ],
+      "note": "In wye $I_L = I_{ph}$, so the one current feeds both $3I^2R$ and $\\sqrt{3}V_LI_L\\cos\\theta$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/09_Balanced_Wye_and_Delta_Systems.json",
+    "problem": 4,
+    "expect": "are reconnected from delta to wye",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`30÷3 : 36÷3 : √(10²+12²)` → $\\mathbf{Z}_Y = 10 + j12$ Ω, so $\\lvert \\mathbf{Z}_Y \\rvert$ = **15.620** Ω at the unchanged **50.19**°.",
+        "`400÷√3 : 230.94÷15.62 : √(30²+36²) : 400÷46.86×√3` → $V_{ph}$ = **230.94** V → wye $I_L$ = **14.78** A → $\\lvert \\mathbf{Z}_\\Delta \\rvert$ = **46.86** Ω → delta $I_L$ = **14.78** A, identical.",
+        "`3×14.78²×10 : √3×400×14.78×cos(50.19)` → $P$ = **6557** W → check **6.56** kW."
+      ],
+      "note": "Only *line* quantities survive $\\Delta \\to Y$: the delta phase current is 8.54 A while the wye phase current is 14.78 A."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/09_Balanced_Wye_and_Delta_Systems.json",
+    "problem": 5,
+    "expect": "Show that the neutral current is zero",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`230.94÷20 : 0−(−25)` → $\\lvert \\mathbf{I}_{ph} \\rvert$ = **11.55** A rms, leading its own phase voltage by **25**°.",
+        "`SHIFT` `Rec(` `11.55` `,` `25` `)`, `SHIFT` `Rec(` `11.55` `,` `−95` `)`, `SHIFT` `Rec(` `11.55` `,` `145` `)` → $(10.47, 4.88) + (-1.01, -11.51) + (-9.46, 6.62) = 0 + j0$, so $I_n = 0$.",
+        "Drop the first term for the open-a case, leaving $(-10.47, -4.88)$; `SHIFT` `Pol(` `−10.47` `,` `−4.88` `)` → $I_n$ = **11.55** A at **205**°."
+      ],
+      "note": "Three equal phasors 120° apart close into a triangle in rectangular form, which is why the neutral carries nothing while the load stays balanced."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 1,
+    "expect": "Find the phase voltage, the line current, and the total real, reactive and apparent power",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`400÷√3 : Ans÷10` → $V_{ph}$ = **230.94** V → $I_L = I_{ph}$ = **23.094** A.",
+        "`√3×400×23.094 : 16000cos(30) : 16000sin(30)` → $S$ = **16000** VA → $P$ = **13856** W → $Q$ = **8000** var."
+      ],
+      "note": "The $\\sqrt{3}$ already inside the power formula is the same one that relates 400 V to 230.9 V — do not divide again."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 2,
+    "expect": "Find the phase current, the line current and the total power",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`230÷30 : Ans×√3` → $I_{ph}$ = **7.667** A → $I_L$ = **13.279** A.",
+        "`3×7.667²×30 : √3×230×13.279` → $P$ = **5290** W → line-form check **5290** W."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 3,
+    "expect": "Two wattmeters connected in lines A and C",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5000+2000 : √3×(5000−2000)` → $P$ = **7000** W → $Q$ = **5196** var.",
+        "`5196÷7000 : tan⁻¹(Ans) : cos(Ans)` → $\\tan\\theta$ = **0.7423** → $\\theta$ = **36.59**° → $\\mathrm{pf}$ = **0.803** lagging."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 4,
+    "expect": "Two wattmeters on a balanced load read",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4000+(−1000) : √3×(4000−(−1000))` → $P$ = **3000** W → $Q$ = **8660** var.",
+        "`8660÷3000 : tan⁻¹(Ans) : cos(Ans)` → $\\tan\\theta$ = **2.887** → $\\theta$ = **70.89**° → $\\mathrm{pf}$ = **0.327** lagging."
+      ],
+      "note": "A reversed meter stays negative in the sum: $4000 + (-1000) = 3000$ W, never 5000 W."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 5,
+    "expect": "Find the two wattmeter readings and check their sum and difference",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`cos⁻¹(0.8)` → $\\theta$ = **36.87**°.",
+        "`8000cos(30−36.87) : 8000cos(30+36.87)` → $W_1$ = **7943** W → $W_2$ = **3143** W.",
+        "`√3×400×20×0.8 : √3×(7943−3143)` → $P$ = **11085** W → $Q$ = **8314** var, so both the sum and the difference check."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 6,
+    "expect": "A balanced wye load of $20 + j15",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(20²+15²) : 400÷√3 : Ans÷25` → $\\lvert \\mathbf{Z} \\rvert$ = **25** Ω → $V_{ph}$ = **230.94** V → $I_L$ = **9.238** A.",
+        "`3×9.238²×20 : 3×9.238²×15 : 3×9.238²×25 : 20÷25` → $P$ = **5120** W → $Q$ = **3840** var → $S$ = **6400** VA → $\\mathrm{pf}$ = **0.8** lagging."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 7,
+    "expect": "Find the line current and the two wattmeter readings",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10000÷(√3×400×0.9) : cos⁻¹(0.9)` → $I_L$ = **16.038** A → $\\theta$ = **25.84**°.",
+        "`6415cos(30−25.84) : 6415cos(30+25.84)` → $W_1$ = **6398** W → $W_2$ = **3602** W, with $V_LI_L = 6415$ VA.",
+        "`6398+3602` → **10000** W, matching $\\sqrt{3}(400)(16.038)(0.9)$."
+      ],
+      "note": "The $\\sqrt{3}$ sits in the denominator of $I_L = P/(\\sqrt{3}V_L\\mathrm{pf})$; dropping it gives the trap 27.8 A."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/02_AC_Circuits/10_Three-Phase_Power_and_Two-Wattmeter.json",
+    "problem": 9,
+    "expect": "are connected in delta across a $400",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10000÷400 : Ans×√3` → $I_{ph}$ = **25** A → $I_L$ = **43.30** A.",
+        "`3×10000 : 30000÷2 : √3×400×43.30` → $P$ = **30000** W → $W_1 = W_2$ = **15000** W → check **30000** W."
+      ],
+      "note": "At unity pf the meters split the total exactly; each element still sees the full 400 V and 25 A."
+    }
+  }
+]

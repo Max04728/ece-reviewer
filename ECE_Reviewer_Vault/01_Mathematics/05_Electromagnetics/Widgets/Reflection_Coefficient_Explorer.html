@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reflection Coefficient Explorer</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, si, PALETTE } from '../../../Assets/vault.js';
+
+// Reflection is a pure impedance-mismatch problem: the two media demand different E/H
+// ratios, so the incident wave must split to keep the tangential fields continuous.
+// Candidates memorise |Gamma| = (eta2-eta1)/(eta2+eta1) but then get the POWER wrong
+// (|tau|^2 is not the transmitted power fraction) and cannot say what VSWR means.
+// The phasor inset shows tau = 1 + Gamma geometrically; the standing-wave plot shows
+// what VSWR actually measures.
+
+const ETA0 = 376.73;                  // sqrt(mu0/eps0), ohm
+const MU0 = 4 * Math.PI * 1e-7;
+
+const C = {
+  add: (a, b) => ({ re: a.re + b.re, im: a.im + b.im }),
+  sub: (a, b) => ({ re: a.re - b.re, im: a.im - b.im }),
+  div: (a, b) => {
+    const d = b.re * b.re + b.im * b.im;
+    return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d };
+  },
+  abs: (a) => Math.hypot(a.re, a.im),
+  arg: (a) => Math.atan2(a.im, a.re),
+};
+const R = (x) => ({ re: x, im: 0 });
+
+const PAIRS = {
+  air_dielectric: 'air \u2192 dielectric (\u03b5r settable)',
+  air_conductor: 'air \u2192 good conductor (\u03c3, f settable)',
+  air_freespace: 'air \u2192 free space (matched)',
+  short: 'air \u2192 perfect conductor (short)',
+  open: 'air \u2192 magnetic wall (open)',
+  dielectric_air: 'dielectric \u2192 air (\u03b5r settable)',
+  custom: 'custom \u2014 \u03b71 and \u03b72 sliders',
+};
+
+const CASES = [
+  { name: 'matched', eta: '\u03b72 = \u03b71', G: '0', vswr: '1', text: 'no reflection at all; all power crosses the boundary' },
+  { name: 'open circuit', eta: '\u03b72 \u2192 \u221e', G: '+1', vswr: '\u221e', text: 'E doubles at the boundary, H cancels; |E|max = 2' },
+  { name: 'short circuit', eta: '\u03b72 = 0', G: '\u22121', vswr: '\u221e', text: 'E is inverted and cancels; |E|min = 0' },
+];
+
+let handle = null, formulaEl = null, noteEl = null;
+
+handle = widget({
+  title: 'Reflection and Transmission at a Boundary',
+  description:
+    'Normal incidence on a plane interface. Gamma comes from the impedance mismatch alone; the phasor inset shows tau = 1 + Gamma; the standing-wave plot shows what VSWR measures.',
+  height: 470,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 2.6 },
+  controls: [
+    { id: 'pair', label: 'interface', type: 'select', options: Object.keys(PAIRS).map((k) => ({ value: k, label: PAIRS[k] })), value: 'air_dielectric' },
+    { id: 'er2', label: 'relative permittivity \u03b5r of medium 2', min: 1, max: 16, step: 0.05, value: 4 },
+    { id: 'lsig', label: 'conductivity \u2014 log\u2081\u2080 \u03c3 (S/m)', min: 0, max: 8, step: 0.001, value: 7.763 },
+    { id: 'lf', label: 'frequency \u2014 log\u2081\u2080 f (Hz)', min: 0, max: 10, step: 0.05, value: 8 },
+    { id: 'eta1', label: '\u03b71 (\u03a9) \u2014 custom only', min: 10, max: 1000, step: 1, value: 377 },
+    { id: 'eta2', label: '\u03b72 (\u03a9) \u2014 custom only', min: 0, max: 2000, step: 1, value: 189 },
+  ],
+  compute: (v) => {
+    const f = Math.pow(10, v.lf);
+    const sigma = Math.pow(10, v.lsig);
+    const Rs = Math.sqrt((Math.PI * f * MU0) / sigma);
+    let eta1 = R(ETA0);
+    let eta2 = R(ETA0 / Math.sqrt(v.er2));
+    let e1s = fmt(ETA0, 5) + ' \u03a9', e2s = '';
+
+    switch (v.pair) {
+      case 'air_dielectric':
+        e2s = fmt(ETA0 / Math.sqrt(v.er2), 5) + ' \u03a9';
+        break;
+      case 'dielectric_air':
+        eta1 = R(ETA0 / Math.sqrt(v.er2)); eta2 = R(ETA0);
+        e1s = fmt(ETA0 / Math.sqrt(v.er2), 5) + ' \u03a9'; e2s = fmt(ETA0, 5) + ' \u03a9';
+        break;
+      case 'air_conductor':
+        eta2 = { re: Rs, im: Rs };
+        e2s = fmt(Rs, 4) + ' + j' + fmt(Rs, 4) + ' \u03a9  = ' + fmt(Math.SQRT2 * Rs, 4) + ' \u03a9 \u2220 45\u00b0';
+        break;
+      case 'air_freespace':
+        e2s = fmt(ETA0, 5) + ' \u03a9   (identical to medium 1)';
+        break;
+      case 'short':
+        eta2 = R(0); e2s = '0 \u03a9   (perfect conductor)';
+        break;
+      case 'open':
+        eta2 = R(1e30); e2s = '\u221e   (magnetic wall / open circuit)';
+        break;
+      default:
+        eta1 = R(v.eta1); eta2 = R(v.eta2);
+        e1s = fmt(v.eta1, 5) + ' \u03a9'; e2s = fmt(v.eta2, 5) + ' \u03a9';
+    }
+
+    let G, tau;
+    if (v.pair === 'short') { G = R(-1); tau = R(0); }
+    else if (v.pair === 'open') { G = R(1); tau = R(2); }
+    else {
+      G = C.div(C.sub(eta2, eta1), C.add(eta2, eta1));
+      tau = C.add(R(1), G);
+    }
+
+    const Gm = C.abs(G), Gp = C.arg(G);
+    const tm = C.abs(tau), tp = C.arg(tau);
+    const VSWR = Gm >= 1 - 1e-12 ? Infinity : (1 + Gm) / (1 - Gm);
+    const Pref = Math.min(1, Gm * Gm);
+    const Ptr = Math.max(0, 1 - Pref);
+    const RL = Gm < 1e-12 ? Infinity : -20 * Math.log10(Math.min(Gm, 1));
+
+    // power bookkeeping 1 = |G|^2 + (eta1/eta2)|tau|^2, valid for real eta2
+    const ratio = v.pair === 'short' || v.pair === 'open' || v.pair === 'air_conductor'
+      ? NaN : (eta1.re / eta2.re) * tm * tm;
+
+    const Emax = 1 + Gm, Emin = Math.abs(1 - Gm);
+    const zMin = Gm > 1e-9 ? ((((Gp + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) / (4 * Math.PI) : 0;
+
+    return {
+      v, eta1, eta2, e1s, e2s, G, tau, Gm, Gp, tm, tp, VSWR, Pref, Ptr, RL, ratio, Emax, Emin, zMin,
+      Rs, f, sigma, yMax: Math.max(1.7, Emax * 2.1),
+    };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: 0, xMax: 1, yMin: 0, yMax: out.yMax });
+    plot.clear().grid(0.1, 0.5).axes();
+
+    // ---- incident level and the envelope limits ------------------------------
+    plot.segment(0, 1, 1, 1, { color: PALETTE.grid, width: 1.2, dash: [4, 4] });
+    plot.segment(0, out.Emax, 1, out.Emax, { color: 'rgba(166,227,161,0.55)', width: 1.4, dash: [6, 4] });
+    plot.segment(0, out.Emin, 1, out.Emin, { color: 'rgba(243,139,168,0.55)', width: 1.4, dash: [6, 4] });
+
+    // ---- |E(z)| = |1 + Gamma exp(-2j beta z)| --------------------------------
+    plot.fn((z) => Math.sqrt(1 + out.Gm * out.Gm + 2 * out.Gm * Math.cos(out.Gp - 4 * Math.PI * z)), 0, 1, {
+      color: PALETTE.accent, width: 2.8, samples: 900,
+    });
+
+    plot.text('|E(z)| = |1 + \u0393 e^\u22122j\u03b2z|   \u2014  distance measured from the load, in wavelengths',
+      plot.pad + 4, plot.h - plot.pad + 26, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('|E|max = 1 + |\u0393| = ' + fmt(out.Emax, 4), plot.X(0.62), plot.Y(out.Emax) - 8, {
+      color: PALETTE.accent3, font: '11px ui-monospace, monospace',
+    });
+    plot.text('|E|min = 1 \u2212 |\u0393| = ' + fmt(out.Emin, 4), plot.X(0.62), plot.Y(out.Emin) + 15, {
+      color: PALETTE.accent2, font: '11px ui-monospace, monospace',
+    });
+    plot.text('incident level 1', plot.X(0.02), plot.Y(1) - 5, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('load plane  z = 0', plot.X(0.01), plot.Y(out.yMax) - 6, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+
+    // ---- phasor construction of tau = 1 + Gamma ------------------------------
+    const iw = 268, ih = 160;
+    const ix = plot.w - plot.pad - iw - 6, iy = plot.pad + 4;
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.97)';
+    ctx.fillRect(ix, iy, iw, ih);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(ix, iy, iw, ih);
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText('\u03c4 = 1 + \u0393  in the complex plane', ix + 8, iy + 15);
+
+    const u = 38, ox = ix + 56, oy = iy + 80;
+    // unit circle and axes
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.arc(ox, oy, u, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(ox - u - 10, oy); ctx.lineTo(ox + u + 30, oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox, oy - u - 12); ctx.lineTo(ox, oy + u + 12); ctx.stroke();
+
+    const arrow = (x0, y0, x1, y1, color, width) => {
+      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.fillStyle = color;
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+      const a = Math.atan2(y1 - y0, x1 - x0);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x1 - 9 * Math.cos(a - 0.4), y1 - 9 * Math.sin(a - 0.4));
+      ctx.lineTo(x1 - 9 * Math.cos(a + 0.4), y1 - 9 * Math.sin(a + 0.4));
+      ctx.closePath(); ctx.fill();
+    };
+    const gx = out.G.re * u, gy = -out.G.im * u;
+    arrow(ox, oy, ox + u, oy, PALETTE.dim, 1.6);                         // the "1"
+    arrow(ox + u, oy, ox + u + gx, oy + gy, PALETTE.accent2, 2.2);       // Gamma
+    arrow(ox, oy, ox + u + gx, oy + gy, PALETTE.accent3, 2.6);           // tau
+    ctx.fillStyle = PALETTE.dim; ctx.fillText('1', ox + u * 0.5 - 3, oy - 6);
+    ctx.fillStyle = PALETTE.accent2; ctx.fillText('\u0393', ox + u + gx * 0.5 + 6, oy + gy * 0.5);
+    ctx.fillStyle = PALETTE.accent3; ctx.fillText('\u03c4', ox + (u + gx) * 0.5 + 4, oy + gy * 0.5 + 14);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('|\u0393| = ' + fmt(out.Gm, 4) + ' \u2220 ' + fmt((out.Gp * 180) / Math.PI, 4) + '\u00b0', ix + 8, iy + ih - 22);
+    ctx.fillStyle = PALETTE.accent3;
+    ctx.fillText('|\u03c4| = ' + fmt(out.tm, 4) + ' \u2220 ' + fmt((out.tp * 180) / Math.PI, 4) + '\u00b0', ix + 8, iy + ih - 6);
+    ctx.restore();
+
+    // ---- summary text --------------------------------------------------------
+    const tx = plot.pad + 8, ty = plot.pad + 24;
+    ctx.save();
+    ctx.font = '13px system-ui, sans-serif';
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText(PAIRS[v.pair], tx, ty - 14);
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('\u03b71 = ' + out.e1s, tx, ty + 6);
+    ctx.fillText('\u03b72 = ' + out.e2s, tx, ty + 24);
+    ctx.fillStyle = PALETTE.accent2;
+    ctx.fillText('\u0393 = ((\u03b72 \u2212 \u03b71)/(\u03b72 + \u03b71)) = ' + fmt(out.Gm, 4) + ' \u2220 ' + fmt((out.Gp * 180) / Math.PI, 4) + '\u00b0', tx, ty + 46);
+    ctx.fillStyle = PALETTE.accent3;
+    ctx.fillText('\u03c4 = 1 + \u0393 = ' + fmt(out.tm, 4) + ' \u2220 ' + fmt((out.tp * 180) / Math.PI, 4) + '\u00b0', tx, ty + 64);
+    ctx.fillStyle = PALETTE.warn;
+    ctx.fillText('VSWR = ' + (Number.isFinite(out.VSWR) ? fmt(out.VSWR, 4) : '\u221e'), tx, ty + 86);
+    ctx.fillText('reflected ' + fmt(out.Pref * 100, 3) + ' %   transmitted ' + fmt(out.Ptr * 100, 3) + ' %', tx, ty + 104);
+    ctx.fillText('return loss ' + (Number.isFinite(out.RL) ? fmt(out.RL, 4) + ' dB' : '\u221e dB'), tx, ty + 122);
+    // power bar
+    const bw = 210;
+    ctx.fillStyle = PALETTE.accent2;
+    ctx.fillRect(tx, ty + 134, Math.max(0.5, bw * out.Pref), 12);
+    ctx.fillStyle = PALETTE.accent3;
+    ctx.fillRect(tx + bw * out.Pref, ty + 134, Math.max(0.5, bw * out.Ptr), 12);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('power: reflected |\u0393|\u00b2  /  transmitted 1\u2212|\u0393|\u00b2', tx, ty + 162);
+    ctx.restore();
+  },
+  readout: (out) => ({
+    '\u03b71 (medium 1)': out.e1s,
+    '\u03b72 (medium 2)': out.e2s,
+    '\u0393 (reflection coefficient)': fmt(out.Gm, 4) + ' \u2220 ' + fmt((out.Gp * 180) / Math.PI, 4) + '\u00b0',
+    '\u03c4 = 1 + \u0393': fmt(out.tm, 4) + ' \u2220 ' + fmt((out.tp * 180) / Math.PI, 4) + '\u00b0',
+    'VSWR': Number.isFinite(out.VSWR) ? fmt(out.VSWR, 4) : '\u221e',
+    'reflected power |\u0393|\u00b2': fmt(out.Pref * 100, 4) + ' %',
+    'transmitted power 1 \u2212 |\u0393|\u00b2': fmt(out.Ptr * 100, 4) + ' %',
+    'return loss': Number.isFinite(out.RL) ? fmt(out.RL, 4) + ' dB' : '\u221e dB',
+    'standing wave |E|max / |E|min': fmt(out.Emax, 4) + ' / ' + fmt(out.Emin, 4),
+    'first voltage minimum at z': out.Gm > 1e-9 ? fmt(out.zMin, 4) + ' \u03bb from the load' : 'no minimum (matched)',
+    'power identity |\u0393|\u00b2 + (\u03b71/\u03b72)|\u03c4|\u00b2': Number.isFinite(out.ratio) ? fmt(out.Pref + out.ratio, 5) : 'n/a (complex or extreme \u03b72)',
+  }),
+  onChange: (v) => syncUI(v),
+});
+
+// --- page furniture ---------------------------------------------------------
+function makeFormulaBox() {
+  const d = document.createElement('div');
+  d.style.cssText =
+    'margin-top:14px;padding:10px 12px;background:#27273a;border:1px solid #3a3a52;' +
+    'border-left:3px solid #89b4fa;border-radius:6px;font-family:ui-monospace,Consolas,monospace;' +
+    'font-size:0.86rem;line-height:1.65;white-space:pre-wrap;color:#e4e4f0';
+  document.getElementById('app').appendChild(d);
+  return d;
+}
+
+function setVis(id, on) {
+  const c = handle && handle.controls[id];
+  if (!c) return;
+  const w = c.input.closest('.vault-widget-control');
+  if (w) w.style.display = on ? '' : 'none';
+}
+
+function syncUI(v) {
+  const p = v.pair;
+  setVis('er2', p === 'air_dielectric' || p === 'dielectric_air');
+  setVis('lsig', p === 'air_conductor');
+  setVis('lf', p === 'air_conductor');
+  setVis('eta1', p === 'custom');
+  setVis('eta2', p === 'custom');
+  if (!formulaEl || typeof document === 'undefined') return;
+
+  const f = Math.pow(10, v.lf);
+  const sigma = Math.pow(10, v.lsig);
+  const Rs = Math.sqrt((Math.PI * f * MU0) / sigma);
+  let eta1 = R(ETA0), eta2 = R(ETA0 / Math.sqrt(v.er2));
+  let l1 = '\u03b71 = \u03b7\u2080 = \u221a(\u03bc\u2080/\u03b5\u2080) = 376.73 \u03a9', l2 = '';
+  if (p === 'air_dielectric') {
+    l2 = '\u03b72 = \u03b7\u2080/\u221a\u03b5r = 376.73/\u221a' + fmt(v.er2, 4) + ' = ' + fmt(ETA0 / Math.sqrt(v.er2), 5) + ' \u03a9';
+  } else if (p === 'dielectric_air') {
+    eta1 = R(ETA0 / Math.sqrt(v.er2)); eta2 = R(ETA0);
+    l1 = '\u03b71 = \u03b7\u2080/\u221a\u03b5r = ' + fmt(ETA0 / Math.sqrt(v.er2), 5) + ' \u03a9';
+    l2 = '\u03b72 = \u03b7\u2080 = 376.73 \u03a9';
+  } else if (p === 'air_conductor') {
+    eta2 = { re: Rs, im: Rs };
+    l2 = 'R_s = \u221a(\u03c0 f \u03bc\u2080/\u03c3) = ' + fmt(Rs, 5) + ' \u03a9\n       \u03b72 = (1 + j)R_s = ' + fmt(Rs, 4) + ' + j' + fmt(Rs, 4) + ' \u03a9 = ' + fmt(Math.SQRT2 * Rs, 4) + ' \u03a9 \u2220 45\u00b0';
+  } else if (p === 'air_freespace') {
+    l2 = '\u03b72 = \u03b7\u2080 = 376.73 \u03a9  (identical to medium 1)';
+  } else if (p === 'short') {
+    eta2 = R(0); l2 = '\u03b72 = 0 \u03a9  (perfect conductor)';
+  } else if (p === 'open') {
+    eta2 = R(1e30); l2 = '\u03b72 = \u221e  (open circuit / magnetic wall)';
+  } else {
+    eta1 = R(v.eta1); eta2 = R(v.eta2);
+    l1 = '\u03b71 = ' + fmt(v.eta1, 5) + ' \u03a9';
+    l2 = '\u03b72 = ' + fmt(v.eta2, 5) + ' \u03a9';
+  }
+
+  let G, tau;
+  if (p === 'short') { G = R(-1); tau = R(0); }
+  else if (p === 'open') { G = R(1); tau = R(2); }
+  else { G = C.div(C.sub(eta2, eta1), C.add(eta2, eta1)); tau = C.add(R(1), G); }
+
+  const Gm = C.abs(G), Gp = C.arg(G);
+  const tm = C.abs(tau), tp = C.arg(tau);
+  const VSWR = Gm >= 1 - 1e-12 ? Infinity : (1 + Gm) / (1 - Gm);
+  const Pref = Math.min(1, Gm * Gm);
+  const RL = Gm < 1e-12 ? Infinity : -20 * Math.log10(Math.min(Gm, 1));
+  const ratio = (p === 'custom' || p === 'air_dielectric' || p === 'dielectric_air' || p === 'air_freespace')
+    ? (eta1.re / eta2.re) * tm * tm : NaN;
+  const dg = (x) => fmt((x * 180) / Math.PI, 4) + '\u00b0';
+
+  const lines = [
+    'NORMAL-INCIDENCE REFLECTION AT A PLANE BOUNDARY',
+    '  \u0393 = (\u03b72 \u2212 \u03b71) / (\u03b72 + \u03b71)          \u03c4 = 1 + \u0393 = 2\u03b72/(\u03b71 + \u03b72)',
+    '  VSWR = (1 + |\u0393|)/(1 \u2212 |\u0393|)              reflected power = |\u0393|\u00b2,  transmitted = 1 \u2212 |\u0393|\u00b2',
+    '  |E(z)| = |1 + \u0393 e^\u22122j\u03b2z|            \u03b7\u2080 = \u221a(\u03bc\u2080/\u03b5\u2080) = 376.73 \u03a9',
+    '',
+    'SUBSTITUTED VALUES \u2014 ' + PAIRS[p],
+    '  ' + l1,
+    '  ' + l2,
+    '  \u0393 = ((' + (p === 'open' ? '\u221e' : fmt(eta2.re, 4)) + (eta2.im ? ' + j' + fmt(eta2.im, 4) : '') + ') \u2212 (' + fmt(eta1.re, 4) + (eta1.im ? ' + j' + fmt(eta1.im, 4) : '') + ')) / (sum)',
+    '    = ' + fmt(Gm, 5) + ' \u2220 ' + dg(Gp) + '        |\u0393|\u00b2 = ' + fmt(Pref, 5),
+    '  \u03c4 = 1 + \u0393 = ' + fmt(tm, 5) + ' \u2220 ' + dg(tp),
+    '  VSWR = (1 + ' + fmt(Gm, 4) + ')/(1 \u2212 ' + fmt(Gm, 4) + ') = ' + (Number.isFinite(VSWR) ? fmt(VSWR, 5) : '\u221e'),
+    '  reflected power = ' + fmt(Pref * 100, 4) + ' %      transmitted power = ' + fmt((1 - Pref) * 100, 4) + ' %',
+    '  return loss = \u221220 log\u2081\u2080|\u0393| = ' + (Number.isFinite(RL) ? fmt(RL, 5) + ' dB' : '\u221e dB'),
+    '  |E|max = 1 + |\u0393| = ' + fmt(1 + Gm, 5) + '      |E|min = |1 \u2212 |\u0393|| = ' + fmt(Math.abs(1 - Gm), 5),
+    '',
+    'POWER CHECK \u2014 |\u03c4|\u00b2 IS NOT THE TRANSMITTED FRACTION',
+    Number.isFinite(ratio)
+      ? '  |\u0393|\u00b2 + (\u03b71/\u03b72)|\u03c4|\u00b2 = ' + fmt(Pref, 5) + ' + ' + fmt(ratio, 5) + ' = ' + fmt(Pref + ratio, 5) + '   \u2713'
+      : '  |\u03c4|\u00b2 = ' + fmt(tm * tm, 5) + ', but the true transmitted fraction is 1 \u2212 |\u0393|\u00b2 = ' + fmt(1 - Pref, 5) + '.',
+    '',
+    'THE THREE LIMITING CASES',
+    ...CASES.map((c) => '  ' + (c.name + '            ').slice(0, 14) + '\u03b7: ' + (c.eta + '            ').slice(0, 14) + '\u0393 = ' + (c.G + '     ').slice(0, 5) + ' VSWR = ' + (c.vswr + '     ').slice(0, 5) + ' ' + c.text),
+  ];
+  formulaEl.innerHTML = lines.join('\n');
+}
+
+// --- initial paint ----------------------------------------------------------
+if (typeof document !== 'undefined' && handle) {
+  formulaEl = makeFormulaBox();
+  noteEl = document.createElement('div');
+  noteEl.className = 'vault-widget-note';
+  noteEl.innerHTML =
+    '<strong>Why a boundary reflects.</strong> Medium 2 demands a different E-to-H ratio than medium 1. ' +
+    'The incident wave must split into a reflected and a transmitted wave precisely so that the tangential E and ' +
+    'H stay continuous at the interface, and the mismatch \u03b72/\u03b71 fixes the split. The sign of \u0393 carries ' +
+    'the physics: \u0393 &lt; 0 (entering a denser medium, e.g. air into glass at \u03b5r = 4 gives \u0393 = \u22121/3) ' +
+    'means the reflected E is inverted by 180\u00b0; \u0393 &gt; 0 means no phase reversal. ' +
+    '<strong>The mistake this prevents:</strong> using |\u03c4|\u00b2 as the transmitted POWER fraction. It is not. ' +
+    'Power density is E\u00b2/2\u03b7, so for air into \u03b5r = 4 the transmitted power is 1 \u2212 |\u0393|\u00b2 = 88.9 %, ' +
+    'not |\u03c4|\u00b2 = 44.4 % \u2014 the correct identity is 1 = |\u0393|\u00b2 + (\u03b71/\u03b72)|\u03c4|\u00b2, and that ' +
+    'extra factor of \u03b71/\u03b72 is exactly what the wrong answer drops. Second trap: reading VSWR as a ratio of ' +
+    'powers. VSWR = 2 means 11 % of the power reflects, not 50 %. And note VSWR = \u221e for both \u0393 = \u22121 (short) ' +
+    'and \u0393 = +1 (open) \u2014 the standing-wave ratio cannot tell them apart, only the POSITION of the voltage ' +
+    'minimum can. This model is normal incidence; at an oblique angle the mismatch becomes \u03b7/cos\u03b8 for TE and ' +
+    '\u03b7cos\u03b8 for TM, which is where the Brewster angle comes from, and a good conductor looks like a short at ' +
+    'any angle because \u03b72 \u2248 (1+j)R_s is tiny compared with \u03b7\u2080.';
+  document.getElementById('app').appendChild(noteEl);
+  syncUI(handle.state.values);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ladder Logic — Seal-In, TON Timer, CTU Counter and Interlock</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+// PURE-DOM WIDGET: this file imports nothing from Assets/vault.js on purpose. There is no
+// canvas and no slider - the rungs are drawn with styled divs and the numeric inputs are
+// <select> elements - so the shared runtime has nothing to provide here. Only the
+// stylesheet is shared.
+//
+// A ladder diagram is a wiring diagram for software, and the one fact students lose marks
+// on is the SCAN: the PLC evaluates rung 1 completely, then rung 2, then rung 3, using the
+// freshly computed state of every coil it has already solved. The seal-in branch only holds
+// because rung 1 writes its own coil state back into the rung during the *next* scan. Step
+// the scan and watch the seal-in contact pick up the coil it is in series with.
+
+const SW = 136;        // horizontal distance between two elements on a rung
+const SH = 54;         // vertical distance between parallel branches
+
+function make(host, ui) {
+  // ---------------------------------------------------------------- state
+  const S = {
+    in: { start: false, stop: true, sensor: false, reset: false },
+    out: { M1: false, SOL: false, RUN: false, DONE: false },
+    timer: { en: false, tt: 0, dn: false },
+    counter: { cu: false, prev: false, acc: 0, dn: false },
+    scans: 0,
+    tPrev: 0,
+    auto: false,
+    periodMs: 200,
+    presetT: 1.5,
+    presetC: 5,
+  };
+
+  let rafId = null;
+
+  // ---------------------------------------------------------------- chrome
+  host.classList.add('vault-widget');
+
+  const head = document.createElement('header');
+  head.className = 'vault-widget-head';
+  head.innerHTML =
+    '<h2 class="vault-widget-title">Ladder Logic Simulator \u2014 Seal-In, TON, CTU and Interlock</h2>' +
+    '<p class="vault-widget-desc">Four built-in rungs, evaluated exactly as a PLC would: top to bottom, ' +
+    'once per scan. Click an input to force it, then step the scan. The seal-in branch on rung 1 and the ' +
+    'interlock on rung 4 both depend on the ORDER in which the rungs are solved.</p>';
+  host.appendChild(head);
+
+  // ---- input panel
+  const inPanel = document.createElement('div');
+  inPanel.className = 'vault-widget-controls';
+  host.appendChild(inPanel);
+
+  const inputButtons = {};
+  const mkInputButton = (id, label, note) => {
+    const b = document.createElement('button');
+    b.className = 'vault-widget-btn ghost';
+    b.style.width = '100%';
+    b.dataset.input = id;
+    b.addEventListener('click', () => {
+      S.in[id] = !S.in[id];
+      paintInputs();
+      render();
+    });
+    const w = document.createElement('label');
+    w.className = 'vault-widget-control';
+    const s = document.createElement('span');
+    s.className = 'vault-widget-label';
+    s.textContent = label + (note ? '  ' + note : '');
+    w.appendChild(s);
+    w.appendChild(b);
+    inPanel.appendChild(w);
+    inputButtons[id] = b;
+  };
+  mkInputButton('start', 'START (NO pushbutton)');
+  mkInputButton('stop', 'STOP (NC contact, held = healthy)');
+  mkInputButton('sensor', 'SENSOR (NO, part present)');
+  mkInputButton('reset', 'RESET (NO, clears CTU)');
+
+  // ---- diagram
+  const dia = document.createElement('div');
+  dia.style.marginTop = '14px';
+  dia.style.overflowX = 'auto';
+  host.appendChild(dia);
+
+  // ---- output + readout
+  const out = document.createElement('div');
+  out.className = 'vault-widget-readout';
+  host.appendChild(out);
+
+  // ---- scan controls
+  const scanPanel = document.createElement('div');
+  scanPanel.className = 'vault-widget-controls';
+  host.appendChild(scanPanel);
+  const mkCtl = (labelText, node) => {
+    const w = document.createElement('label');
+    w.className = 'vault-widget-control';
+    const s = document.createElement('span');
+    s.className = 'vault-widget-label';
+    s.textContent = labelText;
+    w.appendChild(s);
+    w.appendChild(node);
+    scanPanel.appendChild(w);
+    return w;
+  };
+  const mkBtn = (label, fn) => {
+    const b = document.createElement('button');
+    b.className = 'vault-widget-btn';
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  };
+  scanPanel.appendChild(mkCtl('scan control',
+    mkBtn('step one scan', () => { S.auto = false; stopAuto(); scan(); render(); })));
+  const autoBtn = mkBtn('run continuously', () => {
+    S.auto = !S.auto;
+    autoBtn.textContent = S.auto ? 'stop' : 'run continuously';
+    if (S.auto) startAuto(); else stopAuto();
+  });
+  scanPanel.appendChild(mkCtl('scan control', autoBtn));
+  scanPanel.appendChild(mkCtl('scan control', mkBtn('clear timer/counter', () => {
+    S.timer.tt = 0; S.timer.dn = false; S.counter.acc = 0; S.counter.dn = false; render();
+  })));
+
+  // Discrete selects rather than sliders: this widget deliberately avoids the shared
+  // runtime, so it must not use a slider control (whose styling and live value readout live
+  // in vault.js). A select is also truer to a PLC - presets are set to real values.
+  const mkSelect = (labelText, options, value, onChange) => {
+    const sel = document.createElement('select');
+    sel.className = 'vault-widget-input';
+    for (const o of options) {
+      const opt = document.createElement('option');
+      opt.value = String(o.v);
+      opt.textContent = o.label;
+      if (String(o.v) === String(value)) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.addEventListener('change', () => onChange(Number(sel.value), sel));
+    const w = mkCtl(labelText, sel);
+    return { sel, wrap: w };
+  };
+
+  mkSelect('scan period (ms per scan)',
+    [50, 100, 200, 400, 800].map((ms) => ({ v: ms, label: ms + ' ms' })), 200,
+    (val) => { S.periodMs = val; render(); });
+
+  mkSelect('TON preset T (seconds)',
+    [0.2, 0.5, 1, 1.5, 2, 3].map((s) => ({ v: s, label: s.toFixed(1) + ' s' })), 1.5,
+    (val) => { S.presetT = val; render(); });
+
+  mkSelect('CTU preset C (counts)',
+    [1, 2, 3, 4, 5, 8, 10, 20].map((n) => ({ v: n, label: String(n) })), 5,
+    (val) => { S.presetC = val; render(); });
+
+  // ---------------------------------------------------------------- scan
+  function scan() {
+    // ---- RUNG 1: START/STOP seal-in -------------------------------------
+    // left power rail, START in parallel with the M1 seal-in contact, then the STOP NC.
+    const seal = S.out.M1;
+    const rung1 = (S.in.start || seal) && S.in.stop;
+    S.out.M1 = rung1;
+
+    // ---- RUNG 2: TON, enabled by the M1 contact -------------------------
+    const t = S.timer;
+    t.en = S.out.M1;
+    if (t.en) {
+      t.tt += S.periodMs / 1000;
+      if (t.tt >= S.presetT) { t.tt = Math.min(t.tt, S.presetT); t.dn = true; } else t.dn = false;
+    } else {
+      t.tt = 0;
+      t.dn = false;
+    }
+
+    // ---- RUNG 3: CTU, clocked by the rising edge of TON.DN --------------
+    const c = S.counter;
+    c.cu = S.timer.dn;
+    if (c.cu && !c.prev) {
+      if (c.acc < S.presetC) c.acc += 1;
+    }
+    c.prev = c.cu;
+    if (S.in.reset) { c.acc = 0; c.prev = false; }
+    c.dn = c.acc >= S.presetC;
+
+    // ---- RUNG 4: interlock ---------------------------------------------
+    // The solenoid needs the M1 contact AND the sensor AND NOT the counter-done bit.
+    // Reversing rung 3 and rung 4 changes the result by one scan - the classic race.
+    S.out.SOL = S.out.M1 && S.in.sensor && !S.counter.dn;
+    // auxiliary coil: run indication = M1 AND timer done, but not counter done
+    S.out.RUN = S.out.M1 && S.timer.dn;
+    S.out.DONE = S.counter.dn;
+
+    S.scans += 1;
+  }
+
+  function startAuto() {
+    stopAuto();
+    S.tPrev = Date.now();
+    const tick = () => {
+      if (!S.auto) return;
+      const now = Date.now();
+      if (now - S.tPrev >= S.periodMs) { S.tPrev = now; scan(); render(); }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+  }
+  function stopAuto() {
+    if (rafId !== null && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  // ---------------------------------------------------------------- drawing
+  function el(tag, style, text) {
+    const n = document.createElement(tag);
+    Object.assign(n.style, style);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  const WIRE = '2px solid #a0a0be';
+  const ON = '3px solid #a6e3a1';
+  const OFF = '3px solid #6c7086';
+
+  function contact(on, kind) {
+    // kind: 'no' | 'nc'
+    const box = el('div', {
+      position: 'relative', width: '46px', height: '34px', flex: '0 0 auto',
+    });
+    const bar = el('div', {
+      position: 'absolute', left: '6px', right: '6px', top: '50%',
+      height: '3px', background: on ? '#a6e3a1' : '#6c7086',
+      transform: kind === 'nc' ? 'rotate(-20deg)' : (on ? 'rotate(-20deg)' : 'none'),
+      transformOrigin: '50% 50%',
+    });
+    box.appendChild(bar);
+    if (kind === 'nc') {
+      const tick = el('div', {
+        position: 'absolute', left: '50%', top: '50%', width: '2px', height: '12px',
+        background: '#a0a0be', transform: 'translate(-50%,-50%)',
+      });
+      box.appendChild(tick);
+    }
+    return box;
+  }
+
+  function wire(w) {
+    return el('div', { width: w + 'px', height: '3px', flex: '0 0 auto', background: '#a0a0be', alignSelf: 'center' });
+  }
+
+  function coil(on, label) {
+    const box = el('div', {
+      width: '112px', height: '40px', flex: '0 0 auto', position: 'relative',
+      border: on ? ON : OFF, borderLeft: (on ? '3px solid #a6e3a1' : '3px solid #6c7086'),
+      borderRight: (on ? '3px solid #a6e3a1' : '3px solid #6c7086'),
+      borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      font: '600 12px ui-monospace, monospace',
+      color: on ? '#a6e3a1' : '#a0a0be',
+      background: on ? 'rgba(166,227,161,0.12)' : 'transparent',
+      boxSizing: 'border-box',
+    }, label);
+    return box;
+  }
+
+  function labelBox(text, w) {
+    return el('div', {
+      width: (w || 86) + 'px', flex: '0 0 auto', font: '600 11px ui-monospace, monospace',
+      color: '#89b4fa', alignSelf: 'center', whiteSpace: 'nowrap',
+    }, text);
+  }
+
+  function rungRow(parts) {
+    const r = el('div', { display: 'flex', alignItems: 'center', gap: '0px', minHeight: '54px' });
+    for (const p of parts) r.appendChild(p);
+    return r;
+  }
+
+  function buildDiagram() {
+    dia.innerHTML = '';
+    const card = el('div', {
+      background: 'var(--vw-panel)', border: '1px solid var(--vw-border)',
+      borderRadius: '10px', padding: '14px 16px', minWidth: '660px',
+    });
+
+    const rail = (top) => el('div', {
+      position: 'absolute', left: '8px', top: top, bottom: '10px', width: '3px', background: '#a0a0be',
+    });
+
+    // ---------------- rung 1: seal-in
+    const sealM1 = contact(S.out.M1, 'no');
+    const branch = el('div', {
+      display: 'flex', flexDirection: 'column', gap: '6px', justifyContent: 'center',
+      border: '1px solid #3a3a52', borderRadius: '6px', padding: '3px 4px',
+    });
+    const top = rungRow([contact(S.in.start, 'no')]);
+    const bot = rungRow([sealM1]);
+    branch.appendChild(top);
+    branch.appendChild(bot);
+    card.appendChild(el('div', { font: '600 11px ui-monospace, monospace', color: '#fab387', marginBottom: '2px' },
+      'RUNG 1  \u2014  seal-in start/stop'));
+    card.appendChild(rungRow([
+      labelBox('START', 74), wire(6), branch, wire(10),
+      contact(S.in.stop, 'nc'), wire(14), coil(S.out.M1, 'M1  MOTOR'),
+      el('div', { font: '11px ui-monospace, monospace', color: '#a0a0be', marginLeft: '10px' },
+        'STOP is wired NC \u2014 it must be TRUE (healthy) for the rung to conduct.'),
+    ]));
+    card.appendChild(el('div', { font: '11px ui-monospace, monospace', color: '#a0a0be', margin: '2px 0 12px 74px' },
+      'M1 seal-in contact is in PARALLEL with START, so M1 keeps its own rung TRUE after START is released.'));
+
+    // ---------------- rung 2: TON
+    card.appendChild(el('div', { font: '600 11px ui-monospace, monospace', color: '#fab387', marginBottom: '2px' },
+      'RUNG 2  \u2014  TON on-delay timer, enabled by the M1 contact'));
+    const ton = el('div', {
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      width: '118px', height: '44px', flex: '0 0 auto',
+      border: S.timer.en ? '3px solid #a6e3a1' : '3px solid #6c7086', borderRadius: '4px',
+      font: '600 11px ui-monospace, monospace', color: S.timer.dn ? '#a6e3a1' : '#a0a0be',
+      background: S.timer.en ? 'rgba(166,227,161,0.12)' : 'transparent', boxSizing: 'border-box',
+    });
+    ton.innerHTML = '<span>TON</span><span style="font-size:10px">' +
+      S.timer.tt.toFixed(2) + ' / ' + S.presetT.toFixed(1) + ' s</span>';
+    card.appendChild(rungRow([
+      labelBox('M1', 74), wire(6), contact(S.out.M1, 'no'), wire(14), ton, wire(14),
+      coil(S.timer.dn, 'T1.DN'),
+      el('div', { font: '11px ui-monospace, monospace', color: '#a0a0be', marginLeft: '10px' },
+        'accumulated ' + S.timer.tt.toFixed(2) + ' s of ' + S.presetT.toFixed(1) + ' s preset ' +
+        '(' + Math.round(100 * Math.min(1, S.timer.tt / S.presetT)) + '%)'),
+    ]));
+    card.appendChild(el('div', { font: '11px ui-monospace, monospace', color: '#a0a0be', margin: '2px 0 12px 74px' },
+      'TON times only while its rung is true; drop the rung and the accumulator resets to 0. A TOF would hold it.'));
+
+    // ---------------- rung 3: CTU
+    card.appendChild(el('div', { font: '600 11px ui-monospace, monospace', color: '#fab387', marginBottom: '2px' },
+      'RUNG 3  \u2014  CTU up-counter, clocked by the rising edge of T1.DN'));
+    const ctu = el('div', {
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      width: '118px', height: '44px', flex: '0 0 auto',
+      border: S.counter.cu ? '3px solid #a6e3a1' : '3px solid #6c7086', borderRadius: '4px',
+      font: '600 11px ui-monospace, monospace', color: S.counter.dn ? '#a6e3a1' : '#a0a0be',
+      background: S.counter.cu ? 'rgba(166,227,161,0.12)' : 'transparent', boxSizing: 'border-box',
+    });
+    ctu.innerHTML = '<span>CTU</span><span style="font-size:10px">' +
+      S.counter.acc + ' / ' + S.presetC + '</span>';
+    card.appendChild(rungRow([
+      labelBox('T1.DN', 74), wire(6), contact(S.timer.dn, 'no'), wire(14), ctu, wire(14),
+      coil(S.counter.dn, 'C1.DN'),
+      el('div', { font: '11px ui-monospace, monospace', color: '#a0a0be', marginLeft: '10px' },
+        'accumulated ' + S.counter.acc + ' of ' + S.presetC + '  (counts RISING EDGES only)'),
+    ]));
+    card.appendChild(el('div', { font: '11px ui-monospace, monospace', color: '#a0a0be', margin: '2px 0 12px 74px' },
+      'RESET is ' + (S.in.reset ? 'HELD' : 'released') + '. CTU latches: it stays at preset until RESET, unlike a TON.'));
+
+    // ---------------- rung 4: interlock
+    card.appendChild(el('div', { font: '600 11px ui-monospace, monospace', color: '#fab387', marginBottom: '2px' },
+      'RUNG 4  \u2014  interlock: M1 AND SENSOR AND NOT C1.DN'));
+    card.appendChild(rungRow([
+      labelBox('M1', 74), wire(6), contact(S.out.M1, 'no'), wire(6),
+      contact(S.in.sensor, 'no'), wire(6), contact(S.counter.dn, 'nc'), wire(14),
+      coil(S.out.SOL, 'SOL  SOLENOID'),
+      el('div', { font: '11px ui-monospace, monospace', color: '#a0a0be', marginLeft: '10px' },
+        'the NC contact of C1.DN is the interlock \u2014 it BREAKS the rung when the count completes'),
+    ]));
+
+    // outputs strip
+    const strip = el('div', { display: 'flex', gap: '10px', marginTop: '14px', flexWrap: 'wrap' });
+    const chip = (txt, on) => el('div', {
+      padding: '5px 10px', borderRadius: '6px', font: '600 11px ui-monospace, monospace',
+      border: '1px solid ' + (on ? '#a6e3a1' : '#3a3a52'),
+      color: on ? '#a6e3a1' : '#a0a0be',
+      background: on ? 'rgba(166,227,161,0.12)' : 'transparent',
+    }, txt + ' = ' + (on ? '1' : '0'));
+    strip.appendChild(chip('M1', S.out.M1));
+    strip.appendChild(chip('T1.DN', S.timer.dn));
+    strip.appendChild(chip('C1.DN', S.counter.dn));
+    strip.appendChild(chip('SOL', S.out.SOL));
+    strip.appendChild(chip('scan', true));
+    card.appendChild(strip);
+
+    dia.appendChild(card);
+  }
+
+  function paintInputs() {
+    for (const k of Object.keys(inputButtons)) {
+      const on = S.in[k];
+      const b = inputButtons[k];
+      b.textContent = on ? 'TRUE (1)' : 'FALSE (0)';
+      b.style.background = on ? 'rgba(166,227,161,0.22)' : 'transparent';
+      b.style.borderColor = on ? '#a6e3a1' : '#3a3a52';
+      b.style.color = on ? '#a6e3a1' : '#e4e4f0';
+    }
+  }
+
+  function addRow(key, val) {
+    const c = document.createElement('div');
+    c.className = 'vault-widget-readout-item';
+    const k = document.createElement('span');
+    k.className = 'vault-widget-readout-key';
+    k.textContent = key;
+    const vv = document.createElement('span');
+    vv.className = 'vault-widget-readout-val';
+    vv.textContent = val;
+    c.appendChild(k); c.appendChild(vv);
+    out.appendChild(c);
+  }
+
+  function render() {
+    paintInputs();
+    buildDiagram();
+    out.innerHTML = '';
+    addRow('START input', S.in.start ? '1 (pressed)' : '0 (released)');
+    addRow('STOP input (NC)', S.in.stop ? '1 (healthy)' : '0 (pressed / fault)');
+    addRow('SENSOR input', S.in.sensor ? '1 (present)' : '0 (absent)');
+    addRow('RESET input', S.in.reset ? '1 (held)' : '0');
+    addRow('M1 coil', S.out.M1 ? '1 \u2014 energized' : '0 \u2014 de-energized');
+    addRow('M1 seal-in contact', S.out.M1 ? '1 \u2014 CLOSED (this is the latch)' : '0 \u2014 open');
+    addRow('T1 timer enable', S.timer.en ? '1' : '0');
+    addRow('T1 accumulated', S.timer.tt.toFixed(2) + ' s / ' + S.presetT.toFixed(1) + ' s');
+    addRow('T1.DN done bit', S.timer.dn ? '1 \u2014 preset reached' : '0');
+    addRow('C1 accumulated', S.counter.acc + ' / ' + S.presetC);
+    addRow('C1.DN done bit', S.counter.dn ? '1 \u2014 interlock OPEN' : '0');
+    addRow('SOL output', S.out.SOL ? '1 \u2014 energized' : '0 \u2014 de-energized');
+    addRow('RUN output', S.out.RUN ? '1' : '0');
+    addRow('scan count', String(S.scans));
+    addRow('scan period', S.periodMs + ' ms');
+    addRow('rung 1 evaluates to', ((S.in.start || S.out.M1) && S.in.stop) ? '1' : '0');
+  }
+
+  render();
+}
+
+const host = document.getElementById('app');
+if (host) make(host);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Rungs are solved in order, once per scan \u2014 and the seal-in depends on it.</strong> ' +
+  'Press START and step one scan: rung 1 sees <code>START OR M1</code> with M1 still false from the previous ' +
+  'scan, so the rung conducts and M1 becomes true. <em>That same scan</em> the M1 seal-in contact in the ' +
+  'parallel branch is still evaluated with the OLD value, which is why ladder logic has a one-scan ' +
+  'input-to-output delay. If the branches were solved in the other order the latch would close instantly and ' +
+  'you would never see the difference \u2014 which is exactly why the exam asks about scan order.<br>' +
+  '<strong>The STOP button is wired NC, and that is not a detail.</strong> A normally-closed contact ' +
+  'conducts while the button is <em>not</em> pressed. Wire it NO instead and the machine starts, then stops the ' +
+  'instant someone touches STOP and restarts the moment they release it. NC wiring makes a broken wire behave ' +
+  'like a pressed STOP \u2014 fail safe. If a ladder question says "the STOP contact is NC", the logic is ' +
+  '<code>START OR M1</code> in series with the <em>TRUE</em> state of STOP, exactly as drawn here.<br>' +
+  '<strong>TON and CTU reset differently, and that is the classic swap.</strong> A TON resets its accumulator ' +
+  'the moment its rung goes false, so it measures <em>how long a condition stayed true</em>. A CTU latches: ' +
+  'the accumulated count stays at preset through any number of false scans and only a RESET input clears it. ' +
+  'Answering "the counter resets when the sensor opens" is the single most common miss on this topic. ' +
+  'Watch the count here: it increments on the RISING EDGE of T1.DN only, so holding T1.DN true for a hundred ' +
+  'scans still adds one.';
+
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

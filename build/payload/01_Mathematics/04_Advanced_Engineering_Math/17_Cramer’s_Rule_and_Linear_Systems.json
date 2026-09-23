@@ -1,0 +1,102 @@
+{
+  "scope": "Solve square linear systems by determinant ratios, decide consistency from the coefficient and augmented ranks, and count the free variables of a system that has no unique solution.",
+  "intuition": "Cramer's rule is the definition of a solution turned inside out: replacing one column of $A$ by the constant vector asks what coefficient multiplying that column would reproduce $\\mathbf{b}$ on its own. When the determinant vanishes the columns are dependent, and rank is the tool that says whether the system then has no solution or infinitely many.",
+  "concept": [
+    "**Cramer's rule and why it works.** For $A\\mathbf{x}=\\mathbf{b}$ with $A$ square and $\\det A\\neq0$, the unique solution is $x_i = \\dfrac{\\det(A_i)}{\\det A}$, where $A_i$ is $A$ with its $i$-th column replaced by $\\mathbf{b}$ and every other column untouched. The proof is one line of column algebra. The product is: $A[\\mathbf{e}_1\\ \\cdots\\ \\mathbf{x}\\ \\cdots\\ \\mathbf{e}_n]$, and its columns are $(\\mathbf{a}_1,\\ldots,\\mathbf{b},\\ldots,\\mathbf{a}_n)$, because $A\\mathbf{x}=\\mathbf{b}$ and $A\\mathbf{e}_j=\\mathbf{a}_j$. Taking determinants and using linearity in that single column gives $\\det(A)\\,x_i = \\det(A_i)$. Two operational consequences follow directly. First, the constant column goes into column $i$ with no sign change — the only sign in Cramer's rule is the sign of the determinant itself. Second, the rule needs $\\det A\\neq0$; when the determinant vanishes the rule does not return infinity, it returns nothing, and any finite value obtained by continuing the arithmetic is fabricated.",
+    "**The homogeneous case is the singularity condition.** For $A\\mathbf{x}=\\mathbf{0}$ the zero vector is always a solution, so the only question is whether a *non-trivial* solution exists. It does exactly when $\\det A = 0$, because a non-zero $\\mathbf{x}$ in the null space is precisely a linear dependence among the columns. This one statement answers the parameter questions that dominate the topic — 'find $k$ so the system has a non-zero solution', 'find $k$ so the matrix is singular', 'for which $\\lambda$ does $A\\mathbf{x}=\\lambda\\mathbf{x}$ have a non-zero solution' — and it is also the eigenvalue condition in disguise. When $\\det A = 0$ the non-trivial solutions form the null space, whose dimension is $n-\\mathrm{rank}(A)$; for a $3\\times3$ matrix of rank 2 that is one free variable, so the solution set is a line through the origin, written by choosing one parameter and expressing the other variables in terms of it.",
+    "**Consistency and the free-variable count.** Write the $n$-variable system as $A\\mathbf{x}=\\mathbf{b}$ and form the augmented matrix $[\\,A \\mid \\mathbf{b}\\,]$. A solution exists if and only if the two ranks agree: $\\mathrm{rank}(A)=\\mathrm{rank}([\\,A\\mid\\mathbf{b}\\,])$. Adding the constant column must not create a new pivot. Then $\\mathrm{rank}(A)=n$ means a unique solution; $\\mathrm{rank}(A)<n$ with equal ranks means infinitely many solutions with $n-\\mathrm{rank}(A)$ free variables; and $\\mathrm{rank}(A)<\\mathrm{rank}([\\,A\\mid\\mathbf{b}\\,])$ means no solution at all, certified by a row of the reduced system of the form $0=c$ with $c\\neq0$. This rank test is the complete classification and the cheap diagnostic to run before reaching for determinants. Note the asymmetry that exam questions exploit: a square system with $\\det A = 0$ may be either inconsistent or underdetermined, and the determinant alone cannot tell you which.",
+    "**Cramer versus Gaussian elimination.** For a single system, Gaussian elimination is the better tool: it is $O(n^{3})$, it exposes inconsistency and dependence while it runs (a zero pivot is the signal), and with partial pivoting it is numerically stable. Cramer's rule needs $n+1$ determinants; evaluated by cofactor expansion that is $O(n!)$ and hopeless beyond a $3\\times3$, and even with an $O(n^{3})$ determinant routine it is roughly $n$ times the work. Its value is structural rather than computational: it gives an explicit closed form such as $x_1=\\det(A_1)/\\det A$, which is what a sensitivity argument or a method-mandated exam question needs. Cramer's rule is also unsafe on ill-conditioned systems: if $\\det A$ is small because two rows are nearly parallel, the ratio of two small determinants amplifies rounding error, and the computed solution can be wrong in every digit. Elimination with pivoting degrades far more gracefully on the same problem."
+  ],
+  "formulas": [
+    { "q": "Cramer's rule", "e": "x_i=\\frac{\\det(A_i)}{\\det(A)}", "n": "A_i is A with column i replaced by b. Requires det A not equal to zero." },
+    { "q": "The replaced matrix A_i", "e": "A_i=(\\mathbf{a}_1,\\ldots,\\mathbf{a}_{i-1},\\mathbf{b},\\mathbf{a}_{i+1},\\ldots,\\mathbf{a}_n)", "n": "Only column i changes, and it is replaced by the constant vector with no sign change." },
+    { "q": "Unique-solution condition", "e": "\\det A\\neq0\\iff\\mathrm{rank}(A)=n", "n": "Square systems. det A = 0 means no unique solution, not necessarily no solution." },
+    { "q": "Nontrivial homogeneous solution", "e": "A\\mathbf{x}=\\mathbf{0}\\ \\mathrm{has}\\ \\mathbf{x}\\neq\\mathbf{0}\\iff\\det A=0", "n": "The parameter-finding test. It guarantees a solution direction, never a magnitude." },
+    { "q": "Consistency test", "e": "\\mathrm{a\\ solution\\ exists}\\iff\\mathrm{rank}(A)=\\mathrm{rank}([\\,A\\mid\\mathbf{b}\\,])", "n": "Valid for square and rectangular systems alike. The constant column must not add a pivot." },
+    { "q": "Free-variable count", "e": "\\mathrm{free\\ variables}=n-\\mathrm{rank}(A)", "n": "Zero means unique. Rank can never exceed n, so the count is never negative." },
+    { "q": "Inconsistent signature", "e": "\\mathrm{rank}(A)<\\mathrm{rank}([\\,A\\mid\\mathbf{b}\\,])\\iff 0=c\\ (c\\neq0)\\ \\mathrm{appears}", "n": "The row 0 = c is the certificate of no solution. Look for it before concluding anything from det A = 0." },
+    { "q": "Unique versus infinite", "e": "\\mathrm{rank}(A)=n\\Rightarrow\\mathrm{unique};\\qquad \\mathrm{rank}(A)<n\\ \\mathrm{and\\ consistent}\\Rightarrow\\mathrm{infinitely\\ many}", "n": "A consistent underdetermined real system never has finitely many solutions." },
+    { "q": "2x2 Cramer form", "e": "x=\\frac{b_1a_{22}-b_2a_{12}}{a_{11}a_{22}-a_{12}a_{21}},\\qquad y=\\frac{a_{11}b_2-a_{21}b_1}{a_{11}a_{22}-a_{12}a_{21}}", "n": "x swaps b into column 1, y into column 2. Reversing the numerators is the classic 2x2 error." },
+    { "q": "Cost comparison", "e": "\\mathrm{Gauss:\\ }O(n^{3});\\qquad \\mathrm{Cramer:\\ }n+1\\ \\mathrm{determinants}", "n": "By cofactor expansion each determinant is O(n!), so Cramer is unusable by hand beyond 3x3." },
+    { "q": "Ill-conditioning warning", "e": "x_i=\\frac{\\det(A_i)}{\\det(A)},\\qquad \\det A\\ \\mathrm{small}\\Rightarrow\\mathrm{error\\ amplified}", "n": "Nearly parallel rows make numerator and denominator both small; the quotient is unreliable." }
+  ],
+  "problems": [
+    {
+      "prompt": "Solve $5x + 2y = 19$, $x + 3y = 8$ by Cramer's rule.",
+      "give": ["5x + 2y = 19", "x + 3y = 8"],
+      "steps": [
+        "Coefficient matrix A = ((5,2),(1,3)), so det A = (5)(3) - (1)(2) = 15 - 2 = 13",
+        "det A = 13 not equal to 0, so the solution is unique",
+        "Replace column 1 with b = (19,8): det A1 = (19)(3) - (8)(2) = 57 - 16 = 41",
+        "Replace column 2 with b = (19,8): det A2 = (5)(8) - (1)(19) = 40 - 19 = 21",
+        "x = det A1/det A = 41/13 and y = det A2/det A = 21/13",
+        "Check in equation 1: 5(41/13) + 2(21/13) = (205 + 42)/13 = 247/13 = 19"
+      ],
+      "ans": "$x=\\frac{41}{13}\\approx3.15$ and $y=\\frac{21}{13}\\approx1.62$",
+      "trap": "Swapping the two determinant numerators. Putting $(19,8)$ into column 2 for $x$ gives $x=21/13$ and $y=41/13$, which still satisfies a rough 'both about 2' sanity check; only the explicit substitution $5x+2y=19$ exposes it.", "calc": {"mode":"EQN","steps":["`MODE` `5` `1` (2 unknowns): `5`, `2`, `19` then `1`, `3`, `8` → $x$ = **3.153846154**, $y$ = **1.615384615**.","`F-D` on each → **41/13** and **21/13**.","Check: `5×41÷13 + 2×21÷13` → **19**."],"note":"The swapped-numerator answer $x = 21/13$ fails that substitution, which is why the check costs one line."}
+    },
+    {
+      "prompt": "Use Cramer's rule to solve $-x + z = 0$, $3y + 2z = 5$, $2x + y - 2z = 5$.",
+      "give": ["-x + z = 0", "3y + 2z = 5", "2x + y - 2z = 5"],
+      "steps": [
+        "Coefficient matrix A = ((-1,0,1),(0,3,2),(2,1,-2))",
+        "det A = -1[(3)(-2) - (2)(1)] - 0[(0)(-2) - (2)(2)] + 1[(0)(1) - (3)(2)] = -1(-8) - 0 + 1(-6) = 8 - 6 = 2",
+        "det A1 (column 1 replaced by b = (0,5,5)) = 0(-8) - 0(-10) + 1[(5)(1) - (3)(5)] = 5 - 15 = -10",
+        "det A2 (column 2 replaced by b) = -1[(5)(-2) - (2)(5)] - 0[...] + 1[(0)(5) - (5)(2)] = 20 - 10 = 10",
+        "det A3 (column 3 replaced by b) = -1[(3)(5) - (5)(1)] - 0[...] + 0[...] = -(15 - 5) = -10",
+        "x = -10/2 = -5, y = 10/2 = 5, z = -10/2 = -5",
+        "Check equation 2: 3(5) + 2(-5) = 5; check equation 3: 2(-5) + 5 - 2(-5) = 5"
+      ],
+      "ans": "$x=-5$, $y=5$, $z=-5$",
+      "trap": "Filling the missing coefficients with a shifted row. The first equation has no $y$ term and the second no $x$ term, so $a_{12}=a_{21}=0$. Sliding the coefficients left changes the determinant and every numerator.", "calc": {"mode":"EQN","steps":["`MODE` `5` `2` (3 unknowns), missing terms entered as 0: rows (-1, 0, 1, 0), (0, 3, 2, 5), (2, 1, -2, 5) → $x$ = **-5**, $y$ = **5**, $z$ = **-5**.","Check: `3×5 + 2×(-5)` → **5** and `2×(-5) + 5 - 2×(-5)` → **5**."],"note":"Every row needs all three coefficients; a shifted row changes $\\det A = 2$ and every root."}
+    },
+    {
+      "prompt": "For which values of $k$ does $x + y + kz = 0$, $x + ky + z = 0$, $kx + y + z = 0$ have a non-trivial solution? Give a non-trivial solution for the smallest such $k$.",
+      "give": ["homogeneous 3x3 system depending on k", "non-trivial = a solution other than x = y = z = 0"],
+      "steps": [
+        "A non-trivial solution exists exactly when det A = 0, with A = ((1,1,k),(1,k,1),(k,1,1))",
+        "det A = 1(k - 1) - 1(1 - k) + k(1 - k^2)",
+        "= (k - 1) + (k - 1) + k(1 - k)(1 + k) = (k - 1)[2 - k(1 + k)]",
+        "= (k - 1)(-k^2 - k + 2) = -(k - 1)(k + 2)(k - 1)",
+        "So det A = 0 at k = 1 (a double root) and at k = -2",
+        "Smallest k is -2: the system becomes x + y - 2z = 0, x - 2y + z = 0, -2x + y + z = 0",
+        "Adding the three equations gives 0 = 0 identically; take x = y = 1, then the first equation gives 2 - 2z = 0 so z = 1",
+        "Check all three: 1 + 1 - 2 = 0; 1 - 2 + 1 = 0; -2 + 1 + 1 = 0"
+      ],
+      "ans": "$\\det A=0$ for $k=1$ and $k=-2$; at $k=-2$ a non-trivial solution is $(x,y,z)=(1,1,1)$",
+      "trap": "Reporting only $k=1$ because the double root looks degenerate, or reporting only the values without a solution vector. Both roots make the matrix singular; at $k=1$ all three equations collapse to $x+y+z=0$, so $(1,-1,0)$ is a legitimate non-trivial solution for that case too.", "calc": {"mode":"EQN","steps":["$\\det A = -k^3+3k-2$, so `MODE` `5` page 2 `2` (cubic) with `-1`, `0`, `3`, `-2` → $k$ = **1, 1, -2**.","Smallest root $k = -2$: the system becomes $x+y-2z = 0$, $x-2y+z = 0$, $-2x+y+z = 0$.","Check $(1,1,1)$: `1+1-2×1` → **0**, `1-2×1+1` → **0**, `-2×1+1+1` → **0**."],"note":"The repeated root 1 is still a singular value — the cubic prints it twice rather than reporting one root."}
+    },
+    {
+      "prompt": "Show that $x + 2y + 3z = 4$, $2x + 4y + 6z = 9$, $x + z = 7$ has no solution, using rank.",
+      "give": ["x + 2y + 3z = 4", "2x + 4y + 6z = 9", "x + z = 7"],
+      "steps": [
+        "A = ((1,2,3),(2,4,6),(1,0,1)); row 2 is exactly 2 times row 1, so rank(A) <= 2",
+        "R3 - R1 = (0,-2,-2) is independent of R1, so rank(A) = 2",
+        "Augmented rows: (1,2,3 | 4), (2,4,6 | 9), (1,0,1 | 7)",
+        "R2 - 2R1 = (0,0,0 | 1): the coefficients vanish but the constant does not",
+        "That single row is already the certificate: 0 = 1, so no choice of x, y, z can satisfy the system",
+        "Formally, the constant column is a pivot column of the augmented matrix, so rank([A|b]) = 3 while rank(A) = 2",
+        "Unequal ranks, so the system is inconsistent",
+        "Direct reading: equations 1 and 3 give (x + 2y + 3z) - (x + z) = 4 - 7, i.e. 2y + 2z = -3, while equation 2 with x + z = 7 gives 2x + 4y + 6z = 2(x + z) + 4y + 4z = 14 + 4y + 4z = 9, i.e. 4y + 4z = -5 and hence 2y + 2z = -5/2; -3 and -5/2 cannot both hold"
+      ],
+      "ans": "$\\mathrm{rank}(A)=2<\\mathrm{rank}([\\,A\\mid\\mathbf{b}\\,])=3$, so no solution exists",
+      "trap": "Declaring 'no solution' as soon as $\\det A = 0$. With the same coefficient matrix and the constant 9 changed back to 8 the system is consistent, with infinitely many solutions. A zero determinant only says the coefficient rows are dependent; inconsistency is the separate statement that the constant vector leaves that dependency unsatisfied."
+    }
+  ],
+  "traps": [
+    "**Replacing the wrong column.** $x_i$ uses $A$ with column $i$ replaced by $\\mathbf{b}$. Swapping the numerators in a 2x2 system gives a plausible answer pair; the substitution check $A\\mathbf{x}=\\mathbf{b}$ is the only reliable guard.",
+    "**Reading 'no solution' out of $\\det A=0$.** A zero determinant says only that the solution is not unique. The system is either inconsistent ($\\mathrm{rank}(A)<\\mathrm{rank}([\\,A\\mid\\mathbf{b}\\,])$) or has infinitely many solutions ($\\mathrm{rank}(A)=\\mathrm{rank}([\\,A\\mid\\mathbf{b}\\,])<n$).",
+    "**Using Cramer's rule on a singular system.** With $\\det A=0$ the ratio $\\det(A_i)/0$ is undefined. A finite number produced by pressing on anyway is fabricated, not approximate.",
+    "**Treating a repeated determinant root as one value.** $(k-1)^{2}(k+2)=0$ gives two distinct values of $k$; the double root still makes the matrix singular and still admits non-trivial solutions.",
+    "**Trusting Cramer on a nearly singular system.** When $\\det A$ is tiny because two rows are nearly parallel, the ratio of two small determinants can be wrong in every significant figure. Elimination with partial pivoting is the safe method.",
+    "**Answering a consistent rank-deficient system with a single point.** With equal ranks and $\\mathrm{rank}(A)<n$ the solution set is a line or a plane; the answer must carry the free parameter, not one particular solution.",
+    "**Counting the free variables from the original rows.** The count is $n-\\mathrm{rank}(A)$ with rank measured after reduction, so a three-row system of rank 2 in three unknowns has exactly one free variable, not two."
+  ],
+  "refs": [
+    "[[16_Matrices,_Determinants,_Rank_and_Inversion]]",
+    "[[18_Eigenvalues_and_Eigenvectors]]"
+  ],
+  "prereqs": [
+    "[[16_Matrices,_Determinants,_Rank_and_Inversion]]"
+  ]
+}

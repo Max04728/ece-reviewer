@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bode Margin Explorer — G(s) = K / (s(s+a)(s+b))</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, deg } from '../../../Assets/vault.js';
+
+// Gain margin and phase margin are two different measurements taken at two different
+// frequencies, and that is exactly what students swap under exam pressure. Here both
+// crossovers are drawn as separate vertical lines: the phase margin is the gap at the
+// GAIN crossover (0 dB), the gain margin is the gap at the PHASE crossover (-180 deg).
+//
+// Both have closed forms for this plant:
+//   phase crossover  w_pc = sqrt(ab)        (phase = -90 - atan(w/a) - atan(w/b) = -180)
+//   |G(j w_pc)|      = K / (ab(a+b))        so GM = ab(a+b)/K
+//   gain crossover   solved numerically from |G| = 1, then PM = 180 + phase(w_gc).
+
+const magDb = (w, K, a, b) =>
+  20 * Math.log10(K) - 20 * Math.log10(w) - 10 * Math.log10(w * w + a * a) - 10 * Math.log10(w * w + b * b);
+
+const phaseDeg = (w, a, b) => -90 - deg(Math.atan(w / a)) - deg(Math.atan(w / b));
+
+/** Straight-line Bode approximation: one integrator plus one break per real pole. */
+const magApprox = (w, K, a, b) =>
+  20 * Math.log10(K) - 20 * Math.log10(w) - 20 * Math.log10(Math.max(w, a)) - 20 * Math.log10(Math.max(w, b));
+
+const phaseApprox = (w, a, b) =>
+  -90 + Math.max(-90, Math.min(0, -45 * Math.log10((10 * w) / a))) +
+  Math.max(-90, Math.min(0, -45 * Math.log10((10 * w) / b)));
+
+/** |G| = 1: magnitude is monotone decreasing in w, so geometric bisection always works. */
+function gainCrossover(K, a, b) {
+  let lo = 1e-12;
+  let hi = 1e12;
+  if (magDb(lo, K, a, b) < 0) return null;
+  if (magDb(hi, K, a, b) > 0) return null;
+  for (let i = 0; i < 200; i++) {
+    const mid = Math.sqrt(lo * hi);
+    if (magDb(mid, K, a, b) > 0) lo = mid; else hi = mid;
+  }
+  return Math.sqrt(lo * hi);
+}
+
+const app = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+app.appendChild(formula);
+
+widget({
+  title: 'Bode Margin Explorer — G(s) = K / (s(s+a)(s+b))',
+  description:
+    'Magnitude and phase of the open loop on a log frequency axis. The green line is the gain crossover (|G| = 1) where the phase margin is read; the red line is the phase crossover (∠G = −180°) where the gain margin is read. Push K up and both margins shrink until the system goes unstable at K = ab(a+b).',
+  height: 560,
+  range: { xMin: -2, xMax: 2, yMin: 0, yMax: 100 },
+  controls: [
+    { id: 'K', label: 'gain K', min: 0.2, max: 40, step: 0.05, value: 2 },
+    { id: 'a', label: 'pole a (rad/s)', min: 0.2, max: 5, step: 0.05, value: 1 },
+    { id: 'b', label: 'pole b (rad/s)', min: 0.2, max: 5, step: 0.05, value: 2 },
+    { id: 'appro', label: 'show straight-line Bode approximation', type: 'checkbox', value: true },
+    { id: 'mark', label: 'show margin brackets', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const K = v.K, a = v.a, b = v.b;
+    const fMin = Math.min(a, b) / 20;
+    const fMax = Math.max(a, b) * 20;
+    const wgc = gainCrossover(K, a, b);
+    const wpc = Math.sqrt(a * b);
+    const magPc = K / (a * b * (a + b));
+    const gmAbs = 1 / magPc;
+    const gmDb = 20 * Math.log10(gmAbs);
+    const phGc = wgc ? phaseDeg(wgc, a, b) : NaN;
+    const pm = wgc ? 180 + phGc : NaN;
+    const Kcrit = a * b * (a + b);
+    const stable = K < Kcrit;
+    // magnitude window, rounded to 20 dB so the grid reads like a textbook
+    let hiDb = -1e9;
+    let loDb = 1e9;
+    for (let i = 0; i <= 200; i++) {
+      const w = fMin * Math.pow(fMax / fMin, i / 200);
+      const m = magDb(w, K, a, b);
+      if (m > hiDb) hiDb = m;
+      if (m < loDb) loDb = m;
+    }
+    hiDb = Math.min(80, Math.ceil(hiDb / 20) * 20);
+    loDb = Math.max(-60, Math.floor(loDb / 20) * 20);
+    if (hiDb - loDb < 40) loDb = hiDb - 40;
+    return { K, a, b, fMin, fMax, wgc, wpc, magPc, gmAbs, gmDb, phGc, pm, Kcrit, stable, hiDb, loDb };
+  },
+  draw: (ctx, v, out, plot) => {
+    const MAG_LO = 57, MAG_HI = 97, PH_LO = 6, PH_HI = 46;
+    const { loDb, hiDb } = out;
+    const magY = (dB) => MAG_LO + ((dB - loDb) / (hiDb - loDb)) * (MAG_HI - MAG_LO);
+    const phY = (d) => PH_LO + ((d + 270) / 270) * (PH_HI - PH_LO);
+    const xMin = Math.log10(out.fMin), xMax = Math.log10(out.fMax);
+    const gone = (dB) => (dB < loDb || dB > hiDb ? NaN : magY(dB));
+
+    plot.setRange({ xMin, xMax, yMin: 0, yMax: 100 });
+    plot.clear();
+
+    // panel backgrounds
+    ctx.save();
+    ctx.fillStyle = '#23233a';
+    ctx.fillRect(plot.X(xMin), plot.Y(MAG_HI), plot.X(xMax) - plot.X(xMin), plot.Y(MAG_LO) - plot.Y(MAG_HI));
+    ctx.fillStyle = '#202032';
+    ctx.fillRect(plot.X(xMin), plot.Y(PH_HI), plot.X(xMax) - plot.X(xMin), plot.Y(PH_LO) - plot.Y(PH_HI));
+    ctx.restore();
+
+    // decade gridlines
+    for (let k = Math.ceil(xMin); k <= Math.floor(xMax); k++) {
+      plot.segment(k, 0, k, 100, { color: PALETTE.grid, width: 1 });
+      plot.text('10^' + k, plot.X(k), plot.Y(0) + 13, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    }
+    // dB gridlines
+    for (let dB = Math.ceil(loDb / 20) * 20; dB <= hiDb; dB += 20) {
+      plot.segment(xMin, magY(dB), xMax, magY(dB), { color: PALETTE.grid, width: 1 });
+      plot.text((dB > 0 ? '+' : '') + dB, plot.X(xMin) - 6, magY(dB) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    // phase gridlines
+    for (let d = -225; d <= 0; d += 45) {
+      plot.segment(xMin, phY(d), xMax, phY(d), { color: PALETTE.grid, width: 1 });
+      plot.text(d + '°', plot.X(xMin) - 6, phY(d) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+
+    // reference lines: 0 dB and -180 deg
+    plot.segment(xMin, magY(0), xMax, magY(0), { color: PALETTE.axis, width: 1.5, dash: [5, 4] });
+    plot.segment(xMin, phY(-180), xMax, phY(-180), { color: PALETTE.axis, width: 1.5, dash: [5, 4] });
+
+    // straight-line approximation
+    if (v.appro) {
+      plot.fn((w) => gone(magApprox(w, out.K, out.a, out.b)), out.fMin, out.fMax,
+        { color: 'rgba(249,226,175,0.75)', width: 1.5, dash: [7, 5], samples: 800 });
+      plot.fn((w) => phY(phaseApprox(w, out.a, out.b)), out.fMin, out.fMax,
+        { color: 'rgba(249,226,175,0.75)', width: 1.5, dash: [7, 5], samples: 800 });
+    }
+
+    // exact curves
+    plot.fn((w) => gone(magDb(w, out.K, out.a, out.b)), out.fMin, out.fMax,
+      { color: PALETTE.accent, width: 2.5, samples: 900 });
+    plot.fn((w) => phY(phaseDeg(w, out.a, out.b)), out.fMin, out.fMax,
+      { color: PALETTE.accent5, width: 2.5, samples: 900 });
+
+    // crossovers
+    if (out.wgc) {
+      const xg = Math.log10(out.wgc);
+      plot.segment(xg, 0, xg, 100, { color: PALETTE.accent3, width: 1.5, dash: [5, 4] });
+      plot.text('ω_gc = ' + fmt(out.wgc, 4), plot.X(xg) + 4, plot.Y(PH_HI) - 6,
+        { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+    const xp = Math.log10(out.wpc);
+    plot.segment(xp, 0, xp, 100, { color: PALETTE.accent2, width: 1.5, dash: [5, 4] });
+    plot.text('ω_pc = ' + fmt(out.wpc, 4), plot.X(xp) + 4, plot.Y(PH_HI) - 6,
+      { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+
+    if (v.mark) {
+      // phase margin: vertical gap between the phase curve and -180 at the GAIN crossover
+      if (out.wgc) {
+        const xg = Math.log10(out.wgc);
+        plot.segment(xg, phY(-180), xg, phY(out.phGc), { color: PALETTE.accent3, width: 3.5 });
+        plot.dot(out.wgc, out.phGc, { color: PALETTE.accent3, r: 4 });
+        plot.text('PM = ' + fmt(out.pm, 3) + '°', plot.X(xg) + 7, phY((out.phGc - 180) / 2) + 4,
+          { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+      }
+      // gain margin: vertical gap between the magnitude curve and 0 dB at the PHASE crossover
+      if (out.magPc > 0 && Math.log10(out.magPc) * 20 >= loDb && Math.log10(out.magPc) * 20 <= hiDb) {
+        plot.segment(xp, magY(0), xp, magY(20 * Math.log10(out.magPc)), { color: PALETTE.accent2, width: 3.5 });
+        plot.dot(out.wpc, 20 * Math.log10(out.magPc), { color: PALETTE.accent2, r: 4 });
+        plot.text('GM = ' + fmt(out.gmDb, 3) + ' dB', plot.X(xp) + 7, magY(20 * Math.log10(out.magPc) / 2) + 4,
+          { color: PALETTE.accent2, font: '12px ui-monospace, monospace' });
+      }
+    }
+
+    plot.text('MAGNITUDE   20 log10 |G(jω)|   dB', plot.X(xMin) + 6, plot.Y(MAG_HI) - 8,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('PHASE   ∠G(jω)   degrees', plot.X(xMin) + 6, plot.Y(PH_HI) - 8,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('ω  (rad/s, log scale)', plot.X(xMax) - 6, plot.Y(0) + 13,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+
+    const verdict = out.stable ? 'STABLE' : 'UNSTABLE';
+    ctx.save();
+    ctx.fillStyle = 'rgba(30,30,46,0.9)';
+    ctx.strokeStyle = out.stable ? PALETTE.accent3 : PALETTE.accent2;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.rect(plot.X(xMax) - 236, plot.Y(MAG_HI) + 8, 228, 62);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    plot.text('GM = ' + fmt(out.gmDb, 4) + ' dB   PM = ' + fmt(out.pm, 4) + '°',
+      plot.X(xMax) - 228, plot.Y(MAG_HI) + 28, { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+    plot.text(verdict + '   (K = ' + fmt(out.K, 4) + ',  K_crit = ' + fmt(out.Kcrit, 4) + ')',
+      plot.X(xMax) - 228, plot.Y(MAG_HI) + 46,
+      { color: out.stable ? PALETTE.accent3 : PALETTE.accent2, font: '12px ui-monospace, monospace' });
+
+    const mPcDb = 20 * Math.log10(out.magPc);
+    formula.innerHTML =
+      '<strong>Governing formulas, with the current numbers substituted.</strong><br>' +
+      '<span class="vault-mono">G(jω) = K / (jω(jω+a)(jω+b))  ·  |G| = K / (ω·√(ω²+a²)·√(ω²+b²))</span><br>' +
+      '<span class="vault-mono">∠G(ω) = −90° − atan(ω/a) − atan(ω/b)</span><br>' +
+      '<span class="vault-mono">phase crossover (GAIN margin): ω_pc = √(ab) = √(' + fmt(out.a, 3) + '·' + fmt(out.b, 3) +
+      ') = ' + fmt(out.wpc, 4) + ' rad/s  →  |G| = K/(ab(a+b)) = ' + fmt(out.K, 4) + '/' + fmt(out.Kcrit, 4) +
+      ' = ' + fmt(out.magPc, 4) + '  (' + fmt(mPcDb, 4) + ' dB)  →  GM = ' + fmt(out.gmAbs, 4) +
+      ' = ' + fmt(out.gmDb, 4) + ' dB</span><br>' +
+      '<span class="vault-mono">gain crossover (PHASE margin): |G(jω_gc)| = 1 at ω_gc = ' +
+      (out.wgc ? fmt(out.wgc, 4) : '—') + ' rad/s  →  ∠G = ' + (out.wgc ? fmt(out.phGc, 4) : '—') +
+      '°  →  PM = 180° + ∠G = ' + (out.wgc ? fmt(out.pm, 4) : '—') + '°</span><br>' +
+      '<span class="vault-mono">marginal gain from Routh: K_crit = ab(a+b) = ' + fmt(out.Kcrit, 4) +
+      '  ·  stable because GM ' + (out.gmDb > 0 ? '&gt;' : '&lt;') + ' 0 dB and PM ' +
+      (out.pm > 0 ? '&gt;' : '&lt;') + ' 0°</span>';
+  },
+  readout: (out) => ({
+    'stability': out.stable ? 'STABLE' : 'UNSTABLE — closed loop',
+    'gain margin GM': fmt(out.gmDb, 4) + ' dB',
+    'phase margin PM': fmt(out.pm, 4) + '°',
+    'gain crossover ω_gc': out.wgc ? fmt(out.wgc, 4) + ' rad/s' : '—',
+    'phase crossover ω_pc': fmt(out.wpc, 4) + ' rad/s',
+    '|G| at ω_pc': fmt(out.magPc, 4) + '  (' + fmt(20 * Math.log10(out.magPc), 4) + ' dB)',
+    'GM as a ratio': fmt(out.gmAbs, 4),
+    '∠G at ω_gc': out.wgc ? fmt(out.phGc, 4) + '°' : '—',
+    'K_crit = ab(a+b)': fmt(out.Kcrit, 4),
+    'gain K': fmt(out.K, 4),
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The classic error this prevents.</strong> Phase margin is read at the <em>gain</em> crossover ' +
+  '(where |G| = 1, 0 dB) and gain margin is read at the <em>phase</em> crossover (where ∠G = −180°). ' +
+  'Swapping the two gives a wrong answer that still looks plausible, which is exactly why it survives into ' +
+  'the exam. Second trap: GM in dB is 20 log10(1/|G(jω_pc)|), not 20 log10(|G(jω_pc)|) — ' +
+  'a margin is always the reciprocal. Third: the straight-line (dashed) plot is an approximation for ' +
+  'sketching only; the exact −180° crossing of this plant is at ω_pc = √(ab), which is also the ' +
+  'root-locus jω crossing frequency. At a = 1, b = 2, K = 2 the numbers check out as GM = 9.542 dB and ' +
+  'PM = 32.61° (at ω_gc = 0.7494 rad/s, where ∠G = −147.39°), both positive, so the closed loop is stable.';
+app.appendChild(note);
+
+app.insertBefore(formula, app.querySelector('.vault-widget-canvas'));
+</script>
+</body>
+</html>

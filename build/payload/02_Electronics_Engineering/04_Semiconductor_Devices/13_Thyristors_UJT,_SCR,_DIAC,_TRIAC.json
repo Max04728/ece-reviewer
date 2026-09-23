@@ -1,0 +1,105 @@
+{
+  "scope": "Compute UJT trigger levels and oscillator frequency, SCR average and RMS currents and thermal margin, and DIAC/TRIAC firing-angle power control.",
+  "intuition": "A thyristor is a four-layer sandwich that behaves as two interlocked transistors: once the loop gain reaches one, each transistor feeds the other and the device latches on by itself. The gate only starts the process; it cannot stop it, which is why an SCR stays on until its anode current falls below the holding level.",
+  "concept": [
+    "**The UJT is a trigger, not an amplifier.** A unijunction transistor is a lightly doped n-type silicon bar with one heavily doped $p$-type emitter diffused into its side, so it has a single $pn$ junction and two bases, $B_1$ and $B_2$. With $V_{BB}$ across the bar, the interbase resistance $R_{BB}$ (typically 5 to 10 $\\mathrm{k\\Omega}$) divides so that the fraction $\\eta=\\frac{R_{B1}}{R_{B1}+R_{B2}}$ appears at the emitter, where $\\eta$ is the **intrinsic standoff ratio** (0.5 to 0.85 typical). The emitter junction stays reverse biased until the emitter voltage reaches $V_P=\\eta V_{BB}+V_D$, where $V_D\\approx0.7\\ \\mathrm{V}$ is the emitter diode drop. Below $V_P$ the emitter looks like an open circuit; as soon as the emitter reaches $V_P$ the junction injects, $R_{B1}$ collapses to a few ohms, and the emitter dumps its capacitor into $B_1$, producing a sharp current spike and a low valley voltage $V_V$ (about 1 to 2 V). The UJT then turns off when the emitter current falls below the valley current $I_V$, and the capacitor recharges. That relaxation cycle is the standard SCR/TRIAC phase-shift trigger: the capacitor charges through $R$ until it fires, and the firing instant sets the conduction angle.",
+    "**The SCR is a latching four-layer switch.** An SCR is a $pnpn$ stack: the two outer layers carry the anode and cathode, the two inner ones form the two-transistor model, a $pnp$ and an $nqn$ whose collector currents feed each other's base. The device blocks in both directions in the off state, but the useful mode is **forward blocking**: anode positive with respect to cathode, the reverse-biased centre junction holds off the voltage and only leakage flows. If a small gate current is injected into the $n$ layer nearest the cathode, the loop gain grows and when $\\alpha_1+\\alpha_2\\ge1$ the two transistors regenerate each other, the centre junction is flooded, and the SCR snaps into **forward conduction** with an on-state drop of only 1 to 2 V. Once latched, the gate loses control: the SCR turns off only when the anode current falls below the **holding current** $I_H$ (typically milliamps). A larger **latching current** $I_L$ (typically 2 to 5 times $I_H$) is the minimum anode current the device needs *immediately after* gate turn-on to stay on once the gate pulse ends; between $I_H$ and $I_L$ the SCR can be triggered and then fall out of conduction when the gate is removed. Gate drive is therefore a short pulse with enough amplitude to reach $I_L$, not a continuous current.",
+    "**Turn-on without a gate, and current ratings.** Besides gate triggering, an SCR turns on if the anode voltage exceeds the forward breakover $V_{BO}$ (which falls as temperature rises), if the anode voltage rises faster than the rated $dV/dt$ (the centre-junction capacitance couples enough displacement current to act as gate current), by excessive temperature, or by light in a light-triggered version. These are the false-triggering mechanisms, and they are why a snubber network and a gate-cathode resistor are fitted. For ratings, the controlled rectifier problem always reduces to the conduction angle. For a sinusoidal anode current of peak $I_p$ that conducts from firing angle $\\alpha$ to the end of the half cycle, the average current is $I_{avg}=\\frac{I_p}{2\\pi}\\left(1+\\cos\\alpha\\right)$ and the rms current is $I_{rms}=I_p\\sqrt{\\frac{\\pi-\\alpha}{4\\pi}+\\frac{\\sin2\\alpha}{8\\pi}}$ with $\\alpha$ in radians. At $\\alpha=0$ these reduce to the familiar $I_p/\\pi$ and $I_p/2$ for a full half cycle. The device must be selected on its *average* current rating for the conduction loss, but its *rms* current rating for $I^{2}R$ heating of the junction and the leads, and the form factor $I_{rms}/I_{avg}$ is always greater than 1.",
+    "**DIAC and TRIAC give symmetric AC control.** The DIAC is a two-terminal, three-layer bidirectional trigger that blocks in both directions and breaks over at a nearly symmetric voltage (typically 30 to 40 V), so the timing capacitor can fire it on both half cycles; used alone it makes a simple relaxation oscillator, and paired with a TRIAC it gives clean, symmetric phase control. The TRIAC is effectively two SCRs in inverse parallel on one chip with a shared gate, so it conducts in both directions and can switch a full AC wave with one device and one trigger. Its four trigger quadrants are named by the polarity of the gate pulse relative to the MT2 terminal; sensitivity is highest and required gate current lowest in quadrant I and lowest in quadrant IV, and many opto-isolated TRIAC drivers are specified only for quadrants I to III. The practical consequences of the structure: a TRIAC's gate cannot be used to interrupt the load, so an inductive load needs a snubber because the trapped current plus $dV/dt$ can retrigger it, and the same $I_{avg}$, $I_{rms}$ and form-factor arithmetic applies to the load current rather than to the device. The classic applications are lamp dimmers, motor speed control, heater control and solid-state relays on the AC side."
+  ],
+  "formulas": [
+    { "q": "UJT intrinsic standoff ratio", "e": "\\eta = \\frac{R_{B1}}{R_{B1}+R_{B2}}", "n": "Set by the device geometry and essentially independent of V_BB. Typical 0.5-0.85. R_B1 is the base-one resistance measured at zero emitter current." },
+    { "q": "UJT peak (firing) emitter voltage", "e": "V_P = \\eta V_{BB} + V_D, \\qquad V_D \\approx 0.7\\ \\mathrm{V}", "n": "The emitter diode stays reverse biased below this level. The 0.7 V term is the emitter junction drop, not the supply." },
+    { "q": "UJT relaxation-oscillator period", "e": "T = R C \\ln\\left(\\frac{1}{1-\\eta}\\right)", "n": "Time for the capacitor to charge from the valley voltage to V_P through R. Idealized: it ignores the finite valley voltage and the discharge time, so the real period is a few percent shorter." },
+    { "q": "Oscillator frequency", "e": "f = \\frac{1}{T} = \\frac{1}{R C \\ln\\left(\\frac{1}{1-\\eta}\\right)}", "n": "For eta = 2/3, ln(3) = 1.099, so f is about 0.91/(RC). Source frequency here is the free-running rate, not a line-locked value." },
+    { "q": "SCR regenerative turn-on condition", "e": "\\alpha_1 + \\alpha_2 \\ge 1", "n": "Two-transistor model. Once the sum of the internal current gains reaches unity the loop latches and the gate can be removed. Alpha rises with current and temperature, which is why hot devices trigger more easily." },
+    { "q": "Average SCR current for a firing angle", "e": "I_{avg} = \\frac{I_p}{2\\pi}\\left(1+\\cos\\alpha\\right)", "n": "Half-wave conduction from alpha to pi with peak I_p; alpha in RADIANS. At alpha = 0 this is I_p/pi = 0.318*I_p, the full half-cycle value." },
+    { "q": "RMS SCR current for a firing angle", "e": "I_{rms} = I_p\\sqrt{\\frac{\\pi-\\alpha}{4\\pi}+\\frac{\\sin 2\\alpha}{8\\pi}}", "n": "Use this value, not I_avg, for I^2R heating and for comparing against the device rms rating. At alpha = 0 it reduces to I_p/2." },
+    { "q": "Form factor of the controlled waveform", "e": "F = \\frac{I_{rms}}{I_{avg}} > 1", "n": "Because the waveform is a chopped sinusoid, the heating current always exceeds the average. At alpha = 60 degrees, F is about 1.88." },
+    { "q": "SCR conduction loss (constant-drop model)", "e": "P = V_{T(on)} I_{avg}", "n": "V_T(on) is 1-2 V for a typical SCR. This constant-drop estimate underestimates the loss of a device with significant on-state slope resistance, where the true loss goes as I_rms^2 R_on." },
+    { "q": "Load rms voltage and power with a TRIAC", "e": "V_{rms} = V_m\\sqrt{\\frac{1}{\\pi}\\left[\\frac{\\pi-\\alpha}{2}+\\frac{\\sin 2\\alpha}{4}\\right]}, \\qquad P = \\frac{V_{rms}^{2}}{R_L}", "n": "Symmetric triggering on both half cycles; alpha in radians, V_m the peak line voltage. At alpha = 90 degrees the load receives exactly half of the full-conduction power." }
+  ],
+  "problems": [
+    {
+      "prompt": "A UJT has $R_{B1}=6\\ \\mathrm{k\\Omega}$ and $R_{B2}=3\\ \\mathrm{k\\Omega}$ and is operated from $V_{BB}=20\\ \\mathrm{V}$. Find $\\eta$, $V_P$ and the emitter voltage at which the device fires.",
+      "give": ["R_B1 = 6 kohm", "R_B2 = 3 kohm", "V_BB = 20 V", "V_D = 0.7 V"],
+      "steps": [
+        "eta = R_B1/(R_B1 + R_B2) = 6/(6 + 3) = 0.6667",
+        "V_P = eta*V_BB + V_D = 0.6667(20) + 0.7 = 13.33 + 0.7 = 14.03 V",
+        "So the emitter diode remains reverse biased until the timing capacitor reaches 14.0 V, which is 70.2 percent of V_BB",
+        "Once the emitter reaches V_P the junction injects, R_B1 collapses toward a few ohms, and the capacitor discharges into B1 until the emitter current falls below the valley current"
+      ],
+      "ans": "eta = 0.667 and V_P = 14.03 V, so the UJT fires when the emitter capacitor reaches about 14.0 V.",
+      "trap": "Using V_P = eta*V_BB = 13.33 V and dropping the 0.7 V emitter drop, or computing eta as R_B2/(R_B1+R_B2) = 1 - 0.667. The standoff ratio is measured to base one, the base that receives the discharge current.", "calc": {"mode":"COMP","steps":["`6÷(6+3)` → **0.6667** = $\\eta$.","`×20+0.7` → **14.03** V = $V_P$, the emitter drop included.","`14.03÷20` → **70.2** % of $V_{BB}$."],"note":"$V_P = \\eta V_{BB}+V_D$; dropping the 0.7 V misplaces the firing point by 0.7 V."}
+    },
+    {
+      "prompt": "The same UJT ($\\eta=0.667$) drives a relaxation oscillator with $R=50\\ \\mathrm{k\\Omega}$ and $C=0.1\\ \\mu\\mathrm{F}$. Find the period and the frequency.",
+      "give": ["eta = 0.6667", "R = 50 kohm", "C = 0.1 uF"],
+      "steps": [
+        "Time constant: R*C = (50e3)(0.1e-6) = 5.0e-3 s = 5.0 ms",
+        "ln(1/(1 - eta)) = ln(1/0.3333) = ln(3) = 1.0986",
+        "T = R*C*ln(1/(1-eta)) = (5.0e-3)(1.0986) = 5.49e-3 s = 5.49 ms",
+        "f = 1/T = 1/5.49e-3 = 182 Hz"
+      ],
+      "ans": "T = 5.49 ms and f = 182 Hz.",
+      "trap": "Using T = RC = 5.0 ms and reporting f = 200 Hz. The capacitor charges to 66.7 percent of V_BB, not to one time constant, so the multiplier ln(3) = 1.099 is required — and a larger eta makes the period longer, since the capacitor must charge further before firing.", "calc": {"mode":"COMP","steps":["`50E3×0.1E-6` → **5.0e-3** s = RC.","`×ln(1÷(1−0.6667))` → **5.49e-3** s = **5.49** ms.","`1÷Ans` → **182** Hz."],"note":"Using $T = RC = 5.0$ ms reports 200 Hz; the $\\ln 3 = 1.0986$ factor is required."}
+    },
+    {
+      "prompt": "An SCR conducts a sinusoidal half-wave with peak current $I_p=100\\ \\mathrm{A}$ and fires at $\\alpha=60^{\\circ}$. Find the average and rms currents and the form factor.",
+      "give": ["I_p = 100 A", "Firing angle alpha = 60 degrees", "Conduction from 60 to 180 degrees"],
+      "steps": [
+        "Convert: alpha = 60 degrees = pi/3 = 1.0472 rad",
+        "I_avg = (I_p/2pi)(1 + cos alpha) = (100/6.2832)(1 + 0.5) = 15.915*1.5 = 23.87 A",
+        "I_rms = I_p*sqrt((pi - alpha)/(4pi) + sin(2alpha)/(8pi))",
+        "Numerically: (pi - pi/3)/(4pi) = (2pi/3)/(4pi) = 0.16667 and sin(120 degrees)/(8pi) = 0.8660/25.133 = 0.03446",
+        "Sum = 0.20113, sqrt = 0.44847, so I_rms = 100*0.44847 = 44.85 A",
+        "Form factor F = I_rms/I_avg = 44.85/23.87 = 1.879"
+      ],
+      "ans": "I_avg = 23.87 A, I_rms = 44.85 A, form factor = 1.88.",
+      "trap": "Using the average current to check the device rms rating, or applying the full-cycle factors 0.318 and 0.5 without adjusting for the firing angle. Both currents fall as alpha is delayed, but the rms falls more slowly, so the form factor grows from 1.57 at alpha = 0.", "calc": {"mode":"COMP","steps":["`60×π÷180` → **1.0472** rad, so the cosine never sees degrees.","`100÷(2π)×(1+cos(Ans))` → **23.87** A = $I_{avg}$.","`100√((π−1.0472)÷(4π)+sin(2×1.0472)÷(8π))` → **44.85** A = $I_{rms}$; `÷23.87` → **1.88** = F."],"note":"$\\alpha$ must be in radians; putting 60 in the cosine gives a meaningless current."}
+    },
+    {
+      "prompt": "The SCR above has an on-state drop of $V_{T(on)}=1.5\\ \\mathrm{V}$ at 23.87 A average. The junction-to-case thermal resistance is $0.8\\ \\mathrm{^\\circ C/W}$, the case-to-sink interface is $0.5\\ \\mathrm{^\\circ C/W}$, the ambient is $40\\ \\mathrm{^\\circ C}$ and $T_J(max)=125\\ \\mathrm{^\\circ C}$. Can a heat sink of $2.0\\ \\mathrm{^\\circ C/W}$ be used? Find the largest allowable sink resistance.",
+      "give": ["V_T(on) = 1.5 V", "I_avg = 23.87 A", "theta_JC = 0.8 C/W", "theta_CS = 0.5 C/W", "theta_SA = 2.0 C/W", "T_A = 40 C", "T_J(max) = 125 C"],
+      "steps": [
+        "P = V_T(on)*I_avg = (1.5)(23.87) = 35.8 W",
+        "With the 2.0 C/W sink: theta_JA = 0.8 + 0.5 + 2.0 = 3.3 C/W",
+        "T_J = T_A + P*theta_JA = 40 + (35.8)(3.3) = 40 + 118.1 = 158 C, which exceeds the 125 C limit",
+        "Allowable total: theta_JA(max) = (T_J(max) - T_A)/P = (125 - 40)/35.8 = 85/35.8 = 2.37 C/W",
+        "Largest sink: theta_SA(max) = 2.37 - 0.8 - 0.5 = 1.07 C/W"
+      ],
+      "ans": "No. The 2.0 C/W sink gives T_J = 158 C, above the 125 C limit; the sink must be 1.07 C/W or better.",
+      "trap": "Adding only the junction-to-case resistance and ignoring the interface washer and the sink (0.8 + 0.5 + 2.0 must all be included), or using I_rms in P = V_T(on)*I. The constant-drop model pairs with the AVERAGE current; using 44.85 A would give 67 W and demand an impossibly good sink.", "calc": {"mode":"COMP","steps":["`1.5×23.87` → **35.8** W; the constant-drop model pairs with the AVERAGE current.","`0.8+0.5+2.0` → **3.3** °C/W, so `40+35.8×Ans` → **158** °C, over the 125 °C limit.","`(125−40)÷35.8` → **2.37** °C/W total; `−1.3` → **1.07** °C/W for the sink."],"note":"Using 44.85 A rms gives 67 W and demands an impossible heat sink."}
+    },
+    {
+      "prompt": "A TRIAC is triggered symmetrically through a DIAC with $V_{BO}=32\\ \\mathrm{V}$ at a firing angle of $\\alpha=90^{\\circ}$ on a $220\\ \\mathrm{V}$ rms, $60\\ \\mathrm{Hz}$ line feeding $R_L=20\\ \\Omega$. Find the trigger level relative to the line peak, the rms load voltage, the load power and the peak device current.",
+      "give": ["V_rms(line) = 220 V", "f = 60 Hz", "V_BO(DIAC) = 32 V", "alpha = 90 degrees", "R_L = 20 ohm"],
+      "steps": [
+        "V_m = sqrt(2)*220 = 311.1 V, so the DIAC must see 32/311.1 = 10.3 percent of the peak line voltage before it breaks over; the R-C phase network is set so the capacitor reaches 32 V at alpha = 90 degrees",
+        "V_rms(load) = V_m*sqrt((1/pi)[(pi - alpha)/2 + sin(2alpha)/4]). At alpha = pi/2: (pi - pi/2)/2 = 0.7854 and sin(pi)/4 = 0, so the bracket is 0.7854/pi = 0.25 and the square root is 0.5",
+        "V_rms(load) = 0.5*311.1 = 155.6 V",
+        "P = V_rms^2/R_L = (155.6)^2/20 = 24200/20 = 1210 W, exactly half the 2420 W obtained at full conduction (220^2/20)",
+        "Peak load and device current: I_pk = V_m/R_L = 311.1/20 = 15.6 A"
+      ],
+      "ans": "The DIAC fires at 32 V = 10.3 percent of the 311 V peak; V_rms(load) = 155.6 V, P = 1210 W (half power), and the peak TRIAC current is 15.6 A.",
+      "trap": "Substituting 220 V as the peak voltage in V_rms = 0.5*V_m and reporting 110 V and 605 W. The line is specified in rms, so the peak is 311 V; the alpha = 90 degree result is half of full power, and a wrong peak makes it a quarter.", "calc": {"mode":"COMP","steps":["`√2×220` → **311.1** V = $V_m$; `32÷Ans` → **10.3** % of the peak.","At $\\alpha = 90°$ the bracket is `(π−π÷2)÷2÷π` → **0.25**, so `√Ans×311.1` → **155.6** V rms.","`Ans²÷20` → **1210** W, exactly half of `220²÷20` → **2420** W; `311.1÷20` → **15.6** A peak."],"note":"The line is rms: using 220 V as the peak reports 110 V and 605 W."}
+    }
+  ],
+  "traps": [
+    "**Confusing the latching current with the holding current.** $I_L$ is the anode current that must be reached *during* the gate pulse for the SCR to stay on afterwards, and it is 2 to 5 times larger than the holding current $I_H$ that keeps an already-conducting device on. A gate pulse too short to reach $I_L$ lets the SCR drop out the instant the gate is removed.",
+    "**Thinking the gate can turn the SCR off.** Once $\\alpha_1+\\alpha_2\\ge1$ the device latches and the gate is irrelevant. Turn-off requires the anode current to fall below $I_H$, which in an AC circuit happens naturally at the zero crossing but in a DC circuit needs a forced-commutation circuit.",
+    "**Checking a thyristor rating with the average current.** Conduction loss uses $I_{avg}$ with the constant-drop model, but heating, fuse selection and the device rms rating use $I_{rms}$. The chopped waveform has a form factor of 1.6 to 2.2, so substituting the average for the rms underestimates the heating by more than a factor of 2.",
+    "**Forgetting the false-triggering paths.** An SCR or TRIAC can turn on with the gate open via excessive $dV/dt$, anode overvoltage beyond $V_{BO}$, or high temperature, because each of these raises the internal alphas toward the latching condition. Snubbers and a gate-cathode resistor exist to close those paths, not to filter noise from the gate signal.",
+    "**Assuming a DIAC or TRIAC is a one-directional device.** The DIAC breaks over symmetrically and the TRIAC conducts in both half cycles; use an SCR when half-wave control is wanted. Related: a TRIAC on an inductive load can be retriggered by the trapped current at commutation, so it needs an RC snubber that a resistive load does not.",
+    "**Mixing degrees and radians in the firing-angle formulas.** $\\alpha$ must be in radians in $I_{avg}=\\frac{I_p}{2\\pi}(1+\\cos\\alpha)$ but is usually quoted in degrees. A 60 degree firing angle is $\\pi/3$, and using 60 in the cosine gives an entirely different current."
+  ],
+  "refs": [
+    "[[03_SCR_Phase-Controlled_Rectifiers]]",
+    "[[05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge]]",
+    "[[12_MOSFET_Types_and_Regions]]"
+  ],
+  "prereqs": [
+    "[[02_PN_Junction_and_Depletion_Region]]",
+    "[[04_Diode_Models_and_Load_Line]]"
+  ]
+}

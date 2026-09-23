@@ -1,0 +1,154 @@
+---
+id: MATH-01-04
+title: "Related Rates"
+part: "01_Mathematics"
+area: "01_Differential_Calculus"
+topic: 4
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_Differentiation_Rules]]"]
+tags: ["ece", "mathematics", "differential_calculus"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 04 — Related Rates
+
+> [!abstract] Scope
+> Set up and solve related-rates problems by differentiating a geometric relation with respect to time.
+
+## Core Concept
+
+> [!tip] Intuition
+> Every related-rates problem is one equation plus the chain rule. The equation links the quantities; differentiating with respect to $t$ turns it into an equation linking their *rates*.
+
+**The method, in order.** (1) Draw and label the figure; name every quantity that changes. (2) Write one equation relating them — a volume, area, Pythagoras, or similar-triangles relation. (3) Differentiate both sides with respect to $t$; every variable becomes a rate by the chain rule. (4) Substitute the *instantaneous* values of the variables. (5) Solve for the unknown rate and attach units, including the sign.
+
+**Differentiate before substituting.** Substituting the numeric values into the relation first produces a constant, whose derivative is zero. This is the single most common failure in the topic. The order is always: equation, differentiate, then plug in numbers.
+
+**Sign conventions carry meaning.** A rate of $+5$ cm/s means the quantity is increasing. If a ladder's base moves *away* from the wall, then $\frac{dx}{dt} > 0$ and $\frac{dy}{dt}$ comes out negative, meaning the top slides down. An answer without the correct sign is wrong even if the magnitude is right.
+
+**Similar triangles appear whenever a light or a cone is involved.** A shadow problem and a draining cone both reduce to a proportion such as $\frac{r}{h} = \mathrm{const}$, which lets you eliminate one variable *before* differentiating. Eliminating early is what makes the algebra tractable.
+
+**Units.** If a rate is given per minute and another per second, convert first. Mixed units are a reliable source of factor-of-60 errors that look like conceptual mistakes.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Chain rule in time | $\frac{dV}{dt} = \frac{dV}{dr}\cdot\frac{dr}{dt}$ | Every variable differentiated with respect to t picks up its own rate. |
+| Pythagoras (ladder) | $x^2 + y^2 = L^2$ | Differentiating gives 2x(dx/dt) + 2y(dy/dt) = 0 since L is constant. |
+| Sphere volume rate | $\frac{dV}{dt} = 4\pi r^2 \frac{dr}{dt}$ | The 4 pi r^2 factor is the surface area - this is why the rate depends on current radius. |
+| Cone volume rate | $V = \frac{1}{3}\pi r^2 h, \quad \frac{dV}{dt} = \frac{\pi}{3}\left(2rh\frac{dr}{dt} + r^2\frac{dh}{dt}\right)$ | Eliminate r via the similar-triangle ratio before differentiating. |
+| Similar circles (cone) | $\frac{r}{h} = \frac{R}{H} = k$ | R, H are the full cone dimensions; k is constant, so r = kh. |
+| Shadow proportion | $\frac{h_{\mathrm{person}}}{d_{\mathrm{person}}} = \frac{h_{\mathrm{light}}}{d_{\mathrm{shadow\ tip}}}$ | Two similar right triangles sharing the light source. |
+| Angular rate | $\frac{d\theta}{dt} = \frac{1}{1+u^2}\cdot\frac{du}{dt} \mathrm{\ for\ } \theta = \arctan u$ | Used when the question asks how fast an angle changes. |
+
+## Worked Problems
+
+### P1. A ladder 10 ft long rests against a wall. The bottom slides away at 1 ft/s. How fast is the top sliding down when the bottom is 6 ft from the wall?
+
+**Given:** L = 10 ft; dx/dt = 1 ft/s; x = 6 ft
+
+**Solution:**
+
+1. Relation: x^2 + y^2 = 100
+2. Differentiate with respect to t: 2x(dx/dt) + 2y(dy/dt) = 0
+3. Find y when x = 6: y = sqrt(100 - 36) = 8
+4. Solve: dy/dt = -(x/y)(dx/dt) = -(6/8)(1) = -0.75
+
+> [!success]- Answer
+> **The top slides down at $0.75$ ft/s (the negative sign means decreasing height).**
+
+> [!warning] Trap
+> Substituting x = 6 into x^2 + y^2 = 100 before differentiating, which gives 0 = 0. Also reporting 0.75 upward by dropping the sign.
+
+### P2. A spherical balloon is inflated at 100 cm³/s. How fast is the radius growing when r = 5 cm?
+
+**Given:** dV/dt = 100 cm³/s; r = 5 cm
+
+**Solution:**
+
+1. V = (4/3) pi r^3
+2. dV/dt = 4 pi r^2 (dr/dt)
+3. 100 = 4 pi (25)(dr/dt)
+4. dr/dt = 100/(100 pi) = 1/pi
+
+> [!success]- Answer
+> **$\dfrac{dr}{dt} = \dfrac{1}{\pi} \approx 0.318$ cm/s**
+
+> [!warning] Trap
+> Differentiating V = (4/3)pi r^3 as 4 pi r^2 without the dr/dt factor - that is dV/dr, not dV/dt.
+
+### P3. Water drains from an inverted conical tank of height 12 m and top radius 4 m at 2 m³/min. How fast is the water level falling when the water is 6 m deep?
+
+**Given:** H = 12 m; R = 4 m; dV/dt = -2 m³/min; h = 6 m
+
+**Solution:**
+
+1. Similar triangles: r/h = 4/12 = 1/3, so r = h/3
+2. Substitute into the cone volume to get V in terms of h alone: V = (1/3)pi(h/3)^2 h = pi h^3/27
+3. Differentiate: dV/dt = (pi h^2/9)(dh/dt)
+4. At h = 6: -2 = (pi * 36/9)(dh/dt) = 4pi (dh/dt)
+5. dh/dt = -2/(4pi) = -1/(2pi)
+
+> [!success]- Answer
+> **$\dfrac{dh}{dt} = -\dfrac{1}{2\pi} \approx -0.159$ m/min (falling)**
+
+> [!warning] Trap
+> Treating r as constant (4 m) instead of eliminating it with the similar-triangle relation. Without elimination the relation has two unknown rates and cannot be solved.
+
+### P4. A street light is 15 ft high. A 6 ft person walks away at 5 ft/s. How fast is the tip of the shadow moving?
+
+**Given:** light height 15 ft; person 6 ft; dx/dt = 5 ft/s
+
+**Solution:**
+
+1. Let x = distance of person from the pole, s = distance of shadow tip from the pole
+2. Similar triangles: 6/(s - x) = 15/s
+3. Cross-multiply: 6s = 15(s - x), so 6s = 15s - 15x, giving 9s = 15x and s = (5/3)x
+4. Differentiate: ds/dt = (5/3)(dx/dt) = (5/3)(5) = 25/3
+
+> [!success]- Answer
+> **$\dfrac{ds}{dt} = \dfrac{25}{3} \approx 8.33$ ft/s**
+
+> [!warning] Trap
+> Using x/(shadow length) instead of (s - x) as the person's triangle base, which inverts the proportion.
+
+### P5. Two cars leave an intersection, one north at 60 km/h and one east at 80 km/h. How fast is the distance between them increasing 2 hours later?
+
+**Given:** v_north = 60 km/h; v_east = 80 km/h; t = 2 h
+
+**Solution:**
+
+1. Relation: D^2 = x^2 + y^2 with x = 80t, y = 60t
+2. Differentiate: 2D(dD/dt) = 2x(dx/dt) + 2y(dy/dt)
+3. At t = 2: x = 160, y = 120, D = sqrt(160^2 + 120^2) = 200
+4. dD/dt = (160*80 + 120*60)/200 = (12800 + 7200)/200 = 20000/200 = 100
+
+> [!success]- Answer
+> **$100$ km/h**
+
+> [!warning] Trap
+> Reporting 100 as obvious from the 3-4-5 triangle - it is only exactly 100 here because the geometry is scaled. Also substituting before differentiating.
+
+## Traps & Exam Notes
+
+- **Substituting values before differentiating.** This gives 0 = 0. The order is: relate, differentiate, then substitute.
+- **Dropping a chain-rule factor.** $\frac{dV}{dt}$ requires $\frac{dr}{dt}$; $\frac{dr}{dt}$ is not $\frac{dV}{dr}$.
+- **Not eliminating a second variable.** In cone problems you must use the similar-triangle ratio to express $r$ in terms of $h$ before differentiating, or you will have two unknown rates.
+- **Ignoring the sign.** A decreasing quantity has a negative rate. State the direction in words as well as the number.
+- **Mixed units.** Convert all rates and lengths to a single system before substituting, and carry the units through the final answer.
+- **Shadow problems: wrong base.** The small triangle's base is the person's distance from the light minus, or relative to, the shadow tip — not the total shadow length. Draw both triangles before writing the proportion.
+
+## See Also
+
+- [[02_Differentiation_Rules]]
+- [[06_Optimization_Problems]]
+- [[03_Implicit,_Parametric_and_Logarithmic_Differentiation]]
+
+---
+
+[[03_Implicit,_Parametric_and_Logarithmic_Differentiation|⬅ 03]] · [[_MOC_Differential_Calculus|MOC]] · [[00_Dashboard|Dashboard]] · [[05_Extrema,_Concavity_and_Inflection|05 ➡]]

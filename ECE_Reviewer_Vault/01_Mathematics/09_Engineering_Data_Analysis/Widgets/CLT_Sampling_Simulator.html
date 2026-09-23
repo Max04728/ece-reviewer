@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central Limit Theorem — Sampling Distribution Simulator</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// The CLT is the single most examined idea in engineering data analysis, and it is
+// almost always examined as three separate numbers:
+//     mu_xbar = mu                 (the mean of the sample means is the population mean)
+//     sigma_xbar = sigma / sqrt(n) (the standard error)
+//     the SHAPE becomes normal regardless of the population shape
+// So the widget shows two histograms side by side: the population on the left (which can
+// be wildly skewed or bimodal) and the sampling distribution on the right, with the
+// theoretical N(mu, sigma/sqrt(n)) drawn over it. The right-hand histogram is the answer.
+//
+// The generator is seeded, so a given control setting always produces the same picture -
+// that matters because the whole point is comparing SHAPES, not watching noise move.
+
+/** mulberry32 — deterministic, so the picture is reproducible for a given seed. */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const gaussOf = (rnd) => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(2 * Math.PI * rnd());
+
+// Every population is scaled to mean 1 so the two panels share one horizontal scale and
+// only the SHAPE changes when you switch distribution.
+const POPS = {
+  uniform: {
+    label: 'uniform (flat)',
+    note: 'flat population: already symmetric, so the CLT has little left to do',
+    sd: 1 / Math.sqrt(3), skew: 0, kind: 'pdf',
+    gen: (r) => 2 * r(),
+    pdf: (x) => (x >= 0 && x <= 2 ? 0.5 : 0),
+  },
+  exponential: {
+    label: 'exponential (strong right skew)',
+    note: 'exponential population: skewness 2, and yet the sample means go normal',
+    sd: 1, skew: 2, kind: 'pdf',
+    gen: (r) => -Math.log(1 - r()),
+    pdf: (x) => (x >= 0 ? Math.exp(-x) : 0),
+  },
+  bimodal: {
+    label: 'bimodal (two humps, symmetric)',
+    note: 'bimodal population: the mean of a bimodal is not normal, but the means of samples are',
+    sd: Math.sqrt(0.49 + 0.04), skew: 0, kind: 'pdf',
+    gen: (r) => (r() < 0.5 ? 1 - 0.7 : 1 + 0.7) + 0.2 * gaussOf(r),
+    pdf: (x) => 0.5 * Math.exp(-0.5 * ((x - 0.3) / 0.2) ** 2) / (0.2 * Math.sqrt(2 * Math.PI)) +
+                0.5 * Math.exp(-0.5 * ((x - 1.7) / 0.2) ** 2) / (0.2 * Math.sqrt(2 * Math.PI)),
+  },
+  skewed: {
+    label: 'heavily skewed (lognormal, CV ≈ 0.95)',
+    note: 'lognormal population: skewness 3.69, the hardest case for the CLT',
+    sd: 0.9468, skew: 3.6893, kind: 'pdf',
+    gen: (r) => Math.exp(0.8 * gaussOf(r)) / Math.exp(0.32),
+    pdf: (x) => (x > 0 ? Math.exp(-0.5 * ((Math.log(x * 1.3771)) / 0.8) ** 2) / (x * 0.8 * Math.sqrt(2 * Math.PI) * 1.3771) : 0),
+  },
+};
+
+/** Weighted mean / sd / skewness of an array. */
+function stats(xs) {
+  const N = xs.length;
+  let m = 0;
+  for (const x of xs) m += x;
+  m /= N;
+  let v = 0;
+  for (const x of xs) v += (x - m) * (x - m);
+  v /= N;
+  const sd = Math.sqrt(v);
+  let s3 = 0;
+  for (const x of xs) s3 += (x - m) ** 3;
+  s3 /= N;
+  return { mean: m, sd, skew: sd > 0 ? s3 / (sd * sd * sd) : 0, N };
+}
+
+/** Density of N(mu, sd) at x. */
+const normalPdf = (x, mu, sd) => Math.exp(-0.5 * ((x - mu) / sd) ** 2) / (sd * Math.sqrt(2 * Math.PI));
+
+widget({
+  title: 'Central Limit Theorem — Sampling Distribution of the Mean',
+  description:
+    'Draw many samples of size n from a population you choose and histogram the sample MEANS. The population (left) can be flat, bimodal or violently skewed; the sampling distribution (right) goes normal anyway, centred on μ with standard error σ/√n.',
+  height: 600,
+  range: { xMin: 0, xMax: 5, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'pop', label: 'population shape', type: 'select',
+      options: Object.entries(POPS).map(([k, o]) => ({ value: k, label: o.label })), value: 'exponential' },
+    { id: 'n', label: 'sample size n', min: 1, max: 100, step: 1, value: 5 },
+    { id: 'M', label: 'number of samples drawn', min: 200, max: 5000, step: 100, value: 3000 },
+    { id: 'bins', label: 'histogram bins', min: 12, max: 60, step: 2, value: 30 },
+    { id: 'overlay', label: 'overlay the theoretical normal curve', type: 'checkbox', value: true },
+    { id: 'seed', label: 'seed (change for a fresh set of samples)', min: 1, max: 9999, step: 1, value: 2346 },
+  ],
+
+  compute: (v) => {
+    const pop = POPS[v.pop] ?? POPS.exponential;
+    const n = Math.max(1, Math.round(v.n));
+    const M = Math.max(50, Math.round(v.M));
+    const nb = Math.max(6, Math.round(v.bins));
+    const rnd = mulberry32(Math.round(v.seed) || 1);
+
+    // one big draw for the population histogram (same generator, so both panels agree)
+    const POPSIZE = 40000;
+    const sample = new Array(POPSIZE);
+    const means = new Array(M);
+    for (let i = 0; i < POPSIZE; i++) sample[i] = pop.gen(rnd);
+    for (let i = 0; i < M; i++) {
+      let s = 0;
+      for (let j = 0; j < n; j++) s += pop.gen(rnd);
+      means[i] = s / n;
+    }
+
+    const ps = stats(sample);
+    const ms = stats(means);
+    const se = ps.sd / Math.sqrt(n);          // theoretical standard error, from the sample sd
+    const seTrue = pop.sd / Math.sqrt(n);     // and from the population sigma
+    const within1 = means.filter((m) => Math.abs(m - ps.mean) <= se).length / M;
+
+    // histograms, as densities so a pdf can be overlaid on the same axis
+    const hist = (xs, lo, hi, k) => {
+      const w = (hi - lo) / k;
+      const h = new Array(k).fill(0);
+      for (const x of xs) {
+        const b = Math.floor((x - lo) / w);
+        if (b >= 0 && b < k) h[b]++;
+      }
+      return h.map((c) => c / (xs.length * w));
+    };
+    const xLo = 0, xHi = 4.5;
+    const hp = hist(sample, xLo, xHi, nb);
+    const mhLo = Math.max(-0.2, ps.mean - 4.2 * se), mhHi = ps.mean + 4.2 * se;
+    const hm = hist(means, mhLo, mhHi, nb);
+
+    return { pop, n, M, nb, ps, ms, se, seTrue, within1, hp, hm, xLo, xHi, mhLo, mhHi,
+             allMeans: means, allPop: sample };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const L = { x0: 56, x1: 436, y0: 84, y1: 396 };
+    const R = { x0: 512, x1: plot.w - 20, y0: 84, y1: 396 };
+    const ps = out.ps, ms = out.ms, se = out.se;
+
+    // ---------------------------------------------------------------- header
+    plot.text('μ_x̄ = μ        σ_x̄ = σ/√n        z = (x̄ − μ)/(σ/√n)        and the shape → normal as n grows',
+      14, 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('population: ' + out.pop.label + '   —   μ = ' + fmt(ps.mean, 5) + ', σ = ' + fmt(ps.sd, 5) +
+      ', skewness = ' + fmt(ps.skew, 4),
+      14, 38, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('standard error σ/√n = ' + fmt(ps.sd, 5) + '/√' + out.n + ' = ' + fmt(se, 6) +
+      '        ' + out.M + ' samples of size n = ' + out.n + ' → ' + out.M + ' sample means',
+      14, 56, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text(out.pop.note, 14, 74, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+
+    // ------------------------------------------------------------- panel frame
+    const frame = (B, title, sub) => {
+      ctx.save();
+      ctx.fillStyle = 'rgba(39,39,58,0.5)';
+      ctx.fillRect(B.x0 - 10, B.y0 - 14, B.x1 - B.x0 + 20, B.y1 - B.y0 + 26);
+      ctx.restore();
+      plot.text(title, B.x0 - 10, B.y0 - 22, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+      plot.text(sub, B.x0 - 10, B.y1 + 24, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    };
+
+    // ================================================== LEFT: population histogram
+    frame(L, 'POPULATION  (one draw of ' + out.allPop.length.toLocaleString('en-US') + ' values)', 'x');
+    const XPL = (x) => L.x0 + ((x - out.xLo) / (out.xHi - out.xLo)) * (L.x1 - L.x0);
+    const bwP = (out.xHi - out.xLo) / out.nb;
+    let hpMax = 0;
+    for (const d of out.hp) hpMax = Math.max(hpMax, d);
+    hpMax = Math.max(hpMax, normalPdf(ps.mean, ps.mean, Math.max(ps.sd, 1e-6))) * 1.18;
+    const YPL = (d) => L.y1 - (d / hpMax) * (L.y1 - L.y0);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (const yf of [0.25, 0.5, 0.75, 1]) {
+      ctx.beginPath(); ctx.moveTo(L.x0, YPL(hpMax * yf)); ctx.lineTo(L.x1, YPL(hpMax * yf)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(L.x0, L.y1); ctx.lineTo(L.x1, L.y1); ctx.stroke();
+    ctx.restore();
+
+    for (let i = 0; i < out.nb; i++) {
+      const x0 = XPL(out.xLo + i * bwP), x1 = XPL(out.xLo + (i + 1) * bwP);
+      const y = YPL(out.hp[i]);
+      ctx.save();
+      ctx.fillStyle = 'rgba(137,180,250,0.55)';
+      ctx.fillRect(x0 + 0.5, y, Math.max(1, x1 - x0 - 1), L.y1 - y);
+      ctx.restore();
+    }
+    // population mean and ±1σ marks
+    plot.segment(XPL(ps.mean), L.y0, XPL(ps.mean), L.y1, { color: PALETTE.warn, width: 1.4, dash: [4, 3] });
+    plot.text('μ = ' + fmt(ps.mean, 4), XPL(ps.mean), L.y0 + 2, { color: PALETTE.warn, font: '10px ui-monospace, monospace', align: 'center' });
+    for (const s of [-1, 1]) {
+      plot.segment(XPL(ps.mean + s * ps.sd), L.y0, XPL(ps.mean + s * ps.sd), L.y1, { color: 'rgba(249,226,175,0.4)', width: 1, dash: [2, 3] });
+    }
+    plot.text('±1σ shaded limits', XPL(ps.mean + ps.sd) + 4, L.y0 + 16, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    for (const x of [0, 1, 2, 3, 4]) {
+      plot.text(String(x), XPL(x), L.y1 + 14, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    const pw = (ps.skew > 1.5) ? PALETTE.accent2 : PALETTE.accent3;
+    plot.text('population skewness = ' + fmt(ps.skew, 4) + '   (0 = symmetric)',
+      L.x0 - 10, L.y1 + 40, { color: pw, font: '11px ui-monospace, monospace' });
+
+    // ================================================== RIGHT: sampling distribution
+    frame(R, 'SAMPLING DISTRIBUTION of x̄  (' + out.M + ' sample means)', 'x̄');
+    const XL = ms.mean - 4.6 * se;
+    const XR = ms.mean + 4.6 * se;
+    const XPR = (x) => R.x0 + ((x - XL) / (XR - XL)) * (R.x1 - R.x0);
+    const bwM = (XR - XL) / out.nb;
+    let hmMax = 0;
+    for (const d of out.hm) hmMax = Math.max(hmMax, d);
+    hmMax = Math.max(hmMax, normalPdf(ms.mean, ms.mean, Math.max(se, 1e-9))) * 1.18;
+    const YPR = (d) => R.y1 - (d / hmMax) * (R.y1 - R.y0);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (const yf of [0.25, 0.5, 0.75, 1]) {
+      ctx.beginPath(); ctx.moveTo(R.x0, YPR(hmMax * yf)); ctx.lineTo(R.x1, YPR(hmMax * yf)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(R.x0, R.y1); ctx.lineTo(R.x1, R.y1); ctx.stroke();
+    ctx.restore();
+
+    for (let i = 0; i < out.nb; i++) {
+      const x0 = XPR(XL + i * bwM), x1 = XPR(XL + (i + 1) * bwM);
+      const y = YPR(out.hm[i]);
+      ctx.save();
+      ctx.fillStyle = 'rgba(166,227,161,0.55)';
+      ctx.fillRect(x0 + 0.5, y, Math.max(1, x1 - x0 - 1), R.y1 - y);
+      ctx.restore();
+    }
+
+    // the ±1 standard-error band around mu
+    ctx.save();
+    ctx.fillStyle = 'rgba(249,226,175,0.10)';
+    ctx.fillRect(XPR(ps.mean - se), R.y0, XPR(ps.mean + se) - XPR(ps.mean - se), R.y1 - R.y0);
+    ctx.restore();
+    for (const s of [-1, 1]) {
+      plot.segment(XPR(ps.mean + s * se), R.y0, XPR(ps.mean + s * se), R.y1, { color: 'rgba(249,226,175,0.75)', width: 1.3, dash: [4, 3] });
+    }
+    plot.text('μ ± σ/√n', XPR(ps.mean + se) + 4, R.y0 + 4, { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    plot.text(fmt(out.within1 * 100, 4) + '% of the means landed here (theory 68.27%)',
+      R.x0 + 4, R.y0 + 18, { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+
+    // theoretical normal N(mu, sigma/sqrt(n))
+    if (v.overlay) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      for (let i = 0; i <= 400; i++) {
+        const x = XL + ((XR - XL) * i) / 400;
+        const d = normalPdf(x, ps.mean, Math.max(se, 1e-9));
+        const px = XPR(x), py = YPR(d);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+      plot.text('N(μ, σ/√n) drawn from the population σ', R.x0 + 4, R.y0 + 34,
+        { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    }
+
+    plot.segment(XPR(ms.mean), R.y0, XPR(ms.mean), R.y1, { color: PALETTE.accent5, width: 1.4, dash: [4, 3] });
+    plot.text('x̄̄ = ' + fmt(ms.mean, 5), XPR(ms.mean), R.y1 - 4, { color: PALETTE.accent5, font: '10px ui-monospace, monospace', align: 'center' });
+
+    // axis ticks at mu - 3se .. mu + 3se
+    for (let k = -3; k <= 3; k++) {
+      const x = ps.mean + k * se;
+      if (x < XL || x > XR) continue;
+      plot.text(k === 0 ? 'μ' : (k > 0 ? '+' + k + 'se' : k + 'se'), XPR(x), R.y1 + 14,
+        { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('sampling-distribution skewness = ' + fmt(ms.skew, 4) + '   (started at ' + fmt(ps.skew, 4) + ')',
+      R.x0 - 10, R.y1 + 40, { color: Math.abs(ms.skew) < 0.35 ? PALETTE.accent3 : PALETTE.accent4, font: '11px ui-monospace, monospace' });
+
+    // ------------------------------------------------------- substitution table
+    let y = 448;
+    const row = (label, a, b, c, col) => {
+      plot.text(label, 20, y, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+      plot.text(a, 300, y, { color: col ?? PALETTE.accent, font: '11px ui-monospace, monospace' });
+      plot.text(b, 560, y, { color: col ?? PALETTE.accent, font: '11px ui-monospace, monospace' });
+      plot.text(c, 740, y, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+      y += 19;
+    };
+    plot.text('quantity', 20, y, { color: PALETTE.dim, font: 'bold 10px ui-monospace, monospace' });
+    plot.text('value from the simulation', 300, y, { color: PALETTE.dim, font: 'bold 10px ui-monospace, monospace' });
+    plot.text('theory', 560, y, { color: PALETTE.dim, font: 'bold 10px ui-monospace, monospace' });
+    plot.text('comment', 740, y, { color: PALETTE.dim, font: 'bold 10px ui-monospace, monospace' });
+    y += 18;
+    row('population mean μ', fmt(ps.mean, 6), '—', 'the target of every sample mean');
+    row('population σ', fmt(ps.sd, 6), fmt(out.pop.sd, 5) + ' (true)', 'sample sd vs the distribution sd');
+    row('mean of the sample means', fmt(ms.mean, 6), fmt(ps.mean, 6), 'E[x̄] = μ  — unbiased');
+    row('sd of the sample means', fmt(ms.sd, 6), fmt(se, 6), 'σ_x̄ = σ/√n  — the standard error');
+    row('σ/√n from the true σ', fmt(out.seTrue, 6), fmt(se, 6), 'same formula, cleaner input');
+    row('skewness of the means', fmt(ms.skew, 5), '0', 'was ' + fmt(ps.skew, 4) + ' in the population');
+
+    // verdict strip
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, plot.h - 24, plot.w - 20, 20);
+    ctx.restore();
+    const verdict = Math.abs(ms.skew) < 0.35
+      ? 'n = ' + out.n + ' is already enough for this population: the histogram of means is symmetric (skewness ' + fmt(ms.skew, 3) +
+        ') and sits on the N(μ, σ/√n) curve. The standard error fell from ' + fmt(ps.sd, 4) + ' to ' + fmt(se, 4) + '.'
+      : 'n = ' + out.n + ' is NOT yet enough: the means still carry skewness ' + fmt(ms.skew, 3) +
+        ' from a population skewness of ' + fmt(ps.skew, 3) + '. Raise n and watch it collapse toward 0.';
+    plot.text(verdict, 16, plot.h - 10, { color: Math.abs(ms.skew) < 0.35 ? PALETTE.accent3 : PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'population': out.pop.label,
+    'population mean μ': fmt(out.ps.mean, 6) + '   (true 1.0000)',
+    'population σ': fmt(out.ps.sd, 6) + '   (true ' + fmt(out.pop.sd, 5) + ')',
+    'population skewness': fmt(out.ps.skew, 5),
+    'sample size n': String(out.n),
+    'samples drawn': String(out.M),
+    'observed mean of x̄': fmt(out.ms.mean, 6) + '   (should equal μ)',
+    'observed SD of x̄': fmt(out.ms.sd, 6),
+    'theoretical σ/√n': fmt(out.se, 6),
+    'σ/√n ÷ observed SD of x̄': fmt(out.ms.sd > 0 ? out.se / out.ms.sd : NaN, 5) + '   (1.000 = perfect)',
+    'skewness of x̄': fmt(out.ms.skew, 5) + '   (population had ' + fmt(out.ps.skew, 4) + ')',
+    'fraction within μ ± σ/√n': fmt(out.within1 * 100, 5) + ' %   (normal theory 68.27 %)',
+    'standard error shrinkage': 'σ/√n = ' + fmt(out.se, 4) + ': quadrupling n only halves it',
+    'the CLT statement': 'x̄ is approximately N(μ, σ/√n) for n large, whatever the population shape',
+  }),
+});
+
+// a re-draw button, since a fresh set of samples is a separate experiment
+{
+  const panel = document.querySelector('.vault-widget-controls');
+  if (panel) {
+    const btn = document.createElement('button');
+    btn.className = 'vault-widget-btn';
+    btn.textContent = 'draw a new set of samples';
+    const wrap = document.createElement('label');
+    wrap.className = 'vault-widget-control';
+    wrap.appendChild(btn);
+    panel.appendChild(wrap);
+    btn.addEventListener('click', () => {
+      const input = [...panel.querySelectorAll('input[type="range"]')].pop();
+      if (input) {
+        input.value = String((Number(input.value) % 9999) + 1);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+  }
+}
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The CLT is a statement about the sample MEAN, not about the data.</strong> ' +
+  'Three facts, and the board tests all three: the mean of the sampling distribution equals the population mean, ' +
+  '<code>μ_x̄ = μ</code> (the estimator is unbiased); its standard deviation is the standard error <code>σ_x̄ = σ/√n</code>; and its shape approaches normal ' +
+  'as n grows, <em>no matter what the population looks like</em>. The left panel proves the third point the hard way \u2014 the exponential and lognormal ' +
+  'populations are strongly skewed (skewness 2 and 3.7) and the bimodal one has two humps, yet the right-hand histogram of means is symmetric. ' +
+  'Two exam traps. First, <em>the standard error is σ/√n, not σ/n and not s</em>. Because of the square root, cutting the error in half requires ' +
+  '<em>four times</em> the sample size \u2014 quadrupling n only halves σ_x̄, which is why precision is expensive. Second, <em>the population does not have to be normal, ' +
+  'but the samples must be independent and identically distributed</em>; a survey that samples one classroom instead of the whole school violates independence and the ' +
+  'formula silently understates the true error. Note also what the CLT does <em>not</em> say: it says nothing about the distribution of the individual values, ' +
+  'and with n = 1 the right-hand histogram is just a copy of the left one. The usual rule of thumb is n ≥ 30 for mildly skewed data, but a heavily skewed ' +
+  'population needs far more \u2014 slide n up and watch the skewness of the means fall before your eyes.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

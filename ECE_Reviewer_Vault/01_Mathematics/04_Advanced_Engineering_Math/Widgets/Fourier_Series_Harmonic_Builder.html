@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fourier Series — Harmonic Builder</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The core Fourier insight is that adding harmonics builds the waveform, and that the
+// convergence RATE depends on smoothness: a jump needs 1/n terms, a corner 1/n^2.
+// Showing the overshoot at a discontinuity (Gibbs) is the part that surprises students.
+
+const WAVES = {
+  'square (odd harmonics, 1/n)': {
+    label: 'Square wave: odd harmonics only, amplitude 4/(nπ)',
+    coeff: (n) => (n % 2 === 1 ? 4 / (n * Math.PI) : 0),
+    term: (n, t) => (n % 2 === 1 ? (4 / (n * Math.PI)) * Math.sin(n * t) : 0),
+    target: (t) => (Math.sin(t) >= 0 ? 1 : -1),
+    decay: '1/n — slow, because the waveform jumps',
+    jump: 2,
+  },
+  'triangle (odd harmonics, 1/n²)': {
+    label: 'Triangle wave: odd harmonics, amplitude 8/(n²π²) with alternating sign',
+    coeff: (n) => (n % 2 === 1 ? 8 / (n * n * Math.PI * Math.PI) : 0),
+    term: (n, t) => {
+      if (n % 2 !== 1) return 0;
+      const sign = ((n - 1) / 2) % 2 === 0 ? 1 : -1;
+      return sign * (8 / (n * n * Math.PI * Math.PI)) * Math.sin(n * t);
+    },
+    target: (t) => (2 / Math.PI) * Math.asin(Math.sin(t)),
+    decay: '1/n² — fast, because the waveform is continuous with only a corner',
+    jump: 0,
+  },
+  'sawtooth (all harmonics, 1/n)': {
+    label: 'Sawtooth: ALL harmonics, amplitude 2/(nπ) with alternating sign',
+    coeff: (n) => 2 / (n * Math.PI),
+    term: (n, t) => (n > 0 ? (((n % 2 === 1) ? 1 : -1) * 2) / (n * Math.PI) * Math.sin(n * t) : 0),
+    target: (t) => {
+      const x = ((t + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      return -x / Math.PI;
+    },
+    decay: '1/n — slow, and every harmonic is present',
+    jump: 2,
+  },
+};
+
+const keys = Object.keys(WAVES);
+
+widget({
+  title: 'Fourier Series — Harmonic Builder',
+  description:
+    'Add harmonics one at a time and watch the waveform assemble. The overshoot near a jump is Gibbs phenomenon — it converges to about 9% of the jump and never disappears.',
+  height: 440,
+  range: { xMin: -Math.PI, xMax: Math.PI, yMin: -1.6, yMax: 1.6 },
+  controls: [
+    { id: 'which', label: 'waveform', type: 'select', options: keys, value: keys[0] },
+    { id: 'N', label: 'harmonics included (n up to)', min: 1, max: 41, step: 2, value: 1 },
+    { id: 'showTarget', label: 'show ideal waveform', type: 'checkbox', value: true },
+    { id: 'showTerms', label: 'show individual harmonics', type: 'checkbox', value: false },
+  ],
+  compute: (v) => {
+    const W = WAVES[v.which];
+    const N = Math.max(1, Math.round(v.N));
+    const partial = (t) => {
+      let s = 0;
+      for (let n = 1; n <= N; n++) s += W.term(n, t);
+      return s;
+    };
+    const target = (t) => W.target(t);
+    // max error and overshoot
+    let maxErr = 0, peak = 0;
+    for (let i = 0; i <= 2000; i++) {
+      const t = -Math.PI + (2 * Math.PI * i) / 2000;
+      const p = partial(t);
+      maxErr = Math.max(maxErr, Math.abs(p - target(t)));
+      peak = Math.max(peak, Math.abs(p));
+    }
+    let terms = 0;
+    for (let n = 1; n <= N; n++) if (W.coeff(n) !== 0) terms++;
+    return { W, N, partial, target, maxErr, peak, terms };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: -Math.PI, xMax: Math.PI, yMin: -1.6, yMax: 1.6 });
+    plot.clear().grid(Math.PI / 2, 0.5).axes();
+
+    if (v.showTarget) {
+      plot.fn(out.target, -Math.PI, Math.PI, { color: PALETTE.dim, width: 1.5, dash: [4, 4], samples: 800 });
+    }
+    if (v.showTerms) {
+      for (let n = 1; n <= out.N; n++) {
+        if (out.W.coeff(n) === 0) continue;
+        plot.fn((t) => out.W.term(n, t), -Math.PI, Math.PI, { color: 'rgba(203,166,247,0.35)', width: 1, samples: 600 });
+      }
+    }
+    plot.fn(out.partial, -Math.PI, Math.PI, { color: PALETTE.accent, width: 2.5, samples: 1200 });
+
+    plot.text(out.W.label, plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+    plot.text('terms used: ' + out.terms + '   decay: ' + out.W.decay, plot.pad + 6, plot.pad + 30, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    if (out.W.jump > 0) {
+      plot.text('Gibbs overshoot ≈ ' + fmt((out.peak - 1) * 100, 2) + '% of the plateau', plot.pad + 6, plot.pad + 46, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    }
+  },
+  readout: (out) => ({
+    'harmonics (n up to)': String(out.N),
+    'nonzero terms': String(out.terms),
+    'max error vs ideal': fmt(out.maxErr, 4),
+    'peak value reached': fmt(out.peak, 5),
+    'overshoot above plateau': out.W.jump > 0 ? fmt((out.peak - 1) * 100, 3) + ' %' : 'none (continuous)',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>What to notice.</strong> The square and sawtooth waves converge slowly (1/n) because they jump — ' +
+  'their partial sums overshoot by about 9% of the jump near the discontinuity, and adding more terms narrows ' +
+  'the ripple without reducing its height. The triangle wave converges as 1/n² because it is continuous: it has ' +
+  'only a corner, and a few terms already look accurate. <em>Decay rate follows smoothness, not amplitude.</em>';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

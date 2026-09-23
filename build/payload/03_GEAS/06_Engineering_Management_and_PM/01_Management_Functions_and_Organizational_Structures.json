@@ -1,0 +1,35 @@
+{
+  "scope": "Which classical management functions govern an engineering organization, how authority and delegation flow, and which structure — line, line-and-staff, functional or matrix — a given reporting pattern describes.",
+  "intuition": "A manager sets a target, arranges people and resources around it, gets them moving, then measures what actually happened against the target and corrects. The organizational chart is only the plumbing that decides who may order whom.",
+  "concept": [
+    "**The management functions.** The classical four are **planning** (set the objective and choose the means), **organizing** (group the work, assign resources, define reporting lines), **leading** or directing (motivate, communicate, supervise), and **controlling** (compare actual performance against the plan and take corrective action). The six-function variant inserts **staffing** (acquiring and developing people) and **coordinating** (harmonizing effort across units) — the mnemonic POSDCORB. Planning comes first and controlling comes last because the control step needs a standard to compare against; an exam item that reverses the sequence is testing exactly this.",
+    "**Structures and authority.** A **line** structure gives one clear chain of command and preserves *unity of command*. **Line-and-staff** adds advisory specialists: staff (safety, quality, legal, industrial engineering) analyzes and recommends but **cannot order** line personnel. A **functional** structure lets specialists command everyone within their function, which breaks unity of command in exchange for expertise. A **matrix** structure deliberately gives each member two bosses — a functional manager and a project manager — so it is the standard answer when a company runs many projects with shared specialists. **Span of control** is how many subordinates report directly to one manager: a narrow span produces a tall structure with many levels and slow communication; a wide span produces a flat structure. Delegation moves three things together — responsibility, authority and accountability — and the manager who delegates authority never delegates final accountability."
+  ],
+  "formulas": [
+    { "q": "Four management functions", "e": "\\mathrm{planning} \\rightarrow \\mathrm{organizing} \\rightarrow \\mathrm{leading} \\rightarrow \\mathrm{controlling}", "n": "Classical sequence; the six-function variant adds staffing and coordinating (POSDCORB)." },
+    { "q": "Planning", "e": "\\mathrm{objective} + \\mathrm{means\\ to\\ reach\\ it}", "n": "Comes first; every later function is judged against the plan, so planning cannot be listed last." },
+    { "q": "Controlling", "e": "\\mathrm{actual} - \\mathrm{standard} \\Rightarrow \\mathrm{corrective\\ action}", "n": "Closing step of the loop; it needs a measurable standard, which only planning can supply." },
+    { "q": "Span of control", "e": "N_{\\mathrm{subordinates\\ per\\ manager}}", "n": "Number of people one manager directly supervises; narrow span = tall structure, wide span = flat." },
+    { "q": "Unity of command", "e": "1\\ \\mathrm{boss\\ per\\ employee}", "n": "Satisfied by line and line-and-staff; deliberately violated by the matrix." },
+    { "q": "Line authority", "e": "\\mathrm{manager} \\rightarrow \\mathrm{subordinate}", "n": "Direct downward command over the work, carrying decision power and budget." },
+    { "q": "Staff authority", "e": "\\mathrm{advisory\\ only}", "n": "Staff specialists analyze, recommend and monitor; they have no power to order line personnel." },
+    { "q": "Functional authority", "e": "\\mathrm{specialist} \\rightarrow \\mathrm{orders\\ inside\\ one\\ function}", "n": "Limited command over a specialty (quality, safety) across departments, even without a line reporting line." },
+    { "q": "Matrix structure", "e": "\\mathrm{functional\\ manager} + \\mathrm{project\\ manager}", "n": "Two reporting lines per member; strong for multi-project firms, the classic answer when unity of command is broken." },
+    { "q": "Delegation triad", "e": "\\mathrm{responsibility} + \\mathrm{authority} + \\mathrm{accountability}", "n": "All three move together; authority may be delegated, final accountability may not." },
+    { "q": "Theory X assumption", "e": "\\mathrm{workers\\ avoid\\ work} \\Rightarrow \\mathrm{close\\ supervision}", "n": "McGregor's pessimistic view; matched with tight control, coercion and punishment." },
+    { "q": "Theory Y assumption", "e": "\\mathrm{work\\ is\\ natural} \\Rightarrow \\mathrm{self\\ direction}", "n": "McGregor's optimistic view; matched with participation, delegated authority and enriched jobs." },
+    { "q": "Maslow hierarchy", "e": "\\mathrm{physiological} \\rightarrow \\mathrm{safety} \\rightarrow \\mathrm{social} \\rightarrow \\mathrm{esteem} \\rightarrow \\mathrm{self\\ actualization}", "n": "A lower level must be reasonably satisfied before the next level motivates; salary answers the two lowest levels." },
+    { "q": "Herzberg two-factor split", "e": "\\mathrm{hygiene} \\neq \\mathrm{motivators}", "n": "Pay, policy and working conditions are hygiene (they only prevent dissatisfaction); achievement, recognition and growth motivate." }
+  ],
+  "traps": [
+    "**Giving staff a command role.** A safety officer, quality engineer or legal counsel *recommends*; only the line manager *orders*. An item that says the staff specialist 'instructs' or 'directs' production is a line/staff confusion.",
+    "**Claiming a matrix organization preserves unity of command.** It deliberately gives each member two bosses (functional and project); that dual reporting is the definition of the structure, not a defect to be denied.",
+    "**Reordering the functions.** Planning must precede controlling, because controlling compares performance against the plan. Listing controlling as the second function makes the loop undefined.",
+    "**Equating a narrow span of control with decentralization.** A narrow span makes the organization *taller* with more levels; decisions still travel the chain of command.",
+    "**Calling salary a motivator.** In Herzberg's scheme pay is a hygiene factor — raising it removes dissatisfaction but does not create motivation; achievement and recognition do."
+  ],
+  "refs": [
+    "[[02_TQM_and_Six_Sigma]]",
+    "[[03_ISO_9001_Overview]]"
+  ]
+}

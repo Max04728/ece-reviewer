@@ -1,0 +1,193 @@
+---
+id: MATH-05-16
+title: "Magnetic Forces, Torque and Lorentz"
+part: "01_Mathematics"
+area: "05_Electromagnetics"
+topic: 16
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[12_Biot-Savart_Law]]", "[[04_Coulomb’s_Law_and_E_Field]]"]
+tags: ["ece", "mathematics", "electromagnetics"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 16 — Magnetic Forces, Torque and Lorentz
+
+> [!abstract] Scope
+> Find the force, torque and motion produced by electric and magnetic fields acting on charges, currents and current loops, including circular orbits, the parallel-wire force and the Hall voltage.
+
+## Core Concept
+
+> [!tip] Intuition
+> A magnetic field pushes sideways, never along the motion: $\mathbf{F}=q\mathbf{v}\times\mathbf{B}$ is perpendicular to $\mathbf{v}$ at every instant, so it can steer a charge into a circle but can never change its speed. Every result in this topic - radius, cyclotron frequency, torque on a loop, the parallel-wire force - is that one cross product applied to a different geometry.
+
+**The Lorentz force and the work statement.** A charge $q$ moving with velocity $\mathbf{v}$ in an electric field $\mathbf{E}$ and a magnetic field $\mathbf{B}$ feels the combined force:
+$$\mathbf{F}=q(\mathbf{E}+\mathbf{v}\times\mathbf{B})$$
+The electric term does work ($W=q\int\mathbf{E}\cdot d\mathbf{l}$, independent of the path in electrostatics), but the magnetic term cannot: $\mathbf{F}_m$ is perpendicular to $\mathbf{v}$ by construction, so $\mathbf{F}_m\cdot\mathbf{v}=0$ and the magnetic field changes only the *direction* of the velocity, never its magnitude or the kinetic energy. That single observation is what makes a cyclotron possible and what makes the magnetic force useless for accelerating a charge to higher energy. It also means a magnetic force problem is really a geometry problem: the speed is known from the injection conditions and stays fixed, and the unknown is the path.
+
+**Circular and helical motion.** If a charge enters a uniform $\mathbf{B}$ with velocity perpendicular to it, the magnetic force is a constant-magnitude force always directed toward a fixed centre - the definition of uniform circular motion. Equating $qvB$ with the centripetal requirement $mv^2/r$ gives the radius $r=mv/(qB)$, and the angular rate $\omega=v/r=qB/m$, which is independent of $v$ and of $r$. That velocity independence is the whole point of the cyclotron frequency $f=qB/(2\pi m)$: every particle of a given charge-to-mass ratio circulates at the same rate regardless of how fast it is going. If the velocity has a component along $\mathbf{B}$, that component is untouched by the force, so the motion is a helix: circle in the plane perpendicular to $\mathbf{B}$, uniform translation along it, and the pitch is $v_\parallel T$ with $T=2\pi m/(qB)$. Notice what the formulas do *not* contain: nothing depends on the sign of $q$ except the sense of rotation, so an electron and a positron of equal speed follow circles of equal radius in opposite senses.
+
+**Force and torque on currents.** A wire is a pipe of moving charge, so the force on a length element is the sum of the forces on its carriers:
+$$d\mathbf{F}=I\,d\mathbf{l}\times\mathbf{B}$$
+and for a straight wire in a uniform field $\mathbf{F}=I\mathbf{L}\times\mathbf{B}$ with magnitude $ILB\sin\theta$. Two consequences follow immediately. First, a closed loop in a *uniform* field has zero net force - the forces on opposite sides cancel - but not zero torque, because the lines of action are offset. With magnetic dipole moment $\mathbf{m}=NIA\,\mathbf{a}_n$ (direction from the right-hand rule around the current), the torque it feels is:
+$$\boldsymbol{\tau}=\mathbf{m}\times\mathbf{B}$$
+magnitude $mB\sin\theta$, and it vanishes when $\mathbf{m}$ is parallel or antiparallel to $\mathbf{B}$. The stable equilibrium is $\mathbf{m}\parallel\mathbf{B}$, exactly like an electric dipole. Second, applying the force law to two long parallel wires a distance $d$ apart, separated by a field $B=\mu_0I_1/(2\pi d)$, gives $F/L=\mu_0I_1I_2/(2\pi d)$: currents in the **same** direction attract, opposite currents repel. The force per unit length is the basis of the old definition of the ampere and a favourite board question because students reverse the rule.
+
+**The Hall effect and the right-hand rules.** Put a current-carrying slab of thickness $t$ in a transverse field $\mathbf{B}$. The magnetic force pushes the drifting carriers to one face, charge piles up until the resulting transverse electric field exerts an equal and opposite force, and the equilibrium condition $qE_H=qvB$ fixes the Hall field. Since the current density is $J=nqv$ and $I=Jwt$, the measured transverse voltage is $V_H=E_Hw=IB/(nqt)$ - independent of the width $w$ and of the drift velocity, and inversely proportional to the carrier density. Because the sign of $V_H$ follows the sign of the carrier charge, the Hall effect identifies whether conduction is by electrons or holes; a large $V_H$ signals a small $n$. For the right-hand rules, keep them separate: for a force, point the fingers of the right hand along $\mathbf{v}$ (or $I\mathbf{L}$) and curl them into $\mathbf{B}$; the thumb gives the force on a *positive* carrier (reverse it for an electron). For the torque, curl the fingers of the right hand around the loop current to get $\mathbf{m}$, then apply:
+$$\boldsymbol{\tau}=\mathbf{m}\times\mathbf{B}$$
+For the field of a wire, thumb along the current, fingers curl with $\mathbf{B}$.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Lorentz force | $\mathbf{F}=q(\mathbf{E}+\mathbf{v}\times\mathbf{B})$ | Newtons. The electric term acts on a charge at rest too; the magnetic term needs motion. |
+| Magnetic force on a moving charge | $\mathbf{F}_m=q\mathbf{v}\times\mathbf{B},\qquad F=qvB\sin\theta$ | Magnitude with theta the angle between v and B. Zero when the charge moves along B. |
+| Magnetic force does no work | $\mathbf{F}_m\cdot\mathbf{v}=0,\qquad \Delta K=0$ | Speed and kinetic energy are unchanged; only the direction of v turns. |
+| Radius of circular motion | $r=\frac{mv}{qB}$ | Metres. Needs v perpendicular to B. Proportional to momentum, so a relativistic particle has a larger r. |
+| Cyclotron frequency | $f=\frac{qB}{2\pi m},\qquad \omega=\frac{qB}{m}$ | Hertz (rad/s for omega). Independent of v and of r - the basis of the cyclotron. |
+| Helical pitch | $p=v_\parallel T=\frac{2\pi m v_\parallel}{qB}$ | For v at an angle to B: radius uses v sin(theta), pitch uses v cos(theta). |
+| Force on a straight wire | $\mathbf{F}=I\mathbf{L}\times\mathbf{B},\qquad F=ILB\sin\theta$ | L points along the current. Zero when the wire is parallel to B. |
+| Magnetic dipole moment | $\mathbf{m}=NIA\,\mathbf{a}_n$ | A m^2. Direction by the right-hand rule around the current; N is the turn count. |
+| Torque on a current loop | $\boldsymbol{\tau}=\mathbf{m}\times\mathbf{B},\qquad \tau=N I A B\sin\theta$ | N m. Zero when m is along B (stable) or opposite to it (unstable); maximum when m is perpendicular. |
+| Force between parallel wires | $\frac{F}{L}=\frac{\mu_0I_1I_2}{2\pi d}$ | N/m. Same-direction currents attract, opposite directions repel. d is centre-to-centre. |
+| Hall voltage | $V_H=\frac{IB}{nqt}$ | Volts. t is the thickness along B; the width cancels out. Sign reveals the carrier type. |
+| Hall field equilibrium | $qE_H=qvB\quad\Longrightarrow\quad E_H=vB$ | Force balance on a drifting carrier; E_H is transverse to both the current and B. |
+
+## Worked Problems
+
+### P1. An electron travels at $1\times10^{6}$ m/s in the $+x$ direction through a magnetic field $\mathbf{B}=0.01\,\mathbf{a}_z$ T. Find the radius of its circular path and its cyclotron frequency, and state the sense of rotation.
+
+**Given:** v = 1e6 m/s perpendicular to B; B = 0.01 T; electron: m = 9.109e-31 kg, q = 1.602e-19 C
+
+**Solution:**
+
+1. $r=mv/(qB) = (9.109\times10^{-31})(1\times10^{6})/[(1.602\times10^{-19})(0.01)]$
+2. Numerator: $9.109\times10^{-25}$; denominator: $1.602\times10^{-21}$
+3. $r = 9.109\times10^{-25}/1.602\times10^{-21} = 5.686\times10^{-4}$ m
+4. $f=qB/(2\pi m) = (1.602\times10^{-19})(0.01)/[(2\pi)(9.109\times10^{-31})]$
+5. $= 1.602\times10^{-21}/(5.723\times10^{-30}) = 2.799\times10^{8}$ Hz
+6. Sense: for an electron the force is $-e\mathbf{v}\times\mathbf{B}$; with $\mathbf{v}$ along $+x$ and $\mathbf{B}$ along $+z$, $\mathbf{v}\times\mathbf{B}$ is along $-y$, so the force is along $+y$ and the electron curves counterclockwise as seen from $+z$
+7. Check the period: $T=1/f = 3.57$ ns, and $2\pi r/v = 2\pi(5.686\times10^{-4})/10^{6} = 3.57$ ns, consistent
+
+> [!success]- Answer
+> **$r=0.569$ mm (about $5.69\times10^{-4}$ m) and $f=2.80\times10^{8}$ Hz $=280$ MHz.**
+
+> [!warning] Trap
+> Using the electron mass in grams ($9.109\times10^{-28}$ g) with SI charge and field, which makes $r$ 1000 times too large. Watch the other classic: dropping the sign of the electron charge when finding the sense of rotation, which reverses the circle even though $r$ and $f$ are unaffected.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `SHIFT` `CVALUE` `03` `×1E6÷(` `SHIFT` `CVALUE` `23` `×0.01)=` → $r$ = **5.686E-4** m = **0.569** mm.
+> 2. `SHIFT` `CVALUE` `23` `×0.01÷(2\pi×` `SHIFT` `CVALUE` `03` `)=` → $f$ = **2.799E8** Hz = **280** MHz.
+> 3. Period check: `1÷Ans=` → **3.573E-9** s = **3.57** ns, matching $2\pi r/v$.
+>
+> Code `03` is $m_e$ in kg and code `23` is $e$ in C, so no gram conversion is possible.
+
+### P2. A straight wire of length $0.5$ m carries $10$ A at $30^\circ$ to a uniform field $B=0.2$ T. Find the magnitude of the force and the direction it points relative to the wire and the field.
+
+**Given:** L = 0.5 m; I = 10 A; B = 0.2 T; theta = 30 deg between L and B
+
+**Solution:**
+
+1. $F = I L B\sin\theta = (10)(0.5)(0.2)\sin 30^\circ$
+2. $ILB = 1.0$ N, and $\sin 30^\circ = 0.5$
+3. $F = 1.0\times0.5 = 0.5$ N
+4. Direction: $\mathbf{F}=I\mathbf{L}\times\mathbf{B}$, so the force is perpendicular to *both* the wire and the field
+5. Because there is a component of $\mathbf{L}$ along $\mathbf{B}$, that component contributes nothing: $F=ILB\sin\theta$ uses only the part of the wire perpendicular to the field
+
+> [!success]- Answer
+> **$F=0.5$ N, directed perpendicular to the plane containing the wire and the field.**
+
+> [!warning] Trap
+> Using $\sin 60^\circ$ because the angle was read from the field to the *normal* rather than to the wire, giving $0.866$ N instead of $0.5$ N. Equally common: using $\cos 30^\circ$, which gives the force on a wire that is $30^\circ$ from the perpendicular instead of $30^\circ$ from the field.
+
+### P3. A coil of $100$ turns and area $0.01$ m² carries $2$ A in a uniform field $B=0.5$ T. Find the maximum torque on the coil and the torque when the plane of the coil is parallel to the field.
+
+**Given:** N = 100 turns; I = 2 A; A = 0.01 m2; B = 0.5 T
+
+**Solution:**
+
+1. $m = NIA = (100)(2)(0.01) = 2.0$ A m²
+2. Torque magnitude $\tau = mB\sin\theta$, where $\theta$ is the angle between $\mathbf{m}$ (normal to the coil) and $\mathbf{B}$
+3. Maximum at $\theta=90^\circ$: $\tau = (2.0)(0.5)(1) = 1.0$ N m
+4. Plane of the coil parallel to $\mathbf{B}$ means the *normal* is perpendicular to $\mathbf{B}$, so $\theta=90^\circ$ - this is the same maximum case
+5. Minimum (zero) torque occurs when the normal is along $\mathbf{B}$, i.e. the plane of the coil perpendicular to the field
+
+> [!success]- Answer
+> **Maximum torque $\tau=1.0$ N m; with the coil plane parallel to the field the torque is also $1.0$ N m, and it falls to zero when the plane is perpendicular to the field.**
+
+> [!warning] Trap
+> Reading $\theta$ as the angle between $\mathbf{B}$ and the *plane* of the coil instead of its normal, which swaps sine for cosine and reports zero for the maximum-torque orientation. The second classic is dropping $N$: the single-turn torque is $0.01$ N m, so omitting the turns understates the answer by 100.
+
+### P4. Two long parallel wires are $5$ cm apart and each carries $20$ A. Find the force per metre on each wire when the currents flow in the same direction, and again when they flow in opposite directions.
+
+**Given:** d = 0.05 m; I1 = I2 = 20 A; mu0 = 4pi x 10^-7 H/m
+
+**Solution:**
+
+1. $F/L = \mu_0I_1I_2/(2\pi d)$
+2. $\mu_0/(2\pi) = 2\times10^{-7}$ H/m, so $F/L = (2\times10^{-7})(20)(20)/0.05$
+3. Numerator: $(2\times10^{-7})(400) = 8\times10^{-5}$
+4. $F/L = 8\times10^{-5}/0.05 = 1.6\times10^{-3}$ N/m
+5. Same direction: the wires attract. Opposite directions: repulsive, same magnitude $1.6$ mN/m
+6. Sanity check on scale: 1 A in two wires 1 m apart gives the defining $2\times10^{-7}$ N/m
+
+> [!success]- Answer
+> **$F/L=1.6$ mN/m - attractive for parallel (same-direction) currents, repulsive when the currents oppose.**
+
+> [!warning] Trap
+> Reversing the attraction rule, which is the mirror image of the electrostatic case (like charges repel, but like *currents* attract). Also using the distance in centimetres: $d=5$ makes the answer 100 times too small at $1.6\times10^{-5}$ N/m.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `SHIFT` `CVALUE` `33` `×20×20÷(2\pi×0.05)=` → $F/L$ = **1.6E-3** N/m = **1.6** mN/m.
+> 2. Both current directions give the same magnitude **1.6E-3** N/m, and same-direction currents attract.
+> 3. Distance in cm is the trap: `÷5=` returns **1.6E-5** N/m, 100 times too small.
+
+### P5. A Hall-effect sample $1$ mm thick carries $5$ A in a field of $0.5$ T perpendicular to its face. If the carrier density is $8.5\times10^{28}$ m$^{-3}$, find the Hall voltage.
+
+**Given:** I = 5 A; B = 0.5 T; t = 1 mm = 1e-3 m; n = 8.5e28 per m3; q = 1.602e-19 C
+
+**Solution:**
+
+1. $V_H = IB/(nqt)$
+2. Numerator: $IB = (5)(0.5) = 2.5$
+3. Denominator: $nqt = (8.5\times10^{28})(1.602\times10^{-19})(1\times10^{-3})$
+4. $= (8.5\times10^{28})(1.602\times10^{-22}) = 1.3617\times10^{7}$
+5. $V_H = 2.5/1.3617\times10^{7} = 1.836\times10^{-7}$ V
+6. The sample width never enters: it cancels between $J=I/(wt)$ and $E_H=vB$
+
+> [!success]- Answer
+> **$V_H=1.84\times10^{-7}$ V $=0.184\ \mu$V.**
+
+> [!warning] Trap
+> Multiplying by the sample width (or substituting the cross-sectional area $wt$) because the voltage is measured across it. The width cancels in $V_H=IB/(nqt)$, so including it changes the answer by a factor of $w$ - for a 1 cm wide sample that is a factor of 100. Also note $t$ is the thickness *along* $\mathbf{B}$, not the thickness across the current.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `5×0.5÷(8.5E28×` `SHIFT` `CVALUE` `23` `×1E-3)=` → $V_H$ = **1.836E-7** V = **0.184** uV.
+> 2. The denominator is $nqt$ = **1.3617E7**, with code `23` = $e$; the sample width never appears.
+> 3. Multiplying by a 1 cm width would return `×1E-2=` → **1.836E-9** V, 100 times too small.
+
+## Traps & Exam Notes
+
+- **Expecting a magnetic force to change the speed.** $\mathbf{F}=q\mathbf{v}\times\mathbf{B}$ is perpendicular to $\mathbf{v}$, so the kinetic energy is constant. An answer in which a magnetic field alone has accelerated a charge to a higher speed (or done work $qV$) is wrong by construction.
+- **Forgetting the $\sin\theta$ - or using $\cos\theta$.** $F=ILB\sin\theta$ vanishes when the wire is parallel to $\mathbf{B}$ and is maximum when perpendicular. For a wire at $30^\circ$ to the field the force is $0.5ILB$, and using $\cos$ instead of $\sin$ gives $0.866ILB$ - the difference between a pass and a fail on a multiple-choice item.
+- **Reversing the parallel-wire rule.** Same-direction currents attract, opposite repel. This is the reverse of the Coulomb intuition, and a wrong rule flips the direction of a computed answer of the correct magnitude.
+- **Measuring $\theta$ from the wrong reference in the torque formula.** $\tau=NLAB\sin\theta$ uses the angle between $\mathbf{B}$ and the coil's *normal* (equivalently, the angle between the field and the coil *plane* plus $90^\circ$). Using the angle with the plane swaps zero torque for maximum torque.
+- **Dropping $N$ or $A$ from the dipole moment.** $m=NIA$ carries the turn count and the loop area; a torque computed without $N$ is too small by exactly the number of turns, and forgetting to convert cm² to m² shifts it by $10^4$.
+- **Putting the sample width into the Hall voltage.** $V_H=IB/(nqt)$ contains only the thickness along $\mathbf{B}$; the width cancels. Multiplying by $w$ produces an answer larger by the width in metres.
+- **Using the wrong mass or charge for an electron.** $r=mv/(qB)$ with $m=9.11\times10^{-31}$ kg and $q=1.602\times10^{-19}$ C gives a sub-millimetre radius; using the gram value of the mass gives a radius 1000 times too big, which is often still 'reasonable-looking' enough to be missed.
+- **Taking the cyclotron frequency to depend on speed.** $\omega=qB/m$ is independent of $v$; if an answer for $f$ contains $v$, a factor has been substituted into the wrong formula (the radius carries the $v$).
+
+## See Also
+
+- [[14_Magnetic_Boundary_Conditions_and_Vector_Potential]]
+- [[12_Biot-Savart_Law]]
+- [[13_Ampere’s_Circuital_Law]]
+- [[17_Faraday’s_Law_and_Motional_EMF]]
+
+---
+
+[[15_Inductance_from_Geometry_and_Materials|⬅ 15]] · [[_MOC_Electromagnetics|MOC]] · [[00_Dashboard|Dashboard]] · [[17_Faraday’s_Law_and_Motional_EMF|17 ➡]]

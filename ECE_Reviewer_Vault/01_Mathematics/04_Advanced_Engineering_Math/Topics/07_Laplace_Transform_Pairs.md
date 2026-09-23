@@ -1,0 +1,250 @@
+---
+id: MATH-04-07
+title: "Laplace Transform Pairs"
+part: "01_Mathematics"
+area: "04_Advanced_Engineering_Math"
+topic: 7
+tier: 1
+depth: full
+problem_count: 9
+prereqs: ["[[03_Definite_Integrals_and_FTC]]", "[[07_Improper_Integrals]]"]
+tags: ["ece", "mathematics", "advanced_engineering_math"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 07 — Laplace Transform Pairs
+
+> [!abstract] Scope
+> Read and apply the standard Laplace transform pair table — causal constants, powers, exponentials, sinusoids, damped sinusoids and impulses — including the region of convergence that makes each pair unique.
+
+## Core Concept
+
+> [!tip] Intuition
+> The Laplace transform converts a time function into an algebraic function of $s$ by weighting it with a decaying exponential. Differentiation becomes multiplication by $s$ and convolution becomes multiplication, which is exactly what turns a differential equation into algebra; the pair table is the dictionary that makes the conversion practical.
+
+**Definition and the region of convergence.** The one-sided (unilateral) Laplace transform is:
+$$F(s) = \mathcal{L}\{f(t)\} = \int_{0^-}^{\infty}f(t)e^{-st}\,dt$$
+Here $s = \sigma + j\omega$ is complex. The integral is improper and converges only for some $s$: the set of those $s$ is the **region of convergence (ROC)**, and for the causal signals in this table it is always a right half-plane $\mathrm{Re}\,s > \sigma_0$. The abscissa $\sigma_0$ is the real part of the rightmost pole of $F(s)$. Quoting $F(s)$ without its ROC gives only half the pair.
+
+**Why the ROC is not decoration.** The same algebraic expression $1/(s+1)$ is the transform of $e^{-t}u(t)$ when $\mathrm{Re}\,s > -1$ and of $-e^{-t}u(-t)$ when $\mathrm{Re}\,s < -1$. For a *one-sided* transform the ROC is automatic (every signal started at $t=0$, so the ROC is always a right half-plane) and the table can be read in both directions. The ROC becomes decisive the moment two-sided signals appear, or when a system's causality and stability are judged from the pole locations — a pole in the right half-plane means an unstable causal system.
+
+**Structure of the table: three building blocks.** Every causal pair here is one of three shapes. (1) *Rational in $s$ from an exponential envelope*: $e^{-at}$ gives a real pole at $s=-a$, $t^{n}e^{-at}$ gives an order-$(n+1)$ pole at $s=-a$ with numerator $n!$. (2) *Quadratic denominators from sinusoids*: $\sin\omega t$ and $\cos\omega t$ give the pair $\omega/(s^2+\omega^2)$ and $s/(s^2+\omega^2)$ — the numerator distinguishes them, and an $e^{-at}$ envelope replaces $s$ by $s+a$ everywhere in the pair. (3) *Impulses and steps*: $\delta(t)$ transforms to $1$ for all $s$, and the step $u(t)$ to $1/s$ with ROC $\mathrm{Re}\,s>0$.
+
+**Linearity and how to use the table.** The transform is linear:
+$$\mathcal{L}\{af(t)+bg(t)\} = aF(s)+bG(s)$$
+on the intersection of the two ROCs. Practically, the forward direction is pattern matching: identify the envelope $e^{-at}$ (if any), identify the sinusoid or power, then apply the $s \to s+a$ shift to the unshifted pair. The inverse direction is the same table read right to left, usually after a partial-fraction expansion splits a rational $F(s)$ into table entries. Both directions fail in the same place: a rational $F(s)$ whose denominator has complex or repeated factors needs partial fractions first, which is the subject of the next note.
+
+**Existence.** $F(s)$ exists for some $s$ if $f$ is piecewise continuous on $[0,\infty)$ and of exponential order, $|f(t)| \leq Me^{\sigma_0 t}$. All engineering signals qualify; $e^{t^2}$ and $1/t$ at the origin do not, so they have no ordinary Laplace transform. The ROC begins to the right of $\sigma_0$.
+
+## Derivation
+
+**$\mathcal{L}\{1\} = 1/s$ from the definition.** Start with the integral and keep the limit explicit: $\int_{0}^{\infty}e^{-st}dt = \lim_{b\to\infty}\int_{0}^{b}e^{-st}dt = \lim_{b\to\infty}\left[-\frac{e^{-st}}{s}\right]_{0}^{b} = \lim_{b\to\infty}\frac{1-e^{-sb}}{s}$. If $\mathrm{Re}\,s>0$ then $e^{-sb}\to 0$ and the limit is $1/s$. If $\mathrm{Re}\,s<0$ the exponential blows up and the limit does not exist, and if $s=0$ the integrand is $1$ and the integral diverges. Hence $\mathcal{L}\{1\} = 1/s$ with ROC $\mathrm{Re}\,s>0$ — the ROC is part of the result, not a footnote.
+
+**$\mathcal{L}\{e^{-at}\} = 1/(s+a)$ and the shift pattern.** Multiply into the defining integral: $\int_{0}^{\infty}e^{-at}e^{-st}dt = \int_{0}^{\infty}e^{-(s+a)t}dt$, which is the previous computation with $s$ replaced by $s+a$. So $\mathcal{L}\{e^{-at}\} = \frac{1}{s+a}$ with ROC $\mathrm{Re}\,s > -a$. This single line generates the whole damped half of the table: multiplying by $e^{-at}$ in time replaces every $s$ by $s+a$ in the transform.
+
+**$\mathcal{L}\{t\} = 1/s^2$ by integration by parts.** Let $u = t$, $dv = e^{-st}dt$ so $du = dt$ and $v = -e^{-st}/s$: $\int_{0}^{\infty}te^{-st}dt = \left[-\frac{te^{-st}}{s}\right]_{0}^{\infty} + \frac{1}{s}\int_{0}^{\infty}e^{-st}dt$. The boundary term vanishes for $\mathrm{Re}\,s>0$ because the exponential beats the linear factor at both ends, and the remaining integral is $1/s$ from the first derivation. The result is $\frac{1}{s}\cdot\frac{1}{s} = \frac{1}{s^{2}}$, ROC $\mathrm{Re}\,s>0$. Repeating the integration by parts gives $\mathcal{L}\{t^n\} = n!/s^{n+1}$.
+
+**$\mathcal{L}\{\sin\omega t\} = \omega/(s^2+\omega^2)$ from Euler's formula.** Write $\sin\omega t = \frac{e^{j\omega t}-e^{-j\omega t}}{2j}$. Using the exponential pair with $a = -j\omega$ and $a = +j\omega$ gives $\mathcal{L}\{e^{j\omega t}\} = \frac{1}{s-j\omega}$ and $\mathcal{L}\{e^{-j\omega t}\} = \frac{1}{s+j\omega}$, both valid for $\mathrm{Re}\,s>0$. Subtract: $\frac{1}{2j}\left[\frac{1}{s-j\omega}-\frac{1}{s+j\omega}\right] = \frac{1}{2j}\cdot\frac{2j\omega}{s^{2}+\omega^{2}} = \frac{\omega}{s^{2}+\omega^{2}}$. The same combination with $+\frac{1}{2}$ instead of $\frac{1}{2j}$ gives $\mathcal{L}\{\cos\omega t\} = \frac{s}{s^{2}+\omega^{2}}$ — the numerator is what separates the two pairs.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Definition (one-sided) | $F(s) = \int_{0^-}^{\infty}f(t)e^{-st}\,dt$ | Lower limit $0^-$ so an impulse at the origin is included. |
+| Region of convergence | $\mathrm{Re}\,s > \sigma_0 = \mathrm{Re}(\mathrm{rightmost\ pole})$ | Always a right half-plane for causal signals; part of the transform. |
+| Linearity | $\mathcal{L}\{af+bg\} = aF(s)+bG(s)$ | Valid on the intersection of the two ROCs. |
+| Unit impulse | $\mathcal{L}\{\delta(t)\} = 1$ | Entire $s$-plane; $\delta$ has unit area, so a scale $k$ gives $k$. |
+| Delayed impulse | $\mathcal{L}\{\delta(t-a)\} = e^{-as},\quad a>0$ | Pure exponential, no pole; the delay appears only in the exponent. |
+| Unit step | $\mathcal{L}\{u(t)\} = \frac{1}{s}$ | $\mathrm{Re}\,s>0$. The step is the integral of the impulse, hence $1/s$. |
+| Delayed step | $\mathcal{L}\{u(t-a)\} = \frac{e^{-as}}{s},\quad a>0$ | $\mathrm{Re}\,s>0$. The $s$ in the denominator is easy to drop. |
+| Constant | $\mathcal{L}\{k\} = \frac{k}{s}$ | Interpreted as $k\,u(t)$; the ROC $\mathrm{Re}\,s>0$ comes from the step. |
+| Ramp and powers | $\mathcal{L}\{t^{n}\} = \frac{n!}{s^{n+1}},\quad n = 0,1,2,\dots$ | $\mathrm{Re}\,s>0$. For $n=1$ this is $1/s^{2}$; the $n!$ is frequently lost. |
+| Exponential | $\mathcal{L}\{e^{-at}\} = \frac{1}{s+a}$ | $\mathrm{Re}\,s > -a$. Valid for complex $a$ as well. |
+| Damped power | $\mathcal{L}\{t^{n}e^{-at}\} = \frac{n!}{(s+a)^{n+1}}$ | $\mathrm{Re}\,s>-a$; pole of order $n+1$ at $s=-a$. |
+| Sine | $\mathcal{L}\{\sin\omega t\} = \frac{\omega}{s^{2}+\omega^{2}}$ | $\mathrm{Re}\,s>0$. $\omega$ in rad/s must match the $t$ unit. |
+| Cosine | $\mathcal{L}\{\cos\omega t\} = \frac{s}{s^{2}+\omega^{2}}$ | $\mathrm{Re}\,s>0$. Numerator $s$, not $\omega$. |
+| Damped sine | $\mathcal{L}\{e^{-at}\sin\omega t\} = \frac{\omega}{(s+a)^{2}+\omega^{2}}$ | $\mathrm{Re}\,s>-a$; the numerator stays $\omega$ under the shift. |
+| Damped cosine | $\mathcal{L}\{e^{-at}\cos\omega t\} = \frac{s+a}{(s+a)^{2}+\omega^{2}}$ | $\mathrm{Re}\,s>-a$; every $s$ is replaced by $s+a$. |
+| Hyperbolic sine | $\mathcal{L}\{\sinh at\} = \frac{a}{s^{2}-a^{2}}$ | $\mathrm{Re}\,s>\|a\|$. Note the minus sign in the denominator. |
+| Hyperbolic cosine | $\mathcal{L}\{\cosh at\} = \frac{s}{s^{2}-a^{2}}$ | $\mathrm{Re}\,s>\|a\|$; poles on the real axis at $s=\pm a$. |
+| Matching a real pole | $\frac{k}{s+a} \;\longleftrightarrow\; k\,e^{-at}u(t)$ | Time constant $\tau = 1/a$; a pole at $-1/\tau$ in rad/s. |
+
+## Interactive Widget
+
+**Laplace Pole Zero Map**
+
+![[Laplace_Pole_Zero_Map.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. Find $\mathcal{L}\{5\}$ for the causal signal $f(t) = 5u(t)$.
+
+**Given:** f(t) = 5u(t)
+
+**Solution:**
+
+1. The constant is interpreted as switched on at $t=0$, so $f(t) = 5u(t)$
+2. $\mathcal{L}\{u(t)\} = 1/s$ on $\mathrm{Re}\,s>0$
+3. Linearity: $\mathcal{L}\{5u(t)\} = 5 \cdot \frac{1}{s} = \frac{5}{s}$
+
+> [!success]- Answer
+> **$F(s) = \dfrac{5}{s}$, ROC $\mathrm{Re}\,s > 0$**
+
+> [!warning] Trap
+> Quoting $5/s$ as valid for all $s$. The pole at the origin means the ROC is the open right half-plane; at $s=0$ the defining integral diverges.
+
+### P2. Find $\mathcal{L}\{3e^{-2t}u(t)\}$ and state its ROC.
+
+**Given:** f(t) = 3e^{-2t}u(t); a = 2
+
+**Solution:**
+
+1. Table pair: $\mathcal{L}\{e^{-at}\} = \frac{1}{s+a}$ with ROC $\mathrm{Re}\,s > -a$
+2. Here $a = 2$, so $\mathcal{L}\{e^{-2t}\} = \frac{1}{s+2}$ for $\mathrm{Re}\,s > -2$
+3. Linearity multiplies the transform by 3
+4. $F(s) = \frac{3}{s+2}$
+
+> [!success]- Answer
+> **$F(s) = \dfrac{3}{s+2}$, ROC $\mathrm{Re}\,s > -2$**
+
+> [!warning] Trap
+> Writing $\frac{3}{s-2}$ by treating $e^{-2t}$ as if its pole sat at $s=+2$. The pole is at $s=-a = -2$, and the ROC starts to the right of it.
+
+### P3. Find $\mathcal{L}\{2t^{2}u(t)\}$.
+
+**Given:** f(t) = 2t^2 u(t)
+
+**Solution:**
+
+1. Power pair: $\mathcal{L}\{t^{n}\} = \frac{n!}{s^{n+1}}$ with $n = 2$
+2. $\mathcal{L}\{t^{2}\} = \frac{2!}{s^{3}} = \frac{2}{s^{3}}$
+3. Linearity: multiply by 2
+4. $F(s) = \frac{4}{s^{3}}$
+
+> [!success]- Answer
+> **$F(s) = \dfrac{4}{s^{3}}$, ROC $\mathrm{Re}\,s > 0$**
+
+> [!warning] Trap
+> Writing $\mathcal{L}\{t^{2}\} = 1/s^{3}$ and forgetting the $n! = 2$; the same slip makes $\mathcal{L}\{t\} = 1/s$ instead of $1/s^{2}$.
+
+### P4. Find $\mathcal{L}\{6\sin 4t\;u(t)\}$.
+
+**Given:** f(t) = 6 sin 4t u(t); omega = 4 rad/s
+
+**Solution:**
+
+1. Table pair: $\mathcal{L}\{\sin\omega t\} = \frac{\omega}{s^{2}+\omega^{2}}$ with ROC $\mathrm{Re}\,s>0$
+2. With $\omega = 4$: $\mathcal{L}\{\sin 4t\} = \frac{4}{s^{2}+16}$
+3. Linearity: $F(s) = 6 \cdot \frac{4}{s^{2}+16} = \frac{24}{s^{2}+16}$
+
+> [!success]- Answer
+> **$F(s) = \dfrac{24}{s^{2}+16}$, ROC $\mathrm{Re}\,s > 0$**
+
+> [!warning] Trap
+> Writing the numerator as 1 or 6 instead of $6\omega = 24$. The sine pair carries $\omega$ in the numerator; only the cosine pair carries $s$.
+
+### P5. Find $\mathcal{L}\{5\cos 3t\;u(t)\}$.
+
+**Given:** f(t) = 5 cos 3t u(t); omega = 3 rad/s
+
+**Solution:**
+
+1. Table pair: $\mathcal{L}\{\cos\omega t\} = \frac{s}{s^{2}+\omega^{2}}$ with ROC $\mathrm{Re}\,s>0$
+2. With $\omega = 3$: $\mathcal{L}\{\cos 3t\} = \frac{s}{s^{2}+9}$
+3. Linearity: $F(s) = \frac{5s}{s^{2}+9}$
+
+> [!success]- Answer
+> **$F(s) = \dfrac{5s}{s^{2}+9}$, ROC $\mathrm{Re}\,s > 0$**
+
+> [!warning] Trap
+> Swapping the sine and cosine numerators, i.e. answering $\frac{15}{s^{2}+9}$. The numerator $s$ is what makes the inverse a cosine rather than a sine.
+
+### P6. Find $\mathcal{L}\{e^{-2t}\sin 5t\;u(t)\}$ in expanded rational form.
+
+**Given:** a = 2; omega = 5 rad/s
+
+**Solution:**
+
+1. Damped sine pair: $\mathcal{L}\{e^{-at}\sin\omega t\} = \frac{\omega}{(s+a)^{2}+\omega^{2}}$
+2. Substitute $a=2$, $\omega=5$: $F(s) = \frac{5}{(s+2)^{2}+25}$
+3. Expand the denominator: $(s+2)^{2}+25 = s^{2}+4s+4+25 = s^{2}+4s+29$
+4. $F(s) = \frac{5}{s^{2}+4s+29}$
+
+> [!success]- Answer
+> **$F(s) = \dfrac{5}{s^{2}+4s+29}$, ROC $\mathrm{Re}\,s > -2$**
+
+> [!warning] Trap
+> Shifting only the $s^{2}$ term and writing $\frac{5}{s^{2}+4+25}$. The whole $(s+2)^2$ shifts together; the result is $s^{2}+4s+29$, with the cross term $4s$ retained.
+
+### P7. Find $\mathcal{L}\{2\delta(t) + 3\delta(t-4)\}$.
+
+**Given:** f(t) = 2 delta(t) + 3 delta(t-4)
+
+**Solution:**
+
+1. $\mathcal{L}\{\delta(t)\} = 1$ for all $s$
+2. $\mathcal{L}\{\delta(t-a)\} = e^{-as}$ for $a = 4$: $\mathcal{L}\{\delta(t-4)\} = e^{-4s}$
+3. Linearity: $F(s) = 2(1) + 3e^{-4s}$
+
+> [!success]- Answer
+> **$F(s) = 2 + 3e^{-4s}$, valid for all $s$**
+
+> [!warning] Trap
+> Applying the exponential-decay shift to $\delta(t)$ and producing $\frac{1}{s}$ terms. The impulse pair is $1$, not $1/s$; only the step has a pole at the origin.
+
+### P8. Find $\mathcal{L}\{t\,e^{-3t}u(t)\}$ and state its ROC.
+
+**Given:** f(t) = t e^{-3t} u(t); a = 3
+
+**Solution:**
+
+1. Start from the unshifted pair $\mathcal{L}\{t\} = \frac{1}{s^{2}}$
+2. The factor $e^{-3t}$ shifts $s \to s+3$ throughout
+3. $F(s) = \frac{1}{(s+3)^{2}}$
+
+> [!success]- Answer
+> **$F(s) = \dfrac{1}{(s+3)^{2}}$, ROC $\mathrm{Re}\,s > -3$**
+
+> [!warning] Trap
+> Shifting only the exponent and writing $\frac{1}{s^{2}+9}$ or $\frac{1}{s^{2}+3}$. The substitution is on the variable: $(s)^{2} \to (s+3)^{2} = s^{2}+6s+9$.
+
+### P9. Find the inverse transform of $F(s) = \dfrac{3s+8}{s^{2}+4}$.
+
+**Given:** F(s) = (3s+8)/(s^2+4)
+
+**Solution:**
+
+1. Split by linearity: $F(s) = 3\cdot\frac{s}{s^{2}+4} + 8\cdot\frac{1}{s^{2}+4}$
+2. Match the cosine pair with $\omega = 2$: $\frac{s}{s^{2}+4} \leftrightarrow \cos 2t$
+3. Match the sine pair: $\frac{\omega}{s^{2}+\omega^{2}} = \frac{2}{s^{2}+4} \leftrightarrow \sin 2t$, so $\frac{1}{s^{2}+4} \leftrightarrow \frac{1}{2}\sin 2t$
+4. $f(t) = 3\cos 2t + 8\cdot\frac{1}{2}\sin 2t = 3\cos 2t + 4\sin 2t$
+
+> [!success]- Answer
+> **$f(t) = 3\cos 2t + 4\sin 2t$ for $t\geq 0$**
+
+> [!warning] Trap
+> Reading $\frac{8}{s^{2}+4}$ as $8\sin 2t$, forgetting that the sine pair's numerator is $\omega = 2$; the correct coefficient is $8/\omega = 4$.
+
+## Traps & Exam Notes
+
+- **Quoting a pair without its ROC.** $1/(s+1)$ is $e^{-t}u(t)$ only for $\mathrm{Re}\,s > -1$; the same expression on $\mathrm{Re}\,s < -1$ is $-e^{-t}u(-t)$. An answer that reports the transform but not the ROC is wrong for two-sided signals and cannot support a stability claim.
+- **Swapping the sine and cosine numerators.** $\mathcal{L}\{\sin\omega t\} = \frac{\omega}{s^{2}+\omega^{2}}$ and $\mathcal{L}\{\cos\omega t\} = \frac{s}{s^{2}+\omega^{2}}$. Using $s$ in the sine pair inverts the answer into a cosine and detunes the amplitude.
+- **Losing the $n!$ in the power pair.** $\mathcal{L}\{t^{2}\} = 2/s^{3}$, not $1/s^{3}$, and $\mathcal{L}\{t\} = 1/s^{2}$, not $1/s$. The factorial is the coefficient, and it is the most common single-mark loss in this topic.
+- **Shifting only part of the denominator in a damped pair.** $\mathcal{L}\{e^{-2t}\sin 5t\} = \frac{5}{(s+2)^{2}+25} = \frac{5}{s^{2}+4s+29}$; writing $\frac{5}{s^{2}+29}$ drops the cross term $4s$.
+- **Confusing the impulse pair with the step pair.** $\delta(t)\leftrightarrow 1$ for all $s$, while $u(t)\leftrightarrow 1/s$ on $\mathrm{Re}\,s>0$, and $\delta(t-a)\leftrightarrow e^{-as}$ is entire. The $e^{-as}$ is a delay factor, not a pole.
+- **Ignoring the one-sided lower limit.** The transform integrates from $0^-$, so it never sees $f(t)$ for $t<0$. Two different two-sided signals with the same $t\geq 0$ behaviour have the same one-sided transform; the convention must be stated.
+- **Unit mismatch between $\omega$ and $t$.** The sine pair needs $\omega$ in rad/s matching $t$ in seconds. A frequency given in hertz must be converted with $\omega = 2\pi f$; a time constant given in ms puts the pole at $s = -1000$ rad/s, not $-1$.
+
+## See Also
+
+- [[08_Shifting_Theorems_and_Properties]]
+- [[09_Unit_Step,_Dirac_and_Periodic_Functions]]
+- [[10_Inverse_Laplace_and_Partial_Fractions]]
+- [[11_RLC_Circuit_Transients]]
+- [[07_Improper_Integrals]]
+
+---
+
+[[06_Truncation_Error_and_Approximation|⬅ 06]] · [[_MOC_Advanced_Engineering_Math|MOC]] · [[00_Dashboard|Dashboard]] · [[08_Shifting_Theorems_and_Properties|08 ➡]]

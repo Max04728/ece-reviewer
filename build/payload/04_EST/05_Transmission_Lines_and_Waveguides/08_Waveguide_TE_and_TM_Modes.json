@@ -1,0 +1,99 @@
+{
+  "scope": "Classify the TE and TM modes of an empty rectangular waveguide, find each mode's cutoff frequency, identify the dominant mode and the single-mode band.",
+  "intuition": "A hollow metal pipe is a high-pass filter for waves. Each field pattern (mode) has its own cutoff frequency below which it cannot fit across the guide and dies away; only above cutoff does the pattern resonate across the cross-section and travel down the pipe.",
+  "concept": [
+    "**Why a hollow guide supports only TE and TM.** Inside a rectangular guide of broad wall $a$ along $x$ and narrow wall $b$ along $y$ (with $a>b$ by convention), the wave must satisfy the wave equation subject to the boundary condition that the tangential electric field vanishes on all four conducting walls. That boundary condition is satisfied only by discrete field patterns indexed by two integers $m,n$. A pure TEM wave would need an axial electric field to support it, but a single-conductor hollow pipe has no second conductor to establish a transverse voltage — so TEM cannot exist, and every mode has an axial field component. Splitting into $E_z = 0$ (**TE**, transverse electric, also called H modes) and $H_z = 0$ (**TM**, transverse magnetic, also called E modes) exhausts the possibilities.",
+    "**The cutoff condition comes from fitting the pattern across the guide.** Each mode is a standing wave in $x$ and $y$ and a travelling wave in $z$. The transverse wavenumber is fixed by the dimensions, $k_c^2 = (m\\pi/a)^2 + (n\\pi/b)^2$, and propagation requires $k_0^2 > k_c^2$. Converting to frequency gives the single most important formula of the topic: $f_c = \\frac{c}{2}\\sqrt{(m/a)^2 + (n/b)^2}$ with $a$ and $b$ in **metres** and $f_c$ in hertz. Below $f_c$ the axial propagation constant becomes imaginary, $\\beta = -j\\alpha$, and the wave is **evanescent**: it does not propagate but decays exponentially with distance. This is exactly a high-pass filter behaviour, with a different cutoff corner for every mode.",
+    "**Which indices are legal, and the dominant mode.** For TE$_{mn}$, $m$ and $n$ may each be zero but not both — $\\mathrm{TE}_{00}$ has no field at all. For TM$_{mn}$, both $m\\geq 1$ and $n\\geq 1$, since a zero index would force $H_z$ (and hence all of $E_z$) to vanish. Because $a>b$, the smallest nonzero cutoff belongs to $\\mathrm{TE}_{10}$: $f_c = c/(2a)$ with cutoff wavelength $\\lambda_c = 2a$. That makes $\\mathrm{TE}_{10}$ the **dominant mode** — the mode with the lowest cutoff, the one a real guide is designed to carry alone. In $\\mathrm{TE}_{10}$ the electric field is a single half-sine across the broad wall ($E_y \\propto \\sin(\\pi x/a)$) and is uniform along $b$; the cutoff wavelength $2a$ is exactly the length that lets one half-cycle span the guide.",
+    "**Single-mode operation and degeneracy.** Above $\\mathrm{TE}_{10}$'s cutoff the next mode to appear is $\\mathrm{TE}_{20}$ at $f_c = c/a$ (for a guide whose $b$ is close to $a/2$, $\\mathrm{TE}_{20}$ usually beats $\\mathrm{TE}_{01}$ at $c/(2b)$). Operating between these two cutoffs gives the **single-mode band** $c/(2a) < f < c/a$, roughly a $2{:}1$ frequency range — the reason waveguide is used as a clean, predictable transmission medium. Modes are **degenerate** when different $(m,n)$ pairs give the same cutoff: if $a = b$, $\\mathrm{TE}_{10}$ and $\\mathrm{TE}_{01}$ collapse onto each other, and in any guide $\\mathrm{TE}_{mn}$ and $\\mathrm{TM}_{mn}$ with the same indices share a cutoff. Degeneracy is undesirable because two patterns propagate at once with the same $\\beta$ but different field shapes and different wall losses, so guides are deliberately built with $a \\neq b$.",
+    "**Wave impedance: the guide's own $Z_0$.** Once a mode propagates, the ratio of transverse $E$ to transverse $H$ is not the free-space value $\\eta = 377\\ \\Omega$ but a mode-dependent wave impedance: $Z_{\\mathrm{TE}} = \\eta/\\sqrt{1-(f_c/f)^2}$, always **greater** than $\\eta$, and for TM modes: $Z_{\\mathrm{TM}} = \\eta\\sqrt{1-(f_c/f)^2}$, always **less** than $\\eta$. Both collapse to $\\eta$ far above cutoff ($f \\gg f_c$) and both degenerate as $f \\to f_c^{+}$. Wave impedance is what you use for reflection and matching calculations at a waveguide junction; it is *not* the same as the line $Z_0$ of a coaxial cable. **Filling the guide with a dielectric.** If the guide is filled with a lossless dielectric of relative permittivity $\\varepsilon_r$, every phase velocity in the problem slows by $\\sqrt{\\varepsilon_r}$ and every cutoff frequency drops by the same factor: $f_c = \\frac{c}{2\\sqrt{\\varepsilon_r}}\\sqrt{(m/a)^2+(n/b)^2}$. Dimensionless cutoff wavelengths $\\lambda_c$ are unchanged, because they depend only on the geometry. A dielectric filling therefore widens the usable band downwards and shifts the single-mode window to lower frequencies — the guiding principle behind dielectric-loaded and integrated waveguides."
+  ],
+  "formulas": [
+    { "q": "General cutoff frequency", "e": "f_c = \\frac{c}{2}\\sqrt{\\left(\\frac{m}{a}\\right)^2 + \\left(\\frac{n}{b}\\right)^2}", "n": "a, b in metres, f_c in hertz. Air-filled guide; the master formula for the topic." },
+    { "q": "General cutoff wavelength", "e": "\\lambda_c = \\frac{2}{\\sqrt{(m/a)^2 + (n/b)^2}}", "n": "Geometry only — independent of the filling dielectric." },
+    { "q": "Dominant mode TE10", "e": "f_c = \\frac{c}{2a}, \\qquad \\lambda_c = 2a", "n": "Lowest cutoff of any mode because a > b. The single most asked waveguide number." },
+    { "q": "TE modes", "e": "E_z = 0, \\quad m,n \\mathrm{\\ not\\ both\\ zero}", "n": "TE00 does not exist. TE10 is the only mode with an index of zero that matters." },
+    { "q": "TM modes", "e": "H_z = 0, \\quad m \\geq 1, \\ n \\geq 1", "n": "No TM10, TM01 or TM00. Lowest TM mode is TM11, so TM never dominates." },
+    { "q": "Intrinsic impedance of the filling", "e": "\\eta = \\sqrt{\\frac{\\mu}{\\varepsilon}} = \\frac{377\\ \\Omega}{\\sqrt{\\varepsilon_r}}", "n": "377 ohm for air or vacuum. Use the dielectric value when the guide is filled." },
+    { "q": "Wave impedance, TE modes", "e": "Z_{\\mathrm{TE}} = \\frac{\\eta}{\\sqrt{1-(f_c/f)^2}}", "n": "Always > eta. Real only above cutoff; infinite at f = f_c." },
+    { "q": "Wave impedance, TM modes", "e": "Z_{\\mathrm{TM}} = \\eta\\sqrt{1-(f_c/f)^2}", "n": "Always < eta, and zero at cutoff. Do not swap the two forms." },
+    { "q": "Propagation above cutoff", "e": "\\beta = \\frac{2\\pi}{\\lambda_0}\\sqrt{1-(f_c/f)^2}, \\qquad f > f_c", "n": "Real beta means the mode travels. Below f_c beta is imaginary (evanescent)." },
+    { "q": "Evanescent attenuation below cutoff", "e": "\\alpha = \\frac{2\\pi}{\\lambda_0}\\sqrt{(f_c/f)^2 - 1}, \\qquad f < f_c", "n": "Nepers per metre; the wave decays but carries no net power." },
+    { "q": "Single-mode band", "e": "\\frac{c}{2a} < f < \\frac{c}{a}", "n": "Between TE10 and TE20 (or TE01, whichever comes first). Roughly a 2:1 band." },
+    { "q": "Dielectric-filled cutoff", "e": "f_c = \\frac{c}{2\\sqrt{\\varepsilon_r}}\\sqrt{\\left(\\frac{m}{a}\\right)^2 + \\left(\\frac{n}{b}\\right)^2}", "n": "Every cutoff drops by sqrt(eps_r). lambda_c itself is unchanged." }
+  ],
+  "problems": [
+    {
+      "prompt": "WR-90 waveguide has $a = 2.286\\ \\mathrm{cm}$ and $b = 1.016\\ \\mathrm{cm}$. Find the $\\mathrm{TE}_{10}$ cutoff frequency, the cutoff of the next two modes, and state the single-mode band.",
+      "give": ["a = 2.286 cm = 0.02286 m", "b = 1.016 cm = 0.01016 m", "air-filled, c = 3e8 m/s", "a > b"],
+      "steps": [
+        "$\\mathrm{TE}_{10}$: $f_c = c/(2a) = 3\\times10^{8}/(2 \\times 0.02286)$",
+        "$= 3\\times10^{8}/0.04572 = 6.562\\times10^{9}\\ \\mathrm{Hz} = 6.56\\ \\mathrm{GHz}$",
+        "$\\mathrm{TE}_{20}$: $f_c = c/a = 3\\times10^{8}/0.02286 = 13.12\\ \\mathrm{GHz}$",
+        "$\\mathrm{TE}_{01}$: $f_c = c/(2b) = 3\\times10^{8}/(2\\times0.01016) = 14.76\\ \\mathrm{GHz}$",
+        "The next mode after $\\mathrm{TE}_{10}$ is $\\mathrm{TE}_{20}$ at 13.12 GHz, so the single-mode band is $6.56\\ \\mathrm{GHz} < f < 13.12\\ \\mathrm{GHz}$"
+      ],
+      "ans": "$f_{c,\\mathrm{TE}_{10}} = 6.56\\ \\mathrm{GHz}$; $\\mathrm{TE}_{20}$ at $13.12\\ \\mathrm{GHz}$; $\\mathrm{TE}_{01}$ at $14.76\\ \\mathrm{GHz}$; single-mode band $6.56$–$13.12\\ \\mathrm{GHz}$.",
+      "trap": "Substituting $a$ in centimetres. $c = 3\\times10^{8}$ is in m/s, so $a$ must be in metres; using 2.286 gives a cutoff off by $10^{2}$ (656 GHz).", "calc": {"mode":"COMP","steps":["One line, statements separated by `ALPHA` `:` — `3E8÷(2×0.02286) : 2×Ans : 3E8÷(2×0.01016)`","`=` down the chain: $f_{c,\\mathrm{TE}_{10}}$ = **6.562** GHz → $f_{c,\\mathrm{TE}_{20}}$ = **13.12** GHz → $f_{c,\\mathrm{TE}_{01}}$ = **14.76** GHz, so the single-mode band is 6.56–13.12 GHz."],"note":"`3E8` is `SHIFT` `CVALUE` `28` for $c_0$, and it needs $a$ and $b$ in metres."}
+    },
+    {
+      "prompt": "For the same WR-90 guide ($a = 2.286\\ \\mathrm{cm}$, $b = 1.016\\ \\mathrm{cm}$), which modes can propagate at $9\\ \\mathrm{GHz}$? Also compute the $\\mathrm{TE}_{10}$ wave impedance at that frequency.",
+      "give": ["9 GHz operating frequency", "a = 0.02286 m", "b = 0.01016 m", "eta = 377 ohm (air)"],
+      "steps": [
+        "A mode propagates only if $f > f_c$. Compare 9 GHz with each cutoff.",
+        "$\\mathrm{TE}_{10}$: 6.56 GHz $<$ 9 GHz, propagates",
+        "$\\mathrm{TE}_{20}$: 13.12 GHz $>$ 9 GHz, evanescent; $\\mathrm{TE}_{01}$: 14.76 GHz $>$ 9 GHz, evanescent",
+        "$\\mathrm{TE}_{11}$ and $\\mathrm{TM}_{11}$: $f_c = (c/2)\\sqrt{(1/a)^2+(1/b)^2} = 16.16\\ \\mathrm{GHz} > 9\\ \\mathrm{GHz}$, evanescent",
+        "So $\\mathrm{TE}_{10}$ is the only propagating mode — the guide is operating single-mode",
+        "Wave impedance: $Z_{\\mathrm{TE}} = 377/\\sqrt{1-(6.5617/9)^2} = 377/\\sqrt{1-0.53156} = 377/0.68443 = 550.8\\ \\Omega$"
+      ],
+      "ans": "Only $\\mathrm{TE}_{10}$ propagates, with $Z_{\\mathrm{TE}} \\approx 551\\ \\Omega$ (compare $\\eta = 377\\ \\Omega$).",
+      "trap": "Assuming a mode just because the guide carries power at that frequency — 'the waveguide works' does not mean every mode works. Also assuming $Z = 377\\ \\Omega$ inside the guide; the wave impedance is mode- and frequency-dependent.", "calc": {"mode":"COMP","steps":["`377÷√(1−(6.5617÷9)²)` → **550.8** Ω for $\\mathrm{TE}_{10}$ at 9 GHz.","The next candidate: `(3E8÷2)×√((1÷0.02286)²+(1÷0.01016)²)` → **1.616e10** Hz, still above 9 GHz, so $\\mathrm{TE}_{11}$/$\\mathrm{TM}_{11}$ are evanescent too."],"note":"Inside a guide $Z \\neq 377$ Ω; the wave impedance is mode- and frequency-dependent."}
+    },
+    {
+      "prompt": "Design an air-filled rectangular guide whose $\\mathrm{TE}_{10}$ cutoff is exactly $5\\ \\mathrm{GHz}$. Choose the broad wall $a$ and a sensible narrow wall $b$, then verify that $\\mathrm{TE}_{10}$ is dominant and find the single-mode band.",
+      "give": ["target f_c(TE10) = 5 GHz", "air-filled", "rule of thumb b ≈ a/2"],
+      "steps": [
+        "Invert $f_c = c/(2a)$: $a = c/(2f_c) = 3\\times10^{8}/(2 \\times 5\\times10^{9})$",
+        "$a = 3\\times10^{8}/1\\times10^{10} = 0.03\\ \\mathrm{m} = 3.00\\ \\mathrm{cm}$",
+        "Choose $b = a/2 = 1.50\\ \\mathrm{cm}$ (standard practice keeps $b$ between about $0.4a$ and $0.5a$ to suppress higher-order modes without excess loss)",
+        "Check dominance: $\\mathrm{TE}_{01}$ cutoff is $c/(2b) = 3\\times10^{8}/0.03 = 10.0\\ \\mathrm{GHz} > 5\\ \\mathrm{GHz}$, and $\\mathrm{TE}_{20}$ is $c/a = 10.0\\ \\mathrm{GHz} > 5\\ \\mathrm{GHz}$",
+        "Both next modes sit at 10.0 GHz, so $\\mathrm{TE}_{10}$ is dominant and the single-mode band is 5.0–10.0 GHz"
+      ],
+      "ans": "$a = 3.00\\ \\mathrm{cm}$, $b = 1.50\\ \\mathrm{cm}$; $\\mathrm{TE}_{10}$ dominant; single-mode band 5.0–10.0 GHz (next modes $\\mathrm{TE}_{20}$ and $\\mathrm{TE}_{01}$ both at 10.0 GHz).",
+      "trap": "Choosing $b = a$. That makes $\\mathrm{TE}_{10}$ and $\\mathrm{TE}_{01}$ degenerate — both cut off at 5 GHz and propagate together, destroying single-mode operation.", "calc": {"mode":"COMP","steps":["One line, statements separated by `ALPHA` `:` — `3E8÷(2×5E9) : Ans÷2 : 3E8÷(2×Ans)`","`=` down the chain: $a$ = **0.0300** m → $b$ = **0.0150** m → $f_{c,\\mathrm{TE}_{01}}$ = **1.00e10** Hz. $\\mathrm{TE}_{20}$ is `2×5E9` = **1.00e10** Hz as well, so the band is 5.0–10.0 GHz."]}
+    },
+    {
+      "prompt": "The WR-90 guide ($a = 2.286\\ \\mathrm{cm}$, $b = 1.016\\ \\mathrm{cm}$) is completely filled with polyethylene, $\\varepsilon_r = 2.25$. Find the new $\\mathrm{TE}_{10}$ and $\\mathrm{TE}_{20}$ cutoffs and the new single-mode band.",
+      "give": ["a = 0.02286 m", "b = 0.01016 m", "eps_r = 2.25", "air cutoffs: TE10 = 6.562 GHz, TE20 = 13.123 GHz, TE01 = 14.764 GHz"],
+      "steps": [
+        "A dielectric filling replaces $c$ with $c/\\sqrt{\\varepsilon_r}$, so every cutoff scales by $1/\\sqrt{2.25} = 1/1.5$",
+        "$\\mathrm{TE}_{10}$: $f_c = 6.562/1.5 = 4.375\\ \\mathrm{GHz}$",
+        "$\\mathrm{TE}_{20}$: $f_c = 13.123/1.5 = 8.749\\ \\mathrm{GHz}$",
+        "$\\mathrm{TE}_{01}$: $f_c = 14.764/1.5 = 9.843\\ \\mathrm{GHz}$ — still above $\\mathrm{TE}_{20}$, so the upper edge is set by $\\mathrm{TE}_{20}$",
+        "New single-mode band: 4.37–8.75 GHz, shifted down by the factor 1.5 from the air-filled 6.56–13.12 GHz",
+        "Note the dielectric intrinsic impedance is now $\\eta_d = 377/1.5 = 251.3\\ \\Omega$, which also rescales $Z_{\\mathrm{TE}}$"
+      ],
+      "ans": "$f_{c,\\mathrm{TE}_{10}} = 4.37\\ \\mathrm{GHz}$, $f_{c,\\mathrm{TE}_{20}} = 8.75\\ \\mathrm{GHz}$; single-mode band 4.37–8.75 GHz.",
+      "trap": "Dividing by $\\varepsilon_r = 2.25$ instead of $\\sqrt{\\varepsilon_r} = 1.5$. Every phase-velocity and cutoff expression carries $\\sqrt{\\varepsilon_r}$, never $\\varepsilon_r$.", "calc": {"mode":"COMP","steps":["One line, statements separated by `ALPHA` `:` — `√2.25 : 6.562÷1.5 : 13.123÷1.5 : 14.764÷1.5 : 377÷1.5`","`=` down the chain: $\\sqrt{\\varepsilon_r}$ = **1.5** → $f_{c,\\mathrm{TE}_{10}}$ = **4.375** GHz → $f_{c,\\mathrm{TE}_{20}}$ = **8.749** GHz → $f_{c,\\mathrm{TE}_{01}}$ = **9.843** GHz (still above $\\mathrm{TE}_{20}$) → $\\eta_d$ = **251.3** Ω."],"note":"Every cutoff divides by $\\sqrt{\\varepsilon_r} = 1.5$, never by $\\varepsilon_r$ itself."}
+    }
+  ],
+  "traps": [
+    "**Using $a$ in centimetres with $c$ in m/s.** $f_c = c/(2a)$ needs $a$ in metres. WR-90's $a = 2.286\\ \\mathrm{cm}$ gives 6.56 GHz in metres but 656 GHz in centimetres — a factor of $10^{2}$ error that looks like a plausible microwave number until you check the band.",
+    "**Assuming TEM exists in a hollow guide.** A single-conductor pipe cannot support TEM; every real mode has either $E_z = 0$ (TE) or $H_z = 0$ (TM). TEM is a coaxial/twin-lead phenomenon only.",
+    "**Believing TM10, TM01 or TE00 exist.** TM requires $m\\geq1$ *and* $n\\geq1$, and TE forbids $m=n=0$. If you compute a cutoff for TM10 you have invented a mode.",
+    "**Forgetting that the dominant mode depends on $a>b$.** If a problem states $b>a$ (unusual but legal), the dominant mode becomes $\\mathrm{TE}_{01}$ at $c/(2b)$ and every formula must be re-indexed.",
+    "**Swapping the TE and TM wave-impedance forms.** $Z_{\\mathrm{TE}} = \\eta/\\sqrt{1-(f_c/f)^2}$ is *above* $\\eta$; $Z_{\\mathrm{TM}} = \\eta\\sqrt{1-(f_c/f)^2}$ is *below*. Writing $Z = \\eta$ for both ignores the whole point of the waveguide.",
+    "**Treating a below-cutoff mode as a lossy propagating mode.** Below $f_c$ the mode is evanescent — it decays, it does not travel and attenuate slowly. It can only be used deliberately as a reactive attenuator over a short length.",
+    "**Setting $b = a$ by accident.** Degenerate $\\mathrm{TE}_{10}$/$\\mathrm{TE}_{01}$ modes propagate simultaneously, so the guide is no longer single-mode and the field pattern at the output depends on the launch.",
+    "**Scaling by $\\varepsilon_r$ instead of $\\sqrt{\\varepsilon_r}$.** A dielectric filling divides every cutoff by $\\sqrt{\\varepsilon_r}$. Using $\\varepsilon_r$ overshoots the frequency shift by the square root."
+  ],
+  "refs": [
+    "[[09_Cutoff_Frequency_and_Guide_Wavelength]]",
+    "[[10_Phase_and_Group_Velocity]]",
+    "[[02_Secondary_Constants_Z0_and_Gamma]]"
+  ],
+  "prereqs": [
+    "[[02_Secondary_Constants_Z0_and_Gamma]]"
+  ]
+}

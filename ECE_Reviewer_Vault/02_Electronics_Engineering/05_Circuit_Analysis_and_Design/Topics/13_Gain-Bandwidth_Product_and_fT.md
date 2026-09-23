@@ -1,0 +1,197 @@
+---
+id: ECE-05-13
+title: "Gain-Bandwidth Product and fT"
+part: "02_Electronics_Engineering"
+area: "05_Circuit_Analysis_and_Design"
+topic: 13
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[12_Miller’s_Theorem_and_High-Frequency_Effects]]", "[[07_Hybrid-Pi_Model]]"]
+tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 13 — Gain-Bandwidth Product and fT
+
+> [!abstract] Scope
+> Use the constant gain-bandwidth trade to move a stage between high gain and wide bandwidth, and compute the device figures f_T, f_beta and the forward transit time from the small-signal parameters.
+
+## Core Concept
+
+> [!tip] Intuition
+> A transistor behaves like an amplifier with a fixed budget of gain-multiplied-by-bandwidth. Spend the budget on gain and the bandwidth shrinks in exact proportion; spend it on bandwidth and the gain falls. The budget itself is a device property, set by how fast charge can be pushed into the base-emitter and base-collector capacitances, and it is quoted as the frequency at which the current gain has fallen all the way to one.
+
+**The trade is the whole idea.** For any amplifier whose response is dominated by a single pole, the product of the midband gain magnitude and the $-3\ \mathrm{dB}$ bandwidth is a constant fixed by the circuit and the device:
+$$|A_{v(mid)}|\times BW = GBP$$
+If a stage gives $|A_v| = 100$ with $BW = 10\ \mathrm{kHz}$, its GBP is $1\ \mathrm{MHz}$; the same stage with $|A_v| = 10$ must give $100\ \mathrm{kHz}$, and at unity gain it delivers the full $1\ \mathrm{MHz}$. This is why a datasheet quotes one number for an op-amp: the gain-bandwidth product, or unity-gain bandwidth. The trade exists because the pole location itself contains the gain: in the Miller picture the input pole is $1/(2\pi R_{th}C_{Mi})$ and $C_{Mi}$ is proportional to $|A_v|$, so raising the gain by a factor $k$ multiplies the input capacitance by about $k$ and divides the bandwidth by about $k$.
+
+**The device figure f_T.** The transistor's own budget limit is the unity current-gain frequency $f_T$, defined as the frequency at which the short-circuit current gain $|h_{fe}|$ falls to 1. Ignoring the base resistance and the collector depletion layer, the transistor is a current source $g_mV_{\pi}$ feeding the parallel combination of $C_{\pi}$ and $C_{\mu}$, so the short-circuit current gain magnitude is:
+$$|h_{fe}| = g_m/(\omega(C_{\pi} + C_{\mu}))$$
+which is set equal to 1 to find the frequency where the gain reaches unity:
+$$f_T = g_m/[2\pi(C_{\pi} + C_{\mu})]$$
+Note that the quantity being set to one is the *current* gain, and the output is AC-short-circuited so there is no Miller multiplication and no voltage gain to speak of at all. The forward transit time is the time an injected carrier spends crossing the base:
+$$\tau_F = 1/(2\pi f_T)$$
+
+**Roll-off behaviour and the beta cutoff.** At low frequency the current gain is the DC $\beta$. As frequency rises the gain rolls off as:
+$$|h_{fe}(f)| = \beta/\sqrt{1 + (f/f_{\beta})^2}$$
+where $f_{\beta}$ is the beta cutoff frequency at which the current gain has fallen by $3\ \mathrm{dB}$ to $\beta/\sqrt{2}$. Above $f_{\beta}$ the gain falls at 20 dB per decade (a single pole), and it reaches 1 at $f_T$. Extrapolating that 20 dB/decade line back to DC gives the constant product $f_T = \beta f_{\beta}$, or $f_{\beta} = f_T/\beta$. The factor $\beta$ is large, so $f_{\beta}$ is far below $f_T$: a device with $f_T = 530\ \mathrm{MHz}$ and $\beta = 100$ has its current gain already 3 dB down at $5.3\ \mathrm{MHz}$. Any amplifier built around it that relies on current gain loses that gain a decade before $f_T$.
+
+**How to use this in design and where it breaks.** Two design moves follow from $GBP = |A_{v(mid)}|\times BW$. First, cascading stages: two identical stages with gain $A$ each have total gain $A^2$ but a bandwidth narrowed by the bandwidth shrinkage factor $\sqrt{2^{1/2}-1} = 0.644$, so splitting gain across stages buys bandwidth over a single high-gain stage. Second, feedback or a reduced load resistor trades gain for bandwidth linearly. The rule fails as soon as the response is not single-pole: the Miller zero, a second stage pole, or an output pole close to the input pole all break the constancy. A practical trap is quoting GBW for an op-amp at a closed-loop gain where the closed-loop bandwidth approaches the second pole; the nominal $GBW/|A_v|$ is then optimistic and the loop rings. Likewise, $f_T$ is not the amplifier's unity voltage-gain frequency: $f_T$ is measured with the output short-circuited and depends only on $g_m$ and the two capacitances, while a real stage's unity-gain frequency also contains $R_L'$ and $R_{th}$ and is usually lower.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Gain-bandwidth product | $GBW = \lvert A_{v(mid)} \rvert \cdot BW = \mathrm{constant}$ | Valid for an amplifier with a single dominant pole, where BW is the -3 dB bandwidth. \|A_v\| = 100 with BW = 10 kHz gives GBW = 1 MHz, so \|A_v\| = 10 must give 100 kHz. |
+| Unity current-gain frequency (BJT) | $f_T = \frac{g_m}{2\pi\left(C_{\pi} + C_{\mu}\right)}$ | Device figure measured with the output AC-short-circuited, so there is no Miller multiplication. g_m in siemens and C in farads give hertz. At f_T the current gain magnitude is exactly 1. |
+| f_T from bias current | $f_T = \frac{I_C}{2\pi V_T\left(C_{\pi} + C_{\mu}\right)}$ | Substitute g_m = I_C/V_T with V_T = 26 mV at room temperature. f_T rises with bias current because g_m does, which is why a device is characterised at a stated I_C. |
+| Beta cutoff frequency | $f_{\beta} = \frac{f_T}{\beta}$ | Frequency where \|h_fe\| has fallen 3 dB to beta/sqrt(2). It is far below f_T: f_T = 530 MHz with beta = 100 gives only 5.3 MHz. Dividing instead of multiplying is a factor-beta-squared error. |
+| Product relation | $f_T = \beta f_{\beta}$ | Same statement rearranged: the 20 dB/decade line through the beta cutoff extrapolates to unity gain at f_T. Do not insert the 3 dB factor of 1/sqrt(2) here - the product is defined on the straight-line asymptote. |
+| Current-gain roll-off | $\lvert h_{fe}(f) \rvert = \frac{\beta}{\sqrt{1 + \left(f/f_{\beta}\right)^{2}}}$ | One-pole roll-off: 0.707 beta at f_beta, 20 dB/decade above it, unity at f_T. At f = 10 f_beta the gain is beta/sqrt(101) = beta/10.05, about 10 percent of beta. |
+| Bandwidth from GBP or f_T | $BW = \frac{GBW}{\lvert A_{v(mid)} \rvert} = \frac{f_T}{\lvert A_{v(mid)} \rvert}$ | Single-pole stage only. The second equality assumes the stage's unity-gain frequency is the device f_T, which ignores R_L' and R_th loading and is therefore an upper bound. |
+| Forward transit time | $\tau_F = \frac{1}{2\pi f_T}$ | Base transit time in seconds when f_T is in hertz. The 2 pi matters: for f_T = 530 MHz, 1/f_T = 1.89 ns but tau_F = 0.30 ns. |
+
+## Worked Problems
+
+### P1. A BJT is biased at $g_m = 40\ \mathrm{mS}$ and has $C_{\pi} = 10\ \mathrm{pF}$, $C_{\mu} = 2\ \mathrm{pF}$ and $\beta = 100$. Find $f_T$, the beta cutoff frequency, the forward transit time, and the current gain at $20\ \mathrm{MHz}$.
+
+**Given:** $g_m = 40\ \mathrm{mS}$; $C_{\pi} = 10\ \mathrm{pF}$; $C_{\mu} = 2\ \mathrm{pF}$; $\beta = 100$
+
+**Solution:**
+
+1. Total capacitance seen by the current source: $C_{\pi} + C_{\mu} = 10 + 2 = 12\ \mathrm{pF}$.
+2. Unity current-gain frequency: $f_T = \dfrac{g_m}{2\pi(C_{\pi}+C_{\mu})} = \dfrac{0.04}{2\pi(12\times10^{-12})} = \dfrac{0.04}{7.540\times10^{-11}} = 5.305\times10^{8}\ \mathrm{Hz} = 530.5\ \mathrm{MHz}$.
+3. Beta cutoff: $f_{\beta} = f_T/\beta = 530.5\ \mathrm{MHz}/100 = 5.305\ \mathrm{MHz}$.
+4. Transit time: $\tau_F = \dfrac{1}{2\pi f_T} = \dfrac{1}{2\pi(5.305\times10^{8})} = \dfrac{1}{3.333\times10^{9}} = 3.00\times10^{-10}\ \mathrm{s} = 0.300\ \mathrm{ns}$.
+5. Current gain at $20\ \mathrm{MHz}$: $|h_{fe}| = \dfrac{100}{\sqrt{1 + (20/5.305)^{2}}} = \dfrac{100}{\sqrt{1 + 14.22}} = \dfrac{100}{3.900} = 25.6$.
+6. Check the trend: $20\ \mathrm{MHz}$ is above $f_{\beta}$ but well below $f_T$, so the gain must be between $\beta/\sqrt{2} = 70.7$ and 1 - the value 25.6 is consistent.
+
+> [!success]- Answer
+> **$f_T = 530.5\ \mathrm{MHz}$, $f_{\beta} = 5.31\ \mathrm{MHz}$, $\tau_F = 0.300\ \mathrm{ns}$ and $|h_{fe}(20\ \mathrm{MHz})| = 25.6$**
+
+> [!warning] Trap
+> Miller-multiplying $C_{\mu}$ inside $f_T$. The f_T measurement short-circuits the output, so $C_{\mu}$ enters at face value, not as $C_{\mu}(1+|A_v|)$. Using $C_{\mu}(1+100) = 202\ \mathrm{pF}$ gives a total of $212\ \mathrm{pF}$ and $f_T = 0.04/(2\pi\times212\times10^{-12}) = 30.0\ \mathrm{MHz}$ instead of $530.5\ \mathrm{MHz}$ - an 18x understatement.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `0.04 ÷ (2π × 12E-12)` → $f_T$ = **5.305e8** Hz = **530.5** MHz.
+> 2. `Ans ÷ 100` → $f_\beta$ = **5.305** MHz; `1 ÷ (2π × 5.305E8)` → $\tau_F$ = **3.00e-10** s.
+> 3. `100 ÷ √(1 + (20 ÷ 5.305)²)` → $\lvert h_{fe} \rvert$ = **25.6** at 20 MHz.
+
+### P2. A transistor is biased at $I_C = 2\ \mathrm{mA}$ with $C_{\pi} = 25\ \mathrm{pF}$ and $C_{\mu} = 4\ \mathrm{pF}$ at $V_T = 26\ \mathrm{mV}$. Find $g_m$, $f_T$ and the transit time, then state the effect of using $V_T = 25\ \mathrm{mV}$ instead.
+
+**Given:** $I_C = 2\ \mathrm{mA}$; $C_{\pi} = 25\ \mathrm{pF}$; $C_{\mu} = 4\ \mathrm{pF}$; $V_T = 26\ \mathrm{mV}$
+
+**Solution:**
+
+1. Transconductance: $g_m = I_C/V_T = (2\times10^{-3})/(26\times10^{-3}) = 7.692\times10^{-2}\ \mathrm{S} = 76.92\ \mathrm{mS}$.
+2. Capacitance sum: $C_{\pi} + C_{\mu} = 25 + 4 = 29\ \mathrm{pF}$.
+3. $f_T = \dfrac{76.92\times10^{-3}}{2\pi(29\times10^{-12})} = \dfrac{76.92\times10^{-3}}{1.822\times10^{-10}} = 4.222\times10^{8}\ \mathrm{Hz} = 422.2\ \mathrm{MHz}$.
+4. Transit time: $\tau_F = 1/(2\pi\times4.222\times10^{8}) = 1/(2.653\times10^{9}) = 3.770\times10^{-10}\ \mathrm{s} = 0.377\ \mathrm{ns}$.
+5. With $V_T = 25\ \mathrm{mV}$: $g_m = 2\times10^{-3}/25\times10^{-3} = 80\ \mathrm{mS}$, giving $f_T = 80\times10^{-3}/1.822\times10^{-10} = 4.391\times10^{8}\ \mathrm{Hz} = 439.1\ \mathrm{MHz}$, about $4\%$ higher.
+6. Because $f_T \propto g_m \propto I_C$, doubling the bias current to $4\ \mathrm{mA}$ would raise $f_T$ to roughly $844\ \mathrm{MHz}$ only if the capacitances stayed constant - in a real device the junction capacitances grow at higher bias, so the gain is less than proportional.
+
+> [!success]- Answer
+> **$g_m = 76.9\ \mathrm{mS}$, $f_T = 422\ \mathrm{MHz}$, $\tau_F = 0.377\ \mathrm{ns}$ (439 MHz if $V_T = 25\ \mathrm{mV}$ is used)**
+
+> [!warning] Trap
+> Reaching for $V_T = 25\ \mathrm{mV}$ out of habit. The thermal voltage is $kT/q = 25.85\ \mathrm{mV}$ at $300\ \mathrm{K}$ and is conventionally rounded to $26\ \mathrm{mV}$ at room temperature; using $25\ \mathrm{mV}$ inflates $g_m$ by $4\%$ and $f_T$ with it. Also note $f_T$ uses $g_m$ in siemens and capacitances in farads - a $g_m$ left in millisiemens gives an answer 1000x too small.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `2E-3 ÷ 26E-3` → $g_m$ = **76.92** mS.
+> 2. `76.92E-3 ÷ (2π × 29E-12)` → $f_T$ = **4.222e8** Hz; `1 ÷ (2π × 4.222E8)` → $\tau_F$ = **3.77e-10** s.
+> 3. With $V_T$ = 25 mV: `2E-3 ÷ 25E-3` → **80** mS, so `80E-3 ÷ (2π × 29E-12)` → **439** MHz, 4 % high.
+>
+> True $V_T = kT/q$ at 300 K is 25.85 mV — `SHIFT` `CVALUE` 25 `× 300 ÷` `SHIFT` `CVALUE` 23 — which is why 26 mV is the rounding and 25 mV is not.
+
+### P3. An amplifier stage has a midband gain of $-100$ and an upper cutoff of $12\ \mathrm{kHz}$. Find its gain-bandwidth product, the bandwidth if feedback reduces the gain magnitude to $20$, and the bandwidth at unity gain.
+
+**Given:** $A_{v(mid)} = -100$; $f_H = 12\ \mathrm{kHz}$
+
+**Solution:**
+
+1. Gain-bandwidth product: $GBW = |A_{v(mid)}|f_H = 100\times12\ \mathrm{kHz} = 1.2\ \mathrm{MHz}$.
+2. At $|A_v| = 20$ the constant product requires $BW = 1.2\ \mathrm{MHz}/20 = 60\ \mathrm{kHz}$.
+3. At $|A_v| = 1$ the whole product is available as bandwidth: $BW = 1.2\ \mathrm{MHz}$.
+4. The gain reduction factor is $100/20 = 5$, and the bandwidth grows by exactly the same factor $60/12 = 5$, confirming the trade is linear.
+5. Cross-check with the Miller picture: feedback divides the effective input capacitance by about 5 because the closed-loop gain is 5 times smaller, so the input pole moves up by 5.
+
+> [!success]- Answer
+> **$GBW = 1.2\ \mathrm{MHz}$; $BW = 60\ \mathrm{kHz}$ at $|A_v| = 20$ and $1.2\ \mathrm{MHz}$ at unity gain**
+
+> [!warning] Trap
+> Carrying the sign of the gain into the product. $GBW$ uses the gain magnitude, so $|-100|\times12\ \mathrm{kHz} = 1.2\ \mathrm{MHz}$; multiplying by $-100$ gives $-1.2\ \mathrm{MHz}$, and then dividing that by 20 gives a negative bandwidth. Also do not add the old and new bandwidths (a common slip with the desensitivity factor $D$) - the correct result is $12\ \mathrm{kHz}\times5 = 60\ \mathrm{kHz}$, not $12 + 60$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `100 × 12E3` → $GBW$ = **1.2e6** Hz.
+> 2. `1.2E6 ÷ 20` → **60** kHz at $\lvert A_v \rvert$ = 20, and `1.2E6 ÷ 1` → **1.2** MHz at unity gain: the gain fell 5× and the bandwidth rose 5×.
+
+### P4. An op-amp has a unity-gain bandwidth of $2\ \mathrm{MHz}$. Find the closed-loop bandwidth at $|A_v| = 40$, the gain available if the design needs $200\ \mathrm{kHz}$ of bandwidth, and the bandwidth at $|A_v| = 1000$. State whether the last answer is trustworthy.
+
+**Given:** $GBW = 2\ \mathrm{MHz}$; $|A_v| = 40$; required $BW = 200\ \mathrm{kHz}$
+
+**Solution:**
+
+1. At $|A_v| = 40$: $BW = GBW/|A_v| = 2\ \mathrm{MHz}/40 = 50\ \mathrm{kHz}$.
+2. For $BW = 200\ \mathrm{kHz}$: $|A_v| = GBW/BW = 2\times10^{6}/2\times10^{5} = 10$.
+3. At $|A_v| = 1000$: $BW = 2\ \mathrm{MHz}/1000 = 2\ \mathrm{kHz}$.
+4. Check the pattern: $40\times50\ \mathrm{kHz} = 2\ \mathrm{MHz}$, $10\times200\ \mathrm{kHz} = 2\ \mathrm{MHz}$ and $1000\times2\ \mathrm{kHz} = 2\ \mathrm{MHz}$ - the product is preserved in all three cases.
+5. The $2\ \mathrm{kHz}$ answer is nominal only. It equals the op-amp's open-loop dominant pole, so the closed-loop response is no longer single-pole dominated and the real bandwidth is higher but the gain accuracy is worse; the useful range of the $GBW/|A_v|$ rule is roughly $|A_v| \le 100$ for a general-purpose part.
+
+> [!success]- Answer
+> **$BW = 50\ \mathrm{kHz}$ at $|A_v| = 40$; $|A_v| = 10$ for $200\ \mathrm{kHz}$; $2\ \mathrm{kHz}$ at $|A_v| = 1000$ (nominal, not trustworthy)**
+
+> [!warning] Trap
+> Assuming the op-amp's $GBW$ is a hard limit at every gain. The $2\ \mathrm{kHz}$ result at $|A_v| = 1000$ is below the open-loop dominant pole, where the closed-loop bandwidth is set by the pole itself rather than by the gain-bandwidth trade; quoting it as a deliverable bandwidth misleads the design. Also check units: $GBW$ in hertz and $BW$ in kilohertz must be brought to the same unit before dividing.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `2E6 ÷ 40` → $BW$ = **50** kHz.
+> 2. `2E6 ÷ 200E3` → $\lvert A_v \rvert$ = **10** for 200 kHz of bandwidth.
+> 3. `2E6 ÷ 1000` → **2** kHz, nominal only: that sits at the open-loop dominant pole, where the gain-bandwidth rule stops describing the circuit.
+
+### P5. A transistor has $f_T = 800\ \mathrm{MHz}$ and $\beta = 120$. Find the beta cutoff frequency, the forward transit time, and the current gain magnitude at $60\ \mathrm{MHz}$. At what frequency does the current gain fall to $1$?
+
+**Given:** $f_T = 800\ \mathrm{MHz}$; $\beta = 120$; $f = 60\ \mathrm{MHz}$
+
+**Solution:**
+
+1. Beta cutoff: $f_{\beta} = f_T/\beta = 800\ \mathrm{MHz}/120 = 6.667\ \mathrm{MHz}$.
+2. Transit time: $\tau_F = 1/(2\pi f_T) = 1/(2\pi\times8\times10^{8}) = 1/(5.027\times10^{9}) = 1.989\times10^{-10}\ \mathrm{s} = 0.199\ \mathrm{ns}$.
+3. Frequency ratio: $f/f_{\beta} = 60/6.667 = 9.00$.
+4. Current gain: $|h_{fe}| = 120/\sqrt{1 + 9.00^{2}} = 120/\sqrt{82} = 120/9.055 = 13.25$.
+5. The current gain reaches 1 at $f = f_T = 800\ \mathrm{MHz}$ by definition; equivalently $f_T = \beta f_{\beta} = 120\times6.667\ \mathrm{MHz} = 800\ \mathrm{MHz}$, which closes the check.
+6. Sanity check on the asymptote: well above $f_{\beta}$ the gain is $\beta f_{\beta}/f = f_T/f = 800/60 = 13.3$, matching the exact $13.25$ to within $0.4\%$.
+
+> [!success]- Answer
+> **$f_{\beta} = 6.67\ \mathrm{MHz}$, $\tau_F = 0.199\ \mathrm{ns}$ and $|h_{fe}(60\ \mathrm{MHz})| = 13.25$; unity current gain at $f_T = 800\ \mathrm{MHz}$**
+
+> [!warning] Trap
+> Inverting the beta-cutoff relation to $f_{\beta} = \beta f_T$. That gives $120\times800\ \mathrm{MHz} = 96\ \mathrm{GHz}$, a factor $\beta^{2} = 14400$ too high. The beta cutoff is always far BELOW $f_T$ because the current gain starts at beta and falls to 1. Also note $\tau_F = 1/(2\pi f_T) = 0.199\ \mathrm{ns}$, not $1/f_T = 1.25\ \mathrm{ns}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `800E6 ÷ 120` → $f_\beta$ = **6.667** MHz.
+> 2. `1 ÷ (2π × 800E6)` → $\tau_F$ = **1.989e-10** s.
+> 3. `120 ÷ √(1 + (60 ÷ 6.667)²)` → $\lvert h_{fe} \rvert$ = **13.25**; the asymptote `800 ÷ 60` → **13.3** confirms it, and unity gain is at $f_T$ = **800** MHz.
+
+## Traps & Exam Notes
+
+- **Inverting the beta-cutoff relation.** $f_{\beta} = f_T/\beta$, so a device with $f_T = 530\ \mathrm{MHz}$ and $\beta = 100$ has $f_{\beta} = 5.3\ \mathrm{MHz}$; writing $f_{\beta} = \beta f_T = 53\ \mathrm{GHz}$ is a factor-$\beta^{2}$ error. The current gain starts at $\beta$ and falls to 1, so $f_{\beta}$ must lie far below $f_T$.
+- **Miller-multiplying $C_{\mu}$ inside $f_T$.** $f_T$ is defined with the output short-circuited and the current gain equal to 1, so $C_{\mu}$ appears unmultiplied. Using $C_{\mu}(1+|A_v|) = 202\ \mathrm{pF}$ instead of $2\ \mathrm{pF}$ gives $f_T = 30\ \mathrm{MHz}$ rather than $530\ \mathrm{MHz}$.
+- **Dropping the $2\pi$ in the transit time.** $\tau_F = 1/(2\pi f_T)$, not $1/f_T$. For $f_T = 530.5\ \mathrm{MHz}$ that is $0.300\ \mathrm{ns}$ versus the wrong $1.89\ \mathrm{ns}$ - the $2\pi$ is a factor of 6.28, not a rounding detail.
+- **Using $V_T = 25\ \mathrm{mV}$.** The conventional room-temperature value is $26\ \mathrm{mV}$; using $25\ \mathrm{mV}$ raises $g_m$ by $4\%$ and with it $f_T$ (422 MHz becomes 439 MHz in the worked problem).
+- **Treating GBW as a promise at every gain.** $GBW = |A_v|\times BW$ requires a single dominant pole. At very high closed-loop gain the bandwidth drops below the open-loop dominant pole and the rule no longer describes the circuit, while at low gain the closed-loop bandwidth can approach the second pole, where the extra phase lag causes peaking and ringing even though the magnitude product still looks satisfied.
+- **Confusing $f_T$ with the stage's unity voltage-gain frequency.** $f_T$ is a device figure set only by $g_m$ and $C_{\pi} + C_{\mu}$, measured with the output AC-short-circuited. A real stage's unity-gain frequency also contains $R_L'$ and $R_{th}$, and the Miller zero flattens the roll-off, so the stage's unity-gain frequency is usually below the device $f_T$.
+
+## See Also
+
+- [[12_Miller’s_Theorem_and_High-Frequency_Effects]]
+- [[11_Frequency_Response_and_Bode_Plots]]
+- [[07_Hybrid-Pi_Model]]
+- [[10_Bode_Plots_and_Margins]]
+- [[01_Op-Amp_Fundamentals_and_Real_Parameters]]
+
+---
+
+[[12_Miller’s_Theorem_and_High-Frequency_Effects|⬅ 12]] · [[_MOC_Circuit_Analysis_and_Design|MOC]] · [[00_Dashboard|Dashboard]] · [[14_Feedback_Amplifier_Topologies|14 ➡]]

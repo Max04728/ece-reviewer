@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sallen-Key Filter Tuner — f0, Q and the Component Choice</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// A unity-gain Sallen-Key is a second-order section with exactly two knobs that
+// matter: f0 and Q. The whole point of the widget is that f0 and Q are NOT
+// independent of the component spread -- for the low-pass, Q is set by the
+// capacitor ratio once the resistors are equal, and vice versa.
+
+widget({
+  title: 'Sallen-Key Filter Tuner — f0, Q and the Magnitude Response',
+  description:
+    'A second-order unity-gain Sallen-Key low-pass or high-pass. Set the four components, read f0 and Q, and watch the Bode plot move. The design panel then inverts the problem: give it a target f0 and Q and it returns component values that hit them.',
+  height: 660,
+  controls: [
+    { id: 'resp', label: 'response', type: 'select', options: [
+      { value: 'lp', label: 'low-pass' }, { value: 'hp', label: 'high-pass' }], value: 'lp' },
+    { id: 'R1', label: 'R1 (k)', min: 0.5, max: 200, step: 0.5, value: 10 },
+    { id: 'R2', label: 'R2 (k)', min: 0.5, max: 200, step: 0.5, value: 10 },
+    { id: 'C1', label: 'C1 (nF)', min: 0.5, max: 500, step: 0.5, value: 20 },
+    { id: 'C2', label: 'C2 (nF)', min: 0.5, max: 500, step: 0.5, value: 10 },
+    { id: 'fTarget', label: 'target f0 (Hz)', min: 20, max: 20000, step: 10, value: 1000 },
+    { id: 'qTarget', label: 'target Q', min: 0.3, max: 5, step: 0.01, value: 0.71 },
+  ],
+
+  compute: (v) => {
+    const R1 = v.R1 * 1e3, R2 = v.R2 * 1e3, C1 = v.C1 * 1e-9, C2 = v.C2 * 1e-9;
+    const lp = v.resp === 'lp';
+    const root = Math.sqrt(R1 * R2 * C1 * C2);
+
+    const f0 = 1 / (2 * Math.PI * root);
+    // Unity-gain Sallen-Key: the low-pass divides by C2(R1+R2), the high-pass by
+    // R1(C1+C2). Same f0 either way; the Q expression is the dual.
+    const Q = lp ? root / (C2 * (R1 + R2)) : root / (R1 * (C1 + C2));
+
+    const mag = (f) => {
+      const u = f / f0;
+      const d = Math.sqrt((1 - u * u) * (1 - u * u) + (u / Q) * (u / Q));
+      return lp ? 1 / d : (u * u) / d;
+    };
+    const db = (f) => 20 * Math.log10(Math.max(mag(f), 1e-14));
+
+    // -3 dB crossing, found by a log-spaced scan in the direction the gain moves
+    const fmin = 10, fmax = 1e6, M = 4000;
+    const lmin = Math.log10(fmin), lmax = Math.log10(fmax);
+    let f3 = NaN, prev = null;
+    for (let i = 0; i <= M; i++) {
+      const lf = lp ? lmin + ((lmax - lmin) * i) / M : lmax - ((lmax - lmin) * i) / M;
+      const m = mag(Math.pow(10, lf));
+      if (prev && prev.m >= Math.SQRT1_2 && m < Math.SQRT1_2) {
+        const t = (prev.m - Math.SQRT1_2) / (prev.m - m);
+        f3 = Math.pow(10, prev.lf + (lf - prev.lf) * t);
+        break;
+      }
+      prev = { lf, m };
+    }
+
+    // peaking only exists above Q = 1/sqrt(2)
+    const peaking = Q > Math.SQRT1_2;
+    const fpk = peaking ? f0 * Math.sqrt(1 - 1 / (2 * Q * Q)) : NaN;
+    const gpk = peaking ? Q / Math.sqrt(1 - 1 / (4 * Q * Q)) : 1;
+    const gpkDb = 20 * Math.log10(gpk);
+
+    // roll-off check one decade out
+    const decade = lp ? db(10 * f0) : db(f0 / 10);
+
+    // classification
+    const near = (a, b) => Math.abs(a - b) / b < 0.02;
+    let cls, clsNote;
+    if (near(Q, Math.SQRT1_2)) { cls = 'Butterworth (maximally flat)'; clsNote = 'Q = 0.7071, no peaking, steepest flat passband'; }
+    else if (near(Q, 0.5774)) { cls = 'Bessel (maximally flat delay)'; clsNote = 'Q = 0.5774, best pulse response, gentler knee'; }
+    else if (Q > Math.SQRT1_2) { cls = 'Chebyshev-like (peaking)'; clsNote = 'Q > 0.7071, a resonant peak of ' + fmt(gpkDb, 4) + ' dB appears before the roll-off'; }
+    else if (Q > 0.5) { cls = 'overdamped (two real poles)'; clsNote = 'Q < 0.7071, the knee is rounded and the -3 dB point drops below f0'; }
+    else { cls = 'heavily overdamped'; clsNote = 'Q <= 0.5, the two poles are far apart and the response sags early'; }
+
+    // ---------------------------------------------------- reverse design
+    // Equal-resistor low-pass: Q = 0.5 sqrt(C1/C2)  ->  C1 = 4 Q^2 C2.
+    // Equal-capacitor high-pass: Q = 0.5 sqrt(R2/R1) ->  R2 = 4 Q^2 R1.
+    // Then f0 = 1/(2 pi R 2Q C2) (low-pass) or 1/(2 pi C 2Q R1) (high-pass).
+    const fT = v.fTarget, QT = v.qTarget;
+    const Cfix = 10e-9;
+    const C1s = 4 * QT * QT * Cfix;
+    const Rs = 1 / (4 * Math.PI * fT * QT * Cfix);
+    const R2s = 4 * QT * QT * Rs;
+    // check the suggested set really lands on the target
+    const chk = lp
+      ? { f0: 1 / (2 * Math.PI * Math.sqrt(Rs * Rs * C1s * Cfix)), Q: Math.sqrt(Rs * Rs * C1s * Cfix) / (Cfix * 2 * Rs) }
+      : { f0: 1 / (2 * Math.PI * Math.sqrt(Rs * R2s * Cfix * Cfix)), Q: Math.sqrt(Rs * R2s * Cfix * Cfix) / (Rs * 2 * Cfix) };
+
+    return { lp, R1, R2, C1, C2, f0, Q, f3, mag, db, peaking, fpk, gpkDb, decade,
+             cls, clsNote, fmin, fmax,
+             fT, QT, Cfix, C1s, Rs, R2s, chk,
+             R1R2: R1 / R2, C1C2: C1 / C2 };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    const txt = (s, x, y, col, al, fnt) => plot.text(s, x, y,
+      { color: col || PALETTE.dim, font: fnt || '11px ui-monospace, monospace', align: al || 'left' });
+
+    // --------------------------------------------------------- formula block
+    const r1 = 'f0 = 1/(2 pi sqrt(R1 R2 C1 C2)) = 1/(2 pi sqrt(' + fmt(v.R1, 4) + 'k x ' + fmt(v.R2, 4) + 'k x ' +
+      fmt(v.C1, 4) + 'n x ' + fmt(v.C2, 4) + 'n)) = ' + fmt(out.f0, 5) + ' Hz';
+    const r2 = out.lp
+      ? 'Q = sqrt(R1 R2 C1 C2) / (C2 (R1+R2)) = ' + fmt(Math.sqrt(out.R1 * out.R2 * out.C1 * out.C2), 5) + ' / (' +
+        fmt(out.C2 * 1e9, 4) + 'n x ' + fmt((out.R1 + out.R2) / 1e3, 5) + 'k) = ' + fmt(out.Q, 5)
+      : 'Q = sqrt(R1 R2 C1 C2) / (R1 (C1+C2)) = ' + fmt(Math.sqrt(out.R1 * out.R2 * out.C1 * out.C2), 5) + ' / (' +
+        fmt(out.R1 / 1e3, 4) + 'k x ' + fmt((out.C1 + out.C2) * 1e9, 5) + 'n) = ' + fmt(out.Q, 5);
+    const r3 = '|H(f)| = ' + (out.lp ? '1' : 'u^2') + ' / sqrt((1-u^2)^2 + (u/Q)^2) with u = f/f0   |   at f = f0: ' +
+      fmt(out.db(out.f0), 4) + ' dB   |   one decade out (f = ' + (out.lp ? '10 f0' : 'f0/10') + '): ' +
+      fmt(out.decade, 4) + ' dB';
+    txt(r1, 14, 20, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    txt(r2, 14, 38, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    txt(r3, 14, 56, PALETTE.accent, 'left', '12px ui-monospace, monospace');
+
+    // ------------------------------------------------------------ bode panel
+    const B = { x0: 66, y0: 92, x1: W - 16, y1: 466 };
+    const dMin = -60, dMax = 20;
+    const lmin = Math.log10(out.fmin), lmax = Math.log10(out.fmax);
+    const X = (f) => B.x0 + ((Math.log10(f) - lmin) / (lmax - lmin)) * (B.x1 - B.x0);
+    const Y = (d) => B.y0 + ((dMax - d) / (dMax - dMin)) * (B.y1 - B.y0);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.45)';
+    ctx.fillRect(B.x0, B.y0, B.x1 - B.x0, B.y1 - B.y0);
+    ctx.restore();
+
+    // grid: decades and 10 dB lines
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let d = 1; d <= 5; d++) {
+      const f = Math.pow(10, d);
+      if (f < out.fmin || f > out.fmax) continue;
+      ctx.beginPath(); ctx.moveTo(X(f), B.y0); ctx.lineTo(X(f), B.y1); ctx.stroke();
+    }
+    for (let d = dMin; d <= dMax; d += 10) {
+      ctx.beginPath(); ctx.moveTo(B.x0, Y(d)); ctx.lineTo(B.x1, Y(d)); ctx.stroke();
+    }
+    ctx.restore();
+    for (let d = dMin; d <= dMax; d += 10) {
+      txt(String(d), B.x0 - 6, Y(d) + 4, PALETTE.dim, 'right');
+    }
+    for (let d = 1; d <= 5; d++) {
+      const f = Math.pow(10, d);
+      if (f < out.fmin || f > out.fmax) continue;
+      const lab = f >= 1000 ? fmt(f / 1000, 3) + 'k' : String(f);
+      txt(lab, X(f), B.y1 + 16, PALETTE.dim, 'center');
+    }
+    txt('frequency (Hz)', (B.x0 + B.x1) / 2, B.y1 + 32, PALETTE.dim, 'center');
+    txt('|H| (dB)', B.x0 - 6, B.y0 - 6, PALETTE.dim, 'right');
+    txt((out.lp ? 'low-pass' : 'high-pass') + ' magnitude response, second order', B.x0 + 6, B.y0 + 16,
+      PALETTE.text, 'left', 'bold 11px ui-monospace, monospace');
+
+    // 0 dB and -3 dB lines
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(B.x0, Y(0)); ctx.lineTo(B.x1, Y(0)); ctx.stroke();
+    ctx.strokeStyle = PALETTE.accent2; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(B.x0, Y(-3)); ctx.lineTo(B.x1, Y(-3)); ctx.stroke();
+    ctx.restore();
+    txt('-3 dB', B.x1 - 4, Y(-3) - 6, PALETTE.accent2, 'right');
+    txt('0 dB', B.x1 - 4, Y(0) - 6, PALETTE.dim, 'right');
+
+    // asymptotic -40 dB/decade slope, anchored at f0
+    ctx.save();
+    ctx.strokeStyle = 'rgba(166,227,161,0.45)'; ctx.lineWidth = 1.4; ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    if (out.lp) { ctx.moveTo(X(out.f0), Y(0)); ctx.lineTo(X(out.f0 * 10), Y(-40)); }
+    else { ctx.moveTo(X(out.f0), Y(0)); ctx.lineTo(X(out.f0 / 10), Y(-40)); }
+    ctx.stroke();
+    ctx.restore();
+    txt('-40 dB/decade asymptote', out.lp ? X(out.f0 * 1.15) : B.x0 + 6, out.lp ? Y(-22) : Y(-22),
+      PALETTE.accent3);
+
+    // the response
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    for (let i = 0; i <= 700; i++) {
+      const f = Math.pow(10, lmin + ((lmax - lmin) * i) / 700);
+      const d = Math.max(dMin, Math.min(dMax, out.db(f)));
+      const px = X(f), py = Y(d);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // f0 marker
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 1.4; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(X(out.f0), B.y0); ctx.lineTo(X(out.f0), B.y1); ctx.stroke();
+    ctx.restore();
+    txt('f0 = ' + fmt(out.f0, 5) + ' Hz', X(out.f0), B.y0 + 34, PALETTE.warn, 'center');
+
+    // -3 dB point
+    if (isFinite(out.f3) && out.f3 >= out.fmin && out.f3 <= out.fmax) {
+      ctx.save();
+      ctx.fillStyle = PALETTE.accent2;
+      ctx.beginPath(); ctx.arc(X(out.f3), Y(-3), 5, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      txt('f-3dB = ' + fmt(out.f3, 5) + ' Hz', X(out.f3), Y(-3) + 20, PALETTE.accent2, 'center');
+    }
+    // peak
+    if (out.peaking) {
+      ctx.save();
+      ctx.fillStyle = PALETTE.accent5;
+      ctx.beginPath(); ctx.arc(X(out.fpk), Y(out.gpkDb), 5, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      txt('peak ' + fmt(out.gpkDb, 4) + ' dB at ' + fmt(out.fpk, 5) + ' Hz', X(out.fpk), Y(out.gpkDb) - 10,
+        PALETTE.accent5, 'center');
+    }
+
+    // ------------------------------------------------------------ design strip
+    const D = { y0: 486, y1: H - 18 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.85)';
+    ctx.fillRect(14, D.y0, W - 28, D.y1 - D.y0);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(14, D.y0, W - 28, D.y1 - D.y0);
+    ctx.restore();
+    txt('classes as: ' + out.cls, 26, D.y0 + 20, PALETTE.accent3, 'left', 'bold 11px ui-monospace, monospace');
+    txt(out.clsNote, 26, D.y0 + 38, PALETTE.dim);
+    if (out.lp) {
+      txt('reverse design for f0 = ' + fmt(out.fT, 5) + ' Hz and Q = ' + fmt(out.QT, 4) +
+        ' with C2 fixed at ' + fmt(out.Cfix * 1e9, 3) + ' nF:', 26, D.y0 + 62, PALETTE.text);
+      txt('C1 = 4 Q^2 C2 = ' + fmt(out.C1s * 1e9, 4) + ' nF    R1 = R2 = 1/(4 pi f0 Q C2) = ' +
+        fmt(out.Rs / 1e3, 4) + ' k', 26, D.y0 + 80, PALETTE.accent);
+      txt('check with those parts: f0 = ' + fmt(out.chk.f0, 5) + ' Hz, Q = ' + fmt(out.chk.Q, 5) +
+        '   (target ' + fmt(out.fT, 5) + ' Hz, ' + fmt(out.QT, 4) + ')', 26, D.y0 + 98, PALETTE.accent3);
+      txt('current set: R1/R2 = ' + fmt(out.R1R2, 4) + ', C1/C2 = ' + fmt(out.C1C2, 4) +
+        '   ->  Q = 0.5 sqrt(C1/C2) = ' + fmt(0.5 * Math.sqrt(out.C1C2), 5) + ' when R1 = R2', 26, D.y0 + 116, PALETTE.dim);
+    } else {
+      txt('reverse design for f0 = ' + fmt(out.fT, 5) + ' Hz and Q = ' + fmt(out.QT, 4) +
+        ' with C1 = C2 fixed at ' + fmt(out.Cfix * 1e9, 3) + ' nF:', 26, D.y0 + 62, PALETTE.text);
+      txt('R2 = 4 Q^2 R1 = ' + fmt(out.R2s / 1e3, 4) + ' k    R1 = 1/(4 pi f0 Q C) = ' +
+        fmt(out.Rs / 1e3, 4) + ' k', 26, D.y0 + 80, PALETTE.accent);
+      txt('check with those parts: f0 = ' + fmt(out.chk.f0, 5) + ' Hz, Q = ' + fmt(out.chk.Q, 5) +
+        '   (target ' + fmt(out.fT, 5) + ' Hz, ' + fmt(out.QT, 4) + ')', 26, D.y0 + 98, PALETTE.accent3);
+      txt('current set: R1/R2 = ' + fmt(out.R1R2, 4) + ', C1/C2 = ' + fmt(out.C1C2, 4) +
+        '   ->  Q = 0.5 sqrt(R2/R1) = ' + fmt(0.5 * Math.sqrt(1 / out.R1R2), 5) + ' when C1 = C2', 26, D.y0 + 116, PALETTE.dim);
+    }
+  },
+
+  readout: (out) => ({
+    'response': out.lp ? 'low-pass (2nd order)' : 'high-pass (2nd order)',
+    'f0': fmt(out.f0, 5) + ' Hz',
+    'Q': fmt(out.Q, 5),
+    'classification': out.cls,
+    '-3 dB frequency': isFinite(out.f3) ? fmt(out.f3, 5) + ' Hz' : 'outside 10 Hz - 1 MHz',
+    'f-3dB / f0': isFinite(out.f3) ? fmt(out.f3 / out.f0, 5) : '—',
+    'gain at f0': fmt(out.db(out.f0), 5) + ' dB',
+    'peaking?': out.peaking ? 'YES, ' + fmt(out.gpkDb, 4) + ' dB at ' + fmt(out.fpk, 5) + ' Hz' : 'no (Q <= 0.7071)',
+    'gain one decade out': fmt(out.decade, 5) + ' dB  (2nd order = -40 dB)',
+    'R1/R2, C1/C2': fmt(out.R1R2, 4) + ' , ' + fmt(out.C1C2, 4),
+    'suggested components': out.lp
+      ? 'C1 = ' + fmt(out.C1s * 1e9, 4) + ' nF, C2 = 10 nF, R1 = R2 = ' + fmt(out.Rs / 1e3, 4) + ' k'
+      : 'R1 = ' + fmt(out.Rs / 1e3, 4) + ' k, R2 = ' + fmt(out.R2s / 1e3, 4) + ' k, C1 = C2 = 10 nF',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'sallenkey-note';
+document.getElementById('app').appendChild(note);
+note.innerHTML =
+  '<strong>Two numbers, two design freedoms, and one of them is a trap.</strong> For the unity-gain ' +
+  'Sallen-Key, <code>f0 = 1/(2 pi sqrt(R1 R2 C1 C2))</code> in both the low-pass and the high-pass. The Q ' +
+  'expressions are duals: <code>Q = sqrt(R1 R2 C1 C2)/(C2 (R1+R2))</code> for the low-pass and ' +
+  '<code>Q = sqrt(R1 R2 C1 C2)/(R1 (C1+C2))</code> for the high-pass.<br>' +
+  '<strong>Equal components give Q = 0.5, never 0.7071.</strong> Put R1 = R2 and C1 = C2 and both formulas ' +
+  'collapse to Q = 0.5, which is an overdamped, rounded, disappointing filter. To reach Butterworth you must ' +
+  'spread one pair: with R1 = R2 the low-pass needs <code>C1 = 4 Q^2 C2</code>, so exactly ' +
+  '<code>C1 = 2 C2</code> for Q = 0.7071; with C1 = C2 the high-pass needs <code>R2 = 4 Q^2 R1</code>. ' +
+  'Students who set all four parts equal and then wonder why f0 is right but the knee is soft have forgotten ' +
+  'that f0 fixes only the product <code>R1 R2 C1 C2</code> while Q fixes the ratio within it.<br>' +
+  '<strong>The -3 dB frequency is not f0.</strong> At f0 the gain is Q, so the low-pass is at -3 dB only when ' +
+  'Q = 0.7071. For Q = 0.5 the -3 dB point slides down to <code>0.644 f0</code>; for Q = 2 it moves up to ' +
+  '<code>1.272 f0</code> and a +6.3 dB peak appears at <code>0.935 f0</code>. Quote f0 as the -3 dB point on ' +
+  'a non-Butterworth design and the answer is wrong before the arithmetic even starts.<br>' +
+  '<strong>Roll-off is the easy mark:</strong> a second-order section falls at 40 dB per decade, so one ' +
+  'decade above f0 the low-pass sits at essentially -40 dB regardless of Q. That is the check to run on any ' +
+  'filter answer: -20 dB/decade per pole. And remember the Sallen-Key is a unity-gain follower with positive ' +
+  'feedback through C1 (low-pass) or R1 (high-pass) - the feedback is what makes Q settable at all, and it is ' +
+  'also why high-Q Sallen-Key sections are sensitive to component tolerance and can ring.';
+</script>
+</body>
+</html>

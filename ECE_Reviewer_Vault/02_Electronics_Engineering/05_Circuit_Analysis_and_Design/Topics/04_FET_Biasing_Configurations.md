@@ -1,0 +1,190 @@
+---
+id: ECE-05-04
+title: "FET Biasing Configurations"
+part: "02_Electronics_Engineering"
+area: "05_Circuit_Analysis_and_Design"
+topic: 4
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[11_JFET_Characteristics_and_Pinch-Off]]", "[[12_MOSFET_Types_and_Regions]]"]
+tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 04 — FET Biasing Configurations
+
+> [!abstract] Scope
+> Set the drain current and gate-source voltage of a field-effect transistor with self-bias, divider bias, dual-supply bias or fixed gate bias, and extract the small-signal transconductance at that operating point.
+
+## Core Concept
+
+> [!tip] Intuition
+> A JFET is a voltage-controlled resistor with a square-law tap: the gate voltage decides how wide the conducting channel is, and the drain current follows the square of the distance from pinch-off. Biasing means choosing the resistors that force the gate-source voltage to the value the square law needs.
+
+**One equation drives every JFET bias calculation.** In saturation the drain current obeys Shockley's equation $I_D = I_{DSS}(1 - V_{GS}/V_P)^2$, which is the transfer characteristic plotted against $V_{GS}$. Two numbers define it: $I_{DSS}$, the current at $V_{GS} = 0$, and the pinch-off voltage $V_P$ (also written $V_{GS(off)}$). For an n-channel device $V_P$ is NEGATIVE — write it as $-4\ \mathrm{V}$ and keep the sign. Everything else is the bias network's job: it constrains $V_{GS}$ as a function of $I_D$, and the operating point is the intersection of that constraint with the transfer curve. Graphically, the network constraint is a straight line on the $I_D$–$V_{GS}$ plane (the bias line) and the shockley curve is the device; their intersection is the quiescent point. Analytically, substituting the constraint into Shockley gives a quadratic whose roots are the candidate operating points.
+
+**The three resistor networks and what each one fixes.** In *self-bias* the gate returns to ground through a large $R_G$ and the source has a resistor $R_S$, so $V_{GS} = -I_D R_S$: the network line passes through the origin with slope $-1/R_S$, and a bigger $R_S$ always means a smaller $I_D$. In *voltage-divider bias* a divider sets the gate at $V_G = V_{DD}R_2/(R_1+R_2)$ and the same source resistor drops $I_D R_S$, so $V_{GS} = V_G - I_D R_S$: the line is shifted to the right, and the divider values, not just $R_S$, now control the operating point. In *dual-supply bias* the lower divider resistor returns to a negative rail $V_{SS}$ instead of ground, giving $V_G = (V_{DD}R_2 + V_{SS}R_1)/(R_1+R_2)$, so $V_G$ can be made negative while the source stays at ground — no quadratic at all, because $V_{GS} = V_G$ is fixed by the divider and $I_D$ follows directly. *Fixed (gate) bias* does the same thing with a separate gate supply: $V_{GS} = -V_{GG}$, again no quadratic, but two supplies are needed, which is why it is rarely used for JFETs.
+
+**The quadratic always has two roots, and only one is real hardware.** Substituting the self-bias line into Shockley gives a quadratic in $I_D$ whose two roots both satisfy the algebra. The valid one lies in the range $V_P \le V_{GS} \le 0$; the other root demands a $V_{GS}$ beyond pinch-off, where the square law no longer describes the device (the channel is closed and the true current is essentially zero). For $I_{DSS} = 8\ \mathrm{mA}$, $V_P = -4\ \mathrm{V}$ and $R_S = 1\ \mathrm{k\Omega}$ the roots are 8 mA and 2 mA; the 8 mA root needs $V_{GS} = -8\ \mathrm{V}$, so it must be discarded and the answer is 2 mA with $V_{GS} = -2\ \mathrm{V}$. Always test the surviving root against the saturation condition $V_{DS} > V_{GS} - V_P$, and compute $V_{DS} = V_{DD} - I_D(R_D+R_S)$ (or $V_D - V_S$ with $V_S = I_D R_S$). If $V_{DS}$ fails the test the device is in the ohmic region and the shockley result is invalid.
+
+**Transconductance is the slope of the same curve.** The small-signal gain of a FET stage is set by $g_m$, the slope of the transfer characteristic at the operating point. Two reference forms are worth carrying. The slope at $V_{GS} = 0$ is the largest value the device can offer:
+$$g_{m0} = 2I_{DSS}/|V_P|$$
+and at any other point the transconductance is:
+$$g_m = g_{m0}(1 - V_{GS}/V_P) = g_{m0}\sqrt{I_D/I_{DSS}} = 2I_D/(V_{GS}-V_P)$$
+All three are the same number written three ways, and each one is useful for a different given: the first when $V_{GS}$ is known, the second when $I_D$ is known, the third when both are known and you want a quick check. Because $V_P$ is negative, the factor $(1 - V_{GS}/V_P)$ is less than one — using $+|V_P|$ makes it greater than one and inflates $g_m$, so the sign of $V_P$ is the single most expensive slip in this topic.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Shockley's equation (transfer characteristic) | $I_D = I_{DSS}\left(1-\frac{V_{GS}}{V_P}\right)^2$ | V_P is the SIGNED pinch-off voltage: negative for an n-channel JFET and positive for a p-channel one. Valid in saturation for V_P <= V_GS <= 0 (n-channel). |
+| Self-bias gate-source voltage | $V_{GS} = -I_D R_S$ | Gate returned to ground through a large R_G (gate current is essentially zero, so V_G = 0). Substituting into Shockley gives a quadratic in I_D. |
+| Voltage-divider gate voltage (single supply) | $V_G = \frac{V_{DD}R_2}{R_1+R_2},\qquad V_{GS} = V_G - I_D R_S$ | R_1 from V_DD to the gate, R_2 from the gate to ground. The divider is unloaded because the FET gate draws no DC current. |
+| Dual-supply gate voltage | $V_G = \frac{V_{DD}R_2 + V_{SS}R_1}{R_1+R_2}$ | R_1 goes to +V_DD and R_2 to the negative rail V_SS (a negative number). The negative rail is what lets the source sit at ground while V_GS stays negative. |
+| Fixed (gate) bias | $V_{GS} = -V_{GG},\qquad I_D = I_{DSS}\left(1-\frac{V_{GS}}{V_P}\right)^2$ | V_GG is the magnitude of a separate gate supply. No quadratic: V_GS is fixed and I_D follows immediately. |
+| Zero-bias transconductance | $g_{m0} = \frac{2I_{DSS}}{\lvert V_P \rvert}$ | The slope of the transfer curve at V_GS = 0, where I_D = I_DSS. Note the absolute value: g_m0 is a positive number for either channel type. |
+| Transconductance at the operating point | $g_m = g_{m0}\left(1-\frac{V_{GS}}{V_P}\right) = g_{m0}\sqrt{\frac{I_D}{I_{DSS}}} = \frac{2I_D}{V_{GS}-V_P}$ | Three identical forms. V_P must keep its negative sign; substituting +\|V_P\| makes g_m up to three times too large. |
+| Q-point voltages and the saturation test | $V_S = I_D R_S,\quad V_D = V_{DD} - I_D R_D,\quad V_{DS} = V_D - V_S > V_{GS}-V_P$ | The inequality is the saturation condition. If V_DS falls below V_GS - V_P the device is in the ohmic region and the square law and g_m formulas no longer apply. |
+
+## Worked Problems
+
+### P1. A self-biased n-channel JFET has $I_{DSS} = 8\ \mathrm{mA}$, $V_P = -4\ \mathrm{V}$, $R_S = 1\ \mathrm{k\Omega}$, $R_D = 2.2\ \mathrm{k\Omega}$ and $V_{DD} = 20\ \mathrm{V}$. Find $I_D$, $V_{GS}$ and $V_{DS}$, and justify the root you keep.
+
+**Given:** I_DSS = 8 mA; V_P = -4 V; R_S = 1 kohm; R_D = 2.2 kohm; V_DD = 20 V
+
+**Solution:**
+
+1. Self-bias: $V_{GS} = -I_D R_S = -I_D(1\ \mathrm{k\Omega})$, so with $I_D$ in mA, $V_{GS} = -I_D$ volts
+2. Shockley: $I_D = 8\left(1 - \dfrac{V_{GS}}{-4}\right)^2 = 8\left(1 - 0.25I_D\right)^2$ (I_D in mA)
+3. Expand: $I_D = 8 - 4I_D + 0.5I_D^2 \Rightarrow 0.5I_D^2 - 5I_D + 8 = 0 \Rightarrow I_D^2 - 10I_D + 16 = 0$
+4. Roots: $I_D = 8\ \mathrm{mA}$ and $I_D = 2\ \mathrm{mA}$
+5. Reject 8 mA: it requires $V_{GS} = -8\ \mathrm{V}$, beyond $V_P = -4\ \mathrm{V}$, where the channel is closed and the square law does not apply. Keep $I_D = 2\ \mathrm{mA}$, $V_{GS} = -2\ \mathrm{V}$
+6. $V_{DS} = V_{DD} - I_D(R_D+R_S) = 20 - 2(3.2) = 13.6\ \mathrm{V}$, which exceeds $V_{GS}-V_P = 2\ \mathrm{V}$, so the device is in saturation
+
+> [!success]- Answer
+> **$I_D = 2.0\ \mathrm{mA}$, $V_{GS} = -2.0\ \mathrm{V}$, $V_{DS} = 13.6\ \mathrm{V}$ (saturated).**
+
+> [!warning] Trap
+> Keeping the 8 mA root because it is the larger current. That root needs V_GS = -8 V, past pinch-off, where Shockley's square law is invalid and the real drain current is essentially zero.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — EQN
+> 1. Substituting $V_{GS} = -I_DR_S$ into Shockley gives `0.5X² − 5X + 8 = 0`, i.e. `X² − 10X + 16 = 0`.
+> 2. `MODE` `5` page 2 `1` (quadratic), coefficients `1` `−10` `16` `=` → $I_D$ = **8** and **2** mA; keep **2** mA because it needs $V_{GS}$ = **−2** V, inside pinch-off.
+> 3. `20 − 2 × (2.2 + 1)` → $V_{DS}$ = **13.6** V, above $V_{GS} - V_P$ = 2 V.
+
+### P2. A voltage-divider biased JFET has $V_{DD} = 20\ \mathrm{V}$, $R_1 = 3.3\ \mathrm{M\Omega}$, $R_2 = 700\ \mathrm{k\Omega}$, $R_S = 1\ \mathrm{k\Omega}$, $R_D = 2.2\ \mathrm{k\Omega}$, $I_{DSS} = 8\ \mathrm{mA}$ and $V_P = -4\ \mathrm{V}$. Find $V_G$, $I_D$, $V_{GS}$ and $V_{DS}$.
+
+**Given:** V_DD = 20 V; R_1 = 3.3 Mohm; R_2 = 700 kohm; R_S = 1 kohm; R_D = 2.2 kohm; I_DSS = 8 mA; V_P = -4 V
+
+**Solution:**
+
+1. $V_G = V_{DD}\dfrac{R_2}{R_1+R_2} = 20\dfrac{0.7}{4.0} = 3.5\ \mathrm{V}$
+2. $V_{GS} = V_G - I_D R_S = 3.5 - I_D$ volts, so Shockley becomes $I_D = 8\left(1 - \dfrac{3.5-I_D}{-4}\right)^2 = 8\left(1.875 - 0.25I_D\right)^2$
+3. Expand: $I_D = 28.125 - 7.5I_D + 0.5I_D^2 \Rightarrow I_D^2 - 17I_D + 56.25 = 0$
+4. Roots: $I_D = 12.5\ \mathrm{mA}$ and $I_D = 4.5\ \mathrm{mA}$
+5. Reject 12.5 mA ($V_{GS} = 3.5 - 12.5 = -9\ \mathrm{V}$, past pinch-off). Keep $I_D = 4.5\ \mathrm{mA}$, $V_{GS} = -1.0\ \mathrm{V}$
+6. $V_S = I_D R_S = 4.5\ \mathrm{V}$; $V_D = V_{DD} - I_D R_D = 20 - 9.9 = 10.1\ \mathrm{V}$; $V_{DS} = 10.1 - 4.5 = 5.6\ \mathrm{V} > V_{GS}-V_P = 3\ \mathrm{V}$
+
+> [!success]- Answer
+> **$V_G = 3.5\ \mathrm{V}$, $I_D = 4.5\ \mathrm{mA}$, $V_{GS} = -1.0\ \mathrm{V}$, $V_S = 4.5\ \mathrm{V}$, $V_D = 10.1\ \mathrm{V}$, $V_{DS} = 5.6\ \mathrm{V}$.**
+
+> [!warning] Trap
+> Setting V_GS = V_G = 3.5 V and reading I_D straight off the transfer curve. The source resistor drops I_D R_S = 4.5 V, so the real V_GS is -1.0 V; ignoring R_S gives 8(1.875)^2 = 28 mA, more than three times I_DSS.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — EQN
+> 1. `20 × 0.7 ÷ 4.0` → $V_G$ = **3.5** V; Shockley then gives `I_D² − 17I_D + 56.25 = 0`.
+> 2. `MODE` `5` page 2 `1`: coefficients `1` `−17` `56.25` `=` → **12.5** and **4.5** mA; keep **4.5** mA, which needs $V_{GS}$ = **−1.0** V.
+> 3. `4.5 × 1` → $V_S$ = **4.5** V; `20 − 4.5 × 2.2` → $V_D$ = **10.1** V; $V_{DS}$ = **5.6** V.
+
+### P3. A JFET is biased from a dual supply: $V_{DD} = +20\ \mathrm{V}$, $V_{SS} = -10\ \mathrm{V}$, $R_1 = 2.75\ \mathrm{M\Omega}$ from the gate to $+V_{DD}$, $R_2 = 1\ \mathrm{M\Omega}$ from the gate to $V_{SS}$, the source is grounded, $R_D = 2.2\ \mathrm{k\Omega}$, $I_{DSS} = 8\ \mathrm{mA}$ and $V_P = -4\ \mathrm{V}$. Find $V_G$, $I_D$ and $V_{DS}$.
+
+**Given:** V_DD = 20 V; V_SS = -10 V; R_1 = 2.75 Mohm (to +V_DD); R_2 = 1 Mohm (to V_SS); R_D = 2.2 kohm; source grounded; I_DSS = 8 mA; V_P = -4 V
+
+**Solution:**
+
+1. $V_G = \dfrac{V_{DD}R_2 + V_{SS}R_1}{R_1+R_2} = \dfrac{20(1) + (-10)(2.75)}{3.75} = \dfrac{20 - 27.5}{3.75}$
+2. $V_G = -7.5/3.75 = -2.0\ \mathrm{V}$
+3. The source is grounded, so $V_{GS} = V_G = -2.0\ \mathrm{V}$ and there is no quadratic — the divider fixes $V_{GS}$ directly
+4. $I_D = I_{DSS}\left(1-\dfrac{V_{GS}}{V_P}\right)^2 = 8\left(1-\dfrac{-2}{-4}\right)^2 = 8(0.5)^2 = 2.0\ \mathrm{mA}$
+5. $V_D = V_{DD} - I_D R_D = 20 - 2(2.2) = 15.6\ \mathrm{V}$; $V_{DS} = V_D - V_S = 15.6 - 0 = 15.6\ \mathrm{V} > V_{GS}-V_P = 2\ \mathrm{V}$
+
+> [!success]- Answer
+> **$V_G = -2.0\ \mathrm{V}$, $V_{GS} = -2.0\ \mathrm{V}$, $I_D = 2.0\ \mathrm{mA}$, $V_{DS} = 15.6\ \mathrm{V}$ (saturated).**
+
+> [!warning] Trap
+> Computing V_G = V_DD R_2/(R_1+R_2) = 5.33 V and ignoring the -10 V rail. That gives a positive V_GS and predicts a drain current above I_DSS, which is impossible for a JFET; the whole point of the dual supply is to hold V_GS negative while the source sits at ground.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `(20 × 1 + (−10) × 2.75) ÷ 3.75` → $V_G$ = **−2.0** V.
+> 2. The source is grounded, so $V_{GS} = V_G$: `8 × (1 − (−2) ÷ (−4))²` → $I_D$ = **2.0** mA.
+> 3. `20 − 2 × 2.2` → $V_{DS}$ = **15.6** V, well above $V_{GS} - V_P$ = 2 V.
+
+### P4. A JFET with $I_{DSS} = 8\ \mathrm{mA}$ and $V_P = -4\ \mathrm{V}$ is biased at $V_{GS} = -2\ \mathrm{V}$ and, in a second design, at $V_{GS} = -1\ \mathrm{V}$. Find $g_{m0}$, the drain current and $g_m$ for both points.
+
+**Given:** I_DSS = 8 mA; V_P = -4 V; V_GS = -2 V (design 1); V_GS = -1 V (design 2)
+
+**Solution:**
+
+1. $g_{m0} = \dfrac{2I_{DSS}}{|V_P|} = \dfrac{2(8\ \mathrm{mA})}{4\ \mathrm{V}} = 4\ \mathrm{mS}$
+2. Design 1: $I_D = 8(1 - (-2)/(-4))^2 = 8(0.5)^2 = 2\ \mathrm{mA}$
+3. Design 1: $g_m = g_{m0}(1 - V_{GS}/V_P) = 4(1 - 0.5) = 2.0\ \mathrm{mS}$; check $g_m = g_{m0}\sqrt{I_D/I_{DSS}} = 4\sqrt{2/8} = 2.0\ \mathrm{mS}$
+4. Design 2: $I_D = 8(1 - 0.25)^2 = 8(0.5625) = 4.5\ \mathrm{mA}$
+5. Design 2: $g_m = 4(1 - 0.25) = 3.0\ \mathrm{mS}$; check $g_m = \dfrac{2I_D}{V_{GS}-V_P} = \dfrac{2(4.5\ \mathrm{mA})}{-1-(-4)} = \dfrac{9}{3} = 3.0\ \mathrm{mS}$
+
+> [!success]- Answer
+> **$g_{m0} = 4.0\ \mathrm{mS}$; $I_D = 2.0\ \mathrm{mA}$ with $g_m = 2.0\ \mathrm{mS}$ at $V_{GS} = -2\ \mathrm{V}$, and $I_D = 4.5\ \mathrm{mA}$ with $g_m = 3.0\ \mathrm{mS}$ at $V_{GS} = -1\ \mathrm{V}$.**
+
+> [!warning] Trap
+> Substituting V_P = +4 V (the magnitude) into g_m = g_m0(1 - V_GS/V_P). That returns 4(1.5) = 6.0 mS instead of 2.0 mS, a factor of 3, and the error propagates straight into every gain and bandwidth answer.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `2 × 8 ÷ 4` → $g_{m0}$ = **4** mS.
+> 2. Design 1: `8 × (1 − 2 ÷ 4)²` → $I_D$ = **2** mA; `4 × (1 − 2 ÷ 4)` → $g_m$ = **2.0** mS, checked by `4 × √(2 ÷ 8)`.
+> 3. Design 2: `8 × (1 − 1 ÷ 4)²` → $I_D$ = **4.5** mA; `4 × (1 − 1 ÷ 4)` → $g_m$ = **3.0** mS, checked by `2 × 4.5 ÷ 3`.
+
+### P5. A JFET is fixed-biased: the source is grounded and a separate gate supply holds $V_{GS} = -1.5\ \mathrm{V}$. With $I_{DSS} = 12\ \mathrm{mA}$, $V_P = -6\ \mathrm{V}$, $R_D = 1\ \mathrm{k\Omega}$ and $V_{DD} = 15\ \mathrm{V}$, find $I_D$, $V_{DS}$, $g_m$ and check the saturation condition.
+
+**Given:** V_GS = -1.5 V (gate supply); I_DSS = 12 mA; V_P = -6 V; R_D = 1 kohm; V_DD = 15 V; source grounded
+
+**Solution:**
+
+1. Fixed bias fixes $V_{GS}$ at -1.5 V independently of $I_D$, so Shockley can be used directly with no quadratic
+2. $I_D = 12\left(1 - \dfrac{-1.5}{-6}\right)^2 = 12(1 - 0.25)^2 = 12(0.5625) = 6.75\ \mathrm{mA}$
+3. $V_D = V_{DD} - I_D R_D = 15 - (6.75\ \mathrm{mA})(1\ \mathrm{k\Omega}) = 8.25\ \mathrm{V}$; the source is grounded, so $V_{DS} = 8.25\ \mathrm{V}$
+4. Saturation test: $V_{DS} > V_{GS}-V_P = -1.5 + 6 = 4.5\ \mathrm{V}$; since $8.25 > 4.5$ the device is in saturation
+5. $g_m = \dfrac{2I_{DSS}}{|V_P|}\left(1-\dfrac{V_{GS}}{V_P}\right) = \dfrac{24\ \mathrm{mA}}{6\ \mathrm{V}}(0.75) = 4(0.75) = 3.0\ \mathrm{mS}$
+
+> [!success]- Answer
+> **$I_D = 6.75\ \mathrm{mA}$, $V_{DS} = 8.25\ \mathrm{V}$ (saturated), $g_m = 3.0\ \mathrm{mS}$.**
+
+> [!warning] Trap
+> Taking V_GS = +1.5 V because the gate supply is labelled 1.5 V. That gives (1 - 1.5/(-6)) = 1.25 and I_D = 12(1.5625) = 18.75 mA, 2.8 times the correct value and greater than I_DSS, which no JFET can deliver.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `12 × (1 − 1.5 ÷ 6)²` → $I_D$ = **6.75** mA.
+> 2. `15 − 6.75 × 1` → $V_{DS}$ = **8.25** V, above $V_{GS} - V_P$ = **4.5** V, so the square law is valid.
+> 3. `2 × 12 ÷ 6 × (1 − 1.5 ÷ 6)` → $g_m$ = **3.0** mS.
+
+## Traps & Exam Notes
+
+- **Sign of $V_P$.** $V_P$ (that is, $V_{GS(off)}$) is negative for an n-channel JFET. Using $+4\ \mathrm{V}$ in $g_m = g_{m0}(1-V_{GS}/V_P)$ gives 6.0 mS instead of 2.0 mS, and in Shockley gives $8(1.5)^2 = 18\ \mathrm{mA}$, 2.25 times $I_{DSS}$.
+- **Keeping the wrong quadratic root.** Self-bias with $I_{DSS} = 8\ \mathrm{mA}$, $V_P = -4\ \mathrm{V}$ and $R_S = 1\ \mathrm{k\Omega}$ gives roots of 8 mA and 2 mA. Only 2 mA satisfies $V_P \le V_{GS} \le 0$; the 8 mA root needs $V_{GS} = -8\ \mathrm{V}$ and lies outside the model.
+- **Setting $V_{GS} = V_G$ when the source has a resistor.** With $V_G = 3.5\ \mathrm{V}$ and $R_S = 1\ \mathrm{k\Omega}$ the source sits 4.5 V above ground, so $V_{GS} = -1.0\ \mathrm{V}$ and $I_D = 4.5\ \mathrm{mA}$; skipping $R_S$ gives 28 mA.
+- **Ignoring the negative rail in a dual-supply divider.** Dropping $V_{SS} = -10\ \mathrm{V}$ from $V_G = (V_{DD}R_2+V_{SS}R_1)/(R_1+R_2)$ gives $+5.33\ \mathrm{V}$ instead of $-2.0\ \mathrm{V}$ and a physically impossible positive $V_{GS}$ for a JFET.
+- **Never checking $V_{DS} > V_{GS}-V_P$.** A divider design that lands at $V_S = 9.0\ \mathrm{V}$ and $V_D = 10.1\ \mathrm{V}$ has $V_{DS} = 1.1\ \mathrm{V}$ against a required 3 V, so the device is in the ohmic region and the square-law $g_m$ used for the gain is invalid there.
+- **Applying a BJT-style $R_{TH}$ analysis to the gate divider.** The FET gate draws essentially no DC current, so the divider is unloaded and $V_G = V_{DD}R_2/(R_1+R_2)$ directly. Inserting a $(1+\beta)R_E$-type loading term is meaningless here.
+- **Treating $I_{DSS}$ as a design target.** It is the current at $V_{GS} = 0$, not a rating: the self-biased stage above runs at 2 mA, a quarter of $I_{DSS} = 8\ \mathrm{mA}$, and devices of the same type may differ by 50 % in $I_{DSS}$ and in $V_P$.
+
+## See Also
+
+- [[11_JFET_Characteristics_and_Pinch-Off]]
+- [[12_MOSFET_Types_and_Regions]]
+- [[08_FET_Amplifiers_CS,_CD,_CG]]
+- [[01_BJT_DC_Biasing_Configurations]]
+
+---
+
+[[03_Bias_Stability_and_Stability_Factors|⬅ 03]] · [[_MOC_Circuit_Analysis_and_Design|MOC]] · [[00_Dashboard|Dashboard]] · [[05_BJT_Small-Signal_h-Parameter_Model|05 ➡]]

@@ -1,0 +1,123 @@
+{
+  "scope": "Evaluate improper integrals with infinite limits or infinite discontinuities, and determine convergence or divergence.",
+  "intuition": "An improper integral is a limit in disguise. You cannot substitute infinity or integrate across a blow-up directly, so you integrate up to a finite boundary and then ask what happens as the boundary runs away or closes in.",
+  "concept": [
+    "**The two kinds of improper integral.** (1) *Infinite interval*: the upper or lower limit is $\\pm\\infty$, or the interval is the whole line. (2) *Infinite discontinuity*: the integrand blows up at a point *inside* the interval or at an endpoint. Both are defined by taking a limit; neither can be evaluated by direct substitution.",
+    "**The definition, and why the limit matters.** $\\int_a^{\\infty} f(x)\\,dx = \\lim_{b\\to\\infty}\\int_a^b f(x)\\,dx$. If the limit exists and is finite the integral **converges**; otherwise it **diverges**. Writing the limit explicitly is not optional decoration — it is the definition, and skipping it is how divergent integrals get assigned finite values.",
+    "**Interior discontinuities split the interval.** If $f$ blows up at $c$ with $a<c<b$, then $\\int_a^b f = \\int_a^c f + \\int_c^b f$, and **both** pieces must converge for the whole to converge. If one diverges, the integral diverges. This is why $\\int_{-1}^{1}\\frac{dx}{x^2}$ does not equal $-2$: the naive antiderivative evaluation produces that number, but both halves diverge to $+\\infty$. This is the classic trap of the topic.",
+    "**The p-integral benchmarks.** $\\int_1^{\\infty}\\frac{dx}{x^p}$ converges if and only if $p>1$. $\\int_0^{1}\\frac{dx}{x^p}$ converges if and only if $p<1$. The two rules are reversed, and the boundary case $p=1$ diverges in both. These are the reference integrals against which everything else is compared, so memorise them as a pair and keep straight which end of the interval you are at.",
+    "**Comparison tests avoid evaluating anything.** If $0\\leq f\\leq g$ and $\\int g$ converges then $\\int f$ converges; if $\\int f$ diverges then $\\int g$ diverges. The limit comparison test is often easier: if $\\lim_{x\\to\\infty}\\frac{f}{g} = L$ with $0<L<\\infty$, then $\\int f$ and $\\int g$ converge or diverge together. Comparing to a p-integral usually settles convergence in one line."
+  ],
+  "formulas": [
+    { "q": "Infinite upper limit", "e": "\\int_a^{\\infty} f(x)\\,dx = \\lim_{b\\to\\infty}\\int_a^{b} f(x)\\,dx", "n": "Converges only if the limit is finite." },
+    { "q": "Infinite lower limit", "e": "\\int_{-\\infty}^{b} f = \\lim_{a\\to-\\infty}\\int_a^{b} f", "n": "Separate limit, evaluated independently." },
+    { "q": "Whole real line", "e": "\\int_{-\\infty}^{\\infty} f = \\int_{-\\infty}^{c} f + \\int_c^{\\infty} f", "n": "Both halves must converge separately. Split at any convenient c." },
+    { "q": "Discontinuity at an endpoint", "e": "\\int_a^{b} f = \\lim_{t\\to b^-}\\int_a^{t} f", "n": "If f blows up at b." },
+    { "q": "Discontinuity inside", "e": "\\int_a^b f = \\int_a^{c} f + \\int_c^{b} f, \\quad \\mathrm{both\\ must\\ converge}", "n": "One divergent piece makes the whole integral divergent." },
+    { "q": "p-integral at infinity", "e": "\\int_1^{\\infty}\\frac{dx}{x^p} \\mathrm{\\ converges} \\iff p>1", "n": "Diverges for p <= 1, including p = 1." },
+    { "q": "p-integral at zero", "e": "\\int_0^{1}\\frac{dx}{x^p} \\mathrm{\\ converges} \\iff p<1", "n": "Reversed condition. Diverges for p >= 1." },
+    { "q": "Direct comparison", "e": "0\\leq f\\leq g \\Rightarrow \\int g \\mathrm{\\ conv.} \\Rightarrow \\int f \\mathrm{\\ conv.}", "n": "Also: if the smaller diverges, the larger diverges." },
+    { "q": "Limit comparison", "e": "\\lim_{x\\to\\infty}\\frac{f}{g}=L,\\ 0<L<\\infty \\Rightarrow \\mathrm{same\\ behaviour}", "n": "Compare against a p-integral; usually the fastest test." },
+    { "q": "Gaussian benchmark", "e": "\\int_0^{\\infty} e^{-x^2}dx = \\frac{\\sqrt{\\pi}}{2}", "n": "Converges. Useful reference for exponential decay." }
+  ],
+  "problems": [
+    {
+      "prompt": "Evaluate $\\displaystyle\\int_1^{\\infty} \\frac{dx}{x^2}$.",
+      "give": ["infinite interval", "p = 2"],
+      "steps": [
+        "Write the limit: lim_{b->inf} ∫_1^b x^{-2} dx",
+        "Antidifferentiate: [-1/x]_1^b = -1/b + 1",
+        "Take the limit: as b -> inf, -1/b -> 0",
+        "Result: 0 + 1 = 1"
+      ],
+      "ans": "Converges to $1$.",
+      "trap": "Substituting infinity directly into -1/x and writing -1/inf = 0 without showing the limit. Stating the limit is the definition of the procedure."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int_1^{\\infty} \\frac{dx}{x}$.",
+      "give": ["p = 1, the boundary case"],
+      "steps": [
+        "lim_{b->inf} ∫_1^b (1/x) dx = lim_{b->inf} [ln|x|]_1^b",
+        "= lim_{b->inf} (ln b - ln 1) = lim_{b->inf} ln b",
+        "ln b grows without bound"
+      ],
+      "ans": "Diverges to $+\\infty$.",
+      "trap": "Treating it like the p = 2 case and reporting a finite value. The harmonic integral is the boundary case and diverges, even though the integrand tends to zero."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int_0^{1} \\frac{dx}{\\sqrt{x}}$.",
+      "give": ["infinite discontinuity at the lower endpoint"],
+      "steps": [
+        "The integrand blows up at x = 0, so use a limit: lim_{t->0+} ∫_t^1 x^{-1/2} dx",
+        "Antidifferentiate: [2 sqrt(x)]_t^1 = 2 - 2 sqrt(t)",
+        "Take the limit: as t -> 0+, 2 sqrt(t) -> 0",
+        "Result: 2"
+      ],
+      "ans": "Converges to $2$.",
+      "trap": "Declaring divergence because the integrand is infinite at 0. A blow-up does not by itself imply divergence; the p-integral rule with p = 1/2 < 1 says it converges."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int_0^{1} \\frac{dx}{x}$.",
+      "give": ["infinite discontinuity", "p = 1 at zero"],
+      "steps": [
+        "lim_{t->0+} ∫_t^1 (1/x) dx = lim_{t->0+} [ln|x|]_t^1",
+        "= lim_{t->0+} (0 - ln t) = lim_{t->0+} (-ln t)",
+        "As t -> 0+, -ln t -> +inf"
+      ],
+      "ans": "Diverges to $+\\infty$.",
+      "trap": "Applying the p < 1 convergence rule with p = 1. The rule is strict: p = 1 diverges at the zero endpoint."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int_{-1}^{1} \\frac{dx}{x^2}$, or show it diverges.",
+      "give": ["interior discontinuity at x = 0"],
+      "steps": [
+        "The integrand is undefined at x = 0, which lies inside the interval",
+        "Split: ∫_{-1}^0 + ∫_0^1",
+        "First piece: lim_{t->0-} [-1/x]_{-1}^t = lim (-1/t + (-1)) which diverges to +inf",
+        "Since one piece diverges, the whole integral diverges",
+        "Note the naive antiderivative evaluation gives [-1/x]_{-1}^{1} = -1 - 1 = -2, which is meaningless"
+      ],
+      "ans": "Diverges. The value $-2$ obtained naively is invalid.",
+      "trap": "Reporting -2 by applying the FTC across a discontinuity. A negative integral of a strictly positive integrand is the signal that something is wrong."
+    },
+    {
+      "prompt": "Determine whether $\\displaystyle\\int_1^{\\infty} \\frac{dx}{x^2+1}$ converges.",
+      "give": ["convergence question", "comparison"],
+      "steps": [
+        "Antidifferentiate directly: ∫dx/(x^2+1) = arctan x",
+        "lim_{b->inf} [arctan x]_1^b = lim (arctan b - arctan 1)",
+        "arctan b -> pi/2 and arctan 1 = pi/4",
+        "Result: pi/2 - pi/4 = pi/4"
+      ],
+      "ans": "Converges to $\\dfrac{\\pi}{4}$.",
+      "trap": "Assuming divergence because the interval is infinite. Bounded integrands decaying fast enough converge; here the decay is like 1/x^2."
+    },
+    {
+      "prompt": "Determine whether $\\displaystyle\\int_1^{\\infty} \\frac{dx}{\\sqrt{x^3+1}}$ converges.",
+      "give": ["comparison test easier than direct evaluation"],
+      "steps": [
+        "For large x, sqrt(x^3+1) ~ x^{3/2}, so the integrand behaves like x^{-3/2}",
+        "By limit comparison with x^{-3/2}: the ratio tends to 1, a finite positive limit",
+        "The p-integral ∫x^{-3/2} dx converges because p = 3/2 > 1",
+        "Therefore the given integral converges"
+      ],
+      "ans": "Converges by limit comparison with $p=3/2$.",
+      "trap": "Attempting to antidifferentiate sqrt(x^3+1), which has no elementary antiderivative. Comparison answers the question without evaluating anything."
+    }
+  ],
+  "traps": [
+    "**Omitting the limit notation.** An improper integral *is* a limit. Writing the limit is the definition; skipping it invites treating divergent integrals as finite.",
+    "**Applying FTC across a discontinuity.** $\\int_{-1}^{1}\\frac{dx}{x^2} \\neq -2$. The integrand is positive everywhere it is defined, so a negative answer is impossible. Split at the blow-up and test both pieces.",
+    "**One divergent piece is enough.** For an interior discontinuity, both halves must converge. If either diverges, the whole integral diverges.",
+    "**p-integral conditions are reversed at the two endpoints.** At infinity converge when $p>1$; at zero converge when $p<1$. Mixing these up inverts the answer.",
+    "**$p=1$ always diverges**, at both endpoints. It is the boundary case in both rules.",
+    "**The integrand tending to zero does not imply convergence.** $\\int_1^\\infty \\frac{dx}{x}$ diverges although $1/x\\to 0$. Decay *rate* is what matters.",
+    "**Splitting the whole real line.** $\\int_{-\\infty}^{\\infty}$ must be split at a finite point with both halves converging independently; a symmetric limit is a different (Cauchy principal value) object."
+  ],
+  "refs": [
+    "[[03_Definite_Integrals_and_FTC]]",
+    "[[01_Antiderivatives_and_Standard_Forms]]",
+    "[[06_Partial_Fractions]]"
+  ],
+  "prereqs": ["[[03_Definite_Integrals_and_FTC]]"]
+}

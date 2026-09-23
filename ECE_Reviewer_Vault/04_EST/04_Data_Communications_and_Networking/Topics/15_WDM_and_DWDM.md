@@ -1,0 +1,72 @@
+---
+id: EST-04-15
+title: "WDM and DWDM"
+part: "04_EST"
+area: "04_Data_Communications_and_Networking"
+topic: 15
+tier: 3
+depth: full
+problem_count: 0
+prereqs: ["[[14_Multiplexing_FDM,_TDM,_T1_and_E1]]"]
+tags: ["ece", "est", "data_communications_and_networking"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 15 — WDM and DWDM
+
+> [!abstract] Scope
+> Recall how WDM and DWDM stack many wavelengths on one fibre, the ITU channel grid and spacing, and how total capacity follows from the channel count.
+
+## Core Concept
+
+> [!tip] Intuition
+> WDM is FDM done in glass. Each laser is a separate radio station at a different colour, and a single strand of fibre carries dozens of them at once because the wavelengths do not interfere.
+
+**The principle.** A single-mode fibre has an enormous usable bandwidth — roughly 25 THz across the low-loss windows near 1310 nm and 1550 nm — but a single laser and detector can only modulate a small slice of it. Wavelength-division multiplexing solves this by assigning each channel its own wavelength, combining them with a passive optical multiplexer, and separating them at the far end with a demultiplexer. Total capacity is the number of channels times the per-channel rate, so 80 channels at 100 Gbps gives 8 Tbps on one pair of fibres. Crucially, WDM is protocol- and rate-independent: the optical layer does not care whether a channel carries SDH, Ethernet or Fibre Channel.
+
+**CWDM versus DWDM.** *Coarse* WDM uses wide channel spacing — 20 nm is standard — with inexpensive uncooled lasers, and provides up to 18 channels across the 1270–1610 nm range. It is cheap but limited in channel count and reach, and is used for metro and access. *Dense* WDM packs channels much closer, conventionally 0.8 nm (100 GHz) or 0.4 nm (50 GHz), and modern systems use 25 GHz or 12.5 GHz grids. It requires temperature-stabilised distributed-feedback lasers and narrow filters, but supports 80 to 160 or more channels on one fibre. DWDM is the technology behind long-haul and submarine systems.
+
+**The ITU grid.** DWDM channels are placed on a standard frequency grid anchored at 193.1 THz (about 1552.52 nm) so that equipment from different vendors can interoperate. The grid is specified in frequency, not wavelength, which means the spacing is uniform in frequency and slightly non-uniform in wavelength. The frequently used bands are the C-band (1530–1565 nm), where erbium-doped fibre amplifiers work, and the L-band (1570–1610 nm), used to extend capacity as the C-band fills. Older systems used the S-band and the 1310 nm window.
+
+**Optical amplification is the enabling technology.** Without it, WDM would be pointless: regenerating 80 channels would need 80 receivers, 80 transmitters and 160 electrical interfaces at every repeater. An erbium-doped fibre amplifier amplifies the entire C-band simultaneously — one piece of glass replaces 80 regenerators — which is what made DWDM economically viable. Amplifiers do not regenerate, though: noise and dispersion accumulate, so a chain of amplifiers still needs occasional regeneration on very long spans, and the number of cascaded amplifiers is limited by the optical signal-to-noise ratio.
+
+**Switching in the optical domain.** An optical add-drop multiplexer (OADM) can drop and insert individual wavelengths at an intermediate site without touching the others, and a reconfigurable OADM (ROADM) does so under software control. This allows a wavelength to be routed end to end across many nodes entirely in the optical domain, avoiding optical-electrical-optical conversion at every hop. The limitation is that a wavelength occupies the whole channel regardless of its payload rate, so a partially filled wavelength wastes spectrum — which is why grooming and sub-wavelength aggregation matter in real network design.
+
+**Why the channel count is capacity, not spectrum efficiency.** WDM multiplies capacity by using more of the fibre's existing spectrum; it does not increase the spectral efficiency of any individual channel. That is a separate axis, improved by higher-order modulation (QPSK to 16-QAM to 64-QAM) and by coherent detection. Modern systems push both: 100 Gbps per wavelength using coherent 16-QAM with digital signal processing, multiplied by 80 wavelengths, is a typical long-haul specification. The exam-level relationship is simply total capacity equals channels times rate, and the exam-level trap is confusing 'more channels' with 'faster channels'.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Total fibre capacity | $C_{total} = N \times R_{channel}$ | N wavelengths, each at R per channel. 80 x 100 Gbps = 8 Tbps. |
+| DWDM channel spacing | $\Delta\lambda = 0.8\ \mathrm{nm}\ (100\ \mathrm{GHz}) \ \mathrm{or}\ 0.4\ \mathrm{nm}\ (50\ \mathrm{GHz})$ | Spacing is specified on the frequency grid, so it is uniform in frequency and nearly so in wavelength. |
+| CWDM channel spacing | $\Delta\lambda = 20\ \mathrm{nm}$ | Up to 18 channels over 1270-1610 nm with uncooled lasers. Metro and access only. |
+| Wavelength to frequency | $f = \frac{c}{\lambda}, \quad \Delta f = \frac{c\,\Delta\lambda}{\lambda^{2}}$ | At 1550 nm, 0.8 nm corresponds to about 100 GHz. The square makes the conversion nonlinear in wavelength. |
+| ITU grid anchor | $f_0 = 193.1\ \mathrm{THz}\ (\lambda \approx 1552.52\ \mathrm{nm})$ | Channels are placed on integer multiples of the spacing from this reference. |
+| Channel count in a band | $N = \frac{\lambda_{max} - \lambda_{min}}{\Delta\lambda}$ | The C-band spans 1530-1565 nm (35 nm): 35/0.8 gives about 44 channels at 100 GHz, or about 87 at 50 GHz. |
+| C-band and L-band | $C: 1530{-}1565\ \mathrm{nm}; \quad L: 1570{-}1610\ \mathrm{nm}$ | C-band matches the erbium gain window; the L-band extends capacity once the C-band is full. |
+| EDFA gain window | $1530{-}1565\ \mathrm{nm}$ | Amplifies all C-band channels at once, which is what makes DWDM economic. It amplifies noise as well as signal. |
+| Per-channel spectral efficiency | $\eta = \frac{R_{channel}}{\Delta f}$ | 100 Gbps on a 50 GHz grid is 2 bit/s/Hz; on a 100 GHz grid it is 1 bit/s/Hz. |
+| System capacity example | $80 \times 100\ \mathrm{Gbps} = 8\ \mathrm{Tbps}$ | Per fibre pair. Coherent 16-QAM at 100 Gbps per wavelength is a typical long-haul figure. |
+
+## Traps & Exam Notes
+
+- **Confusing WDM with TDM or FDM by name.** WDM is frequency-division multiplexing applied to light: each channel gets a wavelength and all channels transmit simultaneously. TDM shares one wavelength by time slots.
+- **Assuming a wavelength's rate is fixed.** WDM is rate- and protocol-transparent. A channel can carry 10 Gbps or 100 Gbps; the wavelength occupies the same spectrum either way, which is why spectral efficiency per channel is a separate design axis.
+- **Treating 0.8 nm and 100 GHz as interchangeable everywhere.** The conversion $\Delta f = c\Delta\lambda/\lambda^2$ depends on wavelength. 0.8 nm is 100 GHz at 1550 nm but about 140 GHz at 1310 nm.
+- **Believing an optical amplifier regenerates the signal.** An EDFA amplifies signal *and* noise together, so the optical signal-to-noise ratio degrades with every amplifier. Regeneration requires optical-electrical-optical conversion and is used sparingly.
+- **Forgetting the C-band is not the whole fibre spectrum.** The fibre's low-loss window is far wider than the erbium gain band. Filling the C-band does not exhaust the fibre; it exhausts the *amplifiable* spectrum, which is why the L-band is used next.
+- **Counting channels by dividing the band by the spacing and ignoring edge effects.** A 35 nm band with 0.8 nm spacing yields about 44 channels, not 43.75 rounded arbitrarily — and guard channels at the band edges are usually reserved.
+
+## See Also
+
+- [[14_Multiplexing_FDM,_TDM,_T1_and_E1]]
+- [[16_Multiple_Access_FDMA,_TDMA,_CDMA]]
+- [[17_OFDMA_and_Spread_Spectrum]]
+- [[02_TCP_-_IP_Protocol_Suite]]
+
+---
+
+[[14_Multiplexing_FDM,_TDM,_T1_and_E1|⬅ 14]] · [[_MOC_Data_Communications_and_Networking|MOC]] · [[00_Dashboard|Dashboard]] · [[16_Multiple_Access_FDMA,_TDMA,_CDMA|16 ➡]]

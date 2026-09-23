@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Limit Explorer — Table of Values</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, Plot } from '../../../Assets/vault.js';
+
+// The point of this widget: a limit is about approaching, not arriving.
+// Students who only ever see f(a) plugged in never build that intuition.
+const FUNCS = {
+  'x^2 - 9 over x - 3': {
+    label: 'f(x) = (x² − 9)/(x − 3)',
+    f: (x) => (x * x - 9) / (x - 3),
+    a: 3,
+    actual: 6,
+    note: 'f(3) is 0/0 — undefined. The limit is still 6: a removable discontinuity.',
+  },
+  'sin x over x': {
+    label: 'f(x) = sin(x)/x',
+    f: (x) => (Math.abs(x) < 1e-12 ? NaN : Math.sin(x) / x),
+    a: 0,
+    actual: 1,
+    note: 'f(0) does not exist, yet the limit is 1. This is the fundamental trig limit (x in radians).',
+  },
+  '1 - cos x over x^2': {
+    label: 'f(x) = (1 − cos x)/x²',
+    f: (x) => (Math.abs(x) < 1e-12 ? NaN : (1 - Math.cos(x)) / (x * x)),
+    a: 0,
+    actual: 0.5,
+    note: 'Limit is 1/2. Note how much closer you must get before the value is accurate — this one converges slowly.',
+  },
+  'e^x - 1 over x': {
+    label: 'f(x) = (eˣ − 1)/x',
+    f: (x) => (Math.abs(x) < 1e-12 ? NaN : (Math.exp(x) - 1) / x),
+    a: 0,
+    actual: 1,
+    note: 'Limit is 1. The standard exponential limit.',
+  },
+  'x ln x (from the right)': {
+    label: 'f(x) = x·ln(x),  x → 0⁺',
+    f: (x) => (x <= 0 ? NaN : x * Math.log(x)),
+    a: 0,
+    actual: 0,
+    note: 'A 0·∞ indeterminate product. Only the right-hand limit exists, since ln x is undefined for x ≤ 0.',
+  },
+  'jump function': {
+    label: 'f(x) = |x|/x  (a jump)',
+    f: (x) => (Math.abs(x) < 1e-12 ? NaN : Math.abs(x) / x),
+    a: 0,
+    actual: null,
+    note: 'Left limit is −1, right limit is +1. They disagree, so the two-sided limit DOES NOT EXIST. This is a jump discontinuity.',
+  },
+};
+
+const keys = Object.keys(FUNCS);
+
+widget({
+  title: 'Limit Explorer — Table of Values',
+  description:
+    'A limit asks where f(x) is heading, not what f(a) equals. Slide h toward zero and watch the left and right values converge — or fail to.',
+  height: 420,
+  range: { xMin: -1, xMax: 5, yMin: -2, yMax: 8 },
+  controls: [
+    { id: 'which', label: 'function', type: 'select', options: keys, value: keys[0] },
+    { id: 'h', label: 'distance h from a', min: 0.001, max: 2, step: 0.001, value: 1 },
+    { id: 'showTable', label: 'show value table', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const F = FUNCS[v.which];
+    const h = Math.max(v.h, 1e-6);
+    const a = F.a;
+    return {
+      F, a, h,
+      left: F.f(a - h),
+      right: F.f(a + h),
+      at: F.f(a),
+      f: F.f,
+    };
+  },
+  draw: (ctx, v, out, plot) => {
+    const { F, a, h, f } = out;
+    // adjust the view to the selected function, but keep a stable window around a
+    const span = 4;
+    plot.setRange({
+      xMin: a - span / 2 - 0.5, xMax: a + span / 2 + 0.5,
+      yMin: Math.min(-2, (F.actual ?? 0) - 3), yMax: Math.max(4, (F.actual ?? 0) + 3),
+    });
+    plot.clear().grid(1, 1).axes();
+    plot.fn(f, plot.xMin, plot.xMax, { color: PALETTE.accent, width: 2.5 });
+
+    // the hole at x = a
+    if (F.actual !== null) plot.dot(a, F.actual, { color: PALETTE.bg, r: 6 });
+    if (F.actual !== null) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.warn;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(plot.X(a), plot.Y(F.actual), 5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // approaching points
+    if (Number.isFinite(out.left)) plot.dot(a - h, out.left, { color: PALETTE.accent2, r: 4 });
+    if (Number.isFinite(out.right)) plot.dot(a + h, out.right, { color: PALETTE.accent3, r: 4 });
+
+    // guide lines at x = a
+    plot.segment(a, plot.yMin, a, plot.yMax, { color: PALETTE.grid, dash: [4, 4], width: 1 });
+
+    plot.text(F.label, plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '13px ui-monospace, monospace' });
+  },
+  readout: (out) => {
+    const { F, a, h } = out;
+    const agree = F.actual !== null;
+    return {
+      'x = a': fmt(a, 3),
+      'h': fmt(h, 4),
+      'f(a − h)  left': Number.isFinite(out.left) ? fmt(out.left, 7) : 'undefined',
+      'f(a + h)  right': Number.isFinite(out.right) ? fmt(out.right, 7) : 'undefined',
+      'f(a) itself': Number.isFinite(out.at) ? fmt(out.at, 7) : 'undefined / not in domain',
+      'two-sided limit': agree ? fmt(F.actual, 7) : 'DOES NOT EXIST',
+    };
+  },
+  onChange: (v, state) => {
+    // regenerate the value table below the readout
+    const F = FUNCS[v.which];
+    const el = document.getElementById('limit-note');
+    if (el) {
+      el.innerHTML =
+        '<strong>' + F.label + '</strong><br>' + F.note;
+    }
+  },
+});
+
+// value table + closing note
+const host = document.getElementById('app');
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'limit-note';
+const F0 = FUNCS[keys[0]];
+note.innerHTML = '<strong>' + F0.label + '</strong><br>' + F0.note;
+host.appendChild(note);
+
+const table = document.createElement('table');
+table.style.marginTop = '14px';
+table.style.width = '100%';
+table.innerHTML =
+  '<thead><tr><th>h</th><th>x = a − h</th><th>f(a − h)</th><th>x = a + h</th><th>f(a + h)</th></tr></thead><tbody></tbody>';
+host.appendChild(table);
+
+function refreshTable() {
+  const sel = document.querySelector('select.vault-widget-input');
+  const rng = document.querySelectorAll('input[type="range"].vault-widget-input')[0];
+  const F = FUNCS[sel.value];
+  const h0 = parseFloat(rng.value);
+  const hs = [1, 0.5, 0.1, 0.01, 0.001].map((k) => h0 * k);
+  const tb = table.querySelector('tbody');
+  tb.innerHTML = hs
+    .map((h) => {
+      const l = F.f(F.a - h);
+      const r = F.f(F.a + h);
+      return (
+        '<tr><td>' + fmt(h, 4) + '</td><td>' + fmt(F.a - h, 6) + '</td><td>' +
+        (Number.isFinite(l) ? fmt(l, 7) : '—') + '</td><td>' + fmt(F.a + h, 6) + '</td><td>' +
+        (Number.isFinite(r) ? fmt(r, 7) : '—') + '</td></tr>'
+      );
+    })
+    .join('');
+}
+refreshTable();
+document.addEventListener('input', refreshTable);
+</script>
+</body>
+</html>

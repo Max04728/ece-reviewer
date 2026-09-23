@@ -1,0 +1,157 @@
+{
+  "scope": "Recover antiderivatives from the standard derivative forms, and handle the constant of integration correctly.",
+  "intuition": "Integration is differentiation read backwards. Every antiderivative you will ever need is a derivative rule you already know, reversed — which is why the standard-forms table is the most valuable thing to memorise in this area.",
+  "concept": [
+    "**Antiderivative and the constant.** $F$ is an antiderivative of $f$ on an interval if $F'(x) = f(x)$ there. Antiderivatives are never unique: if $F$ works, so does $F + C$ for any constant, and these are the *only* possibilities on an interval (because a function with zero derivative on an interval is constant). The indefinite integral $\\int f(x)\\,dx = F(x) + C$ denotes that whole family. **Every indefinite integral must carry $+C$** — omitting it is not a stylistic slip, it is the wrong answer.",
+    "**The table is the whole method.** Each entry is a reversed derivative: $\\int x^n\\,dx = \\frac{x^{n+1}}{n+1}+C$ inverts the power rule; $\\int \\frac{dx}{x} = \\ln|x| + C$ is the exception the power rule cannot cover, because $n = -1$ makes the formula divide by zero. That single exception is why the logarithm appears where the pattern predicts a power.",
+    "**Absolute value in logarithms.** $\\int \\frac{dx}{x} = \\ln|x| + C$, not $\\ln x + C$. The integrand $1/x$ is defined for negative $x$ where $\\ln x$ is not, so dropping the bars silently halves the domain. The same applies to $\\int \\frac{du}{u}$ in substitution and to $\\int \\tan x\\,dx = -\\ln|\\cos x| + C$.",
+    "**Linearity lets you split.** $\\int [af(x) + bg(x)]\\,dx = a\\int f\\,dx + b\\int g\\,dx$. There is no product or quotient rule for integrals — no analogous split exists, which is exactly why substitution, parts and partial fractions have to be developed as separate techniques. Recognising that a product cannot be split is the first step in choosing a method.",
+    "**Verification is free.** Differentiate your answer. If it returns the integrand, the work is correct (up to the constant). In an exam this check costs a few seconds and catches essentially every algebraic slip; it is the single highest-value habit in integral calculus."
+  ],
+  "derive": [
+    "**Power rule, from the derivative.** For $n \\neq -1$, differentiate the candidate: $\\frac{d}{dx}\\left[\\frac{x^{n+1}}{n+1}\\right] = \\frac{(n+1)x^{n}}{n+1} = x^n$. So $\\int x^n\\,dx = \\frac{x^{n+1}}{n+1} + C$ holds for every $n$ except $n = -1$, where the formula is undefined.",
+    "**Why $n = -1$ is special, and why the answer is a logarithm.** The gap at $n=-1$ cannot be filled by a power of $x$; it needs a function whose derivative is $1/x$. For $x>0$, $\\frac{d}{dx}\\ln x = \\frac{1}{x}$ by definition of the natural logarithm. Extending to $x<0$: let $u = -x > 0$, then $\\frac{d}{dx}\\ln(-x) = \\frac{1}{-x}\\cdot(-1) = \\frac{1}{x}$. Both cases combine into $\\frac{d}{dx}\\ln|x| = \\frac{1}{x}$, which is the general antiderivative.",
+    "**The two constant conventions.** An indefinite integral carries $+C$ because the family is infinite. A definite integral needs no constant, because $\\int_a^b f = [F(x)+C]_a^b = (F(b)+C)-(F(a)+C) = F(b)-F(a)$ — the $C$ cancels. This is why the constant matters in one context and is deliberately suppressed in the other."
+  ],
+  "formulas": [
+    { "q": "Power rule", "e": "\\int x^n\\,dx = \\frac{x^{n+1}}{n+1} + C, \\quad n \\neq -1", "n": "Raises the power and divides. Fails at n = -1." },
+    { "q": "Reciprocal rule", "e": "\\int \\frac{dx}{x} = \\ln\\lvert x \\rvert + C", "n": "The n = -1 case. Absolute value is required, not optional." },
+    { "q": "Exponential (base e)", "e": "\\int e^x\\,dx = e^x + C", "n": "The only function equal to its own derivative and integral." },
+    { "q": "Exponential (general base)", "e": "\\int a^x\\,dx = \\frac{a^x}{\\ln a} + C, \\quad a>0,\\ a\\neq 1", "n": "Divide by ln a. Easy to forget." },
+    { "q": "Sine and cosine", "e": "\\int \\sin x\\,dx = -\\cos x + C, \\quad \\int \\cos x\\,dx = \\sin x + C", "n": "The minus sign belongs to the sine integral." },
+    { "q": "Secant squared and secant-tangent", "e": "\\int \\sec^2 x\\,dx = \\tan x + C, \\quad \\int \\sec x\\tan x\\,dx = \\sec x + C", "n": "Reversed derivatives; no minus signs." },
+    { "q": "Inverse trigonometric", "e": "\\int \\frac{dx}{1+x^2} = \\arctan x + C, \\quad \\int \\frac{dx}{\\sqrt{1-x^2}} = \\arcsin x + C", "n": "The two standard forms worth recognising on sight." },
+    { "q": "Linearity", "e": "\\int \\left[af(x) + bg(x)\\right]dx = a\\!\\int\\! f\\,dx + b\\!\\int\\! g\\,dx", "n": "Sums and constant multiples only. No product or quotient rule." },
+    { "q": "Constant of integration", "e": "\\int f(x)\\,dx = F(x) + C", "n": "Mandatory for indefinite integrals; cancels for definite ones." },
+    { "q": "Verification", "e": "\\frac{d}{dx}\\int f(x)\\,dx = f(x)", "n": "Always available. Use it." }
+  ],
+  "problems": [
+    {
+      "prompt": "Evaluate $\\displaystyle\\int \\left(4x^3 - \\frac{2}{x} + 5\\right)dx$.",
+      "give": ["polynomial and reciprocal terms"],
+      "steps": [
+        "Split by linearity: 4∫x^3 dx - 2∫(1/x) dx + 5∫dx",
+        "∫x^3 dx = x^4/4, so the first term is 4(x^4/4) = x^4",
+        "∫(1/x) dx = ln|x|, so the second term is -2 ln|x|",
+        "∫dx = x, so the third term is 5x",
+        "Combine and add the constant"
+      ],
+      "ans": "$x^4 - 2\\ln|x| + 5x + C$",
+      "trap": "Writing 2/x as a power and applying the power rule, giving a wrong x^0 term. The reciprocal needs the logarithm."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int \\frac{1}{x^3}\\,dx$.",
+      "give": ["negative exponent"],
+      "steps": [
+        "Rewrite as a power: 1/x^3 = x^{-3}",
+        "Apply the power rule with n = -3: x^{-3+1}/(-3+1) = x^{-2}/(-2)",
+        "Rewrite with a positive exponent: -1/(2x^2)"
+      ],
+      "ans": "$-\\dfrac{1}{2x^2} + C$",
+      "trap": "Applying the n = -1 logarithm rule here. The logarithm applies only when the exponent is exactly -1, not any negative power."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int \\sqrt{x}\\,dx$.",
+      "give": ["fractional exponent"],
+      "steps": [
+        "Rewrite as x^{1/2}",
+        "Power rule: x^{3/2}/(3/2)",
+        "Simplify by multiplying by the reciprocal: (2/3)x^{3/2}"
+      ],
+      "ans": "$\\dfrac{2}{3}x^{3/2} + C$",
+      "trap": "Dividing by 3/2 by multiplying by 3/2 instead of by 2/3. Rewrite the division as multiplication before simplifying."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int \\left(3e^x - \\frac{4}{1+x^2}\\right)dx$.",
+      "give": ["exponential and inverse-trig standard forms"],
+      "steps": [
+        "Split: 3∫e^x dx - 4∫dx/(1+x^2)",
+        "∫e^x dx = e^x",
+        "∫dx/(1+x^2) = arctan x",
+        "Combine: 3e^x - 4 arctan x"
+      ],
+      "ans": "$3e^x - 4\\arctan x + C$",
+      "trap": "Using ln(1+x^2) for the second term. The denominator 1+x^2 has no real factorisation, so it produces an arctangent, not a logarithm."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int 2^x\\,dx$.",
+      "give": ["exponential with base other than e"],
+      "steps": [
+        "Use the general-base rule: ∫a^x dx = a^x/ln a",
+        "With a = 2: 2^x/ln 2"
+      ],
+      "ans": "$\\dfrac{2^x}{\\ln 2} + C$",
+      "trap": "Writing 2^x + C by analogy with e^x. The division by ln a is required for every base except e."
+    },
+    {
+      "prompt": "Find $f(x)$ if $f'(x) = 6x^2 - 4x + 1$ and $f(1) = 5$.",
+      "give": ["derivative and one initial condition"],
+      "steps": [
+        "Antidifferentiate: f(x) = 2x^3 - 2x^2 + x + C",
+        "Apply the condition: f(1) = 2 - 2 + 1 + C = 1 + C = 5",
+        "So C = 4"
+      ],
+      "ans": "$f(x) = 2x^3 - 2x^2 + x + 4$",
+      "trap": "Determining C before antidifferentiating, or forgetting C entirely and reporting 2x^3 - 2x^2 + x."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int \\left(\\sec^2 x - \\csc^2 x\\right)dx$.",
+      "give": ["standard trigonometric forms"],
+      "steps": [
+        "∫sec^2 x dx = tan x",
+        "∫csc^2 x dx = -cot x, so -∫csc^2 x dx = +cot x",
+        "Combine"
+      ],
+      "ans": "$\\tan x + \\cot x + C$",
+      "trap": "Losing the sign: the antiderivative of csc^2 is -cot, so subtracting it adds cot. This is a sign bookkeeping error, not a memory failure."
+    },
+    {
+      "prompt": "A particle has velocity $v(t) = 3t^2 - 4t$ m/s and position $s(0) = 2$ m. Find $s(t)$.",
+      "give": ["velocity function", "initial position"],
+      "steps": [
+        "Position is the antiderivative of velocity: s(t) = t^3 - 2t^2 + C",
+        "Apply s(0) = 2: 0 - 0 + C = 2, so C = 2"
+      ],
+      "ans": "$s(t) = t^3 - 2t^2 + 2$ m",
+      "trap": "Confusing the roles: differentiating velocity gives acceleration, not position. Also omitting the units in the final answer."
+    },
+    {
+      "prompt": "Evaluate $\\displaystyle\\int \\frac{x^2+1}{x}\\,dx$.",
+      "give": ["quotient that must be split first"],
+      "steps": [
+        "There is no quotient rule for integrals, so split the fraction algebraically",
+        "(x^2 + 1)/x = x + 1/x",
+        "Integrate term by term: x^2/2 + ln|x|"
+      ],
+      "ans": "$\\dfrac{x^2}{2} + \\ln|x| + C$",
+      "trap": "Attempting to integrate the quotient as a unit, or splitting it as ∫x^2 dx / ∫x dx. Algebraic splitting of the integrand is required first."
+    },
+    {
+      "prompt": "Verify that $\\displaystyle\\int \\sin x\\,dx = -\\cos x + C$ and explain the sign.",
+      "give": ["verification exercise"],
+      "steps": [
+        "Differentiate the claimed antiderivative: d/dx(-cos x) = -(-sin x) = sin x",
+        "This equals the integrand, so the claim holds",
+        "The sign appears because the derivative of cos is -sin, so undoing it introduces a minus"
+      ],
+      "ans": "$-\\cos x + C$, confirmed by differentiation.",
+      "trap": "Writing +cos x + C. Remember the derivative of cosine carries the minus, so its antiderivative carries it back."
+    }
+  ],
+  "traps": [
+    "**Omitting $+C$** on an indefinite integral. Always required, and routinely penalised.",
+    "**Applying the power rule at $n=-1$.** $\\int x^{-1}dx = \\ln|x| + C$, not $x^0/0$.",
+    "**Dropping the absolute value in $\\ln|x|$.** The integrand $1/x$ is defined for negative $x$, so the bars change the domain of the answer.",
+    "**No product or quotient rule for integrals.** $\\int fg \\neq \\int f\\int g$ and $\\int f/g \\neq \\int f / \\int g$. Split the fraction algebraically first, or use substitution/parts.",
+    "**Forgetting to divide by $\\ln a$** for $\\int a^x dx$ with $a \\neq e$.",
+    "**Sign errors in the trigonometric forms.** $\\int \\sin = -\\cos$; $\\int \\csc^2 = -\\cot$. Verify by differentiating rather than trusting recall.",
+    "**Determining $C$ too early.** Antidifferentiate first, then impose the initial condition. Doing it in the other order usually loses the constant entirely.",
+    "**Not checking by differentiation.** The check is nearly free and catches almost every error in this topic."
+  ],
+  "refs": [
+    "[[02_Algebraic_Substitution]]",
+    "[[03_Definite_Integrals_and_FTC]]",
+    "[[02_Differentiation_Rules]]"
+  ],
+  "prereqs": ["[[02_Differentiation_Rules]]"]
+}

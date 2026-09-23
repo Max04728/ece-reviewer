@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inductance with a Core and an Air Gap</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, si, PALETTE } from '../../../Assets/vault.js';
+
+// The magnetic circuit is Ohm's law with different letters, and the exam question is
+// almost always "what does the gap do?". Because the core path enters the equivalent
+// air path as lc/mur, a high-permeability core contributes almost nothing to the
+// reluctance once a gap is cut -- the gap then SETS the inductance and makes it stable
+// against the core's own temperature and drive-level drift. The widget makes the two
+// reluctance terms visible, and shows the saturation cliff that limits the drive.
+
+const MU0 = 4 * Math.PI * 1e-7;   // 1.2566e-6 H/m
+
+let handle = null, formulaEl = null, noteEl = null;
+
+handle = widget({
+  title: 'Inductance with a Core and an Air Gap',
+  description:
+    'A gapped core is two reluctances in series. Slide the gap and watch it take over the magnetic circuit \u2014 and watch where the core saturates.',
+  height: 470,
+  range: { xMin: 0, xMax: 10, yMin: 0, yMax: 2.5 },
+  controls: [
+    { id: 'N', label: 'turns N', min: 5, max: 500, step: 1, value: 100 },
+    { id: 'lc', label: 'core path length lc (cm)', min: 1, max: 40, step: 0.1, value: 12 },
+    { id: 'lg', label: 'air gap lg (mm)', min: 0, max: 5, step: 0.01, value: 0.5 },
+    { id: 'A', label: 'core cross-section A (cm\u00b2)', min: 0.1, max: 20, step: 0.1, value: 2 },
+    { id: 'ur', label: 'relative permeability \u03bcr', min: 1, max: 10000, step: 10, value: 2000 },
+    { id: 'I', label: 'winding current I (A)', min: 0, max: 10, step: 0.05, value: 1 },
+    { id: 'Bsat', label: 'saturation flux density B_sat (T)', min: 0.1, max: 2.5, step: 0.01, value: 1.2 },
+  ],
+  compute: (v) => {
+    const lc = v.lc * 1e-2;         // m
+    const lg = v.lg * 1e-3;         // m
+    const A = v.A * 1e-4;           // m^2
+    const ur = Math.max(1, v.ur);
+
+    const Rc = lc / (MU0 * ur * A); // A.t/Wb
+    const Rg = lg / (MU0 * A);
+    const Rt = Rc + Rg;
+    const L = (v.N * v.N) / Rt;
+    const LnoGap = (v.N * v.N) / Rc;              // = mu0 ur A N^2 / lc
+    const gapShare = Rg / Rt;
+
+    const Isat = (v.Bsat * (lc / ur + lg)) / (MU0 * v.N);
+    const Blinear = (i) => (MU0 * v.N * i) / (lc / ur + lg);
+    const Bpost = (i) => v.Bsat + (MU0 * v.N * (i - Isat)) / (lc + lg);  // core saturated: mur -> 1
+    const B = v.I <= Isat ? Blinear(v.I) : Bpost(v.I);
+
+    const Hc = B / (MU0 * ur);
+    const Hg = B / MU0;
+
+    // stray/leakage term kept out on purpose: this is the ideal magnetic circuit
+    return { v, lc, lg, A, ur, Rc, Rg, Rt, L, LnoGap, gapShare, B, Hc, Hg, Isat, Blinear, Bpost, Imax: 10, saturated: B > v.Bsat };
+  },
+  draw: (ctx, v, out, plot) => {
+    const Bmax = Math.max(v.Bsat * 1.45, out.Blinear(out.Imax) * 1.1, 0.5);
+    plot.setRange({ xMin: 0, xMax: out.Imax, yMin: 0, yMax: Bmax });
+    plot.clear().grid(1, Bmax > 2 ? 0.5 : 0.25).axes();
+
+    // ---- B(I): the straight, unsaturated branch -----------------------------
+    const iEnd = Math.min(out.Imax, out.Isat);
+    plot.fn((i) => out.Blinear(i), 0, iEnd, { color: PALETTE.accent3, width: 2.6 });
+
+    // ---- beyond saturation the core is effectively air ----------------------
+    if (out.Isat < out.Imax) {
+      plot.fn((i) => out.Bpost(i), out.Isat, out.Imax, { color: PALETTE.accent2, width: 2.2, dash: [7, 5] });
+      plot.dot(out.Isat, v.Bsat, { color: PALETTE.warn, r: 4 });
+      plot.label('knee: B = B_sat', out.Isat, v.Bsat, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    }
+
+    // ---- saturation ceiling --------------------------------------------------
+    plot.segment(0, v.Bsat, out.Imax, v.Bsat, { color: 'rgba(249,226,175,0.6)', width: 1.4, dash: [5, 4] });
+    plot.text('B_sat = ' + fmt(v.Bsat, 3) + ' T', plot.X(0) + 6, plot.Y(v.Bsat) - 6, {
+      color: PALETTE.warn, font: '11px ui-monospace, monospace',
+    });
+
+    // ---- operating point -----------------------------------------------------
+    const yShow = Math.min(out.B, Bmax * 0.995);
+    plot.dot(v.I, yShow, { color: out.saturated ? PALETTE.accent2 : PALETTE.accent, r: 5.5 });
+    plot.text('I = ' + fmt(v.I, 3) + ' A', plot.X(v.I) + 9, plot.Y(yShow) + 4, {
+      color: out.saturated ? PALETTE.accent2 : PALETTE.accent, font: '12px ui-monospace, monospace',
+    });
+
+    plot.text('flux density B (T)', plot.pad + 4, plot.pad - 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('winding current I (A)', plot.w - plot.pad - 130, plot.h - plot.pad + 26, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // ---- inset 1: the gapped core cross-section ------------------------------
+    const ix = plot.pad + 18, iy = plot.pad + 12, iw = 286, ih = 150;
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.96)';
+    ctx.fillRect(ix, iy, iw, ih);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(ix, iy, iw, ih);
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText('magnetic circuit: core + one gap', ix + 8, iy + 15);
+
+    const fx = ix + 46, fy = iy + 34, fw = 196, fh = 88, legT = 20, barT = 18;
+    ctx.fillStyle = '#5a4a6a';
+    // left leg, right leg, bottom bar
+    ctx.fillRect(fx, fy, legT, fh);
+    ctx.fillRect(fx + fw - legT, fy, legT, fh);
+    ctx.fillRect(fx, fy + fh - barT, fw, barT);
+    // top bar split by the gap
+    const gapPx = Math.min(46, 8 + v.lg * 9);
+    const mid = fx + fw / 2;
+    ctx.fillRect(fx, fy, mid - gapPx / 2 - fx, barT);
+    ctx.fillRect(mid + gapPx / 2, fy, fx + fw - (mid + gapPx / 2), barT);
+    // the gap itself
+    ctx.fillStyle = PALETTE.accent4;
+    ctx.fillRect(mid - gapPx / 2, fy, gapPx, barT);
+    ctx.fillStyle = PALETTE.bg;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText('lg', mid - 6, fy + 13);
+    // winding on the left leg
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 1.6;
+    for (let k = 0; k < 6; k++) {
+      ctx.beginPath();
+      ctx.arc(fx + legT / 2, fy + 10 + k * 11, 11, -Math.PI * 0.5, Math.PI * 0.5);
+      ctx.stroke();
+    }
+    ctx.fillStyle = PALETTE.accent;
+    ctx.fillText('N = ' + fmt(v.N, 4) + ' turns', fx - 40, fy + fh + 26);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('lc = ' + fmt(v.lc, 3) + ' cm   A = ' + fmt(v.A, 3) + ' cm\u00b2', fx - 40, fy + fh + 40);
+    ctx.restore();
+
+    // ---- inset 2: where the reluctance lives ---------------------------------
+    const bx = plot.w - plot.pad - 300, by = plot.h - plot.pad - 116;
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.96)';
+    ctx.fillRect(bx, by, 300, 116);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(bx, by, 300, 116);
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText('reluctance split (series magnetic circuit)', bx + 8, by + 16);
+
+    const barW = 240, barX = bx + 50;
+    const frac = out.gapShare;
+    ctx.fillStyle = PALETTE.accent5;
+    ctx.fillRect(barX, by + 30, Math.max(0.5, barW * (1 - frac)), 20);
+    ctx.fillStyle = PALETTE.accent4;
+    ctx.fillRect(barX + barW * (1 - frac), by + 30, Math.max(0.5, barW * frac), 20);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('core', bx + 8, by + 45);
+    ctx.fillText('gap', bx + 8, by + 72);
+    ctx.fillStyle = PALETTE.accent5;
+    ctx.fillText('\u211c_core = ' + si(out.Rc, 'H\u207b\u00b9'), barX, by + 72);
+    ctx.fillStyle = PALETTE.accent4;
+    ctx.fillText('\u211c_gap  = ' + si(out.Rg, 'H\u207b\u00b9'), barX, by + 90);
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText('gap share = ' + fmt(frac * 100, 4) + ' %   of \u211c_tot = ' + si(out.Rt, 'H\u207b\u00b9'), barX, by + 108);
+    ctx.restore();
+
+    // ---- status --------------------------------------------------------------
+    if (out.saturated) {
+      plot.text('\u26a0 CORE SATURATED \u2014 B = ' + fmt(out.B, 4) + ' T exceeds B_sat; \u03bcr collapses and L falls',
+        plot.pad + 6, plot.h - plot.pad - 8, { color: PALETTE.accent2, font: 'bold 12px ui-monospace, monospace' });
+    } else {
+      plot.text('\u2713 below saturation \u2014 B = ' + fmt(out.B, 4) + ' T = ' + fmt((out.B / v.Bsat) * 100, 3) + ' % of B_sat',
+        plot.pad + 6, plot.h - plot.pad - 8, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+    }
+  },
+  readout: (out) => ({
+    '\u211c_core (core path)': si(out.Rc, 'H\u207b\u00b9'),
+    '\u211c_gap (air gap)': si(out.Rg, 'H\u207b\u00b9'),
+    '\u211c_total': si(out.Rt, 'H\u207b\u00b9'),
+    'gap share of reluctance': fmt(out.gapShare * 100, 4) + ' %',
+    'L = N\u00b2/\u211c_total': si(out.L, 'H'),
+    'L with no gap (\u211c = \u211c_core)': si(out.LnoGap, 'H'),
+    'gap costs a factor': fmt(out.L / out.LnoGap, 4) + '\u00d7',
+    ['B at I = ' + fmt(out.v.I, 3) + ' A']: fmt(out.B, 4) + ' T',
+    'B / B_sat': fmt((out.B / out.v.Bsat) * 100, 4) + ' %' + (out.saturated ? '  \u2014 SATURATED' : ''),
+    'saturation current I_sat': fmt(out.Isat, 4) + ' A',
+    'H in the core': si(out.Hc, 'A/m'),
+    'H in the gap': si(out.Hg, 'A/m'),
+    'H_gap / H_core = \u03bcr': fmt(out.Hg / Math.max(out.Hc, 1e-12), 5),
+  }),
+  onChange: (v) => syncUI(v),
+});
+
+// --- page furniture ---------------------------------------------------------
+function makeFormulaBox() {
+  const d = document.createElement('div');
+  d.style.cssText =
+    'margin-top:14px;padding:10px 12px;background:#27273a;border:1px solid #3a3a52;' +
+    'border-left:3px solid #89b4fa;border-radius:6px;font-family:ui-monospace,Consolas,monospace;' +
+    'font-size:0.86rem;line-height:1.65;white-space:pre-wrap;color:#e4e4f0';
+  document.getElementById('app').appendChild(d);
+  return d;
+}
+
+function syncUI(v) {
+  if (!formulaEl) return;
+  const lc = v.lc * 1e-2, lg = v.lg * 1e-3, A = v.A * 1e-4, ur = Math.max(1, v.ur);
+  const Rc = lc / (MU0 * ur * A);
+  const Rg = lg / (MU0 * A);
+  const Rt = Rc + Rg;
+  const L = (v.N * v.N) / Rt;
+  const LnoGap = (v.N * v.N) / Rc;
+  const B = (MU0 * v.N * v.I) / (lc / ur + lg);
+  const Isat = (v.Bsat * (lc / ur + lg)) / (MU0 * v.N);
+  const Hc = B / (MU0 * ur), Hg = B / MU0;
+
+  const lines = [
+    'MAGNETIC CIRCUIT \u2014 the reluctance model',
+    '  \u211c = l / (\u03bc\u2080 \u03bcr A)        \u03a6 = N I / \u211c        L = N\u00b2 / \u211c',
+    '  B = \u03a6 / A = \u03bc\u2080 N I / (lc/\u03bcr + lg)     \u03bc\u2080 = 4\u03c0\u00d710\u207b\u2077 = 1.2566\u00d710\u207b\u2076 H/m',
+    '',
+    'SUBSTITUTED VALUES',
+    '  N  = ' + fmt(v.N, 4) + ' turns          \u03bcr = ' + fmt(ur, 5),
+    '  lc = ' + fmt(v.lc, 4) + ' cm = ' + fmt(lc, 4) + ' m      lg = ' + fmt(v.lg, 4) + ' mm = ' + fmt(lg, 4) + ' m',
+    '  A  = ' + fmt(v.A, 4) + ' cm\u00b2 = ' + fmt(A, 4) + ' m\u00b2',
+    '  I  = ' + fmt(v.I, 4) + ' A               B_sat = ' + fmt(v.Bsat, 4) + ' T',
+    '',
+    '  \u211c_core = ' + fmt(lc, 4) + ' / [(1.2566\u00d710\u207b\u2076)(' + fmt(ur, 5) + ')(' + fmt(A, 4) + ')] = ' + fmt(Rc, 5) + ' H\u207b\u00b9',
+    '  \u211c_gap  = ' + fmt(lg, 4) + ' / [(1.2566\u00d710\u207b\u2076)(' + fmt(A, 4) + ')]            = ' + fmt(Rg, 5) + ' H\u207b\u00b9',
+    '  \u211c_total = \u211c_core + \u211c_gap = ' + fmt(Rt, 5) + ' H\u207b\u00b9',
+    '  gap share = \u211c_gap/\u211c_total = ' + fmt((Rg / Rt) * 100, 4) + ' %',
+    '',
+    '  L = N\u00b2/\u211c_total = ' + fmt(v.N, 4) + '\u00b2 / ' + fmt(Rt, 5) + ' = ' + fmt(L, 5) + ' H = ' + si(L, 'H'),
+    '  no-gap L = \u03bc\u2080\u03bcr A N\u00b2/lc = ' + fmt(LnoGap, 5) + ' H = ' + si(LnoGap, 'H') + '   \u2192 gap multiplies L by ' + fmt(L / LnoGap, 4),
+    '  equivalent air length of the core = lc/\u03bcr = ' + fmt((lc / ur) * 1e3, 4) + ' mm  (compare lg = ' + fmt(v.lg, 4) + ' mm)',
+    '',
+    '  B = (1.2566\u00d710\u207b\u2076)(' + fmt(v.N, 4) + ')(' + fmt(v.I, 4) + ') / (' + fmt(lc / ur, 4) + ' + ' + fmt(lg, 4) + ')',
+    '    = ' + fmt(B, 5) + ' T        B/B_sat = ' + fmt((B / v.Bsat) * 100, 4) + ' %' + (B > v.Bsat ? '   \u2190 SATURATED' : ''),
+    '  I_sat = B_sat(lc/\u03bcr + lg)/(\u03bc\u2080 N) = ' + fmt(Isat, 4) + ' A',
+    '',
+    '  H_core = B/(\u03bc\u2080\u03bcr) = ' + fmt(Hc, 5) + ' A/m',
+    '  H_gap  = B/\u03bc\u2080     = ' + fmt(Hg, 5) + ' A/m      ratio = \u03bcr = ' + fmt(Hg / Math.max(Hc, 1e-12), 5),
+  ];
+  formulaEl.innerHTML = lines.join('\n');
+}
+
+// --- initial paint ----------------------------------------------------------
+if (typeof document !== 'undefined' && handle) {
+  formulaEl = makeFormulaBox();
+  noteEl = document.createElement('div');
+  noteEl.className = 'vault-widget-note';
+  noteEl.innerHTML =
+    '<strong>The gap is the inductor.</strong> The core path enters the total reluctance as lc/\u03bcr, so a ' +
+    '\u03bcr = 2000 core 12 cm long behaves like only 0.06 mm of air \u2014 against a 0.5 mm gap that is roughly ' +
+    'one tenth of the circuit. The gap therefore owns ~89% of the reluctance and sets L almost on its own. That is ' +
+    'exactly why gapped cores hold inductance stable: L is fixed by a mechanical dimension (lg and A) instead of by ' +
+    'the core\u2019s permeability, which drifts with temperature, DC bias and frequency. The flux is continuous, so the ' +
+    'gap carries the SAME B as the core, but H = B/\u03bc\u2080 there is \u03bcr times larger \u2014 essentially the whole ' +
+    'magnetomotive force N I is dropped across the gap, which is why the gap is where the stored magnetic energy sits. ' +
+    '<strong>The mistake this prevents:</strong> assuming the core material dominates the inductance, or forgetting ' +
+    'that cutting a gap into a high-\u03bcr core can cut L by an order of magnitude (here 41.9 mH \u2192 4.49 mH). It also ' +
+    'shows the saturation trap: L = N\u00b2/\u211c is only valid while B &lt; B_sat. Past the knee \u03bcr collapses toward 1, ' +
+    'the slope of B(I) falls to the gap-only value, and the small-signal inductance you measured at low current is no ' +
+    'longer the inductance you get at the operating point. Units: lg in mm and lc in cm must BOTH become metres, and ' +
+    'A in cm\u00b2 becomes 10\u207b\u2074 m\u00b2.';
+  document.getElementById('app').appendChild(noteEl);
+  syncUI(handle.state.values);
+}
+</script>
+</body>
+</html>

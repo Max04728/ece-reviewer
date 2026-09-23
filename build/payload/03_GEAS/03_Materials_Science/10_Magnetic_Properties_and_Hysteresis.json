@@ -1,0 +1,196 @@
+{
+  "scope": "Classify a material's magnetic response, explain the domain origin of the hysteresis loop, and compute permeability, flux, circuit current and hysteresis loss for a core.",
+  "intuition": "Every electron is a tiny magnet. In most materials the moments cancel or randomise; in iron-group metals they lock together in domains, and those domains swing around under an applied field — that alignment is what makes a ferromagnet a thousand times more permeable than vacuum, and the lag when the domains relax back is the hysteresis loop.",
+  "concept": [
+    "**The five magnetic classes, ranked by susceptibility.** **Diamagnetism** is a universal, weak negative response ($\\chi \\approx -10^{-5}$) produced by the field inducing opposing orbital currents — it exists in every material, including copper, water, gold and bismuth, and is only visible when nothing stronger is present. **Paramagnetism** is a weak positive response ($\\chi \\approx +10^{-5}$ to $+10^{-3}$) from permanent atomic moments that align only partially because $kT$ randomises them; aluminium, platinum, manganese and oxygen are examples. **Ferromagnetism** is a strong positive response ($\\chi$ up to $10^{5}$) with spontaneous parallel alignment of neighbouring moments, giving a net magnetisation even without a field; Fe, Co, Ni and Gd, and it disappears above the Curie temperature. **Antiferromagnetism** aligns neighbouring moments antiparallel so the net moment is zero — MnO, NiO, Cr — and it too has a critical (Néel) temperature. **Ferrimagnetism** aligns them antiparallel but with unequal magnitudes, leaving a net moment; this is the behaviour of ferrites such as magnetite and the Mn-Zn and Ni-Zn ceramics, which are magnetic insulators and therefore the only practical core materials at high frequency.",
+    "**Domains, and why the hysteresis loop exists.** A ferromagnetic specimen is divided into **domains**, each uniformly magnetised along an easy direction, arranged so the specimen as a whole has little net moment. Applying a field grows the favourably oriented domains at the expense of the others (domain-wall motion) and then rotates their moments toward the field. Both processes are **irreversible** because of pinning by grain boundaries, impurities and residual stress. Let the field go back to zero and the magnetisation does not return to zero — it stops at the **retentivity** (remanence) $B_r$, and reversing the field must reach the **coercivity** $H_c$ before the flux is driven to zero. That loop is the hysteresis loop, and its enclosed area is the energy dissipated as heat per unit volume per cycle. The initial magnetisation curve is not the loop: arriving at the loop requires first driving the material to saturation and back once.",
+    "**Soft versus hard: the same physics, opposite design goals.** **Soft magnetic materials** have a narrow loop — low coercivity (below about $1000\\ \\mathrm{A/m}$), high permeability, low hysteresis loss. They are used where the magnetisation must follow a changing field: transformer and inductor cores (silicon iron, nickel-iron permalloy, ferrites). **Hard magnetic materials** have a wide loop — high coercivity (above about $10^{4}\\ \\mathrm{A/m}$) and high remanence — and are used to *store* a field permanently: permanent magnets such as Alnico, ferrite and the rare-earth magnets NdFeB and SmCo. The figure of merit is the maximum energy product $(BH)_{max}$, the largest rectangle that fits inside the second-quadrant (demagnetisation) part of the loop. You cannot have both: a material that is hard to demagnetise (good magnet) is also hard to re-magnetise (bad core), because both come from pinning of domain walls.",
+    "**Permeability, and the constant confusion with field strength.** $B = \\mu H = \\mu_r\\mu_0H$ with $\\mu_0 = 4\\pi\\times10^{-7}\\ \\mathrm{H/m}$. $H$ (A/m) is the driving field from the current and depends only on geometry and current — a solenoid gives $H = NI/l$ regardless of what is inside it. $B$ (T) is the resulting flux density and does depend on the material. $\\mu_r = 1 + \\chi$ is dimensionless and, for ferromagnets, is **not a constant** — it depends on $B$, on temperature, on frequency and on the previous magnetic history, which is exactly why the $B$–$H$ relation is a loop and not a line. For an air gap, $\\mu_r = 1$ and the gap dominates the magnetic circuit: a 1 mm air gap in a 100 mm iron path carries only $1/(1 + 100\\mu_r)$ of the flux the iron alone would, because the gap's reluctance is $\\mu_r$ times larger per unit length.",
+    "**Magnetisation versus field, and saturation.** The magnetisation $M$ (A/m) is the magnetic moment per unit volume, and $B = \\mu_0(H + M)$. The ratio $M/H$ saturates once every domain has aligned with the field, which for iron happens near $B_s \\approx 2.2\\ \\mathrm{T}$ corresponding to $M_s \\approx 1.75\\times10^{6}\\ \\mathrm{A/m}$. A quick check of that value from atomic data: iron has 2.22 Bohr magnetons per atom and a density of $8.49\\times10^{28}$ atoms per $\\mathrm{m^3}$, so $M_s = 2.22\\mu_B \\times 8.49\\times10^{28} = 1.75\\times10^{6}\\ \\mathrm{A/m}$ and $\\mu_0M_s = 2.2\\ \\mathrm{T}$. Beyond saturation, increasing $H$ raises $B$ only at the rate $\\mu_0$, so the differential permeability collapses to 1 — this is the wall that limits every magnetic circuit design.",
+    "**Losses: hysteresis plus eddy currents.** Hysteresis loss per unit volume per cycle is the loop area, and the Steinmetz estimate is $W_h = k_h f B_{max}^{\\,n}$ with $n$ between 1.5 and 2.5 (1.6 for many irons) and $k_h$ a material constant — so loss rises faster than linearly with both frequency and flux density. Eddy-current loss comes from circulating currents induced in the conducting core and goes as $f^2B_{max}^2d^2/\\rho$, which is why cores are **laminated** (thin sheets insulated from each other, cutting the eddy path) and why high-frequency cores are made of ferrite, whose resistivity is about $10^{6}$ times that of iron. Total core loss is quoted at a specified frequency and flux density, for example 'P1.5/50' meaning the loss at 1.5 T and 50 Hz."
+  ],
+  "formulas": [
+    {
+      "q": "Magnetic field strength (solenoid/toroid)",
+      "e": "H = \\frac{NI}{l}",
+      "n": "l in metres is the MEAN magnetic path length, not the outer diameter. Depends only on current and geometry, not on the core material."
+    },
+    {
+      "q": "Flux density",
+      "e": "B = \\mu_0\\mu_r H = \\mu H",
+      "n": "Tesla. mu_r is dimensionless; using it as if it were absolute permeability understates B by 10^{7}."
+    },
+    {
+      "q": "Relative permeability",
+      "e": "\\mu_r = \\frac{\\mu}{\\mu_0} = 1+\\chi",
+      "n": "About 1 for air, 200 for ferrite, 2000-10000 for silicon iron. It varies with B, frequency and temperature, so it is never a true constant."
+    },
+    {
+      "q": "Magnetic flux",
+      "e": "\\Phi = BA",
+      "n": "Weber, with A in m^2 and B in T. Flux is conserved; flux DENSITY is not, so B rises where the cross-section narrows."
+    },
+    {
+      "q": "Magnetomotive force",
+      "e": "\\mathcal{F} = NI = Hl = \\Phi\\mathcal{R}",
+      "n": "Ampere-turns. The magnetic analogue of emf; the circuit equation contains no minus sign in the simple form."
+    },
+    {
+      "q": "Reluctance",
+      "e": "\\mathcal{R} = \\frac{l}{\\mu_0\\mu_r A}",
+      "n": "The magnetic analogue of resistance, in A/Wb. An air gap of length g adds R = g/(mu_0 A), which usually dwarfs the iron's reluctance."
+    },
+    {
+      "q": "Air-gap series circuit",
+      "e": "NI = H_{iron}l_{iron} + H_{gap}\\,g",
+      "n": "Because mu_r of air is 1, a small gap controls the flux. Forgetting the gap term makes the predicted flux far too high."
+    },
+    {
+      "q": "Magnetisation and flux density",
+      "e": "B = \\mu_0(H+M),\\qquad M = \\chi H",
+      "n": "M in A/m. At saturation M stops growing and B grows only as mu_0 H."
+    },
+    {
+      "q": "Saturation magnetisation from atomic moments",
+      "e": "M_s = n\\,\\mu_B\\,\\times(\\mathrm{moments\\ per\\ atom})",
+      "n": "mu_B = 9.27\\times10^{-24}\\ \\mathrm{J/T}. For iron, 2.22 moments per atom and 8.49\\times10^{28} atoms/m^3 give mu_0 M_s = 2.2 T."
+    },
+    {
+      "q": "Hysteresis energy loss per volume per cycle",
+      "e": "W_h = \\oint H\\,dB = \\mathrm{area\\ of\\ the\\ loop}",
+      "n": "J/m^3 per cycle. Multiply by frequency and core volume for watts."
+    },
+    {
+      "q": "Steinmetz hysteresis loss",
+      "e": "P_h = k_h f B_{max}^{\\,n} \\times \\mathrm{volume}",
+      "n": "n is between 1.5 and 2.5, typically 1.6 for iron. Loss grows faster than linearly with both f and B_max, so higher frequency needs a lower B_max."
+    },
+    {
+      "q": "Eddy-current loss",
+      "e": "P_e \\propto \\frac{f^2B_{max}^2d^2}{\\rho}",
+      "n": "d is lamination thickness. Halving the thickness cuts eddy loss by 4; laminating and using high-resistivity ferrite are the two fixes."
+    },
+    {
+      "q": "Maximum energy product",
+      "e": "(BH)_{max} = \\mathrm{largest\\ rectangle\\ in\\ the\\ second\\ quadrant}",
+      "n": "The figure of merit for a permanent magnet, in kJ/m^3. Ferrite about 30, Alnico about 60, NdFeB about 300."
+    },
+    {
+      "q": "Curie temperature",
+      "e": "T > T_C \\Rightarrow \\mathrm{ferromagnetic} \\to \\mathrm{paramagnetic}",
+      "n": "Fe 770 C, Co 1120 C, Ni 358 C, magnetite 585 C. Above T_C the domains break up and only weak paramagnetism remains."
+    }
+  ],
+  "problems": [
+    {
+      "prompt": "A toroidal core of mean circumference $25\\ \\mathrm{cm}$ and cross-section $100\\ \\mathrm{mm^2}$ is wound with $500$ turns and carries $0.80\\ \\mathrm{A}$. The core material has $\\mu_r = 800$. Find $H$, $B$ and the total flux.",
+      "give": [
+        "$l = 25\\ \\mathrm{cm}$",
+        "$A = 100\\ \\mathrm{mm^2}$",
+        "$N = 500$",
+        "$I = 0.80\\ \\mathrm{A}$",
+        "$\\mu_r = 800$"
+      ],
+      "steps": [
+        "H = NI/l = 500(0.80)/0.25 = 400/0.25 = 1600 A/m",
+        "μ = μ_r μ_0 = 800 x 4π x 1e-7 = 800 x 1.2566e-6 = 1.0053e-3 H/m",
+        "B = μ H = 1.0053e-3 x 1600 = 1.608 T",
+        "A = 100 mm^2 = 100e-6 m^2 = 1.0e-4 m^2",
+        "Φ = BA = 1.608 x 1.0e-4 = 1.608e-4 Wb"
+      ],
+      "ans": "$H = 1600\\ \\mathrm{A/m}$, $B = 1.61\\ \\mathrm{T}$ and $\\Phi = 161\\ \\mathrm{\\mu Wb}$.",
+      "trap": "Using the outer diameter or the mean diameter without the $\\pi$ factor for the path length. $H$ is inversely proportional to $l$, so a 2x error in the circumference is a 2x error in $B$ and in the flux."
+    },
+    {
+      "prompt": "A cast-steel ring has a mean circumference of $40\\ \\mathrm{cm}$ and a cross-section of $2.0\\ \\mathrm{cm^2}$, wound with $400$ turns carrying $1.5\\ \\mathrm{A}$. The resulting flux is $0.22\\ \\mathrm{mWb}$. Find $B$, $H$, the relative permeability and the magnetisation.",
+      "give": [
+        "$l = 40\\ \\mathrm{cm}$",
+        "$A = 2.0\\ \\mathrm{cm^2}$",
+        "$N = 400$",
+        "$I = 1.5\\ \\mathrm{A}$",
+        "$\\Phi = 0.22\\ \\mathrm{mWb}$"
+      ],
+      "steps": [
+        "A = 2.0 cm^2 = 2.0e-4 m^2",
+        "B = Φ/A = 0.22e-3/2.0e-4 = 1.1 T",
+        "H = NI/l = 400(1.5)/0.40 = 600/0.40 = 1500 A/m",
+        "μ_r = B/(μ_0 H) = 1.1/(1.2566e-6 x 1500) = 1.1/1.8849e-3 = 584",
+        "M = (μ_r - 1)H = 583 x 1500 = 8.74e5 A/m"
+      ],
+      "ans": "$B = 1.1\\ \\mathrm{T}$, $H = 1500\\ \\mathrm{A/m}$, $\\mu_r = 584$ and $M = 8.7\\times10^{5}\\ \\mathrm{A/m}$.",
+      "trap": "Reading $2.0\\ \\mathrm{cm^2}$ as $2.0\\times10^{-3}\\ \\mathrm{m^2}$ instead of $2.0\\times10^{-4}\\ \\mathrm{m^2}$. That factor of ten makes $B = 11\\ \\mathrm{T}$, five times the saturation limit of iron — an answer that should be rejected on sight, since any $B$ above about $2.5\\ \\mathrm{T}$ in an iron core is arithmetically impossible."
+    },
+    {
+      "prompt": "A toroid with a mean path length of $0.50\\ \\mathrm{m}$ and $N = 500$ turns carries $16\\ \\mathrm{A}$. The core has $\\mu_r = 8000$. Find $H$, $B$ and the magnetisation $M$, and state whether the core is near saturation.",
+      "give": [
+        "$l = 0.50\\ \\mathrm{m}$",
+        "$N = 500$",
+        "$I = 16\\ \\mathrm{A}$",
+        "$\\mu_r = 8000$"
+      ],
+      "steps": [
+        "H = NI/l = 500(16)/0.50 = 8000/0.50 = 16 000 A/m",
+        "μ = 8000 x 1.2566e-6 = 1.0053e-2 H/m",
+        "B = 1.0053e-2 x 16 000 = 160.8 T",
+        "This exceeds iron saturation (about 2.2 T) by a factor of 73, so mu_r = 8000 cannot hold at this H",
+        "Correct picture: B saturates near 2.2 T, so M_s ≈ (B/μ_0) - H = 1.75e6 - 0.016e6 ≈ 1.73e6 A/m"
+      ],
+      "ans": "The linear formula gives $H = 1.6\\times10^{4}\\ \\mathrm{A/m}$ and $B = 161\\ \\mathrm{T}$, which is impossible. The correct conclusion is that the core is deeply saturated at $B \\approx 2.2\\ \\mathrm{T}$ with $M \\approx 1.75\\times10^{6}\\ \\mathrm{A/m}$; the effective $\\mu_r$ at that point has collapsed to about 110.",
+      "trap": "Trusting a linear $B = \\mu_r\\mu_0H$ result when the answer exceeds saturation. Saturation is the single most important non-linearity in magnetism; $\\mu_r$ is a *small-signal* quantity near the origin and must never be applied at high $H$."
+    },
+    {
+      "prompt": "Calculate the saturation flux density of iron from atomic data: 2.22 Bohr magnetons per atom, a density of $8.49\\times10^{28}$ atoms per $\\mathrm{m^3}$, and $\\mu_B = 9.27\\times10^{-24}\\ \\mathrm{J/T}$.",
+      "give": [
+        "2.22 $\\mu_B$ per atom",
+        "$n = 8.49\\times10^{28}\\ \\mathrm{m^{-3}}$",
+        "$\\mu_B = 9.27\\times10^{-24}\\ \\mathrm{J/T}$",
+        "$\\mu_0 = 4\\pi\\times10^{-7}\\ \\mathrm{H/m}$"
+      ],
+      "steps": [
+        "Moment per atom = 2.22 x 9.27e-24 = 2.058e-23 J/T (A·m^2)",
+        "M_s = n x moment = 8.49e28 x 2.058e-23 = 1.747e6 A/m",
+        "μ_0 M_s = 1.2566e-6 x 1.747e6 = 2.196 T",
+        "Adding the applied field term, B_s ≈ μ_0 M_s ≈ 2.2 T"
+      ],
+      "ans": "$M_s = 1.75\\times10^{6}\\ \\mathrm{A/m}$ and $B_s = \\mu_0M_s = 2.20\\ \\mathrm{T}$, matching the measured saturation of iron.",
+      "trap": "Forgetting to multiply by $\\mu_0$ and quoting $M_s = 1.75\\times10^{6}$ as the flux density in tesla. $M$ is in A/m; only $\\mu_0M$ is a flux density. The two differ by a factor of $1.26\\times10^{-6}$."
+    },
+    {
+      "prompt": "A ferrite core of volume $10\\ \\mathrm{cm^3}$ has $k_h = 250\\ \\mathrm{J/m^3}$ and Steinmetz exponent $n = 1.6$. Find the hysteresis power loss at $50\\ \\mathrm{Hz}$ and at $20\\ \\mathrm{kHz}$ for $B_{max} = 1.5\\ \\mathrm{T}$, and comment on the result.",
+      "give": [
+        "$V = 10\\ \\mathrm{cm^3}$",
+        "$k_h = 250\\ \\mathrm{J/m^3}$",
+        "$n = 1.6$",
+        "$B_{max} = 1.5\\ \\mathrm{T}$",
+        "$f = 50\\ \\mathrm{Hz}$ and $20\\ \\mathrm{kHz}$"
+      ],
+      "steps": [
+        "B_max^1.6 = 1.5^1.6 = exp(1.6 ln 1.5) = exp(1.6 x 0.4055) = exp(0.6488) = 1.913",
+        "Loss density per cycle = k_h x 1.913 = 478 J/m^3 per cycle — this is the loop area",
+        "At 50 Hz: P = 478 x 50 = 2.39e4 W/m^3; times 10e-6 m^3 = 0.239 W",
+        "At 20 kHz: P = 478 x 2.0e4 = 9.56e6 W/m^3; times 10e-6 m^3 = 95.6 W",
+        "The frequency ratio is 400, so the loss scales by the same 400"
+      ],
+      "ans": "$P_h = 0.24\\ \\mathrm{W}$ at $50\\ \\mathrm{Hz}$ but $95.6\\ \\mathrm{W}$ at $20\\ \\mathrm{kHz}$ in the same $10\\ \\mathrm{cm^3}$ core.",
+      "trap": "Ignoring the $B_{max}^{1.6}$ factor and scaling loss linearly with $B_{max}$ only. The exponent applies to the flux density, so halving $B_{max}$ cuts hysteresis loss by $2^{1.6} = 3.0$, not by 2 — which is why high-frequency designs run at reduced flux density."
+    }
+  ],
+  "traps": [
+    "**Quoting $\\mu_r = 8000$ as if it applied at every field strength.** Permeability is a small-signal property near the origin. At $H = 1.6\\times10^{4}\\ \\mathrm{A/m}$ the iron is saturated, $\\mu_r$ has collapsed to about 110, and the linear formula predicts $B = 161\\ \\mathrm{T}$ — 73 times the physical limit of 2.2 T. Always check the computed $B$ against saturation.",
+    "**Confusing $H$ with $B$.** $H = NI/l$ depends only on the winding and the current. Filling the core with iron leaves $H$ unchanged and multiplies $B$ by $\\mu_r$. Answering 'the iron raises the field strength' inverts the physics.",
+    "**Forgetting the air gap in a magnetic circuit.** Air's $\\mu_r = 1$ makes a small gap dominate the reluctance. A $0.5\\ \\mathrm{mm}$ gap in a $250\\ \\mathrm{mm}$ path takes 80% of the ampere-turns; omitting it underestimates the required current five-fold in the worked example.",
+    "**Reversing soft and hard magnet criteria.** Transformer cores must be **soft** — low coercivity so the loop is narrow and hysteresis loss is small. Permanent magnets must be **hard** — high coercivity and high remanence so the magnet resists demagnetisation. Specifying a high-coercivity material for a transformer core makes it heat up badly.",
+    "**Reporting the hysteresis loss in watts per cycle.** The loop area is an energy per unit volume per *cycle* (J/m³); power needs multiplication by frequency and by core volume. A quoted figure of 478 J/m³ becomes 0.24 W at 50 Hz and 95.6 W at 20 kHz in a 10 cm³ core.",
+    "**Assuming $\\mu_r$ is frequency-independent.** Above a few kilohertz, domain-wall motion cannot follow the field, so permeability falls and loss rises. That is why ferrites, whose high resistivity suppresses eddy currents, replace laminated silicon iron at high frequency.",
+    "**Treating saturation as a hard ceiling that can be exceeded with more current.** Past saturation the differential permeability drops to $\\mu_0$, so doubling the current doubles $H$ but raises $B$ by only about $\\mu_0\\Delta H$. Transformers protect against this; ignoring it leads to predicted fluxes that no core can carry.",
+    "**Using $M$ where $B$ belongs in $\\Phi = BA$.** $\\Phi$ is computed from the flux density in tesla. Substituting $M$ in A/m gives a flux that is wrong by $\\mu_0 = 1.26\\times10^{-6}$."
+  ],
+  "refs": [
+    "[[07_Energy_Bands_and_Classification]]",
+    "[[08_Fermi_Level]]",
+    "[[09_Dielectric_Properties_and_Breakdown]]"
+  ],
+  "prereqs": [
+    "[[07_Energy_Bands_and_Classification]]"
+  ]
+}

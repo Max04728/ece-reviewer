@@ -1,0 +1,112 @@
+{
+  "scope": "Use permittivity to size a capacitor, compute the field and voltage at which a dielectric fails, and account for the loss and temperature behaviour that no exam question lets you ignore.",
+  "intuition": "A dielectric does not block the electric field — it responds to it. Charges inside the material shift slightly, and that shift stores extra energy for the same applied voltage. Push the field too far and the bound charges break free, and the material stops being an insulator.",
+  "concept": [
+    "**Four polarisation mechanisms, each with its own frequency ceiling.** **Electronic** polarisation is the displacement of the electron cloud relative to the nucleus; it is present in every material, is essentially instantaneous, and follows fields up to about $10^{15}\\ \\mathrm{Hz}$ (the ultraviolet). **Ionic** polarisation is the relative shift of cations and anions in an ionic crystal such as NaCl or mica; it is slower and dies out around $10^{13}\\ \\mathrm{Hz}$ (infrared). **Dipolar (orientational)** polarisation is the rotation of permanent molecular dipoles such as water; it is much slower because whole molecules must turn, contributing strongly up to about $10^{9}\\ \\mathrm{Hz}$ (microwave). **Interfacial (space-charge)** polarisation is the pile-up of charge at grain boundaries and electrode interfaces; it is the slowest of all, dominating only at low frequencies and often bringing large losses with it. The exam-relevant consequence is that a dielectric's permittivity is a *function of frequency*: water has $\\varepsilon_r \\approx 80$ at DC and only about 2 at optical frequencies, which is exactly why microwave ovens heat food (the dipoles follow at 2.45 GHz) while visible light passes through.",
+    "**Permittivity, dielectric constant and what they actually do to a capacitor.** The absolute permittivity is $\\varepsilon = \\varepsilon_r\\varepsilon_0$ with $\\varepsilon_0 = 8.854\\times10^{-12}\\ \\mathrm{F/m}$. Filling a parallel-plate capacitor with a dielectric multiplies its capacitance by $\\varepsilon_r$: $C = \\dfrac{\\varepsilon_r\\varepsilon_0A}{d}$. The physical origin is that the induced surface charge partially cancels the applied charge, so the field inside drops by $\\varepsilon_r$ for the same free charge, and therefore the voltage drops — and since $C = Q/V$, capacitance rises. For a fixed *voltage* source, the extra charge the supply must deliver is the extra capacitance; for an isolated charged capacitor, inserting a dielectric lowers the stored energy by the factor $\\varepsilon_r$ and pulls the plates together. **The dielectric strength is an entirely separate property from $\\varepsilon_r$** — a material can have a high permittivity and a low breakdown field, and vice versa.",
+    "**Dielectric loss and the loss tangent.** A real dielectric is not a perfect insulator, and its polarisation cannot follow the field instantaneously, so the current leads the voltage by $(90^\\circ - \\delta)$ instead of $90^\\circ$. The loss tangent $\\tan\\delta = \\dfrac{1}{\\omega C R_p} = \\dfrac{\\varepsilon''}{\\varepsilon'}$ is the ratio of the energy lost per cycle to the energy stored per cycle. It is small for a good insulator (polystyrene about $2\\times10^{-4}$, PTFE about $2\\times10^{-4}$) and large for a lossy one (water at microwave frequencies about 0.1, some ceramics at high temperature above 1). Power dissipated in a capacitor under sinusoidal excitation is $P = V^2\\omega C\\tan\\delta$, so loss matters most at high frequency, high voltage and high capacitance. The loss also produces heating, which raises $\\tan\\delta$ further — the classic thermal-runaway mechanism in a high-voltage cable or a power capacitor.",
+    "**Breakdown: what actually fails, and why thin samples fail sooner.** Breakdown occurs when the field exceeds the **dielectric strength** $E_{bd}$ and a conducting path forms. Three mechanisms matter. **Intrinsic/electronic** breakdown is avalanche ionisation of the lattice, giving the highest theoretical strength and depending only on the material. **Thermal** breakdown is the runaway where loss heating outpaces heat removal, so it depends on frequency, ambient temperature and how the sample is mounted. **Discharge** breakdown is partial discharge in voids and at edges, which erodes the material gradually and is the practical failure mode of high-voltage insulation. Practical strength also falls as the sample gets thinner (a 1 mm sheet of a polymer is much weaker per unit length than a 0.1 mm film), falls with temperature, and falls with moisture. Typical values to carry into an exam: air $3\\ \\mathrm{MV/m}$, transformer oil $12\\ \\mathrm{MV/m}$, polyethylene $20\\ \\mathrm{MV/m}$, mica $50\\ \\mathrm{MV/m}$, and the ceramic barium titanate about $5$–$10\\ \\mathrm{MV/m}$ despite its very high $\\varepsilon_r$.",
+    "**Ferroelectric and piezoelectric behaviour, and the temperature limit.** Some ceramics (barium titanate, lead zirconate titanate) have a spontaneous polarisation that can be reoriented by a field — they are **ferroelectric**, show a hysteresis loop of $P$ against $E$, and give effective $\\varepsilon_r$ values in the thousands. Above the **Curie temperature** the spontaneous alignment disappears and the material becomes an ordinary paraelectric dielectric; that transition is why barium titanate capacitors have a capacitance that falls steeply with temperature above about $120\\ ^\\circ\\mathrm{C}$. Below the Curie point these materials are usually also **piezoelectric**, so mechanical stress produces a voltage and vice versa — the basis of ultrasonic transducers, buzzers and pressure sensors."
+  ],
+  "formulas": [
+    { "q": "Capacitance with a dielectric", "e": "C = \\frac{\\varepsilon_r\\varepsilon_0 A}{d}", "n": "A in m^2, d in m, C in farads. A in cm^2 and d in mm is the usual slip: both must be converted before substituting." },
+    { "q": "Absolute permittivity", "e": "\\varepsilon = \\varepsilon_r\\varepsilon_0,\\qquad \\varepsilon_0 = 8.854\\times10^{-12}\\ \\mathrm{F/m}", "n": "varepsilon_r is dimensionless and >= 1. Using eps_r where eps belongs (or the reverse) is off by 10^{11}." },
+    { "q": "Electric field in a dielectric", "e": "E = \\frac{V}{d}", "n": "Uniform-field assumption for a parallel plate, fringing neglected. d in metres, so 1 mm at 1 kV is 1 MV/m, not 1 V/m." },
+    { "q": "Breakdown voltage", "e": "V_{bd} = E_{bd}\\,d", "n": "E_bd is a property of the material and the thickness. Air at 3 MV/m over 1 mm holds only 3 kV before arcing." },
+    { "q": "Polarisation", "e": "P = \\varepsilon_0(\\varepsilon_r-1)E = \\varepsilon_0\\chi_e E", "n": "P is the dipole moment per unit volume in C/m^2. Vacuum has eps_r = 1 and therefore P = 0." },
+    { "q": "Electric flux density", "e": "D = \\varepsilon_0E + P = \\varepsilon_r\\varepsilon_0E", "n": "D depends only on the free charge, which is why it is continuous across a dielectric interface while E is not." },
+    { "q": "Electric susceptibility", "e": "\\chi_e = \\varepsilon_r - 1", "n": "Dimensionless. A material with eps_r = 5.4 has chi_e = 4.4, not 5.4." },
+    { "q": "Clausius-Mossotti relation", "e": "\\frac{\\varepsilon_r-1}{\\varepsilon_r+2} = \\frac{N\\alpha}{3\\varepsilon_0}", "n": "Links the macroscopic permittivity to the molecular polarisability alpha and number density N. Valid for non-polar, non-interacting dipoles only." },
+    { "q": "Loss tangent", "e": "\\tan\\delta = \\frac{1}{\\omega C R_p} = \\frac{\\varepsilon''}{\\varepsilon'}", "n": "omega = 2 pi f. Small tan delta means a good insulator; delta is the loss angle by which the current falls short of 90 degrees lead." },
+    { "q": "Power loss in a capacitor", "e": "P = V^2\\omega C\\tan\\delta", "n": "V is the RMS voltage. Loss scales linearly with frequency, so the same capacitor can be fine at 60 Hz and cook at 1 MHz." },
+    { "q": "Energy stored with a dielectric", "e": "U = \\frac{1}{2}CV^2 = \\frac{1}{2}\\varepsilon_r\\varepsilon_0 E^2\\,Ad", "n": "The second form shows energy density is set by E^2, so operating near the breakdown field maximises stored energy per volume." },
+    { "q": "Energy density in a dielectric", "e": "u = \\frac{1}{2}\\varepsilon_r\\varepsilon_0 E^2", "n": "J/m^3. For a fixed geometry the energy scales with eps_r, which is why high-permittivity ceramics are used for energy-storage capacitors." },
+    { "q": "Dielectric strength values (exam set)", "e": "E_{bd}:\\ \\mathrm{air}\\ 3,\\ \\mathrm{oil}\\ 12,\\ \\mathrm{PE}\\ 20,\\ \\mathrm{mica}\\ 50\\ \\mathrm{MV/m}", "n": "Indicative DC values for thin samples. Thicker samples and higher temperatures give lower strengths; moisture can halve them." },
+    { "q": "Temperature coefficient of capacitance", "e": "\\mathrm{TCC} = \\frac{1}{C_0}\\frac{\\Delta C}{\\Delta T}", "n": "Units ppm/K or percent per degree. Ferroelectric ceramics have large, non-linear TCC and fall sharply above the Curie temperature." }
+  ],
+  "problems": [
+    {
+      "prompt": "A parallel-plate capacitor has plates of area $100\\ \\mathrm{cm^2}$ separated by $1.0\\ \\mathrm{mm}$ of mica ($\\varepsilon_r = 5.4$, $E_{bd} = 50\\ \\mathrm{MV/m}$). Find the capacitance and the maximum DC voltage that can be applied before breakdown.",
+      "give": ["$A = 100\\ \\mathrm{cm^2}$", "$d = 1.0\\ \\mathrm{mm}$", "$\\varepsilon_r = 5.4$", "$E_{bd} = 50\\ \\mathrm{MV/m}$"],
+      "steps": [
+        "A = 100 cm^2 = 100e-4 m^2 = 1.0e-2 m^2; d = 1.0e-3 m",
+        "C = ε_r ε_0 A/d = 5.4 x 8.854e-12 x 1.0e-2/1.0e-3",
+        "C = 5.4 x 8.854e-12 x 10 = 4.78e-10 F",
+        "C = 478 pF",
+        "V_bd = E_bd d = 50e6 x 1.0e-3 = 50 000 V = 50 kV"
+      ],
+      "ans": "$C = 478\\ \\mathrm{pF}$ and $V_{bd} = 50\\ \\mathrm{kV}$.",
+      "trap": "Leaving the area in $\\mathrm{cm^2}$ gives $C = 4.78\\times10^{-6}\\ \\mathrm{F}$, a thousand times too large. $1\\ \\mathrm{cm^2} = 10^{-4}\\ \\mathrm{m^2}$ — the area conversion is a factor of $10^4$, not $10^2$."
+    },
+    {
+      "prompt": "A capacitor with $A = 0.010\\ \\mathrm{m^2}$ and $d = 0.50\\ \\mathrm{mm}$ has a capacitance of $177\\ \\mathrm{pF}$ when empty. A dielectric is inserted and the capacitance becomes $885\\ \\mathrm{pF}$. Identify the dielectric's relative permittivity, its electric susceptibility and the polarisation if the applied field is $2.0\\ \\mathrm{MV/m}$.",
+      "give": ["$A = 0.010\\ \\mathrm{m^2}$", "$d = 0.50\\ \\mathrm{mm}$", "$C_{air} = 177\\ \\mathrm{pF}$", "$C_{diel} = 885\\ \\mathrm{pF}$", "$E = 2.0\\ \\mathrm{MV/m}$"],
+      "steps": [
+        "Check the empty capacitance: C_air = ε_0A/d = 8.854e-12 x 0.010/5.0e-4 = 1.771e-10 F = 177 pF, consistent with the data",
+        "For the same geometry C_diel/C_air = ε_r",
+        "ε_r = 885e-12/177e-12 = 5.00",
+        "χ_e = ε_r - 1 = 4.00",
+        "P = ε_0 χ_e E = 8.854e-12 x 4.00 x 2.0e6",
+        "P = 7.08e-5 C/m^2"
+      ],
+      "ans": "$\\varepsilon_r = 5.0$, $\\chi_e = 4.0$ and $P = 7.1\\times10^{-5}\\ \\mathrm{C/m^2}$.",
+      "trap": "Reporting $\\chi_e = 5.0$ by forgetting the $-1$. The susceptibility measures the *extra* polarisation over vacuum, so a material with $\\varepsilon_r = 1$ must give $\\chi_e = 0$ — that zero is the check that catches the mistake."
+    },
+    {
+      "prompt": "A $4.5\\ \\mathrm{nF}$ paper capacitor ($\\varepsilon_r = 3.5$) is charged to $400\\ \\mathrm{V}$. Find the stored energy, the energy density if the dielectric volume is $2.0\\ \\mathrm{cm^3}$, and the plate separation if the total plate area is $0.05\\ \\mathrm{m^2}$.",
+      "give": ["$C = 4.5\\ \\mathrm{nF}$", "$V = 400\\ \\mathrm{V}$", "$\\varepsilon_r = 3.5$", "$V_{diel} = 2.0\\ \\mathrm{cm^3}$", "$A = 0.05\\ \\mathrm{m^2}$"],
+      "steps": [
+        "U = ½CV^2 = 0.5 x 4.5e-9 x (400)^2 = 0.5 x 4.5e-9 x 1.6e5",
+        "U = 3.6e-4 J = 360 µJ",
+        "Energy density u = U/volume = 3.6e-4/2.0e-6 = 180 J/m^3",
+        "d = ε_r ε_0 A/C = 3.5 x 8.854e-12 x 0.05/4.5e-9",
+        "d = 1.549e-12/4.5e-9 = 3.44e-4 m = 0.344 mm"
+      ],
+      "ans": "$U = 360\\ \\mathrm{\\mu J}$, $u = 180\\ \\mathrm{J/m^3}$, $d = 0.344\\ \\mathrm{mm}$.",
+      "trap": "Using $U = CV^2$ and getting $720\\ \\mathrm{\\mu J}$ — double the correct answer. The stored energy is $\\frac{1}{2}QV = \\frac{1}{2}CV^2$; the factor of one half is the same triangle factor that appears in resilience and in the magnetic field energy. The very low $180\\ \\mathrm{J/m^3}$ energy density is also informative: at $400\\ \\mathrm{V}$ over $0.344\\ \\mathrm{mm}$ the field is only $1.16\\ \\mathrm{MV/m}$, far below the breakdown limit, so this capacitor stores almost nothing compared with a design run near $E_{bd}$."
+    },
+    {
+      "prompt": "A high-voltage capacitor carries a sinusoidal current at $50\\ \\mathrm{Hz}$ with $C = 1.0\\ \\mathrm{\\mu F}$ and an applied RMS voltage of $1.0\\ \\mathrm{kV}$. The measured power loss is $113\\ \\mathrm{mW}$. Determine the loss tangent, the loss angle and the equivalent parallel resistance.",
+      "give": ["$f = 50\\ \\mathrm{Hz}$", "$C = 1.0\\ \\mathrm{\\mu F}$", "$V_{rms} = 1.0\\ \\mathrm{kV}$", "$P = 113\\ \\mathrm{mW}$"],
+      "steps": [
+        "ω = 2πf = 2π(50) = 314.16 rad/s",
+        "tan δ = P/(V^2 ω C) = 0.113/[(1000)^2 x 314.16 x 1.0e-6]",
+        "Denominator = 1.0e6 x 314.16 x 1.0e-6 = 314.16",
+        "tan δ = 0.113/314.16 = 3.60e-4",
+        "δ = arctan(3.60e-4) = 3.60e-4 rad = 0.0206 degrees",
+        "R_p = 1/(ω C tan δ) = 1/(314.16 x 1.0e-6 x 3.60e-4) = 8.85e6 Ω = 8.85 MΩ"
+      ],
+      "ans": "$\\tan\\delta = 3.6\\times10^{-4}$, $\\delta = 0.021^\\circ$, $R_p = 8.85\\ \\mathrm{M\\Omega}$.",
+      "trap": "Reporting the loss angle in degrees when the question wants $\\tan\\delta$, or using the peak voltage instead of RMS. With $V_{peak} = 1414\\ \\mathrm{V}$ the computed $\\tan\\delta$ would come out 2.55 times too small, because the power formula uses RMS volts."
+    },
+    {
+      "prompt": "A ceramic dielectric has $\\varepsilon_r = 1200$ and $E_{bd} = 8.0\\ \\mathrm{MV/m}$. A capacitor is built with a dielectric thickness of $50\\ \\mathrm{\\mu m}$ and an active area of $2.0\\ \\mathrm{cm^2}$. Find the capacitance, the maximum working voltage and the maximum stored energy.",
+      "give": ["$\\varepsilon_r = 1200$", "$E_{bd} = 8.0\\ \\mathrm{MV/m}$", "$d = 50\\ \\mathrm{\\mu m}$", "$A = 2.0\\ \\mathrm{cm^2}$"],
+      "steps": [
+        "A = 2.0 cm^2 = 2.0e-4 m^2; d = 50e-6 m",
+        "C = ε_r ε_0 A/d = 1200 x 8.854e-12 x 2.0e-4/50e-6",
+        "Numerator = 1200 x 8.854e-12 x 4.0 = 4.250e-8; C = 4.250e-8/1 = 42.5e-9 F",
+        "More directly: A/d = 2.0e-4/5.0e-5 = 4.0, so C = 1200(8.854e-12)(4.0) = 4.25e-8 F = 42.5 nF",
+        "V_max = E_bd d = 8.0e6 x 50e-6 = 400 V",
+        "U_max = ½ C V^2 = 0.5 x 4.25e-8 x (400)^2 = 0.5 x 4.25e-8 x 1.6e5 = 3.40e-3 J"
+      ],
+      "ans": "$C = 42.5\\ \\mathrm{nF}$, $V_{max} = 400\\ \\mathrm{V}$ and $U_{max} = 3.4\\ \\mathrm{mJ}$ (energy density $U/V_{diel} = 3.4\\times10^{-3}/1.0\\times10^{-8} = 3.4\\times10^{5}\\ \\mathrm{J/m^3}$, which is $\\frac{1}{2}\\varepsilon_r\\varepsilon_0E_{bd}^2$).",
+      "trap": "Dividing by $d$ in micrometres ($50$ instead of $50\\times10^{-6}$) or by $A$ in $\\mathrm{cm^2}$. Either slip changes $C$ by a factor of $10^{4}$–$10^{6}$ and turns a nanofarad capacitor into a farad-sized nonsense answer. Convert both to SI before substituting."
+    }
+  ],
+  "traps": [
+    "**Confusing permittivity with dielectric strength.** $\\varepsilon_r$ says how much extra charge the material stores, $E_{bd}$ says how much field it survives. Mica ($\\varepsilon_r = 5.4$, $E_{bd} = 50\\ \\mathrm{MV/m}$) and barium titanate ($\\varepsilon_r > 1000$, $E_{bd} \\approx 5\\ \\mathrm{MV/m}$) are opposites on both counts, and a capacitor design needs both numbers.",
+    "**Leaving area in $\\mathrm{cm^2}$ or separation in $\\mathrm{mm}$.** $C = \\varepsilon_r\\varepsilon_0A/d$ needs $\\mathrm{m^2}$ and $\\mathrm{m}$. Area in $\\mathrm{cm^2}$ makes $C$ $10^{4}$ times too small, and $d$ in mm makes it $10^{3}$ times too large — the two errors can partially cancel and look plausible.",
+    "**Dropping the $\\frac{1}{2}$ in stored energy.** $U = \\frac{1}{2}CV^2$, not $CV^2$. The same half appears in resilience and in magnetic energy density; forgetting it doubles the answer.",
+    "**Reporting $\\chi_e$ equal to $\\varepsilon_r$.** $\\chi_e = \\varepsilon_r - 1$. Vacuum must give $\\chi_e = 0$, which is the sanity check that catches the error immediately.",
+    "**Treating $\\varepsilon_r$ as a constant.** It varies strongly with frequency (water: 80 at DC, about 2 in the visible), with temperature (ferroelectrics fall sharply above the Curie point) and with field strength in ferroelectric ceramics. A quoted $\\varepsilon_r$ without a frequency and temperature is incomplete.",
+    "**Assuming a thicker dielectric is always safer for energy storage.** Doubling $d$ halves the field for the same voltage, so breakdown is less likely — but it also halves the capacitance, so the stored energy $\\frac{1}{2}CV^2$ is halved as well. Energy density goes as $E^2$, so the best design runs as close to $E_{bd}$ as the safety margin allows.",
+    "**Using $E = V/d$ with $d$ in millimetres.** 1 kV across 1 mm is $10^{6}\\ \\mathrm{V/m} = 1\\ \\mathrm{MV/m}$, which is a third of air's breakdown strength — an entirely different conclusion from '1 V/m'."
+  ],
+  "refs": [
+    "[[07_Energy_Bands_and_Classification]]",
+    "[[08_Fermi_Level]]",
+    "[[10_Magnetic_Properties_and_Hysteresis]]"
+  ],
+  "prereqs": ["[[07_Energy_Bands_and_Classification]]"]
+}

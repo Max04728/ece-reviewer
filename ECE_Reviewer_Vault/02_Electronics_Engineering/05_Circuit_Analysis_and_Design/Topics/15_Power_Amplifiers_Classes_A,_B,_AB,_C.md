@@ -1,0 +1,206 @@
+---
+id: ECE-05-15
+title: "Power Amplifiers: Classes A, B, AB, C"
+part: "02_Electronics_Engineering"
+area: "05_Circuit_Analysis_and_Design"
+topic: 15
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_Load_Lines_and_Q_Point]]", "[[09_BJT_Structure_and_Operating_Regions]]"]
+tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 15 — Power Amplifiers: Classes A, B, AB, C
+
+> [!abstract] Scope
+> Compare amplifier classes by conduction angle, and compute output power, DC input power, efficiency and worst-case device dissipation for class A, class B push-pull and class AB stages.
+
+## Core Concept
+
+> [!tip] Intuition
+> An output stage is a valve that must pass a large current while dropping as little voltage as possible. Class A keeps the valve half-open all the time, so it is always burning power even with no signal. Class B opens each valve for exactly half the cycle and lets the other half be handled by a second, complementary valve, which nearly doubles the efficiency but leaves a dead zone near zero volts where neither valve conducts.
+
+**Classification is by conduction angle.** A class A stage conducts for the full $360^\circ$ of the cycle, so its quiescent current is large and it dissipates even with no signal. Class B conducts for exactly $180^\circ$ per device, requiring two devices in push-pull. Class AB conducts for somewhat more than $180^\circ$, using a small quiescent current to bridge the dead zone. Class C conducts for well under $180^\circ$. Efficiency rises and distortion rises together as the conduction angle narrows: maximum efficiency is $25\%$ for a resistor-loaded class A, $50\%$ for a transformer- or inductor-coupled class A, $78.5\%$ for class B, and over $90\%$ for class C, which is why class C is used only for RF with a tuned load and never for audio.
+
+**Class A bookkeeping.** With a resistor load, the Q point must sit at $V_{CEQ} = V_{CC}/2$ and $I_{CQ} = V_{CC}/(2R_L)$ so the collector can swing symmetrically. The maximum output is:
+$$P_{o(max)} = V_p^2/(2R_L) = V_{CC}^2/(8R_L)$$
+while the supply delivers $P_i = V_{CC}I_{CQ} = V_{CC}^2/(2R_L)$ regardless of signal, giving $\eta_{max} = 25\%$. Worse, the transistor dissipation $P_D = P_i - P_o - I_{CQ}^2R_L$ peaks at zero signal, where all the useful supply power is burned in the device, so the heatsink is sized for no-signal operation. If the load is coupled through a transformer or an inductor, the Q point moves to $V_{CEQ} = V_{CC}$ with $I_{CQ} = V_{CC}/R_L'$, the swing can reach $V_{CC}$ in each direction, and $P_{o(max)} = V_{CC}^2/(2R_L')$ against $P_i = V_{CC}^2/R_L'$, doubling the efficiency to $50\%$.
+
+**Class B push-pull power budget.** In the dual-supply emitter-follower arrangement each device conducts for half the cycle, so the load current is a full sine of peak $I_p = V_p/R_L$ while each supply delivers a half-sine of average $I_p/\pi$. With two supplies, $P_i = (2/\pi)I_pV_{CC}$, and the output is $P_o = V_p^2/(2R_L)$. The efficiency is therefore $\eta = P_o/P_i = (\pi/4)(V_p/V_{CC})$, which reaches $\pi/4 = 78.5\%$ only at the maximum undistorted swing $V_p = V_{CC}$; at half swing it is only $39.3\%$. The device dissipation is:
+$$P_D = P_i - P_o = (2/\pi)V_{CC}I_p - I_p^2R_L/2$$
+and differentiating with respect to $I_p$ shows the worst case at $I_p = 2V_{CC}/(\pi R_L)$, i.e.
+$$V_p = 2V_{CC}/\pi \approx 0.636V_{CC}$$
+There the efficiency is exactly $50\%$, the output is only $40.5\%$ of its maximum, and $P_{D(max)} = 2V_{CC}^2/(\pi^2R_L)$ for both devices together - roughly $40\%$ of the maximum output power. Heatsinks must be sized for that point, not for full output.
+
+**Crossover distortion and class AB.** A class B emitter follower needs about $0.6$ to $0.7\ \mathrm{V}$ of base-emitter voltage before it conducts at all, so neither device conducts for output voltages inside that window and the output has a flat notch as it crosses zero. The distortion is worst for small signals: a $\pm0.7\ \mathrm{V}$ dead zone on a $1\ \mathrm{V}$ peak sine removes most of the waveform, while on a $10\ \mathrm{V}$ peak sine it is a small kink. Class AB fixes this by forward-biasing both bases apart with a $V_{BE}$ multiplier (a transistor with $V_{BB} = V_{BE}(1 + R_1/R_2)$) or with a pair of diodes, so a small quiescent current flows in both devices. The multiplier is preferred because it can be trimmed and thermally coupled to the output devices; small emitter resistors ($0.1$ to $1\ \Omega$) provide local feedback that equalises the two halves against $V_{BE}$ mismatch. Efficiency then lies between the class A and class B limits, dropping as the bias current is raised.
+
+**Class C and the limits of the formulas.** Class C biases the device far below cutoff so it conducts only on current peaks, for a conduction angle of perhaps $120^\circ$ or less; the collector current is a pulse train, and the LC tank at the collector acts as a flywheel that restores a nearly sinusoidal output. Efficiency above $90\%$ is achievable, at the cost of enormous harmonic distortion that only the tuned load removes, and of peak voltage stress approaching $2V_{CC}$. All of these formulas assume the full available swing is used: a real stage loses $V_{CE(sat)}$ (about $1$ to $2\ \mathrm{V}$) and the drop across the emitter resistors, so the practical $V_p$ is $V_{CC} - V_{CE(sat)} - I_pR_E$ and the achievable power is lower than $V_{CC}^2/(2R_L)$. In the single-supply complementary (capacitor-coupled) arrangement only $V_p = V_{CC}/2$ is available, so $P_{o(max)} = V_{CC}^2/(8R_L)$ - state which convention you use, because the same $V_{CC}$ and $R_L$ then give an output power four times smaller.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Class A maximum efficiency, resistor-loaded | $\eta_{max} = 25\%$ | Q point at V_CEQ = V_CC/2 and I_CQ = V_CC/(2R_L); P_o(max) = V_CC^2/(8R_L) against P_i = V_CC^2/(2R_L). The transistor dissipation is worst at zero signal. |
+| Class A maximum efficiency, transformer or inductor coupled | $\eta_{max} = 50\%$ | Q point at V_CEQ = V_CC with I_CQ = V_CC/R_L' and a swing of V_p = V_CC; P_o(max) = V_CC^2/(2R_L') against P_i = V_CC^2/R_L'. The quiescent current is twice the resistor-loaded value for the same V_CC and R_L. |
+| Class B maximum efficiency | $\eta_{B(max)} = \frac{\pi}{4} = 78.5\%$ | Achieved only at the full undistorted swing V_p = V_CC. Efficiency is proportional to swing: (pi/4)(V_p/V_CC) gives 39.3 percent at half swing and 15.7 percent at one fifth swing. |
+| Class B output power, dual supply | $P_{o(max)} = \frac{V_{CC}^2}{2R_L} = \frac{V_p^2}{2R_L}$ | Complementary emitter followers with equal positive and negative supplies, so the peak swing reaches V_CC and the peak load current is I_p = V_CC/R_L. Deduct V_CE(sat) and I_p R_E for a practical answer. |
+| Output power, single-supply complementary (OTL) | $P_{o(max)} = \frac{V_{CC}^2}{8R_L}$ | Capacitor-coupled arrangement where the output sits at V_CC/2, so the peak swing is only V_CC/2 and P_o = (V_CC/2)^2/(2R_L). Using V_CC^2/(2R_L) here overstates the power by a factor of 4. |
+| DC input power | $P_i = \frac{2}{\pi}I_pV_{CC}, \qquad I_p = \frac{V_p}{R_L}$ | Each device draws a half-sine of average I_p/pi from its own supply, so the pair draws 2I_p/pi. V_CC is the magnitude of ONE supply in the dual-supply case; in the single-supply case the same form is used with V_p = V_CC/2, which is the convention that yields 39.3 percent at full swing. |
+| Efficiency as a function of swing | $\eta = \frac{P_o}{P_i} = \frac{\pi}{4}\frac{V_p}{V_{CC}}$ | Signal-level dependent for class B and class AB. The maximum 78.5 percent requires V_p = V_CC; a stage delivering 9 W from a 24 V supply with V_p = 12 V is at 39.3 percent, not 78.5 percent. |
+| Worst-case device dissipation, class B | $P_{D(max)} = \frac{2V_{CC}^2}{\pi^2R_L}\ \mathrm{at}\ V_p = \frac{2V_{CC}}{\pi} \approx 0.636V_{CC}$ | Total for both devices; halve it per transistor. At that point the efficiency is exactly 50 percent and the output is only 40.5 percent of maximum, so the heatsink is sized for a part-power condition. |
+
+## Interactive Widget
+
+**Class B Crossover Distortion**
+
+![[Class_B_Crossover_Distortion.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. A class B complementary emitter-follower output stage runs from $\pm20\ \mathrm{V}$ supplies into $R_L = 8\ \Omega$. Find the maximum output power, the peak load current, the DC input power at full output, the efficiency, and the total and per-device dissipation.
+
+**Given:** $V_{CC} = 20\ \mathrm{V}$ (dual supply); $R_L = 8\ \Omega$; class B push-pull
+
+**Solution:**
+
+1. Peak load current at full swing: $I_p = V_{CC}/R_L = 20/8 = 2.5\ \mathrm{A}$.
+2. Maximum output power: $P_{o(max)} = \dfrac{V_{CC}^2}{2R_L} = \dfrac{400}{16} = 25\ \mathrm{W}$.
+3. Check with the swing form: $P_o = I_p^2R_L/2 = (6.25)(8)/2 = 25\ \mathrm{W}$, which agrees.
+4. DC input power: $P_i = \dfrac{2}{\pi}I_pV_{CC} = \dfrac{2}{\pi}(2.5)(20) = \dfrac{100}{\pi} = 31.83\ \mathrm{W}$.
+5. Efficiency: $\eta = P_o/P_i = 25/31.83 = 0.7854 = 78.5\%$, matching $\pi/4$ at full swing.
+6. Dissipation: $P_D = P_i - P_o = 31.83 - 25 = 6.83\ \mathrm{W}$ for both devices, so $3.42\ \mathrm{W}$ per transistor at full output.
+
+> [!success]- Answer
+> **$P_{o(max)} = 25\ \mathrm{W}$, $I_p = 2.5\ \mathrm{A}$, $P_i = 31.83\ \mathrm{W}$, $\eta = 78.5\%$, $P_D = 6.83\ \mathrm{W}$ total ($3.42\ \mathrm{W}$ per device)**
+
+> [!warning] Trap
+> Using $P_i = V_{CC}I_p = 20\times2.5 = 50\ \mathrm{W}$, which treats the supply current as a constant 2.5 A instead of a half-sine of average $I_p/\pi$ drawn by each of the two supplies. That gives an efficiency of 50% and a dissipation of 25 W - more than three times the correct 6.83 W, and it would triple the heatsink.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `20 ÷ 8` → $I_p$ = **2.5** A; `20² ÷ (2 × 8)` → $P_{o(max)}$ = **25** W.
+> 2. `2 ÷ π × 2.5 × 20` → $P_i$ = **31.83** W; `25 ÷ Ans` → $\eta$ = **0.7854**.
+> 3. `31.83 − 25` → $P_D$ = **6.83** W for both devices, **3.42** W each.
+
+### P2. For the same $\pm20\ \mathrm{V}$, $8\ \Omega$ class B stage, find the output level at which the transistors dissipate the most power, and give the peak voltage, the output power, the input power, the efficiency and the dissipation at that point.
+
+**Given:** $V_{CC} = 20\ \mathrm{V}$ (dual supply); $R_L = 8\ \Omega$; class B push-pull
+
+**Solution:**
+
+1. Worst-case swing: $V_p = \dfrac{2V_{CC}}{\pi} = \dfrac{40}{\pi} = 12.73\ \mathrm{V}$ (about $0.636V_{CC}$).
+2. Peak current there: $I_p = V_p/R_L = 12.73/8 = 1.5915\ \mathrm{A}$.
+3. Output power: $P_o = \dfrac{V_p^2}{2R_L} = \dfrac{162.1}{16} = 10.13\ \mathrm{W}$ (only $40.5\%$ of the 25 W maximum).
+4. DC input power: $P_i = \dfrac{2}{\pi}(1.5915)(20) = 20.26\ \mathrm{W}$.
+5. Dissipation: $P_D = 20.26 - 10.13 = 10.13\ \mathrm{W}$ total, i.e. $5.07\ \mathrm{W}$ per transistor.
+6. Efficiency at this point: $\eta = 10.13/20.26 = 0.50 = 50\%$, and the closed form check gives $P_{D(max)} = 2V_{CC}^2/(\pi^2R_L) = 800/(9.870\times8) = 10.13\ \mathrm{W}$, matching.
+7. Comparison: full output dissipates only $6.83\ \mathrm{W}$, so the worst case is $10.13/6.83 = 1.48$ times the full-power figure.
+
+> [!success]- Answer
+> **$V_p = 12.73\ \mathrm{V}$ (0.636 V_CC), $P_o = 10.13\ \mathrm{W}$, $P_i = 20.26\ \mathrm{W}$, $\eta = 50\%$, $P_D = 10.13\ \mathrm{W}$ total ($5.07\ \mathrm{W}$ per device)**
+
+> [!warning] Trap
+> Sizing the heatsink at full output. Many designers compute $P_D = P_i - P_o$ at $V_p = V_{CC}$ and get 6.83 W, then build a heatsink for 3.42 W per device. The true worst case is 5.07 W per device at 63.6% of full swing, a 48% underestimate that leads to overheating on program material that spends time at part power.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `2 × 20 ÷ π` → $V_p$ = **12.73** V; `÷ 8` → $I_p$ = **1.5915** A.
+> 2. `12.73² ÷ 16` → $P_o$ = **10.13** W; `2 ÷ π × 1.5915 × 20` → $P_i$ = **20.26** W.
+> 3. `20.26 − 10.13` → $P_D$ = **10.13** W total, **5.07** W each, at **50** % efficiency — 1.48× the full-output figure of 6.83 W.
+
+### P3. A class A stage runs from $V_{CC} = 12\ \mathrm{V}$ with $R_L = 8\ \Omega$. Find the maximum output power, the DC input power, the efficiency and the transistor dissipation at zero signal (a) with a direct resistor load and (b) with a transformer coupling the same $8\ \Omega$ load as $R_L' = 8\ \Omega$.
+
+**Given:** $V_{CC} = 12\ \mathrm{V}$; $R_L = 8\ \Omega$ (or $R_L' = 8\ \Omega$); class A
+
+**Solution:**
+
+1. (a) Resistor-loaded Q point: $V_{CEQ} = V_{CC}/2 = 6\ \mathrm{V}$ with $I_{CQ} = V_{CC}/(2R_L) = 12/16 = 0.75\ \mathrm{A}$.
+2. (a) Maximum swing $V_p = 6\ \mathrm{V}$, so $P_{o(max)} = V_p^2/(2R_L) = 36/16 = 2.25\ \mathrm{W}$.
+3. (a) Supply power $P_i = V_{CC}I_{CQ} = 12\times0.75 = 9\ \mathrm{W}$, so $\eta_{max} = 2.25/9 = 25\%$.
+4. (a) At zero signal the resistor takes $I_{CQ}^2R_L = (0.5625)(8) = 4.5\ \mathrm{W}$ and the transistor takes $V_{CEQ}I_{CQ} = 6\times0.75 = 4.5\ \mathrm{W}$; this is the worst case for the device.
+5. (b) Transformer-coupled Q point: $V_{CEQ} = V_{CC} = 12\ \mathrm{V}$ with $I_{CQ} = V_{CC}/R_L' = 12/8 = 1.5\ \mathrm{A}$.
+6. (b) $P_{o(max)} = V_{CC}^2/(2R_L') = 144/16 = 9\ \mathrm{W}$ and $P_i = V_{CC}I_{CQ} = 18\ \mathrm{W}$, so $\eta_{max} = 50\%$.
+7. (b) The transformer dissipates none of the DC power, so the device dissipation at zero signal is the full $18\ \mathrm{W}$ - four times the resistor-loaded case.
+
+> [!success]- Answer
+> **(a) $P_{o(max)} = 2.25\ \mathrm{W}$, $P_i = 9\ \mathrm{W}$, $\eta = 25\%$, device dissipation 4.5 W at no signal; (b) $P_{o(max)} = 9\ \mathrm{W}$, $P_i = 18\ \mathrm{W}$, $\eta = 50\%$, device dissipation 18 W at no signal**
+
+> [!warning] Trap
+> Using one quiescent current for both configurations. The resistor-loaded stage needs $I_{CQ} = V_{CC}/(2R_L) = 0.75\ \mathrm{A}$ because half of $V_{CC}$ must be dropped across the load resistor, while the transformer-coupled stage needs $I_{CQ} = V_{CC}/R_L' = 1.5\ \mathrm{A}$. Also note that class A dissipation peaks at ZERO signal, not at full output - here 4.5 W versus 2.25 W for the resistor load.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. (a) `12 ÷ 16` → $I_{CQ}$ = **0.75** A; `6² ÷ 16` → $P_{o(max)}$ = **2.25** W; `12 × 0.75` → $P_i$ = **9** W.
+> 2. (a) `2.25 ÷ 9` → $\eta$ = **25** %; at zero signal the device takes `6 × 0.75` = **4.5** W, the worst case.
+> 3. (b) `12 ÷ 8` → $I_{CQ}$ = **1.5** A; `12² ÷ 16` → **9** W; `12 × 1.5` → **18** W; `9 ÷ 18` → **50** %, with all 18 W in the device at no signal.
+
+### P4. A single-supply complementary (capacitor-coupled) output stage uses $V_{CC} = 24\ \mathrm{V}$ and $R_L = 8\ \Omega$. Find the maximum output power, the peak load current, the DC input power, the efficiency and the total device dissipation, stating the convention used.
+
+**Given:** $V_{CC} = 24\ \mathrm{V}$ (single supply); $R_L = 8\ \Omega$; output capacitor coupled
+
+**Solution:**
+
+1. The output quiescent point is $V_{CC}/2 = 12\ \mathrm{V}$, so the largest peak swing is $V_p = 12\ \mathrm{V}$ (half the supply is blocked by the coupling capacitor).
+2. Peak current: $I_p = V_p/R_L = 12/8 = 1.5\ \mathrm{A}$.
+3. Maximum output power: $P_{o(max)} = \dfrac{V_{CC}^2}{8R_L} = \dfrac{576}{64} = 9\ \mathrm{W}$, which also equals $V_p^2/(2R_L) = 144/16 = 9\ \mathrm{W}$.
+4. DC input power with the $(2/\pi)I_pV_{CC}$ convention: $P_i = \dfrac{2}{\pi}(1.5)(24) = \dfrac{72}{\pi} = 22.92\ \mathrm{W}$.
+5. Efficiency: $\eta = 9/22.92 = 0.3927 = 39.3\%$, matching $\dfrac{\pi}{4}\dfrac{V_p}{V_{CC}} = \dfrac{\pi}{4}(0.5)$.
+6. Dissipation: $P_D = 22.92 - 9 = 13.92\ \mathrm{W}$ total, $6.96\ \mathrm{W}$ per device.
+7. Comparison: a dual-supply stage with the same output power needs only $\pm12\ \mathrm{V}$, dissipates 2.46 W total and reaches 78.5% - the single-supply version wastes half the supply voltage, so it must dissipate more than five times as much heat for the same 9 W.
+
+> [!success]- Answer
+> **$P_{o(max)} = 9\ \mathrm{W}$, $I_p = 1.5\ \mathrm{A}$, $P_i = 22.92\ \mathrm{W}$, $\eta = 39.3\%$, $P_D = 13.92\ \mathrm{W}$ total (6.96 W per device) using the $P_i = (2/\pi)I_pV_{CC}$ convention**
+
+> [!warning] Trap
+> Using $P_{o(max)} = V_{CC}^2/(2R_L) = 576/16 = 36\ \mathrm{W}$ for the single-supply stage. That formula assumes the swing reaches the full supply voltage, which only happens with a dual supply; the output capacitor blocks half of it, so the true maximum is $V_{CC}^2/(8R_L) = 9\ \mathrm{W}$ - a factor-of-four error that also makes the efficiency look like a fictitious 157%.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `24 ÷ 2` → $V_p$ = **12** V, half the supply blocked by the coupling capacitor; `÷ 8` → $I_p$ = **1.5** A.
+> 2. `24² ÷ (8 × 8)` → $P_{o(max)}$ = **9** W; `2 ÷ π × 1.5 × 24` → $P_i$ = **22.92** W.
+> 3. `9 ÷ 22.92` → $\eta$ = **39.3** %; `22.92 − 9` → $P_D$ = **13.92** W total, **6.96** W each.
+
+### P5. A class AB output stage is biased by a $V_{BE}$ multiplier with $R_1 = 1\ \mathrm{k}\Omega$, $R_2 = 1\ \mathrm{k}\Omega$ and a multiplier transistor whose $V_{BE} = 0.65\ \mathrm{V}$. The two output devices each drop $V_{BE} = 0.60\ \mathrm{V}$ and each has an emitter resistor $R_E = 0.47\ \Omega$. Find the bias voltage $V_{BB}$ and the quiescent current in each output device, then state what happens if the multiplier is set to exactly $2V_{BE}$.
+
+**Given:** $R_1 = 1\ \mathrm{k}\Omega$; $R_2 = 1\ \mathrm{k}\Omega$; multiplier $V_{BE} = 0.65\ \mathrm{V}$; output device $V_{BE} = 0.60\ \mathrm{V}$; $R_E = 0.47\ \Omega$
+
+**Solution:**
+
+1. $V_{BE}$ multiplier output: $V_{BB} = V_{BE}\left(1 + \dfrac{R_1}{R_2}\right) = 0.65\left(1 + \dfrac{1}{1}\right) = 1.30\ \mathrm{V}$.
+2. The two output base-emitter drops consume $2\times0.60 = 1.20\ \mathrm{V}$, leaving $1.30 - 1.20 = 0.10\ \mathrm{V}$ to appear across the two emitter resistors in series ($0.94\ \Omega$).
+3. Quiescent current: $I_Q = \dfrac{0.10}{0.94} = 0.1064\ \mathrm{A} = 106\ \mathrm{mA}$, or equivalently $0.05\ \mathrm{V}/0.47\ \Omega$ per branch.
+4. That 106 mA is the class AB bias: enough to keep both devices conducting through the zero crossing, so the $0.6\ \mathrm{V}$ dead zone of class B disappears.
+5. If $V_{BB}$ were set to exactly $2V_{BE} = 1.20\ \mathrm{V}$, the excess would be zero and $I_Q = 0$ - the stage would be pure class B and the crossover notch would return.
+6. Thermal note: at $106\ \mathrm{mA}$ and $V_{CC} = 20\ \mathrm{V}$ the quiescent dissipation is about $2\times20\times0.106 = 4.25\ \mathrm{W}$, so the multiplier must be thermally bonded to the heatsink to prevent the bias from running away as the devices heat up.
+
+> [!success]- Answer
+> **$V_{BB} = 1.30\ \mathrm{V}$ and $I_Q = 106\ \mathrm{mA}$ per device; setting $V_{BB} = 1.20\ \mathrm{V}$ gives $I_Q = 0$ and restores the crossover distortion**
+
+> [!warning] Trap
+> Setting the bias to exactly $2V_{BE}$ on the assumption that the two devices need precisely their threshold voltages. That leaves zero excess voltage, so no quiescent current flows and the stage is still class B with its crossover notch. The deliberate 0.1 V excess is what creates the class AB bias; too much excess, however, raises the dissipation and approaches class A.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `0.65 × (1 + 1 ÷ 1)` → $V_{BB}$ = **1.30** V.
+> 2. `1.30 − 2 × 0.60` → **0.10** V left across the two emitter resistors in series.
+> 3. `0.10 ÷ (2 × 0.47)` → $I_Q$ = **0.1064** A = **106** mA; at exactly `2 × 0.60` = 1.20 V the excess is 0 and $I_Q$ = **0**, which is class B again.
+
+## Traps & Exam Notes
+
+- **Using $V_{CC}^2/(2R_L)$ for a single-supply complementary stage.** With $V_{CC} = 24\ \mathrm{V}$ and $R_L = 8\ \Omega$ that predicts 36 W, but the output capacitor blocks half the supply so the swing is limited to $V_p = V_{CC}/2 = 12\ \mathrm{V}$ and the true maximum is $V_{CC}^2/(8R_L) = 9\ \mathrm{W}$ - a factor-of-four error that also produces a nonsensical efficiency above 100%.
+- **Quoting 78.5% efficiency at any output level.** $\eta = (\pi/4)(V_p/V_{CC})$, so $\pi/4$ applies only at full swing. At $V_p = 0.5V_{CC}$ the efficiency is 39.3%, and at $V_p = 0.2V_{CC}$ it is only 15.7% - most of the supply power is then being burned in the output devices.
+- **Sizing the heatsink from the full-output dissipation.** For a $\pm20\ \mathrm{V}$, $8\ \Omega$ class B stage the dissipation is 6.83 W total at full output but peaks at 10.13 W when $V_p = 0.636V_{CC} = 12.73\ \mathrm{V}$ - 48% higher. Building for 3.42 W per device instead of 5.07 W per device overheats the stage on part-power signals.
+- **Sizing a class A heatsink from the full-output condition.** A resistor-loaded class A stage with $V_{CC} = 12\ \mathrm{V}$ and $R_L = 8\ \Omega$ dissipates 4.5 W per device at zero signal but only 2.25 W at full output, because at no signal the whole $V_{CEQ}I_{CQ}$ product is heat. Class A must be dimensioned at no signal.
+- **Setting the class AB bias to exactly $2V_{BE}$.** The $V_{BE}$ multiplier must produce slightly MORE than two base-emitter drops ($1.30\ \mathrm{V}$ against $1.20\ \mathrm{V}$ in the worked example) so that $0.1\ \mathrm{V}$ appears across the emitter resistors and gives $I_Q = 0.1/0.94 = 106\ \mathrm{mA}$. With $V_{BB} = 2V_{BE}$ exactly, $I_Q = 0$ and the crossover notch remains.
+- **Expecting class C efficiency without a tuned load.** Efficiencies above 90% require a conduction angle below about $120^\circ$, so the collector current is a pulse train whose harmonics are filtered only by the LC tank. The device also sees peak voltages approaching $2V_{CC}$, and the same circuit driving a resistive audio load produces gross distortion rather than a sine wave.
+
+## See Also
+
+- [[14_Feedback_Amplifier_Topologies]]
+- [[02_Load_Lines_and_Q_Point]]
+- [[09_BJT_Structure_and_Operating_Regions]]
+- [[04_Diode_Models_and_Load_Line]]
+- [[01_Op-Amp_Fundamentals_and_Real_Parameters]]
+
+---
+
+[[14_Feedback_Amplifier_Topologies|⬅ 14]] · [[_MOC_Circuit_Analysis_and_Design|MOC]] · [[00_Dashboard|Dashboard]] · [[16_Oscillators_RC_Phase_Shift_and_Wien_Bridge|16 ➡]]

@@ -1,0 +1,154 @@
+---
+id: GEAS-01-09
+title: "Redox and Galvanic Cells"
+part: "03_GEAS"
+area: "01_General_Chemistry"
+topic: 9
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[03_Chemical_Bonding]]", "[[04_Mole_Concept_and_Stoichiometry]]"]
+tags: ["ece", "geas", "general_chemistry"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 09 — Redox and Galvanic Cells
+
+> [!abstract] Scope
+> Assign oxidation numbers, balance electron transfer, and convert standard reduction potentials into a cell voltage, a spontaneity verdict and a free-energy change.
+
+## Core Concept
+
+> [!tip] Intuition
+> A redox reaction is an electron transfer with a voltage attached. The couple with the more positive reduction potential takes the electrons; the other one gives them up, and the difference between the two potentials is the driving force.
+
+**Oxidation numbers are the accounting rule for electrons.** Oxidation is a loss of electrons (the oxidation number rises) and reduction is a gain; the two always occur together, and the total electrons lost equal the total gained. The assignment rules that matter: an element in its free state is 0; a monatomic ion equals its charge; oxygen is $-2$ except in peroxides ($-1$) and with fluorine; hydrogen is $+1$ except in metal hydrides ($-1$); fluorine is always $-1$; and the sum over a neutral species is 0 while over a polyatomic ion it equals the ion's charge. For $\mathrm{Cr_2O_7^{2-}}$, $2x + 7(-2) = -2$ gives $x = +6$; for $\mathrm{MnO_4^-}$, $x + 4(-2) = -1$ gives $x = +7$. The element that changes oxidation number is the one being asked about — identify it before doing anything else.
+
+**Standard reduction potentials and the sign convention.** Every half-reaction is tabulated as a REDUCTION with its $E^\circ$ in volts relative to the standard hydrogen electrode, which is defined as 0.000 V. The cell potential is $E^\circ_{cell} = E^\circ_{cathode} - E^\circ_{anode}$, where both values are taken from the table as written (reductions), or equivalently $E^\circ_{cell} = E^\circ_{reduction} + E^\circ_{oxidation}$ with the oxidation potential sign-flipped. A positive $E^\circ_{cell}$ means the reaction as written is spontaneous; a negative one means it runs in the opposite direction. Two properties are constant and must be respected: $E^\circ$ is an intensive property, so it does NOT get multiplied when you multiply a half-reaction to balance electrons, whereas $\Delta G^\circ = -nFE^\circ_{cell}$ does scale because it is extensive.
+
+**Anode, cathode and cell notation.** Oxidation always happens at the anode and reduction at the cathode, in every cell type. In a galvanic (spontaneous) cell the anode is the negative terminal because it releases electrons; in an electrolytic (driven) cell the anode is the positive terminal because the external supply pulls electrons off it. Cell notation lists the anode on the LEFT, with a single vertical bar for a phase boundary, a double bar for the salt bridge and commas between species in the same phase: $\mathrm{Zn}(s)\,|\,\mathrm{Zn^{2+}}(aq)\,||\,\mathrm{Cu^{2+}}(aq)\,|\,\mathrm{Cu}(s)$. The salt bridge does not carry electrons; it carries ions to maintain electroneutrality, which is why removing it stops the cell even though both electrodes are still intact.
+
+**Balancing electrons, then using the count.** Balance the skeletal half-reactions for atoms, then for oxygen with $\mathrm{H_2O}$ and hydrogen with $\mathrm{H^+}$ in acidic solution (or with $\mathrm{OH^-}$ and $\mathrm{H_2O}$ in basic), and finally for charge with electrons. Multiply each half-reaction by the smallest integer that makes the electrons equal, add them, and cancel. The number of electrons cancelled is $n$ — and $n$ is exactly what appears in $\Delta G^\circ = -nFE^\circ$ and in the Nernst exponent. For $\mathrm{MnO_4^-} + 5\mathrm{Fe^{2+}} + 8\mathrm{H^+} \to \mathrm{Mn^{2+}} + 5\mathrm{Fe^{3+}} + 4\mathrm{H_2O}$ the electron count is 5, so $n = 5$ and the free energy is $\Delta G^\circ = -(5)(96485)E^\circ$.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Oxidation number sum | $\sum (\mathrm{ox.\ no.} \times \mathrm{subscript}) = \mathrm{charge\ of\ the\ species}$ | The master rule. F is always -1; O is -2 except peroxides (-1); H is +1 except in metal hydrides (-1). |
+| Standard cell potential | $E^\circ_{cell} = E^\circ_{cathode} - E^\circ_{anode}$ | Both values read from the table AS REDUCTIONS, unchanged. Subtracting the anode value already accounts for its reversal. |
+| Alternative form | $E^\circ_{cell} = E^\circ_{reduction} + E^\circ_{oxidation}$ | Here the oxidation potential is the sign-flipped reduction value. Mixing the two forms flips the sign of the second term. |
+| Spontaneity test | $E^\circ_{cell} > 0 \iff \Delta G^\circ < 0 \iff \mathrm{galvanic}$ | A negative cell potential means the reaction as written runs in reverse; swap the electrodes for the spontaneous direction. |
+| Free energy from cell potential | $\Delta G^\circ = -nFE^\circ_{cell}, \quad F = 96485\ \mathrm{C/mol}$ | n is the BALANCED electron count. Doubling a half-reaction does not double E-nought but does double n, so Delta-G doubles. |
+| Maximum work | $w_{max} = -\Delta G = nFE^\circ_{cell}$ | Joules per mole of reaction. E in volts and F in C/mol give joules directly. |
+| Cell notation order | $\mathrm{anode}\,\lvert \,\mathrm{anode\ ion}\, \rvert\lvert \,\mathrm{cathode\ ion}\, \rvert\,\mathrm{cathode}$ | Anode always on the left. A single bar is a phase boundary, a double bar is the salt bridge. |
+| Half-reaction electron count | $n = \mathrm{electrons\ cancelled\ after\ balancing}$ | Take it from the balanced overall equation, not from one half-reaction in isolation; both halves must show the same number. |
+| Oxidising strength ranking | $\mathrm{larger\ (more\ positive)\ } E^\circ_{red} \Rightarrow \mathrm{stronger\ oxidising\ agent}$ | F2 (+2.87 V) is the strongest common oxidiser; Li+ (-3.04 V) the weakest. Ranking tables by the wrong column inverts the order. |
+
+## Worked Problems
+
+### P1. Assign the oxidation number of the transition metal in $\mathrm{Cr_2O_7^{2-}}$ and in $\mathrm{MnO_4^-}$.
+
+**Given:** O is −2 in both species; overall charges are −2 and −1
+
+**Solution:**
+
+1. Dichromate: $2x + 7(-2) = -2$
+2. $2x - 14 = -2$, so $2x = +12$ and $x = +6$
+3. Permanganate: $y + 4(-2) = -1$
+4. $y - 8 = -1$, so $y = +7$
+
+> [!success]- Answer
+> **Cr is $+6$ in $\mathrm{Cr_2O_7^{2-}}$ and Mn is $+7$ in $\mathrm{MnO_4^-}$.**
+
+> [!warning] Trap
+> Setting the sum equal to 0 instead of the ion charge. That gives Cr = +7 and Mn = +8, both impossible for those elements in these ions — an oxidation state above the group number is the signal.
+
+### P2. For the cell $\mathrm{Zn}(s)\,|\,\mathrm{Zn^{2+}}\,||\,\mathrm{Cu^{2+}}\,|\,\mathrm{Cu}(s)$, find $E^\circ_{cell}$ and $\Delta G^\circ$. ($E^\circ$: $\mathrm{Zn^{2+}/Zn} = -0.76\ \mathrm{V}$, $\mathrm{Cu^{2+}/Cu} = +0.34\ \mathrm{V}$)
+
+**Given:** E°(Zn2+/Zn) = −0.76 V; E°(Cu2+/Cu) = +0.34 V; F = 96485 C/mol
+
+**Solution:**
+
+1. Copper has the more positive reduction potential, so it is the cathode; zinc is the anode
+2. $E^\circ_{cell} = 0.34 - (-0.76) = 1.10\ \mathrm{V}$
+3. The balanced reaction is $\mathrm{Zn} + \mathrm{Cu^{2+}} \to \mathrm{Zn^{2+}} + \mathrm{Cu}$, so $n = 2$
+4. $\Delta G^\circ = -nFE^\circ = -(2)(96485)(1.10) = -2.12\times10^{5}\ \mathrm{J}$
+
+> [!success]- Answer
+> **$E^\circ_{cell} = 1.10\ \mathrm{V}$ and $\Delta G^\circ = -212\ \mathrm{kJ/mol}$ (spontaneous).**
+
+> [!warning] Trap
+> Writing $0.34 + (-0.76) = -0.42\ \mathrm{V}$ by adding the tabulated values. The formula subtracts the anode value as tabulated; adding is only correct if you first flip the sign of the oxidation half-reaction.
+
+### P3. Given $E^\circ(\mathrm{Fe^{3+}/Fe^{2+}}) = +0.77\ \mathrm{V}$ and $E^\circ(\mathrm{Sn^{4+}/Sn^{2+}}) = +0.15\ \mathrm{V}$, decide whether $\mathrm{Fe^{3+}}$ can oxidise $\mathrm{Sn^{2+}}$, and find $E^\circ_{cell}$.
+
+**Given:** E°(Fe3+/Fe2+) = +0.77 V; E°(Sn4+/Sn2+) = +0.15 V
+
+**Solution:**
+
+1. The higher reduction potential is $\mathrm{Fe^{3+}/Fe^{2+}}$, so $\mathrm{Fe^{3+}}$ is reduced (cathode) and $\mathrm{Sn^{2+}}$ is oxidised (anode)
+2. Overall: $2\mathrm{Fe^{3+}} + \mathrm{Sn^{2+}} \to 2\mathrm{Fe^{2+}} + \mathrm{Sn^{4+}}$
+3. $E^\circ_{cell} = 0.77 - 0.15 = 0.62\ \mathrm{V}$
+4. The voltage is positive and each half transfers 2 electrons, so the reaction is spontaneous as written
+
+> [!success]- Answer
+> **Yes — $E^\circ_{cell} = +0.62\ \mathrm{V}$, so $\mathrm{Fe^{3+}}$ oxidises $\mathrm{Sn^{2+}}$ to $\mathrm{Sn^{4+}}$.**
+
+> [!warning] Trap
+> Reversing the sign of the $\mathrm{Fe^{3+}/Fe^{2+}}$ value because iron is 'being reduced'. The tabulated value is used as written for the cathode; only the anode's contribution is subtracted.
+
+### P4. Balance $\mathrm{MnO_4^-} + \mathrm{Fe^{2+}} \to \mathrm{Mn^{2+}} + \mathrm{Fe^{3+}}$ in acidic solution and state the number of electrons transferred.
+
+**Given:** acidic medium; Mn goes from +7 to +2, Fe from +2 to +3
+
+**Solution:**
+
+1. Reduction half: $\mathrm{MnO_4^-} + 8\mathrm{H^+} + 5e^- \to \mathrm{Mn^{2+}} + 4\mathrm{H_2O}$
+2. Oxidation half: $\mathrm{Fe^{2+}} \to \mathrm{Fe^{3+}} + e^-$
+3. Multiply the iron half by 5 so both halves carry 5 electrons
+4. Add and cancel: $\mathrm{MnO_4^-} + 5\mathrm{Fe^{2+}} + 8\mathrm{H^+} \to \mathrm{Mn^{2+}} + 5\mathrm{Fe^{3+}} + 4\mathrm{H_2O}$
+5. Charge check: left $-1 + 10 + 8 = +17$; right $+2 + 15 = +17$ ✓
+
+> [!success]- Answer
+> **$\mathrm{MnO_4^-} + 5\mathrm{Fe^{2+}} + 8\mathrm{H^+} \to \mathrm{Mn^{2+}} + 5\mathrm{Fe^{3+}} + 4\mathrm{H_2O}$ with $n = 5$ electrons.**
+
+> [!warning] Trap
+> Balancing atoms and forgetting charge, which is how the 8 protons get dropped. Without the $\mathrm{H^+}$ the charges do not balance, and in basic medium the same reaction needs $\mathrm{OH^-}$ and water instead.
+
+### P5. Write the cell notation for the spontaneous reaction $\mathrm{Al} + 3\mathrm{Ag^+} \to \mathrm{Al^{3+}} + 3\mathrm{Ag}$ and state the sign of the aluminium electrode.
+
+**Given:** Al is oxidised, Ag+ is reduced
+
+**Solution:**
+
+1. Oxidation occurs at Al, so Al is the anode and goes on the LEFT
+2. Reduction occurs at $\mathrm{Ag^+}$, so the silver electrode is the cathode on the right
+3. $\mathrm{Al}(s)\,|\,\mathrm{Al^{3+}}(aq)\,||\,\mathrm{Ag^+}(aq)\,|\,\mathrm{Ag}(s)$
+4. A galvanic anode releases electrons into the external circuit, so it is the negative terminal
+
+> [!success]- Answer
+> **$\mathrm{Al}(s)\,|\,\mathrm{Al^{3+}}(aq)\,||\,\mathrm{Ag^+}(aq)\,|\,\mathrm{Ag}(s)$; the Al electrode is negative.**
+
+> [!warning] Trap
+> Putting the reduced metal on the left, or calling the galvanic anode positive because the electrolytic anode is positive. Anode means oxidation in both cell types; the SIGN of the anode differs between them.
+
+## Traps & Exam Notes
+
+- **Multiplying $E^\circ$ when balancing electrons.** $E^\circ$ is intensive and stays put; only $n$ changes in $\Delta G^\circ = -nFE^\circ$. Doubling a half-reaction and doubling its potential doubles the free energy twice over.
+- **Forgetting that pure elements have oxidation number 0 in the sum.** For $\mathrm{Zn} + \mathrm{Cu^{2+}} \to \mathrm{Zn^{2+}} + \mathrm{Cu}$ the metals are 0 on both sides; assigning them charges makes the electron count wrong and the number of electrons transferred wrong with it.
+- **Using the wrong formula sign.** $E^\circ_{cell} = E^\circ_{cathode} - E^\circ_{anode}$ with both values as tabulated. Writing $E^\circ_{anode} - E^\circ_{cathode}$, or adding an already-flipped value, gives a cell voltage with the wrong sign and therefore the wrong spontaneity verdict.
+- **Assigning oxygen $-2$ in a peroxide.** In $\mathrm{H_2O_2}$ oxygen is $-1$, which makes hydrogen $+1$ and the sum zero. Using $-2$ gives H = $+2$, an impossible oxidation state for hydrogen.
+- **Calling the galvanic anode positive.** Oxidation is at the anode in every cell; the galvanic anode is negative because it is the electron source, while the electrolytic anode is positive because the supply pulls electrons from it.
+- **Dropping the salt bridge from the picture.** The bridge carries ions, not electrons. A cell drawn without it still shows a voltage but delivers no sustained current, which is exactly what the conceptual items test.
+
+## See Also
+
+- [[10_Nernst_Equation_and_Faraday’s_Laws]]
+- [[11_Battery_Chemistries]]
+- [[08_pH,_pOH_and_Buffers]]
+
+---
+
+[[08_pH,_pOH_and_Buffers|⬅ 08]] · [[_MOC_General_Chemistry|MOC]] · [[00_Dashboard|Dashboard]] · [[10_Nernst_Equation_and_Faraday’s_Laws|10 ➡]]

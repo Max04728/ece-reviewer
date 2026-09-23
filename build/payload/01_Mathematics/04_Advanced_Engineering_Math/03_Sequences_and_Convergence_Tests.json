@@ -1,0 +1,99 @@
+{
+  "scope": "Decide whether an infinite series of constants converges, and distinguish absolute convergence from conditional convergence, using the standard battery of tests.",
+  "intuition": "A series converges when its partial sums settle down. The tests are ordered shortcuts: first check whether the terms even shrink to zero, then compare the series against one whose behaviour you already know.",
+  "concept": [
+    "**Convergence means the partial sums have a limit.** $\\sum_{n=1}^{\\infty}a_n$ converges to $L$ when $S_N = \\sum_{n=1}^{N}a_n$ satisfies $\\lim_{N\\to\\infty}S_N = L$ with $L$ finite. There is no general formula for the sum; the exam asks a yes/no question, and the tests exist to answer that question without evaluating anything.",
+    "**Test selection order matters more than test knowledge.** (1) *Divergence test first*: if $a_n \\not\\to 0$ the series diverges and you are done in one line. (2) Recognise a *geometric* series ($r^n$, converges iff $|r|<1$) or a *p-series* ($1/n^p$, converges iff $p>1$). (3) For factorials and $n$-th powers use the *ratio* or *root* test. (4) For rational functions of $n$, use *limit comparison* against the dominant power of $n$, or the *integral test*. (5) For alternating series use the *alternating series test*, then check absolute convergence separately.",
+    "**Absolute versus conditional is a separate question.** If $\\sum|a_n|$ converges the series is *absolutely* convergent, and then it converges in every rearrangement. If $\\sum a_n$ converges but $\\sum|a_n|$ diverges, the series is *conditionally* convergent. The alternating series test only ever proves the first fact; the second requires you to run a test on $\\sum|a_n|$ by hand. The classic answer is $\\sum (-1)^{n+1}/\\sqrt{n}$: convergent by the alternating test, while $\\sum 1/\\sqrt n$ diverges like a $p$-series with $p = 1/2$.",
+    "**The ratio test is powerful and easy to misuse.** $\\lim_{n\\to\\infty}|a_{n+1}/a_n| = L$ gives convergence for $L<1$ and divergence for $L>1$, but $L = 1$ is *inconclusive* — the test says nothing. Every rational function of $n$ gives $L=1$, so $\\sum 1/n$ and $\\sum 1/n^2$ both come back inconclusive from the ratio test even though one diverges and the other converges. Reaching for comparison, the integral test or the $p$-series rule in that situation is not optional."
+  ],
+  "formulas": [
+    { "q": "Convergence definition", "e": "\\sum_{n=1}^{\\infty}a_n = \\lim_{N\\to\\infty}\\sum_{n=1}^{N}a_n", "n": "The limit must exist and be finite; a divergent series has no sum." },
+    { "q": "Divergence (n-th term) test", "e": "\\lim_{n\\to\\infty}a_n \\neq 0 \\Rightarrow \\sum a_n \\mathrm{\\ diverges}", "n": "Only detects divergence. $a_n\\to 0$ proves nothing." },
+    { "q": "Geometric series", "e": "\\sum_{n=0}^{\\infty}ar^{n} = \\frac{a}{1-r},\\quad \\lvert r \\rvert<1", "n": "Diverges for $|r|\\geq 1$. Valid only when the ratio is constant." },
+    { "q": "p-series", "e": "\\sum_{n=1}^{\\infty}\\frac{1}{n^{p}} \\mathrm{\\ converges} \\iff p>1", "n": "The harmonic series $p=1$ diverges. This is the comparison benchmark." },
+    { "q": "Ratio test", "e": "L = \\lim_{n\\to\\infty}\\left\\lvert \\frac{a_{n+1}}{a_n}\\right \\rvert", "n": "Converges if $L<1$, diverges if $L>1$, inconclusive if $L=1$." },
+    { "q": "Root test", "e": "L = \\lim_{n\\to\\infty}\\sqrt[n]{\\lvert a_n \\rvert}", "n": "Same verdict thresholds as the ratio test; best when $a_n$ is an n-th power." },
+    { "q": "Direct comparison", "e": "0\\leq a_n\\leq b_n \\mathrm{\\ and\\ } \\sum b_n \\mathrm{\\ conv.} \\Rightarrow \\sum a_n \\mathrm{\\ conv.}", "n": "For divergence: if $a_n\\geq b_n\\geq 0$ and $\\sum b_n$ diverges, so does $\\sum a_n$." },
+    { "q": "Limit comparison", "e": "\\lim_{n\\to\\infty}\\frac{a_n}{b_n} = L,\\ 0<L<\\infty \\Rightarrow \\mathrm{same\\ behaviour}", "n": "Compare against the dominant power of $n$; usually the fastest test." },
+    { "q": "Alternating series test", "e": "b_n \\downarrow 0 \\Rightarrow \\sum(-1)^{n+1}b_n \\mathrm{\\ converges}", "n": "Requires $b_n>0$, eventually decreasing, with limit 0. Does not imply absolute convergence." },
+    { "q": "Integral test", "e": "\\sum_{n=1}^{\\infty}f(n) \\mathrm{\\ and\\ } \\int_1^{\\infty}f(x)\\,dx \\mathrm{\\ agree}", "n": "Needs $f$ positive, continuous and decreasing on $[1,\\infty)$." }
+  ],
+  "problems": [
+    {
+      "prompt": "Does $\\displaystyle\\sum_{n=1}^{\\infty}\\frac{n}{2n+1}$ converge?",
+      "give": ["a_n = n/(2n+1)"],
+      "steps": [
+        "Apply the divergence test first: $\\lim_{n\\to\\infty}\\frac{n}{2n+1} = \\lim_{n\\to\\infty}\\frac{1}{2 + 1/n} = \\frac{1}{2}$",
+        "The terms tend to $1/2$, not to $0$",
+        "A series whose terms do not vanish cannot converge"
+      ],
+      "ans": "Diverges by the $n$-th term test.",
+      "trap": "Running a comparison or ratio test while ignoring that $a_n \\to 1/2$. Any series with terms tending to a nonzero constant diverges, and the other tests can only obscure that.", "calc": {"mode":"COMP","steps":["`1E6 ÷ (2×1E6+1)` → **0.49999975**, and `1E9 ÷ (2×1E9+1)` → **0.4999999998**.","Both readings sit on $1/2$, so $a_n$ does not tend to 0 and the series diverges before any other test is tried."],"note":"The divergence test wants the *limit* of the terms, and this is the whole computation."}
+    },
+    {
+      "prompt": "Determine the convergence of $\\displaystyle\\sum_{n=1}^{\\infty}\\frac{1}{n^2+1}$.",
+      "give": ["a_n = 1/(n^2+1)"],
+      "steps": [
+        "For large $n$, $n^2+1 \\sim n^2$, so compare with $b_n = 1/n^2$",
+        "Limit comparison: $\\lim_{n\\to\\infty}\\frac{1/(n^2+1)}{1/n^2} = \\lim_{n\\to\\infty}\\frac{n^2}{n^2+1} = 1$, which is finite and positive",
+        "The benchmark $\\sum 1/n^2$ is a $p$-series with $p = 2 > 1$, so it converges",
+        "The two series share the same behaviour"
+      ],
+      "ans": "Converges by limit comparison with the $p=2$ series.",
+      "trap": "Using the ratio test. $|a_{n+1}/a_n| \\to 1$ for every rational function of $n$, so the ratio test returns inconclusive and the answer never gets made."
+    },
+    {
+      "prompt": "Determine the convergence of $\\displaystyle\\sum_{n=1}^{\\infty}\\frac{2^{n}}{n!}$.",
+      "give": ["a_n = 2^n/n!"],
+      "steps": [
+        "The factorial in the denominator signals the ratio test",
+        "$\\left|\\frac{a_{n+1}}{a_n}\\right| = \\frac{2^{n+1}}{(n+1)!}\\cdot\\frac{n!}{2^{n}} = \\frac{2}{n+1}$",
+        "$L = \\lim_{n\\to\\infty}\\frac{2}{n+1} = 0 < 1$",
+        "The series converges, and it converges absolutely since all terms are positive"
+      ],
+      "ans": "Converges (absolutely) by the ratio test, $L=0$.",
+      "trap": "Reading the factorial as growing in the numerator and concluding divergence. Factorials in the *denominator* beat any fixed exponential; the ratio collapses to $2/(n+1)$.", "calc": {"mode":"COMP","steps":["`Apps` `Σ` `Σ(2^X ÷ X!, 1, 20)` → **6.389056** — the partial sums have settled on the finite value $e^2-1$.","Ratio term at large $n$: `2 ÷ (1E3+1)` → **0.001998** and `2 ÷ (1E6+1)` → **2E-6**, so $L = 0 < 1$."],"note":"$\\sum 2^n/n!$ is exactly $e^2-1$; a settled partial sum and $L=0$ are the same verdict."}
+    },
+    {
+      "prompt": "Classify the convergence of $\\displaystyle\\sum_{n=1}^{\\infty}\\frac{(-1)^{n+1}}{\\sqrt{n}}$.",
+      "give": ["b_n = 1/sqrt(n)"],
+      "steps": [
+        "Alternating series test: $b_n = 1/\\sqrt n$ is positive, decreasing, and $\\lim_{n\\to\\infty}b_n = 0$",
+        "So the alternating series converges",
+        "Now test absolute convergence: $\\sum\\left|\\frac{(-1)^{n+1}}{\\sqrt n}\\right| = \\sum\\frac{1}{n^{1/2}}$",
+        "That is a $p$-series with $p = 1/2 \\leq 1$, so it diverges",
+        "Convergent but not absolutely convergent"
+      ],
+      "ans": "Conditionally convergent.",
+      "trap": "Stopping at the alternating series test and answering 'converges absolutely'. The test says nothing about $\\sum|a_n|$; absolute convergence must be tested separately, and here it fails.", "calc": {"mode":"COMP","steps":["`Apps` `Σ` `Σ((-1)^(X+1) ÷ √X, 1, 1000)` → **0.5891**, and at 1001 terms → **0.6207**: the partial sums oscillate in a fixed band instead of marching off.","`Apps` `Σ` `Σ(1 ÷ √X, 1, 1000)` → **61.80**, and `∫dx` `∫(X^-0.5, 1, 1E6)` → **1998** — the absolute series is unbounded."],"note":"Bounded oscillation of $\\sum a_n$ against unbounded growth of $\\sum\\lvert a_n\\rvert$ is exactly conditional convergence."}
+    },
+    {
+      "prompt": "Determine the convergence of $\\displaystyle\\sum_{n=1}^{\\infty}\\frac{n!}{10^{n}}$.",
+      "give": ["a_n = n!/10^n"],
+      "steps": [
+        "Ratio test: $\\left|\\frac{a_{n+1}}{a_n}\\right| = \\frac{(n+1)!}{10^{n+1}}\\cdot\\frac{10^{n}}{n!} = \\frac{n+1}{10}$",
+        "$L = \\lim_{n\\to\\infty}\\frac{n+1}{10} = \\infty > 1$",
+        "The terms grow without bound, so the series diverges"
+      ],
+      "ans": "Diverges by the ratio test ($L=\\infty$).",
+      "trap": "Comparing against the convergent $\\sum 2^n/n!$ and assuming a fixed base in the numerator behaves the same way. Here the factorial is in the numerator and grows faster than any fixed base to the $n$."
+    }
+  ],
+  "traps": [
+    "**'$a_n\\to 0$ therefore it converges.'** False. $\\sum 1/n$ has terms tending to zero and diverges. The $n$-th term test detects divergence only.",
+    "**Reporting a verdict when the ratio test gives $L=1$.** $L=1$ is inconclusive, not convergent. Every rational function of $n$ lands there, so switch to limit comparison, the $p$-series rule, or the integral test.",
+    "**Claiming absolute convergence from the alternating series test.** The AST proves only conditional convergence. Test $\\sum|a_n|$ explicitly; for $\\sum(-1)^{n+1}/\\sqrt n$ it diverges.",
+    "**Dropping the absolute value in the ratio test.** With $a_n$ alternating, $a_{n+1}/a_n$ is negative and $L<1$ looks false. Take the modulus first.",
+    "**Forgetting that the geometric formula needs a constant ratio.** $\\sum 3^{n}/n$ is not geometric; applying $a/(1-r)$ to it produces a meaningless number.",
+    "**Getting the $p$-series condition backwards.** It converges for $p>1$ and diverges for $p\\leq 1$. The harmonic case $p=1$ is the one most often mis-answered as convergent.",
+    "**Using the integral test on a non-decreasing $f$.** The test needs $f$ positive, continuous and eventually decreasing; applying it to an oscillating or increasing $f$ proves nothing."
+  ],
+  "refs": [
+    "[[04_Power_Series_Radius_of_Convergence]]",
+    "[[05_Taylor_and_Maclaurin_Series]]",
+    "[[07_Improper_Integrals]]",
+    "[[06_Truncation_Error_and_Approximation]]"
+  ],
+  "prereqs": ["[[01_Limits,_Continuity_and_L_Hopital]]"]
+}

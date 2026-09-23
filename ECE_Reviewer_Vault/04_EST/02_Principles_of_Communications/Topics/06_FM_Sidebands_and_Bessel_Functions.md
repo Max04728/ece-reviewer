@@ -1,0 +1,207 @@
+---
+id: EST-02-06
+title: "FM Sidebands and Bessel Functions"
+part: "04_EST"
+area: "02_Principles_of_Communications"
+topic: 6
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[05_FM_and_PM_Fundamentals]]"]
+tags: ["ece", "est", "principles_of_communications"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 06 — FM Sidebands and Bessel Functions
+
+> [!abstract] Scope
+> Read sideband amplitudes and powers from Bessel functions of the first kind, and use carrier nulls to measure the modulation index.
+
+## Core Concept
+
+> [!tip] Intuition
+> An FM signal does not have two sidebands, it has infinitely many, spaced by the modulating frequency. Their heights follow Bessel functions of the index, which is why the carrier can vanish entirely at certain deviation settings and why the power simply redistributes instead of changing.
+
+**An infinite family of sidebands.** Expanding a single-tone FM signal with the Bessel generating function gives the series:
+$$s(t) = A_c\sum_{n=-\infty}^{\infty} J_n(\beta)\cos\left[(\omega_c+n\omega_m)t\right]$$
+Here $J_n(\beta)$ is the Bessel function of the first kind of order $n$ and argument $\beta$. There is a sideband at every $f_c\pm nf_m$, each with amplitude $A_c|J_n(\beta)|$, forever. This is the essential contrast with AM: AM has exactly two sidebands whose amplitudes are $mA_c/2$, while FM has an unbounded set whose amplitudes must be looked up in a Bessel table (or computed) because they do not follow a simple algebraic rule.
+
+**Four Bessel properties that answer most exam questions.** (1) $J_{-n}(\beta) = (-1)^n J_n(\beta)$, so the lower sidebands have the same magnitudes as the upper ones, with a sign flip for odd orders — a phase inversion, not an amplitude difference. (2) The squares of all the orders sum to one. In symbols:
+$$\sum_{n=-\infty}^{\infty}J_n^2(\beta) = 1$$
+for every $\beta$. That identity proves the **total power is constant** at $A_c^2/2$ no matter how the signal is modulated; FM is a constant-envelope, constant-power modulation. (3) For small $\beta$, $J_0\approx1$, $J_1\approx\beta/2$ and higher orders are negligible, which recovers the narrowband FM picture of a carrier plus two sidebands like AM. (4) For large $\beta$, $J_n$ is negligible for $n > \beta$, which is the origin of the $\beta+1$ significant-sideband rule.
+
+**Carrier nulls measure the deviation.** Because $J_0(\beta)$ oscillates and passes through zero, the *carrier* disappears entirely at $\beta = 2.405, 5.520, 8.654, \dots$ (the zeros of $J_0$). This gives a laboratory method that needs no spectrum analyser calibration: with a known modulating frequency $f_m$, adjust the deviation until the carrier nulls, and the first null gives $\Delta f = 2.405 f_m$. The second null gives $\Delta f = 5.52 f_m$, the third $8.654 f_m$. Zeros of $J_1$ at $\beta = 3.832, 7.016$ similarly null the first-order sidebands, and $J_2$ nulls at $5.136, 8.417$. Do not jump to $2.405$ for a later null — each order and each zero has its own constant.
+
+**Amplitudes are magnitudes with signs.** A tabulated $J_n$ may be negative — for example $J_0(5) = -0.178$ and $J_1(5) = -0.328$. The negative sign means that sideband is transmitted 180 degrees out of phase, which matters when you add phasors (for example to find the envelope of a narrowband FM signal or to design a filter) but does not change its *power*, which depends on $J_n^2$. Consequently the power in the pair of sidebands at $f_c\pm nf_m$ is $2P_c J_n^2(\beta)$ with $P_c = A_c^2/(2R)$, and the sum over all $n$ of those powers is exactly $P_c$.
+
+**Significant sidebands and bandwidth.** In principle the bandwidth is infinite, but $|J_n(\beta)|$ falls rapidly once $n$ exceeds $\beta$. The usual engineering rule is that the number of **significant** sidebands on each side is $n_{max} \approx \beta + 1$ for $\beta \gtrsim 1$ (and $n_{max} = 1$ for narrowband FM), so the transmission bandwidth is as follows;
+$$BW = 2n_{max}f_m \approx 2(\beta+1)f_m = 2(\Delta f + f_m)$$
+This is Carson's rule, which is the subject of [[07_Carson’s_Rule_and_FM_Bandwidth]]. For $\beta = 1$ the Bessel table itself shows where the rule comes from: $J_0 = 0.765$, $J_1 = 0.440$, $J_2 = 0.115$, $J_3 = 0.020$, and the terms beyond order 3 are already below 1 percent of the carrier.
+
+**Reading a Bessel table under exam pressure.** Learn the shape rather than the digits: $J_0$ starts at 1, falls to 0 at 2.405, dips negative to about $-0.4$ near 3.8, and oscillates with decreasing amplitude. $J_1$ starts at 0, peaks near 0.58 at $\beta\approx1.8$, and decays. $J_2$ peaks near 0.49 at $\beta\approx3$. So for a low index the carrier dominates and the first-order pair is small; as the index rises the carrier shrinks and the energy moves outward into higher-order sidebands. At $\beta = 2$ roughly half the power is in the first-order pair and only 5 percent is left in the carrier; at $\beta = 2.405$ the carrier carries nothing at all and the total power is unchanged, redistributed entirely into the sidebands.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| FM sideband expansion | $s(t) = A_c\sum_{n=-\infty}^{\infty} J_n(\beta)\cos\left[(\omega_c + n\omega_m)t\right]$ | Sidebands at every fc +/- n fm. Amplitudes Ac\|Jn(beta)\|. |
+| Sideband amplitude | $A_n = A_c\,\lvert J_n(\beta) \rvert, \quad n = 0, 1, 2, \dots$ | n = 0 is the carrier itself. The sign of Jn is a 180 degree phase, not a magnitude. |
+| Symmetry of the Bessel functions | $J_{-n}(\beta) = (-1)^{n} J_n(\beta)$ | Magnitudes are symmetric about the carrier; odd-order lower sidebands are inverted. |
+| Power identity | $\sum_{n=-\infty}^{\infty} J_n^{2}(\beta) = 1 \ \Rightarrow\ P_{total} = \frac{A_c^{2}}{2R} = P_c$ | Total power is independent of beta. Modulation only redistributes it. |
+| Power in one sideband pair | $P_{\pm n} = 2P_c\, J_n^{2}(\beta), \qquad P_c = \frac{A_c^{2}}{2R}$ | Two sidebands per order n >= 1; order 0 is the single carrier at Pc J0^2. |
+| Carrier power fraction | $\frac{P_{carrier}}{P_{total}} = J_0^{2}(\beta)$ | Equals 1 at beta = 0, 0.050 at beta = 2, and 0 at the J0 zeros. |
+| Zeros of J0 (carrier nulls) | $\beta = 2.405,\ 5.520,\ 8.654,\ \dots$ | Carrier vanishes. First null gives df = 2.405 fm; second 5.52 fm; third 8.654 fm. |
+| Zeros of J1 and J2 | $J_1 = 0 \mathrm{\ at\ } 3.832,\ 7.016; \quad J_2 = 0 \mathrm{\ at\ } 5.136,\ 8.417$ | Used to null the first- or second-order sideband pairs in a deviation calibration. |
+| Narrowband limit | $\beta \ll 1: \ J_0 \approx 1,\ J_1 \approx \frac{\beta}{2}, \ J_{n\ge2} \approx 0$ | NBFM looks like AM: carrier plus one sideband pair with amplitude Ac beta/2. |
+| Number of significant sidebands | $n_{max} \approx \beta + 1 \ (\beta \gtrsim 1), \qquad n_{max} = 1 \ (\beta < 1)$ | Per side. Total occupied bandwidth = 2 n_max fm. |
+| Bandwidth from the table | $BW = 2\,n_{max}\,f_m \approx 2(\beta+1)f_m$ | Equivalent to Carson's rule; use the table when a specific beta is given. |
+| Useful table values | $\beta{=}1: J_0{=}0.765, J_1{=}0.440, J_2{=}0.115, J_3{=}0.020$ | beta = 2: 0.224, 0.577, 0.353, 0.129, 0.034. beta = 5: -0.178, -0.328, 0.047, 0.365, 0.391, 0.261, 0.131. |
+
+## Interactive Widget
+
+**FM Sideband Spectrum**
+
+![[FM_Sideband_Spectrum.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. An FM signal has a modulation index of $2$ and a carrier amplitude of $10\ \mathrm{V}$ into $50\ \Omega$. Find the carrier amplitude, the amplitude of the first-order sidebands, and the fraction of total power left in the carrier.
+
+**Given:** beta = 2; Ac = 10 V; R = 50 ohm
+
+**Solution:**
+
+1. From the Bessel table at beta = 2: J0 = 0.2239, J1 = 0.5767
+2. Carrier amplitude = Ac J0 = 10(0.2239) = 2.24 V
+3. First-order sideband amplitude = Ac J1 = 10(0.5767) = 5.77 V each
+4. Carrier power fraction = J0^2 = 0.0501, i.e. about 5 percent of the total
+5. Check: total power = Ac^2/(2R) = 100/100 = 1 W, so carrier = 0.050 W
+
+> [!success]- Answer
+> **Carrier 2.24 V (5 percent of the power); each first-order sideband 5.77 V.**
+
+> [!warning] Trap
+> Assuming the carrier stays at 10 V because 'FM is constant envelope'. The *total* envelope is constant, but the carrier component shrinks as sidebands take power; the carrier can even vanish completely.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `10×0.2239 : 10×0.5767 : 0.2239^2 : 10^2÷(2×50)`
+> 2. `=` down the chain: carrier $A_cJ_0$ = **2.24** V → each first-order sideband $A_cJ_1$ = **5.77** V → carrier fraction $J_0^2$ = **0.0501** = **5.0** % → total power **1** W, so the carrier holds **0.050** W.
+>
+> The machine has no Bessel key: key $J_0$ = **0.2239** and $J_1$ = **0.5767** from the table above and let it do the squaring.
+
+### P2. An FM signal has a modulation index of $1$. Using the Bessel table, find the fraction of total power in the carrier and in the first-order sideband pair.
+
+**Given:** beta = 1; J0 = 0.7652, J1 = 0.4401, J2 = 0.1149
+
+**Solution:**
+
+1. Carrier fraction = J0^2 = 0.5855, i.e. 58.6 percent
+2. First-order pair = 2 J1^2 = 2(0.1937) = 0.3874, i.e. 38.7 percent
+3. Second-order pair = 2 J2^2 = 2(0.0132) = 0.0264, i.e. 2.6 percent
+4. Sum = 0.5855 + 0.3874 + 0.0264 = 0.999, with the remainder in orders 3 and above
+
+> [!success]- Answer
+> **Carrier 58.6 percent, first-order pair 38.7 percent, second-order pair 2.6 percent of the total power.**
+
+> [!warning] Trap
+> Using J1 rather than J1^2 for the power, or forgetting that the pair contains two sidebands. Power goes as the square of the Bessel value, and every order n >= 1 has two sidebands.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `0.7652^2 : 2×0.4401^2 : 2×0.1149^2`
+> 2. `=` down the chain: carrier $J_0^2$ = **0.5855** = **58.6** % → first-order pair **0.3874** = **38.7** % → second-order pair **0.0264** = **2.6** %, the sum **0.999** leaving the rest to order 3 and above.
+>
+> Power is $J_n^2$ and every order $n\ge1$ is a PAIR, hence the leading `2×`. The machine cannot produce $J_n$ itself.
+
+### P3. In a deviation calibration a carrier null is observed with a $10\ \mathrm{kHz}$ modulating tone. Find the peak deviation. What deviation would produce the second carrier null with the same tone?
+
+**Given:** fm = 10 kHz; first null at J0 = 0
+
+**Solution:**
+
+1. First zero of J0 is beta = 2.405
+2. df = beta fm = 2.405 x 10 kHz = 24.05 kHz
+3. Second zero of J0 is beta = 5.520
+4. df = 5.520 x 10 kHz = 55.2 kHz
+
+> [!success]- Answer
+> **First null: df = 24.05 kHz. Second null: df = 55.2 kHz.**
+
+> [!warning] Trap
+> Applying 2.405 to the second null and answering 24.05 kHz again. Each successive null has its own Bessel zero (2.405, 5.520, 8.654), and the same 2.405 constant applies only to the first.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `2.405×10 : 5.520×10`
+> 2. `=` down the chain: first null $\Delta f$ = **24.05** kHz → second null $\Delta f$ = **55.2** kHz.
+>
+> `2.405` is the FIRST zero of $J_0$ only; the second is `5.520` and the third `8.654`, so reusing 2.405 is the trap.
+
+### P4. An FM transmitter operates with a modulation index of $5$ and a $15\ \mathrm{kHz}$ modulating tone. How many significant sidebands appear on each side, what is the occupied bandwidth, and what is the index relative to Carson's rule?
+
+**Given:** beta = 5; fm = 15 kHz
+
+**Solution:**
+
+1. n_max = beta + 1 = 6 significant sidebands on each side
+2. BW = 2 n_max fm = 2(6)(15) = 180 kHz
+3. Carson check: df = beta fm = 75 kHz, BW = 2(df + fm) = 2(90) = 180 kHz
+4. The spectrum has the carrier plus 12 significant sidebands, all within 180 kHz
+
+> [!success]- Answer
+> **6 sidebands per side; BW = 180 kHz by both the table rule and Carson's rule.**
+
+> [!warning] Trap
+> Counting 6 sidebands in total rather than 6 per side, and halving the bandwidth to 90 kHz. The occupied band is 2 n_max fm, and the carrier sits in the middle.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `5+1 : 2×Ans×15 : 2×(5×15+15)`
+> 2. `=` down the chain: $n_{max}$ = **6** per side → $BW$ = **180** kHz by the sideband rule → **180** kHz by Carson, with `5×15` = **75** kHz of deviation.
+>
+> Count $n_{max}$ PER SIDE (`5+1` = **6**), so the band is `2×6×15` = **180** kHz; six sidebands in total would halve it.
+
+### P5. An FM signal is radiated with a carrier amplitude of $20\ \mathrm{V}$. Compare the total power when $\beta = 0$ (unmodulated), $\beta = 1$ and $\beta = 2.405$, and explain.
+
+**Given:** Ac = 20 V; beta = 0, 1, 2.405
+
+**Solution:**
+
+1. Total power = Ac^2/(2R), independent of beta: with R = 50 ohm, 400/100 = 4 W in every case
+2. At beta = 0 all 4 W is in the carrier (J0 = 1)
+3. At beta = 1 the carrier holds J0^2 = 58.6 percent, i.e. 2.34 W, with the rest in sidebands
+4. At beta = 2.405 the carrier holds J0^2 = 0 W and all 4 W is in the sidebands
+5. The identity sum Jn^2 = 1 guarantees the total never changes
+
+> [!success]- Answer
+> **4 W at every index; only the distribution changes (carrier 4 W, then 2.34 W, then 0 W).**
+
+> [!warning] Trap
+> Assuming the power grows with the modulation index, as it does in AM where sideband power is added to a fixed carrier. FM redistributes a constant total, so at a carrier null the carrier contributes nothing yet the total is unchanged.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `20^2÷(2×50) : Ans×0.7652^2`
+> 2. `=` down the chain: total power **4** W at every index → carrier at $\beta=1$ = **2.34** W (**58.6** %). At $\beta=2.405$, $J_0$ = **0**, so the carrier term is **0** W and the same 4 W sits entirely in the sidebands.
+>
+> Enter the tabulated $J_0(1)$ = **0.7652** and square it — with no Bessel key on the machine, `0.7652` must come from the table.
+
+## Traps & Exam Notes
+
+- **Expecting two sidebands as in AM.** FM has sidebands at every $f_c\pm nf_m$ with amplitudes $A_c|J_n(\beta)|$. A spectrum photograph of a wideband FM signal shows many lines, and any problem that asks for 'the sideband amplitude' must specify which order.
+- **Squaring nothing: using $J_n$ instead of $J_n^2$.** Power is proportional to the square of the sideband amplitude, so the carrier power fraction is $J_0^2$, not $J_0$; at $\beta=1$ that is 58.6 percent rather than 76.5 percent.
+- **Forgetting the factor 2 for a sideband pair.** Each order $n\ge1$ has two sidebands, at $f_c-nf_m$ and $f_c+nf_m$, so the pair's power is $2P_cJ_n^2$. Reporting one sideband's power as the pair's halves every higher-order contribution.
+- **Using 2.405 for every carrier null.** $J_0$ vanishes at 2.405, 5.520, 8.654, ...; and $J_1$ vanishes at different values (3.832, 7.016) entirely. A calibration that assumes one constant for all nulls is off by more than a factor of two.
+- **Believing the carrier amplitude stays at $A_c$.** The total envelope is constant, but the carrier *component* is $A_cJ_0(\beta)$ and can be zero. This is why a spectrum analyser can show an FM signal with no line at the carrier frequency at all.
+- **Treating a negative Bessel value as absence of a sideband.** $J_1(5) = -0.328$ means the lower first-order sideband is inverted in phase; its amplitude is still 0.328$A_c$ and its power is unchanged. Ignoring the sign matters only when phasors are added.
+- **Using the small-$\beta$ approximation outside its range.** $J_1\approx\beta/2$ is only valid for $\beta\ll1$; at $\beta=2$ it predicts 1.0 instead of the true 0.577, an error of nearly 5 dB.
+- **Confusing these Bessel functions with other 'Bessel' objects.** $J_n(\beta)$ here is the Bessel function of the first kind of integer order; it is unrelated to Bessel filters, to the Bessel differential equation's second solution $Y_n$, or to the Bessel beam.
+
+## See Also
+
+- [[05_FM_and_PM_Fundamentals]]
+- [[07_Carson’s_Rule_and_FM_Bandwidth]]
+- [[08_NBFM_vs_WBFM]]
+- [[09_FM_Noise_and_Threshold_Effect]]
+
+---
+
+[[05_FM_and_PM_Fundamentals|⬅ 05]] · [[_MOC_Principles_of_Communications|MOC]] · [[00_Dashboard|Dashboard]] · [[07_Carson’s_Rule_and_FM_Bandwidth|07 ➡]]

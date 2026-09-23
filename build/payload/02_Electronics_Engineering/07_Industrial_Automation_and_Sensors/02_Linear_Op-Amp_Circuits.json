@@ -1,0 +1,103 @@
+{
+  "scope": "Compute the gain, input and output impedance of the standard closed-loop op-amp connections — inverting, non-inverting, follower and summing — and use them as building blocks.",
+  "intuition": "One op-amp plus two resistors is a gain block whose value is set entirely by the resistor ratio, because the feedback forces the summing node to a fixed voltage and the input current has only one path to take. Change where the signal enters and whether the node is a virtual ground or a virtual copy of the input, and you get the whole family of linear circuits.",
+  "concept": [
+    "**Two resistors and two rules.** Every linear op-amp circuit in this note is a resistor network around an ideal op-amp, and every gain formula falls out of $V_+ = V_-$ plus $I_+ = I_- = 0$. In the inverting amplifier the non-inverting input is grounded, so the inverting node is a **virtual ground** at 0 V; the input current $V_i/R_1$ has nowhere to go but through $R_f$, giving $V_o = -(R_f/R_1)V_i$. In the non-inverting amplifier the same current flows through $R_1$ and then $R_f$, and the input appears across $R_1$, giving $V_o = (1+R_f/R_1)V_i$. Note the asymmetry: one gain is a ratio, the other is a ratio plus one, so the non-inverting stage can never attenuate.",
+    "**Virtual ground is a consequence, not an assumption.** The inverting node sits at 0 V only because the enormous open-loop gain, wrapped in negative feedback, forces the differential input to zero. Break the loop, reverse it to positive feedback, or drive the stage into slew limiting or clipping, and the node is no longer a virtual ground — the derivation collapses. That is why the small-signal answer is wrong during saturation: the summing-node voltage moves, the input current is no longer $V_i/R_1$, and the output is limited by the rails rather than by the resistor ratio.",
+    "**Input and output impedance consequences.** The inverting amplifier's input resistance is exactly $R_1$ — it is not the op-amp's input resistance at all — so a 10 kΩ $R_1$ presents a 10 kΩ load to the source, and any source resistance $R_s$ adds directly to $R_1$: the realized gain is $-R_f/(R_1+R_s)$. The non-inverting input resistance is the op-amp's own differential input resistance, bootstrapped by the feedback to hundreds of megohms, which is why the non-inverting stage and the voltage follower are used as buffers. At the output, feedback divides the open-loop output resistance by the loop gain, so tens of ohms becomes milliohms closed-loop; from then on the output current limit, not $R_{out}$, is what the designer must respect.",
+    "**Summing and averaging.** Because the inverting node is a virtual ground, each input resistor of an inverting summer is effectively connected between its own source and ground. The inputs do not see one another, each source is loaded only by its own resistor, and superposition gives $V_o = -R_f(V_1/R_1 + V_2/R_2 + V_3/R_3)$ directly. Making all the input resistors equal and $R_f = R/3$ turns the same circuit into an averager. A non-inverting summer built by tying several resistors to $V_+$ does not have this property: the sources interact through the common node, their source impedances change the weights, and the average common-mode voltage is amplified along with the difference.",
+    "**What the ideal formulas hide.** Every formula above assumes infinite $A_{ol}$, no source resistance, no output current limit and no saturation. In practice the noise gain $1+R_f/R_1$ sets the $-3\\ \\mathrm{dB}$ bandwidth through $f_{-3dB} = GBW/NG$ and multiplies the input offset voltage; the closed-loop output resistance is small only until the output current limit is reached; and a 741 clips about 1.5 V inside each rail. A stage designed for a gain of 100 to deliver 12 V from a 120 mV input on $\\pm15\\ \\mathrm{V}$ rails is really a clipping circuit, and the correct exam answer is the clipped waveform."
+  ],
+  "formulas": [
+    { "q": "Inverting amplifier gain", "e": "V_o = -\\frac{R_f}{R_1}V_i", "n": "Virtual ground at the inverting node; all of the input current V_i/R1 flows through Rf. Sign inverts." },
+    { "q": "Inverting amplifier input resistance", "e": "R_{in} = R_1", "n": "Not the op-amp input resistance. A 10 kohm R1 loads the source with 10 kohm and needs a buffer if the source is high impedance." },
+    { "q": "Non-inverting amplifier gain", "e": "V_o = \\left(1 + \\frac{R_f}{R_1}\\right)V_i", "n": "Minimum gain is 1; V_i appears across R1 and the same current continues through Rf. Never attenuates." },
+    { "q": "Voltage follower", "e": "V_o = V_i", "n": "Gain exactly 1, input resistance in the megohm-gigohm range, output resistance in the milliohm range; the standard impedance buffer." },
+    { "q": "Closed-loop output resistance", "e": "R_{out} = \\frac{R_{o,ol}}{1 + A_{ol}\\beta}", "n": "Falls to milliohms. Under load it is the output current limit, not this value, that matters." },
+    { "q": "Inverting summing amplifier", "e": "V_o = -R_f\\left(\\frac{V_1}{R_1} + \\frac{V_2}{R_2} + \\frac{V_3}{R_3}\\right)", "n": "Valid because the summing node is a virtual ground, so each input is independent of the others." },
+    { "q": "Three-input averager", "e": "V_o = -\\frac{V_1 + V_2 + V_3}{3}", "n": "Equal input resistors R and Rf = R/3. Each source is still loaded by R, so keep R large enough for the source." },
+    { "q": "Noise gain and bandwidth", "e": "NG = 1 + \\frac{R_f}{R_1},\\quad f_{-3\\,\\mathrm{dB}} = \\frac{GBW}{NG}", "n": "Identical NG for inverting and non-inverting stages, so an inverting x100 amp has the bandwidth of a x101 stage." },
+    { "q": "Source-resistance loading error", "e": "A_v = -\\frac{R_f}{R_1 + R_s}", "n": "A real source resistance adds to R1: 2.2 kohm in front of a 10 kohm R1 costs about 18% of the gain." },
+    { "q": "Output saturation limit", "e": "\\lvert V_o\\rvert \\leq V_{CC} - 1.5\\ \\mathrm{V}", "n": "For a 741-style op-amp. Any computed output beyond this is a clipping answer, not a gain answer." }
+  ],
+  "problems": [
+    {
+      "prompt": "An inverting amplifier uses $R_1 = 10\\ \\mathrm{k\\Omega}$ and $R_f = 100\\ \\mathrm{k\\Omega}$. The source has a $2.2\\ \\mathrm{k\\Omega}$ output resistance and produces $25\\ \\mathrm{mV}$. Find the ideal output, the output including source loading, and the input resistance the source sees.",
+      "give": ["R1 = 10 kohm", "Rf = 100 kohm", "Rs = 2.2 kohm", "V_i = 25 mV"],
+      "steps": [
+        "Ideal gain = -Rf/R1 = -100/10 = -10, so V_o = -250 mV",
+        "Source resistance adds to R1: effective gain = -Rf/(R1+Rs) = -100/12.2 = -8.197",
+        "V_o = -8.197 x 25 mV = -204.9 mV",
+        "The source sees R1 = 10 kohm to a virtual ground"
+      ],
+      "ans": "$-250\\ \\mathrm{mV}$ ideally, $-204.9\\ \\mathrm{mV}$ with the source loading — a $18.0\\%$ gain loss.",
+      "trap": "Ignoring $R_s$ because the op-amp's input looks like a virtual ground. The virtual ground is at the *node*, and $R_s$ sits in series with $R_1$ outside the feedback loop, so it directly changes the gain."
+    },
+    {
+      "prompt": "A non-inverting amplifier uses $R_1 = 10\\ \\mathrm{k\\Omega}$, $R_f = 47\\ \\mathrm{k\\Omega}$ and $V_i = 0.2\\ \\mathrm{V}$. Find the gain, the output voltage, and the feedback fraction $\\beta$.",
+      "give": ["R1 = 10 kohm", "Rf = 47 kohm", "V_i = 0.2 V"],
+      "steps": [
+        "Gain = 1 + Rf/R1 = 1 + 47/10 = 5.7",
+        "V_o = 5.7 x 0.2 V = 1.14 V",
+        "beta = R1/(R1+Rf) = 10/57 = 0.1754",
+        "Load current through the feedback network = 1.14 V/57 kohm = 20 uA"
+      ],
+      "ans": "$A_v = 5.7$, $V_o = 1.14\\ \\mathrm{V}$, $\\beta = 0.1754$.",
+      "trap": "Computing $1 + R_1/R_f = 1.213$ by putting the wrong resistor on top. The larger resistor is $R_f$; the formula is $1 + R_f/R_1$."
+    },
+    {
+      "prompt": "A three-input inverting summer has $R_f = 20\\ \\mathrm{k\\Omega}$ with input resistors $R_1 = 20\\ \\mathrm{k\\Omega}$, $R_2 = 40\\ \\mathrm{k\\Omega}$ and $R_3 = 10\\ \\mathrm{k\\Omega}$, driven by $V_1 = V_2 = V_3 = 1\\ \\mathrm{V}$. Find $V_o$.",
+      "give": ["Rf = 20 kohm", "R1 = 20 kohm, V1 = 1 V", "R2 = 40 kohm, V2 = 1 V", "R3 = 10 kohm, V3 = 1 V"],
+      "steps": [
+        "Each input contributes -Rf/Rx times its voltage, because the summing node is a virtual ground",
+        "V1 term: -(20/20) x 1 V = -1.0 V",
+        "V2 term: -(20/40) x 1 V = -0.5 V",
+        "V3 term: -(20/10) x 1 V = -2.0 V",
+        "Sum: V_o = -(1.0 + 0.5 + 2.0) = -3.5 V"
+      ],
+      "ans": "$V_o = -3.5\\ \\mathrm{V}$.",
+      "trap": "Building the same function with a non-inverting summer, where three resistors feed $V_+$. The inputs then load one another through the common node and their source impedances reweight the sum, so the superposition in this problem no longer holds."
+    },
+    {
+      "prompt": "A $1\\ \\mathrm{V}$ source with a $10\\ \\mathrm{k\\Omega}$ output resistance must drive a $1\\ \\mathrm{k\\Omega}$ load. Compare the load voltage with and without a voltage-follower buffer, and state the minimum load the follower output stage must tolerate if its current limit is $25\\ \\mathrm{mA}$.",
+      "give": ["V_s = 1 V", "Rs = 10 kohm", "R_L = 1 kohm", "I_limit = 25 mA"],
+      "steps": [
+        "Direct connection is a divider: V_L = 1 V x 1k/(10k + 1k) = 90.9 mV",
+        "With a follower the input draws essentially no current, so V_L = 1 V",
+        "Load current = 1 V/1 kohm = 1.0 mA, well inside the 25 mA limit",
+        "Smallest safe load = 1 V/25 mA = 40 ohm"
+      ],
+      "ans": "Without the buffer $90.9\\ \\mathrm{mV}$; with the follower $1.0\\ \\mathrm{V}$ (load current $1.0\\ \\mathrm{mA}$, minimum load about $40\\ \\mathrm{\\Omega}$).",
+      "trap": "Assuming a follower can drive any load. The output resistance is milliohms, but the output *current limit* still applies, and short-circuit protection resistors add tens of ohms that appear in series with the load."
+    },
+    {
+      "prompt": "A non-inverting amplifier with $R_1 = 10\\ \\mathrm{k\\Omega}$ and $R_f = 100\\ \\mathrm{k\\Omega}$ is powered from $\\pm 6\\ \\mathrm{V}$ rails and driven by $V_i = 0.6\\ \\mathrm{V}$. The op-amp saturates $1.5\\ \\mathrm{V}$ inside each rail. Find the ideal output and the actual output.",
+      "give": ["R1 = 10 kohm", "Rf = 100 kohm", "V_i = 0.6 V", "supplies = +/-6 V", "dropout = 1.5 V"],
+      "steps": [
+        "Gain = 1 + 100/10 = 11",
+        "Ideal output = 11 x 0.6 V = 6.6 V",
+        "Positive saturation limit = 6 - 1.5 = 4.5 V, negative limit = -4.5 V",
+        "6.6 V is impossible, so the output clips at about +4.5 V and the waveform is flat-topped"
+      ],
+      "ans": "The ideal formula gives $6.6\\ \\mathrm{V}$, but the output clips at approximately $+4.5\\ \\mathrm{V}$.",
+      "trap": "Reporting 6.6 V. The gain formula describes the linear region only; once $|V_o|$ would exceed the rail, the op-amp saturates and the answer is a clipped waveform."
+    }
+  ],
+  "traps": [
+    "**Assuming the summing node is always a virtual ground.** It is a *consequence* of negative feedback with huge $A_{ol}$. In an open-loop comparator, a positive-feedback circuit, or during slew limiting, the node moves and $V_+ = V_-$ no longer holds.",
+    "**Forgetting that the inverting amplifier's input resistance is $R_1$.** A $10\\ \\mathrm{k\\Omega}$ $R_1$ loads the source with $10\\ \\mathrm{k\\Omega}$ — and any source resistance adds to $R_1$ and lowers the gain.",
+    "**Charging the inverting configuration the signal gain in the bandwidth formula.** The noise gain is $1+R_f/R_1$, so an inverting $\\times 1$ stage has NG = 2 and only half the GBW-limited bandwidth.",
+    "**Using a non-inverting summer and expecting independent inputs.** Tying several resistors to $V_+$ couples the sources, makes the weights depend on source impedance, and amplifies the average common-mode level as well as the sum.",
+    "**Ignoring the output current limit.** $10\\ \\mathrm{V}$ into $100\\ \\mathrm{\\Omega}$ demands $100\\ \\mathrm{mA}$; no general-purpose op-amp supplies that, so a booster stage or a power op-amp is required.",
+    "**Trusting the ratio formula beyond the rails.** A $\\times 100$ stage on a $120\\ \\mathrm{mV}$ input on $\\pm15\\ \\mathrm{V}$ rails computes 12 V and delivers a clipped, distorted output; the formula is only valid while the output is inside the rails."
+  ],
+  "refs": [
+    "[[01_Op-Amp_Fundamentals_and_Real_Parameters]]",
+    "[[03_Instrumentation_and_Difference_Amplifiers]]",
+    "[[13_Gain-Bandwidth_Product_and_fT]]"
+  ],
+  "prereqs": [
+    "[[01_Op-Amp_Fundamentals_and_Real_Parameters]]",
+    "[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]"
+  ]
+}

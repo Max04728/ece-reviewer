@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schmitt Trigger — Hysteresis Loop, Thresholds and the Reference Trap</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The hysteresis loop is drawn from a simulated sweep, not from a formula, so the
+// two branches really are the two states. The point of the widget is the pair of
+// dashed vertical lines: V_TL and V_TH are NOT symmetric about Vref, and the same
+// divider that sets the width also sets the centre.
+
+const W = widget({
+  title: 'Schmitt Trigger — Hysteresis, Thresholds and the Reference Trap',
+  description:
+    'A comparator with positive feedback switches at two different input levels. Sweep a triangle through the loop and watch the output snap cleanly between the rails, then compare the window centre against the reference voltage.',
+  height: 600,
+  controls: [
+    { id: 'mode', label: 'configuration', type: 'select', options: [
+      { value: 'inverting', label: 'inverting Schmitt (input to the - pin)' },
+      { value: 'noninv', label: 'non-inverting Schmitt (input to the + pin)' }], value: 'inverting' },
+    { id: 'Vref', label: 'reference voltage Vref (V)', min: -5, max: 5, step: 0.1, value: 1 },
+    { id: 'RA', label: 'RA = output-to-plus resistor (k)', min: 1, max: 100, step: 1, value: 1 },
+    { id: 'RB', label: 'RB = reference/ground resistor (k)', min: 1, max: 100, step: 1, value: 10 },
+    { id: 'Vsat', label: 'output saturation Vsat (V)', min: 2, max: 15, step: 0.5, value: 12 },
+    { id: 'Ain', label: 'input triangle amplitude (V peak)', min: 0.5, max: 10, step: 0.1, value: 3 },
+    { id: 'phase', label: 'sweep position along the loop', min: 0, max: 1, step: 0.001, value: 0.12 },
+    { id: 'animate', label: 'animate the sweep', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const RA = v.RA * 1e3, RB = v.RB * 1e3;
+    const Vref = v.Vref, Vsat = v.Vsat, A = v.Ain;
+    const k = RB / (RA + RB);
+    const inv = v.mode === 'inverting';
+
+    // The + input node voltage with the output parked on each rail. The output
+    // flips when the input reaches that node voltage, so those two values ARE the
+    // two thresholds.
+    let VTH, VTL;
+    if (inv) {
+      VTH = (Vsat * RA + Vref * RB) / (RA + RB);
+      VTL = (-Vsat * RA + Vref * RB) / (RA + RB);
+    } else {
+      VTH = (Vref * (RA + RB) + Vsat * RA) / RB;
+      VTL = (Vref * (RA + RB) - Vsat * RA) / RB;
+    }
+    const width = VTH - VTL;
+    const centre = (VTH + VTL) / 2;
+
+    // ------------------------------------------------------ simulate the sweep
+    const N = 2400;
+    const PER = 3;                       // periods simulated, the first is warm-up
+    const dt = PER / N;
+    const tri = (t) => {
+      const q = ((t % 1) + 1) % 1;
+      return q < 0.5 ? -A + 4 * A * q : A - 4 * A * (q - 0.5);
+    };
+    const xs = new Float64Array(N + 1), vin = new Float64Array(N + 1), vo = new Float64Array(N + 1);
+    let st = -1, switches = 0;
+    for (let i = 0; i <= N; i++) {
+      const t = i * dt;
+      const x = tri(t);
+      const before = st;
+      if (inv) {
+        // inverting: the output is HIGH for a low input, so the HIGH state is
+        // left when the input RISES past V_TH and re-entered on the way down.
+        if (st > 0 && x > VTH) st = -1;
+        else if (st < 0 && x < VTL) st = 1;
+      } else {
+        // non-inverting: the output is HIGH for a high input, so the state only
+        // changes when the input crosses the OPPOSITE threshold.
+        if (st > 0 && x < VTL) st = -1;
+        else if (st < 0 && x > VTH) st = 1;
+      }
+      if (t > 1 && st !== before) switches++;
+      xs[i] = t; vin[i] = x; vo[i] = st * Vsat;
+    }
+
+    // plot the last two periods
+    const i0 = Math.round(N * (1 - 2 / PER));
+    const sel = [];
+    for (let i = i0; i <= N; i++) sel.push(i);
+    const idx = sel[Math.min(sel.length - 1, Math.max(0, Math.round(v.phase * (sel.length - 1))))];
+
+    // a full cycle needs the input to cross BOTH thresholds
+    const crosses = A > VTH && -A < VTL;
+    const offset = centre - Vref;
+
+    return { inv, RA, RB, k, Vref, Vsat, A, VTH, VTL, width, centre, offset,
+             xs, vin, vo, i0, N, sel, idx, crosses, switches,
+             stateNow: vo[idx], vinNow: vin[idx] };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    const txt = (s, x, y, col, al, fnt) => plot.text(s, x, y,
+      { color: col || PALETTE.dim, font: fnt || '11px ui-monospace, monospace', align: al || 'left' });
+
+    // --------------------------------------------------------- formula block
+    const f1 = out.inv
+      ? 'V_TH = (Vsat RA + Vref RB)/(RA+RB) = (' + fmt(out.Vsat, 3) + 'x' + fmt(out.RA / 1e3, 3) + ' + ' +
+        fmt(out.Vref, 3) + 'x' + fmt(out.RB / 1e3, 3) + ')/' + fmt((out.RA + out.RB) / 1e3, 4) +
+        ' = ' + fmt(out.VTH, 5) + ' V'
+      : 'V_TH = (Vref(RA+RB) + Vsat RA)/RB = (' + fmt(out.Vref, 3) + 'x' + fmt((out.RA + out.RB) / 1e3, 4) +
+        ' + ' + fmt(out.Vsat, 3) + 'x' + fmt(out.RA / 1e3, 3) + ')/' + fmt(out.RB / 1e3, 3) +
+        ' = ' + fmt(out.VTH, 5) + ' V';
+    const f2 = out.inv
+      ? 'V_TL = (-Vsat RA + Vref RB)/(RA+RB) = ' + fmt(out.VTL, 5) + ' V   |   width = 2 Vsat RA/(RA+RB) = ' + fmt(out.width, 5) + ' V'
+      : 'V_TL = (Vref(RA+RB) - Vsat RA)/RB = ' + fmt(out.VTL, 5) + ' V   |   width = 2 Vsat RA/RB = ' + fmt(out.width, 5) + ' V';
+    const f3 = 'divider ratio k = RB/(RA+RB) = ' + fmt(out.k, 5) + '   |   centre = ' +
+      (out.inv ? 'k Vref' : 'Vref/k') + ' = ' + fmt(out.centre, 5) + ' V vs Vref = ' + fmt(out.Vref, 5) +
+      ' V   |   offset = ' + fmt(out.offset, 5) + ' V';
+    txt(f1, 14, 20, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    txt(f2, 14, 38, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    txt(f3, 14, 56, Math.abs(out.offset) < 1e-12 ? PALETTE.accent3 : PALETTE.warn, 'left', '12px ui-monospace, monospace');
+
+    // ------------------------------------------------------------- loop panel
+    const L = { x0: 66, y0: 84, x1: 500, y1: 468 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0);
+    ctx.restore();
+
+    const lo = Math.min(-out.A, out.VTL), hi = Math.max(out.A, out.VTH);
+    const padX = (hi - lo) * 0.10 + 1e-6;
+    const xMin = lo - padX, xMax = hi + padX;
+    const yMax = out.Vsat * 1.45;
+    const X = (x) => L.x0 + ((x - xMin) / (xMax - xMin)) * (L.x1 - L.x0);
+    const Y = (y) => (L.y0 + L.y1) / 2 - (y / yMax) * ((L.y1 - L.y0) / 2);
+    const vline = (x, y1, y2, col, dash, wdt) => {
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = wdt || 1.4; ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(X(x), Y(y1)); ctx.lineTo(X(x), Y(y2)); ctx.stroke();
+      ctx.restore();
+    };
+    const hline = (y, x1, x2, col, dash, wdt) => {
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = wdt || 1.4; ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(X(x1), Y(y)); ctx.lineTo(X(x2), Y(y)); ctx.stroke();
+      ctx.restore();
+    };
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let g = -out.Vsat; g <= out.Vsat + 1e-9; g += out.Vsat) {
+      ctx.beginPath(); ctx.moveTo(L.x0, Y(g)); ctx.lineTo(L.x1, Y(g)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.3;
+    if (xMin <= 0 && xMax >= 0) { ctx.beginPath(); ctx.moveTo(X(0), L.y0); ctx.lineTo(X(0), L.y1); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(L.x0, Y(0)); ctx.lineTo(L.x1, Y(0)); ctx.stroke();
+    ctx.restore();
+
+    txt('+Vsat = ' + fmt(out.Vsat, 3) + ' V', L.x0 + 6, Y(out.Vsat) - 7, PALETTE.accent4);
+    txt('-Vsat = ' + fmt(-out.Vsat, 3) + ' V', L.x0 + 6, Y(-out.Vsat) + 16, PALETTE.accent5);
+    txt('input voltage Vin ->', L.x1 - 6, Y(0) + 16, PALETTE.dim, 'right');
+    txt('hysteresis loop: Vo versus Vin', L.x0 + 6, L.y0 + 16, PALETTE.text, 'left', 'bold 11px ui-monospace, monospace');
+
+    // reference line versus window centre -- the two lines that are NOT the same
+    vline(out.Vref, -yMax, yMax, PALETTE.accent3, [6, 4], 1.3);
+    vline(out.centre, -yMax, yMax, PALETTE.warn, [2, 3], 1.3);
+    txt('Vref', X(out.Vref), L.y1 - 10, PALETTE.accent3, 'center');
+    txt('centre ' + fmt(out.centre, 4), X(out.centre), L.y1 - 26, PALETTE.warn, 'center');
+
+    // threshold edges: the four vertices of the loop
+    for (const [lab, val, col] of [['V_TH', out.VTH, PALETTE.accent2], ['V_TL', out.VTL, PALETTE.accent]]) {
+      vline(val, -out.Vsat, out.Vsat, col, [4, 3], 1.6);
+      for (const sgn of [1, -1]) {
+        ctx.save();
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(X(val), Y(sgn * out.Vsat), 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+      txt(lab + ' = ' + fmt(val, 5), X(val), L.y0 + 30, col, 'center');
+    }
+
+    // the simulated trajectory: the pen that traces the loop
+    ctx.save();
+    ctx.strokeStyle = 'rgba(137,180,250,0.5)';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    for (let k2 = 0; k2 < out.sel.length; k2++) {
+      const i = out.sel[k2];
+      const px = X(out.vin[i]), py = Y(out.vo[i]);
+      k2 === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // the moving operating point
+    ctx.save();
+    ctx.fillStyle = PALETTE.warn;
+    ctx.beginPath(); ctx.arc(X(out.vinNow), Y(out.stateNow), 6, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = PALETTE.bg; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+    hline(out.stateNow, xMin, xMax, 'rgba(249,226,175,0.35)', [3, 4], 1);
+    txt('Vin = ' + fmt(out.vinNow, 4) + ' V -> Vo = ' + fmt(out.stateNow, 4) + ' V',
+      L.x0 + 6, L.y1 - 44, PALETTE.warn);
+
+    // ------------------------------------------------------- time-domain panel
+    const R = { x0: 522, y0: 84, x1: W - 12, y1: 468 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(R.x0, R.y0, R.x1 - R.x0, R.y1 - R.y0);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(R.x0, R.y0, R.x1 - R.x0, R.y1 - R.y0);
+    ctx.restore();
+    txt('triangle in, square out', R.x0 + 6, R.y0 + 16, PALETTE.text, 'left', 'bold 11px ui-monospace, monospace');
+
+    const tA = out.xs[out.i0], tB = out.xs[out.N];
+    const TX = (t) => R.x0 + 12 + ((t - tA) / (tB - tA)) * (R.x1 - R.x0 - 24);
+    const inLane = { y0: R.y0 + 34, y1: R.y0 + 156 };
+    const outLane = { y0: R.y0 + 194, y1: R.y0 + 330 };
+    const yIn = (y) => (inLane.y0 + inLane.y1) / 2 - (y / (out.A * 1.3 + 1e-9)) * ((inLane.y1 - inLane.y0) / 2);
+    const yOut = (y) => (outLane.y0 + outLane.y1) / 2 - (y / (out.Vsat * 1.4)) * ((outLane.y1 - outLane.y0) / 2);
+    const hlinePx = (y, col, dash) => {
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(R.x0 + 12, y); ctx.lineTo(R.x1 - 12, y); ctx.stroke();
+      ctx.restore();
+    };
+
+    hlinePx(yIn(0), PALETTE.axis);
+    for (const [val, col] of [[out.VTH, PALETTE.accent2], [out.VTL, PALETTE.accent]]) {
+      if (Math.abs(val) <= out.A * 1.3) hlinePx(yIn(val), col, [4, 3]);
+    }
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let k2 = 0; k2 < out.sel.length; k2++) {
+      const i = out.sel[k2];
+      const px = TX(out.xs[i]), py = yIn(out.vin[i]);
+      k2 === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    txt('Vin (triangle)', R.x0 + 14, inLane.y0 + 14, PALETTE.accent3);
+    txt('V_TH', R.x0 + 16, yIn(out.VTH) - 4, PALETTE.accent2);
+    txt('V_TL', R.x0 + 16, yIn(out.VTL) + 12, PALETTE.accent);
+
+    hlinePx(yOut(0), PALETTE.axis);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    let started = false, pyPrev = 0;
+    for (let k2 = 0; k2 < out.sel.length; k2++) {
+      const i = out.sel[k2];
+      const px = TX(out.xs[i]), py = yOut(out.vo[i]);
+      if (!started) { ctx.moveTo(px, py); started = true; } else { ctx.lineTo(px, pyPrev); ctx.lineTo(px, py); }
+      pyPrev = py;
+    }
+    ctx.stroke();
+    ctx.restore();
+    txt('Vo (square)', R.x0 + 14, outLane.y0 + 14, PALETTE.accent2);
+    txt('+Vsat', R.x0 + 14, yOut(out.Vsat) + 4, PALETTE.dim);
+    txt('-Vsat', R.x0 + 14, yOut(-out.Vsat) + 4, PALETTE.dim);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 1.4; ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(TX(out.xs[out.idx]), R.y0 + 26);
+    ctx.lineTo(TX(out.xs[out.idx]), R.y1 - 22);
+    ctx.stroke();
+    ctx.restore();
+    txt('cursor = the dot on the loop', (R.x0 + R.x1) / 2, R.y1 - 8, PALETTE.dim, 'center');
+
+    // --------------------------------------------------------- verdict strip
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(12, H - 104, W - 24, 94);
+    ctx.restore();
+    const verdict = out.crosses
+      ? (out.inv
+        ? 'INVERTING: output HIGH while Vin < V_TL, LOW while Vin > V_TH. A rising input switches at V_TH; a falling input switches at V_TL.'
+        : 'NON-INVERTING: the output follows the input, so the rising edge trips at V_TH and the falling edge trips at V_TL. The HIGH branch of the loop runs from V_TL rightwards.')
+      : 'The input swing never crosses both thresholds, so the output never switches. Widen the triangle or narrow the window.';
+    txt(verdict, 24, H - 82, out.crosses ? PALETTE.accent3 : PALETTE.accent2, 'left', 'bold 11px ui-monospace, monospace');
+    txt('Window centre = ' + fmt(out.centre, 5) + ' V while Vref = ' + fmt(out.Vref, 5) +
+      ' V: the reference sits ' + fmt(Math.abs(out.offset), 4) + ' V ' + (out.offset >= 0 ? 'below' : 'above') +
+      ' the midpoint. Setting Vref does not set the middle of the window.', 24, H - 60, PALETTE.warn);
+    txt('Transitions counted over the two plotted cycles: ' + String(out.switches) +
+      ' (4 = a clean square, one high and one low pulse per input cycle).', 24, H - 38, PALETTE.dim);
+  },
+
+  readout: (out) => ({
+    'upper threshold V_TH': fmt(out.VTH, 5) + ' V',
+    'lower threshold V_TL': fmt(out.VTL, 5) + ' V',
+    'hysteresis width': fmt(out.width, 5) + ' V',
+    'window centre': fmt(out.centre, 5) + ' V',
+    'reference Vref': fmt(out.Vref, 5) + ' V',
+    'centre minus Vref': fmt(out.offset, 5) + ' V' + (Math.abs(out.offset) < 1e-12 ? '  (symmetric: Vref = 0)' : '  NOT zero'),
+    'divider ratio k': fmt(out.k, 5),
+    'noise margin': 'a disturbance under ' + fmt(out.width / 2, 4) + ' V cannot flip the output',
+    'operating point': 'Vin = ' + fmt(out.vinNow, 4) + ' V -> Vo = ' + fmt(out.stateNow, 4) + ' V',
+    'input swing': fmt(-out.A, 4) + ' V to ' + fmt(out.A, 4) + ' V',
+    'transitions / 2 cycles': String(out.switches) + (out.switches === 4 ? '  (clean)' : '  (not switching)'),
+  }),
+});
+
+// ------------------------------------------------------------------ animation
+// widget() hands back the live control map, so the sweep can be advanced on a
+// frame timer while the slider stays in step with it.
+if (W && W.controls && W.controls.phase && typeof requestAnimationFrame === 'function') {
+  let last = performance.now();
+  const tick = (now) => {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (W.state.values.animate) {
+      let p = W.state.values.phase + dt / 3;
+      if (p > 1) p -= 1;
+      W.state.values.phase = p;
+      W.controls.phase.input.value = String(p);
+      W.controls.phase.show();
+      W.render();
+    } else {
+      last = now;
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'schmitt-note';
+document.getElementById('app').appendChild(note);
+note.innerHTML =
+  '<strong>Hysteresis is bought with positive feedback, and the price is a window you cannot place ' +
+  'wherever you like.</strong> The two thresholds are the + input node voltage with the output parked ' +
+  'on each rail: <code>V_TH = (Vsat RA + Vref RB)/(RA+RB)</code> and ' +
+  '<code>V_TL = (-Vsat RA + Vref RB)/(RA+RB)</code> for the inverting form, and ' +
+  '<code>V_TH = (Vref(RA+RB) + Vsat RA)/RB</code>, <code>V_TL = (Vref(RA+RB) - Vsat RA)/RB</code> for the ' +
+  'non-inverting form.<br>' +
+  '<strong>The trap:</strong> the window is symmetric about <code>k Vref</code> with ' +
+  '<code>k = RB/(RA+RB)</code>, not about <code>Vref</code>. Set Vref to 1 V with RA = 1 k and RB = 10 k ' +
+  'and the centre sits at 0.909 V, so the thresholds are 1.99 V and -0.17 V - neither one is 1 V and they ' +
+  'are not 1 V +/- something. The only case that is symmetric about the reference is <code>Vref = 0</code>, ' +
+  'which is exactly the case every textbook draws, and exactly why the general result is forgotten. Slide ' +
+  'Vref off zero and the centre moves by only <code>k</code> times as much.<br>' +
+  '<strong>Second trap:</strong> the same divider sets both numbers. Width is ' +
+  '<code>2 Vsat RA/(RA+RB)</code> and the centre is <code>k Vref</code>, so widening the window also drags ' +
+  'the centre toward zero. You cannot fix one without disturbing the other - which is why a precision ' +
+  'comparator with an offset uses the reference at a low-impedance node, or a separate offset network, ' +
+  'instead of leaning on the feedback divider.<br>' +
+  '<strong>Third trap:</strong> inverting and non-inverting Schmitt triggers swap which threshold the rising ' +
+  'edge trips. Inverting: a rising input trips at V_TH and the output goes LOW. Non-inverting: a rising ' +
+  'input trips at V_TL and the output goes HIGH. Cue the input wrong and the loop comes out back-to-front, ' +
+  'with the width still correct - so the error survives a careless double-check. Finally, remember what ' +
+  'hysteresis is for: any noise smaller than the half-width cannot retrigger the output, which is why a ' +
+  'Schmitt gate cleans up a slow or noisy edge that a plain comparator would chatter on.';
+</script>
+</body>
+</html>

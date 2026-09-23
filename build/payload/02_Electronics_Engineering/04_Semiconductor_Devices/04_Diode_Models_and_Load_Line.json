@@ -1,0 +1,103 @@
+{
+  "scope": "Choose the right diode model for a given circuit, solve series-diode loops, and locate the quiescent point where the diode curve meets the dc load line.",
+  "intuition": "A diode model is a promise about how much accuracy you need: the ideal switch is fine for a 10 V loop, the 0.7 V battery is fine for a 10 mA bias point, and only the piecewise-linear or exponential model survives high current or small signals. The load line is the circuit talking back — it says which (V,I) pairs the resistor permits, and the Q point is where the device finally agrees.",
+  "concept": [
+    "**Four models, four jobs.** (1) The **ideal diode** is a one-way switch: zero drop forward, open reverse. It answers 'is the diode on?' and is acceptable when the source is many volts so the drop is a small fraction — 10 V across 1 kohm gives 10 mA ideal against 9.3 mA practical, a 7% error. (2) The **practical (constant-drop) model** adds a 0.7 V battery for silicon (0.3 V Ge/Schottky, 2 V for a red LED, 3.4 V for a white one). It is the workhorse for bias and rectifier work. (3) The **piecewise-linear model** adds a bulk resistance $r_B$ in series with that battery, $V_D = V_{knee} + I_Dr_B$, which is essential once the current is large enough for the ohmic regions to matter. (4) The **small-signal (dynamic) model** replaces the diode by $r_d = nV_T/I_{DQ}$ about the operating point and is valid only for swings of a few millivolts.",
+    "**The load line is just KVL drawn on the diode's axes.** For a source $V_{DD}$, a series resistor $R_L$ and a diode, KVL gives $V_{DD} = I_DR_L + V_D$, so $I_D = (V_{DD} - V_D)/R_L$ — a straight line with intercepts $(V_D = V_{DD}, I_D = 0)$ and $(V_D = 0, I_D = V_{DD}/R_L)$ and slope $-1/R_L$. Those two numbers are free and worth writing down first: the open-circuit end and the short-circuit end bracket every possible answer, so any computed current above $V_{DD}/R_L$ is instantly recognisable as wrong. The **Q point** is the intersection of that line with the device curve — nonlinear, so it is found graphically, by iteration, or by the constant-drop approximation.",
+    "**Why the approximation is usually good enough — and when it is not.** Because the diode curve is nearly vertical once it turns on, the intersection is insensitive to small errors in the assumed drop: using 0.7 V where the true drop is 0.597 V understates the current by only about 1% when $R_L = 1\\ \\mathrm{k\\Omega}$. Narrow the resistor and the load line steepens: at $R_L = 100\\ \\Omega$ the same 0.1 V error in the diode drop is a 1 mA error out of ~94 mA, and the $r_B$ term (0.2 V at 20 mA for a 10 ohm diode) becomes comparable to the knee itself. Conversely, when the signal is *smaller* than the knee voltage — a 50 mV sensor output driving a diode — the constant-drop model is useless because the diode never 'turns on' in that picture, while the real device is a perfectly linear 26 ohm resistor at 1 mA. Choosing the model is really the question 'is my signal big compared with 0.7 V, or small compared with 26 mV?'",
+    "**Circuits with several diodes and LEDs.** Series diodes add their drops: two silicon junctions in a 12 V loop drop 1.4 V, and mixing materials means adding the right knees (0.7 + 0.3 for Si + Ge). Parallel diodes do *not* share current equally — the one with the lower drop (or the hotter one, because the forward voltage has a $-2\\ \\mathrm{mV/^\\circ C}$ coefficient) takes almost everything, which is why current sharing needs series ballast resistors. For light-emitting diodes the design equation is the same KVL, $R = (V_S - V_F)/I_F$, but the answer must also be checked for resistor power, $P_R = I_F^{2}R$, and for the fact that $V_F$ is a nominal value that varies with current, colour and temperature — designing at exactly the rated 20 mA with a 5% resistor tolerance can push the LED over its limit. Back in the diode-only case, the operating point also *slides along the load line* as the device heats, because the whole curve shifts left by about 2 mV per degree."
+  ],
+  "formulas": [
+    { "q": "Ideal-diode loop current", "e": "I_D = \\frac{V_{DD}}{R_L}", "n": "Diode treated as a closed switch. Acceptable only when the real drop is a small fraction of V_DD, say under 5%." },
+    { "q": "Constant-drop loop current", "e": "I_D = \\frac{V_{DD} - V_{knee}}{R_L}", "n": "V_knee = 0.7 V for Si, 0.3 V for Ge/Schottky, 2 V for a red LED. The standard bias/rectifier model." },
+    { "q": "Piecewise-linear loop current", "e": "I_D = \\frac{V_{DD} - V_{knee}}{R_L + r_B}", "n": "Bulk resistance belongs in the denominator. Necessary above about 10 mA or when r_B is given." },
+    { "q": "dc load line", "e": "I_D = \\frac{V_{DD} - V_D}{R_L}", "n": "Just KVL rearranged. Slope is -1/R_L, so a small R_L means a steep line and a Q point that is very sensitive to the knee." },
+    { "q": "Load-line intercepts", "e": "V_D = V_{DD} \\ (I_D = 0); \\qquad I_D = \\frac{V_{DD}}{R_L} \\ (V_D = 0)", "n": "Compute these first. Any answer outside this box is arithmetically impossible, which makes them a free error check." },
+    { "q": "Q point definition", "e": "V_{DQ} = V_{DD} - I_{DQ} R_L", "n": "The circuit constraint, true regardless of which device model you use. The device curve supplies the second equation." },
+    { "q": "Small-signal diode resistance", "e": "r_d = \\frac{nV_T}{I_{DQ}}", "n": "Valid for signal swings of a few mV only, and it depends on the dc bias current, not on the signal." },
+    { "q": "Series diodes", "e": "I_D = \\frac{V_{DD} - \\sum V_{knee}}{R_L}", "n": "Drops add in series; the current is common. Mixed materials need their own knee voltages, not one blanket 0.7 V." },
+    { "q": "LED series resistor", "e": "R = \\frac{V_S - V_F}{I_F}", "n": "Check P_R = I_F^2 R and pick the next standard value upward for safety. V_F is nominal." },
+    { "q": "Resistor power", "e": "P_R = I_D^{2} R_L = \\frac{V_R^{2}}{R_L}", "n": "Size to at least twice the calculated dissipation for a comfortable margin." }
+  ],
+  "problems": [
+    {
+      "prompt": "A silicon diode is in series with a $1\\ \\mathrm{k\\Omega}$ resistor across a $10\\ \\mathrm{V}$ dc source. Find the loop current with (i) the ideal-diode model and (ii) the practical constant-drop model.",
+      "give": ["V_DD = 10 V", "R_L = 1 kohm", "Si diode, V_knee = 0.7 V"],
+      "steps": [
+        "(i) Ideal: $I_D = V_{DD}/R_L = 10/1000 = 10\\ \\mathrm{mA}$ and $V_R = 10\\ \\mathrm{V}$.",
+        "(ii) Practical: $I_D = (V_{DD} - 0.7)/R_L = 9.3/1000$.",
+        "$I_D = 9.3\\ \\mathrm{mA}$ and $V_R = 9.3\\ \\mathrm{V}$.",
+        "KVL check: $9.3 + 0.7 = 10\\ \\mathrm{V}$. The ideal model overstates the current by 7.5%."
+      ],
+      "ans": "Ideal: 10.0 mA. Practical: 9.3 mA with 9.3 V across the resistor.",
+      "trap": "Using the ideal model when the drop is a large fraction of the source. Here 0.7 V out of 10 V is 7%, tolerable; the same model on a 1.5 V source would claim 1.5 mA instead of 0.8 mA — an 88% error — because the diode drop is now half the supply.", "calc": {"mode":"COMP","steps":["One line with `ALPHA` `:` — `10÷1000 : (10−0.7)÷1000` → **10.0** mA ideal → **9.3** mA practical.","`(10−9.3)÷9.3` → **0.075**, the 7.5 % the ideal model overstates."],"note":"The same ideal model on a 1.5 V source is 88 % high; judge by the ratio $V_{knee}/V_{DD}$."}
+    },
+    {
+      "prompt": "The same $10\\ \\mathrm{V}$, $1\\ \\mathrm{k\\Omega}$, silicon-diode loop now uses a diode with a bulk resistance $r_B = 10\\ \\Omega$. Find the current and the total diode voltage.",
+      "give": ["V_DD = 10 V", "R_L = 1 kohm", "V_knee = 0.7 V", "r_B = 10 ohm"],
+      "steps": [
+        "Piecewise-linear model: $I_D = (V_{DD} - V_{knee})/(R_L + r_B) = 9.3/1010$.",
+        "$I_D = 9.208\\ \\mathrm{mA}$ (against 9.3 mA for the constant-drop model, only 1% less).",
+        "Bulk drop: $V_{rB} = I_D r_B = (9.208\\times10^{-3})(10) = 0.092\\ \\mathrm{V}$.",
+        "Total diode voltage: $V_D = 0.7 + 0.092 = 0.792\\ \\mathrm{V}$.",
+        "KVL check: $I_DR_L + V_D = 9.208 + 0.792 = 10.0\\ \\mathrm{V}$."
+      ],
+      "ans": "I_D = 9.21 mA; V_D = 0.792 V (0.700 V knee plus 0.092 V of bulk drop).",
+      "trap": "Subtracting the bulk drop from the knee and then dividing by $R_L$ alone — that double-counts $r_B$ and gives 9.21 mA only by accident of the numbers. Use $I = (V_{DD} - V_{knee})/(R_L + r_B)$: the bulk resistance limits the current, so it must appear where the total series resistance appears.", "calc": {"mode":"COMP","steps":["`(10−0.7)÷(1000+10)` → **9.208e-3** A = **9.21** mA, with $r_B$ inside the denominator.","`Ans×10+0.7` → **0.792** V; KVL check `9.208+0.792` → **10.0** V."],"note":"$I = (V_{DD}-V_{knee})/(R_L+r_B)$; subtracting $Ir_B$ afterwards double-counts $r_B$."}
+    },
+    {
+      "prompt": "For the $10\\ \\mathrm{V}$, $1\\ \\mathrm{k\\Omega}$ silicon-diode circuit, state the load-line intercepts and locate the Q point both by the constant-drop model and by the actual Shockley curve with $I_S = 1\\times10^{-12}\\ \\mathrm{A}$.",
+      "give": ["V_DD = 10 V", "R_L = 1 kohm", "I_S = 1e-12 A", "n = 1", "V_T = 26 mV"],
+      "steps": [
+        "Intercepts: at $I_D = 0$, $V_D = V_{DD} = 10\\ \\mathrm{V}$; at $V_D = 0$, $I_D = 10/1000 = 10\\ \\mathrm{mA}$. The line has slope $-1/R_L$ and every valid answer lies inside that box.",
+        "Constant-drop Q: $V_{DQ} = 0.7\\ \\mathrm{V}$, $I_{DQ} = (10 - 0.7)/1000 = 9.3\\ \\mathrm{mA}$.",
+        "Test against the real curve at $V_D = 0.6\\ \\mathrm{V}$: the diode wants $1\\times10^{-12}e^{0.6/0.026} = 10.5\\ \\mathrm{mA}$, but the load line permits only $(10-0.6)/1000 = 9.4\\ \\mathrm{mA}$ — so the true Q sits at a lower voltage.",
+        "Test at $V_D = 0.59\\ \\mathrm{V}$: diode current $1\\times10^{-12}e^{22.69} = 7.16\\ \\mathrm{mA}$ against 9.41 mA permitted — now too low, so Q is between 0.59 and 0.60 V.",
+        "Interpolate: at 0.5971 V both the diode and the load line give 9.403 mA, so Q $= (0.5971\\ \\mathrm{V}, 9.40\\ \\mathrm{mA})$."
+      ],
+      "ans": "Intercepts: (10 V, 0 mA) and (0 V, 10 mA). Constant-drop Q = (0.7 V, 9.3 mA); true Q = (0.5971 V, 9.40 mA).",
+      "trap": "Reading the knee point as the answer. The constant-drop model moves the Q point *along* the load line, so with a 1 kohm resistor the current error is only 1% — but the voltage error is 0.1 V, a 17% error in the diode voltage itself. With a 100 ohm resistor the same 0.1 V would move 1 mA (about 10% of the current), and any question asking specifically for $V_{DQ}$ wants the real intersection.", "calc": {"mode":"COMP","steps":["Intercepts first: `(10 V, 0 mA)` and `(0 V, 10 mA)` bracket every legal answer.","Type `1E-12(e^(X÷0.026)−1)=(10−X)÷1000`, `SHIFT` `SOLVE`, guess 0.6, `=` → **X = 0.5971** V.","`(10−X)÷1000` → **9.40** mA, and `L−R` shows **0**."],"note":"The constant-drop Q (0.7 V, 9.3 mA) is 17 % high in voltage even though the current is right to 1 %."}
+    },
+    {
+      "prompt": "Two diodes in series with a $1\\ \\mathrm{k\\Omega}$ resistor are connected across $12\\ \\mathrm{V}$. Find the current when (i) both are silicon and (ii) one is silicon and one is germanium.",
+      "give": ["V_DD = 12 V", "R_L = 1 kohm", "Si V_knee = 0.7 V", "Ge V_knee = 0.3 V"],
+      "steps": [
+        "(i) Series drops add: $\\sum V_{knee} = 0.7 + 0.7 = 1.4\\ \\mathrm{V}$.",
+        "$I = (12 - 1.4)/1000 = 10.6\\ \\mathrm{mA}$; $V_R = 10.6\\ \\mathrm{V}$, and $10.6 + 1.4 = 12\\ \\mathrm{V}$ checks.",
+        "(ii) Mixed pair: $\\sum V_{knee} = 0.7 + 0.3 = 1.0\\ \\mathrm{V}$.",
+        "$I = (12 - 1.0)/1000 = 11.0\\ \\mathrm{mA}$, with 11.0 V across the resistor."
+      ],
+      "ans": "(i) I = 10.6 mA with 10.6 V across R. (ii) I = 11.0 mA with 11.0 V across R.",
+      "trap": "Applying one 0.7 V drop to a two-diode string: that gives 11.3 mA, about 7% high. The mirror-image trap is applying 0.7 V to the germanium diode, which is really 0.3 V; and do not run the series sum through the exponential, since the two junctions are at different temperatures and injection levels and the simple constant-drop model is the consistent choice.", "calc": {"mode":"COMP","steps":["`(12−1.4)÷1000` → **10.6** mA for two silicon diodes ($0.7+0.7$).","`(12−1.0)÷1000` → **11.0** mA for one silicon plus one germanium ($0.7+0.3$)."],"note":"Series knees add; one 0.7 V drop for the whole string is about 7 % high."}
+    },
+    {
+      "prompt": "A red LED has a nominal $V_F = 2.0\\ \\mathrm{V}$ and must run at $I_F = 20\\ \\mathrm{mA}$ from a $5\\ \\mathrm{V}$ supply. Find the series resistor, its power dissipation and the nearest standard value.",
+      "give": ["V_S = 5 V", "V_F = 2.0 V", "I_F = 20 mA"],
+      "steps": [
+        "$R = (V_S - V_F)/I_F = (5 - 2.0)/0.020$.",
+        "$R = 150\\ \\Omega$ (a standard E12 value, so no rounding is needed).",
+        "$P_R = I_F^{2}R = (0.020)^{2}(150) = 0.060\\ \\mathrm{W}$; a 1/8 W (0.125 W) part is adequate, 1/4 W gives more margin.",
+        "LED dissipation: $P_{LED} = V_F I_F = (2.0)(0.020) = 40\\ \\mathrm{mW}$."
+      ],
+      "ans": "R = 150 ohm, P_R = 60 mW (use 1/8 W or larger); the LED dissipates 40 mW.",
+      "trap": "Computing $R = V_S/I_F = 250\\ \\Omega$ and ignoring $V_F$; the LED then gets only 12 mA and runs dim. The subtler trap is designing at exactly the rated 20 mA with a nominal $V_F$: if $V_F$ falls to 1.8 V the current becomes $(5-1.8)/150 = 21.3\\ \\mathrm{mA}$, and if the 5 V rail is really 5.25 V it becomes 21.7 mA — both above the usual 20 mA rating, so a 160 or 180 ohm resistor is the safer design choice.", "calc": {"mode":"COMP","steps":["`(5−2)÷20E-3` → **150** $\\Omega$, already a standard E12 value.","`20E-3²×150` → **0.060** W in the resistor and `2×20E-3` → **40** mW in the LED."],"note":"$R = V_S/I_F = 250$ $\\Omega$ ignores $V_F$ and under-drives the LED at 12 mA."}
+    }
+  ],
+  "traps": [
+    "**Using the constant-drop model for a small signal.** A 50 mV sensor swing never turns on a 0.7 V battery model, so the model predicts no output at all, while the real diode is a linear 26 ohm resistor at 1 mA. Any question whose signal is comparable to $nV_T$ needs the dynamic model, not the knee.",
+    "**Putting $r_B$ outside the current equation.** The piecewise-linear current is $I = (V_{DD} - V_{knee})/(R_L + r_B)$, not $(V_{DD} - V_{knee} - Ir_B)/R_L$ evaluated with the wrong I. The bulk resistance limits current; it is a series element, not a post-hoc correction.",
+    "**Forgetting the diode drop when it is a large share of the supply.** The ideal model is 7% wrong on a 10 V loop but 88% wrong on a 1.5 V loop. Judge the model by the ratio $V_{knee}/V_{DD}$, not by habit.",
+    "**Assuming diodes in parallel share current.** The lower-drop or hotter device takes nearly all of it, because the forward voltage falls about $2\\ \\mathrm{mV/^\\circ C}$ and the current is exponential in voltage. Parallel diodes need series ballast resistors or matched, thermally coupled parts.",
+    "**Sloppy kohm/mA bookkeeping.** $V/R$ with V in volts and R in kohm gives mA directly, which is why the shortcut is so common — but it silently breaks the moment one resistance is written in ohms. Write the units on every line of a load-line problem.",
+    "**Treating the Q point as immune to temperature.** The whole diode curve slides left by about $2\\ \\mathrm{mV/^\\circ C}$, so at fixed $V_{DD}$ and $R_L$ the operating current *rises* as the diode heats. That positive feedback is exactly how a badly designed diode string thermally runs away."
+  ],
+  "refs": [
+    "[[03_Diode_Characteristics_and_Shockley]]",
+    "[[05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge]]",
+    "[[08_Zener_Diodes_and_Shunt_Regulators]]"
+  ],
+  "prereqs": [
+    "[[03_Diode_Characteristics_and_Shockley]]",
+    "[[07_Thevenin_and_Norton_Equivalents]]"
+  ]
+}

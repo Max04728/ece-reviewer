@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hydrostatic Force vs Depth — F = γ∫h·L(y)dy</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, simpson, PALETTE } from '../../../Assets/vault.js';
+
+// The single exam mistake this widget exists to kill: measuring depth h from the TOP OF THE
+// PLATE instead of from the WATER SURFACE. The left panel always carries a water surface
+// line, a hatch above it, and a labelled gap between the surface and the plate top, so the
+// extra "y + d" term in h = y + d is impossible to forget. The right panel is the pressure
+// profile P = γh — a straight line, never a constant — and its area is the force.
+
+const GAMMA = 9810; // N/m^3, rho*g for fresh water (rho = 1000, g = 9.81)
+
+const SHAPES = {
+  'rect': {
+    label: 'Rectangle 4 m wide × 3 m tall',
+    widthAt: (h, H, W) => W,
+    centroid: (H) => H / 2,
+    shape: 'rect',
+    formula: 'L(y) = 4 (constant)',
+  },
+  'tri_down': {
+    label: 'Triangle, base 4 m at the top, vertex down',
+    widthAt: (h, H, W) => (W * (H - h)) / H,
+    centroid: (H) => H / 3,          // centroid is 1/3 down from the flat (wide) side
+    shape: 'tri_down',
+    formula: 'L(y) = L(0)(1 − y/H)',
+  },
+  'tri_up': {
+    label: 'Triangle, vertex up at the top, base 4 m at the bottom',
+    widthAt: (h, H, W) => (W * h) / H,
+    centroid: (H) => (2 * H) / 3,    // centroid is 2/3 down from the vertex
+    shape: 'tri_up',
+    formula: 'L(y) = L(0)·y/H',
+  },
+};
+const KEYS = Object.keys(SHAPES);
+
+widget({
+  title: 'Hydrostatic Force — Depth Is Measured From the Water Surface',
+  description:
+    'Pressure grows linearly with depth below the SURFACE: P = γh. Slicing the plate into horizontal strips gives dF = γh·L(y)dy. Slide the plate down and watch the profile grow while the strip lengths stay fixed — only depth changes the force.',
+  height: 520,
+  range: { xMin: -4, xMax: 4, yMin: -2, yMax: 2 },
+  controls: [
+    { id: 'shape', label: 'plate shape', type: 'select', options: KEYS, value: 'rect' },
+    { id: 'depth', label: 'depth of plate top d (m)', min: 0, max: 4, step: 0.1, value: 1 },
+    { id: 'W', label: 'plate width (m)', min: 1, max: 6, step: 0.5, value: 4 },
+    { id: 'H', label: 'plate height (m)', min: 1, max: 5, step: 0.5, value: 3 },
+    { id: 'strips', label: 'strips', min: 4, max: 60, step: 1, value: 24 },
+    { id: 'arrows', label: 'show pressure arrows', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const S = SHAPES[v.shape];
+    const W = v.W, H = v.H;
+    const dTop = Math.max(0, v.depth);
+    const dBot = dTop + H;
+    const n = Math.max(4, Math.round(v.strips));
+
+    // y is local distance below the plate top; h is depth below the WATER SURFACE
+    const hOf = (y) => y + dTop;
+    const Lat = (y) => S.widthAt(y, H, W);
+    const Pat = (y) => GAMMA * hOf(y);
+    const dFdy = (y) => Pat(y) * Lat(y);
+
+    // integrate strip by strip so the readout and the picture agree exactly
+    let F = 0;
+    const dy = H / n;
+    for (let i = 0; i < n; i++) {
+      const ym = (i + 0.5) * dy;
+      F += dFdy(ym) * dy;
+    }
+    const F_exact = simpson(dFdy, 0, H, 2000);
+
+    const area = simpson(Lat, 0, H, 2000);
+    const yc = simpson((y) => y * Lat(y), 0, H, 2000) / area;   // centroid below plate top
+    const hc = dTop + yc;                                        // centroid depth from SURFACE
+    const Pc = GAMMA * hc;                                       // pressure at the centroid
+    const F_centroid = Pc * area;                                // F = P(at centroid) x A, always
+
+    const Ptop = GAMMA * dTop;
+    const Pbot = GAMMA * dBot;
+    const Pmax = Pbot;
+
+    return { S, W, H, dTop, dBot, n, dy, F, F_exact, area, yc, hc, Pc, F_centroid,
+             Ptop, Pbot, Pmax, hOf, Lat, Pat, dFdy };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const { W, H, dTop, area, yc, hc, F, F_exact, F_centroid, Ptop, Pbot, Pmax } = out;
+
+    // ================= panel layout (left = the tank, right = the pressure profile) =====
+    const pad = 34;
+    const L = { x0: pad + 8, x1: pad + 396, y0: pad + 48, y1: plot.h - pad - 18 };
+    const R = { x0: pad + 470, x1: plot.w - pad - 6, y0: pad + 48, y1: plot.h - pad - 18 };
+    const { xMin, xMax, yMin, yMax } = plot;
+    const s = Math.min((L.x1 - L.x0) / (xMax - xMin), (L.y1 - L.y0) / (yMax - yMin));
+    const cxL = (L.x0 + L.x1) / 2, cyL = (L.y0 + L.y1) / 2;
+    const X = (x) => cxL + (x - (xMin + xMax) / 2) * s;
+    const Y = (y) => cyL - (y - (yMin + yMax) / 2) * s;
+
+    plot.clear();
+
+    // ---------------------------------------------------------------- water body
+    ctx.save();
+    ctx.fillStyle = 'rgba(137,180,250,0.10)';
+    ctx.fillRect(L.x0, Y(0), L.x1 - L.x0, Y(yMin) - Y(0));
+    ctx.strokeStyle = 'rgba(137,180,250,0.55)';
+    ctx.lineWidth = 1;
+    for (let x = L.x0; x < L.x1; x += 12) {
+      ctx.beginPath(); ctx.moveTo(x, Y(0)); ctx.lineTo(x + 7, Y(0) - 7); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.accent;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(L.x0, Y(0)); ctx.lineTo(L.x1, Y(0)); ctx.stroke();
+    ctx.restore();
+    plot.text('WATER SURFACE   h = 0', L.x0 + 4, Y(0) - 12, { color: PALETTE.accent, font: 'bold 12px ui-monospace, monospace' });
+
+    // ---------------------------------------------------------------- the plate
+    const hwT = out.Lat(0) / 2, hwB = out.Lat(H) / 2;
+    const path = () => {
+      ctx.beginPath();
+      if (out.S.shape === 'rect') {
+        ctx.moveTo(X(-hwT), Y(0)); ctx.lineTo(X(hwT), Y(0));
+        ctx.lineTo(X(hwB), Y(-H)); ctx.lineTo(X(-hwB), Y(-H)); ctx.closePath();
+      } else if (out.S.shape === 'tri_down') {
+        ctx.moveTo(X(-hwT), Y(0)); ctx.lineTo(X(hwT), Y(0)); ctx.lineTo(X(0), Y(-H)); ctx.closePath();
+      } else {
+        ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(hwB), Y(-H)); ctx.lineTo(X(-hwB), Y(-H)); ctx.closePath();
+      }
+    };
+    ctx.save();
+    ctx.fillStyle = 'rgba(250,179,135,0.18)';
+    path(); ctx.fill();
+    ctx.strokeStyle = PALETTE.accent4;
+    ctx.lineWidth = 2;
+    path(); ctx.stroke();
+    ctx.restore();
+
+    // ---------------------------------------------------------------- depth strips on the plate
+    const n = out.n, dy = out.dy;
+    ctx.save();
+    path(); ctx.clip();
+    for (let i = 0; i < n; i++) {
+      const ya = i * dy, yb = ya + dy;
+      const t = (ya + dy / 2) / H;                     // 0 at the plate top, 1 at the bottom
+      ctx.fillStyle = 'rgba(243,139,168,' + fmt(0.10 + 0.45 * t, 3) + ')';
+      ctx.fillRect(L.x0, Y(-yb), L.x1 - L.x0, Math.max(1, Y(-ya) - Y(-yb)) - 0.5);
+    }
+    ctx.restore();
+
+    // strip thickness annotation
+    const yA = H * 0.42, yB = yA + dy;
+    plot.segment(-hwT - 0.05, -yA, -hwT - 0.05, -yB, { color: PALETTE.warn, width: 2 });
+    plot.label('dy', -hwT - 0.42, -(yA + yB) / 2, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    plot.label('L(y) = ' + fmt(out.Lat(yA), 4) + ' m', hwT * 0.55, -yA + 0.16,
+      { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+
+    // pressure arrows growing with depth
+    if (v.arrows) {
+      const arrows = 6;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(166,227,161,0.85)';
+      ctx.fillStyle = 'rgba(166,227,161,0.85)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i <= arrows; i++) {
+        const y = (i / arrows) * H;
+        const hw = out.Lat(y) / 2;
+        const len = 18 + 52 * (out.Pat(y) / Math.max(1, Pmax));
+        const yp = Y(-y);
+        ctx.beginPath(); ctx.moveTo(X(-hw) + 4, yp); ctx.lineTo(X(-hw) + 4 - len, yp); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(X(-hw) + 4 - len, yp);
+        ctx.lineTo(X(-hw) + 4 - len + 9, yp - 5);
+        ctx.lineTo(X(-hw) + 4 - len + 9, yp + 5);
+        ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(X(hw) - 4, yp); ctx.lineTo(X(hw) - 4 + len, yp); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(X(hw) - 4 + len, yp);
+        ctx.lineTo(X(hw) - 4 + len - 9, yp - 5);
+        ctx.lineTo(X(hw) - 4 + len - 9, yp + 5);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // ---------------------------------------------------------------- the depth-from-surface dimension
+    const xdimL = X(xMin) + 14, xdimR = X(xMin) + 26;
+    const bracket = (y1, y2, col, text, right) => {
+      const xa = right ? xdimR : xdimL;
+      ctx.save();
+      ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(xa - 5, Y(y1)); ctx.lineTo(xa + 5, Y(y1));
+      ctx.moveTo(xa - 5, Y(y2)); ctx.lineTo(xa + 5, Y(y2));
+      ctx.moveTo(xa, Y(y1)); ctx.lineTo(xa, Y(y2));
+      ctx.stroke();
+      ctx.restore();
+      plot.text(text, xa + 9, (Y(y1) + Y(y2)) / 2 + 4, { color: col, font: 'bold 11px ui-monospace, monospace' });
+    };
+    if (dTop > 0.02) {
+      bracket(0, -dTop, PALETTE.accent, 'd = ' + fmt(dTop, 4) + ' m', false);
+    } else {
+      plot.text('plate top AT the surface (d = 0)', xdimL - 6, Y(0) + 18, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+    }
+    bracket(-dTop, -dTop - H, PALETTE.accent3, 'H = ' + fmt(H, 4) + ' m', false);
+    // the total depth of the plate bottom, the number the integral actually uses
+    bracket(0, -dTop - H, PALETTE.accent2, 'h_bottom = ' + fmt(dTop + H, 4) + ' m', true);
+
+    // centroid
+    plot.dot(0, -yc, { color: PALETTE.warn, r: 4 });
+    plot.label('centroid sits at h̄ = ' + fmt(hc, 4) + ' m below the SURFACE', 0, -yc + 0.26,
+      { color: PALETTE.warn, font: '11px ui-monospace, monospace', align: 'center' });
+
+    // ---------------------------------------------------------------- formula + substitution (left top)
+    plot.text('P = γh   with γ = ρg = 9810 N/m³ (water)',
+      L.x0, pad + 16, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text('dF = P·dA = γh·L(y)dy   →   F = γ∫ h·L(y) dy',
+      L.x0, pad + 32, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+
+    // ---------------------------------------------------------------- right panel: P = γh
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.65)';
+    ctx.fillRect(R.x0 - 6, R.y0 - 20, R.x1 - R.x0 + 12, R.y1 - R.y0 + 26);
+    ctx.restore();
+    plot.text('PRESSURE PROFILE  P = γh  (kPa)', R.x0, R.y0 - 6,
+      { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+
+    const pMaxAxis = Math.max(Pmax, 1) * 1.08;
+    const XP = (P) => R.x0 + (P / pMaxAxis) * (R.x1 - R.x0);
+    const YP = (y) => R.y0 + (y / Math.max(H + dTop, 1)) * (R.y1 - R.y0);
+
+    // axes
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(R.x0, R.y0); ctx.lineTo(R.x0, R.y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(R.x0, R.y1); ctx.lineTo(R.x1, R.y1); ctx.stroke();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let k = 1; k <= 4; k++) {
+      const x = R.x0 + (k / 4) * (R.x1 - R.x0);
+      ctx.beginPath(); ctx.moveTo(x, R.y0); ctx.lineTo(x, R.y1); ctx.stroke();
+      const pk = (k / 4) * pMaxAxis / 1000;
+      plot.text(fmt(pk, 3), x - 12, R.y1 + 14, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    }
+    // depth gridlines at the plate top and bottom
+    for (const [yy, lab, col] of [[0, 'h = 0 (surface)', PALETTE.accent],
+                                  [dTop, 'plate top h = ' + fmt(dTop, 3), PALETTE.accent4],
+                                  [dTop + H, 'plate bottom h = ' + fmt(dTop + H, 3), PALETTE.accent3]]) {
+      ctx.strokeStyle = col; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(R.x0, YP(yy)); ctx.lineTo(R.x1, YP(yy)); ctx.stroke();
+      ctx.setLineDash([]);
+      plot.text(lab, R.x0 + 4, YP(yy) - 4, { color: col, font: '10px ui-monospace, monospace' });
+    }
+    ctx.restore();
+
+    // the profile line, drawn only across the plate
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(XP(GAMMA * dTop), YP(dTop));
+    ctx.lineTo(XP(GAMMA * (dTop + H)), YP(dTop + H));
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(243,139,168,0.18)';
+    ctx.beginPath();
+    ctx.moveTo(R.x0, YP(dTop));
+    ctx.lineTo(XP(GAMMA * dTop), YP(dTop));
+    ctx.lineTo(XP(GAMMA * (dTop + H)), YP(dTop + H));
+    ctx.lineTo(R.x0, YP(dTop + H));
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+    plot.text('area under this line × γ = the force',
+      R.x0 + 40, YP(dTop + H) - 10, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    plot.dot(Pbot / GAMMA, dTop + H, { color: PALETTE.accent3, r: 3 });    plot.text('P_bottom = ' + fmt(Pbot / 1000, 4) + ' kPa', XP(Pbot) - 4, YP(dTop + H) + 14,
+      { color: PALETTE.accent3, font: '11px ui-monospace, monospace', align: 'right' });
+    plot.text('P_top = ' + fmt(Ptop / 1000, 4) + ' kPa', XP(Ptop) + 6, YP(dTop) - 6,
+      { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+    plot.text('P(centroid) = ' + fmt(out.Pc / 1000, 4) + ' kPa',
+      Math.min(XP(out.Pc), R.x1 - 150) + 6, YP(dTop + yc) + 4,
+      { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(XP(out.Pc), YP(dTop + yc)); ctx.lineTo(XP(out.Pc), YP(dTop + H)); ctx.stroke();
+    ctx.restore();
+
+    // ---------------------------------------------------------------- numeric summary (left bottom)
+    const yb = L.y1 + 16;
+    plot.text('F = γ∫₀^H (y + d)·L(y) dy = ' + fmt(GAMMA, 5) + ' × ∫₀^' + fmt(H, 4) +
+      ' (y + ' + fmt(dTop, 4) + ')·L(y) dy     with ' + out.S.formula,
+      L.x0, yb, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('F = ' + fmt(F, 6) + ' N   |   strip sum = ' + fmt(F, 6) + ' N   |   exact integral = ' + fmt(F_exact, 6) + ' N',
+      L.x0, yb + 17, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+    plot.text('centroid shortcut:  F = P(h̄)·A = ' + fmt(out.Pc, 5) + ' Pa × ' + fmt(area, 5) +
+      ' m² = ' + fmt(F_centroid, 6) + ' N',
+      L.x0, yb + 34, { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'plate': out.S.label,
+    'top depth d (from surface)': fmt(out.dTop, 4) + ' m',
+    'bottom depth': fmt(out.dTop + out.H, 4) + ' m',
+    'plate area A': fmt(out.area, 5) + ' m²',
+    'centroid depth h̄': fmt(out.hc, 5) + ' m',
+    'P at centroid': fmt(out.Pc / 1000, 5) + ' kPa',
+    'P top → bottom': fmt(out.Ptop / 1000, 4) + ' → ' + fmt(out.Pbot / 1000, 4) + ' kPa',
+    'F from stripped integral': fmt(out.F, 7) + ' N',
+    'F exact integral': fmt(out.F_exact, 7) + ' N',
+    'F = P(h̄)·A (check)': fmt(out.F_centroid, 7) + ' N',
+    'strip sum vs exact': fmt(Math.abs(out.F - out.F_exact) / Math.max(1, out.F_exact) * 100, 4) + ' %',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'hydro-note';
+document.getElementById('app').appendChild(note);
+
+function refreshNote() {
+  const els = document.querySelectorAll('select.vault-widget-input');
+  const key = els.length ? els[0].value : 'rect';
+  const S = SHAPES[key];
+  note.innerHTML =
+    '<strong>' + S.label + '</strong> — ' + S.formula + '<br>' +
+    'The integral is <code>F = γ∫ h·L(y) dy</code> with <code>γ = 9810 N/m³</code>, and ' +
+    '<code>h = y + d</code> where <code>d</code> is how far the plate TOP sits below the water ' +
+    'surface. Set <em>d = 0</em> and the plate hangs from the surface; anything greater adds a ' +
+    'constant depth to every strip.<br>' +
+    'Consistency check you can do by hand in the exam: <code>F = P(h̄)·A</code> — pressure at the ' +
+    'centroid times the plate area. Both numbers are in the readout and they always agree, which ' +
+    'is the fastest way to catch a bad h. The mistake this widget exists to stop is measuring ' +
+    'depth from the top of the plate: with d = 1 m and a 3 m plate, that drops the ' +
+    '<code>γ·d·A</code> term (' + fmt(9810 * 1 * 3 * 4, 5) + ' N for the 4×3 rectangle) and ' +
+    'understates the force. Report newtons, not pascals — pressure is not force.';
+}
+document.addEventListener('input', refreshNote);
+document.addEventListener('change', refreshNote);
+refreshNote();
+</script>
+</body>
+</html>

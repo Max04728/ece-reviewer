@@ -1,0 +1,103 @@
+{
+  "scope": "Multiplex many channels onto one link by frequency or time, and derive the DS0, T1 and E1 line rates from the 125 microsecond frame structure.",
+  "intuition": "FDM gives every channel a slice of spectrum and lets them all talk at once. TDM gives every channel the whole spectrum for a tiny slice of time and cycles through them fast enough that nobody notices.",
+  "concept": [
+    "**Frequency-division multiplexing.** FDM assigns each channel a distinct band of frequencies and transmits all channels simultaneously. Because real filters are not ideal, adjacent channels must be separated by *guard bands* that carry no information, so a fraction of the spectrum is always wasted. FDM is an analog technique: it is used for broadcast radio, the original analog telephone hierarchy (a 4 kHz channel per voice signal) and cable television. The number of channels is limited by the total bandwidth divided by the channel-plus-guard width.",
+    "**Synchronous time-division multiplexing.** TDM gives every channel the full bandwidth for a fixed slot in a repeating frame. The frame rate is set by the sampling theorem: if each channel is sampled at $8000\\ \\mathrm{Hz}$, one frame lasts $125\\ \\mu\\mathrm{s}$ and contains one sample from every channel plus framing information. A *framing bit* (or a framing pattern) marks the start of each frame so the demultiplexer can stay synchronised. Because the slot is assigned whether or not the channel has data, synchronous TDM wastes capacity on idle channels — but its delay is deterministic, which is why it underpins the telephone network.",
+    "**The DS0/T1/E1 hierarchy.** A single digitised voice channel is 8 bits per 125 μs sample, i.e. $8000 \\times 8 = 64\\ \\mathrm{kbps}$, called **DS0**. The North American T1 (DS1) multiplexes 24 DS0 channels plus one framing bit into a 193-bit frame every 125 μs: $193 \\times 8000 = 1.544\\ \\mathrm{Mbps}$. The European E1 multiplexes 32 channels of 8 bits — 30 for voice and 2 for framing and signalling — into a 256-bit frame every 125 μs: $256 \\times 8000 = 2.048\\ \\mathrm{Mbps}$. Higher levels follow: T2 = 4 T1s = 6.312 Mbps, T3 = 7 T2s = 44.736 Mbps, T4 = 274.176 Mbps; E2 = 8.448, E3 = 34.368, E4 = 139.264 Mbps. The two hierarchies are not interoperable without conversion.",
+    "**Fractional T1 and channelised service.** Because a T1 is 24 independent 64 kbps channels, a customer can buy *fractional T1* — 128, 256 or 384 kbps formed from 2, 4 or 6 channels — which is a direct consequence of the TDM structure. The same structure allows individual channels to carry data rather than voice; a *channel service unit* (CSU) and *data service unit* (DSU) replace the modem and present a clean digital interface.",
+    "**Statistical TDM.** Also called asynchronous or intelligent TDM, this variant allocates slots on demand: only channels with data are given a slot, and each slot carries an address identifying its channel. With bursty sources this multiplies the effective capacity, because capacity is only reserved when it is used. The price is variable delay, the need for buffers, and a nonzero probability that the aggregate demand exceeds the link and a packet is dropped or delayed — the same statistical-multiplexing trade-off that packet switching makes. It is why VoIP can crowd far more calls onto a link than the circuit hierarchy would suggest, and why such links need careful dimensioning rather than simple arithmetic.",
+    "**TDM versus FDM trade-offs.** TDM makes far more efficient use of a digital link because there are no guard bands, only a small guard *time* between slots; it is also what digital electronics handle naturally. FDM is simpler for analog signals and remains the only practical way to share a truly analog medium such as the radio spectrum or a coaxial cable carrying analog TV. Modern systems often combine them: a cellular carrier uses FDM to separate 200 kHz carriers and TDMA or OFDMA within each carrier."
+  ],
+  "formulas": [
+    { "q": "DS0 channel rate", "e": "R_{DS0} = \\frac{8\\ \\mathrm{bits}}{125\\ \\mu\\mathrm{s}} = 64\\ \\mathrm{kbps}", "n": "One digitised voice channel: 8 bits per sample at 8000 samples per second." },
+    { "q": "Frame duration", "e": "T_{frame} = \\frac{1}{f_s} = \\frac{1}{8000} = 125\\ \\mu\\mathrm{s}", "n": "Set by the 8 kHz sampling rate, independent of the number of channels multiplexed." },
+    { "q": "T1 frame and line rate", "e": "L_{T1} = 24 \\times 8 + 1 = 193\\ \\mathrm{bits}; \\quad R_{T1} = 193 \\times 8000 = 1.544\\ \\mathrm{Mbps}", "n": "24 voice channels plus one framing bit per frame. The 1.544 Mbps figure is the *line* rate including framing." },
+    { "q": "E1 frame and line rate", "e": "L_{E1} = 32 \\times 8 = 256\\ \\mathrm{bits}; \\quad R_{E1} = 256 \\times 8000 = 2.048\\ \\mathrm{Mbps}", "n": "32 channels, of which 30 carry voice and 2 carry framing and signalling." },
+    { "q": "Useful channels", "e": "T1: 24; \\quad E1: 30", "n": "T1 uses 1 framing bit for all 24; E1 sacrifices 2 whole channels to framing and signalling." },
+    { "q": "Bit duration", "e": "T_b = \\frac{1}{R}", "n": "On a T1 line, 1/1.544e6 = 648 ns. On an E1 line, 488 ns." },
+    { "q": "TDM slot duration", "e": "T_{slot} = \\frac{T_{frame}}{N}", "n": "N is the number of channels per frame. Subtract guard time where the protocol defines one." },
+    { "q": "FDMA channel count", "e": "N = \\frac{B_{total}}{B_{channel} + B_{guard}}", "n": "Guard bands are wasted spectrum; the ratio is always below the ideal B_total/B_channel." },
+    { "q": "Statistical TDM gain", "e": "G = \\frac{\\sum R_{peak}}{R_{link}}", "n": "Safe only while the sources are bursty and independent. Exceeding it raises the blocking and delay probability." },
+    { "q": "Higher T-carrier levels", "e": "T2 = 6.312,\\ T3 = 44.736,\\ T4 = 274.176\\ \\mathrm{Mbps}", "n": "T2 = 4 T1s, T3 = 7 T2s (28 T1s), T4 = 6 T3s (168 T1s)." },
+    { "q": "Higher E-carrier levels", "e": "E2 = 8.448,\\ E3 = 34.368,\\ E4 = 139.264\\ \\mathrm{Mbps}", "n": "E2 = 4 E1s, E3 = 4 E2s, E4 = 4 E3s. Not interoperable with T-carrier without conversion." },
+    { "q": "Fractional T1", "e": "R = n \\times 64\\ \\mathrm{kbps}, \\quad n \\leq 24", "n": "Any whole number of DS0 channels. Direct consequence of the fixed TDM slot structure." }
+  ],
+  "problems": [
+    {
+      "prompt": "Derive the T1 line rate from its frame structure.",
+      "give": ["24 voice channels", "8 bits per channel per frame", "1 framing bit", "8000 frames per second"],
+      "steps": [
+        "Bits per frame = 24 x 8 + 1 = 192 + 1 = 193 bits",
+        "Frames per second = 8000 (one per 125 us sampling interval)",
+        "R = 193 x 8000",
+        "= 1 544 000 bps"
+      ],
+      "ans": "$1.544\\ \\mathrm{Mbps}$",
+      "trap": "Computing $24 \\times 64\\ \\mathrm{kbps} = 1.536\\ \\mathrm{Mbps}$ and stopping. That is the *payload* rate; the line rate of 1.544 Mbps includes the 8 kbps framing bit."
+    },
+    {
+      "prompt": "Derive the E1 line rate and state how many of its channels carry voice.",
+      "give": ["32 channels", "8 bits per channel per frame", "8000 frames per second"],
+      "steps": [
+        "Bits per frame = 32 x 8 = 256 bits",
+        "R = 256 x 8000",
+        "= 2 048 000 bps",
+        "Of the 32 channels, channel 0 carries framing and channel 16 carries signalling, leaving 30 voice channels"
+      ],
+      "ans": "$2.048\\ \\mathrm{Mbps}$; 30 voice channels",
+      "trap": "Answering 32 voice channels. Two E1 channels are consumed by framing and signalling, so the usable voice capacity is 30 — the E1's structural difference from T1, which spends only a single framing bit."
+    },
+    {
+      "prompt": "Find the bit duration on a T1 line and on an E1 line.",
+      "give": ["T1 = 1.544 Mbps", "E1 = 2.048 Mbps"],
+      "steps": [
+        "T1: Tb = 1/1.544e6 = 6.477e-7 s = 648 ns",
+        "E1: Tb = 1/2.048e6 = 4.883e-7 s = 488 ns",
+        "Ratio = 1.544/2.048 = 0.754, so the T1 bit is 32% longer"
+      ],
+      "ans": "T1: $648\\ \\mathrm{ns}$; E1: $488\\ \\mathrm{ns}$",
+      "trap": "Dividing the frame duration by the number of *channels* instead of the number of *bits*. For E1, 125/32 = 3.9 us is the slot duration, not the bit duration; the bit duration is 125/256 = 488 ns. The two differ by the bits per slot (8 here)."
+    },
+    {
+      "prompt": "A TDM link carries 12 channels, each sampled at $8\\ \\mathrm{kHz}$ with 4 bits per sample, plus 1 framing bit per frame. Find the line rate.",
+      "give": ["N = 12 channels", "fs = 8 kHz", "4 bits per sample", "1 framing bit"],
+      "steps": [
+        "Frame duration = 1/8000 = 125 us",
+        "Bits per frame = 12 x 4 + 1 = 49 bits",
+        "R = 49 x 8000",
+        "= 392 000 bps"
+      ],
+      "ans": "$392\\ \\mathrm{kbps}$",
+      "trap": "Assuming 8 bits per sample because that is the voice standard. The bit count per sample is given as 4; substituting 8 doubles the answer to 776 kbps."
+    },
+    {
+      "prompt": "Twenty terminals each generate an average of $1\\ \\mathrm{kbps}$ and peak at $10\\ \\mathrm{kbps}$. Can a statistically multiplexed $64\\ \\mathrm{kbps}$ link serve them, and what is the risk?",
+      "give": ["20 terminals", "average 1 kbps each", "peak 10 kbps each", "link = 64 kbps"],
+      "steps": [
+        "Aggregate average = 20 x 1 = 20 kbps, comfortably below 64 kbps (31% utilisation)",
+        "Aggregate peak = 20 x 10 = 200 kbps, over three times the link rate",
+        "Average load is fine, but simultaneous peaks cannot be served",
+        "The risk is buffer overflow and hence delay or loss whenever enough terminals peak together"
+      ],
+      "ans": "Yes on average (20 of 64 kbps), but peak demand of 200 kbps exceeds the link",
+      "trap": "Comparing only the averages and declaring the link adequate. Statistical multiplexing is dimensioned on a *probability* of overload; ignoring the peak-to-average ratio of 10:1 here leaves the design with no margin at all."
+    }
+  ],
+  "traps": [
+    "**Reporting the T1 payload rate as the line rate.** $24 \\times 64\\ \\mathrm{kbps} = 1.536\\ \\mathrm{Mbps}$ is the useful payload; the line rate is 1.544 Mbps because of the framing bit. Quoting 1.536 for a T1 interface specification is wrong.",
+    "**Assuming an E1 carries 32 voice channels.** Two of the 32 are consumed by framing (channel 0) and signalling (channel 16), leaving 30. Only T1 spends a single bit rather than whole channels.",
+    "**Using 8 bits per sample when the problem specifies otherwise.** TDM rate problems frequently use 4 or 7 bits per sample to test whether you are reading the given data. The DS0 value of 8 is a standard, not a constant of nature.",
+    "**Forgetting the framing overhead entirely.** A frame is samples plus framing. Omitting it understates the line rate and, more importantly, produces a stream that no demultiplexer could synchronise.",
+    "**Mixing T-carrier and E-carrier levels.** T3 is 44.736 Mbps (28 T1s) and E3 is 34.368 Mbps (16 E1s). They are not multiples of each other and are not interoperable without a gateway.",
+    "**Designing a statistical TDM link on average load.** The link must absorb the *aggregate peak* with acceptable blocking probability. Average load below capacity is necessary but nowhere near sufficient.",
+    "**Guessing FDMA channel counts without guard bands.** Adjacent channels need spectral separation; dividing the total band by the channel width alone overestimates the number of usable channels."
+  ],
+  "refs": [
+    "[[01_OSI_Seven-Layer_Model]]",
+    "[[16_Multiple_Access_FDMA,_TDMA,_CDMA]]",
+    "[[15_WDM_and_DWDM]]",
+    "[[08_Switching_Circuit_vs_Packet]]"
+  ],
+  "prereqs": ["[[08_Switching_Circuit_vs_Packet]]"]
+}

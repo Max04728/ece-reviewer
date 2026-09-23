@@ -1,0 +1,123 @@
+{
+  "scope": "Combine event probabilities with the addition, multiplication and complement rules, condition on partial information, and invert a conditional with Bayes' theorem.",
+  "intuition": "Probability rules are a bookkeeping system for 'or' (add, but remove the overlap), 'and' (multiply, adjusted for dependence) and 'not' (one minus). Bayes flips a conditional around: given the evidence, how likely is the cause?",
+  "concept": [
+    "**Sample spaces and the basic axioms.** For equally likely outcomes $P(A)=\\frac{n(A)}{n(S)}$. Probabilities lie in $[0,1]$, $P(S)=1$, and for mutually exclusive events the probabilities add. Most numerical work reduces to careful counting of $n(A)$ and $n(S)$ with the formulas from permutations and combinations.",
+    "**Addition rule — the 'or' rule.** $P(A\\cup B)=P(A)+P(B)-P(A\\cap B)$. The subtraction is essential: adding two probabilities counts the overlap twice. For *mutually exclusive* events the intersection is empty and the rule collapses to $P(A)+P(B)$. For three events the inclusion-exclusion expansion continues, but board questions rarely go beyond two plus a complement.",
+    "**Complement rule — the 'not' rule.** The complement rule reads: $P(A')=1-P(A)$. The 'at least one' case is the workhorse: $P(\\mathrm{at\\ least\\ one})=1-P(\\mathrm{none})$. This is the single most useful shortcut in the topic: 'at least one' problems are almost always faster by complement, because the direct route requires summing many disjoint cases.",
+    "**Conditional probability.** $P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}$ with $P(B)>0$: the sample space shrinks to $B$, and the numerator counts the part of $A$ inside $B$. Rearranged, this gives the multiplication rule $P(A\\cap B)=P(B)P(A\\mid B)$ — the 'and' rule for dependent events.",
+    "**Independence.** $A$ and $B$ are independent when $P(A\\mid B)=P(A)$, equivalently $P(A\\cap B)=P(A)P(B)$. Independence is a mathematical property, not a physical one: do not assume two events are independent because they 'seem unrelated', and never infer independence from $P(A\\cap B)=0$ (that is mutual exclusivity, the opposite extreme).",
+    "**Total probability and Bayes' theorem.** If $B_1,\\dots,B_k$ partition the sample space, then total probability gives: $P(A)=\\sum P(B_i)P(A\\mid B_i)$. Bayes' theorem then inverts it: $P(B_j\\mid A)=\\frac{P(B_j)P(A\\mid B_j)}{\\sum_i P(B_i)P(A\\mid B_i)}$. The denominator is the total probability of the evidence. Bayes' theorem is *the* board favourite: the classic form is a two-supplier or disease-screening problem, and the answer is often surprisingly small because the base rate dominates.",
+    "**Why Bayes surprises.** When the prior $P(B_j)$ is small, even a highly sensitive test produces mostly false positives: with $1\\%$ prevalence, $95\\%$ sensitivity and $95\\%$ specificity the posterior is only about $16\\%$. The exam trap is to report the sensitivity ($95\\%$) as the answer instead of the posterior."
+  ],
+  "formulas": [
+    { "q": "Classical probability", "e": "P(A) = \\frac{n(A)}{n(S)}", "n": "Equally likely outcomes only." },
+    { "q": "Complement rule", "e": "P(A') = 1 - P(A)", "n": "Also: P(at least one) = 1 - P(none)." },
+    { "q": "Addition rule", "e": "P(A\\cup B) = P(A)+P(B)-P(A\\cap B)", "n": "Drop the intersection term only if A and B are mutually exclusive." },
+    { "q": "Mutually exclusive events", "e": "P(A\\cap B)=0 \\Rightarrow P(A\\cup B)=P(A)+P(B)", "n": "Exclusive means they cannot occur together — it does NOT mean independent." },
+    { "q": "Conditional probability", "e": "P(A\\mid B) = \\frac{P(A\\cap B)}{P(B)}", "n": "Requires P(B) > 0. The sample space is restricted to B." },
+    { "q": "Multiplication rule", "e": "P(A\\cap B) = P(B)\\,P(A\\mid B) = P(A)\\,P(B\\mid A)", "n": "Use the second form when the conditional given is the other way round." },
+    { "q": "Independence", "e": "P(A\\cap B) = P(A)P(B) \\iff P(A\\mid B)=P(A)", "n": "Independent and mutually exclusive are different properties; exclusive events with positive probability are dependent." },
+    { "q": "Total probability", "e": "P(A) = \\sum_i P(B_i)\\,P(A\\mid B_i)", "n": "B_i must partition the sample space (disjoint and exhaustive)." },
+    { "q": "Bayes' theorem", "e": "P(B_j\\mid A) = \\frac{P(B_j)P(A\\mid B_j)}{\\sum_i P(B_i)P(A\\mid B_i)}", "n": "Posterior = prior x likelihood / evidence. The denominator is the total probability of A." },
+    { "q": "Independence of complements", "e": "A \\perp B \\Rightarrow A' \\perp B, \\ A \\perp B'", "n": "Handy when a question asks about 'neither' or 'not the first'." }
+  ],
+  "problems": [
+    {
+      "prompt": "Two cards are drawn without replacement from a standard 52-card deck. Find the probability that at least one is an ace.",
+      "give": ["52 cards, 4 aces", "draw of 2, no replacement"],
+      "steps": [
+        "Use the complement: P(at least one ace) = 1 - P(no ace)",
+        "Number of 2-card hands with no ace: C(48,2) = (48 x 47)/2 = 1128",
+        "Total hands: C(52,2) = (52 x 51)/2 = 1326",
+        "P(no ace) = 1128/1326 = 0.850679",
+        "P(at least one ace) = 1 - 0.850679 = 0.149321",
+        "Check by the addition rule: P(first ace) + P(second ace) - P(both) = 4/52 + 4/52 - (4/52)(3/51) = 0.076923 + 0.076923 - 0.004525 = 0.149321"
+      ],
+      "ans": "$P \\approx 0.1493$ (about $14.9\\%$).",
+      "trap": "Adding $4/52 + 4/52 = 0.1538$ and forgetting to subtract the double-counted case where both cards are aces. The overlap is small but the rule is exact; using $4/52+3/51$ is also wrong because the two draws are not independent.", "calc": {"mode":"COMP","steps":["Complement route in one line: `1−48 nCr 2÷52 nCr 2` → **0.149321**.","The counts behind it: `48 nCr 2` = **1128** ace-free hands out of `52 nCr 2` = **1326**, so P(no ace) = **0.850679**.","Addition-rule check: `4÷52+4÷52−(4÷52)×(3÷51)` → **0.149321**, matching the complement."],"note":"The draws are not independent — the overlap uses (4/52)(3/51) and must be subtracted."}
+    },
+    {
+      "prompt": "Two fair dice are rolled. Find the probability that the sum is 8 given that the first die shows 3.",
+      "give": ["fair dice, faces 1-6"],
+      "steps": [
+        "Restrict the sample space to the first die = 3: outcomes (3,1), (3,2), (3,3), (3,4), (3,5), (3,6), so |B| = 6",
+        "Sum equal to 8 requires the second die to be 5: the single outcome (3,5)",
+        "P(sum = 8 | first = 3) = 1/6",
+        "Check with the formula: P(sum = 8 AND first = 3) = 1/36; P(first = 3) = 6/36 = 1/6",
+        "P = (1/36)/(6/36) = 1/6",
+        "Compare the unconditional P(sum = 8) = 5/36 = 0.1389 — conditioning changed the answer"
+      ],
+      "ans": "$1/6 \\approx 0.1667$.",
+      "trap": "Reporting the unconditional probability $5/36$. Conditioning shrinks the sample space to six outcomes; using the original 36-outcome space is the definitional error this question is designed to catch."
+    },
+    {
+      "prompt": "A system has two components in parallel redundancy. Component A fails with probability 0.02 and Component B fails with probability 0.05, independently. Find the probability that the system works, if it works when at least one component works.",
+      "give": ["P(A fails) = 0.02", "P(B fails) = 0.05", "failures independent"],
+      "steps": [
+        "System works = at least one component works = not both fail",
+        "P(both fail) = 0.02 x 0.05 = 0.001 (independence permits direct multiplication)",
+        "P(system works) = 1 - 0.001 = 0.999",
+        "Alternatively, component reliabilities are 0.98 and 0.95, so P(at least one works) = 1 - (0.02)(0.05) = 0.999",
+        "A common wrong route: 1 - (0.02 + 0.05) = 0.93, which would be the answer only if the failures were mutually exclusive"
+      ],
+      "ans": "$P = 0.999$ (a $0.1\\%$ chance of total failure).",
+      "trap": "Adding the failure probabilities, $0.02+0.05=0.07$, giving $0.93$. The addition rule without the intersection term applies only to mutually exclusive events; two independent failures can and do occur together."
+    },
+    {
+      "prompt": "Machine A produces $60\\%$ of a factory's output with a $2\\%$ defect rate; Machine B produces $40\\%$ with a $5\\%$ defect rate. A part chosen at random is defective. What is the probability it came from Machine A?",
+      "give": ["P(A) = 0.6, P(D|A) = 0.02", "P(B) = 0.4, P(D|B) = 0.05"],
+      "steps": [
+        "Total probability of a defect: P(D) = 0.6(0.02) + 0.4(0.05)",
+        "= 0.012 + 0.020 = 0.032",
+        "Bayes: P(A|D) = P(A)P(D|A)/P(D)",
+        "= 0.012/0.032 = 0.375",
+        "Check: P(B|D) = 0.020/0.032 = 0.625, and 0.375 + 0.625 = 1 (the posteriors must sum to 1)"
+      ],
+      "ans": "$P(A\\mid D) = 0.375$ (the defect is more likely to have come from Machine B).",
+      "trap": "Answering $0.02/0.05$ or $0.6$, or dividing by $P(A)$ instead of $P(D)$. The posterior must be computed against the *evidence* probability $0.032$, and the two posteriors must add to 1 — that sum is the free check.", "calc": {"mode":"COMP","steps":["Bayes in one line, no intermediate rounding: `0.6×0.02÷(0.6×0.02+0.4×0.05)` → **0.375** for $P(A\\mid D)$.","Evidence and the other branch: `0.6×0.02+0.4×0.05` → **0.032**, and `0.4×0.05÷0.032` → **0.625** for $P(B\\mid D)$.","Free check: 0.375 + 0.625 = **1.000**, as two posteriors over an exhaustive partition must."],"note":"Divide by the total probability of the evidence, 0.032 — never by P(A) = 0.6."}
+    },
+    {
+      "prompt": "A test for a disease has $95\\%$ sensitivity and $95\\%$ specificity. The disease affects $1\\%$ of the population. A person tests positive. What is the probability that the person actually has the disease?",
+      "give": ["P(D) = 0.01", "P(+|D) = 0.95", "P(+|no D) = 0.05"],
+      "steps": [
+        "True positives: P(D and +) = 0.01 x 0.95 = 0.0095",
+        "False positives: P(no D and +) = 0.99 x 0.05 = 0.0495",
+        "Total probability of a positive: 0.0095 + 0.0495 = 0.0590",
+        "Bayes: P(D|+) = 0.0095/0.0590 = 0.161017",
+        "So about 16% of positives are true positives — the false positives outnumber them by more than 5 to 1",
+        "Note the answer is far from the 95% sensitivity, because the disease is rare (a small prior multiplies a large likelihood)"
+      ],
+      "ans": "$P(D\\mid +) \\approx 0.161$ (about $16.1\\%$).",
+      "trap": "Answering $95\\%$ by reporting the sensitivity. Sensitivity is $P(+\\mid D)$, the reverse conditional; the question asks $P(D\\mid +)$, which requires Bayes and a large correction for the low base rate.", "calc": {"mode":"COMP","steps":["True and false positives first: `0.01×0.95` → **0.0095** and `0.99×0.05` → **0.0495**.","Bayes in one line: `0.0095÷(0.0095+0.0495)` → **0.161017**, about **16.1%**.","Evidence total **0.0590**, so false positives outnumber true positives by 5.2 to 1."],"note":"0.95 is the likelihood P(+ given D), not the answer; the question asks the reverse conditional."}
+    },
+    {
+      "prompt": "A box has 5 red and 4 blue balls. Two are drawn without replacement. Find the probability that they are different colours.",
+      "give": ["5 red, 4 blue, total 9", "two draws, no replacement"],
+      "steps": [
+        "P(R then B) = (5/9)(4/8) = 20/72",
+        "P(B then R) = (4/9)(5/8) = 20/72",
+        "The two routes are mutually exclusive, so add: 40/72 = 5/9 = 0.5556",
+        "Combination check: [C(5,1)C(4,1)]/C(9,2) = (5 x 4)/36 = 20/36 = 5/9",
+        "Same-colour check for consistency: [C(5,2)+C(4,2)]/C(9,2) = (10 + 6)/36 = 16/36 = 4/9, and 5/9 + 4/9 = 1"
+      ],
+      "ans": "$P(\\mathrm{different\\ colours}) = 5/9 \\approx 0.556$.",
+      "trap": "Computing only one order, $(5/9)(4/8)=0.278$, and forgetting that blue-then-red is a distinct and equally valid route. The two orders must be added (or the combination form used, which counts both automatically).", "calc": {"mode":"COMP","steps":["Different colours, both orders counted by the combination: `5×4÷9 nCr 2` → **0.555556**.","Order-by-order check: `5÷9×4÷8×2` → **0.555556**.","Same-colour complement: `(5 nCr 2+4 nCr 2)÷9 nCr 2` → **0.444444**, and 0.5556 + 0.4444 = **1**."]}
+    }
+  ],
+  "traps": [
+    "**Adding probabilities of overlapping events.** $P(A\\cup B)=P(A)+P(B)-P(A\\cap B)$. Dropping the intersection term is only legal for mutually exclusive events.",
+    "**Confusing independent with mutually exclusive.** Mutually exclusive events with positive probability are strongly *dependent* ($P(A\\cap B)=0\\neq P(A)P(B)$). The two concepts sit at opposite ends of the dependence scale.",
+    "**Using Bayes' denominator as $P(B_j)$.** The denominator is the total probability of the observed evidence, $\\sum P(B_i)P(A\\mid B_i)$ — not the prior of the branch you are interested in.",
+    "**Answering a posterior question with a likelihood.** 'Probability of disease given a positive test' is $P(D\\mid +)$, not the sensitivity $P(+\\mid D)$. The base rate makes the two very different.",
+    "**Multiplying without adjusting for sampling without replacement.** After drawing one ball from 9 the next draw is from 8; using $5/9$ twice treats the draws as independent when they are not.",
+    "**Forgetting to add the two orders in a 'different colours' or 'one of each' question.** Both orders are disjoint events and each contributes.",
+    "**Computing $P(\\mathrm{at\\ least\\ one})$ by summing cases.** The complement $1-P(\\mathrm{none})$ is shorter and avoids the double-counting error that case-splitting invites."
+  ],
+  "refs": [
+    "[[03_Permutations_and_Combinations]]",
+    "[[05_Binomial_and_Geometric_Distributions]]",
+    "[[06_Poisson_and_Hypergeometric_Distributions]]"
+  ],
+  "prereqs": ["[[03_Permutations_and_Combinations]]"]
+}

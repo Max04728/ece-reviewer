@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resonance Curve Sweep — Series and Parallel RLC</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, deg } from '../../../Assets/vault.js';
+
+// Resonance is one frequency and three numbers: f0, BW and Q. The trap is that the two
+// circuit topologies use RECIPROCAL formulas for all three, and the exam almost always
+// gives you the topology in words. Plotting the sweep with the half-power points marked
+// lets the student check the numbers against the picture: at f1 and f2 the response must
+// be exactly 1/sqrt(2) of its peak, and f1 f2 must equal f0 squared.
+
+widget({
+  title: 'Resonance Curve Sweep — Series and Parallel RLC',
+  description:
+    'Slide R, L and C and switch between the series and the parallel tank. The upper panel sweeps the magnitude (current for series, impedance for parallel) on a log-frequency axis and marks f0 and the half-power points f1 and f2; the lower panel shows the phase. Every readout number can be checked against the marked -3 dB level.',
+  height: 540,
+  range: { xMin: -1, xMax: 1, yMin: -1, yMax: 1 },
+  controls: [
+    { id: 'topology', label: 'circuit', type: 'select', options: [
+      { value: 'series', label: 'series RLC — plot the current, I = V/|Z|' },
+      { value: 'parallel', label: 'parallel RLC — plot the impedance, |Z| = 1/|Y|' },
+    ], value: 'series' },
+    { id: 'R', label: 'R (ohms)', min: 1, max: 1000, step: 1, value: 10 },
+    { id: 'L', label: 'L (mH)', min: 0.1, max: 100, step: 0.1, value: 10 },
+    { id: 'C', label: 'C (uF)', min: 0.01, max: 100, step: 0.01, value: 1 },
+    { id: 'span', label: 'sweep width (decades, centred on f0)', min: 1, max: 4, step: 0.5, value: 3 },
+  ],
+
+  compute: (v) => {
+    const R = Math.max(1e-6, v.R);
+    const L = Math.max(1e-9, v.L * 1e-3);        // mH -> H
+    const C = Math.max(1e-12, v.C * 1e-6);       // uF -> F
+    const series = v.topology !== 'parallel';
+
+    const w0 = 1 / Math.sqrt(L * C);
+    const f0 = w0 / (2 * Math.PI);
+    const Z0 = Math.sqrt(L / C);                 // characteristic impedance
+    const BW = series ? R / (2 * Math.PI * L) : 1 / (2 * Math.PI * R * C);
+    const Q = f0 / BW;
+    const Qcheck = series ? Z0 / R : R / Z0;     // must equal f0/BW
+
+    const root = Math.sqrt(1 + 1 / (4 * Q * Q));
+    const f1 = f0 * (root - 1 / (2 * Q));
+    const f2 = f0 * (root + 1 / (2 * Q));
+
+    const magAt = (f) => {
+      const w = 2 * Math.PI * f;
+      if (series) {
+        const X = w * L - 1 / (w * C);
+        return 1 / Math.sqrt(R * R + X * X);
+      }
+      const G = 1 / R;
+      const B = w * C - 1 / (w * L);
+      return 1 / Math.sqrt(G * G + B * B);
+    };
+    const phaseAt = (f) => {
+      const w = 2 * Math.PI * f;
+      if (series) return -Math.atan2(w * L - 1 / (w * C), R);
+      return -Math.atan2(w * C - 1 / (w * L), 1 / R);
+    };
+
+    const span = Math.max(0.5, v.span);
+    const fLo = f0 / Math.pow(10, span / 2);
+    const fHi = f0 * Math.pow(10, span / 2);
+
+    const magPeak = magAt(f0);
+    const mag1 = magAt(f1);
+    const mag2 = magAt(f2);
+    const ph1 = deg(phaseAt(f1));
+    const ph0 = deg(phaseAt(f0 * 0.999999));
+    const f1f2 = f1 * f2;
+    const halfPowerRatio = magPeak > 0 ? mag1 / magPeak : 0;
+
+    const damped = Q < 0.5;
+    const label = series ? 'current I = V/|Z| with V = 1 V (A)' : 'impedance |Z| (ohms)';
+
+    return { R, L, C, series, w0, f0, Z0, BW, Q, Qcheck, f1, f2, fLo, fHi,
+             magAt, phaseAt, magPeak, mag1, mag2, ph1, ph0, f1f2, halfPowerRatio,
+             damped, label, LmH: v.L, CuF: v.C, span,
+             reactanceAtF0: w0 * L - 1 / (w0 * C) };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const pad = plot.pad;
+    const GA = { x0: 104, x1: plot.w - 40, y0: 110, y1: 306 };
+    const GB = { x0: 104, x1: plot.w - 40, y0: 372, y1: 484 };
+
+    const fLo = out.fLo || 1, fHi = out.fHi || 10;
+    const lgLo = Math.log10(fLo), lgHi = Math.log10(fHi);
+    const magAt = out.magAt || (() => 0);
+    const phaseAt = out.phaseAt || (() => 0);
+    const peak = out.magPeak > 0 ? out.magPeak : 1;
+
+    const XA = (f) => GA.x0 + ((Math.log10(f) - lgLo) / (lgHi - lgLo)) * (GA.x1 - GA.x0);
+    const YA = (m) => GA.y1 - (m / (peak * 1.10)) * (GA.y1 - GA.y0);
+    const XB = (f) => GB.x0 + ((Math.log10(f) - lgLo) / (lgHi - lgLo)) * (GB.x1 - GB.x0);
+    const YB = (d) => (GB.y0 + GB.y1) / 2 - (d / 90) * ((GB.y1 - GB.y0) / 2);
+
+    const line = (fn, xf, yf, x1, x2, color, width, dash, n) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      let started = false;
+      for (let i = 0; i <= (n || 1200); i++) {
+        const f = Math.pow(10, lgLo + (lgHi - lgLo) * (i / (n || 1200)));
+        const y = fn(f);
+        if (!Number.isFinite(y)) { started = false; continue; }
+        const px = xf(f), py = yf(y);
+        if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+    const vline = (f, y0, y1, color, width, dash) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath(); ctx.moveTo(XA(f), y0); ctx.lineTo(XA(f), y1); ctx.stroke();
+      ctx.restore();
+    };
+
+    // ------------------------------------------------------- upper panel frame
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let d = Math.ceil(lgLo); d <= lgHi; d++) {
+      const px = XA(Math.pow(10, d));
+      ctx.beginPath(); ctx.moveTo(px, GA.y0); ctx.lineTo(px, GA.y1); ctx.stroke();
+    }
+    for (let k = 0; k <= 5; k++) {
+      const py = GA.y1 - (k / 5) * (GA.y1 - GA.y0);
+      ctx.beginPath(); ctx.moveTo(GA.x0, py); ctx.lineTo(GA.x1, py); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.strokeRect(GA.x0, GA.y0, GA.x1 - GA.x0, GA.y1 - GA.y0);
+    ctx.strokeRect(GB.x0, GB.y0, GB.x1 - GB.x0, GB.y1 - GB.y0);
+    ctx.restore();
+
+    // decade ticks
+    for (let d = Math.ceil(lgLo); d <= lgHi; d++) {
+      plot.text('1e' + d, XA(Math.pow(10, d)), GB.y1 + 15,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('frequency (Hz), logarithmic axis', (GB.x0 + GB.x1) / 2, GB.y1 + 32,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+
+    // magnitude axis labels
+    for (let k = 0; k <= 5; k++) {
+      const val = (k / 5) * peak * 1.10;
+      plot.text(fmt(val, 4), GA.x0 - 6, YA(val) + 4,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+
+    // half-power level
+    const hp = peak / Math.SQRT2;
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(GA.x0, YA(hp)); ctx.lineTo(GA.x1, YA(hp)); ctx.stroke();
+    ctx.restore();
+    plot.text('half-power level = peak / sqrt(2) = ' + fmt(hp, 5), GA.x1, YA(hp) - 6,
+      { color: PALETTE.accent3, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // f0, f1, f2 markers
+    vline(out.f0, GA.y0, GA.y1, PALETTE.accent2, 2, [6, 4]);
+    vline(out.f1, GA.y0, GA.y1, PALETTE.warn, 1.4, [4, 3]);
+    vline(out.f2, GA.y0, GA.y1, PALETTE.warn, 1.4, [4, 3]);
+    plot.text('f0 = ' + fmt(out.f0, 5) + ' Hz', XA(out.f0) + 5, GA.y0 + 14,
+      { color: PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('f1 = ' + fmt(out.f1, 5), XA(out.f1) + 4, GA.y0 + 30,
+      { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    plot.text('f2 = ' + fmt(out.f2, 5), XA(out.f2) + 4, GA.y0 + 44,
+      { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+
+    // band width bracket at the half-power level
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 1.6;
+    const ybr = YA(hp) + 16;
+    ctx.beginPath();
+    ctx.moveTo(XA(out.f1), ybr); ctx.lineTo(XA(out.f2), ybr);
+    ctx.moveTo(XA(out.f1), ybr - 5); ctx.lineTo(XA(out.f1), ybr + 5);
+    ctx.moveTo(XA(out.f2), ybr - 5); ctx.lineTo(XA(out.f2), ybr + 5);
+    ctx.stroke();
+    ctx.restore();
+    plot.text('BW = ' + fmt(out.BW, 5) + ' Hz', (XA(out.f1) + XA(out.f2)) / 2, ybr - 6,
+      { color: PALETTE.warn, font: 'bold 10px ui-monospace, monospace', align: 'center' });
+
+    // the response itself
+    line(magAt, XA, YA, fLo, fHi, out.series ? PALETTE.accent : PALETTE.accent4, 2.6, null, 1400);
+    plot.text(out.label, GA.x0, GA.y0 - 10, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('peak at resonance = ' + fmt(peak, 5) + (out.series ? ' A   (I = V/R = 1/' + fmt(out.R, 4) + ')' : ' ohm   (|Z| = R)'),
+      GA.x1, GA.y0 - 10, { color: PALETTE.accent3, font: '11px ui-monospace, monospace', align: 'right' });
+
+    // ------------------------------------------------------- lower panel: phase
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let dg = -90; dg <= 90; dg += 45) {
+      ctx.beginPath(); ctx.moveTo(GB.x0, YB(dg)); ctx.lineTo(GB.x1, YB(dg)); ctx.stroke();
+    }
+    for (let d = Math.ceil(lgLo); d <= lgHi; d++) {
+      const px = XB(Math.pow(10, d));
+      ctx.beginPath(); ctx.moveTo(px, GB.y0); ctx.lineTo(px, GB.y1); ctx.stroke();
+    }
+    ctx.restore();
+    for (const dg of [-90, -45, 0, 45, 90]) {
+      plot.text(dg + ' deg', GB.x0 - 6, YB(dg) + 4,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(GB.x0, YB(0)); ctx.lineTo(GB.x1, YB(0)); ctx.stroke();
+    ctx.restore();
+    vline(out.f0, GB.y0, GB.y1, PALETTE.accent2, 2, [6, 4]);
+    vline(out.f1, GB.y0, GB.y1, PALETTE.warn, 1.2, [4, 3]);
+    vline(out.f2, GB.y0, GB.y1, PALETTE.warn, 1.2, [4, 3]);
+    line((f) => deg(phaseAt(f)), XB, YB, fLo, fHi, PALETTE.accent5, 2.4, null, 1400);
+    plot.text('phase of ' + (out.series ? 'the current' : 'the impedance') +
+      '   (at f1 it is ' + fmt(out.ph1, 5) + ' deg, i.e. +/-45 deg at the half-power points)',
+      GB.x0, GB.y0 - 8, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('exactly 0 deg at f0: the reactance cancels (' + (out.series ? 'wL = 1/wC' : 'wC = 1/wL') + ')',
+      GB.x1, GB.y0 - 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+
+    // ---------------------------------------------------------------- header text
+    plot.text('f0 = 1/(2 pi sqrt(LC)) = 1/(2 pi sqrt(' + fmt(out.L, 4) + ' x ' + fmt(out.C, 4) + ')) = ' +
+      fmt(out.f0, 6) + ' Hz          w0 = 1/sqrt(LC) = ' + fmt(out.w0, 6) + ' rad/s          Z0 = sqrt(L/C) = ' +
+      fmt(out.Z0, 5) + ' ohm',
+      pad + 8, pad + 16, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('BW = ' + (out.series ? 'R/(2 pi L)' : '1/(2 pi R C)') + ' = ' + fmt(out.BW, 6) +
+      ' Hz          Q = f0/BW = ' + fmt(out.Q, 6) + '          check Q = ' + (out.series ? 'Z0/R' : 'R/Z0') +
+      ' = ' + fmt(out.Qcheck, 6),
+      pad + 8, pad + 34, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text('f1 = ' + fmt(out.f1, 6) + ' Hz     f2 = ' + fmt(out.f2, 6) + ' Hz     f2 - f1 = ' + fmt(out.f2 - out.f1, 6) +
+      ' Hz     f1 x f2 = ' + fmt(out.f1f2, 6) + ' and f0^2 = ' + fmt(out.f0 * out.f0, 6) + '  (must agree)',
+      pad + 8, pad + 52, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+    plot.text('at f1 the response is ' + fmt(out.mag1, 6) + ' = ' + fmt(out.halfPowerRatio * 100, 5) +
+      '% of the peak, and at f2 it is ' + fmt(out.mag2, 6) + '   (both must be 70.71%)',
+      pad + 8, pad + 70, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+
+    // ---------------------------------------------------------------- verdict bar
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(pad + 4, plot.h - pad - 32, plot.iw, 32);
+    ctx.restore();
+    const line1 = out.series
+      ? 'SERIES: at resonance the reactances cancel, so |Z| is MINIMUM (= R) and the current is MAXIMUM.  Q = (1/R)sqrt(L/C) = ' + fmt(out.Q, 5)
+      : 'PARALLEL: at resonance the susceptances cancel, so |Z| is MAXIMUM (= R) and the line current is MINIMUM.  Q = R sqrt(C/L) = ' + fmt(out.Q, 5);
+    const line2 = (out.series
+      ? 'The dual (parallel) tank uses BW = 1/(2 pi R C) and Q = R sqrt(C/L) — the RECIPROCAL of this Q.  '
+      : 'The dual (series) tank uses BW = R/(2 pi L) and Q = (1/R)sqrt(L/C) — the RECIPROCAL of this Q.  ') +
+      (out.damped ? 'Q < 0.5, so the response is very broad.' : 'Higher Q = narrower band.');
+    plot.text(line1, pad + 14, plot.h - pad - 21,
+      { color: out.series ? PALETTE.accent : PALETTE.accent4, font: 'bold 10px ui-monospace, monospace' });
+    plot.text(line2, pad + 14, plot.h - pad - 7,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'circuit': out.series ? 'series RLC' : 'parallel RLC',
+    'resonant frequency f0': fmt(out.f0, 6) + ' Hz   (w0 = ' + fmt(out.w0, 6) + ' rad/s)',
+    'bandwidth BW': fmt(out.BW, 6) + ' Hz   [' + (out.series ? 'R/(2 pi L)' : '1/(2 pi R C)') + ']',
+    'quality factor Q = f0/BW': fmt(out.Q, 6) + '   [cross-check ' + (out.series ? 'Z0/R' : 'R/Z0') + ' = ' + fmt(out.Qcheck, 6) + ']',
+    'half-power f1': fmt(out.f1, 6) + ' Hz',
+    'half-power f2': fmt(out.f2, 6) + ' Hz',
+    'f2 - f1 (should equal BW)': fmt(out.f2 - out.f1, 6) + ' Hz   [BW = ' + fmt(out.BW, 6) + ' Hz]',
+    'f1 x f2 (should equal f0^2)': fmt(out.f1f2, 6) + '   vs f0^2 = ' + fmt(out.f0 * out.f0, 6),
+    'response at resonance': out.series
+      ? fmt(out.magPeak, 6) + ' A   (I_max = V/R with V = 1 V)'
+      : fmt(out.magPeak, 6) + ' ohm   (|Z|_max = R)',
+    'response at f1 and f2': fmt(out.mag1, 6) + ' and ' + fmt(out.mag2, 6) + '   = ' + fmt(out.halfPowerRatio * 100, 5) + '% of peak (must be 70.71%)',
+    'phase at f1 / f2': fmt(out.ph1, 5) + ' deg at f1   (the half-power points are exactly the +/-45 deg points)',
+    'characteristic impedance Z0': fmt(out.Z0, 6) + ' ohm   = sqrt(L/C)',
+    'net reactance at f0': fmt(out.reactanceAtF0, 6) + '   (zero at resonance — the cancellation condition)',
+    'Q interpretation': out.Q > 20 ? 'very selective (narrow band, high Q)'
+      : out.Q > 2 ? 'moderately selective'
+      : out.Q > 0.5 ? 'broad (low Q)' : 'very broad — Q < 0.5, barely resonant',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>One frequency, reciprocal formulas.</strong> f0 = 1/(2&pi;&radic;(LC)) is the same for both ' +
+  'topologies, but everything else flips: the series tank has BW = R/(2&pi;L) and Q = (1/R)&radic;(L/C), ' +
+  'while the parallel tank has BW = 1/(2&pi;RC) and Q = R&radic;(C/L). Equivalently, Q = Z0/R for series ' +
+  'and Q = R/Z0 for parallel, with Z0 = &radic;(L/C) in both. Switch the topology here without touching R, ' +
+  'L, C and watch Q invert. ' +
+  '<br><br><strong>What "resonance" means physically.</strong> In series the reactances cancel, |Z| is at its ' +
+  '<em>minimum</em> (= R) and the current peaks; in parallel the susceptances cancel, |Z| is at its ' +
+  '<em>maximum</em> (= R) and the line current dips. Both are the same algebra: the imaginary part of Z (or Y) ' +
+  'is zero, which happens at &omega;L = 1/&omega;C. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> using the series bandwidth formula on a parallel circuit. ' +
+  'The second reliable trap is the units: L in mH and C in &micro;F must become H and F before substituting. ' +
+  'Leave L in mH and it is 1000x too large; leave C in &micro;F and it is 10&#8310;x too large; LC is then ' +
+  '10&#8313;x too large and f0 comes out 10^4.5 &asymp; 31 623 times too small (about 0.05 Hz instead of ' +
+  '1592 Hz) &mdash; a wrong answer that looks plausible on paper. A third check that costs nothing: at the ' +
+  'half-power points the response must be exactly 70.71 % of the peak and the phase must be &plusmn;45&deg;, ' +
+  'and f1&middot;f2 must equal f0&sup2;. If your hand-computed f1 and f2 fail either test, the algebra is wrong ' +
+  'even before you look at the graph. Finally, a high-Q circuit is <em>narrowband</em> &mdash; a common ' +
+  'mis-reading is to assume a large Q means a wide, powerful response.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

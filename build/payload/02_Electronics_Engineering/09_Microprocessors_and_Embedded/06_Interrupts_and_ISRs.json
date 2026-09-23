@@ -1,0 +1,96 @@
+{
+  "scope": "Cost an interrupt from request to return, and size an ISR budget against the event rate it must service.",
+  "intuition": "An interrupt makes the CPU drop what it is doing and answer the phone. The price is the time to finish the sentence it was in the middle of, write down where it was, and only then pick up.",
+  "concept": [
+    "**Interrupt versus polling.** Polling is a software loop that asks each device in turn whether it needs service; the worst-case latency is the time to walk the whole loop, and the CPU pays that cost whether or not anything happened. An interrupt is a hardware signal that stops the current instruction stream as soon as the CPU is willing; the CPU pays nothing while nothing happens, and the latency is short and nearly constant. The rule of thumb is polling for dense, predictable events and interrupts for sparse, urgent ones.",
+    "**The categories.** *Maskable* interrupts can be disabled in software (the usual IRQ lines); *non-maskable* interrupts cannot and are reserved for power-fail and watchdogs. *Hardware* interrupts come from a pin; *software* interrupts and traps come from an instruction or from a fault such as divide-by-zero. *Edge-triggered* inputs latch a pulse and fire once; *level-triggered* inputs fire as long as the line is asserted, so the ISR must clear the source or it re-enters forever. *Vectored* interrupts carry an index into a vector table so the CPU jumps straight to the right ISR; *non-vectored* interrupts share one entry point that must poll to find the source.",
+    "**The interrupt sequence.** The CPU finishes the instruction in progress (it cannot abandon a half-completed bus cycle), saves the return address and the status register, disables further interrupts of that priority, fetches the vector, and jumps to the ISR. The ISR saves any registers it will clobber, services the device, **clears the peripheral's interrupt flag**, restores the registers, and returns with the interrupt-return instruction, which re-enables interrupts as a side effect. Forgetting the flag clear is the single most common ISR bug.",
+    "**Latency is more than the service time.** Latency is the delay from the request to the first instruction of the ISR: the longest possible current instruction, plus context save, plus vector fetch. Service time is how long the ISR runs. Overhead is the fraction of CPU time consumed, $t_{ISR}/T_{event}$, and it must stay well below 1 or the machine never returns to the main loop.",
+    "**Sharing state safely.** A variable written by an ISR and read by the main loop must be `volatile` so the compiler does not cache it in a register, and it must be accessed atomically. A 16-bit variable on an 8-bit CPU takes two instructions to read, and an interrupt between them yields a torn value. The fix is to disable interrupts around the read, or to use a single-instruction-atomic access, or a double-buffer/queue."
+  ],
+  "formulas": [
+    { "q": "Interrupt latency", "e": "t_{lat} = t_{finish\\_inst} + t_{save} + t_{vector} + t_{entry}", "n": "Worst case uses the longest instruction in the ISA. Latency is not the ISR's run time." },
+    { "q": "CPU overhead of an ISR", "e": "\\mathrm{overhead} = \\frac{t_{ISR}}{T_{event}} \\times 100\\%", "n": "T_event = interval between interrupts. Above roughly 70 % the main loop starves; protocol stacks and watchdogs need much lower." },
+    { "q": "Maximum serviceable event rate", "e": "f_{max} = \\frac{1}{t_{ISR}}", "n": "Beyond this the CPU is permanently inside the ISR and can never return to the background task." },
+    { "q": "Polling worst-case latency", "e": "t_{poll,max} = n \\times t_{poll}", "n": "n devices, t_poll per device. Note this is paid continuously, unlike interrupt latency." },
+    { "q": "CPU seconds spent in the ISR", "e": "t_{CPU} = f_{event} \\times t_{ISR}", "n": "Per second of operation. Multiply by 100 for a percentage." },
+    { "q": "Nested (priority) ISR total", "e": "t_{total} = \\sum_i t_{ISR,i} + n \\times t_{context}", "n": "Each nesting level adds its own context save. Nested service is not concurrent — the CPU is still one core." }
+  ],
+  "problems": [
+    {
+      "prompt": "An ISR takes 20 us to service the device plus 5 us of context save and restore, and the device interrupts every 1 ms. Find the CPU overhead and the maximum rate the ISR could service.",
+      "give": ["service = 20 us", "context = 5 us", "event period = 1 ms"],
+      "steps": [
+        "$t_{ISR} = 20 + 5 = 25\\ \\mu s$",
+        "Overhead $= 25\\ \\mu s / 1000\\ \\mu s = 0.025$",
+        "As a percentage: 2.5 %",
+        "$f_{max} = 1/25\\ \\mu s = 40$ kHz"
+      ],
+      "ans": "2.5 % CPU overhead; up to 40 kHz of events.",
+      "trap": "Omitting the context save from the overhead budget. Context save and restore run on every interrupt and often exceed the actual servicing time."
+    },
+    {
+      "prompt": "A CPU at 20 MHz has a longest instruction of 2 us. Context save takes 12 clock cycles and the vector fetch 4 cycles. Find the worst-case interrupt latency.",
+      "give": ["$f_{clk} = 20$ MHz", "longest instruction = 2 us", "context save = 12 cycles", "vector fetch = 4 cycles"],
+      "steps": [
+        "$T_{clk} = 1/(20 \\times 10^{6}) = 50$ ns",
+        "Context save $= 12 \\times 50\\ \\mathrm{ns} = 0.6\\ \\mu s$",
+        "Vector fetch $= 4 \\times 50\\ \\mathrm{ns} = 0.2\\ \\mu s$",
+        "$t_{lat} = 2 + 0.6 + 0.2 = 2.8\\ \\mu s$"
+      ],
+      "ans": "Worst-case latency $2.8\\ \\mu s$.",
+      "trap": "Reporting the ISR service time as the latency. Latency is measured to the first ISR instruction and includes finishing the current instruction."
+    },
+    {
+      "prompt": "A polling loop services 30 devices, spending 400 ns on each. Compare its worst-case response with the 2.8 us interrupt latency of the previous problem.",
+      "give": ["30 devices", "400 ns per device", "interrupt latency = 2.8 us"],
+      "steps": [
+        "$t_{poll,max} = 30 \\times 400\\ \\mathrm{ns} = 12\\ \\mu s$",
+        "Compare: $12\\ \\mu s$ polling versus $2.8\\ \\mu s$ interrupt latency",
+        "Polling also burns 30 × 400 ns of CPU on every pass whether or not a device needs service",
+        "Interrupts win on both latency (4.3x better) and idle cost"
+      ],
+      "ans": "Polling worst case $12\\ \\mu s$ versus $2.8\\ \\mu s$ for interrupts; interrupts are about 4.3 times faster to respond.",
+      "trap": "Comparing polling's *average* latency (half the loop) with the interrupt's *worst case*. Worst case against worst case is the only fair comparison."
+    },
+    {
+      "prompt": "A UART runs at 9600 baud, 8 data bits, no parity, 1 stop bit, and interrupts once per received character. The ISR takes 15 us. Find the character rate and the ISR overhead.",
+      "give": ["9600 baud", "8N1", "ISR = 15 us"],
+      "steps": [
+        "Frame length $= 1$ start $+ 8$ data $+ 1$ stop $= 10$ bits",
+        "Frame time $= 10/9600 = 1.0417$ ms",
+        "Character rate $= 1/1.0417\\ \\mathrm{ms} = 960$ characters/s",
+        "Overhead $= 15\\ \\mu s/1041.7\\ \\mu s = 1.44\\%$"
+      ],
+      "ans": "960 characters/s; 1.44 % CPU overhead.",
+      "trap": "Using 9600/8 = 1200 characters/s by ignoring the start and stop bits. The framing bits are transmitted at the same baud rate and consume real time."
+    },
+    {
+      "prompt": "Three nested interrupts of 8 us, 12 us and 20 us occur in that order, each with a 1 us context save. Find the time from the first request to the return to the main loop, and explain whether the total is the sum.",
+      "give": ["ISR1 = 8 us", "ISR2 = 12 us", "ISR3 = 20 us", "context = 1 us each, nested"],
+      "steps": [
+        "Total service $= 8 + 12 + 20 = 40\\ \\mu s$",
+        "Context saves $= 3 \\times 1 = 3\\ \\mu s$",
+        "$t_{total} = 43\\ \\mu s$ before the main loop resumes",
+        "The CPU is a single core, so nested interrupts serialise — the total is the sum, not the maximum"
+      ],
+      "ans": "$43\\ \\mu s$; nested ISRs serialise, so their times add.",
+      "trap": "Assuming nesting gives parallel service and reporting the longest ISR. Nesting only changes *priority* — the instructions still execute one after another."
+    }
+  ],
+  "traps": [
+    "**Not clearing the peripheral's interrupt flag.** The request stays asserted, the ISR re-enters immediately on return, and the main loop never runs again.",
+    "**Equating latency with service time.** Latency runs from the request to the first ISR instruction and includes finishing the current — possibly longest — instruction plus the context save.",
+    "**Assuming interrupts nest automatically.** Most CPUs disable interrupts on entry; a higher-priority interrupt is served only if the ISR explicitly re-enables them.",
+    "**Sharing a multi-byte variable with an ISR without protection.** A 16-bit read on an 8-bit CPU takes two instructions, so an interrupt between them yields a torn value; disable interrupts around the read or use an atomic access.",
+    "**Forgetting `volatile`.** Without it the compiler may cache the ISR-updated variable in a register and the main loop never observes the change.",
+    "**Treating a level-triggered input like an edge.** A level-triggered request that stays asserted re-enters the ISR until the source is cleared; an edge-triggered pulse that is missed is lost forever."
+  ],
+  "refs": [
+    "[[04_Instruction_and_Machine_Cycles]]",
+    "[[07_DMA_and_Bus_Arbitration]]",
+    "[[08_GPIO_and_Timer_Peripherals]]",
+    "[[10_Serial_Interfaces_UART,_SPI,_I2C]]"
+  ],
+  "prereqs": ["[[04_Instruction_and_Machine_Cycles]]"]
+}

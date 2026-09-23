@@ -1,0 +1,102 @@
+{
+  "scope": "Compute volumes of revolution using cylindrical shells, and choose between shells and washers.",
+  "intuition": "Instead of stacking flat disks, wrap thin cylindrical shells around the axis. Each shell is an unrolled rectangle: circumference times height times thickness. Shells are the method of choice when the region is naturally described with the variable running parallel to the axis of rotation.",
+  "concept": [
+    "**The shell element.** A vertical strip of width $dx$ at distance $x$ from the $y$-axis, of height $h(x)$, when revolved about the $y$-axis sweeps a cylindrical shell of volume $dV = 2\\pi x\\,h(x)\\,dx$. The three factors have direct geometric meaning: $2\\pi x$ is the circumference, $h(x)$ is the height, and $dx$ is the wall thickness. Reading the formula that way makes it easy to adapt when the geometry changes.",
+    "**The shell formula.** $V = 2\\pi\\int_a^b (\\mathrm{radius})(\\mathrm{height})\\,dx$. For a region between $y = f(x)$ and $y = g(x)$ with $f\\geq g$, the height is $f(x)-g(x)$ and the radius is the distance from the strip to the axis of rotation. Note the contrast with washers: shells multiply radius by height, washers subtract squared radii. Choosing the right method is usually about which produces the simpler integrand.",
+    "**Shells versus washers — how to choose.** Washers integrate *perpendicular* to the axis of rotation; shells integrate *parallel* to it. So: rotating about the $y$-axis, a vertical strip is parallel to the axis, hence shells; a horizontal strip is perpendicular, hence washers. The practical rule is to pick whichever description of the region avoids solving for the other variable, since that is what prevents splitting the integral.",
+    "**Rotation about a vertical line $x = h$.** The radius becomes $|x - h|$. When the region lies entirely to one side of the line, the absolute value is unnecessary and the expression stays simple. Rotating about the $y$-axis is the special case $h = 0$.",
+    "**Rotation about a horizontal line using shells.** Rotating about $y = k$ with horizontal strips in $y$: the radius is $|y-k|$ and the height is expressed as a horizontal length $x_R(y)-x_L(y)$, so $V = 2\\pi\\int (y-k)\\,(x_R-x_L)\\,dy$. The structure is unchanged — radius times height — only the direction of the strip differs."
+  ],
+  "derive": [
+    "**The shell element from a rectangle.** A rectangle of height $h$ and width $\\Delta x$, at distance $x$ from the axis, when rotated about the axis generates a cylindrical shell with outer radius $x+\\Delta x$ and inner radius $x$. Its volume is the difference of two cylinders:\n\n$$\\pi(x+\\Delta x)^2h - \\pi x^2h = \\pi h\\left(2x\\Delta x + (\\Delta x)^2\\right) = 2\\pi x h\\,\\Delta x + \\pi h(\\Delta x)^2.$$\n\nAs $\\Delta x\\to 0$ the term in $(\\Delta x)^2$ is negligible relative to the linear one, leaving $dV = 2\\pi xh\\,dx$. This is why the shell formula has no second-order correction and is exact in the limit.",
+    "**Summing to the integral.** Partitioning the region into strips and summing $2\\pi x_i h(x_i)\\Delta x$ gives a Riemann sum for $2\\pi\\int_a^b xh(x)\\,dx$. The same limiting argument as for disks applies: because the integrand is continuous, the sum converges to the integral.",
+    "**Why shells and washers agree.** Both compute the same volume, so any problem can be done either way; the difference is purely the shape of the approximating element. This is worth verifying once on a known solid — for example, the cone formed by rotating $y = x$ on $[0,h]$ about the $y$-axis gives $\\frac{\\pi h^3}{3}$ by shells and by washers — because it converts the method choice into a matter of convenience rather than correctness."
+  ],
+  "formulas": [
+    { "q": "Shell element", "e": "dV = 2\\pi(\\mathrm{radius})(\\mathrm{height})\\,dx", "n": "Circumference times height times thickness." },
+    { "q": "Shells about the y-axis", "e": "V = 2\\pi\\int_a^b x\\,h(x)\\,dx", "n": "x is the radius; h is the strip height to the axis." },
+    { "q": "Shells, general vertical axis", "e": "V = 2\\pi\\int_a^b (x-h)\\,h(x)\\,dx", "n": "Axis x = h. Use |x-h| if the region straddles the axis." },
+    { "q": "Shells with horizontal strips", "e": "V = 2\\pi\\int_c^d y\\,\\left[x_R(y)-x_L(y)\\right]dy", "n": "Radius is y; height is the horizontal length." },
+    { "q": "Shells about y = k", "e": "V = 2\\pi\\int_c^d (y-k)\\left[x_R-x_L\\right]dy", "n": "Radius measured from the strip to the line y = k." },
+    { "q": "Method choice", "e": "\\mathrm{strips} \\parallel \\mathrm{axis} \\Rightarrow \\mathrm{shells}", "n": "Perpendicular strips give washers." },
+    { "q": "Cone check", "e": "V = 2\\pi\\int_0^h x\\left(h-x\\right)dx = \\frac{\\pi h^3}{3}", "n": "Calibration: rotating y = x about the y-axis." },
+    { "q": "Shell surface analogy", "e": "\\mathrm{unrolled\\ shell} = 2\\pi r \\times h", "n": "The lateral area of a cylinder; useful for intuition." }
+  ],
+  "problems": [
+    {
+      "prompt": "Find the volume generated by rotating $y = x^2$ on $[0,2]$ about the $y$-axis using cylindrical shells.",
+      "give": ["shell method", "region given in x"],
+      "steps": [
+        "A vertical strip at x has radius x and height x^2",
+        "V = 2pi∫_0^2 x(x^2)dx = 2pi∫_0^2 x^3 dx",
+        "= 2pi[x^4/4]_0^2 = 2pi(4)"
+      ],
+      "ans": "$8\\pi$ cubic units",
+      "trap": "Using the shell formula with the radius and height swapped. Radius is the distance to the axis (x); height is the function value (x^2)."
+    },
+    {
+      "prompt": "Find the volume generated by rotating the region bounded by $y = x$ and $y = x^2$ about the $y$-axis.",
+      "give": ["shell method", "height is the difference of curves"],
+      "steps": [
+        "Intersections: x = x^2 at x = 0 and x = 1",
+        "On (0,1) the line is above the parabola, so height = x - x^2",
+        "Radius = x (distance to the y-axis)",
+        "V = 2pi∫_0^1 x(x - x^2)dx = 2pi∫_0^1 (x^2 - x^3)dx",
+        "= 2pi[x^3/3 - x^4/4]_0^1 = 2pi(1/3 - 1/4) = 2pi(1/12)"
+      ],
+      "ans": "$\\dfrac{\\pi}{6}$ cubic units",
+      "trap": "Using washers here. Washers about the y-axis would require solving both curves for x and splitting into two integrals, because the inner boundary changes at the vertex of the parabola."
+    },
+    {
+      "prompt": "Find the volume generated by rotating $y = x^2$ on $[0,2]$ about the line $x = 3$.",
+      "give": ["vertical axis offset from the region"],
+      "steps": [
+        "The region lies entirely to the left of x = 3, so the radius of a strip at x is (3 - x)",
+        "Height of the strip is x^2",
+        "V = 2pi∫_0^2 (3-x)(x^2)dx = 2pi∫_0^2 (3x^2 - x^3)dx",
+        "= 2pi[x^3 - x^4/4]_0^2 = 2pi(8 - 4) = 2pi(4)"
+      ],
+      "ans": "$8\\pi$ cubic units",
+      "trap": "Using radius x instead of 3 - x. The radius is always the distance from the strip to the stated axis of rotation, not to the y-axis."
+    },
+    {
+      "prompt": "Find the volume generated by rotating $x = y^2$ on $[0,2]$ about the $x$-axis using shells.",
+      "give": ["horizontal strips", "axis is horizontal"],
+      "steps": [
+        "Strips parallel to the x-axis are horizontal, at height y, with radius y (distance to the x-axis)",
+        "Solve for the horizontal length: x = y^2, so the strip runs from x = 0 to x = y^2, giving height y^2",
+        "V = 2pi∫_0^2 y(y^2)dy = 2pi∫_0^2 y^3 dy",
+        "= 2pi[y^4/4]_0^2 = 2pi(4)"
+      ],
+      "ans": "$8\\pi$ cubic units",
+      "trap": "Using vertical strips for rotation about a horizontal axis. Shells require strips parallel to the axis, so for the x-axis the strips must be horizontal."
+    },
+    {
+      "prompt": "The region bounded by $y = 1/x$, $y = 0$, $x = 1$ and $x = 3$ is rotated about the $y$-axis. Find the volume.",
+      "give": ["shell method, straightforward"],
+      "steps": [
+        "Radius = x, height = 1/x",
+        "V = 2pi∫_1^3 x(1/x)dx = 2pi∫_1^3 1 dx",
+        "= 2pi[x]_1^3 = 2pi(2)"
+      ],
+      "ans": "$4\\pi$ cubic units",
+      "trap": "Missing the cancellation of x with 1/x, which turns the integrand into a constant. Recognising this simplifies the integral enormously and reduces error risk."
+    }
+  ],
+  "traps": [
+    "**Confusing radius and height.** In $2\\pi\\int(\\mathrm{radius})(\\mathrm{height})$, the radius is the distance from the strip to the *axis of rotation*, and the height is the length of the strip. Swapping them gives a wrong answer that still looks plausible.",
+    "**Using shells with strips perpendicular to the axis.** Shells need strips *parallel* to the rotation axis. Rotating about the $y$-axis means vertical strips; about the $x$-axis, horizontal strips.",
+    "**Using radius $x$ for an axis at $x = h$.** The radius is $|x-h|$, not $x$.",
+    "**Forgetting the $2\\pi$.** The factor comes from the circumference; a shell answer missing it is off by a factor of about 6.28.",
+    "**Choosing shells when washers are far simpler** (or vice versa). Both are correct; pick whichever avoids solving for the other variable or splitting the region.",
+    "**Not finding the intersections** when the height is a difference of curves. As always, the intersections determine the limits and where the upper curve changes.",
+    "**Sign errors from a negative radius.** If a strip lies on the far side of the axis, $x-h$ is negative. Use the absolute distance, or set up the region so it lies entirely on one side."
+  ],
+  "refs": [
+    "[[11_Volumes_by_Slicing,_Disk_and_Washer]]",
+    "[[13_Arc_Length_and_Surface_Area]]",
+    "[[14_Centroids_and_Pappus-Guldinus]]"
+  ],
+  "prereqs": ["[[09_Plane_Areas_Cartesian]]"]
+}

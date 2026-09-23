@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gauss-Jordan Step Animator — 2x2 System Elimination</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+// A pure-DOM widget. There is no canvas and no range input, so the shared runtime has
+// nothing to supply and nothing is imported from vault.js. All arithmetic is 64-bit
+// floating point done here, and every intermediate matrix shown is a genuine state of
+// the augmented matrix -- nothing on screen is a scripted animation of a pre-baked path.
+//
+// The model is the 2x2 system
+//        a11 x + a12 y = b1
+//        a21 x + a22 y = b2
+// and the widget performs forward elimination (Gaussian) or full Gauss-Jordan
+// elimination to reduced row echelon form, one elementary row operation at a time.
+
+const fmtN = (x, sig) => {
+  if (x === null || x === undefined || Number.isNaN(x)) return 'n/a';
+  if (!Number.isFinite(x)) return x > 0 ? '+inf' : '-inf';
+  const s = sig === undefined ? 4 : sig;
+  if (x === 0) return '0';
+  const a = Math.abs(x);
+  if (a >= 1e6 || a < 1e-4) return x.toExponential(Math.max(0, s - 1)).replace('e', 'e');
+  return String(Number(x.toFixed(Math.max(0, s - 1 - Math.floor(Math.log10(a))))));
+};
+
+const gcd = (a, b) => {
+  let x = Math.abs(Math.round(a));
+  let y = Math.abs(Math.round(b));
+  while (y) { const t = x % y; x = y; y = t; }
+  return x || 1;
+};
+
+/** Display a multiplier as an exact fraction when it is one, else decimal. */
+function ratio(a, b) {
+  if (b === 0) return 'inf';
+  const r = a / b;
+  if (Math.abs(r) < 1e-12) return '0';
+  for (let den = 1; den <= 24; den++) {
+    const num = r * den;
+    if (Math.abs(num - Math.round(num)) < 1e-9) {
+      const n = Math.round(num);
+      const g = gcd(n, den);
+      const nn = n / g, dd = den / g;
+      return dd === 1 ? String(nn) : '(' + nn + '/' + dd + ')';
+    }
+  }
+  return '(' + fmtN(r, 4) + ')';
+}
+
+/** Rank of a 2x3 augmented matrix, by elimination. */
+function rank2(m, tol) {
+  const rows = [[m[0][0], m[0][1], m[0][2]], [m[1][0], m[1][1], m[1][2]]];
+  let r = 0;
+  let lead = -1;
+  for (let c = 0; c < 2; c++) {
+    let p = -1;
+    for (let i = r; i < 2; i++) if (Math.abs(rows[i][c]) > tol) { p = i; break; }
+    if (p < 0) continue;
+    const t = rows[r]; rows[r] = rows[p]; rows[p] = t;
+    const pv = rows[r][c];
+    for (let j = c; j < 3; j++) rows[r][j] /= pv;
+    for (let i = 0; i < 2; i++) {
+      if (i === r) continue;
+      const f = rows[i][c];
+      for (let j = c; j < 3; j++) rows[i][j] -= f * rows[r][j];
+    }
+    r++;
+    if (r === 2) break;
+  }
+  let rankA = 0;
+  for (let i = 0; i < 2; i++) {
+    if (Math.abs(rows[i][0]) > tol || Math.abs(rows[i][1]) > tol) rankA++;
+  }
+  let rankAug = rankA;
+  for (let i = 0; i < 2; i++) {
+    if (Math.abs(rows[i][0]) <= tol && Math.abs(rows[i][1]) <= tol && Math.abs(rows[i][2]) > tol) rankAug = rankA + 1;
+  }
+  return { rankA, rankAug };
+}
+
+const cloneM = (m) => [[m[0][0], m[0][1], m[0][2]], [m[1][0], m[1][1], m[1][2]]];
+
+/**
+ * Build the list of augmented-matrix states by actually applying elementary row
+ * operations. State 0 is always the starting matrix, so stepping at least once always
+ * shows something.
+ */
+function buildSteps(m0, mode, tol) {
+  const steps = [];
+  let m = cloneM(m0);
+  steps.push({
+    m: cloneM(m), pivot: [0, 0], active: [0, 1, 2],
+    op: 'the augmented matrix [A | b] as given',
+    why: 'Two equations, two unknowns. The goal is to isolate x in the first row and y in the second without ever changing the solution set.',
+  });
+
+  const eliminate = (col, row, pivotRow) => {
+    const f = m[row][col];
+    if (Math.abs(f) <= 1e-14) return false;
+    const label = 'R' + (row + 1) + ' <- R' + (row + 1) + ' - ' + ratio(m[row][col], m[pivotRow][col]) +
+      ' R' + (pivotRow + 1);
+    for (let j = 0; j < 3; j++) m[row][j] = m[row][j] - f * m[pivotRow][j] / m[pivotRow][col];
+    steps.push({
+      m: cloneM(m), pivot: [pivotRow, col], active: [col, col],
+      op: label,
+      why: 'Eliminating the entry in row ' + (row + 1) + ', column ' + (col + 1) + '. Subtracting a multiple of the pivot row from another row is an elementary row operation, so the solution set is untouched.',
+    });
+    return true;
+  };
+
+  const p0 = Math.abs(m[0][0]) > tol ? 0 : 1;
+  if (Math.abs(m[p0][0]) <= tol) {
+    steps.push({
+      m: cloneM(m), pivot: [0, 0], active: [0],
+      op: 'no usable pivot in column 1',
+      why: 'Both a11 and a21 are (numerically) zero, so column 1 carries no information about x. Elimination stops here and the system is decided by the second column.',
+    });
+    return steps;
+  }
+
+  if (p0 !== 0) {
+    const t = m[0]; m[0] = m[1]; m[1] = t;
+    steps.push({
+      m: cloneM(m), pivot: [0, 0], active: [0],
+      op: 'R1 <-> R2',
+      why: 'a11 is zero or negligibly small, so the rows are interchanged to bring a usable pivot for x into the top row. Row swaps are elementary operations and cost nothing.',
+    });
+  }
+
+  const np0 = m[0][0];
+  if (Math.abs(np0 - 1) > 1e-12) {
+    for (let j = 0; j < 3; j++) m[0][j] = m[0][j] / np0;
+    steps.push({
+      m: cloneM(m), pivot: [0, 0], active: [0, 1, 2],
+      op: 'R1 <- ' + ratio(1, np0) + ' R1',
+      why: 'Scaling a row by a non-zero constant is an elementary operation. Making the pivot exactly 1 keeps the later arithmetic readable and turns the pivot row into "x + ... = ...".',
+    });
+  }
+
+  eliminate(0, 1, 0);
+
+  if (mode === 'gaussjordan') {
+    const p1 = Math.abs(m[1][1]) > tol ? 1 : -1;
+    if (p1 === 1) {
+      const np1 = m[1][1];
+      if (Math.abs(np1 - 1) > 1e-12) {
+        for (let j = 0; j < 3; j++) m[1][j] = m[1][j] / np1;
+        steps.push({
+          m: cloneM(m), pivot: [1, 1], active: [1, 2],
+          op: 'R2 <- ' + ratio(1, np1) + ' R2',
+          why: 'Scaling the second pivot to 1. If this row is 0 0 | c with c not zero, that single equation reads 0 = c and the system is inconsistent.',
+        });
+      }
+      eliminate(1, 0, 1);
+      steps.push({
+        m: cloneM(m), pivot: [0, 0], active: [2],
+        op: 'reduced row echelon form reached',
+        why: 'The coefficient part of the matrix is the identity, so the right-hand column IS the solution: read x off row 1 and y off row 2. No back substitution is needed.',
+      });
+    } else {
+      steps.push({
+        m: cloneM(m), pivot: [1, 1], active: [1, 2],
+        op: 'no usable pivot in column 2',
+        why: 'After elimination the second pivot is zero. If the right-hand entry is also zero the system is underdetermined (infinitely many solutions); if it is not, the row reads 0 = c and there is no solution.',
+      });
+    }
+  } else {
+    steps.push({
+      m: cloneM(m), pivot: [0, 0], active: [2],
+      op: 'forward elimination complete (upper triangular)',
+      why: 'The matrix is now triangular. Solve the last row for y, then substitute upward into the first row for x. That upward pass is back substitution, and it is why plain Gaussian elimination is cheaper than Gauss-Jordan.',
+    });
+  }
+  return steps;
+}
+
+// ------------------------------------------------------------------ the widget
+const state = { mode: 'gaussjordan', cur: 0 };
+
+function build() {
+  const host = document.getElementById('app');
+  host.classList.add('vault-widget');
+
+  const head = document.createElement('header');
+  head.className = 'vault-widget-head';
+  const h2 = document.createElement('h2');
+  h2.className = 'vault-widget-title';
+  h2.textContent = 'Gauss-Jordan Step Animator';
+  const dp = document.createElement('p');
+  dp.className = 'vault-widget-desc';
+  dp.textContent =
+    'Step through the elimination of a 2x2 system one elementary row operation at a time. ' +
+    'The matrix shown at every step is produced by actually applying the operation to the ' +
+    'augmented matrix [A | b], so the arithmetic cannot disagree with the animation.';
+  head.appendChild(h2);
+  head.appendChild(dp);
+  host.appendChild(head);
+
+  // ---------------------------------------------------------------- matrix canvas
+  const canvas = document.createElement('canvas');
+  canvas.className = 'vault-widget-canvas';
+  canvas.width = 880;
+  canvas.height = 340;
+  canvas.style.width = '100%';
+  canvas.style.height = 'auto';
+  host.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+
+  const PAL = {
+    bg: '#1e1e2e', panel: '#27273a', panel2: '#2f2f45', grid: '#3a3a52',
+    axis: '#8a8aa8', text: '#e4e4f0', dim: '#a0a0be', accent: '#89b4fa',
+    accent2: '#f38ba8', accent3: '#a6e3a1', accent4: '#fab387',
+    accent5: '#cba6f7', warn: '#f9e2af',
+  };
+  const COEF = [
+    { id: 'a11', label: 'a11  (coefficient of x in R1)', min: -9, max: 9, step: 0.1, value: 2 },
+    { id: 'a12', label: 'a12  (coefficient of y in R1)', min: -9, max: 9, step: 0.1, value: 3 },
+    { id: 'b1', label: 'b1  (right-hand side of R1)', min: -9, max: 9, step: 0.1, value: -1 },
+    { id: 'a21', label: 'a21  (coefficient of x in R2)', min: -9, max: 9, step: 0.1, value: 2 },
+    { id: 'a22', label: 'a22  (coefficient of y in R2)', min: -9, max: 9, step: 0.1, value: -1 },
+    { id: 'b2', label: 'b2  (right-hand side of R2)', min: -9, max: 9, step: 0.1, value: 5 },
+  ];
+  const v0 = {};
+  for (const c of COEF) v0[c.id] = c.value;
+
+  // ---------------------------------------------------------------- controls
+  const panel = document.createElement('div');
+  panel.className = 'vault-widget-controls';
+  const mkLabelled = (label, node) => {
+    const w = document.createElement('label');
+    w.className = 'vault-widget-control';
+    const s = document.createElement('span');
+    s.className = 'vault-widget-label';
+    s.textContent = label;
+    w.appendChild(s);
+    w.appendChild(node);
+    return w;
+  };
+
+  const modeSel = document.createElement('select');
+  modeSel.className = 'vault-widget-input';
+  [['gaussjordan', 'Gauss-Jordan (continue to reduced row echelon form)'],
+   ['gauss', 'Gaussian elimination (stop at upper triangular)']].forEach((p) => {
+    const o = document.createElement('option');
+    o.value = p[0];
+    o.textContent = p[1];
+    modeSel.appendChild(o);
+  });
+  modeSel.addEventListener('change', () => { state.mode = modeSel.value; state.cur = 0; render(); });
+  panel.appendChild(mkLabelled('elimination mode', modeSel));
+
+  const inputs = {};
+  for (const c of COEF) {
+    const r = document.createElement('input');
+    r.type = 'range';
+    r.className = 'vault-widget-input';
+    r.min = String(c.min); r.max = String(c.max); r.step = String(c.step); r.value = String(c.value);
+    const val = document.createElement('span');
+    val.className = 'vault-widget-value';
+    val.textContent = fmtN(c.value, 4);
+    const w = document.createElement('label');
+    w.className = 'vault-widget-control';
+    const s = document.createElement('span');
+    s.className = 'vault-widget-label';
+    s.textContent = c.label;
+    w.appendChild(s); w.appendChild(val); w.appendChild(r);
+    panel.appendChild(w);
+    inputs[c.id] = { r, val };
+    r.addEventListener('input', () => {
+      v0[c.id] = Number(r.value);
+      val.textContent = fmtN(v0[c.id], 4);
+      state.cur = 0;
+      render();
+    });
+  }
+  host.appendChild(panel);
+
+  // ---------------------------------------------------------------- buttons
+  const btns = document.createElement('div');
+  btns.className = 'vault-widget-controls';
+  const mkBtn = (label, fn, ghost) => {
+    const b = document.createElement('button');
+    b.className = 'vault-widget-btn' + (ghost ? ' ghost' : '');
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    const w = document.createElement('label');
+    w.className = 'vault-widget-control';
+    w.appendChild(b);
+    return w;
+  };
+  btns.appendChild(mkBtn('previous row operation', () => { if (state.cur > 0) { state.cur--; render(); } }, true));
+  btns.appendChild(mkBtn('apply next row operation', () => { state.cur++; render(); }));
+  btns.appendChild(mkBtn('run to the end', () => { state.cur = 1e9; render(); }));
+  btns.appendChild(mkBtn('back to the start', () => { state.cur = 0; render(); }, true));
+  host.appendChild(btns);
+
+  // ---------------------------------------------------------------- log + readout
+  const log = document.createElement('div');
+  log.className = 'vault-widget-note';
+  host.appendChild(log);
+
+  const out = document.createElement('div');
+  out.className = 'vault-widget-readout';
+  host.appendChild(out);
+
+  const note = document.createElement('div');
+  note.className = 'vault-widget-note';
+  note.innerHTML =
+    '<strong>Why the algorithm is allowed to do that.</strong> Each step is one of exactly three ' +
+    '<em>elementary row operations</em>: swap two rows, multiply a row by a non-zero constant, or add a ' +
+    'multiple of one row to another. Each is reversible, so the solution set never changes -- which is the ' +
+    'entire justification for elimination, and the sentence an examiner is looking for.<br>' +
+    '<strong>Gaussian vs Gauss-Jordan.</strong> Gaussian elimination stops at an upper-triangular matrix and ' +
+    'then needs an upward <em>back substitution</em> pass; Gauss-Jordan keeps eliminating above the pivots until ' +
+    'the coefficient block is the identity, at which point the right-hand column <em>is</em> the solution. ' +
+    'Gauss-Jordan does roughly twice the arithmetic of Gaussian elimination plus one back substitution -- which ' +
+    'is why hand computation and textbooks prefer Gaussian, and why computer libraries factor (LU) rather than ' +
+    'invert.<br>' +
+    '<strong>Read the last row, not the determinant alone.</strong> If a pivot vanishes, the row it leaves ' +
+    'behind reads <code>0 = c</code>. That is the direct test: c = 0 means infinitely many solutions, ' +
+    'c &ne; 0 means none. The determinant tells you only that the two lines are parallel; it cannot tell you ' +
+    'whether they are the <em>same</em> line.<br>' +
+    '<strong>Exam mistake this prevents:</strong> deciding consistency from the determinant. ' +
+    '<code>det A = 0</code> is necessary for the no-solution and infinite-solution cases but does not ' +
+    'distinguish them -- you must also check whether the augmented matrix has a row of the form ' +
+    '<code>[0 0 | c]</code>. The second classic slip is dividing by the pivot when the pivot is zero after the ' +
+    'first elimination: 0/0 is not a solution, it is a signal to interchange rows or to stop and classify.';
+
+  // ---------------------------------------------------------------- render
+  function render() {
+    const m0 = [
+      [v0.a11, v0.a12, v0.b1],
+      [v0.a21, v0.a22, v0.b2],
+    ];
+    const tol = Math.max(1, Math.abs(v0.a11), Math.abs(v0.a12), Math.abs(v0.a21), Math.abs(v0.a22)) * 1e-9;
+    const steps = buildSteps(m0, state.mode, tol);
+    if (state.cur > steps.length - 1) state.cur = steps.length - 1;
+    if (state.cur < 0) state.cur = 0;
+    const s = steps[state.cur];
+
+    drawMatrix(m0, steps, state.cur);
+
+    const A = [[v0.a11, v0.a12], [v0.a21, v0.a22]];
+    const det = v0.a11 * v0.a22 - v0.a12 * v0.a21;
+    const dTol = Math.max(Math.abs(v0.a11 * v0.a22), Math.abs(v0.a12 * v0.a21)) * 1e-9;
+    const dx = v0.b1 * v0.a22 - v0.a12 * v0.b2;
+    const dy = v0.a11 * v0.b2 - v0.b1 * v0.a21;
+    const singular = Math.abs(det) <= Math.max(dTol, 1e-12);
+    const rk = rank2(m0, 1e-9);
+    const x = singular ? NaN : dx / det;
+    const y = singular ? NaN : dy / det;
+
+    let verdict;
+    if (!singular) verdict = 'unique solution - the two lines cross at exactly one point';
+    else if (rk.rankAug > rk.rankA) verdict = 'NO SOLUTION - the lines are parallel and distinct';
+    else verdict = 'INFINITELY MANY - the two equations are the same line';
+
+    // ---- operation log
+    log.innerHTML = '';
+    const lgTitle = document.createElement('div');
+    lgTitle.textContent = 'step ' + String(state.cur + 1) + ' of ' + String(steps.length) + '   |   ' + s.op;
+    lgTitle.style.fontFamily = 'ui-monospace, monospace';
+    lgTitle.style.color = 'var(--vw-accent)';
+    lgTitle.style.marginBottom = '6px';
+    log.appendChild(lgTitle);
+    const lgWhy = document.createElement('div');
+    lgWhy.textContent = s.why;
+    log.appendChild(lgWhy);
+    const eq = document.createElement('div');
+    eq.style.marginTop = '8px';
+    eq.style.fontFamily = 'ui-monospace, monospace';
+    eq.style.fontSize = '0.86rem';
+    eq.style.color = 'var(--vw-warn)';
+    const cf = s.m;
+    eq.textContent = 'current system:  ' + fmtN(cf[0][0], 4) + ' x + ' + fmtN(cf[0][1], 4) + ' y = ' + fmtN(cf[0][2], 4) +
+      '        ' + fmtN(cf[1][0], 4) + ' x + ' + fmtN(cf[1][1], 4) + ' y = ' + fmtN(cf[1][2], 4);
+    log.appendChild(eq);
+
+    // ---- readout
+    out.innerHTML = '';
+    const add = (k, v) => {
+      const c = document.createElement('div');
+      c.className = 'vault-widget-readout-item';
+      const kk = document.createElement('span');
+      kk.className = 'vault-widget-readout-key';
+      kk.textContent = k;
+      const vv = document.createElement('span');
+      vv.className = 'vault-widget-readout-val';
+      vv.textContent = v;
+      c.appendChild(kk);
+      c.appendChild(vv);
+      out.appendChild(c);
+    };
+    add('determinant a11a22 - a12a21',
+      fmtN(v0.a11, 4) + 'x' + fmtN(v0.a22, 4) + ' - ' + fmtN(v0.a12, 4) + 'x' + fmtN(v0.a21, 4) + ' = ' + fmtN(det, 5));
+    add('det = 0 ?', singular ? 'yes - A is singular, no inverse exists' : 'no - A is invertible');
+    add('rank A / rank [A|b]', rk.rankA + ' / ' + rk.rankAug);
+    add('classification', verdict);
+    add("Cramer numerator for x  (b1a22 - a12b2)", fmtN(dx, 5));
+    add("Cramer numerator for y  (a11b2 - b1a21)", fmtN(dy, 5));
+    add('x = det_x / det', singular ? 'undefined (det = 0)' : fmtN(x, 5));
+    add('y = det_y / det', singular ? 'undefined (det = 0)' : fmtN(y, 5));
+    add('check row 1', fmtN(v0.a11, 4) + '(' + (singular ? 'x' : fmtN(x, 4)) + ') + ' + fmtN(v0.a12, 4) +
+      '(' + (singular ? 'y' : fmtN(y, 4)) + ') = ' +
+      (singular ? 'n/a' : fmtN(v0.a11 * x + v0.a12 * y, 6) + '  vs b1 = ' + fmtN(v0.b1, 4)));
+    add('check row 2', fmtN(v0.a21, 4) + '(' + (singular ? 'x' : fmtN(x, 4)) + ') + ' + fmtN(v0.a22, 4) +
+      '(' + (singular ? 'y' : fmtN(y, 4)) + ') = ' +
+      (singular ? 'n/a' : fmtN(v0.a21 * x + v0.a22 * y, 6) + '  vs b2 = ' + fmtN(v0.b2, 4)));
+    add('row operations performed', String(steps.length - 1));
+    add('mode', state.mode === 'gaussjordan' ? 'Gauss-Jordan (identity target)' : 'Gaussian (triangular target)');
+  }
+
+  // ---------------------------------------------------------------- canvas draw
+  function drawMatrix(m0, steps, cur) {
+    const W = canvas.width, H = canvas.height;
+    ctx.fillStyle = PAL.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.font = 'bold 13px ui-monospace, monospace';
+    ctx.fillStyle = PAL.text;
+    ctx.fillText(state.mode === 'gaussjordan'
+      ? 'AUGMENTED MATRIX [A | b]  ->  reduce the coefficient block to the identity'
+      : 'AUGMENTED MATRIX [A | b]  ->  reduce to upper triangular, then back-substitute', 22, 28);
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.fillStyle = PAL.dim;
+    ctx.fillText('each panel below is a real state of the matrix; the highlighted panel is the current step', 22, 48);
+
+    // history strip: up to 5 panels across
+    const show = Math.min(steps.length, 5);
+    const start = Math.max(0, Math.min(cur - show + 1, steps.length - show));
+    const panelW = 158, panelH = 176, gap = 16;
+    const x0 = 22, y0 = 84;
+
+    for (let i = 0; i < show; i++) {
+      const idx = start + i;
+      const st = steps[idx];
+      const px = x0 + i * (panelW + gap);
+      const isCur = idx === cur;
+      ctx.fillStyle = isCur ? PAL.panel2 : PAL.panel;
+      ctx.fillRect(px, y0, panelW, panelH);
+      ctx.strokeStyle = isCur ? PAL.accent : PAL.grid;
+      ctx.lineWidth = isCur ? 2.2 : 1;
+      ctx.strokeRect(px + 0.5, y0 + 0.5, panelW - 1, panelH - 1);
+
+      ctx.font = '11px ui-monospace, monospace';
+      ctx.fillStyle = isCur ? PAL.accent : PAL.dim;
+      ctx.fillText('step ' + String(idx + 1), px + 10, y0 + 18);
+
+      // column headers
+      const cols = ['x', 'y', 'b'];
+      const cw = 44, chh = 30;
+      const gx = px + 16, gy = y0 + 34;
+      ctx.font = 'bold 11px ui-monospace, monospace';
+      for (let c = 0; c < 3; c++) {
+        ctx.fillStyle = c === 2 ? PAL.accent4 : PAL.accent;
+        ctx.fillText(cols[c], gx + 34 + c * (cw + 6) + 16, gy + 12);
+      }
+      for (let r = 0; r < 2; r++) {
+        ctx.font = '11px ui-monospace, monospace';
+        ctx.fillStyle = PAL.dim;
+        ctx.fillText('R' + (r + 1), gx - 2, gy + 26 + r * (chh + 8) + 20);
+        for (let c = 0; c < 3; c++) {
+          const cx = gx + 24 + c * (cw + 6);
+          const cy = gy + 22 + r * (chh + 8);
+          const isPivot = r === st.pivot[0] && c === st.pivot[1];
+          const inActive = c === st.active[0] || (st.active.length > 1 && c >= st.active[0] && c <= st.active[st.active.length - 1]);
+          ctx.fillStyle = isPivot ? 'rgba(166,227,161,0.26)' : inActive ? 'rgba(137,180,250,0.13)' : 'rgba(30,30,46,0.6)';
+          ctx.fillRect(cx, cy, cw, chh);
+          ctx.strokeStyle = isPivot ? PAL.accent3 : PAL.grid;
+          ctx.lineWidth = isPivot ? 2 : 1;
+          ctx.strokeRect(cx + 0.5, cy + 0.5, cw - 1, chh - 1);
+          const v = st.m[r][c];
+          ctx.font = 'bold 12px ui-monospace, monospace';
+          ctx.fillStyle = Math.abs(v) < 1e-12 ? PAL.dim : (c === 2 ? PAL.accent4 : PAL.text);
+          ctx.fillText(fmtN(v, 4), cx + 5, cy + 20);
+        }
+      }
+      // separator bar between coefficient block and b column
+      ctx.strokeStyle = PAL.axis;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(gx + 24 + 2 * (cw + 6) - 4, gy + 22);
+      ctx.lineTo(gx + 24 + 2 * (cw + 6) - 4, gy + 22 + 2 * chh + 8);
+      ctx.stroke();
+      // pivot/active legend line
+      ctx.font = '10px ui-monospace, monospace';
+      ctx.fillStyle = PAL.dim;
+      ctx.fillText('pivot column ' + String(st.pivot[1] + 1), px + 10, y0 + panelH - 10);
+    }
+
+    // ---- verdict strip and formula with substituted values
+    const A = [[m0[0][0], m0[0][1]], [m0[1][0], m0[1][1]]];
+    const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.fillStyle = PAL.accent3;
+    ctx.fillText('det A = a11a22 - a12a21 = (' + fmtN(m0[0][0], 4) + ')(' + fmtN(m0[1][1], 4) + ') - (' +
+      fmtN(m0[0][1], 4) + ')(' + fmtN(m0[1][0], 4) + ') = ' + fmtN(det, 5), 24, H - 34);
+    ctx.fillStyle = PAL.accent4;
+    ctx.fillText('x = (b1a22 - a12b2)/det = ' + fmtN(m0[0][2] * m0[1][1] - m0[0][1] * m0[1][2], 5) + ' / ' + fmtN(det, 5) +
+      '        y = (a11b2 - b1a21)/det = ' + fmtN(m0[0][0] * m0[1][2] - m0[0][2] * m0[1][0], 5) + ' / ' + fmtN(det, 5), 24, H - 16);
+  }
+
+  render();
+}
+
+build();
+</script>
+</body>
+</html>

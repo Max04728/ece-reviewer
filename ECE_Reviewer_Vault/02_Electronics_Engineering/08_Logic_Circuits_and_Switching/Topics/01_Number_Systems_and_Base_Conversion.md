@@ -1,0 +1,167 @@
+---
+id: ECE-08-01
+title: "Number Systems and Base Conversion"
+part: "02_Electronics_Engineering"
+area: "08_Logic_Circuits_and_Switching"
+topic: 1
+tier: 2
+depth: full
+problem_count: 5
+prereqs: []
+tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 01 — Number Systems and Base Conversion
+
+> [!abstract] Scope
+> Convert integers and binary fractions among decimal, binary, octal and hexadecimal, and read the weight of any bit position.
+
+## Core Concept
+
+> [!tip] Intuition
+> A positional number system is a weighted sum: each digit is multiplied by the base raised to that digit's index. Shifting a digit one place left multiplies its worth by the base, so $1101_2$ and $1101_{10}$ are completely different numbers.
+
+**Positional notation is the entire foundation of digital logic.** A word $d_{n-1}d_{n-2}\ldots d_1d_0$ in base $b$ has the value $\sum_{i=0}^{n-1} d_i b^i$. In binary the weights are $1,2,4,8,16,\ldots$, doubling leftward. The leftmost digit is the **most significant** (largest weight) and the rightmost is the **least significant**. So $1101_2 = 8+4+0+1 = 13_{10}$, not one thousand one hundred one. Every base-conversion question on the board reduces to this one sum in one direction and its inverse in the other.
+
+**Base $\to$ decimal is sum-of-weights; decimal $\to$ base is repeated division.** To convert $156_{10}$ to binary, divide repeatedly by 2 and collect remainders: $156/2=78$ r 0, $78/2=39$ r 0, $39/2=19$ r 1, $19/2=9$ r 1, $9/2=4$ r 1, $4/2=2$ r 0, $2/2=1$ r 0, $1/2=0$ r 1. Read the remainders **bottom-up**: $10011100_2$. The first remainder produced is the least significant bit; reading them top-down yields the reversed word, which is the single most common conversion error.
+
+**Binary, octal and hexadecimal are one conversion with different grouping.** Since $8=2^3$ and $16=2^4$, grouping the bits in threes or fours from the radix point converts directly. $10110110_2$ is $010\,110\,110 = 266_8$ and $1011\,0110 = \mathrm{B6}_{16}$. Hexadecimal exists because one hex digit is exactly four bits, so a 16-bit machine word is four hex digits and a byte is two. The powers-of-two table should be memorised at least to $2^{16}=65536$: $2^{10}=1024$, $2^{12}=4096$, $2^{15}=32768$, $2^{16}=65536$.
+
+**Fractions use the mirror-image algorithm.** For the fractional part, multiply by the base repeatedly and read the integer parts **top-down**:
+$$0.6875\times2=1.375\to1$$
+
+$$0.375\times2=0.75\to0$$
+$0.75\times2=1.5\to1$; $0.5\times2=1.0\to1$, giving $0.1011_2$. A decimal fraction terminates in binary only if it is a sum of negative powers of two; $0.1_{10}$ repeats forever. With $k$ fractional bits the resolution is $2^{-k}$, so 8 fractional bits resolve to about 0.0039 and 10 bits to about 0.00098.
+
+**Counting what a word can hold.** An $n$-bit unsigned word has $2^n$ distinct patterns, ranging from $0$ to $2^n-1$. One byte therefore holds $0$ to $255$, and 10 bits hold $0$ to $1023$. This is why the number of bits needed for a decimal value $N$ is $\lceil \log_2(N+1)\rceil$: $1000$ needs 10 bits because $2^9=512<1000\le1024=2^{10}$. When a value does not fit, you get truncation, not saturation — the high bits silently disappear.
+
+**Mixed conversions go through binary.** Octal $\leftrightarrow$ hex, or any non-power-of-two base such as base 5, is best done by expanding to binary (or to decimal), regrouping, and re-collapsing. Base 5 digits $0$–$4$ need three bits each, so grouping must be done carefully with leading zeros padded on the left. Conversions in and out of a non-power-of-two base almost always are safest via decimal because no fixed bit grouping exists.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Positional value of a word | $N = \sum_{i=0}^{n-1} d_i b^i$ | Any base b. The index i counts from the right, starting at 0 at the least significant digit. |
+| Binary sum of weights | $N = d_{n-1}2^{n-1} + \cdots + d_1 2^1 + d_0 2^0$ | Base 2 only. A 1 at position i contributes 2^i; a 0 contributes nothing. |
+| Decimal to base b (integers) | $N = q_1 b + r_0, \quad q_1 = q_2 b + r_1, \ldots$ | Repeated division; the base-b digits are the remainders read from last to first. |
+| Decimal fraction to base b | $f_{k+1} = \mathrm{frac}(b\,f_k), \quad d_k = \lfloor b\,f_k \rfloor$ | Repeated multiplication; digits are read top-down (first product gives the most significant fractional digit). |
+| Binary to octal | $\mathrm{group\ 3\ bits\ from\ the\ radix\ point}$ | Pad the integer part with leading zeros and the fraction with trailing zeros to complete the last group. |
+| Binary to hexadecimal | $\mathrm{group\ 4\ bits\ from\ the\ radix\ point}$ | One hex digit is exactly four bits; a byte is two hex digits with no padding needed. |
+| Count of n-bit patterns | $2^n \mathrm{\ patterns},\quad \mathrm{range}\ 0 \ldots 2^n-1$ | Unsigned only. A 10-bit word holds 1024 codes, 0 to 1023. |
+| Bits needed for a decimal value | $n = \lceil \log_2(N+1) \rceil$ | Counts the bits required to represent the value N in unsigned binary. |
+| Fractional resolution | $\Delta = 2^{-k}$ | k fractional bits. Smallest representable step, so quantisation error is at most half of this. |
+| Power of two landmarks | $2^{10}=1024,\ 2^{12}=4096,\ 2^{16}=65536$ | Memorise to 2^16; exam questions routinely use these exact values. |
+
+## Worked Problems
+
+### P1. Convert $1101_2$ to decimal.
+
+**Given:** binary word = 1101; 4 bits
+
+**Solution:**
+
+1. Write the weights above the bits, right to left: 8, 4, 2, 1
+2. Multiply each bit by its weight: 1(8) + 1(4) + 0(2) + 1(1)
+3. Sum: 8 + 4 + 0 + 1 = 13
+
+> [!success]- Answer
+> **$1101_2 = 13_{10}$**
+
+> [!warning] Trap
+> Reading the word as decimal one thousand one hundred one, or adding the bit values 1+1+0+1. Position, not presence, sets the value.
+
+### P2. Convert $156_{10}$ to binary, octal and hexadecimal.
+
+**Given:** N = 156; targets = base 2, 8, 16
+
+**Solution:**
+
+1. Binary by repeated division by 2: remainders 0,0,1,1,1,0,0,1 (first remainder is the LSB)
+2. Read bottom-up: 10011100
+3. Check by weights: 128 + 16 + 8 + 4 = 156
+4. Octal by grouping threes from the radix point: 10 011 100 -> 2 3 4
+5. Hex by grouping fours: 1001 1100 -> 9 C
+
+> [!success]- Answer
+> **$156_{10} = 10011100_2 = 234_8 = \mathrm{9C}_{16}$**
+
+> [!warning] Trap
+> Reading the remainders top-down gives the bit-reversed word 10011001 = 153. Also note the groupings start at the radix point, not at the left edge.
+
+### P3. Convert $0.6875_{10}$ to binary.
+
+**Given:** f = 0.6875; fractional conversion
+
+**Solution:**
+
+1. 0.6875 x 2 = 1.375 -> integer part 1, keep 0.375
+2. 0.375 x 2 = 0.750 -> integer part 0, keep 0.75
+3. 0.75 x 2 = 1.50 -> integer part 1, keep 0.5
+4. 0.5 x 2 = 1.00 -> integer part 1, keep 0
+5. Read integer parts top-down: 1011
+6. Check: 1/2 + 1/8 + 1/16 = 0.5 + 0.125 + 0.0625 = 0.6875
+
+> [!success]- Answer
+> **$0.6875_{10} = 0.1011_2$**
+
+> [!warning] Trap
+> Reading the integer parts bottom-up, which gives 1101 and a value of 0.8125. For fractions the digits come out most significant first.
+
+### P4. Convert $10110110_2$ to hexadecimal and to octal.
+
+**Given:** binary word = 10110110; 8 bits
+
+**Solution:**
+
+1. Hex: split into nibbles from the right: 1011 | 0110
+2. 1011 = 11 = B, 0110 = 6, so B6
+3. Octal: split into threes from the right: 010 | 110 | 110 (pad a leading zero)
+4. 010 = 2, 110 = 6, 110 = 6, so 266
+5. Check in decimal by weights: B6 -> 11(16) + 6(1) = 176 + 6 = 182
+6. And 10110110 = 128+32+16+4+2 = 182, so all three representations agree
+
+> [!success]- Answer
+> **$10110110_2 = \mathrm{B6}_{16} = 266_8$**
+
+> [!warning] Trap
+> Grouping octal from the left without padding, which misaligns the weights. Groups are always formed outward from the radix point.
+
+### P5. How many bits are needed to represent the decimal value 1000 in unsigned binary?
+
+**Given:** N = 1000; unsigned
+
+**Solution:**
+
+1. Find the smallest n with 2^n >= 1001 (need N+1 patterns because 0 is included)
+2. 2^9 = 512 < 1001, 2^10 = 1024 >= 1001
+3. So n = 10
+4. Check the range: 10 bits cover 0 to 1023
+
+> [!success]- Answer
+> **$n = 10$ bits**
+
+> [!warning] Trap
+> Answering 9 because $2^9 = 512$ looks close, or using $2^n \ge 1000$ instead of $2^n \ge 1001$. Zero consumes one code, so the max value is $2^n - 1$.
+
+## Traps & Exam Notes
+
+- **Reading remainders in the wrong order.** Repeated division produces the least significant digit first; the answer is read bottom-up. Reversing it turns $156_{10} = 10011100_2$ into $10011001_2 = 153$.
+- **Fraction digits go the other way.** Repeated multiplication produces the most significant fractional digit first, so read top-down. Mixing the two conventions is the standard exam trap.
+- **Grouping from the wrong end.** Octal and hex groups are formed outward from the radix point with zero padding on the outside. Grouping from the left misaligns every weight.
+- **Assuming $0.1_{10}$ is exact in binary.** Only sums of negative powers of two terminate. Most decimal fractions need infinitely many binary digits, so a fixed word length quantises them.
+- **Confusing the number of codes with the maximum value.** An $n$-bit word holds $2^n$ codes but the largest unsigned value is $2^n - 1$; a 10-bit word reaches 1023, not 1024.
+- **Treating hex digits as decimal or losing their place value.** $\mathrm{F}_{16} = 15$ and $\mathrm{A}_{16} = 10$, and the leftmost digit of $\mathrm{2F5}_{16}$ is worth $16^2 = 256$, not 16. Reading it as $2(16)+15(1)+5 = 52$ instead of 757 is the standard failure.
+- **Converting a mixed number by converting the parts independently in different bases.** Split at the radix point, convert the integer and fraction parts separately, then rejoin — never convert the digit string as one integer.
+
+## See Also
+
+- [[02_Signed_Arithmetic_and_Two’s_Complement]]
+- [[03_Codes_BCD,_Gray,_ASCII,_Parity]]
+- [[04_Boolean_Algebra_and_De_Morgan]]
+
+---
+
+⬅ *start* · [[_MOC_Logic_Circuits_and_Switching|MOC]] · [[00_Dashboard|Dashboard]] · [[02_Signed_Arithmetic_and_Two’s_Complement|02 ➡]]

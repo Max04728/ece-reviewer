@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PN Junction Depletion Explorer — V_bi, W and C_j vs Doping and Temperature</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Two questions dominate the PN-junction items on the ECE board exam, and both are
+// about SENSITIVITY, not about plugging in numbers:
+//   1. "What happens to V_bi if I increase the doping?" — almost nothing. V_bi = V_T ln(NaNd/ni²)
+//      is logarithmic, so a 100× doping increase moves V_bi by V_T·ln(100²) ≈ 0.24 V at 300 K,
+//      while V_bi itself is already ~0.8 V. Students expect a doubling.
+//   2. "What happens to W?" — a lot. W ∝ 1/√(doping), so the same 100× increase shrinks W by
+//      10×. The widget plots both against doping on log axes so the flat curve and the steep
+//      line appear side by side, and it prints the local slope so "1/2 power law" is visible.
+// Third trap built in: raising the TEMPERATURE lowers V_bi (ni explodes) but raises W slightly
+// (V_T rises), and it raises ni by orders of magnitude — the widget shows ni explicitly.
+
+const Q = 1.602176634e-19;      // C
+const K = 1.380649e-23;         // J/K
+const EG0 = 1.166;              // eV, Si bandgap at 0 K (Varshni)
+const ALPHA = 4.73e-4;          // eV/K
+const BETA = 636;               // K
+const EPS0 = 8.8541878128e-14;  // F/cm
+const EPSR = 11.7;              // Si relative permittivity
+const EPS = EPSR * EPS0;        // F/cm
+
+/** Intrinsic carrier concentration of Si, cm^-3.
+ *  n_i = A·T^1.5·exp(−Eg(T)/2kT) with the Varshni bandgap; A is fitted so that
+ *  n_i(300 K) = 1.08e10 cm^-3, the value the Philippine textbooks quote for silicon. */
+function intrinsic(T) {
+  const Eg = EG0 - (ALPHA * T * T) / (T + BETA);
+  return 7.75e14 * Math.pow(T, 1.5) * Math.exp((-Eg * Q) / (2 * K * T));
+}
+const thermalV = (T) => (K * T) / Q;
+
+widget({
+  title: 'PN Junction Depletion Explorer — V_bi, W and C_j',
+  description:
+    'Slide the doping concentrations and the temperature. V_bi barely moves (logarithmic in doping); the depletion width and the junction capacitance move a lot (inverse square root). Both are plotted against doping on log axes with the operating point marked.',
+  height: 430,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'logNa', label: 'acceptor Na (log10, cm^-3)', min: 13, max: 20, step: 0.05, value: 17 },
+    { id: 'logNd', label: 'donor Nd (log10, cm^-3)', min: 13, max: 20, step: 0.05, value: 15 },
+    { id: 'T', label: 'temperature', min: 250, max: 450, step: 1, value: 300, unit: 'K' },
+    { id: 'Va', label: 'applied bias Va', min: -5, max: 0.6, step: 0.05, value: 0, unit: 'V' },
+  ],
+  compute: (v) => {
+    const Na = Math.pow(10, v.logNa);
+    const Nd = Math.pow(10, v.logNd);
+    const T = v.T;
+    const VT = thermalV(T);
+    const ni = intrinsic(T);
+    const Vbi = VT * Math.log((Na * Nd) / (ni * ni));
+    const Vtot = Math.max(Vbi - v.Va, 1e-6);           // reverse bias (Va<0) widens W
+    const W = Math.sqrt((2 * EPS * Vtot / Q) * (1 / Na + 1 / Nd));   // cm
+    const xp = W * Nd / (Na + Nd);                     // depletion into the p side
+    const xn = W * Na / (Na + Nd);                     // depletion into the n side
+    const Cj = EPS / W;                                // F/cm²
+    const Emax = (2 * Vtot) / W;                       // V/cm
+    const Qj = Q * (Na * xp);                          // C/cm² ionised charge on one side
+    // finite-difference sensitivities for the readout (never a divide by zero: T+10 is safe)
+    const T10 = T + 10;
+    const ni10 = intrinsic(T10);
+    const VT10 = thermalV(T10);
+    const Vbi10 = VT10 * Math.log((Na * Nd) / (ni10 * ni10));
+    const W10 = Math.sqrt((2 * EPS * Math.max(Vbi10 - v.Va, 1e-6) / Q) * (1 / Na + 1 / Nd));
+    return { Na, Nd, T, VT, ni, Vbi, Vtot, W, xp, xn, Cj, Emax, Qj, Va: v.Va, Vbi10, W10, ni10 };
+  },
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h, pad = plot.pad;
+    plot.clear();
+    ctx.save();
+
+    // ---- two log-x panels, hand-drawn because the Plot helper is linear ----
+    const pw = (W - 3 * pad) / 2;
+    const top = pad + 16, bot = H - pad - 20;
+    const LOGMIN = 13, LOGMAX = 20.5;
+    const lx = (panelX) => (x) => panelX + ((x - LOGMIN) / (LOGMAX - LOGMIN)) * pw;
+    const ly = (yMin, yMax) => (y) => bot - ((y - yMin) / (yMax - yMin)) * (bot - top);
+
+    const drawFrame = (x0, yMin, yMax, title, yLabel) => {
+      const X = lx(x0), Y = ly(yMin, yMax);
+      ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(X(LOGMIN), Y(yMin)); ctx.lineTo(X(LOGMIN), Y(yMax)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(LOGMIN), Y(yMin)); ctx.lineTo(X(LOGMAX), Y(yMin)); ctx.stroke();
+      ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+      ctx.font = '10px ui-monospace, monospace';
+      ctx.fillStyle = PALETTE.dim;
+      for (let d = LOGMIN; d <= LOGMAX; d++) {
+        ctx.beginPath(); ctx.moveTo(X(d), Y(yMin)); ctx.lineTo(X(d), Y(yMax)); ctx.stroke();
+        ctx.textAlign = 'center';
+        if (d % 2 === 1 || d === LOGMIN || d === 20) ctx.fillText('1e' + d, X(d), bot + 13);
+      }
+      ctx.textAlign = 'right';
+      for (let i = 0; i <= 4; i++) {
+        const frac = i / 4;
+        ctx.fillStyle = PALETTE.dim;
+        ctx.fillText(fmt(yMin + frac * (yMax - yMin), 3), X(LOGMIN) - 5, Y(yMin + frac * (yMax - yMin)) + 4);
+      }
+      ctx.textAlign = 'left';
+      ctx.fillStyle = PALETTE.text;
+      ctx.font = 'bold 12px system-ui, sans-serif';
+      ctx.fillText(title, X(LOGMIN), top - 4);
+      ctx.font = '10px ui-monospace, monospace';
+      ctx.fillStyle = PALETTE.dim;
+      ctx.fillText(yLabel, X(LOGMIN), bot + 26);
+      ctx.fillText('doping (cm^-3)', X(LOGMAX) - 72, bot + 26);
+      return { X, Y };
+    };
+
+    // ---- panel 1: W against each doping, both ∝ N^-1/2, on log-log axes ----
+    const Wmax = out.W * 6;
+    const p1 = drawFrame(pad + 8, 0, Wmax, 'W vs doping (log-log)',
+      'W (cm)');
+    const Wof = (N, other) => Math.sqrt((2 * EPS * out.Vtot / Q) * (1 / other + 1 / N));
+    const plotSweep = (other, color, dash) => {
+      ctx.strokeStyle = color; ctx.lineWidth = 2.2; ctx.setLineDash(dash || []);
+      ctx.beginPath();
+      let started = false;
+      for (let d = LOGMIN; d <= LOGMAX; d += 0.02) {
+        const y = Wof(Math.pow(10, d), other);
+        if (!Number.isFinite(y) || y < 0 || y > Wmax) { started = false; continue; }
+        const px = p1.X(d), py = p1.Y(y);
+        started ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        started = true;
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    plotSweep(out.Nd, PALETTE.accent, []);          // sweep Na with Nd held
+    plotSweep(out.Na, PALETTE.accent5, [5, 4]);     // sweep Nd with Na held
+    // operating points: W at the current Na and at the current Nd
+    ctx.fillStyle = PALETTE.warn;
+    ctx.beginPath(); ctx.arc(p1.X(v.logNa), p1.Y(out.W), 5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(p1.X(v.logNd), p1.Y(out.W), 5, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = PALETTE.accent;
+    ctx.fillText('W when Na is swept — a straight', p1.X(LOGMIN) + 4, top + 12);
+    ctx.fillText('line of slope −1/2 (log-log)', p1.X(LOGMIN) + 4, top + 26);
+    ctx.fillStyle = PALETTE.accent5;
+    ctx.fillText('W when Nd is swept', p1.X(LOGMIN) + 4, top + 40);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('×100 doping → W ÷ 10', p1.X(LOGMIN) + 4, top + 56);
+    ctx.fillStyle = PALETTE.accent3;
+    ctx.fillText('V_bi is NOT plotted here: it is', p1.X(LOGMIN) + 4, top + 74);
+    ctx.fillText('logarithmic, so it looks flat —', p1.X(LOGMIN) + 4, top + 88);
+    ctx.fillText('now ' + fmt(out.Vbi, 4) + ' V, +' + fmt(out.VT * Math.log(100), 3) + ' V per ×100', p1.X(LOGMIN) + 4, top + 102);
+
+    // ---- panel 2: C_j per unit area (∝ N^1/2, the inverse of W) ----
+    const Cmin = out.Cj / 6, Cmax = out.Cj * 6;
+    const p2 = drawFrame(pad + 8 + pw + pad, Cmin, Cmax, 'C_j = ε/W vs doping',
+      'C_j (F/cm²)');
+    const Cof = (N) => EPS / Wof(N);
+    ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    let st = false;
+    for (let d = LOGMIN; d <= LOGMAX; d += 0.02) {
+      const y = Cof(Math.pow(10, d));
+      if (!Number.isFinite(y) || y < Cmin || y > Cmax) { st = false; continue; }
+      const px = p2.X(d), py = p2.Y(y);
+      st ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      st = true;
+    }
+    ctx.stroke();
+    ctx.fillStyle = PALETTE.warn;
+    ctx.beginPath(); ctx.arc(p2.X(v.logNa), p2.Y(out.Cj), 5, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = PALETTE.accent2;
+    ctx.fillText('C_j ∝ √N with slope +1/2', p2.X(LOGMIN) + 4, top + 12);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('×100 doping → C_j × 10', p2.X(LOGMIN) + 4, top + 26);
+    ctx.fillStyle = PALETTE.accent3;
+    ctx.fillText('reverse bias widens W, so it', p2.X(LOGMIN) + 4, top + 44);
+    ctx.fillText('LOWERS C_j (varactor action)', p2.X(LOGMIN) + 4, top + 58);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('now ' + fmt(out.Cj * 1e9, 4) + ' nF/cm²', p2.X(LOGMIN) + 4, top + 76);
+    ctx.restore();
+
+    // ---- formula strip with the substituted arithmetic ----
+    const f = document.getElementById('pn-formula');
+    if (f) {
+      f.innerHTML =
+        '<div><strong>V_T = kT/q</strong> = (' + fmt(K, 4) + ' × ' + fmt(out.T, 4) + ')/' + fmt(Q, 4) + ' = <strong>' + fmt(out.VT, 5) + ' V</strong>' +
+        ' at T = ' + fmt(out.T, 4) + ' K (' + fmt(out.T - 273.15, 4) + ' °C)' +
+        ' &nbsp;|&nbsp; <strong>n_i</strong> = ' + fmt(out.ni, 4) + ' cm^-3 at this temperature</div>' +
+        '<div><strong>V_bi = V_T·ln(Na·Nd/ni²)</strong> = ' + fmt(out.VT, 4) + ' × ln((' + fmt(out.Na, 4) + ' × ' + fmt(out.Nd, 4) + ')/(' + fmt(out.ni, 4) + ')²) = <strong>' + fmt(out.Vbi, 5) + ' V</strong>' +
+        ' &nbsp;→ logarithmic: ×100 on either doping adds only V_T·ln 100 = ' + fmt(out.VT * Math.log(100), 4) + ' V</div>' +
+        '<div><strong>W = √(2ε(V_bi − Va)/q · (1/Na + 1/Nd))</strong> = √(2 × ' + fmt(EPS, 4) + ' × ' + fmt(out.Vtot, 4) + '/' + fmt(Q, 4) +
+        ' × (' + fmt(1 / out.Na, 4) + ' + ' + fmt(1 / out.Nd, 4) + ')) = <strong>' + fmt(out.W, 5) + ' cm</strong> = ' + fmt(out.W * 1e4, 5) + ' µm' +
+        ' &nbsp;→ inverse square root: ×100 on the doping shrinks W by √100 = 10×</div>' +
+        '<div><strong>Charge balance</strong>: x_p = W·Nd/(Na+Nd) = ' + fmt(out.xp, 5) + ' cm, x_n = W·Na/(Na+Nd) = ' + fmt(out.xn, 5) +
+        ' cm &nbsp;|&nbsp; Na·x_p = ' + fmt(out.Na * out.xp, 5) + ' = Nd·x_n = ' + fmt(out.Nd * out.xn, 5) + ' cm^-2 (equal, always)</div>' +
+        '<div><strong>C_j = ε/W</strong> = ' + fmt(EPS, 4) + '/' + fmt(out.W, 4) + ' = <strong>' + fmt(out.Cj, 5) + ' F/cm²</strong> = ' +
+        fmt(out.Cj * 1e9, 5) + ' nF/cm² &nbsp;|&nbsp; E_max = 2(V_bi−Va)/W = ' + fmt(out.Emax, 4) + ' V/cm</div>' +
+        '<div><strong>Sensitivity summary</strong>: V_bi depends on ln(doping) — it moves by ' + fmt(out.VT * Math.log(100), 3) +
+        ' V per ×100; W and C_j depend on the ±1/2 power — they move by ×10 and ×10 respectively. ' +
+        'Reversing the bias to Va = ' + fmt(v.Va, 3) + ' V changed W by ×' + fmt(Math.sqrt(Math.max(out.Vbi - v.Va, 1e-9) / out.Vbi), 4) + '.</div>';
+    }
+  },
+  readout: (out) => ({
+    'V_T = kT/q': fmt(out.VT, 5) + ' V',
+    'n_i': fmt(out.ni, 4) + ' cm⁻³',
+    'V_bi': fmt(out.Vbi, 5) + ' V',
+    'total junction voltage': fmt(out.Vtot, 5) + ' V',
+    'W (depletion width)': fmt(out.W, 5) + ' cm',
+    'W in µm': fmt(out.W * 1e4, 5) + ' µm',
+    'x_p (p side)': fmt(out.xp, 5) + ' cm',
+    'x_n (n side)': fmt(out.xn, 5) + ' cm',
+    'C_j per unit area': fmt(out.Cj, 5) + ' F/cm²',
+    'C_j in nF/cm²': fmt(out.Cj * 1e9, 5) + ' nF/cm²',
+    'E_max at the junction': fmt(out.Emax, 4) + ' V/cm',
+    'dW/dT per 10 K': fmt(out.W10 - out.W, 4) + ' cm (' + fmt(100 * (out.W10 / out.W - 1), 3) + ' %)',
+    'dV_bi/dT per 10 K': fmt(out.Vbi10 - out.Vbi, 4) + ' V (' + fmt(((out.Vbi10 - out.Vbi) / 10) * 1000, 4) + ' mV/K)',
+    'n_i per 10 K': fmt(out.ni10, 4) + ' cm⁻³ (' + fmt(out.ni10 / out.ni, 4) + '×)',
+  }),
+});
+
+const host = document.getElementById('app');
+
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'pn-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight — V_bi is logarithmic in doping, W and C_j are square-root laws.</strong> ' +
+  'V_bi = V_T ln(NaNd/ni²) is already about 0.8 V at ordinary doping, and multiplying either doping by 100 ' +
+  'adds only V_T·ln 100 ≈ 0.12 V at 300 K (0.24 V if you multiply the product NaNd by 100²). ' +
+  'W = √(2ε(V_bi−Va)/q · (1/Na + 1/Nd)) is different: it goes as the inverse square root, so the SAME ' +
+  '100× doping change shrinks W by 10× and raises C_j = ε/W by 10×. That asymmetry is the whole point of ' +
+  'the two panels. ' +
+  '<strong>The mistakes this prevents:</strong> (1) thinking heavier doping "makes the barrier much bigger" — ' +
+  'it does not, and an exam that offers "V_bi doubles" is testing exactly that. (2) Forgetting that a ' +
+  'reverse bias (Va &lt; 0) makes W wider and C_j smaller — a varactor is biased in reverse precisely ' +
+  'because C_j ∝ 1/√(V_bi − Va). (3) Thinking W is symmetric about the junction: W is the TOTAL width, and ' +
+  'the depletion extends mostly into the LIGHTLY doped side, because Na·x_p = Nd·x_n exactly (charge ' +
+  'neutrality, and the widget prints both products so you can see them agree). With Na = 10¹⁷ and ' +
+  'Nd = 10¹⁵ the depletion is about 100× wider on the n side. ' +
+  '<strong>Temperature:</strong> raising T raises n_i enormously (n_i² grows faster than any doping change), ' +
+  'so V_bi drops — about −2 mV/K for silicon — even though V_T = kT/q rises. ' +
+  '<strong>Units to watch:</strong> ε = 11.7 × 8.854×10⁻¹⁴ F/cm for silicon, so W comes out in cm, not m; ' +
+  'C_j comes out in F/cm² (multiply by the junction AREA to get farads).';
+host.appendChild(note);
+</script>
+</body>
+</html>

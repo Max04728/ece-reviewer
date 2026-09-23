@@ -1,0 +1,105 @@
+{
+  "scope": "Quantify what an analog-to-digital converter can and cannot resolve — LSB size, quantization error, ideal SNR, INL/DNL, aliasing and the speed/accuracy trade of the flash, SAR, dual-slope and delta-sigma architectures.",
+  "intuition": "An ADC is a ruler with a fixed number of equally spaced marks. Everything about the device follows from how far apart the marks are, how straight the ruler really is, and how fast the marks can be compared with the input before it changes.",
+  "concept": [
+    "**Quantization is the whole story.** An $n$-bit converter divides its full-scale range into $2^n$ steps, so one LSB is $FS/2^n$. Note carefully that there are $2^n$ steps but only $2^n-1$ is the largest code, so full scale is one LSB short of $FS$; at 8 bits that shortfall is 0.4%, which is larger than many people's error budget. Rounding to the nearest code leaves an error of at most half an LSB, with an RMS value of $LSB/\\sqrt{12}$ for a uniformly distributed input. For an ideal converter fed a full-scale sine, that quantization noise gives the classic $SNR = 6.02n + 1.76\\ \\mathrm{dB}$: 74 dB at 12 bits, 98 dB at 16 bits, and every additional bit buys 6 dB. Inverting the relation gives the effective number of bits, $ENOB = (SNR-1.76)/6.02$, which is how a real converter's measured performance is compared with its nameplate resolution.",
+    "**Ideal versus real transfer functions.** The quantization error above is the only error an ideal converter has. A real one adds offset (the whole transfer function shifts), gain error (the slope is wrong, so full scale misses), and nonlinearity: DNL is the deviation of an individual step from one LSB and INL is the worst cumulative deviation from the ideal straight line. The critical DNL threshold is $-1$ LSB: below it a step is missing entirely, so some codes never appear and a slowly rising input jumps over them. A DNL above $+1$ LSB means the transfer function is non-monotonic, so increasing the input can decrease the output code. INL is the specification that usually limits accuracy — a 16-bit converter with 4 LSB of INL has about 14 bits of real accuracy — and it is also why resolution alone never describes a converter.",
+    "**Aliasing and the sampling front end.** A converter sees only samples, so any input component above $f_s/2$ folds back to $|f - kf_s|$ and becomes indistinguishable from real signal. An 8 kHz interferer sampled at 10 kHz appears at 2 kHz, and no amount of digital processing afterwards can tell it from a genuine 2 kHz tone. The anti-alias filter must therefore be analog and must precede the sample-and-hold. The sample-and-hold itself has two error sources: droop, where the hold capacitor's leakage discharges it during the conversion ($\\Delta V = I_{leak}\\Delta t/C$), and aperture jitter, the uncertainty in the sampling instant, which contributes $2\\pi fV_pt_j$ of voltage error and caps the SNR at about $-20\\log_{10}(2\\pi ft_j)$ — 1 ns of jitter on a 1 MHz sine is a 44 dB ceiling, roughly 7 effective bits, no matter how good the converter is.",
+    "**The four architectures.** A flash converter compares the input against $2^n-1$ reference taps simultaneously, so it is the fastest (gigahertz) and the most expensive in area and power: 8 bits needs 255 comparators, and beyond about 8-10 bits it is impractical on its own (though it is used as the coarse stage of a pipeline). A successive-approximation (SAR) converter binary-searches the input over $n$ clock cycles, so its conversion time is $n$ clock periods plus acquisition, giving an excellent speed/resolution/power compromise from about 8 to 18 bits. A dual-slope converter integrates the input for a fixed time then de-integrates against a reference, counting clock pulses; it is very slow (milliseconds) but very accurate and inherently rejects noise at multiples of $1/T_1$, which is why 20 ms integration gives excellent 50 Hz rejection. A delta-sigma converter oversamples a coarse quantizer and shapes the quantization noise out of band, trading speed for enormous resolution: first-order modulation gains about 9 dB per doubling of the oversampling ratio (30 dB per decade) and second-order about 15 dB, which is how 24-bit converters are built for strain gauges and thermocouples.",
+    "**Choosing and budgeting.** Speed, resolution and power trade directly. The system's resolution is set by the coarsest element in the chain — a 16-bit converter behind an amplifier with 100 µV of offset drift resolves only as finely as that drift allows — and averaging can suppress random noise but never offset, gain or INL errors. Two practical rules follow: first, decide the required resolution from the smallest physical change that must be seen, then work backwards to the LSB and the sensor's sensitivity; second, remember that a signal which uses only 10% of the input range loses 20 dB of SNR, which is 3.3 bits, so a front-end gain that fills the converter's range is not optional luxury but part of the accuracy budget."
+  ],
+  "formulas": [
+    { "q": "LSB size", "e": "LSB = \\frac{FS}{2^n}", "n": "FS is the full-scale span. There are 2^n steps but the largest code is 2^n - 1, so V_FS,actual = FS(2^n - 1)/2^n." },
+    { "q": "Quantization error", "e": "e_q = \\pm\\frac{1}{2}LSB,\\quad e_{rms} = \\frac{LSB}{\\sqrt{12}}", "n": "Rounding to the nearest code. Validity assumes a uniform input distribution; a DC input has a fixed error that averaging cannot remove." },
+    { "q": "Ideal SNR", "e": "SNR_{dB} = 6.02n + 1.76", "n": "For a full-scale sine input. 12 bits gives 74.0 dB and 16 bits 98.1 dB; a signal 20 dB below full scale loses 20 dB of SNR." },
+    { "q": "Effective number of bits", "e": "ENOB = \\frac{SNR_{dB} - 1.76}{6.02}", "n": "Converts a measured SNR or SINAD into bits. 68 dB of measured SNR corresponds to 11.0 effective bits." },
+    { "q": "Aliasing", "e": "f_{alias} = \\lvert f - k f_s\\rvert", "n": "For f between f_s/2 and f_s the alias is f_s - f. Filtering must be analog and must precede the converter; aliasing is irreversible." },
+    { "q": "Dual-slope conversion", "e": "T_2 = T_1\\frac{V_{in}}{V_{ref}},\\quad \\mathrm{counts} = T_2 f_{clk}", "n": "T1 is fixed by the design. Accuracy depends on the clock and reference, not on the integrator's RC; 20 ms of T1 rejects 50 Hz mains exactly." },
+    { "q": "SAR conversion time", "e": "t_{conv} = n\\,t_{clk} + t_{acq}", "n": "One clock per bit plus acquisition. A 12-bit SAR at 1 MHz takes about 14 us, giving roughly 71 kSPS." },
+    { "q": "Flash comparator count", "e": "N_{comparators} = 2^n - 1", "n": "8 bits needs 255 comparators and their decoder, which is why flash is used directly only to about 8 bits." },
+    { "q": "INL, DNL and missing codes", "e": "DNL_k = \\frac{\\Delta V_k - LSB}{LSB},\\quad INL_k = \\max_j\\left\\lvert\\sum_{i\\leq j} DNL_i\\right\\rvert", "n": "DNL below -1 LSB guarantees missing codes; DNL above +1 LSB means the converter is non-monotonic. Both are expressed in LSBs." },
+    { "q": "Oversampling gain", "e": "\\Delta SNR = 10\\log_{10}(OSR) + 30\\log_{10}(OSR)\\ (\\mathrm{1st\\ order})", "n": "The 10 log term is the averaging (process) gain and the 30 log term is first-order noise shaping, about 9 dB per octave; second order gives about 15 dB per octave." }
+  ],
+  "problems": [
+    {
+      "prompt": "A 12-bit ADC has a full-scale range of $10\\ \\mathrm{V}$. Find the LSB size, the maximum quantization error, the ideal SNR in dB, and the same figures for a 16-bit converter of the same range.",
+      "give": ["n = 12 bits", "FS = 10 V", "also 16-bit"],
+      "steps": [
+        "12-bit LSB = 10/4096 = 2.4414 mV",
+        "Maximum quantization error = +/- LSB/2 = +/-1.2207 mV",
+        "SNR = 6.02 x 12 + 1.76 = 72.24 + 1.76 = 74.0 dB",
+        "16-bit LSB = 10/65536 = 152.6 uV and SNR = 6.02 x 16 + 1.76 = 98.1 dB"
+      ],
+      "ans": "12-bit: $2.44\\ \\mathrm{mV}$ per LSB, $\\pm1.22\\ \\mathrm{mV}$ error, $74.0\\ \\mathrm{dB}$ SNR. 16-bit: $152.6\\ \\mu\\mathrm{V}$ per LSB, $98.1\\ \\mathrm{dB}$ SNR.",
+      "trap": "Dividing by $2^n - 1 = 4095$ instead of $2^n$. The step size is $FS/2^n$: there are 4096 steps from 0 to $FS$, though the largest code is 4095. Using 4095 makes the LSB $0.024\\%$ too large."
+    },
+    {
+      "prompt": "A 16-bit ADC is specified with a measured SNR of $68\\ \\mathrm{dB}$. Find its effective number of bits and comment on how it should be described in a specification.",
+      "give": ["n = 16 bits", "measured SNR = 68 dB"],
+      "steps": [
+        "ENOB = (SNR - 1.76)/6.02",
+        "= (68 - 1.76)/6.02 = 66.24/6.02",
+        "ENOB = 11.00 bits"
+      ],
+      "ans": "$ENOB = 11.0$ bits, so the part behaves like an 11-bit converter despite the 16-bit nameplate.",
+      "trap": "Quoting the nameplate resolution as the accuracy. Resolution is what the code count suggests; ENOB, INL and noise are what the converter actually delivers, and a 16-bit part with 68 dB of SNR resolves no better than 11 bits."
+    },
+    {
+      "prompt": "A 12-bit ADC with a $5\\ \\mathrm{V}$ range samples a $1\\ \\mathrm{kHz}$ signal at $f_s = 4\\ \\mathrm{kHz}$. A $2\\ \\mathrm{V}$ switching interferer sits at $3.7\\ \\mathrm{kHz}$. Find the alias frequency and the attenuation needed to hold the alias below one LSB.",
+      "give": ["n = 12 bits", "FS = 5 V", "f_s = 4 kHz", "interferer = 2 V at 3.7 kHz"],
+      "steps": [
+        "Alias = |3700 - 4000| = 300 Hz, inside the 0-2 kHz baseband",
+        "LSB = 5/4096 = 1.2207 mV",
+        "Required attenuation = 20 log(2/0.0012207) = 20 log(1638)",
+        "= 64.3 dB at 3.7 kHz"
+      ],
+      "ans": "The interferer aliases to $300\\ \\mathrm{Hz}$; suppressing it below one LSB needs $64.3\\ \\mathrm{dB}$ at $3.7\\ \\mathrm{kHz}$.",
+      "trap": "Believing an anti-alias filter can be designed at the signal frequency. The filter must attenuate the *interferer* at 3.7 kHz, close to the 2 kHz Nyquist limit, which means a steep multi-pole filter rather than a single RC section."
+    },
+    {
+      "prompt": "A 12-bit SAR converter runs from a $1\\ \\mathrm{MHz}$ clock and needs two clock periods for acquisition. Find the conversion time and the maximum sample rate, then repeat for a $10\\ \\mathrm{MHz}$ clock.",
+      "give": ["n = 12 bits", "f_clk = 1 MHz", "acquisition = 2 clocks", "also 10 MHz"],
+      "steps": [
+        "Conversion needs one clock per bit: 12 clocks",
+        "Total = 12 + 2 = 14 clock periods",
+        "At 1 MHz: t_conv = 14 us, so f_s,max = 1/14us = 71.4 kSPS",
+        "At 10 MHz: t_conv = 1.4 us, so f_s,max = 714 kSPS"
+      ],
+      "ans": "$14\\ \\mu\\mathrm{s}$ (71.4 kSPS) at 1 MHz and $1.4\\ \\mu\\mathrm{s}$ (714 kSPS) at 10 MHz.",
+      "trap": "Forgetting the acquisition time and the sample-and-hold requirement. The input must be held to better than half an LSB for the whole 12-clock conversion, so the sampling network — not just the clock — sets the practical speed."
+    },
+    {
+      "prompt": "A dual-slope ADC uses $V_{ref} = 5\\ \\mathrm{V}$, an integration time $T_1 = 20\\ \\mathrm{ms}$ and a $100\\ \\mathrm{kHz}$ clock. Find the count for $V_{in} = 2.5\\ \\mathrm{V}$, the voltage per count, the equivalent resolution in bits, and why $T_1$ was chosen as 20 ms.",
+      "give": ["V_ref = 5 V", "T_1 = 20 ms", "f_clk = 100 kHz", "V_in = 2.5 V"],
+      "steps": [
+        "Full-scale count = T_1 x f_clk = 20 ms x 100 kHz = 2000 counts",
+        "T_2 = T_1 (V_in/V_ref) = 20 ms x 0.5 = 10 ms",
+        "Count = 10 ms x 100 kHz = 1000",
+        "Voltage per count = 5 V/2000 = 2.5 mV, and 2000 counts is about 2^11, so 11 bits",
+        "T_1 = 20 ms is exactly one 50 Hz mains period, so mains hum integrates to zero"
+      ],
+      "ans": "1000 counts for $2.5\\ \\mathrm{V}$, $2.5\\ \\mathrm{mV}$ per count, about 11 bits, with $T_1 = 20\\ \\mathrm{ms}$ giving complete 50 Hz normal-mode rejection.",
+      "trap": "Assuming the resolution is set by the clock alone. It is $V_{ref}/(T_1f_{clk})$: doubling the clock helps, but the integrator's linearity and the reference's stability set the real accuracy, and the conversion is inherently slow."
+    }
+  ],
+  "traps": [
+    "**Dividing by $2^n - 1$ instead of $2^n$.** The step size is $FS/2^n$ because there are $2^n$ steps; the largest code is $2^n-1$. At 8 bits the difference is 0.4%, larger than many error budgets, though it fades to 0.024% at 12 bits.",
+    "**Applying $6.02n+1.76$ to a signal that does not use full scale.** The formula assumes a full-scale sine; a signal at 10% of full scale loses 20 dB of SNR, which is 3.3 bits of effective resolution.",
+    "**Thinking aliases can be removed digitally.** Once an 8 kHz interferer folds to 2 kHz it is indistinguishable from real signal; the anti-alias filter must be analog and must precede the sample-and-hold.",
+    "**Equating resolution with accuracy.** Offset, gain error, INL/DNL, reference drift and noise all degrade the real performance: a 16-bit part with 4 LSB of INL or 68 dB of SNR delivers 11-14 effective bits.",
+    "**Ignoring the DNL thresholds.** DNL below $-1$ LSB guarantees missing codes and DNL above $+1$ LSB makes the transfer function non-monotonic, so a control loop built on the raw code can move backwards.",
+    "**Assuming a SAR converter does not need a sample-and-hold.** The binary search takes $n$ clock periods, and the input must stay within half an LSB for all of them; without a hold circuit, a fast input is converted from a moving target.",
+    "**Choosing flash for high resolution.** A flash converter needs $2^n-1$ comparators — 255 for 8 bits — so area, power and input capacitance explode; beyond 8-10 bits the architecture is used only as a coarse stage.",
+    "**Overlooking aperture jitter at high input frequency.** A 1 ns sampling uncertainty on a 1 MHz sine is 6.3 mV of error and about 44 dB of SNR, so the front-end clock, not the converter, becomes the limiting specification."
+  ],
+  "refs": [
+    "[[14_DAC_Architectures]]",
+    "[[12_Signal_Conditioning_and_DAQ]]",
+    "[[03_Quantization_Noise_and_SQNR]]",
+    "[[02_PCM_Sampling,_Quantizing,_Encoding]]"
+  ],
+  "prereqs": [
+    "[[12_Signal_Conditioning_and_DAQ]]",
+    "[[01_Op-Amp_Fundamentals_and_Real_Parameters]]"
+  ]
+}

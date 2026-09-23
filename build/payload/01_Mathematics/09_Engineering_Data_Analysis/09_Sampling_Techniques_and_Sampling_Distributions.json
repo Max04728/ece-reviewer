@@ -1,0 +1,122 @@
+{
+  "scope": "Choose a sampling method, distinguish probability from non-probability designs, and describe the sampling distribution of the mean and proportion.",
+  "intuition": "A sample is only useful if every member of the population had a known, non-zero chance of being chosen. The sampling distribution is what you get by imagining the sample repeated many times and plotting the statistic each time.",
+  "concept": [
+    "**Probability sampling designs.** *Simple random sampling* (SRS) gives every subset of size $n$ the same chance — the reference design. *Systematic sampling* takes every $k$-th item after a random start, with $k=\\frac{N}{n}$; it is easy on a production line but dangerous when the list has a periodic pattern that matches $k$. *Stratified sampling* splits the population into homogeneous strata and samples within each, always giving a smaller variance than SRS for the same $n$ when the strata differ. *Cluster sampling* selects whole groups (schools, lots, towns) and surveys all or a sample within them — cheaper, but with larger variance because clusters are internally similar.",
+    "**Non-probability designs and their bias.** *Convenience* sampling uses whoever is at hand; *purposive/judgement* sampling picks what the researcher thinks is representative; *quota* sampling fills fixed categories by convenience; *voluntary response* sampling lets people opt in. Each breaks the randomness assumption, so no valid margin of error or confidence interval can be attached. Exam items usually ask you to *name* the design from a scenario — the phrase 'every 10th item on the production line' is systematic, 'divide by shift and sample within each' is stratified.",
+    "**The sampling distribution of the mean.** Repeated sampling gives a distribution of $\\bar X$ with $E[\\bar X]=\\mu$ (unbiased) and standard error $\\sigma_{\\bar X}=\\frac{\\sigma}{\\sqrt{n}}$, called the *standard error of the mean*. If the population is normal, $\\bar X$ is exactly normal for any $n$; otherwise the Central Limit Theorem makes it approximately normal for $n\\ge30$. The $\\sqrt n$ in the denominator is what makes precision improve slowly — quadrupling the sample only halves the error.",
+    "**Finite population correction.** When sampling without replacement from a finite population of size $N$, the standard error becomes the corrected form: $\\sigma_{\\bar X}=\\frac{\\sigma}{\\sqrt{n}}\\sqrt{\\frac{N-n}{N-1}}$. The correction factor is below 1, so it *reduces* the standard error, and it matters when the sampling fraction $\\frac{n}{N}$ exceeds about 5%. Ignoring it when it applies overstates the uncertainty.",
+    "**Sampling distribution of a proportion.** For a proportion, $E[\\hat p]=p$ and $\\sigma_{\\hat p}=\\sqrt{\\frac{p(1-p)}{n}}$, again with a finite-population factor if needed. The normal approximation for $\\hat p$ is acceptable when $np\\ge5$ and $n(1-p)\\ge5$. Here the standard error depends on the unknown $p$; its maximum is at $p=0.5$, which is why sample-size formulas use $p=0.5$ when no prior estimate exists.",
+    "**Bias versus variance.** Bias is a systematic offset that does not shrink with more data; variance shrinks as $\\frac{1}{\\sqrt n}$. A badly designed sample of a million people can be worse than a well-designed sample of a thousand, because no amount of $n$ removes a selection bias. This is the concept most often tested in words rather than numbers.",
+    "**Why stratification wins.** If the population separates into strata with different means, the total variance decomposes into between-stratum and within-stratum parts. Stratified sampling removes the between-stratum component from the error, so for a fixed $n$ it is more precise than SRS whenever the stratum means differ. Proportional allocation assigns $n_i=n\\frac{N_i}{N}$; Neyman allocation assigns more to strata with larger standard deviations."
+  ],
+  "formulas": [
+    { "q": "Standard error of the mean", "e": "\\sigma_{\\bar X} = \\frac{\\sigma}{\\sqrt{n}}", "n": "Infinite population or with replacement. s replaces sigma when sigma is unknown." },
+    { "q": "Finite population correction", "e": "\\sigma_{\\bar X} = \\frac{\\sigma}{\\sqrt{n}}\\sqrt{\\frac{N-n}{N-1}}", "n": "Sampling without replacement. Matters when n/N > 5%." },
+    { "q": "Standard error of a proportion", "e": "\\sigma_{\\hat p} = \\sqrt{\\frac{p(1-p)}{n}}", "n": "Maximum at p = 0.5; use p = 0.5 when no estimate exists." },
+    { "q": "Sample size for a target error (mean)", "e": "n = \\left(\\frac{z\\sigma}{E}\\right)^{2}", "n": "Round UP to the next integer." },
+    { "q": "Sample size for a target error (proportion)", "e": "n = \\frac{z^{2}p(1-p)}{E^{2}}", "n": "Use p = 0.5 for the conservative maximum." },
+    { "q": "Systematic sampling interval", "e": "k = \\frac{N}{n}", "n": "Random start in 1..k, then every k-th item." },
+    { "q": "Proportional (stratified) allocation", "e": "n_i = n\\,\\frac{N_i}{N}", "n": "Sample size in stratum i; sums to n." },
+    { "q": "Unbiasedness of the sample mean", "e": "E[\\bar X] = \\mu", "n": "The mean is unbiased for any design that gives each unit equal selection probability." },
+    { "q": "Standard error from a sample", "e": "s_{\\bar X} = \\frac{s}{\\sqrt{n}}", "n": "Used with the t distribution when sigma is unknown." }
+  ],
+  "problems": [
+    {
+      "prompt": "Monthly electricity bills are normally distributed with $\\mu=120$ and $\\sigma=25$. A sample of 36 bills is taken. Find the standard error of the sample mean and $P(\\bar X<115)$.",
+      "give": ["mu = 120", "sigma = 25", "n = 36"],
+      "steps": [
+        "Standard error: sigma_xbar = 25/sqrt(36) = 25/6 = 4.1667",
+        "The sampling distribution is normal with mean 120 and sd 4.1667 (the population is normal, so no CLT needed)",
+        "z = (115 - 120)/4.1667 = -5/4.1667 = -1.2000",
+        "P(xbar < 115) = Phi(-1.20) = 0.115070",
+        "So about 11.5% of samples of 36 would average below 115, even though the population mean is 120",
+        "Compare the raw-variable probability: P(X < 115) = Phi((115-120)/25) = Phi(-0.20) = 0.4207 — averaging shrinks the spread"
+      ],
+      "ans": "$\\sigma_{\\bar X} = 4.167$; $P(\\bar X<115)=0.1151$.",
+      "trap": "Dividing by $n$ instead of $\\sqrt n$, giving a standard error of 25/36 = 0.694 and a probability of essentially 1. The standard error of a mean always has $\\sqrt n$ in the denominator."
+    },
+    {
+      "prompt": "An opinion poll samples 100 voters from a large population in which the true proportion is $p=0.40$. Find the standard error of $\\hat p$ and $P(\\hat p>0.50)$.",
+      "give": ["p = 0.40", "n = 100", "np = 40 and n(1-p) = 60, so the normal approximation applies"],
+      "steps": [
+        "sigma_phat = sqrt[p(1-p)/n] = sqrt(0.40 x 0.60/100) = sqrt(0.0024) = 0.048990",
+        "z = (0.50 - 0.40)/0.048990 = 2.0412",
+        "P(phat > 0.50) = 1 - Phi(2.0412) = 1 - 0.979387 = 0.020613",
+        "So about 2.1% of samples of 100 would show a majority for the option even though the true support is 40%",
+        "Sample size check: the rule of thumb np >= 5 and n(1-p) >= 5 is satisfied comfortably"
+      ],
+      "ans": "$\\sigma_{\\hat p} = 0.0490$; $P(\\hat p>0.50)=0.0206$.",
+      "trap": "Using $\\sigma_{\\hat p}=\\sqrt{p(1-p)/n}$ with $p$ replaced by the sample value 0.5 rather than the population value 0.4. The sampling distribution is centred on the population proportion; substituting the observed proportion changes both the mean and the spread."
+    },
+    {
+      "prompt": "For the poll in the previous problem, the population is actually a town of 500 voters and sampling is without replacement. Recompute the standard error and $P(\\hat p>0.50)$.",
+      "give": ["N = 500", "n = 100", "p = 0.40"],
+      "steps": [
+        "Finite population correction: sqrt[(N-n)/(N-1)] = sqrt(400/499) = sqrt(0.801603) = 0.895323",
+        "Corrected standard error: 0.048990 x 0.895323 = 0.043862",
+        "z = (0.50 - 0.40)/0.043862 = 2.2799",
+        "P(phat > 0.50) = 1 - Phi(2.2799) = 1 - 0.988693 = 0.011307",
+        "The correction nearly halved the probability because the sampling fraction n/N = 20% is well above the 5% threshold"
+      ],
+      "ans": "$\\sigma_{\\hat p} = 0.0439$ (versus $0.0490$ uncorrected); $P(\\hat p>0.50) = 0.0113$.",
+      "trap": "Ignoring the finite population correction for a 20% sampling fraction. The uncorrected standard error is 12% too large here, and the resulting probability is wrong by nearly a factor of two."
+    },
+    {
+      "prompt": "A quality engineer wants the standard error of the mean to be no more than $2\\ \\mathrm{g}$, with $\\sigma=10\\ \\mathrm{g}$. What sample size is required?",
+      "give": ["sigma = 10", "target standard error = 2"],
+      "steps": [
+        "Set sigma/sqrt(n) <= 2",
+        "sqrt(n) >= 10/2 = 5",
+        "n >= 25",
+        "So 25 measurements are required; with n = 25 the standard error is exactly 10/5 = 2 g",
+        "Check the marginal value of more sampling: doubling n to 50 gives 10/7.071 = 1.414 g, a 29% improvement for twice the work"
+      ],
+      "ans": "$n = 25$.",
+      "trap": "Solving $\\sigma/n\\le2$ and answering $n=5$. The standard error contains $\\sqrt n$, so the square must be taken: $(\\sigma/E)^{2} = 25$, not 5. Under-sampling by a factor of 5 is the consequence."
+    },
+    {
+      "prompt": "A plant has 1200 day-shift, 800 evening-shift and 600 night-shift workers. A stratified sample of 200 is to be taken in proportion to stratum size. How many are drawn from each stratum?",
+      "give": ["N1 = 1200, N2 = 800, N3 = 600", "N = 2600", "n = 200"],
+      "steps": [
+        "Proportions: 1200/2600 = 0.461538; 800/2600 = 0.307692; 600/2600 = 0.230769",
+        "n1 = 200(0.461538) = 92.31 -> 92",
+        "n2 = 200(0.307692) = 61.54 -> 62",
+        "n3 = 200(0.230769) = 46.15 -> 46",
+        "Check the total: 92 + 62 + 46 = 200",
+        "Interpretation: shifts are the strata; sampling within each shift guarantees the sample mirrors the shift composition instead of leaving it to chance"
+      ],
+      "ans": "$92$ day, $62$ evening, $46$ night.",
+      "trap": "Taking $200/3=67$ from each stratum. Equal allocation is a different design and is only appropriate when the strata have equal size *and* equal variance; proportional allocation is what 'in proportion to size' means."
+    },
+    {
+      "prompt": "A production line produces 2000 parts per shift. An inspector measures every 20th part, starting at a randomly chosen part among the first 20. Name the design and state one way it could fail.",
+      "give": ["N = 2000", "k = 20", "random start"],
+      "steps": [
+        "Sampling interval k = N/n = 2000/100 = 20, with a random start in 1 to 20",
+        "This is systematic sampling",
+        "It fails when the list has a periodic pattern with period 20 (or a divisor of 20): for example 20-cavity moulds that fill in a fixed order, so the same cavity is sampled every time",
+        "Then every sampled part comes from one mould cavity and the sample is not representative",
+        "Design fixes: randomise the starting point within each block, use a random interval, or switch to simple random sampling"
+      ],
+      "ans": "Systematic sampling; it is biased whenever a periodic pattern in the population has a period that shares a factor with $k=20$.",
+      "trap": "Calling it simple random sampling because the start is random. Only the first item is random; the rest are determined by $k$. The randomness of the start does not protect against a periodic population."
+    }
+  ],
+  "traps": [
+    "**Dividing by $n$ instead of $\\sqrt n$ in the standard error.** The single most common numerical error in the topic. The standard error of a mean is $\\frac{\\sigma}{\\sqrt n}$; quadrupling $n$ halves it.",
+    "**Omitting the finite population correction whenever sampling is without replacement.** It is required when $n/N$ exceeds about 5%. Its absence inflates the standard error and every confidence interval built on it.",
+    "**Using the sample proportion in the standard error when the population proportion is given.** The sampling distribution is centred on $p$, not $\\hat p$.",
+    "**Confusing stratified with cluster sampling.** Stratified samples *within* every group (groups are homogeneous internally, different from each other); cluster sampling selects *whole* groups and samples few of them. The first reduces variance, the second usually increases it.",
+    "**Believing a bigger sample fixes a biased design.** Selection bias does not shrink as $\\frac{1}{\\sqrt n}$; a voluntary online poll of a million respondents is still biased. Only randomisation addresses bias.",
+    "**Forgetting to round the sample size up.** $n$ must be an integer large enough to meet the target; rounding 25.3 down to 25 misses the specification. Always round up.",
+    "**Applying the normal approximation to $\\hat p$ when $np$ or $n(1-p)$ is below 5.** The distribution of a proportion is skewed for small counts; the normal-based probability will be noticeably wrong."
+  ],
+  "refs": [
+    "[[10_Central_Limit_Theorem]]",
+    "[[11_Confidence_Intervals]]",
+    "[[01_Central_Tendency]]",
+    "[[02_Dispersion,_Variance,_SD,_IQR_and_CV]]"
+  ],
+  "prereqs": ["[[01_Central_Tendency]]", "[[02_Dispersion,_Variance,_SD,_IQR_and_CV]]"]
+}

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOSFET Output Characteristic — Triode, Saturation and the Pinch-Off Boundary</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The single most-tested idea in the MOSFET output characteristic is that the boundary
+// between triode and saturation is the locus V_DS = V_GS - V_T, which in the I_D-V_DS plane
+// IS the parabola I_D = (k/2) V_DS^2. Every saturation line for any V_GS ends exactly on
+// that parabola. Drawing it as a curve rather than a straight line is what makes the region
+// test V_DS < V_GS - V_T (or V_GD < V_T) obvious.
+
+widget({
+  title: 'MOSFET Output Characteristic — Triode, Saturation, Cutoff',
+  description:
+    'Square-law n-channel MOSFET with I_D = k[(V_GS - V_T)V_DS - V_DS^2/2] in triode and I_D = (k/2)(V_GS - V_T)^2 in saturation. The dashed parabola is the pinch-off boundary V_DS = V_GS - V_T; inside it the device is a voltage-controlled resistor, and to its right it is a current source. The marked point is the operating point.',
+  height: 520,
+  range: { xMin: 0, xMax: 12, yMin: 0, yMax: 160 },
+  controls: [
+    { id: 'k', label: 'k = k-prime (W/L)  (mA/V^2)', min: 0.05, max: 5, step: 0.05, value: 1 },
+    { id: 'VT', label: 'threshold voltage V_T (V)', min: 0, max: 3, step: 0.1, value: 1 },
+    { id: 'VGS', label: 'gate-source voltage V_GS (V)', min: 0, max: 8, step: 0.1, value: 3 },
+    { id: 'VDS', label: 'drain-source voltage V_DS (V)  — operating point', min: 0, max: 12, step: 0.1, value: 2 },
+  ],
+
+  compute: (v) => {
+    const k = Math.max(1e-4, v.k);              // mA/V^2
+    const VT = v.VT;
+    const VGS = v.VGS;
+    const VDS = v.VDS;
+    const Vov = VGS - VT;
+
+    let region, ID;
+    if (Vov <= 0) { region = 'cutoff'; ID = 0; }
+    else if (VDS < Vov) { region = 'triode'; ID = k * (Vov * VDS - (VDS * VDS) / 2); }
+    else { region = 'saturation'; ID = (k / 2) * Vov * Vov; }
+
+    const IDsat = Vov > 0 ? (k / 2) * Vov * Vov : 0;
+
+    // small-signal on-resistance at V_DS -> 0 is 1/(k V_ov); the DC ratio V_DS/I_D is larger
+    // and grows as the operating point approaches the pinch-off boundary.
+    let rds = 0, rdsDefined = false;
+    if (ID > 1e-12) { rds = VDS / (ID * 1e-3); rdsDefined = true; }
+    else if (Vov > 0) { rds = 1 / (k * 1e-3 * Vov); rdsDefined = true; }
+    const rdsSmall = Vov > 0 ? 1 / (k * 1e-3 * Vov) : 0;
+
+    const idOf = (vgs, vds) => {
+      const ov = vgs - VT;
+      if (ov <= 0) return 0;
+      if (vds < ov) return k * (ov * vds - (vds * vds) / 2);
+      return (k / 2) * ov * ov;
+    };
+
+    // family of curves to draw, plus the pinch-off parabola
+    const vgsList = [];
+    for (let i = 1; i <= 5; i++) {
+      const g = VT + (i * (8 - VT)) / 5;
+      if (g > VT + 0.05) vgsList.push(g);
+    }
+    let yMax = 1e-6;
+    for (const g of vgsList) yMax = Math.max(yMax, idOf(g, 12));
+    yMax = Math.max(yMax, ID * 1.15, IDsat * 1.15, 1e-3);
+
+    const xMax = 12;
+    const boundEnd = Math.min(xMax, Math.max(0, 8 - VT));
+    const boundMax = (k / 2) * boundEnd * boundEnd;
+
+    return { k, VT, VGS, VDS, Vov, region, ID, IDsat, rds, rdsDefined, rdsSmall,
+             idOf, vgsList, yMax, xMax, boundEnd, boundMax,
+             regionStr: region === 'cutoff'
+               ? 'CUTOFF — V_GS (' + fmt(VGS, 4) + ' V) is at or below V_T (' + fmt(VT, 4) + ' V), so no channel exists and I_D = 0.'
+               : region === 'triode'
+               ? 'TRIODE (linear/ohmic) — V_DS (' + fmt(VDS, 4) + ' V) is below V_GS - V_T (' + fmt(Vov, 4) + ' V): the channel is continuous and the device behaves as a voltage-controlled resistor.'
+               : 'SATURATION (active) — V_DS (' + fmt(VDS, 4) + ' V) is at or above V_GS - V_T (' + fmt(Vov, 4) + ' V): the channel is pinched off at the drain and I_D is set by V_GS alone.',
+             regionShort: region === 'cutoff'
+               ? 'CUTOFF — V_GS <= V_T, no channel, I_D = 0'
+               : region === 'triode'
+               ? 'TRIODE — V_DS < V_GS - V_T: continuous channel, acts as a resistor'
+               : 'SATURATION — V_DS >= V_GS - V_T: channel pinched off, I_D set by V_GS alone',
+             eqStr: region === 'cutoff'
+               ? 'I_D = 0   because V_GS - V_T = ' + fmt(Vov, 4) + ' V <= 0'
+               : region === 'triode'
+               ? 'I_D = k[(V_GS - V_T)V_DS - V_DS^2/2] = ' + fmt(k, 4) + '[(' + fmt(Vov, 4) + ')(' + fmt(VDS, 4) + ') - ' + fmt(VDS * VDS / 2, 5) + '] = ' + fmt(ID, 5) + ' mA'
+               : 'I_D = (k/2)(V_GS - V_T)^2 = (' + fmt(k, 4) + '/2)(' + fmt(Vov, 4) + ')^2 = ' + fmt(ID, 5) + ' mA' };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const pad = plot.pad;
+    const L = pad + 62, R = plot.w - pad - 24, T = pad + 84, B = plot.h - pad - 34;
+    const xMax = out.xMax || 12;
+    const yMax = out.yMax || 1;
+    const X = (x) => L + (x / xMax) * (R - L);
+    const Y = (y) => B - (y / yMax) * (B - T);
+
+    const seg = (x1, y1, x2, y2, o) => {
+      ctx.save();
+      ctx.strokeStyle = o.color || PALETTE.axis;
+      ctx.lineWidth = o.width || 1.5;
+      if (o.dash) ctx.setLineDash(o.dash);
+      ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke();
+      ctx.restore();
+    };
+    const curve = (fn, x0, x1, color, width, dash) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      for (let i = 0; i <= 600; i++) {
+        const x = x0 + (x1 - x0) * (i / 600);
+        const y = fn(x);
+        const px = X(x), py = Y(y);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    // ------------------------------------------------- saturation region wash
+    ctx.save();
+    ctx.fillStyle = 'rgba(137,180,250,0.10)';
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(0));
+    for (let i = 0; i <= 200; i++) {
+      const xd = (i / 200) * out.boundEnd;
+      ctx.lineTo(X(xd), Y((out.k / 2) * xd * xd));
+    }
+    ctx.lineTo(X(xMax), Y((out.k / 2) * out.boundEnd * out.boundEnd));
+    ctx.lineTo(X(xMax), Y(yMax));
+    ctx.lineTo(X(0), Y(yMax));
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // ------------------------------------------------------------- grid + frame
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let xd = 0; xd <= xMax; xd += 1) {
+      ctx.beginPath(); ctx.moveTo(X(xd), T); ctx.lineTo(X(xd), B); ctx.stroke();
+    }
+    const yStep = yMax > 100 ? 20 : yMax > 40 ? 10 : yMax > 10 ? 5 : 1;
+    for (let yd = 0; yd <= yMax; yd += yStep) {
+      ctx.beginPath(); ctx.moveTo(L, Y(yd)); ctx.lineTo(R, Y(yd)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.strokeRect(L, T, R - L, B - T);
+    ctx.restore();
+
+    for (let xd = 0; xd <= xMax; xd += 1) {
+      plot.text(String(xd), X(xd), B + 15, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    for (let yd = 0; yd <= yMax; yd += yStep) {
+      plot.text(fmt(yd, 3), L - 6, Y(yd) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('V_DS (V)', (L + R) / 2, B + 32, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    plot.text('I_D (mA)', L - 6, T - 12, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+
+    // ------------------------------------------------- pinch-off boundary curve
+    curve((xd) => (out.k / 2) * xd * xd, 0, out.boundEnd, PALETTE.warn, 2.6, [7, 4]);
+    plot.text('pinch-off boundary  V_DS = V_GS - V_T   ->   I_D = (k/2)V_DS^2',
+      X(out.boundEnd) + 6, Y((out.k / 2) * out.boundEnd * out.boundEnd) - 8,
+      { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('TRIODE  (V_DS < V_GS - V_T):  voltage-controlled resistor',
+      X(0.3), B - 16, { color: PALETTE.accent4, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('SATURATION  (V_DS >= V_GS - V_T):  current source, I_D set by V_GS alone',
+      X(0.3), T + 18, { color: PALETTE.accent, font: 'bold 11px ui-monospace, monospace' });
+
+    // --------------------------------------------------------------- ID curves
+    for (const g of out.vgsList) {
+      const isOwn = Math.abs(g - out.VGS) < 0.5;
+      curve((xd) => out.idOf(g, xd), 0, xMax, isOwn ? PALETTE.accent2 : PALETTE.accent3, isOwn ? 2.8 : 1.6, null);
+      const yEnd = out.idOf(g, xMax);
+      plot.text('V_GS = ' + fmt(g, 4) + ' V', X(xMax) - 4, Y(yEnd) - 6,
+        { color: isOwn ? PALETTE.accent2 : PALETTE.accent3, font: isOwn ? 'bold 10px ui-monospace, monospace' : '10px ui-monospace, monospace', align: 'right' });
+    }
+
+    // ------------------------------------------------------------ operating point
+    const px = X(Math.min(xMax, out.VDS)), py = Y(out.ID);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(243,139,168,0.55)';
+    ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(L, py); ctx.lineTo(px, py); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px, B); ctx.lineTo(px, py); ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = PALETTE.accent2;
+    ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    plot.text('Q point: V_DS = ' + fmt(out.VDS, 4) + ' V, I_D = ' + fmt(out.ID, 5) + ' mA  (' + out.region + ')',
+      Math.min(px + 10, R - 250), Math.max(py - 12, T + 40),
+      { color: PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+
+    // --------------------------------------------------------------- header text
+    plot.text('MOSFET output characteristic — square-law model, n-channel enhancement',
+      pad + 4, pad + 14, { color: PALETTE.text, font: 'bold 13px ui-monospace, monospace' });
+    plot.text('I_D = k[(V_GS - V_T)V_DS - V_DS^2/2]  (triode)      I_D = (k/2)(V_GS - V_T)^2  (saturation)      k = ' +
+      fmt(out.k, 5) + ' mA/V^2,  V_T = ' + fmt(out.VT, 4) + ' V',
+      pad + 4, pad + 32, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    plot.text('V_GS = ' + fmt(out.VGS, 4) + ' V  ->  V_OV = V_GS - V_T = ' + fmt(out.Vov, 4) + ' V,  boundary at V_DS = ' +
+      fmt(out.Vov, 4) + ' V      saturation current at this V_GS = ' + fmt(out.IDsat, 5) + ' mA',
+      pad + 4, pad + 50, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    plot.text('substituted:  ' + out.eqStr,
+      pad + 4, pad + 68, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+
+    // ---------------------------------------------------------------- verdict bar
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(pad + 4, plot.h - pad - 32, plot.iw, 32);
+    ctx.restore();
+    plot.text(out.regionShort || out.regionStr || '', pad + 14, plot.h - pad - 11,
+      { color: out.region === 'saturation' ? PALETTE.accent : out.region === 'triode' ? PALETTE.accent4 : PALETTE.accent2,
+        font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'region of operation': out.region.toUpperCase(),
+    'why': out.regionStr || '—',
+    'V_GS': fmt(out.VGS, 5) + ' V',
+    'V_T': fmt(out.VT, 5) + ' V',
+    'overdrive V_OV = V_GS - V_T': fmt(out.Vov, 5) + ' V' + (out.Vov <= 0 ? '   (no channel — cutoff)' : ''),
+    'V_DS at the operating point': fmt(out.VDS, 5) + ' V',
+    'region test': out.Vov <= 0 ? 'V_GS <= V_T  ->  cutoff'
+      : (out.VDS < out.Vov ? 'V_DS (' + fmt(out.VDS, 4) + ') < V_OV (' + fmt(out.Vov, 4) + ')  ->  triode'
+                           : 'V_DS (' + fmt(out.VDS, 4) + ') >= V_OV (' + fmt(out.Vov, 4) + ')  ->  saturation'),
+    'I_D at the operating point': fmt(out.ID, 6) + ' mA',
+    'saturation current at this V_GS': fmt(out.IDsat, 6) + ' mA   [(k/2)(V_GS - V_T)^2]',
+    'substituted drain current': out.eqStr || '—',
+    'on-resistance V_DS / I_D': out.rdsDefined ? fmt(out.rds, 6) + ' ohm' + (out.region === 'triode' ? '' : '   (not meaningful outside triode)') : 'undefined — I_D is zero',
+    'small-signal r_DS(on) = 1/(k V_OV)': out.Vov > 0 ? fmt(out.rdsSmall, 6) + ' ohm   (the limit as V_DS -> 0)' : 'undefined — cutoff',
+    'transconductance parameter k': fmt(out.k, 5) + ' mA/V^2   = k-prime (W/L)',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The boundary is a parabola, not a line.</strong> Pinch-off happens when ' +
+  'V_DS = V_GS &minus; V_T, and substituting that into the triode equation gives ' +
+  'I_D = (k/2)V_DS&sup2; &mdash; a curve through the origin. Every saturation line, whatever V_GS, ' +
+  'terminates exactly on that parabola. That is why the region test is written ' +
+  'V_DS &lt; V_GS &minus; V_T (equivalently V_GD &lt; V_T), and why you cannot decide the region from ' +
+  'V_DS alone. ' +
+  '<br><br><strong>Two different on-resistances.</strong> In triode the device is a resistor whose value ' +
+  'depends on V_GS: the small-signal value at the origin is r_DS(on) = 1/(k V_OV), but the DC ratio V_DS/I_D ' +
+  'at a real operating point is larger, and it grows toward 2/(k V_OV) as the point approaches the boundary. ' +
+  'Reporting the small-signal value when the question gives a specific V_DS is a silent error. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> using the saturation formula when V_DS &lt; V_GS &minus; V_T, ' +
+  'which overstates the current every time and is the single most common MOSFET slip. The mirror-image mistake ' +
+  'is using the triode formula in saturation, which makes I_D depend on V_DS when it does not. Second trap: ' +
+  'k here is <em>k-prime times W/L</em> (units mA/V&sup2; or A/V&sup2;), not k-prime alone &mdash; a question ' +
+  'that gives k-prime = 50 &micro;A/V&sup2; and W/L = 20 wants k = 1 mA/V&sup2;, and forgetting the ratio ' +
+  'misprices every current. Third: for a p-channel device the inequalities reverse (V_GS and V_DS are both ' +
+  'negative and V_T is negative), so the same picture is drawn mirrored through the origin.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

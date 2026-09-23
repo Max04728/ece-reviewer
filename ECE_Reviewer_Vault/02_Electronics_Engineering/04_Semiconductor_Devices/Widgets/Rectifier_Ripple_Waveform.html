@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rectifier Ripple Waveform — Half-Wave, Centre-Tapped and Bridge</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Three numbers decide almost every rectifier item on the board exam, and each is a
+// separate trap:
+//   1. the RIPPLE FREQUENCY. Half-wave ripples at f; both full-wave circuits ripple at 2f.
+//      V_r ≈ V_p/(f_r R C) — so the same C gives HALF the ripple in a full-wave circuit.
+//   2. the PIV. Half-wave: V_p. Centre-tapped: 2V_p. Bridge: V_p. The centre-tapped value
+//      is the one students get wrong, because the non-conducting diode sees the peak of the
+//      OTHER half secondary winding on top of its own reverse voltage.
+//   3. the conduction angle. The capacitor holds the output up between peaks, so each diode
+//      conducts only for a short spike near each peak — the larger C is, the shorter (and the
+//      spikier) the diode current. The widget solves the transcendental condition
+//      cos φ = e^(−φ/(ωRC)) for the conduction angle instead of assuming 180°.
+// Diodes are treated as ideal (V_f = 0) so the numbers match the standard exam formulas.
+
+const TOPOS = {
+  half: {
+    label: 'half-wave',
+    diodes: 1, rippleMult: 1, piv: (Vm) => Vm,
+    pivTxt: 'PIV = V_p (the single diode blocks only the peak of the one winding)',
+    fTxt: 'ripple frequency f_r = f',
+    conductionTxt: 'the diode conducts once per input cycle',
+  },
+  ct: {
+    label: 'full-wave centre-tapped',
+    diodes: 2, rippleMult: 2, piv: (Vm) => 2 * Vm,
+    pivTxt: 'PIV = 2V_p (the off diode sees its own peak PLUS the other half-winding peak)',
+    fTxt: 'ripple frequency f_r = 2f',
+    conductionTxt: 'each diode conducts once per input cycle, on alternate half-cycles',
+  },
+  bridge: {
+    label: 'full-wave bridge',
+    diodes: 4, rippleMult: 2, piv: (Vm) => Vm,
+    pivTxt: 'PIV = V_p (two diodes are in series per path, but each blocks only V_p)',
+    fTxt: 'ripple frequency f_r = 2f',
+    conductionTxt: 'diodes conduct in diagonal pairs, twice per input cycle',
+  },
+};
+
+/**
+ * Steady state of the capacitor-filtered rectifier, solved honestly.
+ *
+ * One RIPPLE period is one period of the rectified waveform |cos θ|, i.e. phase θ ∈ [0, π]
+ * (half-wave only produces output on the first half of that, so its waveform is
+ * max(cos θ, 0)). Within the period the diode is ON while the source exceeds the capacitor
+ * voltage — then the capacitor is dragged up along the source — and OFF otherwise, when the
+ * capacitor decays through the load:  v ← v·e^(−dθ/(ωRC)).
+ *
+ * The unknown is the capacitor voltage at the CONDUCTION ANGLE θc (the phase of the
+ * descending zero crossing where the diode lets go). We iterate the cycle:
+ *   v_start → [run one full period] → v_end
+ * until v_end = v_start. The step size is the convergence knob: a slower march converges
+ * harder but still fast enough to run on every slider move.
+ */
+const MARCH = 90;                                  // steps per ripple period (stability)
+function solveCycle(Vm, wRC, full) {
+  const N = 900;                                   // points per period for the trace
+  const shape = (th) => (full ? Math.abs(Math.cos(th)) : Math.max(Math.cos(th), 0));
+  const march = (v0) => {
+    let v = v0, onSteps = 0, qOn = 0;
+    const d0 = Math.PI / MARCH;
+    for (let k = 0; k < MARCH; k++) {
+      const th = (k + 0.5) * d0;
+      const src = Vm * shape(th);
+      const d = d0 / wRC;
+      const decay = v * Math.exp(-d);              // capacitor discharging through R
+      const after = Math.max(decay, src);          // diode conducts if the source is higher
+      if (src > decay) { onSteps++; qOn += (src - decay) * wRC; }
+      v = after;
+    }
+    return { v, onSteps, qOn };
+  };
+  let v = 0;
+  for (let i = 0; i < 60; i++) {
+    const nx = march(v).v;
+    if (Math.abs(nx - v) < 1e-13 * Math.max(1, Vm)) { v = nx; break; }
+    v = nx;
+  }
+  // one clean period from the converged start, with the ON/OFF record kept
+  const trace = [];
+  let vv = v, sum = 0, sum2 = 0, onFrac = 0, qOn = 0;
+  const d = Math.PI / N;
+  const lastOn = { on: false };
+  for (let i = 0; i <= N; i++) {
+    const th = i * d;
+    const src = Vm * shape(th);
+    const step = d / wRC;
+    const decay = vv * Math.exp(-step);
+    const on = src > decay;
+    if (i > 0 && on) { onFrac += d; qOn += (src - decay) * wRC; }
+    lastOn.on = on;
+    vv = Math.max(decay, src);
+    trace.push({ th, src, v: vv, on });
+    sum += vv; sum2 += vv * vv;
+  }
+  const vdc = sum / (N + 1);
+  const vrms = Math.sqrt(sum2 / (N + 1));
+  let peak = -Infinity, trough = Infinity;
+  for (const p of trace) { if (p.v > peak) peak = p.v; if (p.v < trough) trough = p.v; }
+  return {
+    trace, vdc, vrms, peak, trough,
+    vAt: (th) => {
+      const t = ((th % Math.PI) + Math.PI) % Math.PI;
+      return trace[Math.min(N, Math.round((t / Math.PI) * N))].v;
+    },
+    shape,
+    onFrac,                                   // fraction of the period the diode conducts
+    qOn,                                      // charge delivered per period, C
+    condTotalDeg: onFrac * 180,
+  };
+}
+
+widget({
+  title: 'Rectifier Ripple Waveform — Half-Wave, Centre-Tapped and Bridge',
+  description:
+    'Pick a topology and slide V_m, f, R and C. The raw rectified waveform, the capacitor-smoothed output and the ripple band are drawn together, and V_dc, V_r, the ripple factor, the PIV and the conduction angle are computed for the chosen circuit.',
+  height: 470,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'topo', label: 'rectifier', type: 'select', options: [
+      { value: 'half', label: 'half-wave (1 diode)' },
+      { value: 'ct', label: 'full-wave centre-tapped (2 diodes)' },
+      { value: 'bridge', label: 'full-wave bridge (4 diodes)' },
+    ], value: 'bridge' },
+    { id: 'Vm', label: 'source peak V_p', min: 1, max: 60, step: 0.5, value: 20, unit: 'V' },
+    { id: 'f', label: 'source frequency f', min: 10, max: 120, step: 1, value: 60, unit: 'Hz' },
+    { id: 'R', label: 'load R', min: 0.05, max: 20, step: 0.05, value: 1, unit: 'kΩ' },
+    { id: 'C', label: 'filter C', min: 1, max: 2000, step: 1, value: 100, unit: 'µF' },
+  ],
+  compute: (v) => {
+    const topo = TOPOS[v.topo];
+    const R = v.R * 1e3, C = v.C * 1e-6, Vm = v.Vm, f = v.f;
+    const fr = topo.rippleMult * f;
+    const w = 2 * Math.PI * f;
+    const wRC = w * R * C;
+    const full = topo.rippleMult > 1;
+    const cyc = solveCycle(Vm, wRC, full);
+    const VrApprox = Vm / (fr * R * C);
+    const VrExact = cyc.peak - cyc.trough;
+    const VdcUnfiltered = (topo.rippleMult === 1 ? Vm / Math.PI : (2 * Vm) / Math.PI);
+    const PIV = topo.piv(Vm);
+    const vrRms = VrExact / (2 * Math.sqrt(3));            // triangular-ripple rms
+    const rippleFactor = cyc.vdc > 0 ? vrRms / cyc.vdc : NaN;
+    const rfUnfiltered = topo.rippleMult === 1 ? 1.21 : 0.482;
+    const Idc = cyc.vdc / R;
+    const Pdc = cyc.vdc * Idc;
+    // peak diode current: the surge that recharges C in the (short) conduction interval
+    const tRipple = Math.PI / w;                           // one ripple period, seconds
+    const qPerCycle = (cyc.vdc / R) * tRipple;
+    const tCond = cyc.onFrac * tRipple;
+    const IpeakDiode = tCond > 0 ? (2 * qPerCycle) / tCond : NaN;
+    return {
+      topo, Vm, f, fr, R, C, wRC, full, cyc, VrApprox, VrExact, VdcUnfiltered, PIV,
+      rippleFactor, rfUnfiltered, Idc, Pdc, IpeakDiode, vrRms, tRipple, tCond,
+      condFrac: cyc.onFrac,                                // fraction of a half-cycle: 0.5 = 180°
+      condTotalDeg: cyc.condTotalDeg,
+    };
+  },
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h, pad = plot.pad;
+    plot.clear();
+    ctx.save();
+    const txt = (s, x, y, color, font, align) => {
+      ctx.fillStyle = color || PALETTE.text;
+      ctx.font = font || '11px ui-monospace, monospace';
+      ctx.textAlign = align || 'left';
+      ctx.fillText(s, x, y);
+    };
+    const seg = (x1, y1, x2, y2, color, w, dash) => {
+      ctx.strokeStyle = color; ctx.lineWidth = w || 1.6;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    const dotAt = (x, y, color, r) => {
+      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r || 3, 0, Math.PI * 2); ctx.fill();
+    };
+
+    // ================= panel A: the topology diagram =================
+    const diaH = 118;
+    const dy = pad + 8;
+    const xa = pad + 4;
+    const yo = dy + 34, yb = dy + 84, yn = dy + 60;
+    txt(out.topo.label.toUpperCase(), xa, dy + 12, PALETTE.warn, 'bold 12px system-ui, sans-serif');
+    // source
+    ctx.strokeStyle = PALETTE.accent4; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.arc(xa + 18, yn, 15, 0, Math.PI * 2); ctx.stroke();
+    txt('~', xa + 14, yn + 5, PALETTE.accent4, '13px ui-monospace, monospace');
+    txt('V_p=' + fmt(out.Vm, 3) + ' V', xa + 2, dy + 104, PALETTE.accent4);
+    txt('f=' + fmt(out.f, 3) + ' Hz', xa + 74, dy + 104, PALETTE.accent4);
+    seg(xa + 33, yn, xa + 50, yn, PALETTE.axis, 1.8);
+    const dx0 = xa + 50;                       // transformer primary node
+    if (v.topo === 'bridge') {
+      // bridge: diamond of four diodes between the two rails
+      seg(dx0, yo, dx0, yb, PALETTE.axis, 1.8);
+      const dl = dx0 + 26, dr = dx0 + 68;
+      const dyd = (yo + yb) / 2;
+      seg(dl, yn, dr, yn, PALETTE.axis, 1.8);
+      seg(dx0, yo, dl, yn, PALETTE.accent, 1.8); seg(dl, yn, dx0, yb, PALETTE.accent, 1.8);
+      seg(dx0, yo, dr, yn, PALETTE.accent, 1.8); seg(dr, yn, dx0, yb, PALETTE.accent, 1.8);
+      dotAt(dl, yn, PALETTE.dim, 2.5); dotAt(dr, yn, PALETTE.dim, 2.5);
+      seg(dl, yo + 4, dl, yb - 4, PALETTE.axis, 1.6);
+      seg(dr, yo + 4, dr, yb - 4, PALETTE.axis, 1.6);
+      txt('4 diodes', dx0 + 16, yo - 6, PALETTE.accent);
+      seg(dr, yo, dr + 16, yo, PALETTE.axis, 1.8);
+      seg(dr, yb, dr + 16, yb, PALETTE.axis, 1.8);
+      // load
+      const lx = dr + 40;
+      seg(dr + 16, yo, lx, yo, PALETTE.axis, 1.8);
+      seg(dr + 16, yb, lx, yb, PALETTE.axis, 1.8);
+      seg(lx, yo, lx, yb, PALETTE.axis, 1.8);
+      ctx.fillStyle = PALETTE.panel; ctx.fillRect(lx - 11, dyd - 9, 22, 18);
+      ctx.strokeStyle = PALETTE.accent3; ctx.lineWidth = 1.6; ctx.strokeRect(lx - 11, dyd - 9, 22, 18);
+      txt('R  ' + fmt(v.R, 4) + ' kΩ', lx + 15, dyd + 4, PALETTE.accent3);
+      ctx.fillStyle = PALETTE.panel; ctx.fillRect(lx + 66, dyd - 16, 20, 32);
+      ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 1.6; ctx.strokeRect(lx + 66, dyd - 16, 20, 32);
+      txt('C  ' + fmt(v.C, 4) + ' µF', lx + 92, dyd + 4, PALETTE.accent2);
+      dotAt(lx, dyd - 16, PALETTE.axis, 2); dotAt(lx, dyd + 16, PALETTE.axis, 2);
+      seg(lx, dyd - 16, lx + 66, dyd - 16, PALETTE.axis, 1.8);
+      seg(lx, dyd + 16, lx + 66, dyd + 16, PALETTE.axis, 1.8);
+      seg(lx + 66, dyd + 16, lx + 66, yb, PALETTE.axis, 1.8);
+      txt('secondary is NOT centre-tapped', xa + 2, dy + diaH - 4, PALETTE.dim);
+    } else {
+      // transformer secondary between the two rails
+      const xs = dx0;
+      seg(xs, yo, xs, yb, PALETTE.warn, 1.8);
+      seg(xs - 10, yo + 12, xs + 10, yo + 12, PALETTE.warn, 1.4);
+      seg(xs - 10, yo + 24, xs + 10, yo + 24, PALETTE.warn, 1.4);
+      txt('secondary', xs + 14, yo + 20, PALETTE.warn);
+      if (v.topo === 'half') {
+        seg(xs, yn, xs + 34, yn, PALETTE.axis, 1.8);
+        // the diode
+        ctx.fillStyle = PALETTE.accent; ctx.beginPath();
+        ctx.moveTo(xs + 34, yn - 7); ctx.lineTo(xs + 34, yn + 7); ctx.lineTo(xs + 48, yn); ctx.closePath(); ctx.fill();
+        seg(xs + 48, yn - 7, xs + 48, yn + 7, PALETTE.accent, 2.4);
+        txt('1 diode', xs + 28, yn - 16, PALETTE.accent);
+        const lx = xs + 90;
+        seg(xs + 48, yn, lx, yn, PALETTE.axis, 1.8);
+        seg(xs, yb, lx, yb, PALETTE.axis, 1.8);
+        seg(lx, yn, lx, yb, PALETTE.axis, 1.8);
+        txt('R = ' + fmt(v.R, 4) + ' kΩ, C = ' + fmt(v.C, 4) + ' µF in parallel', lx - 60, yb + 16, PALETTE.accent3);
+        ctx.fillStyle = PALETTE.panel; ctx.fillRect(lx - 10, (yn + yb) / 2 - 8, 20, 16);
+        ctx.strokeStyle = PALETTE.accent3; ctx.lineWidth = 1.6; ctx.strokeRect(lx - 10, (yn + yb) / 2 - 8, 20, 16);
+      } else {
+        // centre-tapped: two diodes from the ends of the secondary
+        const dm = (yo + yb) / 2;
+        seg(xs, yo, xs + 40, yo, PALETTE.axis, 1.8);
+        seg(xs, yb, xs + 40, yb, PALETTE.axis, 1.8);
+        ctx.fillStyle = PALETTE.accent;
+        ctx.beginPath(); ctx.moveTo(xs + 40, yo - 7); ctx.lineTo(xs + 40, yo + 7); ctx.lineTo(xs + 54, yo); ctx.closePath(); ctx.fill();
+        seg(xs + 54, yo - 7, xs + 54, yo + 7, PALETTE.accent, 2.4);
+        ctx.beginPath(); ctx.moveTo(xs + 40, yb - 7); ctx.lineTo(xs + 40, yb + 7); ctx.lineTo(xs + 54, yb); ctx.closePath(); ctx.fill();
+        seg(xs + 54, yb - 7, xs + 54, yb + 7, PALETTE.accent, 2.4);
+        txt('2 diodes', xs + 30, yo - 16, PALETTE.accent);
+        const lx = xs + 96;
+        seg(xs + 54, yo, lx, yo, PALETTE.axis, 1.8);
+        seg(xs + 54, yb, lx, yb, PALETTE.axis, 1.8);
+        seg(lx, yo, lx, yb, PALETTE.axis, 1.8);
+        // centre tap return
+        seg(xs, dm, lx - 30, dm, PALETTE.warn, 1.6, [4, 3]);
+        seg(lx - 30, dm, lx - 30, yb, PALETTE.warn, 1.6, [4, 3]);
+        dotAt(xs, dm, PALETTE.warn, 3);
+        txt('centre tap', xs + 8, dm - 5, PALETTE.warn, '10px ui-monospace, monospace');
+        ctx.fillStyle = PALETTE.panel; ctx.fillRect(lx - 10, dm - 8, 20, 16);
+        ctx.strokeStyle = PALETTE.accent3; ctx.lineWidth = 1.6; ctx.strokeRect(lx - 10, dm - 8, 20, 16);
+        txt('R = ' + fmt(v.R, 4) + ' kΩ, C = ' + fmt(v.C, 4) + ' µF', xa + 2, dy + diaH - 4, PALETTE.accent3);
+      }
+    }
+
+    // ================= panel B: the waveforms =================
+    const wy0 = dy + diaH + 22;                    // top of the waveform panel
+    const wy1 = H - pad - 16;
+    const x0 = pad + 30, x1 = W - pad - 8;
+    const nPer = 4;
+    const tSpan = (nPer * out.topo.rippleMult) / out.f;   // seconds shown
+    const Vtop = out.Vm * 1.14;
+    const PX = (t) => x0 + (t / tSpan) * (x1 - x0);
+    const PY = (u) => wy1 - (Math.max(u, 0) / Vtop) * (wy1 - wy0);
+    // grid
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let i = 0; i <= nPer; i++) {
+      const px = x0 + (i / nPer) * (x1 - x0);
+      ctx.beginPath(); ctx.moveTo(px, wy0); ctx.lineTo(px, wy1); ctx.stroke();
+    }
+    for (let i = 0; i <= 4; i++) {
+      const py = wy0 + (i / 4) * (wy1 - wy0);
+      ctx.beginPath(); ctx.moveTo(x0, py); ctx.lineTo(x1, py); ctx.stroke();
+    }
+    seg(x0, wy1, x1, wy1, PALETTE.axis, 1.5);
+    seg(x0, wy0, x0, wy1, PALETTE.axis, 1.5);
+    ctx.fillStyle = PALETTE.dim; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const u = (i / 4) * Vtop;
+      ctx.fillText(fmt(u, 3), x0 - 5, wy0 + (wy1 - wy0) * (1 - i / 4) + 4);
+    }
+    const w = 2 * Math.PI * out.f;
+    const cyc = out.cyc;
+    // raw rectified waveform (no capacitor). Phase θ runs at ω/rippleMult so that one
+    // panel division is always ONE ripple period, whichever topology is selected.
+    const wRipple = w / out.topo.rippleMult;
+    ctx.strokeStyle = PALETTE.dim; ctx.lineWidth = 1.4; ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    for (let i = 0; i <= 1200; i++) {
+      const t = (i / 1200) * tSpan;
+      const th = wRipple * t;
+      const py = PY(out.Vm * cyc.shape(th)), px = PX(t);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // filtered waveform = the converged steady-state capacitor voltage
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i = 0; i <= 1500; i++) {
+      const t = (i / 1500) * tSpan;
+      const th = wRipple * t;
+      const py = PY(cyc.vAt(th)), px = PX(t);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    // highlight the conduction intervals (diode ON). A large C makes these narrow spikes,
+    // so each interval is marked with a bar wide enough to see rather than a hairline.
+    const intervals = [];
+    let open = null;
+    for (let i = 0; i <= 1500; i++) {
+      const t = (i / 1500) * tSpan;
+      const th = wRipple * t;
+      const on = cyc.vAt(th) <= out.Vm * cyc.shape(th) + 1e-9;
+      if (on && open === null) open = t;
+      if (!on && open !== null) { intervals.push([open, t]); open = null; }
+    }
+    if (open !== null) intervals.push([open, tSpan]);
+    for (const [ta, tb] of intervals) {
+      const mid = (ta + tb) / 2;
+      ctx.strokeStyle = PALETTE.accent4; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(PX(mid), wy1 + 1);
+      ctx.lineTo(PX(mid), wy1 + 9);
+      ctx.stroke();
+    }
+    txt('diode ON at the orange marks — ' + fmt(out.condTotalDeg, 4) + '° of each 180° window',
+      x0 + 4, wy1 + 20, PALETTE.accent4, '10px ui-monospace, monospace');
+    // ripple band, average and peak markers
+    seg(x0, PY(cyc.peak), x1, PY(cyc.peak), PALETTE.accent3, 1.2, [6, 4]);
+    seg(x0, PY(cyc.vdc), x1, PY(cyc.vdc), PALETTE.warn, 1.4, [6, 4]);
+    seg(x0, PY(cyc.trough), x1, PY(cyc.trough), PALETTE.accent2, 1.2, [6, 4]);
+    txt('peak = ' + fmt(cyc.peak, 4) + ' V', x1 - 4, PY(cyc.peak) - 4, PALETTE.accent3, '11px ui-monospace, monospace', 'right');
+    txt('V_dc = ' + fmt(cyc.vdc, 4) + ' V', x1 - 4, PY(cyc.vdc) - 4, PALETTE.warn, '11px ui-monospace, monospace', 'right');
+    txt('trough = ' + fmt(cyc.trough, 4) + ' V', x1 - 4, PY(cyc.trough) + 13, PALETTE.accent2, '11px ui-monospace, monospace', 'right');
+    txt('raw rectified (no C) — dashed', x0 + 4, wy0 + 12, PALETTE.dim);
+    txt('with filter C — solid', x0 + 4, wy0 + 26, PALETTE.accent);
+    txt('V_r = ' + fmt(out.VrExact, 4) + ' V (exact), ' + fmt(out.VrApprox, 4) + ' V (V_p/f_rRC)',
+      x0 + 4, wy1 - 6, PALETTE.accent2);
+    txt('f_r = ' + fmt(out.fr, 4) + ' Hz  (' + out.topo.rippleMult + 'f)', x1 - 4, wy1 - 6, PALETTE.warn, '11px ui-monospace, monospace', 'right');
+    txt('one division = one ripple period = ' + fmt(1000 / out.fr, 4) + ' ms', x1 - 4, wy0 - 4, PALETTE.dim, '10px ui-monospace, monospace', 'right');
+    ctx.restore();
+
+    // ================= formula strip with substituted arithmetic =================
+    const f = document.getElementById('rect-formula');
+    if (f) {
+      f.innerHTML =
+        '<div><strong>' + out.topo.label + '</strong> — ' + out.topo.fTxt + ' (' +
+        (out.topo.rippleMult === 1 ? 'the negative half-cycles are thrown away' : 'both half-cycles are used, so the ripple repeats twice as often') + ') ' +
+        '&nbsp;|&nbsp; ' + out.topo.conductionTxt + '</div>' +
+        '<div><strong>Unfiltered V_dc</strong> = ' + (out.topo.rippleMult === 1 ? 'V_p/π' : '2V_p/π') + ' = ' +
+        (out.topo.rippleMult === 1 ? fmt(out.Vm, 4) + '/π' : '2×' + fmt(out.Vm, 4) + '/π') + ' = ' + fmt(out.VdcUnfiltered, 5) + ' V' +
+        ' &nbsp;(ripple factor would be ' + fmt(out.rfUnfiltered, 3) + ' — useless without a filter, which is why C is there)</div>' +
+        '<div><strong>V_r ≈ V_p/(f_r·R·C)</strong> = ' + fmt(out.Vm, 4) + '/(' + fmt(out.fr, 4) + ' × ' + fmt(out.R, 5) + ' × ' + fmt(out.C, 9) + ') = <strong>' +
+        fmt(out.VrApprox, 5) + ' V</strong> &nbsp;|&nbsp; exact V_r = peak − trough = ' + fmt(cyc.peak, 5) + ' − ' + fmt(cyc.trough, 5) + ' = ' + fmt(out.VrExact, 5) + ' V' +
+        ' &nbsp;(the approximation assumes the ripple is small and the discharge is linear)</div>' +
+        '<div><strong>Filtered V_dc</strong> (averaged over the cycle) = <strong>' + fmt(cyc.vdc, 5) + ' V</strong>' +
+        ' &nbsp;≈ V_p − V_r/2 = ' + fmt(cyc.peak, 4) + ' − ' + fmt(out.VrExact / 2, 4) + ' = ' + fmt(cyc.peak - out.VrExact / 2, 5) + ' V' +
+        ' &nbsp;|&nbsp; <strong>ripple factor r = V_r(rms)/V_dc</strong> = ' + fmt(out.vrRms, 4) + '/' + fmt(cyc.vdc, 4) + ' = <strong>' +
+        fmt(out.rippleFactor, 5) + '</strong> (' + fmt(out.rippleFactor * 100, 4) + ' %)</div>' +
+        '<div><strong>PIV = ' + fmt(out.PIV, 5) + ' V</strong> — ' + out.topo.pivTxt + '</div>' +
+        '<div><strong>Conduction angle</strong>: with ωRC = ' + fmt(out.wRC, 5) + ' the diode is forward-biased while the source exceeds v_C, so it conducts for <strong>' +
+        fmt(out.condTotalDeg, 4) + '°</strong> out of each 180° conduction window (' + fmt(out.condTotalDeg / 1.8, 4) + ' % of the period). ' +
+        'Peak recharge current ≈ 2Q/t_cond = ' + fmt(out.IpeakDiode, 5) + ' A, against I_dc = ' + fmt(out.Idc, 5) + ' A — a ' +
+        fmt(out.IpeakDiode / out.Idc, 4) + '× surge, which is what sets the diode rating.</div>' +
+        '<div><strong>Load</strong>: I_dc = V_dc/R = ' + fmt(cyc.vdc, 4) + '/' + fmt(out.R, 5) + ' = ' + fmt(out.Idc, 5) + ' A, P_dc = V_dc²/R = ' +
+        fmt(out.Pdc, 5) + ' W &nbsp;|&nbsp; diodes needed: ' + out.topo.diodes + '</div>';
+    }
+  },
+  readout: (out) => ({
+    'topology': out.topo.label,
+    'ripple frequency f_r': fmt(out.fr, 5) + ' Hz',
+    'V_dc (filtered)': fmt(out.cyc.vdc, 5) + ' V',
+    'V_p − V_r/2 (textbook)': fmt(out.cyc.peak - out.VrExact / 2, 5) + ' V',
+    'V_r exact': fmt(out.VrExact, 5) + ' V',
+    'V_r ≈ V_p/(f_r R C)': fmt(out.VrApprox, 5) + ' V',
+    'ripple factor r': fmt(out.rippleFactor, 5),
+    'ripple %': fmt(100 * out.rippleFactor, 4) + ' %',
+    'PIV': fmt(out.PIV, 5) + ' V',
+    'conduction angle': fmt(out.condTotalDeg, 4) + '°',
+    'I_dc': fmt(out.Idc, 5) + ' A',
+    'P_dc in load': fmt(out.Pdc, 5) + ' W',
+    'diodes required': String(out.topo.diodes),
+  }),
+});
+
+const host = document.getElementById('app');
+
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'rect-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight — the filter capacitor is a peak detector, and the ripple repeats at f_r, not at f.</strong> ' +
+  'The diode only recharges C near each peak; between peaks the load discharges it, which is why the output sits just ' +
+  'under V_p and why each diode conducts for a brief spike rather than the whole half-cycle. ' +
+  '<strong>The mistake this prevents — PIV:</strong> the peak inverse voltage is ' + '<em>not</em> the same number for the ' +
+  'three circuits. Half-wave: PIV = V_p. Bridge: PIV = V_p (two diodes in series per path, each blocking V_p). ' +
+  'Centre-tapped: PIV = <strong>2V_p</strong> — when one diode conducts, the other one is reverse-biased by its own ' +
+  'winding peak PLUS the peak of the other half-winding, which is in series with it. A 20 V peak therefore needs a ' +
+  '40 V diode in a centre-tapped supply but only a 20 V diode in a bridge. In the Philippines, where 220 V_rms mains ' +
+  'gives V_p ≈ 311 V, that is the difference between a 400 V and an 800 V diode rating — the single most common ' +
+  'rectifier design error. ' +
+  '<strong>The other trap — ripple frequency:</strong> V_r ≈ V_p/(f_r R C) with f_r = f for half-wave and f_r = 2f ' +
+  'for BOTH full-wave circuits. Since a bridge needs no centre tap and gives the same ripple frequency as a ' +
+  'centre-tapped circuit with half the PIV, the bridge is the standard choice — but it needs four diodes instead of two, ' +
+  'and it drops two diode drops in series per path (a real 0.7 V × 2 ≈ 1.4 V loss, ignored here because the exam ' +
+  'formulas assume ideal diodes). ' +
+  '<strong>Watch the approximation:</strong> V_r ≈ V_p/(f_r R C) assumes the capacitor discharges almost linearly and ' +
+  'that the ripple is small, so the widget also reports the exact V_r = peak − trough from the solved waveform. ' +
+  'The ripple factor here uses the exam convention r = V_r(rms)/V_dc with the triangular-ripple value ' +
+  'V_r(rms) = V_r/(2√3) ≈ 0.289 V_r; multiplying the percent by √3 ≈ 1.73 gives the per-cent figure some ' +
+  'textbooks quote instead. At small C (r above roughly 10 %) the shortcut drifts, and the widget prints both ' +
+  'numbers so you can see when it stops being safe. ' +
+  '<strong>Conduction angle:</strong> a bigger C narrows the conduction angle and raises the peak recharge current ' +
+  'sharply — that spike, not the DC current, is what destroys diodes and dictates the surge rating.';
+host.appendChild(note);
+</script>
+</body>
+</html>

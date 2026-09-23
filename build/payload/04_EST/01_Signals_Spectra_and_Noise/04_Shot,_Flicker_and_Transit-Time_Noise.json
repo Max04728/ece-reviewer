@@ -1,0 +1,88 @@
+{
+  "scope": "Distinguish shot, flicker and transit-time noise from thermal noise, compute each from its own formula, and know the frequency range where each dominates.",
+  "intuition": "Thermal noise comes from heat; shot noise comes from the graininess of charge; flicker noise comes from traps that capture and release carriers at random rates; transit-time noise comes from carriers being too slow to keep up with the signal. Four mechanisms, four different formulas, and only one of them needs a current.",
+  "concept": [
+    "**Shot noise: the price of DC current.** Current is not a smooth fluid; it is a stream of discrete electrons crossing a barrier. The random arrival times make the current wander, and the resulting one-sided current density is $S_i = 2qI_0$ ($\\mathrm{A^2/Hz}$), giving an rms noise current $I_n = \\sqrt{2qI_0B}$ with $q = 1.6\\times10^{-19}\\ \\mathrm{C}$. Two things follow immediately and both are exam material. First, shot noise **requires a direct current** — a resistor sitting at equilibrium with no current has thermal noise, not shot noise. Second, shot noise is **independent of temperature**; cooling a diode does not reduce its shot noise. The formula is white and applies to diodes, transistors' junctions, photodiodes and vacuum tubes, and it scales as the square root of both current and bandwidth, so multiplying the current by 4 only doubles the noise.",
+    "**Flicker noise: the $1/f$ rise at low frequency.** Also called pink noise or excess noise, flicker noise comes from traps and surface states that capture and release carriers with a wide spread of time constants, which produces a spectral density proportional to $1/f$ (more precisely $1/f^{\\alpha}$ with $\\alpha$ near 1). It is quantified as $i_n^2 = KI^{m}/f$ where $K$ is a device constant, $I$ the DC current and $m$ an exponent near 1 (often taken as 1 or 2 depending on the mechanism). Because the density rises without limit as $f\\to0$, flicker noise dominates at DC and low frequencies and is the reason DC amplifiers, instrumentation front ends and FET input stages quote a **corner frequency** — the frequency at which the flicker density equals the white (thermal plus shot) density. Below $f_c$ the total noise rises; above it the device is white. Carbon-composition resistors also show excess noise under bias, which is why metal-film parts are used in low-noise DC circuits.",
+    "**Transit-time noise: a high-frequency penalty, not a low-frequency one.** When the time $\\tau$ a carrier needs to cross a depletion region or drift space becomes a significant fraction of the RF period, the induced current no longer follows the signal instantaneously. The random emission times then translate into an extra noise component that **grows with frequency**, quantified through the transit angle $\\theta = \\omega\\tau = 2\\pi f\\tau$. As long as $\\theta\\ll1$ the effect is negligible, i.e. $f \\ll 1/(2\\pi\\tau)$. Because it worsens with frequency, transit-time noise sets the upper frequency limit of a device's noise performance: a transistor can be flicker-limited at 1 kHz and transit-time-limited at 10 GHz, with a clean white region in between. In microwave tubes the same mechanism appears as 'transit-time noise' or reduced shot noise with a transit-angle factor.",
+    "**Putting the four together.** Thermal noise ($4kTR$ densities) is present in every resistive element, needs no current, and is temperature-dependent. Shot noise needs DC current, is temperature-independent, and is white. Flicker noise needs current and a trap-rich material, is temperature- and process-dependent, and dominates near DC. Transit-time noise needs a high frequency relative to the device's transit time and dominates at the top of the band. Because the mechanisms are independent and uncorrelated, **their powers add**: the total rms noise current from shot and flicker together is $\\sqrt{2qI_0B + KI^{m}\\ln(f_2/f_1)}$, and adding a thermal contribution means adding its power too. When two mechanisms are equal, the total is only $\\sqrt{2}$ times either one — an easy 3 dB milestone worth recognising.",
+    "**Reading the datasheet.** A low-noise amplifier datasheet gives a voltage noise density in $\\mathrm{nV/\\sqrt{Hz}}$ (which is $\\sqrt{S_v}$, not $S_v$), a current noise density in $\\mathrm{pA/\\sqrt{Hz}}$, and sometimes a $1/f$ corner. The noise figure quoted is normally measured in the white region, so extrapolating it down to DC overstates performance. The classic numerical anchor: a $1\\ \\mathrm{k\\Omega}$ resistor at room temperature has $\\sqrt{4kTR} = 4.0\\ \\mathrm{nV/\\sqrt{Hz}}$; a device with $1\\ \\mathrm{nV/\\sqrt{Hz}}$ is four times better in voltage terms (12 dB) but may still lose to the resistor's Johnson noise once source impedance is included."
+  ],
+  "formulas": [
+    { "q": "Shot noise rms current", "e": "I_n = \\sqrt{2 q I_0 B}", "n": "q = 1.6e-19 C, I0 = DC bias current, B = bandwidth in Hz. Requires a direct current; temperature does not appear." },
+    { "q": "Shot noise current density", "e": "S_i(f) = 2 q I_0 \\quad \\mathrm{A^2/Hz}", "n": "One-sided and white up to the device's transit-time limit." },
+    { "q": "Flicker (1/f) noise density", "e": "i_n^{2} = \\frac{K I^{m}}{f} \\quad \\mathrm{A^2/Hz}", "n": "K is a device constant and m is near 1. Valid from DC to the corner frequency; not white, so bandwidth cannot be multiplied in." },
+    { "q": "Flicker noise power", "e": "P_n = \\frac{K I^{m}}{f}", "n": "Tomasi's form of the same relation; the quantity quoted is a power per hertz." },
+    { "q": "Corner frequency", "e": "f_c: \\quad 2 q I_0 = \\frac{K I_0^{m}}{f_c} \\Rightarrow f_c = \\frac{K I_0^{m}}{2 q I_0}", "n": "Below fc flicker dominates; above it the device is white." },
+    { "q": "Flicker noise over a band", "e": "P_{1/f} = K \\int_{f_1}^{f_2} \\frac{df}{f} = K \\ln\\frac{f_2}{f_1}", "n": "One decade gives K ln 10 = 2.303 K, so a flat-density approximation always underestimates." },
+    { "q": "Transit angle", "e": "\\theta = \\omega \\tau = 2\\pi f \\tau", "n": "tau is the carrier transit time. Transit-time noise rises with theta." },
+    { "q": "Transit-time negligible condition", "e": "\\theta \\ll 1 \\quad \\Rightarrow \\quad f \\ll \\frac{1}{2\\pi\\tau}", "n": "At f = 1/(2 pi tau) the transit angle is 1 rad and the device is at its practical limit." },
+    { "q": "Total noise from independent mechanisms", "e": "I_{n,tot} = \\sqrt{I_{n,1}^{2} + I_{n,2}^{2} + \\cdots}", "n": "Powers add. Two equal mechanisms give sqrt(2) times either, a 3 dB rise." },
+    { "q": "Resistor voltage noise density anchor", "e": "\\sqrt{4kTR} \\approx 4.0\\ \\mathrm{nV/\\sqrt{Hz}} \\mathrm{\\ for\\ } R = 1\\ \\mathrm{k\\Omega} \\mathrm{\\ at\\ } 290\\ \\mathrm{K}", "n": "Useful sanity check when comparing a datasheet voltage-noise density with a source resistance." }
+  ],
+  "problems": [
+    {
+      "prompt": "A diode carries a DC current of $1\\ \\mathrm{mA}$ and feeds a load through a $10\\ \\mathrm{kHz}$ bandwidth. Find the rms shot noise current.",
+      "give": ["I0 = 1 mA", "B = 10 kHz", "q = 1.6e-19 C"],
+      "steps": [
+        "In = sqrt(2 q I0 B)",
+        "2 q I0 B = 2(1.6e-19)(1e-3)(1e4) = 3.2e-18 A^2",
+        "In = sqrt(3.2e-18) = 1.79e-9 A"
+      ],
+      "ans": "In = 1.79 nA rms.",
+      "trap": "Scaling the answer with temperature or with the diode's series resistance. Shot noise depends only on q, I0 and B; not on T and not on R.", "calc": {"mode":"COMP","steps":["`2×q×1E-3×1E4` with $q$ = `SHIFT` `CVALUE` `23` (1.602e-19 C) → **3.204E-18** A².","`√Ans` → **1.790E-9** A = **1.79** nA rms."],"note":"The whole formula is $2qI_0B$: there is no temperature and no series resistance to key, which is exactly the note's trap."}
+    },
+    {
+      "prompt": "A photodiode delivers $10\\ \\mu\\mathrm{A}$ of DC photocurrent into a $1\\ \\mathrm{MHz}$ transimpedance amplifier. Find the shot noise current and compare it with the shot noise of the $1\\ \\mathrm{mA}$ diode in the previous problem.",
+      "give": ["I0 = 10 uA", "B = 1 MHz"],
+      "steps": [
+        "2 q I0 B = 2(1.6e-19)(1e-5)(1e6) = 3.2e-18 A^2",
+        "In = sqrt(3.2e-18) = 1.79 nA, exactly the same as before",
+        "Check the invariance: current fell by 100x and bandwidth rose by 100x, so the product I0 B is unchanged"
+      ],
+      "ans": "In = 1.79 nA rms, identical to the 1 mA / 10 kHz case because In depends on the product I0 B.",
+      "trap": "Assuming the lower current must mean lower noise. Noise goes as sqrt(I0 B), so a 100x lower current with a 100x wider band gives the same answer — but a 100x lower current at the *same* bandwidth would give a 10x lower noise current.", "calc": {"mode":"COMP","steps":["`2×q×1E-5×1E6` with $q$ = `SHIFT` `CVALUE` `23` → **3.204E-18** A²; `√Ans` → **1.790E-9** A = **1.79** nA.","`1E-5×1E6 : 1E-3×1E4` → **10** → **10**: the product $I_0B$ has not changed, which is why P1 and P2 agree."],"note":"Noise tracks $\\sqrt{I_0B}$: current down 100x with bandwidth up 100x is a wash, not a 10x improvement."}
+    },
+    {
+      "prompt": "A device has a shot-noise current density of $2qI_0$ with $I_0 = 1\\ \\mathrm{mA}$, and a flicker contribution that can be written as $3.2\\times10^{-20}/f\\ \\mathrm{A^2/Hz}$. Find the corner frequency and describe the noise below and above it.",
+      "give": ["I0 = 1 mA", "shot density = 2qI0", "flicker density = 3.2e-20/f A^2/Hz"],
+      "steps": [
+        "Shot density: 2(1.6e-19)(1e-3) = 3.2e-22 A^2/Hz",
+        "Set equal: 3.2e-20/fc = 3.2e-22",
+        "fc = 3.2e-20 / 3.2e-22 = 100 Hz",
+        "Below 100 Hz the 1/f term exceeds the white shot term; above 100 Hz shot noise dominates"
+      ],
+      "ans": "fc = 100 Hz. Flicker-limited below, shot-limited (white) above.",
+      "trap": "Adding the two densities arithmetically at every frequency, or treating flicker as white. The two curves cross at fc; the total density is the sum, and the total rms current is the square root of the integral of that sum.", "calc": {"mode":"COMP","steps":["`2×q×1E-3` with $q$ = `SHIFT` `CVALUE` `23` → **3.204E-22** A²/Hz shot density; store with `SHIFT` `STO` `A`.","`3.2E-20÷A` → $f_c$ = **99.9** Hz ≈ **100** Hz, the crossing of the two densities.","`10log((A+3.2E-20÷1000)÷A)` → **0.41** dB, the rise at 1 kHz — a decade above $f_c$ the flicker term is already negligible."],"note":"Flicker is not white, so the two densities cross at $f_c$; the band quantity is the integral of the sum, not a product."}
+    },
+    {
+      "prompt": "A microwave transistor has a carrier transit time of $50\\ \\mathrm{ps}$. Above what frequency does transit-time noise become significant, and what is the transit angle at $1\\ \\mathrm{GHz}$?",
+      "give": ["tau = 50 ps"],
+      "steps": [
+        "Significance threshold where theta ~ 1: f = 1/(2 pi tau)",
+        "f = 1 / (2 pi x 50e-12) = 1/(3.1416e-10) = 3.18e9 Hz",
+        "At 1 GHz: theta = 2 pi (1e9)(50e-12) = 0.314 rad, which is small but not negligible",
+        "At 3.18 GHz: theta = 1 rad, the practical limit"
+      ],
+      "ans": "Transit-time effects become significant near 3.18 GHz; theta = 0.314 rad at 1 GHz.",
+      "trap": "Concluding that transit-time noise is a low-frequency problem. It grows with frequency, so a device that is quiet at 100 MHz can be transit-time limited at 3 GHz — the opposite trend to flicker noise.", "calc": {"mode":"COMP","steps":["`1÷(2π×50E-12)` → **3.183E9** Hz = **3.18** GHz, the $\\theta$ = 1 threshold.","`2π×1E9×50E-12` → **0.3142** rad at 1 GHz.","`Ans×180÷π` → **18.0**° (1 rad = **57.3**° at 3.18 GHz), small but not negligible."],"note":"Transit-time noise grows with $f$ — the opposite trend to flicker; $\\theta$ comes out in radians unless the display is Deg."}
+    }
+  ],
+  "traps": [
+    "**Applying the shot-noise formula to a resistor with no current.** Shot noise requires a DC current crossing a barrier. A quiet resistor's noise is thermal, $V_n=\\sqrt{4kTRB}$; writing $\\sqrt{2qI_0B}$ with the current that happens to flow in a circuit is a category error.",
+    "**Expecting temperature to change shot noise.** $I_n=\\sqrt{2qI_0B}$ contains no $T$. Cooling a diode reduces its thermal noise but leaves its shot noise untouched.",
+    "**Multiplying a $1/f$ density by bandwidth.** Flicker noise is not white, so the power over $[f_1,f_2]$ is $K\\ln(f_2/f_1)$ — one decade contributes $2.303K$, and most of the power comes from the lowest decade, which a flat approximation ignores entirely.",
+    "**Ignoring the corner frequency when quoting noise figure.** An amplifier specified as '2 dB NF' is usually specified in its white region; below $f_c$ its effective noise figure is worse, sometimes by 10 dB or more in DC-coupled instrumentation.",
+    "**Treating transit-time noise as constant.** Its contribution rises with $\\theta=2\\pi f\\tau$, so the noise figure of the same device is a function of frequency at the top of its range; a single NF number is meaningless without the frequency it was measured at.",
+    "**Adding noise currents instead of powers.** Independent mechanisms combine as $\\sqrt{I_1^2+I_2^2}$; two equal contributions give only a 3 dB rise, not 6 dB."
+  ],
+  "refs": [
+    "[[03_Thermal_and_Johnson_Noise]]",
+    "[[02_Power_Spectral_Density]]",
+    "[[05_SNR,_Noise_Factor_and_Noise_Figure]]",
+    "[[09_FM_Noise_and_Threshold_Effect]]"
+  ],
+  "prereqs": [
+    "[[03_Thermal_and_Johnson_Noise]]"
+  ]
+}

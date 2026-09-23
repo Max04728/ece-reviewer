@@ -1,0 +1,167 @@
+---
+id: ECE-03-05
+title: "Transmission ABCD Parameters"
+part: "02_Electronics_Engineering"
+area: "03_Two_Port_Networks"
+topic: 5
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_Z_and_Y_Parameters]]", "[[07_Series_Resonance]]"]
+tags: ["ece", "electronics_engineering", "two_port_networks"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 05 — Transmission ABCD Parameters
+
+> [!abstract] Scope
+> Choosing the output as the independent side of a two-port so that cascaded blocks multiply, and computing voltages, currents and input impedance through the transmission matrix.
+
+## Core Concept
+
+> [!tip] Intuition
+> A transmission matrix answers a different question from z or y: given what the load is doing, what must the source supply? That reversal of cause and effect is what makes the matrices multiply. Wire two blocks end to end and the output of the first is the input of the second, so the overall matrix is simply the product in signal order — the single most useful property in filter and line analysis.
+
+**The defining equations and why the convention carries minus signs.** The transmission set is written $V_1 = AV_2 - BI_2$ and $I_1 = CV_2 - DI_2$, with the independent pair taken as $(V_2, I_2)$ — the *output* side. The minus signs are not arbitrary: under the standard convention $I_2$ is the current LEAVING port 2, while the z and y sets use $I_2$ entering. Reversing the reference direction is what flips the sign of the $I_2$ terms. Reading each parameter off the equations gives $A = V_1/V_2$ at $I_2 = 0$ (the open-circuit voltage ratio, dimensionless), $B = -V_1/I_2$ at $V_2 = 0$ (the short-circuit transfer impedance, in ohms), $C = I_1/V_2$ at $I_2 = 0$ (the open-circuit transfer admittance, in siemens) and $D = -I_1/I_2$ at $V_2 = 0$ (the short-circuit current ratio, dimensionless). Notice that $B$ and $D$ need the minus precisely because $I_2$ is defined leaving; a textbook that takes $I_2$ entering port 2 and still writes $V_1 = AV_2 - BI_2$ will report sign-flipped $B$ and $D$. Always write down which way $I_2$ points before comparing two sources.
+
+**Element matrices, and cascade by multiplication in signal order.** Three building blocks cover most exam problems. A series impedance $Z$ (in the signal path, port 2 side loaded normally) has $V_1 = V_2 + Z I_L$ where the load current is $-I_2$, giving $\begin{bmatrix} 1 & Z \\ 0 & 1 \end{bmatrix}$. A shunt admittance $Y$ across the line has the same voltage at both ports and $I_1 = YV_2 + I_2$ re-expressed with the $I_2$ reference flipped, giving $\begin{bmatrix} 1 & 0 \\ Y & 1 \end{bmatrix}$. An ideal transformer of ratio $n = N_1/N_2$ has $V_1 = nV_2$ and $I_1 = -I_2/n$, giving $\begin{bmatrix} n & 0 \\ 0 & 1/n \end{bmatrix}$. Cascading multiplies the matrices: if block 1 is nearer the source and block 2 nearer the load, then $[T] = [T_1][T_2]$, because port-2 variables of block 1 are the port-1 variables of block 2. Getting this order wrong is undetectable on symmetric blocks and fatal on asymmetric ones, so check with a series-then-shunt pair: series $Z$ first then shunt $Y$ gives $\begin{bmatrix} 1 + ZY & Z \\ Y & 1 \end{bmatrix}$, while the reverse order gives $\begin{bmatrix} 1 & Z \\ 1 & 1 + ZY \end{bmatrix}$ — visibly different.
+
+**Reciprocity, symmetry and what they buy you.** For any network of R, L, C and mutual inductance the determinant of the transmission matrix is one: $AD - BC = 1$. This follows from the reciprocity of the underlying z set and is the single most useful arithmetic check available — every reciprocal cascade, however long, still has unit determinant. The network is *symmetrical* (ports interchangeable) when $A = D$; a T network with equal series arms, a pi with equal shunts, or any uniform line satisfies this. A network with $A = D$ is automatically reciprocal in the usual passives, but the converse fails: a T with different series arms is reciprocal with $AD - BC = 1$ yet $A \neq D$. These two conditions are what make the transmission matrix practical: given a load $Z_L$, the current drawn is $-I_2 = V_2/Z_L$, so $V_1 = (A + B/Z_L)V_2$ and $I_1 = (C + D/Z_L)V_2$, and the input impedance is the ratio $Z_{in} = \frac{AZ_L + B}{CZ_L + D}$. That one formula answers every 'find the input impedance' question and is the bridge to [[09_Terminated_Networks_and_Gains]].
+
+**Where the transmission set is natural and where it is not.** The set is ideal when a signal travels one way through a chain: transmission lines, matching sections, filters, attenuators, and the two-port of the line in [[02_Phasors_and_Complex_Impedance]]-style phasor analysis. A cascade of $N$ identical sections is just $[T]^{N}$, which is how image-parameter filters and distributed lines are analysed; no other parameter set multiplies this way. Its weaknesses are equally clear. It requires the output side to be the independent pair, so a problem that drives the network from both ends (a feedback amplifier, a gyrator, a transistor with significant reverse transmission) is awkward in ABCD and natural in z or h. It also cannot represent a network whose port-2 current is not independent of its port-1 current — an ideal short-circuit at the output makes the transmission parameters singular, exactly as the ideal transformer made the z matrix singular. Finally, the parameters are complex and frequency dependent in general, so a matrix measured at 1 kHz does not apply at 1 MHz; a cascade of two lines must be multiplied with the same reference impedance to avoid reflection artefacts.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Defining equations | $V_1 = AV_2 - BI_2, \qquad I_1 = CV_2 - DI_2$ | Independent pair (V2, I2) with I2 taken LEAVING port 2. A and D dimensionless, B in ohm, C in siemens. |
+| Open-circuit voltage ratio | $A = \left.\frac{V_1}{V_2}\right\rvert_{I_2 = 0}$ | Output open-circuited (load removed). Dimensionless. For a lossless line A = cosh(gamma l). |
+| Short-circuit transfer impedance | $B = \left.\frac{-V_1}{I_2}\right\rvert_{V_2 = 0}$ | Output shorted. In ohm. The minus is required because I2 is defined leaving port 2. |
+| Open-circuit transfer admittance | $C = \left.\frac{I_1}{V_2}\right\rvert_{I_2 = 0}$ | Output open. In siemens. For a lossless line C = sinh(gamma l)/Z0. |
+| Short-circuit current ratio | $D = \left.\frac{-I_1}{I_2}\right\rvert_{V_2 = 0}$ | Output shorted. Dimensionless. D = A for a symmetrical network. |
+| Series impedance element | $\begin{bmatrix} 1 & Z \\ 0 & 1 \end{bmatrix}$ | Z in ohm in the signal path. A = D = 1, so it is reciprocal but not symmetric. |
+| Shunt admittance element | $\begin{bmatrix} 1 & 0 \\ Y & 1 \end{bmatrix}$ | Y in siemens across the line. A = D = 1. Note the off-diagonal entry sits in the LOWER left here. |
+| Ideal transformer, ratio n | $\begin{bmatrix} n & 0 \\ 0 & 1/n \end{bmatrix}$ | n = N1/N2. Determinant n(1/n) = 1, so reciprocal; symmetric only if n = 1. |
+| Cascade of two blocks | $[T] = [T_1][T_2] = \begin{bmatrix} A_1 & B_1 \\ C_1 & D_1 \end{bmatrix}\begin{bmatrix} A_2 & B_2 \\ C_2 & D_2 \end{bmatrix}$ | T1 is nearest the SOURCE. Multiplication order follows the signal path, not the drawing. |
+| Reciprocity condition | $AD - BC = 1$ | Holds for every network of R, L, C and mutual inductance, and for every cascade of such networks. |
+| Symmetry condition | $A = D$ | Ports interchangeable. Implies reciprocity in passive networks, but a reciprocal network need not be symmetric. |
+| Input impedance of a terminated two-port | $Z_{in} = \frac{AZ_L + B}{CZ_L + D}$ | ZL is the load across port 2. With ZL = 0 it reduces to B/D; with ZL infinite it reduces to A/C. |
+
+## Worked Problems
+
+### P1. **Cascade two elements by matrix multiplication.** A series impedance $Z = 40 + j30\ \Omega$ is followed (toward the load) by a shunt admittance $Y = j0.02\ \mathrm{S}$. Find the overall ABCD matrix and the input impedance when the network is terminated by $Z_L = 50\ \Omega$.
+
+**Given:** Z = 40 + j30 ohm (series, nearest the source); Y = j0.02 S (shunt, nearest the load); ZL = 50 ohm; omega such that the values are as given
+
+**Solution:**
+
+1. Element matrices: series [T1] = [[1, Z], [0, 1]] and shunt [T2] = [[1, 0], [Y, 1]], with T1 nearest the source
+2. [T] = [T1][T2] = [[1, Z], [0, 1]] x [[1, 0], [Y, 1]] = [[1 + ZY, Z], [Y, 1]]
+3. ZY = (40 + j30)(j0.02) = j0.8 + j^2 0.6 = -0.6 + j0.8, so A = 1 + ZY = 0.4 + j0.8 and D = 1, B = Z = 40 + j30 ohm, C = Y = j0.02 S
+4. Determinant check: AD - BC = (0.4 + j0.8)(1) - (40 + j30)(j0.02) = 0.4 + j0.8 - (-0.6 + j0.8) = 1.0 + j0, confirming reciprocity
+5. Input impedance: Zin = (A ZL + B)/(C ZL + D) = ((0.4 + j0.8)(50) + 40 + j30)/((j0.02)(50) + 1) = (20 + j40 + 40 + j30)/(1 + j1) = (60 + j70)/(1 + j1)
+6. Rationalise: (60 + j70)(1 - j1)/2 = (60 - j60 + j70 - j^2 70)/2 = (130 + j10)/2 = 65 + j5 ohm
+7. Magnitude and angle: |Zin| = sqrt(65^2 + 5^2) = sqrt(4225 + 25) = sqrt(4250) = 65.19 ohm at angle arctan(5/65) = 4.40 degrees
+
+> [!success]- Answer
+> **[ABCD] = [[0.4 + j0.8, 40 + j30 ohm], [j0.02 S, 1]], AD - BC = 1, and Z_in = 65 + j5 ohm = 65.19 ohm at 4.40 degrees.**
+
+> [!warning] Trap
+> Multiplying the matrices in drawing order when the drawing runs right to left. The matrix nearest the SOURCE multiplies on the LEFT. For this pair the wrong order gives [[1, 40 + j30], [j0.02, 0.4 + j0.8]] and an input impedance of about 43 + j35 ohm instead of 65 + j5 ohm.
+
+### P2. **Verify AD - BC = 1.** Show that the determinant is one for (a) a simple series impedance, (b) a simple shunt admittance, (c) an ideal transformer of ratio 4, and (d) the shunt-then-series cascade of a $j50\ \Omega$ impedance and a $j0.04\ \mathrm{S}$ admittance.
+
+**Given:** (a) series Z = 75 ohm; (b) shunt Y = 0.02 S; (c) ideal transformer n = 4; (d) shunt Y = j0.04 S then series Z = j50 ohm
+
+**Solution:**
+
+1. (a) [T] = [[1, 75], [0, 1]]: AD - BC = (1)(1) - (75)(0) = 1
+2. (b) [T] = [[1, 0], [0.02, 1]]: AD - BC = (1)(1) - (0)(0.02) = 1
+3. (c) [T] = [[4, 0], [0, 0.25]]: AD - BC = (4)(0.25) - (0)(0) = 1 - 0 = 1
+4. (d) [T] = [T_shunt][T_series] = [[1, 0], [j0.04, 1]] x [[1, j50], [0, 1]] = [[1, j50], [j0.04, (j0.04)(j50) + 1]] = [[1, j50], [j0.04, 1 - 2]] = [[1, j50], [j0.04, -1]]
+5. Determinant: AD - BC = (1)(-1) - (j50)(j0.04) = -1 - j^2 2 = -1 + 2 = 1
+6. All four confirm AD - BC = 1. Note that (d) has A = 1 and D = -1, so it is reciprocal but NOT symmetric
+
+> [!success]- Answer
+> **All four give AD - BC = 1: (a) 1, (b) 1, (c) 1, (d) -1 - (j50)(j0.04) = -1 + 2 = 1. Case (d) is reciprocal but A = 1 is not equal to D = -1.**
+
+> [!warning] Trap
+> Evaluating (j50)(j0.04) as -2 and then subtracting: AD - BC = -1 - (-2) = +1. Sign errors with j^2 = -1 are the usual cause of a determinant that comes out as -1 or -3 instead of 1; the unit determinant is the check that catches them.
+
+### P3. **Find the ABCD of a T network.** A T network has $Z_1 = 60\ \Omega$ in series at port 1, a shunt leg $Z_3 = 100\ \Omega$, and $Z_2 = 40\ \Omega$ in series at port 2. Find the ABCD matrix and check both $AD - BC = 1$ and the symmetry test.
+
+**Given:** Z1 = 60 ohm (input series arm); Z3 = 100 ohm (shunt leg); Z2 = 40 ohm (output series arm)
+
+**Solution:**
+
+1. Treat the T as a cascade of three elements in signal order: series Z1, shunt Z3, series Z2, so [T] = [series Z1][shunt Z3][series Z2]
+2. First pair: [[1, Z1], [0, 1]] x [[1, 0], [1/Z3, 1]] = [[1 + Z1/Z3, Z1], [1/Z3, 1]] = [[1.6, 60], [0.01, 1]]
+3. Multiply by the output series element: [[1.6, 60], [0.01, 1]] x [[1, Z2], [0, 1]] = [[1.6, 1.6(40) + 60], [0.01, 0.01(40) + 1]] = [[1.6, 124], [0.01, 1.4]]
+4. So A = 1.6, B = 124 ohm, C = 0.01 S (10 mS), D = 1.4
+5. Reciprocity: AD - BC = (1.6)(1.4) - (124)(0.01) = 2.24 - 1.24 = 1.00, confirmed
+6. Symmetry: A = 1.6 and D = 1.4 are unequal, so the network is reciprocal but not symmetric, which is consistent with Z1 = 60 ohm not equal to Z2 = 40 ohm
+7. Cross-check A and C by their definitions: with the output open (I2 = 0) the current I1 flows through Z1 + Z3, so V2 = Z3 I1 and V1 = (Z1 + Z3) I1, giving A = V1/V2 = 160/100 = 1.6 and C = I1/V2 = 1/100 = 0.01 S, both matching
+
+> [!success]- Answer
+> **[ABCD] = [[1.6, 124 ohm], [10 mS, 1.4]]; AD - BC = 1 (reciprocal) and A is not equal to D (not symmetric).**
+
+> [!warning] Trap
+> Writing A = 1 + Z1/Z3 = 1.6 and D = 1 + Z2/Z3 = 1.4 but then computing B = Z1 + Z2 = 100 ohm. The correct B = Z1 + Z2 + Z1Z2/Z3 = 60 + 40 + 24 = 124 ohm; dropping the Z1Z2/Z3 term breaks AD - BC = 1.
+
+### P4. **Input impedance of a terminated network.** For the T network of the previous problem and the same for a simple series impedance, find the input impedance when the load is $Z_L = 200\ \Omega$.
+
+**Given:** [ABCD] = [[1.6, 124 ohm], [0.01 S, 1.4]]; ZL = 200 ohm; also compare against a pure series element Z = 100 ohm with the same load
+
+**Solution:**
+
+1. For the T network: Zin = (A ZL + B)/(C ZL + D) = ((1.6)(200) + 124)/((0.01)(200) + 1.4) = (320 + 124)/(2 + 1.4) = 444/3.4
+2. Zin = 130.59 ohm (purely resistive, since every element is resistive)
+3. For the comparison network with [T] = [[1, 100], [0, 1]]: Zin = ((1)(200) + 100)/((0)(200) + 1) = 300/1 = 300 ohm
+4. Check the terminal cases of the same formula for the T network: with ZL = 0 (output shorted) Zin = B/D = 124/1.4 = 88.57 ohm; with ZL = infinite (output open) Zin = A/C = 1.6/0.01 = 160 ohm
+5. Both limits bracket the 130.59 ohm loaded value, as they must since a larger load gives a larger input impedance
+
+> [!success]- Answer
+> **Z_in = 130.59 ohm for the T network with a 200 ohm load; the pure series element gives 300 ohm; the T's own limits are 88.57 ohm (shorted) and 160 ohm (open).**
+
+> [!warning] Trap
+> Plugging the load into the z-parameter formula Zin = z11 - z12z21/(z22 + ZL) and dropping the minus sign, or using Zin = (AZL + B)/(CZL + D) with ZL replaced by 1/ZL. The ABCD form takes the load IMPEDANCE; if the problem gives a load admittance, convert it first.
+
+### P5. **Test symmetry.** Decide whether each network is symmetric: (a) a T with $Z_1 = Z_2 = 100\ \Omega$ and $Z_3 = 50\ \Omega$; (b) a T with $Z_1 = 100\ \Omega$, $Z_2 = 30\ \Omega$ and $Z_3 = 50\ \Omega$; (c) an ideal transformer of ratio 2; (d) a series $75\ \Omega$ impedance.
+
+**Given:** (a) symmetric T candidate: Z1 = Z2 = 100 ohm, Z3 = 50 ohm; (b) asymmetric T: Z1 = 100 ohm, Z2 = 30 ohm, Z3 = 50 ohm; (c) transformer n = 2; (d) series Z = 75 ohm
+
+**Solution:**
+
+1. (a) [T] = [[1, 100], [0, 1]] x [[1, 0], [0.02, 1]] x [[1, 100], [0, 1]]. First pair: [[1 + 2, 100], [0.02, 1]] = [[3, 100], [0.02, 1]]; times the last: A = 3, B = 3(100) + 100 = 400 ohm, C = 0.02 S, D = 0.02(100) + 1 = 3
+2. So A = 3 and D = 3, hence symmetric; check AD - BC = 9 - (400)(0.02) = 9 - 8 = 1, also reciprocal
+3. (b) First pair: [[1, 100], [0, 1]] x [[1, 0], [0.02, 1]] = [[3, 100], [0.02, 1]]; times the output series 30 ohm: A = 3, B = 3(30) + 100 = 190 ohm, C = 0.02 S, D = 0.02(30) + 1 = 1.6
+4. Here A = 3 and D = 1.6, so NOT symmetric; check AD - BC = (3)(1.6) - (190)(0.02) = 4.8 - 3.8 = 1, so it is still reciprocal
+5. (c) [T] = [[2, 0], [0, 0.5]] has A = 2 and D = 0.5, so not symmetric (unless n = 1); AD - BC = 1, so still reciprocal
+6. (d) [T] = [[1, 75], [0, 1]] has A = D = 1, so it IS symmetric by the A = D test; yet it is not physically mirror-symmetric in the usual sense — the test A = D is the definition for the transmission matrix, and a single series element passes it
+
+> [!success]- Answer
+> **(a) symmetric (A = D = 3); (b) reciprocal but not symmetric (A = 3, D = 1.6); (c) not symmetric (A = 2, D = 0.5); (d) A = D = 1, so symmetric by the ABCD test.**
+
+> [!warning] Trap
+> Assuming a network is symmetric because it looks left-right symmetric on the page. The test is arithmetic: A = D. Case (d) shows the trap from the other side — a lone series impedance satisfies A = D and is therefore 'symmetric' in the ABCD sense even though it has no mirror plane, so do not argue from the picture.
+
+## Traps & Exam Notes
+
+- **Using an ABCD matrix written for the wrong I2 direction.** The standard transmission convention takes $I_2$ LEAVING port 2, which is exactly what puts minus signs in front of $B$ and $D$. A source that takes $I_2$ entering port 2 has a transmission matrix with $B$ and $D$ sign-flipped; mixing the two conventions makes a series impedance appear as $[[1, -Z],[0, 1]]$ and destroys the unit-determinant check.
+- **Multiplying cascaded matrices in the wrong order.** The block nearest the source goes on the LEFT. Two series impedances or two shunts commute, so the error hides until an asymmetric pair is tested; always check with one series block and one shunt block, where $[[1+ZY, Z],[Y, 1]]$ and $[[1, Z],[Y, 1+ZY]]$ differ.
+- **Dropping the cross term in a T network's $B$.** For a T of series arms $Z_1, Z_2$ and shunt $Z_3$, $B = Z_1 + Z_2 + Z_1Z_2/Z_3$, not $Z_1 + Z_2$. Leaving out $Z_1Z_2/Z_3$ gives a matrix whose determinant is not 1 and an input impedance that is too low.
+- **Treating $AD - BC = 1$ as optional.** It is the reciprocity certificate and the best arithmetic check in the topic. If your matrix fails it, either an element matrix is wrong, the multiplication order is wrong, or the network (or your model of it) contains a dependent source and is genuinely non-reciprocal.
+- **Assuming reciprocity implies symmetry.** A T with $Z_1 = 100\ \Omega$, $Z_2 = 30\ \Omega$, $Z_3 = 50\ \Omega$ has $AD - BC = 1$ but $A = 3$ against $D = 1.6$. Symmetry is the stronger condition $A = D$ and requires the network itself to be mirrored.
+- **Forgetting that ABCD lines and filters are frequency dependent.** $B$ and $C$ of a reactive network are functions of $\omega$, so a matrix computed at one frequency is invalid at another. In a cascade of transmission lines the matrices are also defined with respect to a reference impedance, and combining lines of different $Z_0$ without accounting for the mismatch gives reflection errors.
+
+## See Also
+
+- [[06_Parameter_Conversions_and_Determinants]]
+- [[07_Reciprocity_and_Symmetry_Conditions]]
+- [[09_Terminated_Networks_and_Gains]]
+
+---
+
+[[04_Hybrid_and_Inverse_Hybrid_Parameters|⬅ 04]] · [[_MOC_Two_Port_Networks|MOC]] · [[00_Dashboard|Dashboard]] · [[06_Parameter_Conversions_and_Determinants|06 ➡]]

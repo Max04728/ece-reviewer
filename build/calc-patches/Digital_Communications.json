@@ -1,0 +1,676 @@
+[
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/01_Pulse_Modulation_PAM,_PWM,_PPM.json",
+    "problem": 2,
+    "expect": "and time-division multiplexed with 24 other channels",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Frame period: `1÷8000 : Ans×10^6` → **1.25×10^{-4}** s → **125** µs; the sync bit plus 1 µs guard leaves **124** µs.",
+        "`124÷24` → $T_{slot}$ = **5.1667** µs, i.e. **5.17** µs per channel (`SHIFT` `ENG` re-expresses it as 5.167×10^-6 s)."
+      ],
+      "note": "The frame period is fixed by $f_s$ alone, so the `−1` for sync and guard comes before the divide by 24."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/01_Pulse_Modulation_PAM,_PWM,_PPM.json",
+    "problem": 4,
+    "expect": "A PWM waveform switches between",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5÷25` → $D$ = **0.2** = **20** % duty cycle.",
+        "`12^2÷1×Ans` → $P_{avg}$ = **28.8** W — the chain squares the voltage before averaging."
+      ],
+      "note": "Averaging the voltage first gives `0.2×12` = **2.4** V and `2.4^2÷1` = **5.76** W, not 28.8 W."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/02_PCM_Sampling,_Quantizing,_Encoding.json",
+    "problem": 1,
+    "expect": "A PCM system uses 256 quantization levels",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`log(256)÷log(2)` → $n$ = **8** bits per sample (`log` is base 10, so a base-2 log is `log x ÷ log 2`).",
+        "Check `2^8` → **256** levels, confirming $L = 2^n$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/02_PCM_Sampling,_Quantizing,_Encoding.json",
+    "problem": 2,
+    "expect": "The quantizer range of an 8-bit PCM system",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2^8` → $L$ = **256** levels; `10÷256` → $q$ = **0.0390625** V = **39.06** mV (`SHIFT` `ENG`).",
+        "`Ans÷2` → $\\lvert e \\rvert_{max}$ = **0.019531** V = **19.53** mV."
+      ],
+      "note": "Nearest-level rounding wastes half a step, so the error is $q/2$; the `Ans÷2` is what keeps $q$ from being quoted as the error."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/02_PCM_Sampling,_Quantizing,_Encoding.json",
+    "problem": 4,
+    "expect": "How many bits per sample are needed for a target SQNR of at least",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(40−1.76)÷6.02` → **6.3522**, so $n$ must **round up** to **7** bits.",
+        "`6.02×7+1.76` → **43.9** dB; `6.02×6+1.76` → **37.9** dB falls short of the 40 dB spec."
+      ],
+      "note": "The spec is an inequality: substitute the rounded bit count back in rather than rounding 6.35 down."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/02_PCM_Sampling,_Quantizing,_Encoding.json",
+    "problem": 5,
+    "expect": "must be quantized with a maximum error no greater than",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5000÷4` → need $L \\geq$ **1250** levels (a 2 mV error ceiling means $q$ = 4 mV).",
+        "Test the powers of two: `2^10` → **1024** is short, `2^11` → **2048** works, so $n$ = **11** bits.",
+        "`5÷2048` → $q$ = **2.441** mV and `Ans÷2` → error = **1.221** mV."
+      ],
+      "note": "Do not stop at $2^{10} = 1024$ because it is near 1250 — the level count must satisfy the inequality."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/02_PCM_Sampling,_Quantizing,_Encoding.json",
+    "problem": 6,
+    "expect": "A 12-bit PCM system covers a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2^12` → **4096** levels; `20÷4096` → $q$ = **4.8828×10^{-3}** V = **4.88** mV.",
+        "`Ans÷2` → **2.441×10^{-3}** V = **2.44** mV maximum error.",
+        "`Ans×2÷√12` → **1.4096×10^{-3}** V = **1.41** mV rms — the `Ans×2` returns to $q$ before dividing by $\\sqrt{12}$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/02_PCM_Sampling,_Quantizing,_Encoding.json",
+    "problem": 8,
+    "expect": "A PCM system must send a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(50−1.76)÷6.02` → **8.0133**, so $n$ **rounds up** to **9** bits.",
+        "`6.02×9+1.76` → **55.9** dB (8 bits gives only **49.9** dB); `9×8000` → $R$ = **72 000** bps."
+      ],
+      "note": "Exactly 8 bits misses a 50 dB spec by 0.1 dB, so the familiar voice standard is not the answer here."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/02_PCM_Sampling,_Quantizing,_Encoding.json",
+    "problem": 9,
+    "expect": "An 8-bit PCM system is driven by a sinusoid",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6.02×8+1.76` → full-scale SQNR = **49.92** dB.",
+        "`20×log(0.5)` → **−6.0206** dB loading penalty (a voltage ratio, so 20-log, not 10-log).",
+        "`Ans+49.92` → **43.9** dB."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/03_Quantization_Noise_and_SQNR.json",
+    "problem": 1,
+    "expect": "An 8-bit uniform PCM quantizer",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6.02×8+1.76` → **49.92** dB, i.e. **49.9** dB.",
+        "`10×log(1.5)` → **1.7609** dB, confirming the $+1.76$ offset is $10\\log_{10}1.5$ and not a fudge factor."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/03_Quantization_Noise_and_SQNR.json",
+    "problem": 2,
+    "expect": "Find the SQNR of a 12-bit PCM system",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6.02×12+1.76` → **74.0** dB and `6.02×8+1.76` → **49.92** dB.",
+        "`6.02×(12−8)` → **24.08** dB improvement, agreeing with **74.0 − 49.92**."
+      ],
+      "note": "The difference of the two logarithms equals 6.02 dB per extra bit; 4 bits is 24 dB, not 6 dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/03_Quantization_Noise_and_SQNR.json",
+    "problem": 3,
+    "expect": "A digital audio link must achieve an SQNR",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(60−1.76)÷6.02` → **9.6744**, so $n$ rounds up to **10** bits.",
+        "`6.02×10+1.76` → **61.96** dB passes the spec; `6.02×9+1.76` → **55.94** dB fails it."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/03_Quantization_Noise_and_SQNR.json",
+    "problem": 4,
+    "expect": "is fed a sinusoid that peaks at only one tenth",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6.02×8+1.76` → **49.92** dB at full scale.",
+        "`20×log(0.1)` → **−20** dB loading penalty, then `Ans+49.92` → **29.92** dB ≈ **29.9** dB."
+      ],
+      "note": "Use 20-log: a one-tenth voltage ratio is −20 dB, not the −10 dB a 10-log would give."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/04_Companding_Mu-Law_and_A-Law.json",
+    "problem": 1,
+    "expect": "is compressed with mu-law using",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`ln(1+255×0.1)÷ln(256)` → $y$ = **0.59099** ≈ **0.591**.",
+        "`ln(255)` → **5.54126** instead gives **0.5914** — the divisor is $\\ln(1+\\mu) = \\ln 256$."
+      ],
+      "note": "The 1 sits inside the logarithm of the normalising constant as well as the numerator."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/04_Companding_Mu-Law_and_A-Law.json",
+    "problem": 2,
+    "expect": "is compressed with A-law using",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷87.6` → breakpoint = **0.011416**; $x$ = 0.1 is above it, so the log branch applies.",
+        "`(1+ln(87.6×0.1))÷(1+ln(87.6))` → **3.16976÷5.47278** = **0.57927** ≈ **0.579**."
+      ],
+      "note": "The linear branch on $x$ = 0.1 would give **1.60**, an output above 1 — the immediate self-check that the branch is wrong."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/04_Companding_Mu-Law_and_A-Law.json",
+    "problem": 3,
+    "expect": "A very quiet sample",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`ln(1+255×0.001)` → **0.227136**; the approximation `ln(255×0.001)` = `ln(0.255)` → **−1.3665** is the trap.",
+        "`0.227136÷ln(256)` → $y$ = **0.040961** ≈ **0.0410**."
+      ],
+      "note": "The $\\ln(1+\\mu x) \\approx \\ln(\\mu x)$ shortcut fails for small $x$ and even returns a negative output."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/04_Companding_Mu-Law_and_A-Law.json",
+    "problem": 4,
+    "expect": "and the same channel uses mu-law companding",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6.02×8+1.76` → **49.92** dB; `20×log(10^{-2})` → **−40** dB loading penalty.",
+        "`49.92−40` → uniform SQNR = **9.92** ≈ **9.9** dB.",
+        "`Ans+24` → companded SQNR ≈ **33.92** ≈ **33.9** dB, the roughly 24 dB companding gain."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/05_Delta_Modulation_and_ADM.json",
+    "problem": 1,
+    "expect": "A delta modulator uses a step size of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.1×100000` → **10 000** V/s, the maximum staircase slope $\\delta f_s$.",
+        "`Ans÷(2π×1000)` → $A_{max}$ = **1.5915** V ≈ **1.59** V peak."
+      ],
+      "note": "$A$ here is the peak amplitude, so a 3.18 V peak-to-peak sine overloads this loop."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/05_Delta_Modulation_and_ADM.json",
+    "problem": 2,
+    "expect": "A delta modulator must track a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×1000×2` → **12 566.4** V/s, the slope the staircase must reach.",
+        "`Ans÷0.05` → $f_s \\geq$ **251 327** Hz ≈ **251.3** kHz — over 100× the 2 kHz Nyquist rate."
+      ],
+      "note": "The sample rate is set by the slope condition $2\\pi f_m A/\\delta$, never by $2f_m$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/05_Delta_Modulation_and_ADM.json",
+    "problem": 4,
+    "expect": "is to be tracked by a delta modulator running at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×1000×4` → **25 132.7** V/s required slope.",
+        "`Ans÷100000` → $\\delta_{min}$ = **0.25133** V ≈ **251** mV.",
+        "Doubling $\\delta$ multiplies the granular noise power by **4**: `2^2` → **4**, since $P_g \\propto \\delta^{2}$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/06_Line_Coding_Schemes.json",
+    "problem": 2,
+    "expect": "is sent using Manchester encoding",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000000÷2` → NRZ floor = **500 000** Hz, while Manchester keeps the full **1 000 000** Hz.",
+        "`10×log(1000000÷500000)` → **3.0103** dB penalty, i.e. a **2×** bandwidth increase."
+      ],
+      "note": "Follows the note's own 10-log step; the traps section argues a bandwidth *ratio* in dB should use the 20-log, giving 6.02 dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/07_Inter-Symbol_Interference_and_Nyquist_Criterion.json",
+    "problem": 1,
+    "expect": "and uses 8-level signalling",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`log(8)÷log(2)` → **3** bits per symbol (`log` is base 10, so divide by `log 2` for base 2).",
+        "`2×4000×3` → $R$ = **24 000** bps = **24** kbps."
+      ],
+      "note": "The $2B$ limit is on symbols; the level count multiplies the rate by $\\log_2 M$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/07_Inter-Symbol_Interference_and_Nyquist_Criterion.json",
+    "problem": 2,
+    "expect": "A raised-cosine filtered link uses a roll-off factor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×6000÷1.5` → $R_s$ = **8000** Bd ($\\alpha$ = 0.5 means dividing by $1+\\alpha$ = 1.5).",
+        "`Ans×(log(4)÷log(2))` → $R$ = **16 000** bps; check `4000×1.5` → **6000** Hz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/07_Inter-Symbol_Interference_and_Nyquist_Criterion.json",
+    "problem": 3,
+    "expect": "A 64 kbps link uses QPSK with a roll-off",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`64000÷(log(4)÷log(2))` → $R_s$ = **32 000** Bd.",
+        "`Ans÷2×1.5` → $B$ = **24 000** Hz = **24** kHz."
+      ],
+      "note": "Both factors sit on the symbol rate: divide by $\\log_2 M$ first, then multiply by $R_s/2$ and $(1+\\alpha)$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/07_Inter-Symbol_Interference_and_Nyquist_Criterion.json",
+    "problem": 4,
+    "expect": "A system transmits at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2400÷2` → Nyquist minimum = **1200** Hz.",
+        "`Ans×1.25` → $B$ = **1500** Hz and `Ans−1200` → excess = **300** Hz."
+      ],
+      "note": "The roll-off multiplies $R_s/2$ = 1200 Hz, not $R_s$ = 2400 Hz; using 2400 gives 3000 Hz, exactly double."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/08_Eye_Diagrams_and_Equalization.json",
+    "problem": 1,
+    "expect": "An eye diagram shows a vertical opening",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.2÷2` → noise margin = **0.6** V.",
+        "`20×log(1.2÷4)` → **−10.458** dB ≈ **−10.5** dB eye opening (referenced to the 4 V peak-to-peak swing, not the 2 V peak)."
+      ],
+      "note": "Using the 2 V peak instead of the 4 V peak-to-peak swing gives **−4.4** dB, a 6 dB error."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/08_Eye_Diagrams_and_Equalization.json",
+    "problem": 2,
+    "expect": "link shows zero crossings spread over a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷1E6` → $T_b$ = **1×10^{-6}** s = **1000** ns.",
+        "`120÷1000` → jitter = **0.12** UI = **12** % of a bit period.",
+        "`1000−120` → usable window = **880** ns, i.e. **440** ns of margin either side of centre."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/08_Eye_Diagrams_and_Equalization.json",
+    "problem": 3,
+    "expect": "Find the three zero-forcing equalizer tap weights",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`MODE` `5` `2` (3 unknowns: $x = w_{-1}$, $y = w_0$, $z = w_1$), entering rows `0 , 0.3 , 1 , 0` then `1 , 0.2 , 0 , 0` then `0.3 , 1 , 0.2 , 1`.",
+        "`=` → $w_{-1}$ = **−0.2273**, $w_0$ = **1.1364**, $w_1$ = **−0.3409**; the cursor row reduces to `1÷0.88` → **1.13636**."
+      ],
+      "note": "The rows are $0.3w_0+w_1=0$, $w_{-1}+0.2w_0=0$ and $0.3w_{-1}+w_0+0.2w_1=1$ — all three must hold at once."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/09_ASK,_OOK_and_FSK.json",
+    "problem": 2,
+    "expect": "An FSK transmitter sends",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(1.5E6−1.0E6)÷2` → $\\Delta f$ = **250 000** Hz = **250** kHz.",
+        "`Ans÷1E6` → $h$ = **0.25**.",
+        "`2×(250000+1E6)` → $B$ = **2 500 000** Hz = **2.5** MHz."
+      ],
+      "note": "The 500 kHz tone spacing is $2\\Delta f$; feeding the spacing into $h$ doubles the deviation and the bandwidth."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/09_ASK,_OOK_and_FSK.json",
+    "problem": 3,
+    "expect": "is required to operate with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.5×1E6` → $\\Delta f$ = **500 000** Hz; `Ans×2` → tone spacing = **1 000 000** Hz = **1** MHz.",
+        "`2×(500000+1E6)` → $B$ = **3 000 000** Hz = **3** MHz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/09_ASK,_OOK_and_FSK.json",
+    "problem": 4,
+    "expect": "FSK modem uses a deviation of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`600÷1200` → $h$ = **0.5**.",
+        "`2×(600+1200)` → $B_{FSK}$ = **3600** Hz.",
+        "`Ans÷(2×1200)` → **1.5×** the OOK bandwidth of **2400** Hz."
+      ],
+      "note": "At $h$ = 0.5 the Carson bound is $3f_b$ against OOK's $2f_b$ — a 1.5× penalty, not parity."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/10_BPSK_and_QPSK.json",
+    "problem": 2,
+    "expect": "A QPSK link carries the same",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E6÷(log(4)÷log(2))` → $R_s$ = **1 000 000** Bd.",
+        "`Ans×2` → $B_{QPSK}$ = **2 000 000** Hz; `2×2E6` → $B_{BPSK}$ = **4 000 000** Hz.",
+        "`4E6÷2E6` → **2**, so QPSK halves the bandwidth (`10×log(2)` → **3.01** dB)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/10_BPSK_and_QPSK.json",
+    "problem": 3,
+    "expect": "A coherent BPSK receiver operates at",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` STAT, then `Apps` `Distr` `R(` : the argument is `√(2×10^(10÷10))` = **√20** = **4.4721**.",
+        "`=` → $P_e$ = **3.88×10^{-6}** ≈ **3.9×10^{-6}**; `R(` is the machine's upper tail, i.e. $Q(x)$, so no table interpolation is needed."
+      ],
+      "note": "Convert dB to a linear power ratio *before* the factor of 2 and the square root: `10^(10÷10)` = 10, not 10 dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/11_M-ary_PSK_and_16-QAM.json",
+    "problem": 1,
+    "expect": "A 16-QAM link carries",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`log(16)÷log(2)` → $k$ = **4** bits per symbol.",
+        "`10E6÷4` → $R_s$ = **2 500 000** Bd; `Ans×2` → $B$ = **5 000 000** Hz = **5** MHz."
+      ],
+      "note": "Divide by $\\log_2 M$ = 4, never by $M$ = 16, which would give an absurd 625 kBd."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/11_M-ary_PSK_and_16-QAM.json",
+    "problem": 2,
+    "expect": "modem transmits at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`log(8)÷log(2)` → $k$ = **3**; `4800÷3` → $R_s$ = **1600** Bd.",
+        "`1÷1600` → $T_s$ = **6.25×10^{-4}** s = **625** µs.",
+        "`1600÷2` → $B_{min}$ = **800** Hz, the Nyquist minimum rather than the 3200 Hz null-to-null figure."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/11_M-ary_PSK_and_16-QAM.json",
+    "problem": 3,
+    "expect": "A 64-QAM system carries",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`log(64)÷log(2)` → $k$ = **6** bits per symbol.",
+        "`30E6÷6` → $R_s$ = **5 000 000** Bd; `Ans×2` → $B$ = **10 000 000** Hz = **10** MHz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/11_M-ary_PSK_and_16-QAM.json",
+    "problem": 4,
+    "expect": "Compare the bandwidth and the minimum distance of QPSK and 16-QAM",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20E6÷(log(4)÷log(2))×2` → QPSK $B$ = **20×10^6** Hz; `20E6÷(log(16)÷log(2))×2` → 16-QAM $B$ = **10×10^6** Hz.",
+        "`√2` → **1.4142** and `√0.4` → **0.6325**, the two $d_{min}$ in $\\sqrt{E_s}$ units.",
+        "`20×log(1.4142÷0.6325)` → **6.9897** dB ≈ **7** dB penalty when $E_s$, not $E_b$, is held constant."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/12_Constellation_and_BER_Comparison.json",
+    "problem": 1,
+    "expect": "Sketch the geometry",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "8-PSK distance: `2×√3×sin(π÷8)` → **1.32565** in $\\sqrt{E_b}$ units; QPSK's value is exactly **2.000**.",
+        "`20×log(2÷1.32565)` → **3.5720** dB ≈ **3.6** dB penalty."
+      ],
+      "note": "Set the angle unit to Rad (`SHIFT` `DRG`): `sin(π÷8)` = sin 22.5° = 0.38268, the half-angle $\\pi/M$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/12_Constellation_and_BER_Comparison.json",
+    "problem": 2,
+    "expect": "penalty of 16-QAM relative to QPSK at equal",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20×log(2÷√1.6)` → **3.9794** dB at equal $E_b$ ($2\\sqrt{E_b}$ against $\\sqrt{1.6E_b}$).",
+        "`20×log(√2÷√0.4)` → **6.9897** dB at equal $E_s$ (**1.4142** against **0.6325** in $\\sqrt{E_s}$ units).",
+        "`6.9897−3.9794` → **3.0103** dB = `10×log(2)`, the equal-$E_s$ to equal-$E_b$ shift."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/12_Constellation_and_BER_Comparison.json",
+    "problem": 3,
+    "expect": "A QPSK link runs at",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` STAT, then `Apps` `Distr` `R(` with the argument `√(2×10^(8÷10))` = **√12.619** = **3.5523**.",
+        "`=` → QPSK $P_e$ = **1.91×10^{-4}**.",
+        "`8+3.57` → 8-PSK needs **11.57** dB for the same BER, since penalties in dB add to dB."
+      ],
+      "note": "Adding the penalty inside the Q argument instead of to the dB value is the trap; the linear ratio is `10^(8÷10)` = 6.3096."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/13_Matched_Filter_and_Optimum_Detection.json",
+    "problem": 2,
+    "expect": "is received in white noise with one-sided density",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×1E-6÷2E-9` → $\\mathrm{SNR}_{max}$ = **1000** as a power ratio.",
+        "`10×log(1000)` → **30** dB."
+      ],
+      "note": "$2E/N_0$ already carries the two-sided density factor; feeding it $N_0/2$ = 1e-9 doubles the answer to 60 dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/13_Matched_Filter_and_Optimum_Detection.json",
+    "problem": 3,
+    "expect": "A matched-filter BPSK receiver operates at",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` STAT, then `Apps` `Distr` `R(` with the argument `√(2×10^(9.6÷10))` = **√18.240** = **4.2709**.",
+        "`=` → $P_e$ = **9.74×10^{-6}** ≈ **1×10^{-5}**, matching the BPSK landmark without interpolating a table."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/13_Matched_Filter_and_Optimum_Detection.json",
+    "problem": 4,
+    "expect": "Explain why sampling its output at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Sampling at $0.9T$ collects only $0.9E$ of the pulse energy, so the output ratio falls to **0.9** of its peak value.",
+        "`10×log(0.9)` → **−0.45757** dB, i.e. a **0.46** dB loss (10-log, because $2E/N_0$ is a power ratio)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/14_Information_Theory_and_Entropy.json",
+    "problem": 2,
+    "expect": "A source emits symbol A with probability",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`log(1÷0.9)÷log(2)` → **0.152003** bits for A; `log(1÷0.1)÷log(2)` → **3.321928** bits for B.",
+        "`0.9×0.152003+0.1×3.321928` → $H$ = **0.468996** ≈ **0.469** bits/symbol."
+      ],
+      "note": "The base-2 log lives on a base-10 keypad as `log x ÷ log 2`; `log10` alone understates $H$ by 3.32×."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/14_Information_Theory_and_Entropy.json",
+    "problem": 3,
+    "expect": "A source emits four symbols with probabilities",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.5×1+0.25×2+0.125×3+0.125×3` → $H$ = **1.75** bits/symbol (the self-informations 1, 2, 3, 3 come from `log(2)÷log(2)`, `log(4)÷log(2)`, `log(8)÷log(2)`).",
+        "`Ans×1000` → $R$ = **1750** bps."
+      ],
+      "note": "The information rate uses $H$, not the 2-bit fixed-length code, which would give 2000 bps."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/15_Shannon-Hartley_Capacity.json",
+    "problem": 1,
+    "expect": "A telephone channel has a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(30÷10)` → **1000** and `1+Ans` → **1001** (never place the dB figure itself inside the log).",
+        "`3000×log(1001)÷log(2)` → $C$ = **29 902** bps ≈ **29.9** kbps."
+      ],
+      "note": "Using 30 in the log gives 3000×log2(31) = **14.9** kbps, exactly half the correct capacity."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/15_Shannon-Hartley_Capacity.json",
+    "problem": 2,
+    "expect": "channel operates at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(20÷10)` → **100**; `1+Ans` → **101**.",
+        "`log(101)÷log(2)` → $C/B$ = **6.6582** bit/s/Hz.",
+        "`Ans×1E6` → $C$ = **6.658×10^6** bps ≈ **6.66** Mbps."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/15_Shannon-Hartley_Capacity.json",
+    "problem": 3,
+    "expect": "channel must carry",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`50000÷5000` → $C/B$ = **10** bit/s/Hz, formed before exponentiating.",
+        "`2^10−1` → $S/N$ = **1023**.",
+        "`10×log(1023)` → **30.099** dB ≈ **30.1** dB."
+      ],
+      "note": "Here the $−1$ changes nothing visible, but at $C/B$ = 1 it is the whole answer: 0 dB, not 3 dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/15_Shannon-Hartley_Capacity.json",
+    "problem": 5,
+    "expect": "A system must achieve a spectral efficiency of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2^4−1` → $S/N$ = **15**.",
+        "`10×log(15)` → **11.761** dB ≈ **11.8** dB.",
+        "`2^(4÷2)` → **4**, so $M \\geq 4$ at the ideal Nyquist limit and **16-QAM** is the practical choice once roll-off is budgeted."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/16_Error_Control_Hamming_and_CRC.json",
+    "problem": 1,
+    "expect": "How many parity bits does a Hamming code need for",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Test `2^3` → **8** against `8+3+1` → **12**: fails.",
+        "Test `2^4` → **16** against `8+4+1` → **13**: holds, so $r$ = **4**.",
+        "`8+4` → $n$ = **12**, the (12, 8) code."
+      ],
+      "note": "Testing $2^r \\geq m$ alone stops at $r$ = 3; the parity positions and the error-free state add the $+r+1$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/16_Error_Control_Hamming_and_CRC.json",
+    "problem": 2,
+    "expect": "Find the number of parity bits for a 4-bit data word",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Test `2^2` → **4** against `4+2+1` → **7**: fails.",
+        "Test `2^3` → **8** against `4+3+1` → **8**: equality holds, so $r$ = **3** and `4+3` → $n$ = **7**, the Hamming (7,4) code."
+      ],
+      "note": "Equality is the intended optimum for a perfect code, not a failure — (7,4) uses every one of its 8 syndromes."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/03_Digital_Communications/16_Error_Control_Hamming_and_CRC.json",
+    "problem": 8,
+    "expect": "A CRC uses a generator polynomial of degree",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2^(-4)` → **0.0625**, the fraction of longer bursts a degree-4 generator misses.",
+        "`1−0.0625` → **0.9375**, so **93.75** % of longer bursts are caught, while all bursts of **4** bits or fewer are always detected."
+      ],
+      "note": "The guarantee is bounded by the degree: degree $r$ covers bursts up to $r$ bits, and only probabilistically beyond that."
+    }
+  }
+]

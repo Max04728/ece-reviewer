@@ -1,0 +1,744 @@
+[
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/01_Antenna_Parameters_Directivity,_Gain,_EIRP.json",
+    "problem": 1,
+    "expect": "has half-power beamwidths of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`41253÷20÷25` → $D$ = **82.51** (dimensionless; both beamwidths in degrees).",
+        "`10log(Ans)` → **19.16** dBi. Chain them on one line as `41253÷20÷25 : 10log(Ans)` with `ALPHA` `:` between the statements."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/01_Antenna_Parameters_Directivity,_Gain,_EIRP.json",
+    "problem": 2,
+    "expect": "transmitter feeds an antenna with a gain of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10log(100×10^3) : Ans+20 : 10^(Ans÷10) : Ans÷1000` — chain with `ALPHA` `:`: $P_t$ = **50.00** dBm → EIRP = **70.00** dBm → **10.0** kW.",
+        "`70-2.15 : 10^(Ans÷10)÷1000` → ERP = **67.85** dBm → **6.10** kW (the absolute check $10/1.64$ agrees)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/01_Antenna_Parameters_Directivity,_Gain,_EIRP.json",
+    "problem": 3,
+    "expect": "drives an antenna rated at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`13+2.15 : 10log(50×10^3) : Ans+15.15 : 10^(Ans÷10)÷1000` → $G_t$ = **15.15** dBi → $P_t$ = **46.99** dBm → EIRP = **62.14** dBm → **1.637** kW.",
+        "`Ans÷(4π×(10^4)^2)` → $S$ = **1.303×10^-6** W/m² = **1.30** µW/m²."
+      ],
+      "note": "10 km enters as `(10^4)^2` metres. Squaring the kilometres instead costs a factor of 10^6."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/01_Antenna_Parameters_Directivity,_Gain,_EIRP.json",
+    "problem": 4,
+    "expect": "dish antenna has an effective aperture of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷10×10^9` → $\\lambda$ = **0.03** m.",
+        "`4π×1÷Ans²` → $D$ = **13 963**; `10log(Ans)` → **41.45** dBi.",
+        "`41253÷13963` → $\\theta_E\\theta_H$ = **2.95** deg², i.e. a beam near $1.5^\\circ\\times2^\\circ$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/02_Radiation_Resistance,_Efficiency_and_Capture_Area.json",
+    "problem": 1,
+    "expect": "Find its effective capture area at each frequency",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷300×10^6` → $\\lambda$ = **1.00** m; `Ans²×1.64÷(4π)` → $A_e$ = **0.1305** m².",
+        "`Ans×9` → **1.175** m² at 100 MHz. $\\lambda$ triples, so $A_e$ goes as 3² = 9 — the second frequency needs no second wavelength."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/02_Radiation_Resistance,_Efficiency_and_Capture_Area.json",
+    "problem": 2,
+    "expect": "Find its radiation resistance, its radiation efficiency in percent",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`80π²×0.01²` → $R_\\mathrm{rad}$ = **0.07896** Ω.",
+        "`Ans÷(Ans+1)` → $\\eta$ = **0.07318** = **7.32** %.",
+        "`10log(Ans)` → **-11.36** dB; `1-0.07318` → **0.927**, so 92.7 % of the input becomes heat."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/02_Radiation_Resistance,_Efficiency_and_Capture_Area.json",
+    "problem": 3,
+    "expect": "Find its radiation efficiency, its gain as a ratio",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`73÷(73+2)` → $\\eta$ = **0.97333**; `10log(Ans)` → **-0.117** dB, a negligible loss.",
+        "`73÷75×1.64` → $G$ = **1.5963**; `10log(Ans)` → **2.031** dBi against the lossless dipole's 2.15 dBi."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/02_Radiation_Resistance,_Efficiency_and_Capture_Area.json",
+    "problem": 4,
+    "expect": "Find the required effective aperture, the physical aperture",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(40÷10)` → $G$ = **1.000×10^4** linear. The squaring rules out staying in dBi.",
+        "`SHIFT` `CVALUE` 28 (c0) `÷10×10^9` → $\\lambda$ = **0.03** m; `10^4×Ans²÷(4π)` → $A_e$ = **0.7162** m².",
+        "`Ans÷0.6` → $A_\\mathrm{phys}$ = **1.194** m²; `√(4×Ans÷π)` → $d$ = **1.233** m."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/03_Hertzian_and_Half-Wave_Dipoles.json",
+    "problem": 1,
+    "expect": "Find the physical length of a resonant half-wave dipole",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷100×10^6` → $\\lambda$ = **3.00** m.",
+        "`Ans×0.475` → $l$ = **1.425** m; `3×0.5` → the naive **1.5** m it is trimmed from."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/03_Hertzian_and_Half-Wave_Dipoles.json",
+    "problem": 2,
+    "expect": "Two Hertzian dipoles are compared at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`80π²×0.02² : 80π²×0.01²` — chain with `ALPHA` `:` → **0.3158** Ω → **0.07896** Ω.",
+        "`0.02²÷0.01²` → ratio **4.000** = $(l_A/l_B)^2$, so the square law alone fixes the 4 to 1 ratio."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/03_Hertzian_and_Half-Wave_Dipoles.json",
+    "problem": 3,
+    "expect": "Find (a) the maximum current",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(2×1000÷73)` → $I_0$ = **5.234** A — the $\\tfrac{1}{2}$ lives inside the root.",
+        "`1000×1.64÷(4π×(1000)^2)` → $S$ = **1.305×10^-4** W/m².",
+        "`√(Ans×376.73)` → $E$ = **0.2217** V/m, with `SHIFT` `CVALUE` 37 for $Z_0$ = 376.73 Ω. The note's rounded 377 Ω returns **0.2218** V/m."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/03_Hertzian_and_Half-Wave_Dipoles.json",
+    "problem": 4,
+    "expect": "of total conductor and connection loss",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`73÷(73+1)` → $\\eta$ = **0.98649** = **98.65** %.",
+        "`Ans×1.64 : 10log(Ans)` → $G$ = **1.6178** → **2.09** dBi, about 0.06 dB below the 2.15 dBi ideal."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/04_Marconi,_Folded_Dipole,_Yagi-Uda.json",
+    "problem": 1,
+    "expect": "Marconi monopole is operated at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷100×10^6` → $\\lambda$ = **3** m; `Ans×0.25` → $l$ = **0.75** m.",
+        "`73÷2` → $R_\\mathrm{rad}$ = **36.5** Ω; `2×1.64` → $D$ = **3.28**.",
+        "`10log(3.28)` → **5.16** dBi."
+      ],
+      "note": "Fast check on the monopole: doubling the dipole's $D$ adds 3.01 dB, so 2.15 + 3.01 = 5.16 dBi."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/04_Marconi,_Folded_Dipole,_Yagi-Uda.json",
+    "problem": 4,
+    "expect": "Find its effective aperture, and the front-to-back ratio",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷200×10^6` → $\\lambda$ = **1.5** m; `10^(12÷10)` → $G$ = **15.85**.",
+        "`Ans×1.5²÷(4π)` → $A_e$ = **2.838** m².",
+        "`20log(16)` → **24.1** dB front-to-back: a field ratio takes 20log, not 10log."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/05_Parabolic_Reflector_Antennas.json",
+    "problem": 1,
+    "expect": "front-fed parabolic dish of diameter",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷4×10^9` → $\\lambda$ = **0.075** m.",
+        "`(π×3÷Ans)² : Ans×0.55 : 10log(Ans)` → **15 791** → $G$ = **8685** → **39.39** dBi.",
+        "`0.55π×9÷4` → $A_e$ = **3.888** m²; `70×0.075÷3` → $\\theta_\\mathrm{HPBW}$ = **1.75°**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/05_Parabolic_Reflector_Antennas.json",
+    "problem": 2,
+    "expect": "Cassegrain dish operates at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷12×10^9` → $\\lambda$ = **0.025** m.",
+        "`(π×10÷Ans)² : Ans×0.6 : 10log(Ans)` → **1.579×10^6** → $G$ = **9.475×10^5** → **59.77** dBi.",
+        "`70×0.025÷10` → **0.175°**; the gain stands **59.77 - 39.39 = 20.38** dB above the 3 m dish."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/05_Parabolic_Reflector_Antennas.json",
+    "problem": 3,
+    "expect": "Ku-band uplink needs",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(45÷10)` → $G$ = **31 623** linear — the square root forbids working in dBi.",
+        "`√(Ans÷0.55)` → **239.8** = $\\pi D/\\lambda$; with $\\lambda$ = **0.05** m (`SHIFT` `CVALUE` 28 `÷6×10^9`), `239.8×0.05÷π` → $D$ = **3.816** m.",
+        "`70×0.05÷3.816` → $\\theta_\\mathrm{HPBW}$ = **0.917°**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/05_Parabolic_Reflector_Antennas.json",
+    "problem": 4,
+    "expect": "and the first-null beamwidth, then compare",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷6×10^9` → $\\lambda$ = **0.05** m; `(π×2÷Ans)² : Ans×0.6` → **15 791** → $G$ = **9475**.",
+        "`10log(Ans)` → **39.77** dBi; `0.6π×4÷4` → $A_e$ = **1.885** m² against the **3.142** m² mouth.",
+        "`70×0.05÷2` → **1.75°**; `Ans×2` → first null **3.50°**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 1,
+    "expect": "Find the free-space path loss for a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`32.44+20log(30)+20log(6000)` → FSPL = **137.5** dB.",
+        "`20log(30)` = **29.54** and `20log(6000)` = **75.56** if you prefer the note's three-term split."
+      ],
+      "note": "Key the whole line: it returns 137.5455 dB, while adding the pre-rounded 29.54 + 75.56 drifts to the note's 137.54."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 2,
+    "expect": "Wi-Fi link spans",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`32.44+20log(10)+20log(2400)` → FSPL = **120.0** dB.",
+        "`92.44+20log(10)+20log(2.4)` → the same **120.0** dB with the km/GHz constant. The two constants are interchangeable, never mixable."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 3,
+    "expect": "and the receiver uses a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`32.44+20log(40)+20log(4000)` → FSPL = **136.52** dB.",
+        "`20+30+20-Ans` → $P_r$ = **-66.52** dBm: every gain is added, only FSPL and $L_\\mathrm{misc}$ are subtracted."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 4,
+    "expect": "Express the received power of the previous problem in watts",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(-66.52÷10)` → **2.228×10^-7** mW — dBm is referenced to a milliwatt.",
+        "`Ans÷1000` → **2.23×10^-10** W = **223** pW.",
+        "`-66.52+85` → fade margin **18.5** dB > 0, so the link closes."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 5,
+    "expect": "A 5.8 GHz link uses",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20+24+24-(-80)` → allowable FSPL = **148** dB.",
+        "`(148-32.44-20log(5800))÷20` → **2.0146**; `10^Ans` → $d$ = **103.4** km.",
+        "Or solve it in place: `32.44+20log(X)+20log(5800)` `ALPHA` `=` `148`, then `SHIFT` `SOLVE` with X near 100."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 6,
+    "expect": "How much extra transmit power is needed to double the range",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20log(2)` → **6.02** dB of extra loss when $d$ doubles.",
+        "`10^(Ans÷10)` → **4.00** times the transmit power, not twice."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 7,
+    "expect": "of effective aperture at a separation of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷(0.3²×(10^4)²)` → $P_r$ = **1.111×10^-7** W at 1 GHz, with $d$ entered as 10^4 m.",
+        "`Ans×4` → **4.444×10^-7** W at 2 GHz: fixed apertures halve $\\lambda$, so $P_r$ rises 6 dB."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 8,
+    "expect": "Find the ERP and the EIRP in both watts and dBW",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10log(500)` → $P_t$ = **26.99** dBW; `12+2.15` → $G$ = **14.15** dBi.",
+        "`26.99+12 : 10^(Ans÷10)` → ERP = **38.99** dBW → **7925** W = **7.92** kW.",
+        "`26.99+14.15 : 10^(Ans÷10)` → EIRP = **41.14** dBW → **13 002** W = **13.0** kW. The ratio is 13.0/7.92 = **1.64**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 9,
+    "expect": "microwave link runs",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`32.44+20log(50)+20log(6000)` → FSPL = **141.98** dB.",
+        "`30+35+35-Ans` → $P_r$ = **-41.98** dBm.",
+        "`-41.98+75` → fade margin **33.0** dB: 75 - 41.98, not 75 + 41.98."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/06_FSPL_and_Friis_Transmission_Equation.json",
+    "problem": 10,
+    "expect": "Find the received power two ways",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷1×10^9` → $\\lambda$ = **0.3** m; `(Ans÷(4π×1000))²` → **5.699×10^-10**.",
+        "`32.44+20log(1)+20log(1000)` → FSPL = **92.44** dB; `10^(-Ans÷10)` → **5.70×10^-10** W (dBW, 1 W reference).",
+        "Both paths agree, which is the point: the bracket already carries the $4\\pi$, so FSPL is never applied on top of it."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/07_Ground_Wave_Propagation.json",
+    "problem": 1,
+    "expect": "AM broadcast station uses a quarter-wave monopole",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`50×3.28` → EIRP = **164** kW. The 173 constant is isotropic, so it must never see the bare 50 kW.",
+        "`173×√(Ans)÷50` → $E_0$ = **44.31** mV/m.",
+        "`Ans×0.5` → $E$ = **22.15** mV/m: $A$ is a field ratio, applied once, never squared."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/07_Ground_Wave_Propagation.json",
+    "problem": 2,
+    "expect": "What EIRP is needed to double that field",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2²` → the field ratio 2 needs EIRP × **4**, i.e. `10×4` = **40** kW, which is `20log(4)` = **6.02** dB.",
+        "`173×√40×0.5÷50` → $E$ = **10.94** mV/m = 2 × 5.47, confirming $E \\propto \\sqrt{\\mathrm{EIRP}}$.",
+        "`40×4` → **160** kW to hold the same field out to 100 km, since EIRP itself goes as $d^2$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/07_Ground_Wave_Propagation.json",
+    "problem": 3,
+    "expect": "Compare the field over sea water",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`173×√10÷100` → $E_0$ = **5.471** mV/m.",
+        "`Ans×0.75` → sea = **4.10** mV/m; `5.471×0.30` → dry sand = **1.64** mV/m.",
+        "`20log(0.75÷0.30)` → **7.96** dB in favour of the sea path (field ratio 2.5)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/07_Ground_Wave_Propagation.json",
+    "problem": 4,
+    "expect": "The same monopole station is upgraded from",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`656÷164` → EIRP ratio **4**, so the field multiplier is `√4` = **2**.",
+        "`173×√656÷50` → $E_0$ = **88.62** mV/m; `Ans×0.5` → **44.31** mV/m = 2 × 22.15.",
+        "`50×√4` → the old field now reaches **100** km: $d \\propto \\sqrt{\\mathrm{EIRP}}$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/08_Space_Wave_and_Radio_Horizon.json",
+    "problem": 1,
+    "expect": "Two towers stand on flat terrain",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3.57×(√30+√10)` → $d$ = **30.84** km.",
+        "`3.57×√40` → **22.58** km is the trap answer from adding the heights first, 27 % short."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/08_Space_Wave_and_Radio_Horizon.json",
+    "problem": 3,
+    "expect": "passes over a building at the exact midpoint",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`17.32×√(10×10÷(6×20))` → $r_1$ = **15.81** m.",
+        "`Ans×0.6` → minimum clearance **9.49** m. $r_1$ is the zone radius, not the clearance."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/08_Space_Wave_and_Radio_Horizon.json",
+    "problem": 4,
+    "expect": "must be closed with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`60÷3.57-√50` → $\\sqrt{h_r}$ = **9.736**. Do not stop at 9.74 m.",
+        "`Ans²` → $h_r$ = **94.78** m; the same line with the 4.12 constant returns the trap **56.1** m."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/09_Sky_Wave_and_Ionospheric_Layers.json",
+    "problem": 1,
+    "expect": "Find the critical frequency of the layer",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`9×√(1.2×10^12)` → $f_c$ = **9.859×10^6** Hz.",
+        "`Ans÷10^6` → **9.86** MHz. A density quoted per cm³ needs `×10^6` before the root."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/09_Sky_Wave_and_Ionospheric_Layers.json",
+    "problem": 2,
+    "expect": "and a signal reaches it at an angle of incidence of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`9.86÷cos(30)` in Deg mode → MUF = **11.4** MHz (11.385 exact).",
+        "`90-30` → take-off $\\Delta$ = **60°**; `9.86×cos(30)` = **8.54** MHz is the inverted-ratio trap."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/09_Sky_Wave_and_Ionospheric_Layers.json",
+    "problem": 3,
+    "expect": "Find the virtual height of reflection",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `×2×10^-3÷2` → $h'$ = **3.00×10^5** m = **300** km.",
+        "`(9.86×10^6÷9)²` → $N_\\max$ = **1.200×10^12** electrons/m³."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/10_Critical_Frequency,_MUF_and_Skip_Distance.json",
+    "problem": 1,
+    "expect": "is launched at the shallowest angle the layer will return",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`9.86÷12` → $\\cos\\theta_i$ = **0.82167**.",
+        "`SHIFT` `cos`(Ans) in Deg mode → $\\theta_i$ = **34.75°** from the vertical; `tan(Ans)` → **0.6937**.",
+        "`2×300×Ans` → $D_\\mathrm{skip}$ = **416.2** km; the closed form `600×√((12÷9.86)²-1)` agrees."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/10_Critical_Frequency,_MUF_and_Skip_Distance.json",
+    "problem": 2,
+    "expect": "At solar maximum the F2 peak density reaches",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`9×√(2.5×10^12)÷10^6` → $f_c$ = **14.23** MHz.",
+        "`Ans÷cos(45)` in Deg mode → MUF = **20.12** MHz.",
+        "`Ans×0.85` → OWF = **17.1** MHz — the frequency to work, not the 20.12 MHz ceiling."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/10_Critical_Frequency,_MUF_and_Skip_Distance.json",
+    "problem": 3,
+    "expect": "find the skip distance at 20 MHz",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20÷14.23` → ratio **1.4055**.",
+        "`Ans²-1 : √Ans` → **0.9754** → **0.9876**.",
+        "`2×300×Ans` → **592.6** km; as a single line, `600×√((20÷14.23)²-1)`."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/11_Radar_Range_Equation_and_Microwave_Links.json",
+    "problem": 1,
+    "expect": "It must detect a target of cross-section",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(30÷10)` → $G$ = **1000** linear; `10^5×Ans²×0.03²` → **9×10^7**.",
+        "`Ans÷((4π)³×10^-13)` → $R^4$ = **4.535×10^17**.",
+        "`Ans^(1÷4)` → **25 951** m = **25.95** km. `Ans^(1÷2)` would give 6.7×10^8 m, the tell-tale of stopping at the square root."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/11_Radar_Range_Equation_and_Microwave_Links.json",
+    "problem": 2,
+    "expect": "The same radar is rebuilt with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 25 (k) `×290×10×10^6` → **4.004×10^-14** W; `10log(Ans×10^3)` → **-103.98** dBm.",
+        "`+10+13` → $P_\\min$ = **-81.0** dBm, matching the -114 dBm shortcut.",
+        "`10^(-81÷10)×10^-3÷10^-13` → ratio **79.4**; `Ans^(-0.25)×25.95` → $R_\\max$ = **8.69** km."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/11_Radar_Range_Equation_and_Microwave_Links.json",
+    "problem": 3,
+    "expect": "Find the unambiguous range, the range resolution",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷(2×1000)` → $R_{un}$ = **1.5×10^5** m = **150** km.",
+        "`10^-6×10^3` → duty cycle **10^-3** = **0.1** %.",
+        "`150×10^3×10^-3` → $\\Delta R$ = **150** m (= $R_{un}$ × duty, which is $c\\tau/2$); `10^5×10^-3` → $P_{av}$ = **100** W."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/11_Radar_Range_Equation_and_Microwave_Links.json",
+    "problem": 4,
+    "expect": "and identical 30 dBi antennas at each end",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`32.44+20log(30)+20log(6000)` → FSPL = **137.5** dB.",
+        "`10log(1000)` → **30** dBm for the 1 W input; `30+30+30-137.545` → $P_{rx}$ = **-47.5** dBm.",
+        "`-47.545+80` → fade margin **32.5** dB."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/13_Satellite_Orbits,_Transponders_and_G_-_T.json",
+    "problem": 1,
+    "expect": "Find the orbital radius and altitude of a geostationary satellite",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(3.986×10^5×(86164÷(2π))²)^(1÷3)` → $a$ = **42 164** km; `-6378` → $h$ = **35 786** km.",
+        "`×86400` instead of `86164`: the same line returns **42 241** km — the 77 km solar-day trap."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/13_Satellite_Orbits,_Transponders_and_G_-_T.json",
+    "problem": 2,
+    "expect": "A navigation satellite has a 12-hour orbital period",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(3.986×10^5×(43200÷(2π))²)^(1÷3)` → $a$ = **26 610** km.",
+        "`-6378` → $h$ = **20 232** km, a MEO (GPS) orbit."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/13_Satellite_Orbits,_Transponders_and_G_-_T.json",
+    "problem": 3,
+    "expect": "views a C-band downlink at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` 28 (c0) `÷4×10^9` → $\\lambda$ = **0.075** m; `0.55×(π×3÷Ans)² : 10log(Ans)-10log(100)` → $G$ = **8685** → $G/T$ = **19.39** dB/K.",
+        "`32.44+20log(4000)+20log(38000)` → $L_{fs}$ = **196.08** dB.",
+        "`50-196.08+19.39+228.6` → $C/N_0$ = **101.9** dBHz; `-10log(36×10^6)` → $C/N$ = **26.3** dB."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/13_Satellite_Orbits,_Transponders_and_G_-_T.json",
+    "problem": 4,
+    "expect": "A ground station sees a GEO satellite at a central angle",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(42164²+6378²-2×6378×42164×cos(60))` in Deg mode → $d$ = **39 364** km.",
+        "`-35786` → **3 578** km beyond the altitude, which is the slant range only at $\\psi$ = 0."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/14_Optical_Fiber_NA,_V_Number_and_Modes.json",
+    "problem": 1,
+    "expect": "Find its numerical aperture, the relative index difference",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(1.5²-1.485²)` → NA = **0.2116** — never $n_1-n_2$ = 0.015.",
+        "`(1.5-1.485)÷1.5` → $\\Delta$ = **0.0100**; `1.5√(2×0.01)` → **0.2121**, the small-$\\Delta$ check.",
+        "`SHIFT` `sin`(0.2116)` in Deg mode → $\\theta_a$ = **12.22°**; `×2` → full cone **24.4°**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/14_Optical_Fiber_NA,_V_Number_and_Modes.json",
+    "problem": 2,
+    "expect": "Find V and the number of guided modes",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×25÷1.3×0.2116` → $V$ = **25.57** (radius 25 µm, free-space $\\lambda$ = 1.3 µm).",
+        "`Ans²÷2` → $M$ = **327** guided modes for a step-index profile; `÷2` → **163** if graded."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/14_Optical_Fiber_NA,_V_Number_and_Modes.json",
+    "problem": 3,
+    "expect": "Find the maximum core radius and the resulting cutoff wavelength",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.405×1.3÷(2π×0.2116)` → $a_{max}$ = **2.352** µm radius.",
+        "`×2` → **4.70** µm core diameter.",
+        "`2π×2.352×0.2116÷2.405` → $\\lambda_c$ = **1.30** µm, so the design is single-mode only for longer wavelengths."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/14_Optical_Fiber_NA,_V_Number_and_Modes.json",
+    "problem": 4,
+    "expect": "Determine whether it is single-mode or multimode and count the modes",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×4÷0.85×0.20` → $V$ = **5.91** > 2.405, so multimode despite the small 4 µm core.",
+        "`Ans²÷2` → $M$ = **17.5**, i.e. about **18** modes."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/15_Fiber_Attenuation_and_Dispersion.json",
+    "problem": 1,
+    "expect": "is launched into a 10 km single-mode fiber",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.2×10` → loss **2.00** dB; `0-2` → $P_\\mathrm{out}$ = **-2.00** dBm.",
+        "`10^(-2÷10)` → **0.6310** mW; `10log(Ans)` → **-2.00** dBm, the round trip back."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/15_Fiber_Attenuation_and_Dispersion.json",
+    "problem": 2,
+    "expect": "Find the pulse broadening and the maximum NRZ bit rate",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`17×100×1` → $\\Delta\\tau$ = **1700** ps = **1.70** ns.",
+        "`1÷(2×1.7×10^-9)` → $B$ = **2.94×10^8** Hz = **294** Mb/s. Halve it if you adopt the $1/4\\Delta\\tau$ convention."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/15_Fiber_Attenuation_and_Dispersion.json",
+    "problem": 3,
+    "expect": "Find the modal pulse broadening and the resulting bit-rate limit",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.5×0.01÷(SHIFT CVALUE 28)` → **5.00×10^-11** s/m, i.e. **50.0** ns/km with c0.",
+        "`×10^3` → $\\Delta\\tau$ = **5.00×10^-8** s over the 1 km span.",
+        "`1÷(2×Ans)` → $B$ = **10.0** MHz, so the product $BL$ ≈ **10.0** MHz·km."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/16_Optical_Sources,_Detectors_and_Power_Budget.json",
+    "problem": 1,
+    "expect": "Find its responsivity and the photocurrent produced by",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.8×1.3÷1.24` → $R$ = **0.8387** A/W. The 1.24 is eV·µm, so $\\lambda$ enters as 1.3 and not 1300.",
+        "`Ans×10×10^-6` → $I_p$ = **8.387×10^-6** A = **8.39** µA."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/16_Optical_Sources,_Detectors_and_Power_Budget.json",
+    "problem": 3,
+    "expect": "Find the system rise time and the maximum NRZ bit rate",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(0.1²+0.5²+0.3²)` → $t_{sys}$ = **0.5916** ns. Quadrature, not the 0.9 ns linear sum.",
+        "`0.35÷(Ans×10^-9)` → $B$ = **5.92×10^8** Hz ≈ **592** MHz; the 0.5 ns fiber term dominates."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/06_Antenna_Systems_and_Propagation/16_Optical_Sources,_Detectors_and_Power_Budget.json",
+    "problem": 4,
+    "expect": "Find its responsivity and quantum efficiency",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10÷15` → $R$ = **0.667** A/W.",
+        "`Ans×1.24÷1.3` → $\\eta$ = **0.636** (63.6 %); the inverted form gives the plausible-but-wrong 0.70.",
+        "`1.24÷1.3` → the photon energy **0.954** eV, below silicon's 1.12 eV gap, so 1.3 µm needs InGaAs or Ge."
+      ]
+    }
+  }
+]

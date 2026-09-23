@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cash Flow Diagram Builder</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+/* ============================================================================
+ * Cash-flow diagram builder + engineering-economy factor engine.
+ *
+ * Standard end-of-period convention unless the switch is flipped:
+ *   P0 at t = 0, the annual amount A at t = 1..n, the salvage S at t = n.
+ *
+ *   single payment   (P/F, i, n) = 1/(1+i)^n        (F/P, i, n) = (1+i)^n
+ *   uniform series   (P/A, i, n) = ((1+i)^n - 1)/(i(1+i)^n)
+ *                    (A/P, i, n) = i(1+i)^n/((1+i)^n - 1)
+ *                    (F/A, i, n) = ((1+i)^n - 1)/i
+ *                    (A/F, i, n) = i/((1+i)^n - 1)
+ *
+ *   P = -P0 - A.(P/A, i, n) + S.(P/F, i, n)
+ *   F = -P0.(F/P, i, n) - A.(F/A, i, n) + S
+ *
+ * IDENTITY CHECK: F must equal P.(F/P, i, n). The widget computes the future
+ * worth both ways and shows the residual, so a dropped sign or a wrong factor
+ * shows up immediately instead of silently.
+ *
+ * THE TRAP: the factors are dimensionally different. (P/F, i, n) = 0.5674 for
+ * i = 12%, n = 5, but (P/A, i, n) = 3.6048 for the SAME i and n, because one is
+ * a single payment and the other is a series of five. Using (P/F) where (P/A)
+ * belongs undervalues the annual stream by a factor of 6.35.
+ * ==========================================================================*/
+
+widget({
+  title: 'Cash Flow Diagram Builder — P, F and A with Named Factors',
+  description:
+    'First cost, annual amount, salvage value, life and interest rate. The standard diagram is drawn with ' +
+    'inflows up and outflows down, and every factor is named and substituted.',
+  height: 500,
+  range: { xMin: 0, xMax: 900, yMin: 0, yMax: 500 },
+  controls: [
+    { id: 'P0', label: 'initial cost P0 at t = 0 (pesos)', min: 0, max: 200000, step: 500, value: 10000 },
+    { id: 'A', label: 'annual amount A (pesos, + inflow / - outflow)', min: -50000, max: 50000, step: 100, value: -2000 },
+    { id: 'S', label: 'salvage value S at t = n (pesos)', min: 0, max: 100000, step: 100, value: 1500 },
+    { id: 'n', label: 'life n (years)', min: 1, max: 30, step: 1, value: 5 },
+    { id: 'iPct', label: 'interest rate i (% per year)', min: 0, max: 40, step: 0.25, value: 12 },
+    { id: 'timing', label: 'annual timing', type: 'select', options: [
+      { value: 'end', label: 'end of year (ordinary annuity)' },
+      { value: 'begin', label: 'beginning of year (annuity due)' }], value: 'end' },
+    { id: 'showFactors', label: 'annotate each arrow with its factor', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const i = v.iPct / 100;
+    const n = Math.max(1, Math.round(v.n));
+    const single = (k) => Math.pow(1 + i, -k);
+    const compound = (k) => Math.pow(1 + i, k);
+    const PF = i === 0 ? 1 : single(n);
+    const FP = i === 0 ? 1 : compound(n);
+    const PA = Math.abs(i) < 1e-12 ? n : (1 - Math.pow(1 + i, -n)) / i;
+    const AP = Math.abs(i) < 1e-12 ? 1 / n : i / (1 - Math.pow(1 + i, -n));
+    const FA = Math.abs(i) < 1e-12 ? n : (Math.pow(1 + i, n) - 1) / i;
+    const AF = Math.abs(i) < 1e-12 ? 1 / n : i / (Math.pow(1 + i, n) - 1);
+    const begin = v.timing === 'begin';
+    // annuity due = ordinary annuity shifted one period earlier
+    const shift = begin ? (i === 0 ? 1 : 1 + i) : 1;
+    const PAeff = PA * shift;
+    const FAeff = FA * shift;
+
+    const P = -v.P0 - v.A * PAeff + v.S * PF;
+    const F = -v.P0 * FP - v.A * FAeff + v.S;
+    const FfromP = P * FP;
+    const Aeq = P * AP;
+    const residual = F - FfromP;
+    const relResidual = Math.abs(F) > 1e-9 ? Math.abs(residual) / Math.abs(F) : Math.abs(residual);
+    // year-by-year net cash flow, for the diagram
+    const flows = [];
+    for (let t = 0; t <= n; t++) {
+      let c = 0;
+      if (t === 0) c -= v.P0;
+      if (begin) { if (t >= 0 && t <= n - 1) c += v.A; } else { if (t >= 1 && t <= n) c += v.A; }
+      if (t === n) c += v.S;
+      flows.push({ t, c });
+    }
+    const nneg = flows.filter((f) => f.c < 0).length;
+    return {
+      i, n, PF, FP, PA, AP, FA, AF, PAeff, FAeff, begin, shift,
+      P, F, FfromP, Aeq, residual, relResidual, flows,
+      P0: v.P0, A: v.A, S: v.S, iPct: v.iPct, showFactors: !!v.showFactors,
+      cA: -v.A * PAeff, cS: v.S * PF, cP0: -v.P0, fA: -v.A * FAeff,
+      fP0: -v.P0 * FP, fS: v.S, nneg, PAord: PA, FAord: FA,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h;
+    plot.clear();
+    ctx.save();
+
+    const n = out.n;
+    const padL = 78, padR = 60, axisY = H * 0.62;
+    const spanX = W - padL - padR;
+    const xOf = (t) => padL + (t / Math.max(n, 1)) * spanX;
+
+    const maxPos = Math.max(0, ...out.flows.map((f) => f.c));
+    const maxNeg = Math.max(0, ...out.flows.map((f) => -f.c));
+    const upRoom = axisY - 56, downRoom = H - axisY - 44;
+    const kPos = maxPos > 0 ? upRoom / maxPos : 0;
+    const kNeg = maxNeg > 0 ? downRoom / maxNeg : 0;
+    const k = Math.min(kPos || Infinity, kNeg || Infinity);
+
+    // time axis
+    ctx.strokeStyle = PALETTE.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(padL - 34, axisY); ctx.lineTo(W - padR + 20, axisY); ctx.stroke();
+    // arrowhead on the axis
+    ctx.fillStyle = PALETTE.axis;
+    ctx.beginPath();
+    ctx.moveTo(W - padR + 20, axisY);
+    ctx.lineTo(W - padR + 8, axisY - 5);
+    ctx.lineTo(W - padR + 8, axisY + 5);
+    ctx.closePath(); ctx.fill();
+
+    // year ticks and labels
+    ctx.font = '11px ui-monospace, monospace';
+    for (let t = 0; t <= n; t++) {
+      const x = xOf(t);
+      ctx.strokeStyle = PALETTE.grid;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, axisY - 6); ctx.lineTo(x, axisY + 6); ctx.stroke();
+      ctx.fillStyle = PALETTE.dim;
+      ctx.textAlign = 'center';
+      ctx.fillText(String(t), x, axisY + 22);
+    }
+    ctx.textAlign = 'left';
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('year', W - padR + 4, axisY + 22);
+
+    // the arrows
+    const arrow = (x, c, label, color) => {
+      const L = Math.abs(c) * k;
+      const up = c >= 0;
+      const yEnd = up ? axisY - L : axisY + L;
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(x, axisY); ctx.lineTo(x, yEnd); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, yEnd);
+      ctx.lineTo(x - 6, yEnd + (up ? 10 : -10));
+      ctx.lineTo(x + 6, yEnd + (up ? 10 : -10));
+      ctx.closePath(); ctx.fill();
+      if (label) {
+        ctx.font = '10px ui-monospace, monospace';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.fillText(label, x, up ? yEnd - 8 : yEnd + 18);
+        ctx.textAlign = 'left';
+      }
+    };
+
+    const money = (x) => {
+      const a = Math.abs(x);
+      const s = a >= 1000 ? fmt(a / 1000, 4) + 'k' : fmt(a, 4);
+      return (x < 0 ? '-' : '+') + s;
+    };
+
+    // t = 0 carries only the first cost; t = n may carry the last annual amount
+    // AND the salvage value, so those two periods are drawn explicitly and the
+    // loop handles everything in between. Scale k is the same for both.
+    if (out.P0 !== 0) {
+      const tag = out.showFactors ? ' x(P/F,' + fmt(out.iPct, 3) + '%,0)' : '';
+      arrow(xOf(0), -out.P0, money(-out.P0) + tag, PALETTE.accent2);
+    }
+    if (out.A !== 0) {
+      const lastAnnual = out.begin ? n - 1 : n;
+      const tagA = ' x(P/A,' + fmt(out.iPct, 3) + '%,' + n + ')';
+      if (lastAnnual === 0) {
+        // beginning-of-year with n = 1: the single annual amount sits at t = 0 too
+        arrow(xOf(0) + 13, out.A, money(out.A) + tagA, out.A >= 0 ? PALETTE.accent3 : PALETTE.accent2);
+      } else {
+        arrow(xOf(lastAnnual), out.A, money(out.A) + tagA, out.A >= 0 ? PALETTE.accent3 : PALETTE.accent2);
+      }
+    }
+    for (const fl of out.flows) {
+      if (fl.t === 0 || fl.t === n) continue;
+      if (fl.c !== 0) arrow(xOf(fl.t), fl.c, money(fl.c), fl.c >= 0 ? PALETTE.accent3 : PALETTE.accent2);
+    }
+    if (out.S !== 0) {
+      const xS = out.A !== 0 ? xOf(n) + 14 : xOf(n);
+      arrow(xS, out.S, 'S = ' + money(out.S) + (out.showFactors ? ' x(P/F,' + fmt(out.iPct, 3) + '%,' + n + ')' : ''),
+        PALETTE.accent4);
+    }
+
+    // annotations
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText('cash-flow diagram, ' + (out.begin ? 'BEGINNING' : 'END') + '-of-year convention', 12, 22);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText('up = inflow (receipt), down = outflow (payment), arrow length proportional to amount', 12, 40);
+    ctx.fillStyle = PALETTE.warn;
+    ctx.fillText('P = ' + fmt(out.P, 6) + '   F = ' + fmt(out.F, 6) + '   A (equivalent) = ' + fmt(out.Aeq, 6), 12, 60);
+    ctx.fillStyle = PALETTE.dim;
+    ctx.fillText('scale: ' + fmt(k, 4) + ' px per peso', 12, H - 12);
+    ctx.restore();
+  },
+
+  readout: (out) => ({
+    'n, i': String(out.n) + ' yr, ' + fmt(out.iPct, 4) + ' %',
+    'P (present worth)': fmt(out.P, 8),
+    'F (future worth)': fmt(out.F, 8),
+    'A (equivalent annual)': fmt(out.Aeq, 8),
+    '(P/F, i, n)': fmt(out.PF, 7),
+    '(F/P, i, n)': fmt(out.FP, 7),
+    '(P/A, i, n)': fmt(out.PA, 7),
+    '(A/P, i, n)': fmt(out.AP, 7),
+    '(F/A, i, n)': fmt(out.FA, 7),
+    '(A/F, i, n)': fmt(out.AF, 7),
+    'P0 contribution': fmt(out.cP0, 8),
+    'A contribution to P': fmt(out.cA, 8),
+    'S contribution to P': fmt(out.cS, 8),
+    'F from P.(F/P,i,n)': fmt(out.FfromP, 8),
+    'identity residual F - P.(F/P)': fmt(out.residual, 8),
+    'relative residual': fmt(out.relResidual, 4),
+  }),
+
+  onChange: (v) => renderNote(v),
+});
+
+function renderNote(v) {
+  const i = v.iPct / 100;
+  const n = Math.max(1, Math.round(v.n));
+  const PF = i === 0 ? 1 : Math.pow(1 + i, -n);
+  const FP = i === 0 ? 1 : Math.pow(1 + i, n);
+  const PA = Math.abs(i) < 1e-12 ? n : (1 - Math.pow(1 + i, -n)) / i;
+  const AP = Math.abs(i) < 1e-12 ? 1 / n : i / (1 - Math.pow(1 + i, -n));
+  const FA = Math.abs(i) < 1e-12 ? n : (Math.pow(1 + i, n) - 1) / i;
+  const AF = Math.abs(i) < 1e-12 ? 1 / n : i / (Math.pow(1 + i, n) - 1);
+  const shift = v.timing === 'begin' ? (i === 0 ? 1 : 1 + i) : 1;
+  const P = -v.P0 - v.A * PA * shift + v.S * PF;
+  const F = -v.P0 * FP - v.A * FA * shift + v.S;
+  const iS = fmt(v.iPct, 4);
+  note.innerHTML =
+    '<div class="vault-mono">'
+    + '(P/F, ' + iS + '%, ' + n + ') = 1/(1+' + fmt(i, 4) + ')^' + n + ' = ' + fmt(PF, 7) + '<br>'
+    + '(P/A, ' + iS + '%, ' + n + ') = ((1+i)^' + n + ' - 1)/(i(1+i)^' + n + ') = ' + fmt(PA, 7) + '<br>'
+    + '(A/P, ' + iS + '%, ' + n + ') = 1/(P/A) = ' + fmt(AP, 7) + '<br>'
+    + '(F/A, ' + iS + '%, ' + n + ') = ((1+i)^' + n + ' - 1)/i = ' + fmt(FA, 7)
+    + ' &nbsp; (A/F) = 1/(F/A) = ' + fmt(AF, 7) + '<br>'
+    + 'P = -P0 - A(P/A, i, n) + S(P/F, i, n) = -' + fmt(v.P0, 6) + ' - (' + fmt(v.A, 6) + ')(' + fmt(PA * shift, 7)
+    + ') + (' + fmt(v.S, 6) + ')(' + fmt(PF, 7) + ') = <strong>' + fmt(P, 8) + '</strong><br>'
+    + 'F = -P0(F/P, i, n) - A(F/A, i, n) + S = -' + fmt(v.P0, 6) + '(' + fmt(FP, 7) + ') - (' + fmt(v.A, 6) + ')('
+    + fmt(FA * shift, 7) + ') + ' + fmt(v.S, 6) + ' = <strong>' + fmt(F, 8) + '</strong><br>'
+    + 'verification identity: P(F/P, i, n) = ' + fmt(P, 8) + ' x ' + fmt(FP, 7) + ' = ' + fmt(P * FP, 8)
+    + ' &nbsp; vs F = ' + fmt(F, 8) + ' &nbsp; residual = ' + fmt(F - P * FP, 6) + '</div>'
+    + '<div style="margin-top:8px"><strong>Exam trap this widget kills:</strong> mixing up the factors. '
+    + '(P/F, i, n) applies to a SINGLE payment and (P/A, i, n) to a UNIFORM SERIES over the same n &mdash; at '
+    + 'i = 12% and n = 5 they are 0.5674 and 3.6048, a factor of 6.35 apart. Using (P/F) on an annual stream, or '
+    + '(P/A) on the salvage value, is the classic exam error. Two more: the salvage value is a single payment at '
+    + 't = n so it needs (P/F), and it enters with a POSITIVE sign because it is money back. Finally, watch the '
+    + 'timing convention: with beginning-of-year payments every annuity factor is multiplied by (1 + i), so the '
+    + 'same physical cash flow is worth more. Set the toggle and watch P change while n and i stay put.</div>';
+}
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'cash-note';
+document.getElementById('app').appendChild(note);
+renderNote({ P0: 10000, A: -2000, S: 1500, n: 5, iPct: 12, timing: 'end', showFactors: true });
+</script>
+</body>
+</html>

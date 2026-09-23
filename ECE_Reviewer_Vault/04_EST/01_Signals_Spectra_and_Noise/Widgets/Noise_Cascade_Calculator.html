@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noise Cascade Calculator — Friis</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Friis is the single most-tested noise formula in EST, and the mark is usually lost in
+// the arithmetic: the noise *figures* are in dB but the formula needs *ratios*, gains are
+// in dB but the denominators need ratios, and the second and third terms are divided by
+// the gain of everything in front of them. Here the conversion is done in front of you,
+// each term's share of the total is bar-charted, and ticking "lossy stage 1" shows the
+// receiver-killing penalty of attenuation before the first amplifier.
+
+const T0 = 290;        // K, reference noise temperature
+const KB = 1.38e-23;   // J/K, Boltzmann
+const BW = 1e6;        // Hz, 1 MHz reference bandwidth for the noise-floor line
+const DBM = (w) => 10 * Math.log10(w / 1e-3);
+
+const r = (db) => Math.pow(10, db / 10);           // dB -> power ratio
+const dbOf = (ratio) => 10 * Math.log10(ratio);    // power ratio -> dB
+
+/** Friis for three stages, given ratios. Returns each term and its share of the total. */
+function friis(F, G) {
+  const t1 = F[0];
+  const t2 = (F[1] - 1) / G[0];
+  const t3 = (F[2] - 1) / (G[0] * G[1]);
+  const tot = t1 + t2 + t3;
+  return { t1, t2, t3, tot, share: [t1 / tot, t2 / tot, t3 / tot] };
+}
+
+/** Best possible ordering of the same three stages. */
+function bestOrder(F, G) {
+  const P = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+  let best = null;
+  for (const p of P) {
+    const res = friis([F[p[0]], F[p[1]], F[p[2]]], [G[p[0]], G[p[1]], G[p[2]]]);
+    if (!best || res.tot < best.tot) best = { order: p, tot: res.tot };
+  }
+  return best;
+}
+
+const app = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+app.appendChild(formula);
+
+widget({
+  title: 'Noise Cascade Calculator — Friis with three stages',
+  description:
+    'F = F1 + (F2 − 1)/G1 + (F3 − 1)/(G1G2). Every dB is converted to a ratio before substitution. The bars show each stage\'s share of the total noise factor: stage 1 usually owns almost all of it, which is why the first stage must be low-noise AND high-gain. Tick the attenuator box to see what a lossy front end costs.',
+  height: 520,
+  range: { xMin: 0, xMax: 100, yMin: 0, yMax: 100 },
+  controls: [
+    { id: 'G1', label: 'stage 1 gain G1 (dB)', min: -10, max: 40, step: 0.5, value: 20 },
+    { id: 'NF1', label: 'stage 1 noise figure NF1 (dB)', min: 0, max: 20, step: 0.1, value: 2 },
+    { id: 'G2', label: 'stage 2 gain G2 (dB)', min: -10, max: 40, step: 0.5, value: 10 },
+    { id: 'NF2', label: 'stage 2 noise figure NF2 (dB)', min: 0, max: 20, step: 0.1, value: 6 },
+    { id: 'G3', label: 'stage 3 gain G3 (dB)', min: -10, max: 40, step: 0.5, value: 10 },
+    { id: 'NF3', label: 'stage 3 noise figure NF3 (dB)', min: 0, max: 20, step: 0.1, value: 10 },
+    { id: 'pas1', label: 'stage 1 is a passive attenuator (F1 = 1/G1)', type: 'checkbox', value: false },
+  ],
+  compute: (v) => {
+    const Gdb = [v.G1, v.G2, v.G3];
+    const NFdbIn = [v.NF1, v.NF2, v.NF3];
+    const G = Gdb.map(r);
+    const F = NFdbIn.map(r);
+    let passiveWarn = false;
+    if (v.pas1) {
+      if (G[0] < 1) {
+        F[0] = 1 / G[0];           // a passive attenuator at T0 has F = L = 1/G
+      } else {
+        F[0] = 1;                  // gain >= 0 dB is not a passive attenuator; treat as noiseless
+        passiveWarn = true;
+      }
+    }
+    const NFdb = F.map(dbOf);
+    const res = friis(F, G);
+    const NFtotDb = dbOf(res.tot);
+    const Te = T0 * (res.tot - 1);
+    const GtotDb = Gdb[0] + Gdb[1] + Gdb[2];
+    const Gtot = G[0] * G[1] * G[2];
+    const ideal = friis([1, F[1], F[2]], G);      // stage 1 noiseless, same gain
+    const penalty = NFtotDb - dbOf(ideal.tot);
+    const best = bestOrder(F, G);
+    const ktb = KB * T0 * BW;
+    const outNoiseDbm = DBM(ktb * Gtot * res.tot);
+    const cum = [
+      F[0],
+      F[0] + (F[1] - 1) / G[0],
+      res.tot,
+    ];
+    return { Gdb, NFdb, NFdbIn, G, F, res, NFtotDb, Te, GtotDb, Gtot, ideal, penalty, best, ktb, outNoiseDbm, cum, passiveWarn, pas1: v.pas1 };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.pad = 18;
+    plot.setRange({ xMin: 0, xMax: 100, yMin: 0, yMax: 100 });
+    plot.clear();
+
+    const X = (x) => plot.X(x);
+    const Y = (y) => plot.Y(y);
+    const box = (x0, y0, x1, y1, fill, stroke, lw) => {
+      ctx.save();
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = lw || 1.5;
+      ctx.beginPath();
+      ctx.rect(X(x0), Y(y1), X(x1) - X(x0), Y(y0) - Y(y1));
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    };
+    const bar = (x0, y0, x1, y1, fill) => {
+      ctx.save();
+      ctx.fillStyle = fill;
+      ctx.fillRect(X(x0), Y(y1), X(x1) - X(x0), Y(y0) - Y(y1));
+      ctx.restore();
+    };
+    const arrow = (x0, x1, y) => {
+      plot.segment(x0, y, x1, y, { color: PALETTE.axis, width: 2 });
+      plot.segment(x1, y, x1 - 1.5, y + 1.6, { color: PALETTE.axis, width: 2 });
+      plot.segment(x1, y, x1 - 1.5, y - 1.6, { color: PALETTE.axis, width: 2 });
+    };
+
+    const cols = [PALETTE.warn, PALETTE.accent, PALETTE.accent5];
+
+    // ---- block diagram -------------------------------------------------
+    plot.label('SIGNAL CHAIN  (left to right, so stage 1 sees the antenna)', 2, 96,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    const cx = [16, 46, 76];
+    for (let i = 0; i < 3; i++) {
+      const warn = i === 0 && out.pas1 && out.G[0] < 1;
+      box(cx[i] - 12, 68, cx[i] + 12, 88, warn ? '#3a2a30' : PALETTE.panel, cols[i], 2);
+      plot.label('STAGE ' + (i + 1), cx[i], 85, { color: cols[i], font: '12px ui-monospace, monospace', align: 'center' });
+      plot.label('G = ' + fmt(out.Gdb[i], 3) + ' dB', cx[i], 79.5, { color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center' });
+      plot.label('NF = ' + fmt(out.NFdb[i], 3) + ' dB', cx[i], 74.5, { color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center' });
+      plot.label('F = ' + fmt(out.F[i], 4), cx[i], 70.5, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+      plot.label('cumulative NF after stage ' + (i + 1) + ': ' + fmt(dbOf(out.cum[i]), 4) + ' dB', cx[i], 64,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+      if (i < 2) arrow(cx[i] + 12, cx[i + 1] - 12, 78);
+    }
+    if (out.pas1) {
+      plot.label(out.G[0] < 1 ? 'attenuator first: F1 = 1/G1 = ' + fmt(out.F[0], 4) + ' (NF = ' + fmt(out.NFdb[0], 4) + ' dB)'
+        : 'G1 ≥ 0 dB is not passive — treated as F1 = 1 (0 dB)',
+      cx[0], 92, { color: out.G[0] < 1 ? PALETTE.accent2 : PALETTE.warn, font: '11px ui-monospace, monospace', align: 'center' });
+    } else {
+      plot.label('F1 = ' + fmt(out.F[0], 4) + ',  G1 = ' + fmt(out.G[0], 4) + '  (ratios used by Friis)',
+        cx[0], 92, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    }
+
+    // ---- contribution bars ---------------------------------------------
+    const terms = ['F1', '(F2−1)/G1', '(F3−1)/(G1G2)'];
+    const vals = [out.res.t1, out.res.t2, out.res.t3];
+    plot.label('SHARE OF THE TOTAL NOISE FACTOR  F = ' + fmt(out.res.tot, 5), 2, 57,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    for (let i = 0; i < 3; i++) {
+      const y = 46 - i * 10;
+      plot.label('stage ' + (i + 1), 2, y + 2, { color: cols[i], font: '11px ui-monospace, monospace' });
+      plot.label(terms[i], 12.5, y + 2, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+      bar(27, y - 3, 27 + 55 * out.res.share[i], y + 3, cols[i]);
+      plot.label(fmt(out.res.share[i] * 100, 4) + '%  (term ' + fmt(vals[i], 4) + ')', 27 + 55 * out.res.share[i] + 2, y + 2,
+        { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+    }
+    box(27, 20, 82, 52, 'rgba(0,0,0,0)', PALETTE.grid, 1);
+
+    // ---- verdict ---------------------------------------------------------
+    const dom = out.res.share[0] >= 0.75;
+    plot.label('STAGE 1 PROVIDES ' + fmt(out.res.share[0] * 100, 4) + '% OF THE TOTAL NOISE FACTOR' + (dom ? '  → STAGE 1 DOMINATES' : ''),
+      2, 14, { color: dom ? PALETTE.accent3 : PALETTE.warn, font: '12px ui-monospace, monospace' });
+    plot.label(dom
+      ? 'raise G1 and lower NF1: nothing else moves the total as much'
+      : 'stage 1 no longer dominates — the later stages now matter',
+    2, 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    formula.innerHTML =
+      '<strong>Governing formulas, with the current numbers substituted.</strong><br>' +
+      '<span class="vault-mono">F = F1 + (F2 − 1)/G1 + (F3 − 1)/(G1G2)   ·   NF = 10 log10(F)   ·   Te = T0(F − 1), T0 = 290 K</span><br>' +
+      '<span class="vault-mono">F1 = 10^(' + fmt(out.NFdbIn[0], 3) + '/10) = ' + fmt(out.F[0], 5) + '   F2 = 10^(' + fmt(out.NFdbIn[1], 3) + '/10) = ' +
+      fmt(out.F[1], 5) + '   F3 = 10^(' + fmt(out.NFdbIn[2], 3) + '/10) = ' + fmt(out.F[2], 5) + '</span><br>' +
+      '<span class="vault-mono">G1 = 10^(' + fmt(out.Gdb[0], 3) + '/10) = ' + fmt(out.G[0], 5) + '   G2 = ' + fmt(out.G[1], 5) +
+      '   G3 = ' + fmt(out.G[2], 5) + '</span><br>' +
+      '<span class="vault-mono">F = ' + fmt(out.F[0], 5) + ' + (' + fmt(out.F[1], 5) + ' − 1)/' + fmt(out.G[0], 5) +
+      ' + (' + fmt(out.F[2], 5) + ' − 1)/(' + fmt(out.G[0], 5) + '·' + fmt(out.G[1], 5) + ')</span><br>' +
+      '<span class="vault-mono">  = ' + fmt(out.res.t1, 5) + ' + ' + fmt(out.res.t2, 5) + ' + ' + fmt(out.res.t3, 5) +
+      ' = ' + fmt(out.res.tot, 5) + '   →   NF_total = ' + fmt(out.NFtotDb, 4) + ' dB   ·   Te = ' + fmt(out.Te, 4) + ' K</span><br>' +
+      '<span class="vault-mono">shares: stage 1 = ' + fmt(out.res.share[0] * 100, 4) + '%, stage 2 = ' + fmt(out.res.share[1] * 100, 4) +
+      '%, stage 3 = ' + fmt(out.res.share[2] * 100, 4) + '%   (they always add to 100%)</span><br>' +
+      '<span class="vault-mono">total gain = ' + fmt(out.GtotDb, 4) + ' dB   ·   kT0B at B = 1 MHz = ' + fmt(DBM(out.ktb), 4) +
+      ' dBm   ·   output noise = ' + fmt(out.outNoiseDbm, 4) + ' dBm</span><br>' +
+      '<span class="vault-mono">best ordering of these three stages: ' + out.best.order.map((i) => i + 1).join(' → ') +
+      ', giving NF = ' + fmt(dbOf(out.best.tot), 4) + ' dB   ·   if stage 1 were noiseless: NF = ' + fmt(dbOf(out.ideal.tot), 4) +
+      ' dB (penalty ' + fmt(out.penalty, 4) + ' dB)</span>' +
+      (out.passiveWarn ? '<br><span class="vault-mono">Note: a passive attenuator must have gain below 0 dB; with G1 ≥ 0 dB the flag is ignored.</span>' : '');
+  },
+  readout: (out) => ({
+    'total noise figure': fmt(out.NFtotDb, 4) + ' dB',
+    'total noise factor F': fmt(out.res.tot, 5),
+    'stage 1 contribution': fmt(out.res.share[0] * 100, 4) + ' %',
+    'stage 2 contribution': fmt(out.res.share[1] * 100, 4) + ' %',
+    'stage 3 contribution': fmt(out.res.share[2] * 100, 4) + ' %',
+    'equivalent noise temp Te': fmt(out.Te, 4) + ' K',
+    'F1, F2, F3 (ratios)': fmt(out.F[0], 4) + ' , ' + fmt(out.F[1], 4) + ' , ' + fmt(out.F[2], 4),
+    'G1, G2, G3 (ratios)': fmt(out.G[0], 4) + ' , ' + fmt(out.G[1], 4) + ' , ' + fmt(out.G[2], 4),
+    'total gain': fmt(out.GtotDb, 4) + ' dB',
+    'kT0B at 1 MHz': fmt(DBM(out.ktb), 4) + ' dBm',
+    'output noise in 1 MHz': fmt(out.outNoiseDbm, 4) + ' dBm',
+    'penalty vs noiseless stage 1': fmt(out.penalty, 4) + ' dB',
+    'best stage order': out.best.order.map((i) => 'stage ' + (i + 1)).join(' → ') + '  (' + fmt(dbOf(out.best.tot), 4) + ' dB)',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The exam point.</strong> Friis punishes whatever sits at the front. With G1 = 20 dB, NF1 = 2 dB, ' +
+  'G2 = 10 dB, NF2 = 6 dB, G3 = 10 dB, NF3 = 10 dB the total is F = 1.5849 + 0.0298 + 0.0090 = 1.6237, ' +
+  'i.e. NF = 2.105 dB — stage 1 alone supplies 97.6% of the noise factor, and stage 3 only 0.55%, ' +
+  'even though stage 3 is the noisiest stage by far. Tick the attenuator box with G1 = −3 dB and the same ' +
+  'cascade collapses to the attenuator penalty: F1 = 1/G1 = 1.995, every later term is divided by ' +
+  'G1 &lt; 1, and the total rises to F = 9.739, i.e. NF = 9.885 dB — 7.8 dB worse than putting the ' +
+  'amplifier first, which is why the LNA belongs at the antenna. Traps: (1) substituting noise figures and gains ' +
+  'in dB directly into Friis — every term must be a ratio; (2) dividing the third term by G1G3 or by G2G3 ' +
+  'instead of G1G2 (it is the gain of everything <em>in front of</em> that stage); (3) forgetting that a ' +
+  'passive loss at the input adds its loss in dB directly to the system noise figure when the source is at ' +
+  'T0 = 290 K.';
+app.appendChild(note);
+
+app.insertBefore(formula, app.querySelector('.vault-widget-canvas'));
+</script>
+</body>
+</html>

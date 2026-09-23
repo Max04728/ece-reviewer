@@ -1,0 +1,89 @@
+{
+  "scope": "Read an eye diagram to quantify noise margin, timing jitter and ISI, then design the transversal equalizer taps that reopen a closed eye.",
+  "intuition": "Overlay every possible bit sequence on one screen, synchronised to the clock, and the traces carve out an eye. The eye is open when a decision is easy and shut when it is not — the picture is a direct measurement of link margin.",
+  "concept": [
+    "**How the eye diagram is built.** A receiver or oscilloscope triggers on the recovered clock and overlays many short captures of the baseband waveform, one bit period wide. All the trajectories a signal can take superimpose into a shape with an open region in the middle — the eye. It is not a simulation artefact; it is the standard acceptance test for a real link, and it contains all the information about ISI, noise and jitter at once.",
+    "**Reading the four measurements.** (1) *Eye height* (opening) is the vertical distance between the worst-case high and low trajectories at the optimum sampling instant. Half of it is the **noise margin**: the amount of additive noise that would push a sample across the decision threshold. (2) *Eye width* is the horizontal opening, i.e. the range of sampling phases that still yields a correct decision; the complement relates to **timing jitter**. (3) The *slope* of the eye at the zero crossings measures **sensitivity to timing error** — a steep crossing means a small clock error moves the sample a long way. (4) The amount of *closure* beyond what noise alone predicts is the **ISI**.",
+    "**What each impairment looks like.** Additive noise thickens the traces vertically and shrinks eye height, leaving width unchanged. Timing jitter smears the zero crossings horizontally and shrinks eye width, leaving height unchanged. ISI does both at once, because the tails of neighbouring pulses land at the sampling instant and shift the level in a data-dependent way. A DC offset shifts the whole eye off centre, which matters because the decision threshold is normally fixed at zero. These signatures let you diagnose a link from one photograph.",
+    "**Why equalization is needed.** A twisted pair, a coaxial cable or a radio channel is not a raised cosine; it attenuates high frequencies, so the received pulse has long tails and the eye closes. An **equalizer** is a filter placed in the receiver (or split between transmitter and receiver) whose response is the inverse of the channel's, forcing the overall cascade back to a zero-ISI shape. Historically this is the *transversal* or *FIR* filter: a tapped delay line with weighted sums, tap spacing equal to the symbol period.",
+    "**Zero-forcing versus minimum mean square error.** *Zero-forcing* (ZF) equalization solves a set of linear equations so that the combined channel-plus-equalizer response is exactly 1 at the cursor and exactly 0 at every other symbol instant. It is exact when the channel is known and noise-free, but it can amplify noise badly because inverting a deep spectral null requires enormous gain at that frequency. *Minimum mean square error* (MMSE) equalization minimizes the total error power including noise, deliberately leaving a little residual ISI to avoid the noise enhancement. Real links use adaptive MMSE or decision-feedback equalizers that update taps continuously with an LMS algorithm, driven by a known training sequence or by blind decisions.",
+    "**The exam pattern.** You will be given the sampled channel response at symbol-spaced instants and asked for the three equalizer taps that zero the pre- and post-cursor ISI. Set up three simultaneous equations — one forcing the cursor to 1, two forcing the adjacent samples to 0 — and solve. If a noise figure is also given, expect a follow-up asking why ZF is suboptimal: the answer is noise enhancement at frequencies where the channel response is small. A short four-tap delay line spans three symbol periods of channel memory, so the number of taps sets how much ISI can be cancelled."
+  ],
+  "formulas": [
+    { "q": "Noise margin from eye height", "e": "M_n = \\frac{V_{eye}}{2}", "n": "V_eye is the vertical opening at the optimum sampling instant, with the threshold at the midpoint." },
+    { "q": "Eye opening in dB", "e": "\\mathrm{Eye}_{dB} = 20\\log_{10}\\frac{V_{eye}}{V_{full}}", "n": "V_full is the nominal peak-to-peak signal swing. 100% eye = 0 dB." },
+    { "q": "Timing margin from eye width", "e": "t_{margin} = \\frac{W_{eye}}{2}", "n": "Half the horizontal opening: how far the sampling phase can drift in either direction." },
+    { "q": "Jitter as a fraction of the bit period", "e": "\\mathrm{Jitter} = \\frac{\\Delta t_{crossing}}{T_b}", "n": "Peak-to-peak crossing spread divided by the bit period; often quoted as a percentage or in unit intervals (UI)." },
+    { "q": "Transversal equalizer output", "e": "y_k = \\sum_{i=-N}^{N} w_i \\, x_{k-i}", "n": "Tapped delay line with symbol-spaced taps. w are the tap weights." },
+    { "q": "Zero-forcing condition", "e": "\\sum_i w_i h_{k-i} = \\delta_k", "n": "Overall response is 1 at the cursor k = 0 and 0 at every other symbol instant." },
+    { "q": "Three-tap ZF system", "e": "y_{-1}=0, \\quad y_0=1, \\quad y_1=0", "n": "Solvable by hand when the channel response has three significant samples." },
+    { "q": "Delay-line span", "e": "T_{span} = (N_{taps}-1) T_s", "n": "Number of symbol periods of channel memory the equalizer can reach. Four taps span three symbol periods." },
+    { "q": "Noise enhancement of a ZF equalizer", "e": "P_{n,out} = \\frac{N_0}{2}\\int \\lvert W(f) \\rvert^2 df", "n": "Large where the channel response is small, which is why MMSE equalization is preferred in noise-limited links." },
+    { "q": "LMS tap update", "e": "w_i(k+1) = w_i(k) + \\mu \\, e_k \\, x_{k-i}", "n": "mu is the step size; e_k is the error between the equalizer output and the decision or training symbol." }
+  ],
+  "problems": [
+    {
+      "prompt": "An eye diagram shows a vertical opening of $1.2\\ \\mathrm{V}$ at the optimum sampling instant on a $\\pm 2\\ \\mathrm{V}$ nominal swing. Find the noise margin and the eye opening in dB.",
+      "give": ["V_eye = 1.2 V", "nominal swing = 4 V peak-to-peak"],
+      "steps": [
+        "Noise margin = V_eye/2 = 1.2/2 = 0.6 V",
+        "Eye opening in dB = 20 log10(1.2/4)",
+        "= 20 log10(0.3)",
+        "= 20 x (-0.5229) = -10.46 dB"
+      ],
+      "ans": "Margin $= 0.6\\ \\mathrm{V}$; eye opening $-10.5\\ \\mathrm{dB}$",
+      "trap": "Dividing the eye height by the *peak* value rather than the peak-to-peak swing, giving $-4.4\\ \\mathrm{dB}$. The reference for eye-opening percentage is the full peak-to-peak swing.", "calc": {"mode":"COMP","steps":["`1.2÷2` → noise margin = **0.6** V.","`20×log(1.2÷4)` → **−10.458** dB ≈ **−10.5** dB eye opening (referenced to the 4 V peak-to-peak swing, not the 2 V peak)."],"note":"Using the 2 V peak instead of the 4 V peak-to-peak swing gives **−4.4** dB, a 6 dB error."}
+    },
+    {
+      "prompt": "A $1\\ \\mathrm{Mbps}$ link shows zero crossings spread over a $120\\ \\mathrm{ns}$ window. Express the jitter as a fraction of the bit period and find the usable sampling window.",
+      "give": ["R = 1 Mbps", "crossing spread = 120 ns"],
+      "steps": [
+        "Tb = 1/R = 1/1e6 = 1000 ns",
+        "Jitter fraction = 120/1000 = 0.12 = 12% of a UI",
+        "Usable window = Tb - spread = 1000 - 120 = 880 ns",
+        "Timing margin from centre = 880/2 = 440 ns"
+      ],
+      "ans": "Jitter $= 0.12\\ \\mathrm{UI}$; usable window $= 880\\ \\mathrm{ns}$",
+      "trap": "Quoting the jitter in nanoseconds as if it were absolute and forgetting to normalise to the bit period. The same 120 ns is 12% at 1 Mbps but 120% — a completely closed eye — at 10 Mbps.", "calc": {"mode":"COMP","steps":["`1÷1E6` → $T_b$ = **1×10^{-6}** s = **1000** ns.","`120÷1000` → jitter = **0.12** UI = **12** % of a bit period.","`1000−120` → usable window = **880** ns, i.e. **440** ns of margin either side of centre."]}
+    },
+    {
+      "prompt": "A channel has symbol-spaced sampled response $h_{-1} = 0.2$, $h_0 = 1.0$, $h_1 = 0.3$. Find the three zero-forcing equalizer tap weights.",
+      "give": ["h-1 = 0.2", "h0 = 1.0", "h1 = 0.3", "3-tap ZF equalizer"],
+      "steps": [
+        "Post-cursor zero: y1 = w0 h1 + w1 h0 = 0 -> 0.3 w0 + w1 = 0 -> w1 = -0.3 w0",
+        "Pre-cursor zero: y-1 = w-1 h0 + w0 h-1 = 0 -> w-1 + 0.2 w0 = 0 -> w-1 = -0.2 w0",
+        "Cursor: y0 = w-1 h1 + w0 h0 + w1 h-1 = 1",
+        "Substitute: 0.3(-0.2 w0) + w0 + 0.2(-0.3 w0) = 1",
+        "-0.06 w0 + w0 - 0.06 w0 = 0.88 w0 = 1",
+        "w0 = 1/0.88 = 1.136; w-1 = -0.227; w1 = -0.341"
+      ],
+      "ans": "$w_{-1} = -0.227$, $w_0 = 1.136$, $w_1 = -0.341$",
+      "trap": "Solving only the cursor equation and setting the other taps to zero. That leaves the ISI untouched: the equalizer must satisfy *all three* equations simultaneously, which is why they are solved as a system.", "calc": {"mode":"EQN","steps":["`MODE` `5` `2` (3 unknowns: $x = w_{-1}$, $y = w_0$, $z = w_1$), entering rows `0 , 0.3 , 1 , 0` then `1 , 0.2 , 0 , 0` then `0.3 , 1 , 0.2 , 1`.","`=` → $w_{-1}$ = **−0.2273**, $w_0$ = **1.1364**, $w_1$ = **−0.3409**; the cursor row reduces to `1÷0.88` → **1.13636**."],"note":"The rows are $0.3w_0+w_1=0$, $w_{-1}+0.2w_0=0$ and $0.3w_{-1}+w_0+0.2w_1=1$ — all three must hold at once."}
+    },
+    {
+      "prompt": "A transversal equalizer has 5 taps spaced at the symbol period of a $100\\ \\mathrm{ns}$ link. Find the delay-line span and explain what it limits.",
+      "give": ["N_taps = 5", "Ts = 100 ns"],
+      "steps": [
+        "Tspan = (N_taps - 1) x Ts",
+        "= 4 x 100 ns",
+        "= 400 ns"
+      ],
+      "ans": "Span $= 400\\ \\mathrm{ns} = 4$ symbol periods",
+      "trap": "Using $N_{taps} \\times T_s = 500\\ \\mathrm{ns}$. Five taps define four delays between them; the span is one fewer than the tap count."
+    }
+  ],
+  "traps": [
+    "**Dividing eye height by the peak instead of the peak-to-peak swing.** The noise margin is *half* the opening, and the eye-opening percentage is referenced to the full peak-to-peak signal, so mixing the two introduces a factor of 2 (6 dB) of error.",
+    "**Confusing vertical with horizontal closure.** Additive noise closes the eye vertically; timing jitter closes it horizontally. Solving a jitter problem with a noise-margin formula (or the reverse) is the standard trap — check whether the given quantity is in volts or in seconds.",
+    "**Forgetting to normalise jitter to the bit period.** Jitter quoted in nanoseconds is meaningless without the bit rate. 100 ns is 10% of a 1 Mbps eye and 100% of a 10 Mbps eye.",
+    "**Assuming a zero-forcing equalizer is always best.** ZF inverts the channel exactly, which means enormous gain at spectral nulls, and that amplifies noise. On a noisy channel MMSE — which deliberately leaves residual ISI — performs better. The exam follow-up is almost always this point.",
+    "**Setting only the cursor tap.** Zero-forcing requires one equation per ISI sample. Cancelling the cursor alone changes nothing about the neighbouring-symbol contamination.",
+    "**Miscounting the delay-line span.** $N$ taps give $N-1$ symbol-period delays. Reporting $N T_s$ overstates the equalizer's reach by one symbol."
+  ],
+  "refs": [
+    "[[07_Inter-Symbol_Interference_and_Nyquist_Criterion]]",
+    "[[13_Matched_Filter_and_Optimum_Detection]]",
+    "[[12_Constellation_and_BER_Comparison]]"
+  ],
+  "prereqs": ["[[07_Inter-Symbol_Interference_and_Nyquist_Criterion]]"]
+}

@@ -1,0 +1,111 @@
+{
+  "scope": "Compare TTL and CMOS logic levels, noise margins, fan-out, power and output types, and interface families with different supplies.",
+  "intuition": "A logic family is a contract: the driver promises a voltage window it will produce, and the receiver promises a wider window it will accept. The gap between the two is the noise margin, and every interfacing question is about whether the gap survives.",
+  "concept": [
+    "**Logic levels and noise margins.** A driver guarantees $V_{OH}$ (minimum output high) and $V_{OL}$ (maximum output low); a receiver requires $V_{IH}$ (minimum input recognised as high) and $V_{IL}$ (maximum input recognised as low). The gaps are the noise margins: $NM_H = V_{OH} - V_{IH}$ and $NM_L = V_{IL} - V_{OL}$. For standard 5 V TTL, $V_{OH}=2.4$ V, $V_{IH}=2.0$ V, $V_{IL}=0.8$ V and $V_{OL}=0.4$ V give $NM_H = NM_L = 0.4$ V. The region between 0.8 V and 2.0 V is the indeterminate guard band: an input there is not guaranteed to be read either way, and a TTL gate switches at about 1.4 V.",
+    "**Fan-out is a current budget in both directions.** TTL inputs source current out of the driving gate when held low ($I_{IL}$, typically 0.4 mA for an LS input) and draw a small current when high ($I_{IH}$, typically 20 $\\mu$A). The driver can sink $I_{OL}$ (about 8 mA) and source $I_{OH}$ (about 400 $\\mu$A). The DC fan-out is the smaller of the two ratios, $\\min(I_{OH}/I_{IH},\\,I_{OL}/I_{IL})$, and because the HIGH-side current is so much smaller it is usually the binding constraint. CMOS inputs are high-impedance (about 1 $\\mu$A of leakage plus a capacitive load), so one TTL output can drive dozens of CMOS inputs but pays for it in switching current at speed.",
+    "**Input behaviour when nothing is connected.** A floating TTL input behaves as a logic HIGH, because the input transistor needs current pulled out of it to be read as low. That is convenient but dangerous. A floating CMOS input is genuinely indeterminate: it can sit near the threshold, draw cross-conduction (shoot-through) current, oscillate and destroy the device. Unused CMOS inputs must therefore be tied to $V_{DD}$ or ground, and unused TTL inputs are usually tied high or left unconnected by convention rather than by design.",
+    "**Output structures.** Totem-pole (push-pull) outputs drive both directions and are the default. **Open-collector** (TTL) and **open-drain** (CMOS) outputs can only pull low, so they need an external pull-up resistor and can be wired together to form a wired-AND — one common line shared by several devices, which is how interrupt and bus-request lines work. Choosing the resistor is a two-sided calculation: small enough to sink the required current within $V_{OL}$, large enough that leakage currents do not drag the high level below $V_{IH}$. **Tri-state** outputs add a high-impedance state for bus sharing, with the enable signal deciding which device drives.",
+    "**Speed, power and level shifting.** Standard TTL burns a few milliwatts per gate almost independently of frequency, while CMOS burns almost nothing statically and its dynamic power rises with clock rate: $P = CV^2f$, where $C$ is the total load capacitance being charged. Multiplying propagation delay by power dissipation gives the speed-power product in picojoules, the standard figure of merit at around 10 pJ for LSTTL and much less for HC CMOS. Mixing families needs care with supply voltages: a 5 V TTL output at $V_{OH}=2.4$ V against a 3.3 V CMOS input that needs $0.7\\times3.3 = 2.31$ V leaves only 0.09 V of margin, which is why 5 V-tolerant inputs or dedicated level shifters (or a series resistor with a tolerant input) are used rather than a direct connection.",
+    "**Interfacing rules of thumb.** TTL driving CMOS works on levels and current, since CMOS inputs draw almost nothing. CMOS driving TTL needs real sinking current, which the 4000-series at 5 V does not have — use 74HCT or a buffer. CMOS driving CMOS at different supplies needs a level shifter or an HCT-style input. Never drive a 3.3 V non-tolerant CMOS input from a 5 V TTL totem-pole output, because the upper output transistor can present a damaging voltage; and always check whether an input is 5 V tolerant before relying on the levels alone."
+  ],
+  "formulas": [
+    { "q": "High-level noise margin", "e": "NM_H = V_{OH(min)} - V_{IH(min)}", "n": "Standard TTL: 2.4 - 2.0 = 0.4 V. Use guaranteed worst-case limits, never typical values." },
+    { "q": "Low-level noise margin", "e": "NM_L = V_{IL(max)} - V_{OL(max)}", "n": "Standard TTL: 0.8 - 0.4 = 0.4 V. Subtract in this order so the margin is positive." },
+    { "q": "DC fan-out", "e": "N \\le \\min\\left(\\frac{I_{OH}}{I_{IH}},\\ \\frac{I_{OL}}{I_{IL}}\\right)", "n": "Take the smaller ratio. For LSTTL-style numbers, 400/40 = 10 and 8 mA/0.4 mA = 20, so the fan-out is 10." },
+    { "q": "CMOS dynamic power", "e": "P = C V^2 f", "n": "C is the total switched load capacitance, V the supply swing, f the switching frequency. 50 pF at 5 V and 1 MHz gives 1.25 mW." },
+    { "q": "Speed-power product", "e": "\\mathrm{SPP} = t_{pd} \\times P_D", "n": "Figure of merit in joules (picojoules). 10 ns x 1.25 mW = 12.5 pJ." },
+    { "q": "Open-collector pull-up, minimum", "e": "R_{min} = \\frac{V_{CC} - V_{OL(max)}}{I_{OL(max)}}", "n": "Keeps the low level within $V_{OL}$ when the output sinks the full load current. 5 V, 8 mA, 0.4 V gives 575 ohms." },
+    { "q": "Open-collector pull-up, maximum", "e": "R_{max} = \\frac{V_{CC} - V_{IH(min)}}{N\\,I_{IH} + I_{leak}}", "n": "Keeps the high level above $V_{IH}$ despite leakage. 5 V, $V_{IH}=2$ V, four 20 uA loads gives 37.5 kilohms." },
+    { "q": "CMOS input threshold", "e": "V_{IH} \\approx 0.7\\,V_{DD},\\quad V_{IL} \\approx 0.3\\,V_{DD}", "n": "At 3.3 V that is 2.31 V and 0.99 V. A 5 V TTL high of 2.4 V barely clears 2.31 V." },
+    { "q": "Charge per transition", "e": "Q = C V,\\quad I_{avg} = C V f", "n": "The average supply current a CMOS gate draws while charging its load; scales linearly with frequency." },
+    { "q": "TTL static power", "e": "P_{TTL} \\approx V_{CC} \\times I_{CC}\\ (\\mathrm{per\\ gate,\\ frequency\\ independent})", "n": "About 1-10 mW per gate for standard TTL regardless of clock rate, unlike CMOS." }
+  ],
+  "problems": [
+    {
+      "prompt": "Compute the high-level and low-level noise margins for a standard TTL gate with $V_{OH}=2.4$ V, $V_{IH}=2.0$ V, $V_{IL}=0.8$ V and $V_{OL}=0.4$ V.",
+      "give": ["V_OH = 2.4 V", "V_IH = 2.0 V", "V_IL = 0.8 V", "V_OL = 0.4 V"],
+      "steps": [
+        "NM_H = V_OH - V_IH = 2.4 V - 2.0 V",
+        "NM_H = 0.4 V",
+        "NM_L = V_IL - V_OL = 0.8 V - 0.4 V",
+        "NM_L = 0.4 V",
+        "So the family tolerates 0.4 V of noise on either level"
+      ],
+      "ans": "$NM_H = 0.4$ V and $NM_L = 0.4$ V",
+      "trap": "Subtracting in the wrong order (V_IH - V_OH) and reporting a negative margin, or using typical values instead of the guaranteed worst-case limits. Noise margins are always quoted at the specified limits."
+    },
+    {
+      "prompt": "A driver has $I_{OH}=400\\ \\mu\\mathrm{A}$, $I_{OL}=8\\ \\mathrm{mA}$. Each load draws $I_{IH}=40\\ \\mu\\mathrm{A}$ and $I_{IL}=0.4\\ \\mathrm{mA}$. Find the DC fan-out.",
+      "give": ["I_OH = 400 uA", "I_OL = 8 mA", "I_IH = 40 uA", "I_IL = 0.4 mA"],
+      "steps": [
+        "High-side ratio: I_OH / I_IH = 400 uA / 40 uA = 10 loads",
+        "Low-side ratio: I_OL / I_IL = 8 mA / 0.4 mA = 20 loads",
+        "Fan-out is the smaller of the two: min(10, 20) = 10",
+        "Check total current with 10 loads: 10 x 40 uA = 400 uA exactly at the limit, and 10 x 0.4 mA = 4 mA well within 8 mA"
+      ],
+      "ans": "Fan-out $= 10$ loads, limited by the HIGH-side sourcing current",
+      "trap": "Quoting 20 from the sinking calculation alone. The HIGH-side current is usually the smaller, and using only $I_{OL}/I_{IL}$ overstates the fan-out by two to five times in TTL families."
+    },
+    {
+      "prompt": "A CMOS gate drives a 50 pF load from a 5 V supply at 1 MHz. Find its dynamic power and, with $t_{pd}=10$ ns, the speed-power product.",
+      "give": ["C = 50 pF", "V = 5 V", "f = 1 MHz", "t_pd = 10 ns"],
+      "steps": [
+        "P = C V^2 f = (50e-12)(5^2)(1e6)",
+        "V^2 = 25, so P = 50e-12 x 25 x 1e6",
+        "P = 1.25e-3 W = 1.25 mW",
+        "Speed-power product = t_pd x P = 10 ns x 1.25 mW",
+        "= 1.25e-11 J = 12.5 pJ"
+      ],
+      "ans": "$P = 1.25$ mW; speed-power product $= 12.5$ pJ",
+      "trap": "Forgetting to square the supply voltage, or treating the power as frequency-independent. CMOS dynamic power is proportional to $V^2$ and to $f$, so halving the supply cuts the power to a quarter."
+    },
+    {
+      "prompt": "An open-collector output with $V_{CC}=5$ V must sink 8 mA at $V_{OL}=0.4$ V, and drives four inputs each drawing $I_{IH}=20\\ \\mu\\mathrm{A}$ with $V_{IH}=2.0$ V. Find the allowable pull-up resistor range.",
+      "give": ["V_CC = 5 V", "I_OL = 8 mA", "V_OL = 0.4 V", "4 loads at 20 uA", "V_IH = 2.0 V"],
+      "steps": [
+        "Minimum resistance (output low): R_min = (V_CC - V_OL)/I_OL = (5 - 0.4)/8 mA",
+        "R_min = 4.6/0.008 = 575 ohms",
+        "Maximum resistance (output high): total load current = 4 x 20 uA = 80 uA",
+        "R_max = (V_CC - V_IH)/I_total = (5 - 2.0)/80 uA",
+        "R_max = 3/80e-6 = 37 500 ohms = 37.5 kilohms",
+        "A standard 4.7 kilohm resistor lies comfortably inside the range"
+      ],
+      "ans": "$575\\ \\Omega \\le R \\le 37.5\\ \\mathrm{k}\\Omega$; 4.7 k$\\Omega$ is a safe choice",
+      "trap": "Omitting the pull-up entirely. An open-collector output can only pull low, so without a resistor the line can never reach a valid high; and choosing too large a resistor lets leakage pull the high level below $V_{IH}$."
+    },
+    {
+      "prompt": "A 5 V TTL output with $V_{OH}=2.4$ V drives a 3.3 V CMOS input with $V_{IH}=0.7\\,V_{DD}$. Is the connection safe, and what is the noise margin?",
+      "give": ["driver V_OH = 2.4 V (5 V TTL)", "receiver V_DD = 3.3 V", "V_IH = 0.7 V_DD"],
+      "steps": [
+        "Receiver threshold: V_IH = 0.7 x 3.3 V = 2.31 V",
+        "Driver guarantees only V_OH = 2.4 V",
+        "NM_H = 2.4 V - 2.31 V = 0.09 V",
+        "A 0.09 V margin is far below the 0.4 V a same-family interface provides, so the levels are marginal",
+        "Also check 5 V tolerance: if the 3.3 V input is not 5 V tolerant, the 5 V driver can damage it",
+        "Fix: use an HCT-style input, a dedicated level shifter, or a series resistor with a tolerant input"
+      ],
+      "ans": "$NM_H = 0.09$ V: technically above threshold but too thin to rely on; use a level shifter or HCT input",
+      "trap": "Connecting the families because 5 V logic 'is usually compatible'. The guaranteed high level of TTL (2.4 V) barely exceeds a 3.3 V CMOS threshold (2.31 V), and a non-5 V-tolerant input can be destroyed by the driver voltage."
+    }
+  ],
+  "traps": [
+    "**Subtracting the noise-margin terms in the wrong order.** $NM_H = V_{OH}-V_{IH}$ and $NM_L = V_{IL}-V_{OL}$. Reversing either gives a negative margin and a false incompatibility.",
+    "**Taking only the sinking ratio for fan-out.** The correct value is $\\min(I_{OH}/I_{IH},\\,I_{OL}/I_{IL})$; the sourcing side usually binds, so quoting $I_{OL}/I_{IL}$ overstates the fan-out badly.",
+    "**Leaving CMOS inputs floating.** A floating CMOS input sits near the threshold, draws cross-conduction current and can oscillate or latch up. Unused CMOS inputs must be tied to a supply rail — unlike TTL, where a floating input reads as a high.",
+    "**Expecting an open-collector output to drive high.** It cannot; it needs a pull-up. Wired-AND buses work precisely because several such outputs share one resistor without ever fighting each other.",
+    "**Assuming CMOS uses no power.** Static power is tiny, but $P = CV^2f$ grows linearly with frequency and quadratically with supply voltage. At high clock rates CMOS can dissipate more than TTL.",
+    "**Driving TTL with unbuffered 4000-series CMOS.** At 5 V a 4000-series output cannot sink the 0.4-1.6 mA a TTL input demands. Use 74HCT or a buffer.",
+    "**Plugging a 5 V driver into a 3.3 V non-tolerant input.** Logic-level compatibility is not the same as voltage tolerance; the input's absolute maximum rating must be respected, not just its $V_{IH}$."
+  ],
+  "refs": [
+    "[[12_MOSFET_Types_and_Regions]]",
+    "[[09_BJT_Structure_and_Operating_Regions]]",
+    "[[11_Flip-Flop_Timing,_Setup_and_Hold]]",
+    "[[09_Multiplexers_and_Demultiplexers]]"
+  ],
+  "prereqs": [
+    "[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]",
+    "[[07_Thevenin_and_Norton_Equivalents]]"
+  ]
+}

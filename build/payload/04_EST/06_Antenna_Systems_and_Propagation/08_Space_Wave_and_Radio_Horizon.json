@@ -1,0 +1,84 @@
+{
+  "scope": "How far a VHF/UHF space wave reaches over the curved earth, and how much clearance an obstruction on a line-of-sight path needs.",
+  "intuition": "Above about 30 MHz the sky wave stops returning and the ground wave dies within a few kilometres, so the only path left is the direct ray plus the ray bounced off the ground between the antennas. That path is nearly straight, and a straight line eventually runs into the earth - which is what sets the range.",
+  "concept": [
+    "**What the space wave is.** The space wave is the phasor sum of two rays: the *direct* ray from transmitter to receiver and the ray *reflected* from the ground between them. It exists at all frequencies but dominates only above roughly $30\\ \\mathrm{MHz}$, because below that the ground wave reaches further along the surface and the sky wave returns from the ionosphere. The two rays cover slightly different distances, so they arrive with a phase difference $\\Delta\\phi = 2\\pi\\,\\Delta d/\\lambda$; adding them as phasors produces the **lobing** pattern of alternating maxima and nulls. That is why a UHF link can collapse into a fade when a tower is raised by only a fraction of a wavelength, and why siting a microwave antenna is largely a matter of putting the receiver in a lobe instead of a null.",
+    "**The radio horizon.** The earth is curved, so a ray launched horizontally from height $h$ meets the surface at the tangent distance $d$. From the right triangle with hypotenuse $R+h$ and base $R$ comes the relation: $d^{2} = (R+h)^{2}-R^{2} = 2Rh+h^{2} \\approx 2Rh$, valid when $h \\ll R$, so $d = \\sqrt{2Rh}$. Substituting the true earth radius $R = 6370\\ \\mathrm{km}$ with $h$ in metres gives: $d = \\sqrt{2(6.37\\times10^{6})h} = 3570\\sqrt{h}\\ \\mathrm{m}$. That is the standard board form: $d_{\\mathrm{km}} = 3.57\\sqrt{h_{\\mathrm{m}}}$. A 100 m tower therefore sees about 35.7 km of earth; everything past the tangent point sits in the diffraction shadow, attenuated but not absolutely zero.",
+    "**The constant encodes an earth-radius convention, so state which one you use.** The factor 3.57 is pure geometry with the true earth radius. The atmosphere has a refractive index that falls with height, which bends every ray gently *downward*; the standard trick keeps the straight-line geometry and instead pretends the earth is flatter, replacing $R$ by $kR$ with $k = 4/3$. That gives the refracted-earth form: $d_{\\mathrm{km}} = 4.12\\sqrt{h_{\\mathrm{m}}}$, which is 15 per cent longer. A problem that says *standard refraction* or *4/3 earth* wants 4.12; a problem that says nothing wants 3.57. Because the radio horizon is a geometric tangent and not a wall, strong super-refraction or a tropospheric duct ($k$ well above 4/3) carries VHF and UHF signals hundreds of kilometres past it - anomalous propagation - which is why coastal radar occasionally sees targets far over the horizon.",
+    "**Two antennas: the horizons add.** When both ends are elevated, each antenna generates its own tangent point and the rays meet where the two horizons touch. The maximum separation is the sum of the two individual horizons: $d = 3.57\\left(\\sqrt{h_t}+\\sqrt{h_r}\\right)$, with both heights in metres. The square roots - not the heights - add, because a horizon grows as the square root of height. This one fact is worth more marks than any other line in the topic.",
+    "**Fresnel zones and path clearance.** Energy does not travel only along the geometric ray. Huygens secondary sources in a cigar-shaped volume around the ray contribute to the received field, and the boundary of the first Fresnel zone is the locus of paths exactly half a wavelength longer than the direct path. Its radius at a point $d_1$ from one end of a path of total length $D = d_1+d_2$, in metres, is: $r_1 = 17.32\\sqrt{d_1d_2/(f_{\\mathrm{GHz}}D_{\\mathrm{km}})}$. It is largest at the midpoint. An obstruction intruding into the zone turns free-space spreading into knife-edge diffraction and the loss climbs steeply, so the workable design rule is that at least 60 per cent of $r_1$ must be clear (the 0.6 F1 criterion), keeping the extra loss near 1 dB. Full $r_1$ clearance makes the path effectively lossless beyond ordinary $1/d^{2}$ spreading."
+  ],
+  "formulas": [
+    { "q": "Radio horizon, standard constant", "e": "d_{\\mathrm{km}} = 3.57\\sqrt{h_{\\mathrm{m}}}", "n": "Board default: true earth radius 6370 km, no refraction. h in metres, d in km - feeding h in km makes the answer 31.6 times too small." },
+    { "q": "Radio horizon, 4/3 earth", "e": "d_{\\mathrm{km}} = 4.12\\sqrt{h_{\\mathrm{m}}}", "n": "Use only when standard atmospheric refraction (k = 4/3) is specified. 15 per cent longer than the 3.57 form." },
+    { "q": "Two-antenna line-of-sight span", "e": "d_{\\mathrm{km}} = 3.57\\left(\\sqrt{h_t} + \\sqrt{h_r}\\right)", "n": "Both heights in metres. The horizontal distances add because the two horizons meet at one tangent point." },
+    { "q": "Horizon geometry", "e": "d = \\sqrt{2kRh}", "n": "k = 1 gives 3.57, k = 4/3 gives 4.12. Valid while h is much smaller than R." },
+    { "q": "Height needed for a required path", "e": "h_{\\mathrm{m}} = \\left(\\dfrac{d_{\\mathrm{km}}}{3.57}\\right)^{2}", "n": "Single-ended. For two elevated antennas, first subtract the other square root from d/3.57, then square." },
+    { "q": "First Fresnel zone radius", "e": "r_1 = 17.32\\sqrt{\\dfrac{d_1 d_2}{f_{\\mathrm{GHz}}\\,D_{\\mathrm{km}}}}", "n": "Metres. d1, d2 and D in km with D = d1 + d2, frequency in GHz. Maximum at the midpoint, where d1 = d2 = D/2." },
+    { "q": "Clearance criterion", "e": "r_{\\mathrm{clear}} \\ge 0.6\\,r_1", "n": "0.6 F1 keeps diffraction loss near 1 dB. Full r1 clearance is the ideal; anything below 0.6 F1 degrades rapidly." },
+    { "q": "Space-wave field strength", "e": "E = \\dfrac{\\sqrt{30\\,P_t G_t}}{d}", "n": "Volts per metre in free space with P_t in W and d in m. Ground reflection multiplies this by the lobing factor, which can double it or null it." },
+    { "q": "Fresnel radius from wavelength", "e": "r_1 = \\sqrt{\\dfrac{\\lambda\\,d_1 d_2}{D}}", "n": "Same quantity with every distance in metres; the 17.32 constant is just this form converted to km, GHz and metres." }
+  ],
+  "problems": [
+    {
+      "prompt": "Two towers stand on flat terrain, the transmitting antenna at $h_t = 30\\ \\mathrm{m}$ and the receiving antenna at $h_r = 10\\ \\mathrm{m}$. Find the maximum line-of-sight separation using the standard radio-horizon constant.",
+      "give": ["h_t = 30 m", "h_r = 10 m", "constant 3.57 (true earth radius, no refraction)"],
+      "steps": [
+        "Use the two-horizon form: $d = 3.57\\left(\\sqrt{h_t}+\\sqrt{h_r}\\right)$ with both heights in metres",
+        "$\\sqrt{30} = 5.477$ and $\\sqrt{10} = 3.162$ (units of $\\mathrm{m}^{1/2}$)",
+        "Sum the roots: $5.477 + 3.162 = 8.639$",
+        "$d = 3.57 \\times 8.639 = 30.84\\ \\mathrm{km}$"
+      ],
+      "ans": "$d \\approx 30.8\\ \\mathrm{km}$",
+      "trap": "Adding the heights before taking roots: $3.57\\sqrt{30+10} = 22.6\\ \\mathrm{km}$, 27 per cent short. Each antenna owns its own horizon and it is the square roots that add.", "calc": {"mode":"COMP","steps":["`3.57×(√30+√10)` → $d$ = **30.84** km.","`3.57×√40` → **22.58** km is the trap answer from adding the heights first, 27 % short."]}
+    },
+    {
+      "prompt": "A single VHF antenna sits on a 100 m mast and the receiving site is at ground level. How far away can it be seen geometrically, using $d = 3.57\\sqrt{h}$?",
+      "give": ["h = 100 m", "receiving end at ground level", "constant 3.57"],
+      "steps": [
+        "$d = 3.57\\sqrt{h}$",
+        "$\\sqrt{100} = 10$",
+        "$d = 3.57 \\times 10 = 35.7\\ \\mathrm{km}$"
+      ],
+      "ans": "$d = 35.7\\ \\mathrm{km}$",
+      "trap": "Converting the height to kilometres before substituting: $3.57\\sqrt{0.1} = 1.13\\ \\mathrm{km}$. The 3.57 constant is calibrated for h in metres."
+    },
+    {
+      "prompt": "A 20 km line-of-sight link at $f = 6\\ \\mathrm{GHz}$ passes over a building at the exact midpoint of the path. Find the first Fresnel zone radius there and the minimum clearance the building must leave.",
+      "give": ["D = 20 km total path", "obstruction at the midpoint, so d1 = d2 = 10 km", "f = 6 GHz"],
+      "steps": [
+        "$r_1 = 17.32\\sqrt{\\dfrac{d_1 d_2}{f_{\\mathrm{GHz}}D}} = 17.32\\sqrt{\\dfrac{10\\times10}{6\\times20}}$",
+        "Inner fraction: $\\dfrac{100}{120} = 0.8333$, and $\\sqrt{0.8333} = 0.9129$",
+        "$r_1 = 17.32 \\times 0.9129 = 15.81\\ \\mathrm{m}$",
+        "Required clearance is 60 per cent of the zone: $0.6 \\times 15.81 = 9.49\\ \\mathrm{m}$"
+      ],
+      "ans": "$r_1 = 15.8\\ \\mathrm{m}$, so keep at least $9.5\\ \\mathrm{m}$ clear at the midpoint.",
+      "trap": "Quoting $r_1 = 15.8\\ \\mathrm{m}$ as the required clearance. 15.8 m is the zone radius; the criterion is 60 per cent of it. Also note that a mid-path obstruction is the worst case because $d_1d_2$ is then at its maximum.", "calc": {"mode":"COMP","steps":["`17.32×√(10×10÷(6×20))` → $r_1$ = **15.81** m.","`Ans×0.6` → minimum clearance **9.49** m. $r_1$ is the zone radius, not the clearance."]}
+    },
+    {
+      "prompt": "A 60 km line-of-sight path must be closed with $h_t = 50\\ \\mathrm{m}$ on the transmitting tower. Find the minimum receiving antenna height, using the standard 3.57 constant.",
+      "give": ["d = 60 km", "h_t = 50 m", "constant 3.57"],
+      "steps": [
+        "Rearrange the two-horizon form: $\\sqrt{h_r} = \\dfrac{d}{3.57} - \\sqrt{h_t}$",
+        "$\\dfrac{60}{3.57} = 16.807$ and $\\sqrt{50} = 7.071$",
+        "$\\sqrt{h_r} = 16.807 - 7.071 = 9.736$",
+        "$h_r = 9.736^{2} = 94.8\\ \\mathrm{m}$"
+      ],
+      "ans": "$h_r \\approx 94.8\\ \\mathrm{m}$",
+      "trap": "Reaching for 4.12 by reflex: that gives $h_r = 56.1\\ \\mathrm{m}$, a tower 40 per cent shorter than the geometry requires. Equally common is stopping at $\\sqrt{h_r} = 9.74$ and reporting 9.74 m.", "calc": {"mode":"COMP","steps":["`60÷3.57-√50` → $\\sqrt{h_r}$ = **9.736**. Do not stop at 9.74 m.","`Ans²` → $h_r$ = **94.78** m; the same line with the 4.12 constant returns the trap **56.1** m."]}
+    }
+  ],
+  "traps": [
+    "**Adding antenna heights before the square root.** $3.57\\sqrt{h_t+h_r}$ gives 22.6 km for 30 m and 10 m, where the correct two-horizon form gives 30.8 km. The error is always an underestimate, because $\\sqrt{a}+\\sqrt{b} > \\sqrt{a+b}$.",
+    "**Swapping the horizon constants.** 3.57 assumes the true earth radius; 4.12 assumes $k = 4/3$ refraction. Choosing 4.12 on a 100 m antenna reports 41.2 km instead of 35.7 km - a 15 per cent error that always flatters the link.",
+    "**Mixed units inside the Fresnel formula.** $f$ must be in GHz and every distance in km. Entering $f = 6000\\ \\mathrm{MHz}$ shrinks $r_1$ by $\\sqrt{1000} \\approx 31.6$, which turns a 15.8 m zone into 0.5 m and makes any obstruction look harmless.",
+    "**Treating the radio horizon as a hard edge.** It is a geometric tangent, so it marks where diffraction loss begins, not where the signal stops. Ducting, super-refraction and knife-edge diffraction all deliver usable signal beyond it - and, symmetrically, an obstruction just grazing the ray can cost more than 6 dB even though the path still looks clear on a map.",
+    "**Forgetting that the Fresnel zone is a volume, not a line.** A path drawn on a map with terrain grazing the geometric ray can still be blocked: the first zone extends 15.8 m above the ray on a 20 km, 6 GHz hop, and terrain, trees or a building inside that volume causes the loss."
+  ],
+  "refs": [
+    "[[07_Ground_Wave_Propagation]]",
+    "[[06_FSPL_and_Friis_Transmission_Equation]]",
+    "[[09_Sky_Wave_and_Ionospheric_Layers]]"
+  ],
+  "prereqs": ["[[07_Ground_Wave_Propagation]]"]
+}

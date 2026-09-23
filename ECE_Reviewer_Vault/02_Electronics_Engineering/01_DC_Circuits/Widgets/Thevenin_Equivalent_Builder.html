@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thévenin Equivalent Builder — V_Th, I_sc, R_Th and Maximum Power</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, solve2 } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// The exam skill is not "apply the formula" — it is KNOWING WHICH TWO MEASUREMENTS
+// define R_Th. Students routinely answer R_Th = R1 (the series resistor) because they
+// deactivate the sources and then forget that the current source turns into an OPEN,
+// leaving R2 still hanging across the terminals. The widget always computes R_Th the
+// honest way (V_oc / I_sc, measured on the real network) and prints it next to the
+// wrong answer R1 so the difference is impossible to miss.
+//
+// CIRCUIT: two-source network feeding a load RL
+//   left branch : V1 in series with R1
+//   right branch: I2 in parallel with R2
+//   load        : RL across the a-b terminals
+//
+// Nodal analysis at the single node a (reference = b), KCL with currents leaving:
+//   (Va - V1)/R1 + Va/R2 + Va/RL - I2 = 0
+//   Va (1/R1 + 1/R2 + 1/RL) = V1/R1 + I2
+// RL = Infinity models the open circuit (V_oc), RL = 0 the short circuit (I_sc).
+// Both are solved with the shared solve2() helper so no algebra is duplicated here.
+
+const INF = 1e12;   // stand-in for an open circuit in the nodal system
+const R0 = 0;       // stand-in for a short circuit
+
+function solveNetwork(v, RL) {
+  const g1 = 1 / Math.max(v.R1, 1e-9);
+  const g2 = 1 / Math.max(v.R2, 1e-9);
+  // y = 1/RL, forced to 0 when RL == 0 so the node is shorted to reference.
+  const y = RL === R0 ? 1e12 : (RL >= INF ? 0 : 1 / RL);
+  const s = solve2(g1 + g2 + y, 0, 0, 1, g1 * v.V1 + v.I2, 0);
+  const Va = s ? s.x : 0;
+  const iR1 = (v.V1 - Va) * g1;   // current out of the source through R1
+  const iR2 = Va * g2;            // current through R2 down to reference
+  const iL = RL >= INF ? 0 : Va * y;
+  return { Va, iR1, iR2, iL };
+}
+
+widget({
+  title: 'Thévenin Equivalent Builder — V_Th, I_sc, R_Th and Load Power',
+  description:
+    'A 12 V source behind R1 and a current source behind R2 both feed a load RL. R_Th is measured, not guessed: it is V_Th / I_sc taken from the real network. Sweep RL and watch the load power peak exactly at RL = R_Th.',
+  height: 420,
+  range: { xMin: 0, xMax: 12, yMin: 0, yMax: 10 },
+  controls: [
+    { id: 'V1', label: 'source V1', min: 0, max: 30, step: 0.5, value: 12, unit: 'V' },
+    { id: 'R1', label: 'series R1', min: 1, max: 20, step: 0.5, value: 4, unit: 'Ω' },
+    { id: 'I2', label: 'current source I2', min: 0, max: 5, step: 0.1, value: 0.5, unit: 'A' },
+    { id: 'R2', label: 'shunt R2', min: 1, max: 40, step: 0.5, value: 8, unit: 'Ω' },
+    { id: 'RL', label: 'load RL', min: 0, max: 30, step: 0.1, value: 4, unit: 'Ω' },
+  ],
+  compute: (v) => {
+    const oc = solveNetwork(v, INF);
+    const sc = solveNetwork(v, R0);
+    const VTh = oc.Va;
+    const Isc = sc.iL;
+    const RTh = Math.abs(Isc) > 1e-12 ? VTh / Isc : NaN;
+    const IL = v.RL > 0 ? v.RL : 1e12;
+    const load = solveNetwork(v, v.RL <= 0 ? R0 : v.RL);
+    return {
+      VTh, Isc, RTh,
+      Rpar: 1 / (1 / v.R1 + 1 / v.R2),      // R_Th if you deactivate sources correctly
+      RpWrong: v.R1,                        // the trap answer
+      iR1oc: oc.iR1, iR2oc: oc.iR2,
+      iR1sc: sc.iR1, iR2sc: sc.iR2,
+      VL: load.Va, IL: load.iL,
+      PL: load.Va * load.iL,
+      Pmax: Number.isFinite(RTh) ? (VTh * VTh) / (4 * RTh) : NaN,
+      iR1: load.iR1, iR2: load.iR2,
+    };
+  },
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h, pad = plot.pad;
+    plot.clear();
+    ctx.save();
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.textAlign = 'left';
+
+    // ---------------- panel A: the actual two-source network ----------------
+    const ax0 = pad, ax1 = pad + Math.round(W * 0.40);
+    const ax = (f) => ax0 + f * (ax1 - ax0);
+    const ay = (f) => pad + f * (H - 2 * pad);
+    const seg = (x1, y1, x2, y2, color, w, dash) => {
+      ctx.strokeStyle = color; ctx.lineWidth = w || 1.6;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    const dotAt = (x, y, color) => {
+      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+    };
+    const txt = (s, x, y, color, align) => {
+      ctx.fillStyle = color || PALETTE.text; ctx.textAlign = align || 'left';
+      ctx.fillText(s, x, y);
+    };
+
+    const yA = ay(0.34), yB = ay(0.72);
+    txt('the real network', ax0 + 2, pad + 11, PALETTE.dim);
+
+    // branches: (0.18) V1 only, (0.40) R1 in series on the way to node a,
+    // (0.60) I2 in parallel with R2, (0.86) the load. Node a is on the top rail,
+    // node b on the bottom rail.
+    seg(ax(0.08), yA, ax(0.92), yA, PALETTE.axis, 2);
+    seg(ax(0.08), yB, ax(0.92), yB, PALETTE.axis, 2);
+    seg(ax(0.18), yA, ax(0.18), yB, PALETTE.axis, 1.6);
+    seg(ax(0.60), yA, ax(0.60), yB, PALETTE.axis, 1.6);
+    seg(ax(0.86), yA, ax(0.86), yB, PALETTE.axis, 1.6);
+
+    const rbox = (cx, cy, label, color) => {
+      ctx.fillStyle = PALETTE.panel; ctx.fillRect(cx - 13, cy - 8, 26, 16);
+      ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.strokeRect(cx - 13, cy - 8, 26, 16);
+      if (label) txt(label, cx + 17, cy + 4, color);
+    };
+    // R1 sits ON the top rail, so V1 (its own branch) does not collide with it
+    rbox(ax(0.40), yA, 'R1 = ' + fmt(v.R1, 3) + ' Ω', PALETTE.accent);
+    rbox(ax(0.60), (yA + yB) / 2, 'R2 = ' + fmt(v.R2, 3) + ' Ω', PALETTE.accent3);
+
+    // V1 source in the left branch (circle with a + at the top terminal)
+    const cxV = ax(0.18), cyV = (yA + yB) / 2;
+    ctx.fillStyle = PALETTE.panel; ctx.beginPath(); ctx.arc(cxV, cyV, 11, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = PALETTE.accent4; ctx.lineWidth = 1.6; ctx.stroke();
+    txt('+', cxV, cyV - 15, PALETTE.accent4, 'center');
+    txt('V1 = ' + fmt(v.V1, 3) + ' V', cxV - 18, cyV + 4, PALETTE.accent4, 'right');
+
+    // I2 source in the right branch (circle with an up arrow)
+    const cxI = ax(0.60), cyI = (yA + yB) / 2;
+    ctx.fillStyle = PALETTE.panel; ctx.beginPath(); ctx.arc(cxI, cyI, 11, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = PALETTE.accent5; ctx.lineWidth = 1.6; ctx.stroke();
+    seg(cxI, cyI + 6, cxI, cyI - 6, PALETTE.accent5, 1.6);
+    seg(cxI, cyI - 6, cxI - 4, cyI - 1, PALETTE.accent5, 1.6);
+    seg(cxI, cyI - 6, cxI + 4, cyI - 1, PALETTE.accent5, 1.6);
+    txt('I2 = ' + fmt(v.I2, 3) + ' A', cxI - 18, cyI + 4, PALETTE.accent5, 'right');
+
+    // load branch
+    rbox(ax(0.86), (yA + yB) / 2, 'RL = ' + fmt(v.RL, 3) + ' Ω', PALETTE.accent2);
+
+    // node a (top rail) and the terminals
+    dotAt(ax(0.60), yA, PALETTE.warn); dotAt(ax(0.86), yA, PALETTE.warn);
+    dotAt(ax(0.92), yA, PALETTE.warn); dotAt(ax(0.92), yB, PALETTE.warn);
+    txt('a', ax(0.60) + 5, yA - 6, PALETTE.warn);
+    txt('b', ax(0.92) + 6, yB + 13, PALETTE.warn);
+
+    // branch currents
+    if (out.iR1 > 0) txt('→ ' + fmt(out.iR1, 3) + ' A', ax(0.40) - 12, yA - 6, PALETTE.dim);
+    else txt('← ' + fmt(Math.abs(out.iR1), 3) + ' A', ax(0.40) - 12, yA - 6, PALETTE.dim);
+    txt('↓ ' + fmt(out.iR2, 3) + ' A', ax(0.60) + 16, yA + 13, PALETTE.dim);
+    txt('↓ ' + fmt(out.IL, 3) + ' A', ax(0.86) + 16, yB - 6, PALETTE.dim);
+
+    // the Thévenin equivalent drawn to the right of the terminals
+    const bx = ax(1.02), bw = W - pad - bx - 4;
+    if (bw > 60) {
+      const gap = yB - yA;
+      const byTop = yA - gap * 0.20, byBot = yB + gap * 0.20;
+      ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 1.6;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(bx, byTop, bw, byBot - byTop);
+      ctx.setLineDash([]);
+      txt('Thévenin equivalent', bx, byTop - 5, PALETTE.warn);
+      // R_Th on the upper wire
+      rbox(bx + 26, yA, '', PALETTE.warn);
+      seg(bx, yA, bx + 13, yA, PALETTE.warn, 1.8);
+      seg(bx + 39, yA, bx + 58, yA, PALETTE.warn, 1.8);
+      txt('R_Th = ' + fmt(out.RTh, 4) + ' Ω', bx + 62, yA + 4, PALETTE.warn);
+      // V_Th on the lower wire
+      ctx.fillStyle = PALETTE.panel; ctx.beginPath(); ctx.arc(bx + 48, yB, 10, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 1.8; ctx.stroke();
+      txt('+', bx + 48, yB - 13, PALETTE.warn, 'center');
+      seg(bx, yB, bx + 38, yB, PALETTE.warn, 1.8);
+      seg(bx + 58, yB, bx + 78, yB, PALETTE.warn, 1.8);
+      txt('V_Th = ' + fmt(out.VTh, 4) + ' V', bx + 82, yB + 4, PALETTE.warn);
+      // terminals tying the box to a-b
+      seg(ax(0.92), yA, bx, yA, PALETTE.warn, 1.4, [3, 3]);
+      seg(ax(0.92), yB, bx, yB, PALETTE.warn, 1.4, [3, 3]);
+    }
+
+    // ---------------- panel B: load power vs RL ----------------
+    const dx0 = pad + Math.round(W * 0.53);
+    seg(dx0 - 26, pad - 14, dx0 - 26, H - pad + 10, PALETTE.grid, 1, [4, 4]);
+    const pw = W - pad - dx0;
+    const ph = H - 2 * pad;
+    const xMaxP = 12;
+    const yMaxP = Math.max(out.Pmax * 1.2, 1e-6);
+    const PX = (x) => dx0 + (x / xMaxP) * pw;
+    const PY = (y) => pad + ph - (Math.max(y, 0) / yMaxP) * ph;
+    const pcurve = (x) => {
+      const t = (out.VTh * out.VTh * x) / ((out.RTh + x) * (out.RTh + x));
+      return Number.isFinite(t) ? t : 0;
+    };
+
+    // grid
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let gx = 0; gx <= xMaxP; gx += 2) {
+      ctx.beginPath(); ctx.moveTo(PX(gx), pad); ctx.lineTo(PX(gx), pad + ph); ctx.stroke();
+    }
+    for (let gy = 0; gy <= yMaxP; gy += yMaxP / 4) {
+      ctx.beginPath(); ctx.moveTo(dx0, PY(gy)); ctx.lineTo(dx0 + pw, PY(gy)); ctx.stroke();
+    }
+    seg(dx0, pad + ph, dx0 + pw, pad + ph, PALETTE.axis, 1.5);
+    seg(dx0, pad, dx0, pad + ph, PALETTE.axis, 1.5);
+
+    // load-power curve
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.4; ctx.beginPath();
+    for (let i = 0; i <= 400; i++) {
+      const x = (i / 400) * xMaxP;
+      const px = PX(x), py = PY(pcurve(x));
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // maximum-power marker at RL = R_Th
+    if (Number.isFinite(out.RTh) && out.RTh > 0 && out.RTh <= xMaxP) {
+      seg(PX(out.RTh), pad, PX(out.RTh), pad + ph, PALETTE.warn, 1.4, [5, 4]);
+      ctx.fillStyle = PALETTE.warn;
+      ctx.beginPath(); ctx.arc(PX(out.RTh), PY(out.Pmax), 4.5, 0, Math.PI * 2); ctx.fill();
+      txt('P_max = ' + fmt(out.Pmax, 4) + ' W', PX(out.RTh) + 7, PY(out.Pmax) - 8, PALETTE.warn);
+      txt('RL = R_Th = ' + fmt(out.RTh, 3) + ' Ω', PX(out.RTh) + 7, PY(out.Pmax) + 6, PALETTE.warn);
+    }
+    // current operating point
+    if (out.PL >= 0 && v.RL <= xMaxP) {
+      ctx.fillStyle = PALETTE.accent2;
+      ctx.beginPath(); ctx.arc(PX(v.RL), PY(out.PL), 4, 0, Math.PI * 2); ctx.fill();
+      txt('operating point', PX(v.RL) + 7, PY(out.PL) - 7, PALETTE.accent2);
+    }
+    txt('load power P_L vs RL', dx0, pad - 8, PALETTE.dim);
+    txt('RL (Ω)', dx0 + pw - 40, pad + ph + 14, PALETTE.dim);
+    txt('P (W)', dx0 - 0, pad - 8, PALETTE.dim);
+    ctx.restore();
+
+    // ---------------- formula strip with substituted arithmetic ----------------
+    const f = document.getElementById('th-formula');
+    if (f) {
+      f.innerHTML =
+        '<div><strong>Open circuit</strong> (RL removed): V_Th = ' + fmt(out.VTh, 5) + ' V' +
+        ' &nbsp;|&nbsp; KCL at node a: (V_Th − ' + fmt(v.V1, 3) + ')/' + fmt(v.R1, 3) +
+        ' + V_Th/' + fmt(v.R2, 3) + ' − ' + fmt(v.I2, 3) + ' = 0</div>' +
+        '<div><strong>Short circuit</strong> (RL = 0): I_sc = ' + fmt(out.Isc, 5) + ' A' +
+        ' &nbsp;|&nbsp; I_sc = I1 + I2 = ' + fmt(out.iR1sc, 3) + ' + ' + fmt(out.iR2sc, 3) + ' = ' + fmt(out.Isc, 5) + ' A</div>' +
+        '<div><strong>R_Th = V_Th / I_sc</strong> = ' + fmt(out.VTh, 4) + ' / ' + fmt(out.Isc, 4) +
+        ' = <strong>' + fmt(out.RTh, 5) + ' Ω</strong> &nbsp;|&nbsp; check by deactivating sources: R1∥R2 = ' +
+        fmt(v.R1, 3) + '∥' + fmt(v.R2, 3) + ' = ' + fmt(out.Rpar, 5) + ' Ω</div>' +
+        '<div><strong>Load</strong>: I_L = V_Th/(R_Th + RL) = ' + fmt(out.VTh, 4) + '/(' + fmt(out.RTh, 3) +
+        ' + ' + fmt(v.RL, 3) + ') = <strong>' + fmt(out.IL, 5) + ' A</strong>' +
+        ' &nbsp;|&nbsp; V_L = I_L·RL = ' + fmt(out.IL, 4) + ' × ' + fmt(v.RL, 3) + ' = ' + fmt(out.VL, 4) + ' V' +
+        ' &nbsp;|&nbsp; P_L = I_L²·RL = <strong>' + fmt(out.PL, 5) + ' W</strong></div>' +
+        '<div><strong>Max power transfer</strong>: P_max = V_Th²/(4R_Th) = ' + fmt(out.VTh, 3) + '²/(4×' +
+        fmt(out.RTh, 3) + ') = <strong>' + fmt(out.Pmax, 5) + ' W</strong> at RL = R_Th = ' + fmt(out.RTh, 4) + ' Ω</div>';
+    }
+  },
+  readout: (out) => ({
+    'V_Th (open circuit)': fmt(out.VTh, 5) + ' V',
+    'I_sc (short circuit)': fmt(out.Isc, 5) + ' A',
+    'R_Th = V_Th / I_sc': fmt(out.RTh, 5) + ' Ω',
+    'V_L (load)': fmt(out.VL, 5) + ' V',
+    'I_L (load)': fmt(out.IL, 5) + ' A',
+    'P_L (load)': fmt(out.PL, 5) + ' W',
+    'P_max at RL = R_Th': fmt(out.Pmax, 5) + ' W',
+    'efficiency now': out.PL > 0 ? fmt((100 * (out.VL * out.VL) / (out.VL * out.VL + out.IL * out.IL * out.RTh)), 4) + ' %' : '—',
+  }),
+});
+
+// The widget() call above builds everything; these two blocks add the formula strip and
+// the closing insight note that every vault widget carries (CONVENTIONS §10).
+const host = document.getElementById('app');
+
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'th-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight — R_Th is a measurement, not a resistor you can point at.</strong> ' +
+  'Kill both sources and read the resistance looking back into a-b: the voltage source becomes a ' +
+  'short (so R1 stays) but the current source becomes an <em>open</em> (so R2 is still connected). ' +
+  'That is why R_Th = R1∥R2, never R1 alone. ' +
+  '<strong>The mistake this prevents:</strong> answering "R_Th = R1" after deactivating the sources — ' +
+  'with the defaults R1 = 4 Ω but the true R_Th = 1.78 Ω, a 2.25× error that then corrupts every ' +
+  'downstream load current and the maximum-power answer. Second trap it kills: R_Th is a property of ' +
+  'the network only, so it does not change when you slide RL — the load power curve always peaks at ' +
+  'RL = R_Th, and at that point exactly half the power is burned inside R_Th (efficiency = 50 %).';
+host.appendChild(note);
+</script>
+</body>
+</html>

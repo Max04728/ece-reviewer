@@ -1,0 +1,104 @@
+{
+  "scope": "Expand a smooth function about a point as a Taylor or Maclaurin series, and quote the standard series that most exam expansions are built from.",
+  "intuition": "A Taylor series rebuilds a function out of its derivatives at one point. Every term is chosen so that the series matches one more derivative of the function at the centre, which is why the coefficients carry $1/n!$.",
+  "concept": [
+    "**The expansion is forced by matching derivatives.** Write $f(x) = \\sum_{n=0}^{\\infty}c_n(x-a)^n$ and differentiate $k$ times at $x=a$. Every term except the $k$-th dies, leaving $f^{(k)}(a) = k!\\,c_k$, so $c_k = f^{(k)}(a)/k!$. Nothing is chosen: once you decide to expand about $a$, the coefficients are determined. A Maclaurin series is the special case $a=0$, and most exam questions are Maclaurin by another name.",
+    "**The standard series are the real toolkit.** Expanding $\\sin x$ term by term is slow and error-prone; quoting $\\sin x = x - x^3/3! + x^5/5! - \\cdots$ and substituting is fast and safe. The same six series — $e^x$, $\\sin x$, $\\cos x$, $1/(1-x)$, $\\ln(1+x)$ and the binomial $(1+x)^k$ — generate almost every expansion asked. Composition and algebra on these series (substituting $2x$ for $x$, multiplying by $x$, adding two series) is allowed inside the common interval of convergence and is where the marks are.",
+    "**Expanding about a point other than zero.** For $a \\neq 0$ write the function in powers of $(x-a)$ directly: for $1/x$ about $x=2$, factor out the centre: $\\frac{1}{2 + (x-2)} = \\frac{1}{2}\\cdot\\frac{1}{1 + \\frac{x-2}{2}}$. Then use the geometric series in the variable $u = (x-2)/2$. The radius of convergence is then set by $|u|<1$, i.e. $|x-2|<2$. Reusing a Maclaurin series for an off-centre expansion is the single most common structural error in this topic.",
+    "**When the expansion fails.** Convergence of the series to the function requires the remainder $R_n(x)\\to 0$, which is not automatic: $f(x) = e^{-1/x^2}$ (with $f(0)=0$) is infinitely differentiable at 0 but every derivative there is zero, so its Maclaurin series is identically zero and represents the function only at $x=0$. Likewise the radius is finite whenever the function has a singularity in the complex plane at distance $R$ from the centre, even if that singularity is not on the real axis — $1/(1+x^2)$ has $R=1$ from its poles at $x=\\pm j$ despite being perfectly smooth for all real $x$.",
+    "**Where the series is valid.** Inside the open interval of convergence the series may be differentiated and integrated term by term, which is what makes series the standard tool for limits, approximate integration and solving differential equations by assuming a power-series solution. Outside it the series is worthless no matter how many terms you take."
+  ],
+  "formulas": [
+    { "q": "Taylor series about a", "e": "f(x) = \\sum_{n=0}^{\\infty}\\frac{f^{(n)}(a)}{n!}(x-a)^{n}", "n": "Needs $f$ infinitely differentiable at $a$ and $R_n(x)\\to 0$ for equality." },
+    { "q": "Maclaurin series", "e": "f(x) = \\sum_{n=0}^{\\infty}\\frac{f^{(n)}(0)}{n!}x^{n}", "n": "The $a=0$ case; covers most exam expansions." },
+    { "q": "Taylor polynomial of degree N", "e": "P_N(x) = \\sum_{n=0}^{N}\\frac{f^{(n)}(a)}{n!}(x-a)^{n}", "n": "Truncation; the error is $f-P_N$ (see the truncation-error topic)." },
+    { "q": "Exponential", "e": "e^{x} = \\sum_{n=0}^{\\infty}\\frac{x^{n}}{n!} = 1 + x + \\frac{x^{2}}{2!} + \\frac{x^{3}}{3!} + \\cdots", "n": "Converges for all real x; every term has the factorial." },
+    { "q": "Sine", "e": "\\sin x = x - \\frac{x^{3}}{3!} + \\frac{x^{5}}{5!} - \\cdots", "n": "Odd powers only, alternating. x must be in radians." },
+    { "q": "Cosine", "e": "\\cos x = 1 - \\frac{x^{2}}{2!} + \\frac{x^{4}}{4!} - \\cdots", "n": "Even powers only, alternating. x in radians." },
+    { "q": "Geometric", "e": "\\frac{1}{1-x} = \\sum_{n=0}^{\\infty}x^{n},\\qquad \\lvert x \\rvert<1", "n": "The workhorse for rational functions; valid only inside $|x|<1$." },
+    { "q": "Logarithm", "e": "\\ln(1+x) = x - \\frac{x^{2}}{2} + \\frac{x^{3}}{3} - \\cdots,\\qquad -1<x\\leq 1", "n": "No factorials; the boundary $x=1$ converges conditionally, $x=-1$ diverges." },
+    { "q": "Binomial", "e": "(1+x)^{k} = 1 + kx + \\frac{k(k-1)}{2!}x^{2} + \\cdots", "n": "Any real k; reduces to a finite sum when k is a non-negative integer." },
+    { "q": "Shifted geometric", "e": "\\frac{1}{x} = \\frac{1}{a}\\cdot\\frac{1}{1+\\frac{x-a}{a}} = \\sum_{n=0}^{\\infty}\\frac{(-1)^{n}(x-a)^{n}}{a^{n+1}}", "n": "Expands about $x=a\\neq 0$ with radius $|x-a|<|a|$." }
+  ],
+  "problems": [
+    {
+      "prompt": "Find the Maclaurin series of $f(x) = e^{-2x}$ through the $x^{3}$ term and state its radius of convergence.",
+      "give": ["f(x) = e^{-2x}"],
+      "steps": [
+        "Start from $e^{u} = 1 + u + \\frac{u^{2}}{2!} + \\frac{u^{3}}{3!} + \\cdots$",
+        "Substitute $u = -2x$: $e^{-2x} = 1 + (-2x) + \\frac{(-2x)^{2}}{2!} + \\frac{(-2x)^{3}}{3!} + \\cdots$",
+        "$= 1 - 2x + \\frac{4x^{2}}{2} - \\frac{8x^{3}}{6} + \\cdots$",
+        "$= 1 - 2x + 2x^{2} - \\frac{4}{3}x^{3} + \\cdots$",
+        "The exponential series converges for all $u$, so $R = \\infty$"
+      ],
+      "ans": "$e^{-2x} = 1 - 2x + 2x^{2} - \\frac{4}{3}x^{3} + \\cdots$, $R=\\infty$",
+      "trap": "Forgetting the factorial and writing the $x^{2}$ coefficient as 4 instead of $4/2! = 2$, or the $x^{3}$ coefficient as $-8$ instead of $-8/3! = -4/3$.", "calc": {"mode":"COMP","steps":["Truncation check at $x = 0.1$: `1-2×0.1+2×0.1²-(4÷3)×0.1³` → **0.8186667**.","`e^(-0.2)` → **0.8187308**. Agreement to five places says the coefficients $1, -2, 2, -4/3$ are right."],"note":"Without the factorial: `1-2×0.1+4×0.1²-(8÷6)×0.1³` → **0.8386667**, wrong in the second decimal."}
+    },
+    {
+      "prompt": "Write the Maclaurin series of $\\cos x$ through the $x^{4}$ term.",
+      "give": ["f(x) = \\cos x"],
+      "steps": [
+        "$f(0) = 1$, $f'(0) = -\\sin 0 = 0$",
+        "$f''(0) = -\\cos 0 = -1$, so the $x^{2}$ term is $-x^{2}/2!$",
+        "$f'''(0) = \\sin 0 = 0$, so there is no $x^{3}$ term",
+        "$f^{(4)}(0) = \\cos 0 = 1$, so the $x^{4}$ term is $x^{4}/4!$",
+        "$\\cos x = 1 - \\frac{x^{2}}{2} + \\frac{x^{4}}{24} - \\cdots$"
+      ],
+      "ans": "$\\cos x = 1 - \\frac{x^{2}}{2} + \\frac{x^{4}}{24} - \\cdots$",
+      "trap": "Supplying odd powers because sine has them next to it, or writing the $x^{4}$ coefficient as $1/4$ instead of $1/4! = 1/24$. Cosine carries only even powers."
+    },
+    {
+      "prompt": "Find the Taylor series of $f(x) = \\ln x$ about $x = 1$ and state its interval of convergence.",
+      "give": ["f(x) = ln x", "a = 1"],
+      "steps": [
+        "Let $u = x - 1$, so $\\ln x = \\ln(1+u)$",
+        "Quote $\\ln(1+u) = u - \\frac{u^{2}}{2} + \\frac{u^{3}}{3} - \\cdots$ for $-1 < u \\leq 1$",
+        "Substitute back: $\\ln x = (x-1) - \\frac{(x-1)^{2}}{2} + \\frac{(x-1)^{3}}{3} - \\cdots = \\sum_{n=1}^{\\infty}\\frac{(-1)^{n+1}(x-1)^{n}}{n}$",
+        "The condition $-1 < u \\leq 1$ becomes $0 < x \\leq 2$"
+      ],
+      "ans": "$\\ln x = \\sum_{n=1}^{\\infty}\\frac{(-1)^{n+1}(x-1)^{n}}{n}$ on $0 < x \\leq 2$",
+      "trap": "Expanding $\\ln x$ as a Maclaurin series. $\\ln 0$ is undefined, so no Maclaurin series exists; the expansion must be about a positive centre, here $x=1$."
+    },
+    {
+      "prompt": "Expand $f(x) = \\dfrac{1}{x}$ in powers of $(x-2)$ and give the radius of convergence.",
+      "give": ["f(x) = 1/x", "a = 2"],
+      "steps": [
+        "Write the denominator around the centre: $x = 2 + (x-2)$",
+        "$\\frac{1}{x} = \\frac{1}{2 + (x-2)} = \\frac{1}{2}\\cdot\\frac{1}{1 + \\frac{x-2}{2}}$",
+        "Geometric series with $u = \\frac{x-2}{2}$: $\\frac{1}{2}\\sum_{n=0}^{\\infty}\\left(-\\frac{x-2}{2}\\right)^{n}$",
+        "$= \\sum_{n=0}^{\\infty}\\frac{(-1)^{n}(x-2)^{n}}{2^{n+1}} = \\frac{1}{2} - \\frac{x-2}{4} + \\frac{(x-2)^{2}}{8} - \\cdots$",
+        "$|u| < 1 \\Rightarrow |x-2| < 2$, so $R = 2$ — the distance from the centre to the pole at $x=0$"
+      ],
+      "ans": "$\\frac{1}{x} = \\sum_{n=0}^{\\infty}\\frac{(-1)^{n}(x-2)^{n}}{2^{n+1}}$, $R = 2$",
+      "trap": "Using the Maclaurin geometric series $1/(1-x)$ and leaving the answer in powers of $x$. The question asks for powers of $(x-2)$; the factor of $1/2$ in front and the doubling in the denominator are the sign that the centre was handled correctly.", "calc": {"mode":"COMP","steps":["Partial sums at $x = 2.5$: `0.5-0.125+0.03125` → **0.40625**, then `-0.125÷16` → **0.3984375**.","`1÷2.5` → **0.4** sits between the two, so the centre is 2 and the powers are $(x-2)$."],"note":"A Maclaurin answer left in powers of $x$ gives $1-2.5+6.25-\\cdots$ and misses 0.4 entirely."}
+    },
+    {
+      "prompt": "Use series to evaluate $\\displaystyle\\lim_{x\\to 0}\\frac{e^{x} - 1 - x}{x^{2}}$.",
+      "give": ["limit of the form 0/0"],
+      "steps": [
+        "Expand the numerator: $e^{x} = 1 + x + \\frac{x^{2}}{2} + \\frac{x^{3}}{6} + \\cdots$",
+        "$e^{x} - 1 - x = \\frac{x^{2}}{2} + \\frac{x^{3}}{6} + \\cdots$",
+        "Divide by $x^{2}$: $\\frac{e^{x}-1-x}{x^{2}} = \\frac{1}{2} + \\frac{x}{6} + \\cdots$",
+        "Let $x\\to 0$: the limit is $1/2$"
+      ],
+      "ans": "$\\dfrac{1}{2}$",
+      "trap": "Applying L'Hopital twice and losing track of the sign, or stopping after one differentiation. The series expansion exposes the answer in one line and is far less error-prone for a $0/0$ limit.", "calc": {"mode":"COMP","steps":["`(e^0.001-1-0.001) ÷ 0.001²` → **0.5001667**.","At $x = 10^{-4}$: `(e^0.0001-1-0.0001) ÷ 0.0001²` → **0.5000167**, so the limit is $1/2$."],"note":"Two evaluations replace two L'Hopital differentiations; the numbers converge on the series coefficient $1/2$."}
+    }
+  ],
+  "traps": [
+    "**Degrees inside a trigonometric series.** $\\sin x = x - x^{3}/6 + \\cdots$ assumes $x$ in radians. Substituting $x = 30$ because the angle is $30^\\circ$ gives a wildly wrong number.",
+    "**Dropping the factorial.** The $n$-th term carries $1/n!$: the $x^{4}$ coefficient of $\\cos x$ is $1/24$, not $1/4$. Only $\\ln(1+x)$ and $1/(1-x)$ are factorial-free.",
+    "**Using a Maclaurin series for an off-centre expansion.** $\\ln x$ has no Maclaurin series at all (undefined at 0), and $1/x$ about $x=2$ must be written in powers of $(x-2)$.",
+    "**Ignoring the radius.** A Taylor series equals the function only inside its interval of convergence. $1/x$ about $x=2$ diverges for $x>4$ however many terms are taken.",
+    "**Assuming smooth implies expandable.** $e^{-1/x^{2}}$ has all derivatives zero at the origin, so its Maclaurin series is $0$, not the function. Smoothness alone does not guarantee a convergent Taylor series.",
+    "**Truncating before the needed derivative.** The degree-2 Taylor polynomial requires $f''(a)$ and the $x^{2}/2!$ term; stopping at the linear term is a different (and weaker) approximation.",
+    "**Radius set by real singularities only.** $1/(1+x^{2})$ has radius 1 about the origin because of the poles at $x = \\pm j$, even though the function is finite and smooth for every real $x$."
+  ],
+  "refs": [
+    "[[04_Power_Series_Radius_of_Convergence]]",
+    "[[06_Truncation_Error_and_Approximation]]",
+    "[[03_Sequences_and_Convergence_Tests]]",
+    "[[02_Differentiation_Rules]]"
+  ],
+  "prereqs": ["[[04_Power_Series_Radius_of_Convergence]]"]
+}

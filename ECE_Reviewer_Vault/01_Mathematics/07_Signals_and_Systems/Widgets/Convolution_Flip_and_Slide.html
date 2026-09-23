@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Convolution — Flip and Slide</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, trapezoid } from '../../../Assets/vault.js';
+
+// Convolution is almost always learned symbolically and almost never understood.
+// The whole method is: flip one signal, slide it, multiply, integrate the overlap.
+// Animating exactly that, with the running product shaded, is the fastest route to
+// the "aha" — especially the moment the overlap first becomes nonzero.
+
+const SIGNALS = {
+  'rect * rect (both width 1)': {
+    label: 'x(t) = rect(t),  h(t) = rect(t),  both width 1',
+    x: (t) => (t >= 0 && t <= 1 ? 1 : 0),
+    h: (u) => (u >= 0 && u <= 1 ? 1 : 0),
+    xr: [0, 1], hr: [0, 1], tr: [0, 2],
+    exact: (t) => (t <= 0 ? 0 : t >= 2 ? 0 : t < 1 ? t : 2 - t),
+  },
+  'exp decay * rect': {
+    label: 'x(t) = e^{−t}u(t),  h(t) = rect(t) width 1',
+    x: (t) => (t >= 0 ? Math.exp(-t) : 0),
+    h: (u) => (u >= 0 && u <= 1 ? 1 : 0),
+    xr: [0, 5], hr: [0, 1], tr: [0, 5],
+    exact: null,
+  },
+  'two triangles': {
+    label: 'x(t) = tri(t) width 2,  h(t) = tri(t) width 2',
+    x: (t) => (Math.abs(t) <= 1 ? 1 - Math.abs(t) : 0),
+    h: (u) => (Math.abs(u) <= 1 ? 1 - Math.abs(u) : 0),
+    xr: [-1, 1], hr: [-1, 1], tr: [-2, 2],
+    exact: null,
+  },
+};
+
+const keys = Object.keys(SIGNALS);
+
+widget({
+  title: 'Convolution — Flip and Slide',
+  description:
+    'Convolution is flip, shift, multiply, integrate. Slide t and watch the overlap region (shaded) grow and shrink — that area IS the convolution at that instant.',
+  height: 470,
+  range: { xMin: -0.5, xMax: 5, yMin: -0.15, yMax: 1.6 },
+  controls: [
+    { id: 'which', label: 'signal pair', type: 'select', options: keys, value: keys[0] },
+    { id: 't', label: 'shift t', min: -2, max: 5, step: 0.02, value: 0.5 },
+    { id: 'play', label: 'animate slide', type: 'checkbox', value: false },
+  ],
+  compute: (v) => {
+    const S = SIGNALS[v.which];
+    const t = v.t;
+    // y(t) = integral x(tau) h(t - tau) dtau
+    const integrand = (tau) => S.x(tau) * S.h(t - tau);
+    const y = trapezoid(integrand, -3, 8, 2000);
+    // overlap window where the product is nonzero
+    const lo = Math.max(S.xr[0], t - S.hr[1]);
+    const hi = Math.min(S.xr[1], t - S.hr[0]);
+    return { S, t, y, lo, hi, hasOverlap: hi > lo, integrand };
+  },
+  draw: (ctx, v, out, plot) => {
+    const { S, t } = out;
+    plot.setRange({ xMin: S.tr[0] - 0.5, xMax: S.tr[1] + 0.5, yMin: -0.15, yMax: 1.55 });
+    plot.clear().grid(0.5, 0.25).axes();
+
+    // x(tau)
+    plot.fn(S.x, S.tr[0] - 0.2, S.tr[1] + 0.2, { color: PALETTE.accent, width: 2, samples: 700 });
+    // h(t - tau): reflected and shifted
+    plot.fn((tau) => S.h(t - tau), S.tr[0] - 0.2, S.tr[1] + 0.2, { color: PALETTE.accent5, width: 2, samples: 700 });
+
+    // shade the overlap region under the product
+    if (out.hasOverlap) {
+      const lo = out.lo, hi = out.hi;
+      ctx.save();
+      ctx.fillStyle = 'rgba(250,179,135,0.35)';
+      ctx.beginPath();
+      const N = 300;
+      ctx.moveTo(plot.X(lo), plot.Y(0));
+      for (let i = 0; i <= N; i++) {
+        const tau = lo + ((hi - lo) * i) / N;
+        const prod = out.integrand(tau);
+        ctx.lineTo(plot.X(tau), plot.Y(prod));
+      }
+      ctx.lineTo(plot.X(hi), plot.Y(0));
+      ctx.closePath();
+      ctx.fill();
+
+      // outline the product itself
+      plot.fn((tau) => (tau >= lo && tau <= hi ? out.integrand(tau) : NaN), lo, hi, {
+        color: PALETTE.accent4, width: 2, samples: 400,
+      });
+      ctx.restore();
+    }
+
+    plot.text(S.label, plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('blue = x(τ)   purple = h(t−τ)   orange = product', plot.pad + 6, plot.pad + 30, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    if (out.hasOverlap) {
+      plot.text('overlap area = y(t) = ' + fmt(out.y, 4), plot.pad + 6, plot.pad + 46, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+    } else {
+      plot.text('no overlap  →  y(t) = 0', plot.pad + 6, plot.pad + 46, { color: PALETTE.accent2, font: '12px ui-monospace, monospace' });
+    }
+  },
+  readout: (out) => {
+    const rows = {
+      'shift t': fmt(out.t, 4),
+      'h reflected about': 'τ = ' + fmt(out.t - 0, 3),
+      'overlap interval': out.hasOverlap ? '[' + fmt(out.lo, 3) + ', ' + fmt(out.hi, 3) + ']' : 'none',
+      'overlap width': fmt(Math.max(0, out.hi - out.lo), 4),
+      'y(t) = area': fmt(out.y, 6),
+    };
+    if (out.S.exact) rows['y(t) exact (check)'] = fmt(out.S.exact(out.t), 6);
+    return rows;
+  },
+  onChange: (v, state) => {
+    // animate the slide when the checkbox is on
+    if (v.play && !state._raf) {
+      const tick = () => {
+        if (!state.values.play) { state._raf = null; return; }
+        let t = state.values.t + 0.03;
+        if (t > 5) t = -2;
+        state.values.t = t;
+        const rng = document.querySelectorAll('input[type="range"].vault-widget-input')[0];
+        if (rng) rng.value = t;
+        window.dispatchEvent(new Event('resize'));
+        state._raf = requestAnimationFrame(tick);
+      };
+      state._raf = requestAnimationFrame(tick);
+    }
+  },
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The four steps, made visible.</strong> (1) <em>Flip</em> h about the vertical axis to get h(−τ). ' +
+  '(2) <em>Shift</em> it by t to get h(t−τ). (3) <em>Multiply</em> pointwise with x(τ) — that product is the orange curve. ' +
+  '(4) <em>Integrate</em> — the shaded area is y(t). The convolution is zero until the flipped signal starts to overlap, ' +
+  'which is why y(t) always begins at the sum of the two signals\' start times.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

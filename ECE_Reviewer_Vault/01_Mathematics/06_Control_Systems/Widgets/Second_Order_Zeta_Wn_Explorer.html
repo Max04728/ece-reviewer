@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Second Order System — ζ and ωn Explorer</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// This is the single most important graph in control systems. Students memorise
+// "ζ < 1 is underdamped" without connecting it to the pole location, the overshoot
+// percentage, or the settling time. Sliding ζ and watching all of those move together
+// is what builds the intuition.
+
+function stepResponse(zeta, wn, t) {
+  // Standard second-order step response, unit step input.
+  if (zeta < 1) {
+    const wd = wn * Math.sqrt(1 - zeta * zeta);
+    const phi = Math.acos(zeta);
+    return 1 - (Math.exp(-zeta * wn * t) / Math.sqrt(1 - zeta * zeta)) * Math.sin(wd * t + phi);
+  }
+  if (Math.abs(zeta - 1) < 1e-9) {
+    return 1 - Math.exp(-wn * t) * (1 + wn * t);
+  }
+  const s = wn * Math.sqrt(zeta * zeta - 1);
+  const r1 = -zeta * wn + s;
+  const r2 = -zeta * wn - s;
+  return 1 - (r2 * Math.exp(r1 * t) - r1 * Math.exp(r2 * t)) / (r2 - r1);
+}
+
+widget({
+  title: 'Second Order System — Damping Ratio and Natural Frequency',
+  description:
+    'The pole pair moves, the step response changes shape, and the overshoot and settling time follow. ζ = 1 is critically damped; ζ ≥ 1 shows no overshoot at all.',
+  height: 460,
+  range: { xMin: 0, xMax: 5, yMin: -0.2, yMax: 1.6 },
+  controls: [
+    { id: 'zeta', label: 'damping ratio ζ', min: 0, max: 2, step: 0.01, value: 0.3 },
+    { id: 'wn', label: 'natural frequency ωn (rad/s)', min: 0.5, max: 8, step: 0.1, value: 2 },
+    { id: 'tmax', label: 'time window (s)', min: 1, max: 20, step: 0.5, value: 6 },
+  ],
+  compute: (v) => {
+    const { zeta, wn, tmax } = v;
+    const wd = zeta < 1 ? wn * Math.sqrt(1 - zeta * zeta) : 0;
+    const Mp = zeta < 1 ? Math.exp((-Math.PI * zeta) / Math.sqrt(1 - zeta * zeta)) : 0;
+    const tp = zeta < 1 && wd > 0 ? Math.PI / wd : NaN;
+    const ts2 = 4 / (zeta * wn);
+    const ts5 = 3 / (zeta * wn);
+    const tr = zeta < 1 && wd > 0 ? (Math.PI - Math.acos(zeta)) / wd : NaN;
+    let regime = 'undamped';
+    if (zeta > 1.0001) regime = 'overdamped (two real poles)';
+    else if (Math.abs(zeta - 1) <= 0.0001) regime = 'critically damped (repeated pole)';
+    else if (zeta > 0.0001) regime = 'underdamped (complex pole pair)';
+    return { zeta, wn, tmax, wd, Mp, tp, ts2, ts5, tr, regime };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: 0, xMax: v.tmax, yMin: -0.15, yMax: 1.55 });
+    plot.clear().grid(0.5, 0.25).axes();
+
+    // final value reference
+    plot.segment(0, 1, v.tmax, 1, { color: PALETTE.grid, dash: [4, 4], width: 1 });
+
+    // +/- 2% settling band
+    plot.segment(0, 1.02, v.tmax, 1.02, { color: 'rgba(166,227,161,0.45)', width: 1, dash: [2, 3] });
+    plot.segment(0, 0.98, v.tmax, 0.98, { color: 'rgba(166,227,161,0.45)', width: 1, dash: [2, 3] });
+
+    plot.fn((t) => stepResponse(out.zeta, out.wn, t), 0, v.tmax, { color: PALETTE.accent, width: 2.5, samples: 900 });
+
+    // mark peak and settling
+    if (isFinite(out.tp) && out.tp <= v.tmax) {
+      plot.dot(out.tp, 1 + out.Mp, { color: PALETTE.accent2, r: 4, label: 'Mp' });
+    }
+    if (out.ts2 <= v.tmax) {
+      plot.segment(out.ts2, 0, out.ts2, 1, { color: PALETTE.accent3, dash: [3, 3], width: 1.5 });
+      plot.label('ts(2%)', out.ts2, 0.15, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+
+    plot.text('unit step response', plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('poles: s = ' + fmt(-out.zeta * out.wn, 3) + ' ± j' + fmt(out.wd, 3), plot.pad + 6, plot.pad + 30, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+  },
+  readout: (out) => ({
+    'regime': out.regime,
+    'damped frequency ωd': fmt(out.wd, 4) + ' rad/s',
+    'percent overshoot': fmt(out.Mp * 100, 3) + ' %',
+    'peak time tp': isFinite(out.tp) ? fmt(out.tp, 4) + ' s' : '—',
+    'rise time tr (0-100%)': isFinite(out.tr) ? fmt(out.tr, 4) + ' s' : '—',
+    'settling ts (2%)': fmt(out.ts2, 4) + ' s',
+    'settling ts (5%)': fmt(out.ts5, 4) + ' s',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Reading the graph.</strong> Percent overshoot depends on ζ <em>alone</em> — ωn only stretches the time axis. ' +
+  'Settling time scales as 1/(ζωn), which is why the product ζωn (the real part of the poles) controls how fast the transient dies. ' +
+  'Push ζ above 1 and the oscillation disappears entirely: two real poles, no overshoot, but a slower rise.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{
+  "scope": "Decide how a pair of atoms bonds from their electrons, then predict the shape, hybridisation and net polarity that follow.",
+  "intuition": "Bonding is electron bookkeeping with a shape attached: count the electron domains around the central atom and the geometry follows, whether or not those domains hold bonding pairs.",
+  "concept": [
+    "**Three bonding modes, one driving idea.** Ionic bonding transfers electrons to a much more electronegative partner and holds the ions in a lattice; covalent bonding shares them; metallic bonding delocalises them over a lattice of cations. The larger the electronegativity difference, the more ionic the bond, but the transition is gradual: HF ($\\Delta\\chi = 1.78$) is a polar covalent gas, not an ionic solid. Lattice energy, not bond strength, is what makes ionic solids high-melting — $U$ grows with the product of the ion charges and shrinks with the ion separation, which is why MgO melts near $2850\\ ^\\circ\\mathrm{C}$ and NaCl near $801\\ ^\\circ\\mathrm{C}$.",
+    "**Lewis structures: the method.** Count total valence electrons, add one per negative charge or subtract one per positive charge. Build the skeleton with the least electronegative atom central, join with single bonds, then complete octets on the terminal atoms with lone pairs. If electrons remain, put them on the central atom. Finally compute formal charge, $FC = V - N - B/2$, on every atom and, if the structure is not the lowest-energy one, convert terminal lone pairs into multiple bonds until the formal charges are minimised. The formal charges must sum to the overall charge of the species — that sum is a free self-check.",
+    "**VSEPR: geometry from the steric number.** The steric number is bonded atoms plus lone pairs on the central atom. SN = 2, 3, 4, 5, 6 give electron-domain geometries linear, trigonal planar, tetrahedral, trigonal bipyramidal and octahedral. Lone pairs repel more strongly than bonding pairs, so they occupy the roomiest sites and compress the remaining angles: $\\mathrm{CH_4}$ is $109.5^\\circ$, $\\mathrm{NH_3}$ is $107^\\circ$, $\\mathrm{H_2O}$ is $104.5^\\circ$. The molecular shape is the domain geometry with the lone pairs removed from the name — hence SN = 3 with one lone pair is 'bent', not 'trigonal planar'.",
+    "**Hybridisation is a bookkeeping label for the same count.** SN = 2, 3, 4, 5, 6 map to $sp$, $sp^2$, $sp^3$, $sp^3d$ and $sp^3d^2$. Lone pairs count, so water is $sp^3$ despite having only two bonds. A double bond is one sigma plus one pi; the pi uses unhybridised p orbitals and does not change the hybridisation of the central atom, which is why the carboxyl carbon of acetic acid is $sp^2$ even though it makes four bonds in total.",
+    "**Polarity is a vector sum, not an average.** A polar bond contributes a dipole along the bond axis; the molecule's net dipole is the vector sum. Symmetric arrangements cancel exactly — $\\mathrm{CO_2}$ (linear) and $\\mathrm{CCl_4}$ (tetrahedral) are nonpolar despite strongly polar bonds — while a bent or pyramidal arrangement leaves a residual dipole, which is why $\\mathrm{SO_2}$ ($\\mu = 1.63\\ \\mathrm{D}$) and $\\mathrm{NH_3}$ ($\\mu = 1.47\\ \\mathrm{D}$) are polar. Lone pairs contribute to the dipole as well, so a molecule can be polar with no electronegativity difference at all in the bonds, as in ozone."
+  ],
+  "formulas": [
+    { "q": "Formal charge", "e": "FC = V - N - \\frac{B}{2}", "n": "V = valence electrons of the free atom, N = its nonbonding electrons, B = its bonding electrons. The FC values must sum to the species charge." },
+    { "q": "Steric number", "e": "SN = \\#\\mathrm{bonded\\ atoms} + \\#\\mathrm{lone\\ pairs\\ on\\ the\\ central\\ atom}", "n": "Lone pairs on TERMINAL atoms are not counted. Counting them inflates SN and changes the predicted shape." },
+    { "q": "VSEPR domain geometries", "e": "SN = 2,3,4,5,6 \\Rightarrow \\mathrm{linear,\\ trigonal\\ planar,\\ tetrahedral,\\ trigonal\\ bipyramidal,\\ octahedral}", "n": "These are electron-domain shapes. The molecular shape drops the lone pairs: SN = 6 with 2 lone pairs is square planar." },
+    { "q": "Hybridisation from SN", "e": "SN = 2,3,4,5,6 \\Rightarrow sp, sp^2, sp^3, sp^3d, sp^3d^2", "n": "Lone pairs count, so H2O is sp^3 with two lone pairs, not sp." },
+    { "q": "Net dipole moment", "e": "\\vec{\\mu}_{net} = \\sum \\vec{\\mu}_{bonds}", "n": "Vector sum with geometry. Identical bonds in a symmetric arrangement cancel: CO2 has Delta-chi = 1.0 per bond and zero net dipole." },
+    { "q": "Bond order", "e": "BO = \\frac{\\mathrm{bonding} - \\mathrm{antibonding}}{2}", "n": "Molecular-orbital definition. Higher BO means shorter and stronger: O2 has BO 2 and is paramagnetic with two unpaired electrons." },
+    { "q": "Lattice energy (coulombic)", "e": "U \\propto \\frac{\\lvert q_+ q_- \\rvert}{r_+ + r_-}", "n": "Charges dominate: doubling both charges quadruples U, while shrinking the radii by 10% raises it only about 11%." },
+    { "q": "Percent ionic character", "e": "\\%\\ \\mathrm{ionic} \\approx 16\\lvert \\Delta\\chi \\rvert + 3.5\\lvert \\Delta\\chi \\rvert^2", "n": "Hannay-Smyth estimate from Pauling electronegativities; 0% is a pure covalent bond, 100% a full charge transfer." },
+    { "q": "Lone-pair repulsion ordering", "e": "\\mathrm{lone-lone} > \\mathrm{lone-bond} > \\mathrm{bond-bond}", "n": "Why angles close in sequence: CH4 109.5 deg > NH3 107 deg > H2O 104.5 deg as lone pairs are added." }
+  ],
+  "problems": [
+    {
+      "prompt": "Draw the best Lewis structure of $\\mathrm{SO_2}$, give its molecular geometry and say whether it is polar.",
+      "give": ["S is the central atom", "SO2 has 18 valence electrons"],
+      "steps": [
+        "Valence electrons: 6 (S) + 2 × 6 (O) = 18, i.e. 9 pairs",
+        "Skeleton O–S–O with two single bonds: completing the oxygen octets leaves exactly one lone pair on S, but that gives S only 6 electrons and formal charges of +2, −1, −1",
+        "Move one oxygen lone pair into a second S–O bond: O=S–O with one lone pair on S gives every atom an octet and formal charges +1, 0, −1, whose sum is 0",
+        "The two resonance forms are equivalent, so both S–O bonds are identical and shorter than a single bond",
+        "Steric number on S = 2 bonded atoms + 1 lone pair = 3 → trigonal planar domain geometry, so the molecular shape is bent (about 119°)",
+        "The two S–O bond dipoles do not cancel in a bent shape, so the molecule has a net dipole"
+      ],
+      "ans": "Bent (about $119^\\circ$), $sp^2$ on sulfur, polar with $\\mu = 1.63\\ \\mathrm{D}$.",
+      "trap": "Concluding 'two identical S–O bonds, therefore nonpolar' by analogy with CO2. CO2 is linear so its dipoles cancel exactly; SO2 is bent because of the lone pair on S, so they add."
+    },
+    {
+      "prompt": "Predict the molecular geometry, hybridisation and polarity of $\\mathrm{XeF_4}$.",
+      "give": ["Xe is the central atom", "8 valence electrons on Xe, 7 on each F"],
+      "steps": [
+        "Valence electrons: 8 (Xe) + 4 × 7 (F) = 36, i.e. 18 pairs",
+        "Four Xe–F single bonds use 8 electrons; each F then takes 3 lone pairs = 24 electrons",
+        "Electrons left on Xe: 36 − 8 − 24 = 4, which is 2 lone pairs",
+        "Steric number = 4 bonded atoms + 2 lone pairs = 6 → octahedral domain geometry",
+        "The two lone pairs go opposite each other (axial, 180° apart) to minimise repulsion, leaving the four F atoms in a plane → square planar, $sp^3d^2$",
+        "The four Xe–F dipoles are symmetrically arranged and cancel, so the molecule is nonpolar"
+      ],
+      "ans": "Square planar, $sp^3d^2$, nonpolar.",
+      "trap": "Placing the two lone pairs adjacent, which gives a see-saw shape and a net dipole. For SN = 6, lone pairs always take the two axial positions so they are 180° apart."
+    },
+    {
+      "prompt": "For the best Lewis structure of the nitrate ion $\\mathrm{NO_3^-}$, find the formal charge on the nitrogen and on each oxygen.",
+      "give": ["N is the central atom", "one N=O and two N–O bonds", "no lone pair on N"],
+      "steps": [
+        "Valence electrons: 5 (N) + 3 × 6 (O) + 1 (for the −1 charge) = 24, i.e. 12 pairs",
+        "Bonding around N: one double bond (4 e⁻) + two single bonds (4 e⁻) = 8 e⁻; oxygen lone pairs 4 + 6 + 6 = 16 e⁻; total 8 + 16 = 24 ✓",
+        "$FC(\\mathrm{N}) = 5 - 0 - 8/2 = +1$",
+        "$FC(\\mathrm{O}_{double}) = 6 - 4 - 4/2 = 0$; $FC(\\mathrm{O}_{single}) = 6 - 6 - 2/2 = -1$ each",
+        "Check: $+1 + 0 + (-1) + (-1) = -1$, the charge of the ion ✓"
+      ],
+      "ans": "$FC(\\mathrm{N}) = +1$, double-bonded O = 0, each single-bonded O = $-1$; the sum is $-1$.",
+      "trap": "Forgetting to add the ionic charge to the valence-electron count and using 23 instead of 24. The formal charges then fail to sum to the ion charge, which is the built-in signal that the structure is wrong."
+    },
+    {
+      "prompt": "For acetic acid $\\mathrm{CH_3COOH}$, count the sigma and pi bonds and give the hybridisation of each carbon.",
+      "give": ["skeleton CH3–C(=O)–OH"],
+      "steps": [
+        "Sigma bonds: 3 C–H + 1 C–C + the sigma of the C=O + 1 C–O + 1 O–H = 7",
+        "Pi bonds: the second bond of C=O = 1; the C–C and C–O single bonds contribute none",
+        "Methyl carbon: 4 sigma bonds and no lone pair → $sp^3$",
+        "Carboxyl carbon: 3 sigma bonds (C, O, O) and no lone pair → $sp^2$, with the pi bond using its unhybridised p orbital"
+      ],
+      "ans": "7 sigma bonds and 1 pi bond; the methyl carbon is $sp^3$ and the carboxyl carbon is $sp^2$.",
+      "trap": "Counting the C=O as one bond and reporting 6 sigma and 0 pi, or counting it as two sigma bonds. A double bond is always exactly one sigma plus one pi."
+    }
+  ],
+  "traps": [
+    "**Assuming identical bonds mean a nonpolar molecule.** CO2 and SO2 both have two equivalent polar bonds; CO2 is linear so the dipoles cancel and SO2 is bent so they add. Geometry decides polarity, never the bond count.",
+    "**Putting lone pairs in the wrong VSEPR site for SN = 5 or 6.** Trigonal bipyramidal lone pairs go equatorial (120° apart) and octahedral lone pairs go axial and opposite. Placing them anywhere else turns SF4 into a trigonal pyramid instead of a see-saw.",
+    "**Forgetting the ionic charge in the valence-electron count.** $\\mathrm{NO_3^-}$ has 24 valence electrons, not 23; an off-by-one count produces a structure whose formal charges do not sum to the ion charge, which is exactly the check that would have caught it.",
+    "**Treating a double bond as two sigma bonds.** A double bond is one sigma plus one pi, and the pi does not change hybridisation — so the carboxyl carbon of $\\mathrm{CH_3COOH}$ is $sp^2$, not $sp^3d$.",
+    "**Using $\\Delta\\chi > 1.7$ as a hard ionic/covalent boundary.** It is a rough cut on a continuum; HF ($\\Delta\\chi = 1.78$) is a polar covalent gas and BeCl2 ($\\Delta\\chi = 1.5$) is largely ionic in the solid state.",
+    "**Counting terminal lone pairs in the steric number.** Only domains on the central atom count. Adding the three lone pairs of each F in XeF4 gives SN = 16 and no recognisable geometry."
+  ],
+  "refs": [
+    "[[01_Atomic_Structure_and_Configurations]]",
+    "[[02_Periodic_Trends]]",
+    "[[06_Solutions_and_Concentration_Units]]"
+  ],
+  "prereqs": [
+    "[[01_Atomic_Structure_and_Configurations]]",
+    "[[02_Periodic_Trends]]"
+  ]
+}

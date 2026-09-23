@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bernoulli Pipe Flow</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, clamp } from '../../../Assets/vault.js';
+
+/* ============================================================================
+ * Bernoulli pipe flow with a change of section AND a change of elevation.
+ *
+ *   continuity      A1.v1 = A2.v2          ->  v2 = v1 . (D1/D2)^2
+ *   Bernoulli       p1 + (1/2).rho.v1^2 + rho.g.z1
+ *                     = p2 + (1/2).rho.v2^2 + rho.g.z2
+ *   head form       p/(rho.g) + v^2/(2g) + z = H = constant
+ *
+ * The numbers a LET question turns on:
+ *   - halving the diameter quadruples the velocity (area goes as D^2)
+ *   - a velocity increase ALWAYS drops the static pressure unless the pipe also
+ *     drops in elevation enough to pay for it
+ *   - with z1 = z2 the whole thing collapses to the venturi relation
+ *       p1 - p2 = (1/2).rho.(v2^2 - v1^2)
+ *
+ * The widget shows the three head terms at each section so the student can see
+ * that the TOTAL head is the conserved quantity, not the pressure.
+ * ==========================================================================*/
+
+widget({
+  title: 'Bernoulli Pipe Flow — Continuity, Velocity and Pressure Head',
+  description:
+    'Two pipe sections with different diameters and elevations. Continuity fixes the velocities and Bernoulli ' +
+    'fixes the pressures; the three head terms are shown at each section so the conserved quantity is visible.',
+  height: 470,
+  range: { xMin: -0.6, xMax: 1.6, yMin: -1.6, yMax: 1.6 },
+  controls: [
+    { id: 'D1', label: 'inlet diameter D1 (m)', min: 0.02, max: 0.6, step: 0.005, value: 0.2 },
+    { id: 'D2', label: 'outlet diameter D2 (m)', min: 0.02, max: 0.6, step: 0.005, value: 0.1 },
+    { id: 'dz', label: 'elevation change z2 - z1 (m)', min: -10, max: 10, step: 0.1, value: 2 },
+    { id: 'modeIn', label: 'inlet given as', type: 'select', options: [
+      { value: 'v', label: 'velocity v1' }, { value: 'p', label: 'pressure p1' }], value: 'v' },
+    { id: 'vin', label: 'inlet velocity v1 (m/s)', min: 0.1, max: 30, step: 0.1, value: 3 },
+    { id: 'pin', label: 'inlet pressure p1 (kPa gauge)', min: 0, max: 1000, step: 5, value: 250 },
+    { id: 'rho', label: 'fluid density rho (kg/m^3)', min: 500, max: 1400, step: 10, value: 1000 },
+    { id: 'showHead', label: 'show head bars', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const g = 9.81;
+    const D1 = v.D1, D2 = v.D2, rho = v.rho, dz = v.dz;
+    const A1 = (Math.PI * D1 * D1) / 4;
+    const A2 = (Math.PI * D2 * D2) / 4;
+    const ratio = A1 / A2;
+    let v1, p1;
+    if (v.modeIn === 'v') {
+      v1 = v.vin;
+      p1 = v.pin * 1000;
+    } else {
+      p1 = v.pin * 1000;
+      // invert Bernoulli for v1 by solving a quadratic in v1:
+      //   p1 + .5.rho.v1^2 = p2 + .5.rho.(r.v1)^2 + rho.g.dz , with p2 = 0 (discharge to atmosphere)
+      const k = 0.5 * rho * (ratio * ratio - 1);
+      const rhs = rho * g * dz - p1;
+      v1 = rhs > 0 && k > 0 ? Math.sqrt(rhs / k) : NaN;
+    }
+    const v2 = ratio * v1;
+    const p2 = p1 + 0.5 * rho * (v1 * v1 - v2 * v2) - rho * g * dz;
+    const hP1 = p1 / (rho * g), hV1 = (v1 * v1) / (2 * g);
+    const hP2 = p2 / (rho * g), hV2 = (v2 * v2) / (2 * g);
+    const H = hP1 + hV1 + 0;
+    const H2 = hP2 + hV2 + dz;
+    const Q = A1 * v1;
+    const mdot = rho * Q;
+    const venturi = 0.5 * rho * (v2 * v2 - v1 * v1);
+    return {
+      g, D1, D2, rho, dz, A1, A2, ratio, v1, v2, p1, p2, Q, mdot,
+      hP1, hV1, hP2, hV2, H, H2, venturi, showHead: !!v.showHead,
+      modeIn: v.modeIn, valid: Number.isFinite(v1) && v1 > 0,
+      rhoG: rho * g,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const Dmax = Math.max(out.D1, out.D2, 0.05);
+    const ySpan = Math.max(0.9 * Dmax, 0.9 * Math.abs(out.dz) + 0.8 * Dmax, 0.3);
+    plot.setRange({ xMin: -0.6, xMax: 1.6, yMin: -ySpan, yMax: ySpan });
+    plot.clear().grid(0.5, 0.2).axes();
+
+    const y1 = 0.3 * Dmax;
+    const y2 = y1 + out.dz;
+    const r1 = out.D1 / 2, r2 = out.D2 / 2;
+
+    // pipe walls in DATA space via plot.X/plot.Y so the geometry is honest
+    const ycOf = (xc) => (xc < 0.5 ? y1 : y2);
+    const drawSection = (xc, r) => {
+      const yc = ycOf(xc);
+      const xl = plot.X(xc - 0.34), xr = plot.X(xc + 0.34);
+      const yt = plot.Y(yc + r), yb = plot.Y(yc - r);
+      ctx.save();
+      ctx.fillStyle = 'rgba(137,180,250,0.16)';
+      ctx.fillRect(xl, yt, xr - xl, yb - yt);
+      ctx.strokeStyle = PALETTE.accent;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(xl, yt); ctx.lineTo(xr, yt);
+      ctx.moveTo(xl, yb); ctx.lineTo(xr, yb);
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    drawSection(0, r1);
+    drawSection(1, r2);
+
+    // the transition (a contraction, drawn as a trapezoid between the sections)
+    ctx.save();
+    ctx.fillStyle = 'rgba(137,180,250,0.10)';
+    ctx.beginPath();
+    ctx.moveTo(plot.X(0.34), plot.Y(y1 + r1));
+    ctx.lineTo(plot.X(0.66), plot.Y(y2 + r2));
+    ctx.lineTo(plot.X(0.66), plot.Y(y2 - r2));
+    ctx.lineTo(plot.X(0.34), plot.Y(y1 - r1));
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = PALETTE.accent;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+
+    // centreline and the elevation difference
+    plot.segment(0.0, y1, 1.0, y2, { color: PALETTE.dim, width: 1, dash: [4, 4] });
+    plot.segment(1.28, y1, 1.28, y2, { color: PALETTE.accent4, width: 2 });
+    plot.label('dz = ' + fmt(out.dz, 4) + ' m', 1.32, (y1 + y2) / 2,
+      { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+
+    // velocity arrows (length proportional to speed)
+    const vScale = 0.55 / Math.max(out.v1, out.v2, 1e-9);
+    const arrow = (x, y, speed, color, label) => {
+      const L = speed * vScale;
+      ctx.save();
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(plot.X(x - 0.22), plot.Y(y));
+      ctx.lineTo(plot.X(x - 0.22 + L), plot.Y(y));
+      ctx.stroke();
+      const hx = plot.X(x - 0.22 + L), hy = plot.Y(y);
+      ctx.beginPath();
+      ctx.moveTo(hx, hy); ctx.lineTo(hx - 8, hy - 5); ctx.lineTo(hx - 8, hy + 5);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+      plot.label(label, x - 0.22, y + 0.16 * Dmax, { color, font: '11px ui-monospace, monospace' });
+    };
+    arrow(0, y1, out.v1, PALETTE.accent3, 'v1 = ' + fmt(out.v1, 4) + ' m/s');
+    arrow(1, y2, out.v2, PALETTE.accent2, 'v2 = ' + fmt(out.v2, 4) + ' m/s');
+
+    // pressure arrows at each section, pointing outward from the pipe wall
+    const pMax = Math.max(Math.abs(out.p1), Math.abs(out.p2), 1);
+    const pScale = (0.55 * Dmax) / pMax;
+    const pArrow = (xc, ycen, p, color) => {
+      const L = Math.abs(p) * pScale;
+      const dir = p >= 0 ? 1 : -1;
+      ctx.save();
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(plot.X(xc), plot.Y(ycen));
+      ctx.lineTo(plot.X(xc), plot.Y(ycen + dir * L));
+      ctx.stroke();
+      ctx.restore();
+      plot.label((p >= 0 ? '+' : '') + fmt(p / 1000, 4) + ' kPa', xc + 0.03, ycen + dir * (L + 0.1 * Dmax),
+        { color, font: '12px ui-monospace, monospace' });
+    };
+    pArrow(0, y1, out.p1, PALETTE.warn);
+    pArrow(1, y2, out.p2, PALETTE.accent5);
+
+    // head bars: pressure head / velocity head / elevation head at each section
+    if (out.showHead) {
+      const H = out.H;
+      const scale = 1.0 / Math.max(Math.abs(H), 1e-9);
+      const barW = 0.11;
+      const seg = (xc, base, h, color, label) => {
+        const y0 = base, y1b = base + h * scale;
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.fillRect(plot.X(xc - barW / 2), plot.Y(Math.max(y0, y1b)), plot.X(xc + barW / 2) - plot.X(xc - barW / 2),
+          Math.abs(plot.Y(y1b) - plot.Y(y0)));
+        ctx.restore();
+        if (label) plot.label(label, xc + barW * 0.7, (y0 + y1b) / 2, { color, font: '10px ui-monospace, monospace' });
+      };
+      seg(0.62, y1, out.hV1, PALETTE.accent3, null);
+      seg(0.62, y1 + out.hV1, out.hP1, PALETTE.warn, null);
+      seg(1.42, y2, out.hV2, PALETTE.accent3, null);
+      seg(1.42, y2 + out.hV2, out.hP2, PALETTE.warn, null);
+      plot.segment(0.5, H, 1.5, H, { color: PALETTE.accent2, width: 1, dash: [3, 4] });
+      plot.label('total head H = ' + fmt(H, 5) + ' m', 0.5, H + 0.05 * ySpan,
+        { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    }
+
+    plot.text('section 1  D1 = ' + fmt(out.D1, 3) + ' m  (inlet)', plot.X(-0.34), 16,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('section 2  D2 = ' + fmt(out.D2, 3) + ' m  (outlet)', plot.X(0.66), 16,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    if (!out.valid) {
+      plot.text('no solution: with p2 = 0 the inlet pressure cannot push the flow up that elevation',
+        plot.pad + 6, plot.h - 10, { color: PALETTE.accent2, font: '12px ui-monospace, monospace' });
+    }
+  },
+
+  readout: (out) => ({
+    'A1 = A2 velocity ratio': fmt(out.ratio, 5) + ' x',
+    'v1': fmt(out.v1, 5) + ' m/s',
+    'v2': fmt(out.v2, 5) + ' m/s',
+    'p1': fmt(out.p1 / 1000, 5) + ' kPa',
+    'p2': fmt(out.p2 / 1000, 5) + ' kPa',
+    'p1 - p2': fmt((out.p1 - out.p2) / 1000, 5) + ' kPa',
+    'flow rate Q': fmt(out.Q, 5) + ' m3/s',
+    'mass flow rho.Q': fmt(out.mdot, 5) + ' kg/s',
+    'H = p/rho.g + v^2/2g + z (s1)': fmt(out.H, 6) + ' m',
+    'H (section 2)': fmt(out.H2, 6) + ' m',
+    'venturi check (z1=z2)': fmt(out.venturi / 1000, 5) + ' kPa',
+    'p/rho.g  1 and 2': fmt(out.hP1, 4) + ' / ' + fmt(out.hP2, 4) + ' m',
+    'v^2/2g   1 and 2': fmt(out.hV1, 4) + ' / ' + fmt(out.hV2, 4) + ' m',
+  }),
+
+  onChange: (v) => renderNote(v),
+});
+
+function renderNote(v) {
+  const g = 9.81, rho = v.rho;
+  const A1 = (Math.PI * v.D1 * v.D1) / 4, A2 = (Math.PI * v.D2 * v.D2) / 4;
+  const ratio = A1 / A2;
+  const v1 = v.vin, v2 = ratio * v1;
+  const p1 = v.pin * 1000;
+  const p2 = p1 + 0.5 * rho * (v1 * v1 - v2 * v2) - rho * g * v.dz;
+  const venturi = 0.5 * rho * (v2 * v2 - v1 * v1);
+  note.innerHTML =
+    '<div class="vault-mono">'
+    + 'continuity: A1.v1 = A2.v2 &nbsp; with A = pi.D^2/4, so v2 = v1.(D1/D2)^2 = '
+    + fmt(v1, 4) + '.(' + fmt(v.D1, 3) + '/' + fmt(v.D2, 3) + ')^2 = <strong>' + fmt(v2, 5) + ' m/s</strong><br>'
+    + 'Bernoulli: p1 + 0.5.rho.v1^2 + rho.g.z1 = p2 + 0.5.rho.v2^2 + rho.g.z2<br>'
+    + 'p2 = p1 + 0.5.rho.(v1^2 - v2^2) - rho.g.dz = ' + fmt(p1 / 1000, 5) + ' + 0.5.(' + fmt(rho, 5) + ').('
+    + fmt(v1 * v1, 4) + ' - ' + fmt(v2 * v2, 4) + ') - ' + fmt(rho * g, 6) + '.(' + fmt(v.dz, 3) + ') = <strong>'
+    + fmt(p2 / 1000, 5) + ' kPa</strong><br>'
+    + 'head form: p/(rho.g) + v^2/(2g) + z &nbsp;&mdash;&nbsp; p1/(rho.g) = ' + fmt(p1 / (rho * g), 5)
+    + ' m, p2/(rho.g) = ' + fmt(p2 / (rho * g), 5) + ' m, z2 = ' + fmt(v.dz, 4) + ' m<br>'
+    + 'with z1 = z2 this collapses to the venturi result p1 - p2 = 0.5.rho.(v2^2 - v1^2) = '
+    + fmt(venturi / 1000, 5) + ' kPa for these velocities</div>'
+    + '<div style="margin-top:8px"><strong>Exam trap this widget kills:</strong> pressure is NOT conserved &mdash; '
+    + 'total head is. Squeeze the pipe (D2 &lt; D1) and continuity forces the velocity up, which consumes velocity '
+    + 'head and therefore <em>drops</em> the static pressure: halving the diameter from 0.2 m to 0.1 m multiplies '
+    + 'the area ratio by 4, so 3 m/s becomes 12 m/s. Two classic mistakes: using D instead of D^2 in continuity '
+    + '(predicting 6 m/s rather than 12 m/s), and assuming the pressure always falls &mdash; drop the outlet '
+    + 'elevation enough and p2 can rise even while the fluid speeds up.</div>';
+}
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'bern-note';
+document.getElementById('app').appendChild(note);
+// mirror the widget's declared default control values so the note is populated
+// on first paint, before any control is touched
+renderNote({ D1: 0.2, D2: 0.1, dz: 2, modeIn: 'v', vin: 3, pin: 250, rho: 1000, showHead: true });
+</script>
+</body>
+</html>

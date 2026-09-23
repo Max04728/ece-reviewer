@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Depreciation Schedule Comparator</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+/* ============================================================================
+ * SLM / SYD / DB / DDB depreciation side by side.
+ *
+ *   C  first cost,  S salvage,  n life,  D = C - S depreciable amount
+ *
+ *   SLM  d_y = D/n                       straight line, equal every year
+ *   SYD  d_y = D.(n - y + 1)/(n(n+1)/2)  accelerated, largest in year 1
+ *   DB   d_y = BV_(y-1).f                declining balance at rate f, capped so
+ *                                        BV never falls below S
+ *   DDB  d_y = BV_(y-1).(2/n)            double declining balance (f = 2/n),
+ *                                        optionally switching to SLM on the
+ *                                        remaining basis when that is larger
+ *
+ * THE POINT: DDB writes off the most in the early years, but a fixed percentage
+ * of a shrinking book value can never reach the salvage floor on its own --
+ * left uncapped it drives book value BELOW salvage, which is not allowed (an
+ * asset may not be depreciated below its salvage value). The fix is either to
+ * cap the final charge or to switch to straight line on the remaining
+ * depreciable balance the moment the SLM charge exceeds the DB charge. Switch
+ * the toggle off and on and watch the uncapped DDB curve cross the salvage line.
+ *
+ * The widget also reports the present worth of each method's depreciation
+ * stream, which is what makes the tax-shield comparison meaningful: an
+ * accelerated method is worth more in present-value terms at any positive i.
+ * ==========================================================================*/
+
+const METHODS = ['SLM', 'SYD', 'DB', 'DDB'];
+const COLORS = { SLM: PALETTE.accent, SYD: PALETTE.accent3, DB: PALETTE.accent4, DDB: PALETTE.accent2 };
+const NAMES = {
+  SLM: 'straight line',
+  SYD: 'sum of years digits',
+  DB: 'declining balance',
+  DDB: 'double declining balance',
+};
+
+/**
+ * @param {'SLM'|'SYD'|'DB'|'DDB'} method
+ * @returns {{d:number[], bv:number[]}}
+ */
+function schedule(method, C, S, n, dbRatePct, allowSwitch) {
+  const D = C - S;
+  const d = [], bv = [];
+  let book = C;
+  if (method === 'SLM') {
+    for (let y = 1; y <= n; y++) { const x = D / n; d.push(x); book -= x; bv.push(book); }
+  } else if (method === 'SYD') {
+    const sum = (n * (n + 1)) / 2;
+    for (let y = 1; y <= n; y++) { const x = (D * (n - y + 1)) / sum; d.push(x); book -= x; bv.push(book); }
+  } else if (method === 'DB') {
+    // default rate lands exactly on S after n years; the slider can override it
+    const f = dbRatePct > 0 ? dbRatePct / 100 : (1 - Math.pow(Math.max(S, 1e-9) / C, 1 / n));
+    for (let y = 1; y <= n; y++) {
+      let x = book * f;
+      x = Math.max(0, Math.min(x, book - S));
+      d.push(x); book -= x; bv.push(book);
+    }
+  } else {
+    const f = 2 / n;
+    let rem = n;
+    for (let y = 1; y <= n; y++) {
+      const ddb = book * f;
+      const sln = rem > 0 ? (book - S) / rem : 0;
+      let x = allowSwitch ? Math.max(ddb, sln) : ddb;
+      x = Math.max(0, Math.min(x, book - S));
+      d.push(x); book -= x; rem--;
+      bv.push(book);
+    }
+  }
+  return { d, bv };
+}
+
+/** The DDB rate expressed as a percentage, for the note. */
+function ddbRate(n) { return 2 / n; }
+
+widget({
+  title: 'Depreciation Schedule Comparator — SLM, SYD, DB and DDB',
+  description:
+    'Book value versus year for all four methods at once, plus the annual schedule. The DDB figure is capped or ' +
+    'switched to straight line so the asset is never depreciated below its salvage value.',
+  height: 520,
+  range: { xMin: 0, xMax: 10, yMin: 0, yMax: 10000 },
+  controls: [
+    { id: 'C', label: 'first cost C (pesos)', min: 1000, max: 500000, step: 500, value: 10000 },
+    { id: 'S', label: 'salvage value S (pesos)', min: 0, max: 100000, step: 100, value: 1000 },
+    { id: 'n', label: 'life n (years)', min: 2, max: 20, step: 1, value: 5 },
+    { id: 'dbRate', label: 'DB rate f (%, 0 = auto so it lands on S)', min: 0, max: 80, step: 0.5, value: 0 },
+    { id: 'iPct', label: 'interest rate i for the present worth of the stream (%/yr)', min: 0, max: 30, step: 0.5, value: 10 },
+    { id: 'allowSwitch', label: 'let DDB switch to SLM on the remaining basis', type: 'checkbox', value: true },
+    { id: 'showUncapped', label: 'also draw the uncapped DDB (crosses below salvage)', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const n = Math.max(2, Math.round(v.n));
+    const S = Math.min(v.S, v.C - 1);
+    const C = Math.max(v.C, S + 1);
+    const i = v.iPct / 100;
+    const sched = {}, pw = {}, early = {};
+    for (const m of METHODS) {
+      sched[m] = schedule(m, C, S, n, v.dbRate, !!v.allowSwitch);
+      let P = 0;
+      sched[m].d.forEach((x, k) => { P += x / Math.pow(1 + i, k + 1); });
+      pw[m] = P;
+      early[m] = sched[m].d[0];
+    }
+    const rawDDB = schedule('DDB', C, S, n, v.dbRate, false);
+    const bestEarly = METHODS.reduce((a, b) => (early[a] >= early[b] ? a : b));
+    const bestPW = METHODS.reduce((a, b) => (pw[a] >= pw[b] ? a : b));
+    const ddbBelow = rawDDB.bv.some((b) => b < S - 1e-6);
+    return {
+      n, C, S, i, sched, rawDDB, pw, early, bestEarly, bestPW, ddbBelow,
+      allowSwitch: !!v.allowSwitch, showUncapped: !!v.showUncapped,
+      dbRate: v.dbRate, iPct: v.iPct, D: C - S,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const n = out.n, C = out.C, S = out.S;
+    const yMax = C * 1.04;
+    plot.setRange({ xMin: -0.3, xMax: n + 0.35, yMin: Math.min(0, S - 0.06 * C), yMax });
+    plot.clear().grid(1, Math.max(1, Math.round(yMax / 6))).axes();
+
+    // salvage floor and first cost
+    if (S > 0) {
+      plot.segment(-0.3, S, n + 0.35, S, { color: PALETTE.warn, width: 1.6, dash: [6, 4] });
+      plot.label('salvage floor S = ' + fmt(S, 5), plot.X(0.03), S + 0.022 * yMax,
+        { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    }
+    plot.segment(-0.3, C, n + 0.35, C, { color: PALETTE.grid, width: 1, dash: [3, 4] });
+    plot.label('first cost C = ' + fmt(C, 5), plot.X(0.03), C * 0.997,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // uncapped DDB, dashed, to make the overshoot visible
+    if (out.showUncapped) {
+      const pts = [[0, C], ...out.rawDDB.bv.map((b, k) => [k + 1, b])];
+      ctx.save();
+      ctx.strokeStyle = 'rgba(243,139,168,0.5)';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      pts.forEach(([x, y], k) => { k === 0 ? ctx.moveTo(plot.X(x), plot.Y(y)) : ctx.lineTo(plot.X(x), plot.Y(y)); });
+      ctx.stroke();
+      ctx.restore();
+      const last = pts[pts.length - 1];
+      if (last[1] < S - 1e-9) {
+        plot.dot(last[0], last[1], { color: PALETTE.accent2, r: 4 });
+        plot.text('uncapped DDB ends at ' + fmt(last[1], 5) + ', below S = ' + fmt(S, 5),
+          plot.pad + 6, plot.h - 30, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+      }
+    }
+
+    // the four book-value curves
+    for (const m of METHODS) {
+      const pts = [[0, C], ...out.sched[m].bv.map((b, k) => [k + 1, b])];
+      ctx.save();
+      ctx.strokeStyle = COLORS[m];
+      ctx.lineWidth = m === 'DDB' ? 3 : 2.2;
+      ctx.beginPath();
+      pts.forEach(([x, y], k) => { k === 0 ? ctx.moveTo(plot.X(x), plot.Y(y)) : ctx.lineTo(plot.X(x), plot.Y(y)); });
+      ctx.stroke();
+      ctx.restore();
+      const lastP = pts[pts.length - 1];
+      plot.dot(lastP[0], lastP[1], { color: COLORS[m], r: 4 });
+      plot.label(m, plot.X(lastP[0]) + 7, plot.Y(lastP[1]) + 4,
+        { color: COLORS[m], font: '11px ui-monospace, monospace' });
+    }
+
+    plot.text('book value (pesos) versus year', plot.pad + 6, plot.pad + 14,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('year', plot.X(n) - 26, plot.h - 8, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const rows = {
+      'depreciable amount D = C - S': fmt(out.D, 6),
+      'year 1: SLM': fmt(out.sched.SLM.d[0], 6),
+      'year 1: SYD': fmt(out.sched.SYD.d[0], 6),
+      'year 1: DB': fmt(out.sched.DB.d[0], 6),
+      'year 1: DDB': fmt(out.sched.DDB.d[0], 6),
+      'largest first-year charge': out.bestEarly,
+      'DDB uncapped dips below S': out.ddbBelow ? 'yes' : 'no',
+      'uncapped DDB final book value': fmt(out.rawDDB.bv[out.n - 1], 6),
+      'PW of SLM stream at i': fmt(out.pw.SLM, 7),
+      'PW of SYD stream at i': fmt(out.pw.SYD, 7),
+      'PW of DB stream at i': fmt(out.pw.DB, 7),
+      'PW of DDB stream at i': fmt(out.pw.DDB, 7),
+      'largest present worth (tax shield)': out.bestPW,
+      'total charged, each method': fmt(out.sched.SLM.d.reduce((a, b) => a + b, 0), 6),
+      'final book value, each method': fmt(out.sched.DDB.bv[out.n - 1], 6),
+    };
+    for (let y = 1; y <= Math.min(out.n, 10); y++) {
+      rows['  y' + y + '  SLM / SYD / DB / DDB'] =
+        fmt(out.sched.SLM.d[y - 1], 4) + ' / ' + fmt(out.sched.SYD.d[y - 1], 4) + ' / '
+        + fmt(out.sched.DB.d[y - 1], 4) + ' / ' + fmt(out.sched.DDB.d[y - 1], 4);
+    }
+    return rows;
+  },
+
+  onChange: (v) => renderNote(v),
+});
+
+/** Full HTML table of the four schedules, built into the closing note div. */
+function tableHtml(out) {
+  const head = '<tr><th>year</th><th>SLM d</th><th>SLM BV</th><th>SYD d</th><th>SYD BV</th>'
+    + '<th>DB d</th><th>DB BV</th><th>DDB d</th><th>DDB BV</th></tr>';
+  let body = '';
+  for (let y = 1; y <= out.n; y++) {
+    const c = (m, arr) => fmt(arr[y - 1], 5);
+    body += '<tr><td>' + y + '</td>'
+      + '<td>' + c('SLM', out.sched.SLM.d) + '</td><td>' + c('SLM', out.sched.SLM.bv) + '</td>'
+      + '<td>' + c('SYD', out.sched.SYD.d) + '</td><td>' + c('SYD', out.sched.SYD.bv) + '</td>'
+      + '<td style="color:' + COLORS.DB + '">' + c('DB', out.sched.DB.d) + '</td><td>' + c('DB', out.sched.DB.bv) + '</td>'
+      + '<td style="color:' + COLORS.DDB + '">' + c('DDB', out.sched.DDB.d) + '</td><td>' + c('DDB', out.sched.DDB.bv) + '</td></tr>';
+  }
+  return '<table class="vault-mono" style="border-collapse:collapse;font-size:0.76rem;margin-top:6px">'
+    + '<thead>' + head + '</thead><tbody>' + body + '</tbody></table>';
+}
+
+function renderNote(v) {
+  const n = Math.max(2, Math.round(v.n));
+  const S = Math.min(v.S, v.C - 1);
+  const C = Math.max(v.C, S + 1);
+  const D = C - S;
+  const i = v.iPct / 100;
+  const sched = {}, raw = {}, pw = {};
+  for (const m of METHODS) {
+    sched[m] = schedule(m, C, S, n, v.dbRate, !!v.allowSwitch);
+    let P = 0;
+    sched[m].d.forEach((x, k) => { P += x / Math.pow(1 + i, k + 1); });
+    pw[m] = P;
+  }
+  raw.DDB = schedule('DDB', C, S, n, v.dbRate, false);
+  const bestPW = METHODS.reduce((a, b) => (pw[a] >= pw[b] ? a : b));
+  const sum = (n * (n + 1)) / 2;
+  const out = { sched, n, rawDDB: raw.DDB };
+  note.innerHTML =
+    '<div class="vault-mono">'
+    + 'C = ' + fmt(C, 6) + ' &nbsp; S = ' + fmt(S, 6) + ' &nbsp; n = ' + n + ' &nbsp; D = C - S = ' + fmt(D, 6) + '<br>'
+    + 'SLM: d = D/n = ' + fmt(D, 6) + '/' + n + ' = <strong>' + fmt(D / n, 6) + '</strong> each year<br>'
+    + 'SYD: denominator n(n+1)/2 = ' + sum + '; d_1 = D.n/' + sum + ' = ' + fmt(sched.SYD.d[0], 6)
+    + '; d_' + n + ' = D.1/' + sum + ' = ' + fmt(sched.SYD.d[n - 1], 6) + '<br>'
+    + 'DB: f = ' + (v.dbRate > 0 ? fmt(v.dbRate / 100, 5) + ' (slider)' : fmt(1 - Math.pow(Math.max(S, 1e-9) / C, 1 / n), 5)
+      + ' = 1 - (S/C)^(1/n) so it lands exactly on S') + '; d_1 = C.f = ' + fmt(sched.DB.d[0], 6) + '<br>'
+    + 'DDB: rate 2/n = ' + fmt(ddbRate(n), 5) + '; d_1 = C.(2/n) = ' + fmt(C, 6) + '.' + fmt(ddbRate(n), 5)
+    + ' = <strong>' + fmt(sched.DDB.d[0], 6) + '</strong><br>'
+    + 'uncapped DDB final book value = ' + fmt(raw.DDB.bv[n - 1], 6)
+    + (raw.DDB.bv[n - 1] < S - 1e-9 ? '  &lt; S = ' + fmt(S, 5) + '  &rarr; NOT permitted, so cap or switch' : '  (no overshoot here)')
+    + '<br>present worth of each depreciation stream at i = ' + fmt(v.iPct, 4) + '%: '
+    + METHODS.map((m) => m + ' ' + fmt(pw[m], 6)).join(', ')
+    + ' &nbsp;&rarr;&nbsp; largest: <strong>' + bestPW + '</strong></div>'
+    + tableHtml(out)
+    + '<div style="margin-top:8px"><strong>Exam trap this widget kills:</strong> two of them. First, double '
+    + 'declining balance applies TWICE THE STRAIGHT-LINE RATE (2/n) to the BOOK VALUE, not twice the '
+    + 'straight-line AMOUNT: the charge falls every year, and the two coincide only when n = 2. Second, an '
+    + 'uncapped DDB schedule eventually drives book value below salvage, which is not allowed &mdash; an asset '
+    + 'may not be depreciated below its salvage value. You must either cap the final year so book value lands '
+    + 'exactly on S, or switch to straight line on the remaining depreciable balance as soon as the SLM charge '
+    + 'exceeds the DB charge. Watch the dashed uncapped curve cross the salvage line, then flip the switch. The '
+    + 'practical consequence: DDB and SYD write off the most in the early years, so at any positive interest rate '
+    + 'their stream has the largest present worth &mdash; which is exactly why accelerated depreciation is worth '
+    + 'more as a tax shield even though the total charge is identical for all four methods.</div>';
+}
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'dep-note';
+document.getElementById('app').appendChild(note);
+renderNote({ C: 10000, S: 1000, n: 5, dbRate: 0, iPct: 10, allowSwitch: true, showUncapped: true });
+</script>
+</body>
+</html>

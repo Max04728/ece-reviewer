@@ -1,0 +1,100 @@
+{
+  "scope": "Build the Newton divided-difference table, write the interpolating polynomial from its top diagonal, and evaluate interior points with the forward-difference form.",
+  "intuition": "A divided difference is a slope. The first-order difference is the slope of a chord, the second-order difference is the slope of slopes — a curvature — and the top diagonal of the table gives the coefficients of the unique polynomial through all the points.",
+  "concept": [
+    "**The divided differences are defined recursively.** $f[x_i]=f(x_i)$. The first order is: $f[x_i,x_{i+1}]=\\frac{f(x_{i+1})-f(x_i)}{x_{i+1}-x_i}$. In general: $f[x_i,\\dots,x_{i+k}]=\\frac{f[x_{i+1},\\dots,x_{i+k}]-f[x_i,\\dots,x_{i+k-1}]}{x_{i+k}-x_i}$. Each entry is the difference of the two entries diagonally above and to its left, divided by the difference of the two x-values that span it. The table is built left to right, column by column.",
+    "**The top diagonal is the answer.** Newton's divided-difference form is: $P(x)=f[x_0]+f[x_0,x_1](x-x_0)+f[x_0,x_1,x_2](x-x_0)(x-x_1)+\\cdots$. The coefficients are exactly the first entry of each column: $f[x_0]$, $f[x_0,x_1]$, $f[x_0,x_1,x_2]$, etc. Read them down the top-left to bottom-right diagonal, not across a row.",
+    "**Uniqueness and the degree test.** For $n+1$ distinct points there is exactly one polynomial of degree $\\le n$ through them, so Newton, Lagrange and the direct solve of the Vandermonde system all produce the *same* polynomial — only the algebraic form differs. Consequence: if the $(n+1)$-th divided difference is zero, the data lie exactly on a polynomial of lower degree. A zero third difference means a quadratic fits all four points exactly.",
+    "**Newton's forward-difference form for equally spaced data.** With spacing $h$ and $p=\\frac{x-x_0}{h}$, the working form is: $P(x)=f_0+p\\Delta f_0+\\frac{p(p-1)}{2!}\\Delta^{2}f_0+\\frac{p(p-1)(p-2)}{3!}\\Delta^{3}f_0+\\cdots$, where $\\Delta$ is the ordinary forward difference. This is the form used for steam tables, log tables and calibration charts, because the differences are already tabulated in steps of $h$ and no divisions are needed.",
+    "**Error and extrapolation.** The interpolation error is: $\\frac{f^{(n+1)}(\\xi)}{(n+1)!}\\prod(x-x_i)$. Accuracy is therefore best *inside* the data range and degrades as you move outward. For equally spaced data with a smooth function, the error is bounded by $\\frac{h^{n+1}}{4(n+1)}\\max|f^{(n+1)}|$ over the interval. Do not extrapolate outside the table: the product term grows without bound and the polynomial can swing wildly.",
+    "**Adding a point costs one row, not a rebuild.** Because the Newton form is nested in the order the points are introduced, adding a new point appends one divided difference to the polynomial without recomputing the old coefficients. That is the practical advantage over Lagrange's form when data arrive incrementally."
+  ],
+  "formulas": [
+    { "q": "First divided difference", "e": "f[x_i,x_{i+1}] = \\frac{f(x_{i+1})-f(x_i)}{x_{i+1}-x_i}", "n": "The chord slope over the two points." },
+    { "q": "General divided difference", "e": "f[x_i,\\dots,x_{i+k}] = \\frac{f[x_{i+1},\\dots,x_{i+k}]-f[x_i,\\dots,x_{i+k-1}]}{x_{i+k}-x_i}", "n": "Recursion that fills the table column by column." },
+    { "q": "Newton divided-difference polynomial", "e": "P(x) = f[x_0] + \\sum_{k=1}^{n} f[x_0,\\dots,x_k]\\prod_{j=0}^{k-1}(x-x_j)", "n": "Coefficients are the top diagonal of the table." },
+    { "q": "Forward-difference form", "e": "P(x) = f_0 + p\\Delta f_0 + \\frac{p(p-1)}{2!}\\Delta^{2}f_0 + \\cdots, \\quad p=\\frac{x-x_0}{h}", "n": "Equally spaced data only. p is a dimensionless index, not an x-value." },
+    { "q": "Interpolation error", "e": "E(x) = \\frac{f^{(n+1)}(\\xi)}{(n+1)!}\\prod_{i=0}^{n}(x-x_i)", "n": "xi lies in the smallest interval containing the nodes and x." },
+    { "q": "Equally spaced error bound", "e": "\\lvert E \\rvert \\le \\frac{h^{n+1}}{4(n+1)}\\max\\lvert f^{(n+1)} \\rvert", "n": "Valid for x inside the tabulated range." },
+    { "q": "Degree test", "e": "f[x_0,\\dots,x_k]=0 \\Rightarrow \\mathrm{data\\ fit\\ a\\ polynomial\\ of\\ degree} < k", "n": "A zero k-th difference means the k-th-degree term is absent." }
+  ],
+  "problems": [
+    {
+      "prompt": "Given the data $x: 1, 2, 4$ and $f(x): 1, 4, 16$, build the divided-difference table and write the Newton interpolating polynomial. Then estimate $f(3)$.",
+      "give": ["(1, 1), (2, 4), (4, 16)"],
+      "steps": [
+        "Zeroth differences: f[x0] = 1, f[x1] = 4, f[x2] = 16",
+        "First differences: f[x0,x1] = (4-1)/(2-1) = 3; f[x1,x2] = (16-4)/(4-2) = 12/2 = 6",
+        "Second difference: f[x0,x1,x2] = (6 - 3)/(4 - 1) = 3/3 = 1",
+        "Top diagonal (Newton coefficients): 1, 3, 1",
+        "P(x) = 1 + 3(x-1) + 1(x-1)(x-2)",
+        "Expand: 1 + 3x - 3 + x^2 - 3x + 2 = x^2, so P(1)=1, P(2)=4, P(4)=16 all check",
+        "Evaluate at x = 3: P(3) = 9 (equivalently 1 + 3(2) + (2)(1) = 9)"
+      ],
+      "ans": "$P(x)=x^{2}$, so $f(3)=9$ exactly.",
+      "trap": "Reading the coefficients across a row of the table instead of down the top diagonal. Taking the second column instead of the diagonal gives a different polynomial that still passes through the first two points — the error is invisible unless you verify against a third point."
+    },
+    {
+      "prompt": "A steam table gives saturation temperature versus pressure: $(360,393.04)$, $(365,400.75)$, $(370,408.37)$, $(375,415.92)$, $(380,423.41)$. Estimate $T$ at $373.6$ psia by Newton's forward-difference formula.",
+      "give": ["five equally spaced points, h = 5 psia", "x = 373.6, x0 = 360"],
+      "steps": [
+        "First differences (divide by h = 5): (400.75-393.04)/5 = 1.542; (408.37-400.75)/5 = 1.524; (415.92-408.37)/5 = 1.510; (423.41-415.92)/5 = 1.498",
+        "Second differences (span 10): (1.524-1.542)/10 = -0.0018; (1.510-1.524)/10 = -0.0014; (1.498-1.510)/10 = -0.0012",
+        "Third differences (span 15): (-0.0014+0.0018)/15 = 0.0000267; (-0.0012+0.0014)/15 = 0.0000133",
+        "Fourth difference (span 20): (0.0000133-0.0000267)/20 = -6.7e-7",
+        "Top diagonal (Newton coefficients): 393.04, 1.542, -0.0018, 2.67e-5, -6.7e-7",
+        "p = (373.6 - 360)/5 = 13.6/5 = 2.72",
+        "T = 393.04 + 2.72(1.542) + [2.72(1.72)/2](-0.0018) + [2.72(1.72)(0.72)/6](2.67e-5) + [2.72(1.72)(0.72)(-0.28)/24](-6.7e-7)",
+        "= 393.04 + 4.19424 - 0.004211 + 0.0000150 + 0.0000000",
+        "= 397.230"
+      ],
+      "ans": "$T(373.6) \\approx 397.23\\ ^\\circ\\mathrm{F}$.",
+      "trap": "Substituting the raw $x$-value 373.6 into the polynomial instead of the index $p=(x-x_0)/h=2.72$. The forward-difference form is written in $p$, and feeding it 373.6 makes every term astronomically large."
+    },
+    {
+      "prompt": "For the data $(0,1),(1,2),(2,5),(3,10)$, complete the divided-difference table and state the lowest-degree polynomial that fits all four points exactly.",
+      "give": ["(0,1), (1,2), (2,5), (3,10)"],
+      "steps": [
+        "First differences: (2-1)/1 = 1; (5-2)/1 = 3; (10-5)/1 = 5",
+        "Second differences: (3-1)/2 = 1; (5-3)/2 = 1",
+        "Third difference: (1-1)/3 = 0",
+        "A zero third divided difference means the x^3 coefficient vanishes",
+        "Top diagonal: 1, 1, 1, 0, so P(x) = 1 + 1(x-0) + 1(x-0)(x-1) = 1 + x + x^2 - x = x^2 + 1",
+        "Verify: P(0)=1, P(1)=2, P(2)=5, P(3)=10 — all four exact",
+        "Note the first differences increase by a constant 2, which is the signature of a quadratic"
+      ],
+      "ans": "A **quadratic**, $P(x)=x^{2}+1$; the third divided difference is exactly zero.",
+      "trap": "Grinding out a cubic because four points were supplied. Four points allow a cubic but do not require one; the zero top difference proves the cubic coefficient is 0 and the extra term contributes nothing."
+    },
+    {
+      "prompt": "Build the cubic divided-difference polynomial through $(0,1),(1,3),(2,11),(3,31)$ and evaluate it at $x=1.5$.",
+      "give": ["(0,1), (1,3), (2,11), (3,31)"],
+      "steps": [
+        "First differences: (3-1)/1 = 2; (11-3)/1 = 8; (31-11)/1 = 20",
+        "Second differences: (8-2)/2 = 3; (20-8)/2 = 6",
+        "Third difference: (6-3)/3 = 1",
+        "Top diagonal: 1, 2, 3, 1, so P(x) = 1 + 2x + 3x(x-1) + 1x(x-1)(x-2)",
+        "Expand: 1 + 2x + 3x^2 - 3x + x^3 - 3x^2 + 2x = x^3 + x + 1",
+        "Check: P(1) = 3, P(2) = 11, P(3) = 31 — all match the table",
+        "Evaluate: P(1.5) = (1.5)^3 + 1.5 + 1 = 3.375 + 2.5 = 5.875"
+      ],
+      "ans": "$P(x)=x^{3}+x+1$ and $P(1.5)=5.875$.",
+      "trap": "Using the four data points as if they were equally spaced in a forward-difference table when they are not. Here $h=1$ so both forms work, but substituting $p$-style terms into non-uniform data is the standard error on mixed-interval exam questions."
+    }
+  ],
+  "traps": [
+    "**Reading coefficients across a row.** The Newton coefficients are the *top diagonal* entries $f[x_0]$, $f[x_0,x_1]$, $f[x_0,x_1,x_2]$. Taking a row gives a polynomial that fits fewer points and can still look plausible.",
+    "**Dividing by the wrong x-span.** The $k$-th difference divides by $x_{i+k}-x_i$, the *total* span, not the adjacent spacing $h$. For equally spaced data with $h=5$ and a second difference, the divisor is $10$, not $5$.",
+    "**Substituting $x$ into the forward-difference form.** It is written in $p=(x-x_0)/h$. Feeding it an $x$ of hundreds of units produces a meaningless number.",
+    "**Assuming the highest available degree is needed.** If the $(n+1)$-th divided difference is zero, the data lie on a lower-degree polynomial and the extra term contributes nothing. Check before grinding through a full cubic.",
+    "**Rounding the intermediate differences too early.** Newton's table is a difference cascade: a 3-decimal rounding in the first differences is multiplied by the $10$ and $15$ divisors in the higher columns. Carry at least 5 significant figures.",
+    "**Extrapolating beyond the table.** The error term $\\prod(x-x_i)$ grows rapidly outside the node range. A divided-difference polynomial evaluated two intervals past the last data point can be off by more than the quantity being estimated.",
+    "**Using unequally spaced data in the forward-difference form.** $\\Delta f$ assumes a constant $h$. If the x-values are not equally spaced, use the divided-difference (Newton) or Lagrange form instead."
+  ],
+  "refs": [
+    "[[05_Lagrange_Interpolation]]",
+    "[[01_Error_Analysis,_Roundoff_and_Truncation]]",
+    "[[05_Taylor_and_Maclaurin_Series]]"
+  ],
+  "prereqs": ["[[05_Taylor_and_Maclaurin_Series]]"]
+}

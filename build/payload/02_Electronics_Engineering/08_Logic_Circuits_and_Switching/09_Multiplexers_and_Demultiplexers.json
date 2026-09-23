@@ -1,0 +1,105 @@
+{
+  "scope": "Use multiplexers to route and to synthesise logic functions, and use demultiplexers to route one data line to a selected destination.",
+  "intuition": "A multiplexer is a digitally controlled multi-position switch: $2^n$ data inputs, $n$ select lines, one output. A demultiplexer is the same switch run backwards. Between them they are the standard way to move parallel data onto a serial line and back.",
+  "concept": [
+    "**The multiplexer as a switch.** A 2:1 mux passes $D_0$ or $D_1$ depending on $S$: $Y = \\bar S D_0 + S D_1$. A 4:1 mux has two select lines and four data inputs, and in general $N = 2^n$ data inputs need $n = \\log_2 N$ select lines. The output expression is the minterm-weighted sum $Y = \\sum_i m_i D_i$, in which each select-code minterm gates its own data input. Outputs can be active-high, active-low, or tri-state for bus sharing.",
+    "**The multiplexer as a universal logic element.** The minterm-weighted form means a mux can *compute*, not just route: apply the function's variables to the select lines and drive each data input with the residual function of the remaining variables. A $2^{n-1}$:1 mux therefore implements any function of $n$ variables, because Shannon's expansion $F = \\bar x_0 F(x_0=0) + x_0 F(x_0=1)$ is exactly the mux equation. A 4:1 mux handles any 3-variable function (two selects plus a data input that is $0$, $1$, $C$ or $\\bar C$); an 8:1 mux handles any 4-variable function. Inverters may be needed when a residual is $\\bar C$.",
+    "**Implementing a function with a mux, step by step.** Choose which variables drive the selects — normally the ones appearing most often. Build the truth-table column of the remaining variable for each select code. If the residual column is constant, tie the data input to $V_{CC}$ or ground; if it is $C$, tie it to the signal $C$; if it is $\\bar C$, invert $C$. Overlapping covers and unmapped combinations appear as don't-care ties, which is why mux realisations often use fewer gates than a discrete SOP network.",
+    "**The demultiplexer.** A 1-to-$2^n$ demux sends its single data input to the output selected by the select lines: $Y_i = D\\cdot m_i$, with all other outputs held at their inactive level. It is the exact inverse of a mux, and a decoder is a demux with the data input permanently tied to the active level. Cascading muxes and demuxes over a link is the standard architecture for serialising parallel data (mux at the transmitter, demux at the receiver) and for time-division multiplexing, where several sources share one channel by taking turns.",
+    "**Loading, propagation and fan-out.** A mux adds propagation delay, and wide muxes are built as trees: an $N$:1 mux from 2:1 stages has $\\lceil \\log_2 N\\rceil$ levels of delay, but a single-level $N$-input mux is one wide gate with large capacitance. The driving gate must be able to supply the total input current of every load: the DC fan-out is $\\min(I_{OH}/I_{IH},\\, I_{OL}/I_{IL})$, so a mux output feeding many data inputs can fail on the HIGH side even when the LOW side looks fine. Unused data inputs must be tied to a defined level — an unconnected CMOS mux input floats and can cause cross-conduction current and a wrong output."
+  ],
+  "formulas": [
+    { "q": "2:1 multiplexer", "e": "Y = \\bar S D_0 + S D_1", "n": "S selects the input. Reversing the S convention inverts the function." },
+    { "q": "4:1 multiplexer", "e": "Y = \\bar S_1\\bar S_0 D_0 + \\bar S_1 S_0 D_1 + S_1\\bar S_0 D_2 + S_1 S_0 D_3", "n": "S1 is the MSB of the select code, so S1S0 = 10 selects D2." },
+    { "q": "General multiplexer", "e": "Y = \\sum_i m_i D_i", "n": "m_i is the minterm of the select variables. This is Shannon expansion written as hardware." },
+    { "q": "Select-line count", "e": "N\\ \\mathrm{inputs} \\rightarrow n = \\log_2 N\\ \\mathrm{selects}", "n": "16:1 needs 4 selects; 8:1 needs 3. N must be a power of two for a full decode." },
+    { "q": "Mux as a logic element", "e": "F(x_0,\\ldots,x_{n-1}) = \\bar x_0 F(0) + x_0 F(1)", "n": "A 2^{n-1}:1 mux plus inverters realises any n-variable function. Data inputs are 0, 1, x or x-bar." },
+    { "q": "Demultiplexer output", "e": "Y_i = D \\cdot m_i", "n": "One output follows the data input; the others stay inactive. A decoder is a demux with D = 1." },
+    { "q": "Mux tree delay", "e": "t_{pd} = \\lceil \\log_2 N \\rceil \\cdot t_{pd,2:1}", "n": "A cascade of 2:1 stages; logarithmic in size but slower than one wide gate." },
+    { "q": "Serial transfer time", "e": "T = n / f_{clk}", "n": "n bits shifted at the clock rate. Serial loading of 8 bits at 1 MHz takes 8 microseconds." },
+    { "q": "Fan-out from current limits", "e": "N \\le \\min\\left(\\frac{I_{OH}}{I_{IH}},\\ \\frac{I_{OL}}{I_{IL}}\\right)", "n": "Take the smaller limit. High-side and low-side current capabilities are rarely equal." },
+    { "q": "Time-division multiplexing capacity", "e": "N\\ \\mathrm{sources} \\times f_s\\ \\mathrm{samples/s} \\le f_{channel}", "n": "The shared channel must carry the sum of every source's sample rate." }
+  ],
+  "problems": [
+    {
+      "prompt": "A 4:1 multiplexer has $D_0=1$, $D_1=0$, $D_2=1$, $D_3=1$ and selects $S_1S_0 = 10$. What is the output?",
+      "give": ["D0=1, D1=0, D2=1, D3=1", "S1 S0 = 10"],
+      "steps": [
+        "The select code 10 has binary value 2, so D2 is routed to the output",
+        "Y = D2 = 1",
+        "Confirm from the equation: the term S1(NOT S0)D2 is the only one whose select minterm is 1",
+        "The other terms are 0 because S1(NOT S0) is 1 while the others contain a complemented select that is 0"
+      ],
+      "ans": "$Y = D_2 = 1$",
+      "trap": "Treating the select code as decimal (ten) or reading S0 as the MSB, which would select D1 = 0. S1 is the most significant select bit."
+    },
+    {
+      "prompt": "Implement $F(A,B,C) = \\sum m(1,3,5,6)$ with a 4:1 multiplexer using $A$ and $B$ as the select lines. Give each data input.",
+      "give": ["F = sum m(1,3,5,6)", "selects = A, B", "4:1 mux"],
+      "steps": [
+        "Build the residual for A=0,B=0: rows 0 and 1 are F=0 and F=1, so F = C -> D0 = C",
+        "A=0,B=1: rows 2 and 3 are 0 and 1, so F = C -> D1 = C",
+        "A=1,B=0: rows 4 and 5 are 0 and 1, so F = C -> D2 = C",
+        "A=1,B=1: rows 6 and 7 are 1 and 0, so F = (NOT C) -> D3 = NOT C",
+        "Verify row 5 (101): selects A=1,B=0 choose D2 = C = 1, so F = 1, correct",
+        "Verify row 7 (111): selects A=1,B=1 choose D3 = NOT C = 0, so F = 0, correct"
+      ],
+      "ans": "$D_0 = D_1 = D_2 = C$ and $D_3 = \\bar C$",
+      "trap": "Using only two selects for a three-variable function without examining the residual column. The data inputs are not always constants; here three of them must be driven by $C$ itself, and the fourth by its complement."
+    },
+    {
+      "prompt": "Show how a single 2:1 multiplexer can produce $Y = A\\oplus B$.",
+      "give": ["2:1 mux available", "target = A XOR B"],
+      "steps": [
+        "Expand by Shannon on A: A XOR B = (NOT A)B + A(NOT B)",
+        "Compare with Y = (NOT S)D0 + S D1",
+        "Match S = A, D0 = B, D1 = (NOT B)",
+        "Check A=0: Y = D0 = B, and 0 XOR B = B, correct",
+        "Check A=1: Y = D1 = (NOT B), and 1 XOR B = (NOT B), correct"
+      ],
+      "ans": "$Y = A\\oplus B$ with $S = A$, $D_0 = B$, $D_1 = \\bar B$ (one inverter plus the mux)",
+      "trap": "Tying D0 = B and D1 = B, which gives a buffer, or forgetting the inverter so that D1 = B as well. The two data inputs differ: one is the true variable and the other its complement."
+    },
+    {
+      "prompt": "A 1-to-8 demultiplexer receives $D = 1$ with select lines $S_2S_1S_0 = 101$. Which output is active?",
+      "give": ["D = 1", "select = 101"],
+      "steps": [
+        "101 binary = 5",
+        "The demux routes D to output Y5",
+        "Y5 = D . m5 = 1 . 1 = 1",
+        "All other outputs are D . m_i = 1 . 0 = 0"
+      ],
+      "ans": "$Y_5 = 1$; all other outputs are 0",
+      "trap": "Confusing the demux with a decoder: with D = 0 every output stays inactive, whereas a decoder's selected output is always asserted. The demux output follows its data input."
+    },
+    {
+      "prompt": "A mux output drives eight identical gate inputs. The mux datasheet gives $I_{OH}=400\\ \\mu\\mathrm{A}$, $I_{OL}=8\\ \\mathrm{mA}$; each load draws $I_{IH}=40\\ \\mu\\mathrm{A}$ and $I_{IL}=0.4\\ \\mathrm{mA}$. Is the fan-out exceeded?",
+      "give": ["I_OH = 400 uA", "I_OL = 8 mA", "I_IH = 40 uA", "I_IL = 0.4 mA", "8 loads"],
+      "steps": [
+        "Total HIGH input current = 8 x 40 uA = 320 uA",
+        "High-side capability = 400 uA > 320 uA, so 8 loads pass on the HIGH side",
+        "Total LOW input current = 8 x 0.4 mA = 3.2 mA",
+        "Low-side capability = 8 mA > 3.2 mA, so the LOW side passes too",
+        "DC fan-out limit = min(400/40, 8/0.4) = min(10, 20) = 10 loads, so 8 is within spec"
+      ],
+      "ans": "Fan-out limit is 10, so 8 loads are acceptable",
+      "trap": "Checking only the current the output can sink. The HIGH side is the binding limit here (10 versus 20), and in most real families $I_{OH}$ is far smaller than $I_{OL}$, so the sourcing limit usually decides fan-out."
+    }
+  ],
+  "traps": [
+    "**Reversing the select-bit order.** In a 4:1 mux with selects $S_1S_0$, the code 10 selects $D_2$, not $D_1$. The first-named select is the MSB of the code.",
+    "**Forgetting that data inputs may be variables.** In mux-based logic the data pins are not always 0 or 1; they can be $C$ or $\\bar C$, which needs an inverter per complemented residual.",
+    "**Leaving unused mux inputs floating.** A floating CMOS input sits at an indeterminate level and can draw cross-conduction current. Unused data and select inputs must be tied.",
+    "**Calling a decoder a demultiplexer.** A decoder is a demux whose data input is tied to the active level. With data tied low, a demux produces no asserted output at all.",
+    "**Choosing the wrong fan-out number.** Take $\\min(I_{OH}/I_{IH},\\,I_{OL}/I_{IL})$. Quoting only the sinking limit overstates the fan-out by two to five times in TTL families.",
+    "**Ignoring the mux tree depth.** A wide mux built as a binary tree has $\\lceil\\log_2 N\\rceil$ levels of delay; a single wide gate has one level but much larger input capacitance. Neither is free.",
+    "**Assuming a 4:1 mux can implement any 4-variable function.** A $2^{n-1}$:1 mux handles $n$ variables, so a 4:1 mux handles 3 variables (two selects plus one data variable). A 4-variable function needs an 8:1 mux."
+  ],
+  "refs": [
+    "[[08_Encoders_and_Decoders]]",
+    "[[05_SOP,_POS,_Minterms_and_Maxterms]]",
+    "[[16_Logic_Families_TTL_vs_CMOS_and_Interfacing]]",
+    "[[12_Shift_Registers]]"
+  ],
+  "prereqs": ["[[05_SOP,_POS,_Minterms_and_Maxterms]]"]
+}

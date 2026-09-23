@@ -1,0 +1,197 @@
+---
+id: ECE-04-15
+title: "Special Diodes: Varactor, Schottky, Tunnel"
+part: "02_Electronics_Engineering"
+area: "04_Semiconductor_Devices"
+topic: 15
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_PN_Junction_and_Depletion_Region]]", "[[04_Diode_Models_and_Load_Line]]"]
+tags: ["ece", "electronics_engineering", "semiconductor_devices"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 15 — Special Diodes: Varactor, Schottky, Tunnel
+
+> [!abstract] Scope
+> Compute varactor capacitance and tuning ratio against reverse bias, compare Schottky and pn drops and switching losses numerically, and use tunnel-diode peak and valley currents to find the negative resistance.
+
+## Core Concept
+
+> [!tip] Intuition
+> All three special diodes are ordinary junctions pushed to an extreme. The varactor is a junction used as a voltage-controlled capacitor, the Schottky replaces one semiconductor side with metal to remove minority-carrier storage, and the tunnel diode is doped so heavily that carriers quantum-tunnel straight through a junction only nanometres wide.
+
+**The varactor exploits the bias dependence of junction capacitance.** Any reverse-biased $pn$ junction has a depletion region that acts as the dielectric of a parallel-plate capacitor, and widening that region with reverse voltage lowers the capacitance:
+$$C_j=\frac{C_{j0}}{\left(1+V_R/V_0\right)^{m}}$$
+where $C_{j0}$ is the zero-bias capacitance, $V_0$ is the built-in contact potential (about $0.7\ \mathrm{V}$ for silicon) and $m$ is the grading coefficient — $1/2$ for an abrupt junction, $1/3$ for a linearly graded one, and greater than $1/2$ for a deliberately **hyperabrupt** profile that gives a wider tuning range. The exponent is what makes this useful: a large reverse bias shrinks $C_j$, and since the resonant frequency of a tuned circuit is $f=\frac{1}{2\pi\sqrt{LC_j}}$, the frequency tunes as the *square root* of the capacitance ratio. The device must **always be reverse biased**: forward bias floods the junction with carriers, collapses the $Q$ and turns the varactor into an ordinary rectifying diode, which is why a tuning line includes a blocking resistor or an RF choke to keep the control voltage negative. Typical uses are voltage-controlled oscillators, tunable filters and automatic frequency control, and the figures of merit are the capacitance tuning ratio, the quality factor $Q$ at the operating frequency, and the tuning linearity.
+
+**The Schottky diode trades a semiconductor junction for a metal contact.** In a Schottky (hot-carrier) diode a metal such as platinum, molybdenum or gold is deposited directly on lightly doped silicon, forming a rectifying barrier instead of a $pn$ junction. Conduction is by **majority carriers only** — electrons in the metal are injected into the semiconductor and there are essentially no minority carriers to store. Because there is no minority-carrier storage, there is no reverse-recovery tail: the diode turns off in picoseconds, which makes it the standard choice for fast logic clamps, switching power supplies, and RF detectors. The forward drop is also lower, typically $0.3$ to $0.5\ \mathrm{V}$ against $0.7\ \mathrm{V}$ for a silicon $pn$ diode, because the barrier height is smaller than the built-in potential of a $pn$ junction. The price is paid in reverse leakage, which is much higher and rises steeply with temperature (roughly doubling every $10\ \mathrm{^\circ C}$), and in a lower reverse breakdown voltage — commonly 20 to 100 V against the hundreds of volts a $pn$ diode handles. So the engineering comparison is never just the forward drop: a Schottky that saves $0.4\ \mathrm{V}$ of conduction drop but leaks milliamps at $100\ \mathrm{^\circ C}$ can lose more power than it saves.
+
+**The tunnel diode works by quantum tunnelling, not diffusion.** In an Esaki diode both sides are doped degenerately — about $10^{19}$ to $10^{20}\ \mathrm{cm^{-3}}$ — so the depletion region is extremely thin (roughly $10\ \mathrm{nm}$) and the Fermi level lies inside the conduction band on the $n$ side and inside the valence band on the $p$ side. Electrons can tunnel *through* the barrier instead of climbing over it, and the tunnelling probability falls rapidly as the doping-induced energy overlap decreases. That produces a very unusual I-V curve: current rises steeply to a **peak current** $I_P$ at a small peak voltage $V_P$ (typically $65\ \mathrm{mV}$), then *falls* to a **valley current** $I_V$ at $V_V$ (typically $350\ \mathrm{mV}$), and only then rises again as ordinary injection current takes over. The peak-to-valley ratio $\mathrm{PVR}=I_P/I_V$ (5 to 20 for germanium, 2 to 5 for silicon) measures how pronounced the effect is, and the intermediate region has a **negative differential resistance** $R_n=\frac{\Delta V}{\Delta I}<0$. Negative resistance cancels circuit loss, so a tunnel diode oscillates or switches at frequencies up to hundreds of gigahertz — far beyond any transit-time-limited device — but it is a two-terminal, low-voltage, low-current device, so it appears in microwave oscillators, fast switches and memory rather than in power circuits.
+
+**Choosing between them, and the shared caveat.** Match the mechanism to the requirement. Need a voltage-variable capacitor for tuning? Varactor, and check the tuning ratio over the available bias range and the $Q$ at the operating frequency. Need low forward drop and no switching tail in a converter or clamp? Schottky, but verify the reverse voltage rating and the leakage at the highest operating temperature. Need oscillation or switching at tens of gigahertz, or a bistable element, or a small-signal negative resistance? Tunnel diode, biased in the middle of the negative-resistance region. The shared caveat is that all three are still junctions with parasitic capacitance and series resistance, so a data-sheet number is only valid at the stated bias and frequency. A varactor with an excellent tuning ratio can have a $Q$ of only 20 at the top of its range, a Schottky with a $0.3\ \mathrm{V}$ drop still has enough junction capacitance to look slow into a high impedance, and a tunnel diode's negative resistance is defeated by any circuit resistance larger than $|R_n|$ in series with it.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Varactor junction capacitance | $C_j = \frac{C_{j0}}{\left(1 + V_R/V_0\right)^{m}}$ | Valid for REVERSE bias only (V_R >= 0). V_0 is about 0.7 V for silicon. Omitting V_0 underestimates C_j at every bias point and gets worse as V_R grows. |
+| Grading coefficient m | $m = \frac{1}{2}\ \mathrm{(abrupt)},\qquad m = \frac{1}{3}\ \mathrm{(graded)},\qquad m > \frac{1}{2}\ \mathrm{(hyperabrupt)}$ | Set by the doping profile, not by the bias. Hyperabrupt varactors are specially profiled to give a larger tuning ratio over the same voltage swing. |
+| Capacitance tuning ratio | $TR = \frac{C_j(V_{R1})}{C_j(V_{R2})}$ | Compare at the two ends of the available control-voltage range. For C_j0 = 100 pF, V_0 = 0.7 V, m = 1/2, the ratio from 2 V to 10 V is 1.99; from 0 V to 10 V it is 3.91. |
+| Tuned-circuit resonant frequency | $f_r = \frac{1}{2\pi\sqrt{L C_j}}$ | The frequency tunes as the SQUARE ROOT of the capacitance ratio, so a 2:1 capacitance change gives only a 1.41:1 frequency change. |
+| Forward drop comparison, Schottky vs pn | $V_F(\mathrm{Schottky}) \approx 0.3\ \mathrm{V} \quad \mathrm{vs} \quad V_F(\mathrm{Si}\ pn) \approx 0.7\ \mathrm{V}$ | At the SAME forward current: V_F is logarithmic in current, so a 0.3 V drop quoted at 1 mA can be 0.5 V at 1 A. Compare conduction loss as I_F*V_F, not drop alone. |
+| Reverse-recovery loss of a pn rectifier | $P_{rr} \approx \frac{1}{2}V_R I_F t_{rr} f$ | Charges and discharges the stored minority charge once per cycle. A Schottky has effectively t_rr in the picosecond range, so this term nearly vanishes. |
+| Schottky reverse leakage penalty | $P_{leak} = V_R I_R(V_R,T)$ | I_R for a Schottky is orders of magnitude larger than for a pn diode and roughly doubles every 10 C, so the leakage term can erase the forward-drop saving at high temperature. |
+| Tunnel-diode peak-to-valley ratio | $\mathrm{PVR} = \frac{I_P}{I_V}$ | 5-20 for germanium, 2-5 for silicon. A higher PVR gives a larger negative resistance and a more robust oscillator. |
+| Negative resistance of the tunnel diode | $R_n = \frac{V_V - V_P}{I_V - I_P} < 0$ | The slope between peak and valley. With V_P = 65 mV, V_V = 350 mV, I_P = 10 mA and I_V = 1 mA, R_n = -31.7 ohm. |
+| Oscillation condition for a tunnel diode | $R_s < \lvert R_n\rvert < R_p$ | The external series resistance must be smaller than \|R_n\| and the parallel load resistance larger, or the negative resistance is swamped and the circuit will not oscillate. \|R_n\| must also exceed the diode series resistance. |
+| Depletion width and doping | $W \propto \frac{1}{\sqrt{N}}$ | Heavy doping gives a very thin barrier, which is what allows tunnelling in the tunnel diode and also raises the junction capacitance of a varactor or Schottky at a given bias. |
+
+## Worked Problems
+
+### P1. A varactor has $C_{j0}=100\ \mathrm{pF}$, $V_0=0.7\ \mathrm{V}$ and $m=1/2$. Find $C_j$ at $V_R=2\ \mathrm{V}$ and at $V_R=10\ \mathrm{V}$, and the tuning ratio between them. With $L=1\ \mu\mathrm{H}$, find the resonant frequency at each bias.
+
+**Given:** C_j0 = 100 pF; V_0 = 0.7 V; m = 0.5; V_R = 2 V and 10 V; L = 1 uH
+
+**Solution:**
+
+1. At 2 V: (1 + 2/0.7) = 3.8571; sqrt = 1.9640; C_j = 100/1.9640 = 50.92 pF
+2. At 10 V: (1 + 10/0.7) = 15.2857; sqrt = 3.9097; C_j = 100/3.9097 = 25.58 pF
+3. Tuning ratio = 50.92/25.58 = 1.99, i.e. about 2:1 over this 2 V to 10 V control range
+4. f at 2 V: f = 1/(2*pi*sqrt(1e-6 * 50.92e-12)) = 1/(2*pi*7.136e-9) = 22.3 MHz
+5. f at 10 V: f = 1/(2*pi*sqrt(1e-6 * 25.58e-12)) = 1/(2*pi*5.057e-9) = 31.5 MHz
+6. Check: the frequency ratio 31.5/22.3 = 1.41 should equal sqrt(1.99) = 1.41, and it does
+
+> [!success]- Answer
+> **C_j = 50.92 pF at 2 V and 25.58 pF at 10 V (ratio 1.99); with 1 uH the circuit tunes from 22.3 MHz to 31.5 MHz.**
+
+> [!warning] Trap
+> Using C_j = C_j0/(1 + V_R)^m and dropping V_0. At 10 V that gives 100/sqrt(11) = 30.2 pF instead of 25.6 pF, an 18 percent capacitance error and a 9 percent frequency error. The built-in potential is small but it dominates the denominator when V_R is only a few volts.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1+2÷0.7` → **3.8571**; `100÷√Ans` → **50.92** pF at 2 V.
+> 2. `1+10÷0.7` → **15.2857**; `100÷√Ans` → **25.58** pF at 10 V; `50.92÷Ans` → **1.99** tuning ratio.
+> 3. `1÷(2π√(1E-6×50.92E-12))` → **2.230e7** Hz and with 25.58 pF → **3.147e7** Hz.
+>
+> Keep $V_0$ in the denominator: dropping it gives 30.2 pF instead of 25.6 pF at 10 V.
+
+### P2. For the same varactor, what reverse bias is needed to reach $C_j=20\ \mathrm{pF}$? Is that bias practical for a 15 V tuning line?
+
+**Given:** C_j0 = 100 pF; V_0 = 0.7 V; m = 0.5; Target C_j = 20 pF
+
+**Solution:**
+
+1. Rearrange: (1 + V_R/V_0)^m = C_j0/C_j = 100/20 = 5
+2. With m = 0.5, square both sides: 1 + V_R/V_0 = 25
+3. V_R/V_0 = 24, so V_R = 24*0.7 = 16.8 V
+4. Check: 1 + 16.8/0.7 = 25, sqrt(25) = 5, and 100/5 = 20 pF
+5. A 15 V line cannot reach 16.8 V, so this varactor cannot be tuned to 20 pF on that supply; a device with a larger C_j0/C_j range or a hyperabrupt profile is required
+
+> [!success]- Answer
+> **V_R = 16.8 V is required, which exceeds a 15 V tuning line, so the target is not reachable with this device on that supply.**
+
+> [!warning] Trap
+> Forgetting to raise both sides to the power 1/m and instead solving 1 + V_R/V_0 = 5, which gives V_R = 2.8 V. That is a factor-of-six underestimate and would put the design badly off frequency.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `(100÷20)²−1` → **24**, then `×0.7` → **16.8** V = $V_R$.
+> 2. Check: `1+16.8÷0.7` → **25**, `√Ans` → **5**, `100÷5` → **20** pF — it closes.
+>
+> Forgetting the $1/m$ power gives 2.8 V; a 15 V tuning line cannot reach 16.8 V.
+
+### P3. A clamp must hold a logic node below $0.4\ \mathrm{V}$ at $10\ \mathrm{mA}$, and a $200\ \mathrm{kHz}$ buck converter carries $I_F=1\ \mathrm{A}$ with $V_R=20\ \mathrm{V}$ across its freewheeling rectifier. Compare a silicon $pn$ diode ($V_F=0.7\ \mathrm{V}$, $t_{rr}=50\ \mathrm{ns}$) with a Schottky ($V_F=0.3\ \mathrm{V}$, $t_{rr}=5\ \mathrm{ns}$) in both jobs.
+
+**Given:** Clamp limit = 0.4 V at 10 mA; Buck: f = 200 kHz, I_F = 1 A, V_R = 20 V, duty = 0.5; pn diode: V_F = 0.7 V, t_rr = 50 ns; Schottky: V_F = 0.3 V, t_rr = 5 ns
+
+**Solution:**
+
+1. Clamp: the pn diode at 10 mA drops 0.7 V, exceeding the 0.4 V limit by 0.3 V; the Schottky drops 0.3 V and leaves 0.1 V of margin, so only the Schottky works
+2. Buck switching loss, pn: P_rr = 0.5*V_R*I_F*t_rr*f = 0.5*20*1*50e-9*200e3 = 0.100 W
+3. Buck switching loss, Schottky: P_rr = 0.5*20*1*5e-9*200e3 = 0.010 W, a 0.090 W saving
+4. Conduction loss at duty 0.5, pn: 0.5*1 A*0.7 V = 0.350 W; Schottky: 0.5*1 A*0.3 V = 0.150 W, a 0.200 W saving
+5. Total per-diode saving with the Schottky is about 0.29 W, but its reverse leakage at elevated temperature and its lower reverse rating must be checked against the 20 V stress
+
+> [!success]- Answer
+> **The Schottky is required for the clamp and saves about 0.29 W in the converter (0.01 W vs 0.10 W recovery plus 0.15 W vs 0.35 W conduction), provided its leakage and reverse rating suit the application.**
+
+> [!warning] Trap
+> Choosing the Schottky on forward drop alone in a 100 V circuit. Most small Schottkys are rated 20-45 V, so a 100 V reverse stress destroys them; and at 100 C their leakage can reach milliamps, making the leakage loss larger than the 0.09 W recovery saving.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Clamp: the pn drop of **0.7** V exceeds the 0.4 V limit, while the Schottky's **0.3** V leaves 0.1 V of margin.
+> 2. Recovery: `0.5×20×1×50E-9×200E3` → **0.100** W for pn and **0.010** W for the Schottky.
+> 3. Conduction at duty 0.5: `0.5×1×0.7` → **0.350** W against `0.5×1×0.3` → **0.150** W; total saving **0.29** W.
+>
+> Check the Schottky's 20 to 45 V reverse rating and its leakage before choosing it.
+
+### P4. A germanium tunnel diode has $I_P=10\ \mathrm{mA}$ at $V_P=65\ \mathrm{mV}$ and $I_V=1\ \mathrm{mA}$ at $V_V=350\ \mathrm{mV}$. Find the peak-to-valley ratio, the negative resistance and the voltage swing of the negative-resistance region.
+
+**Given:** I_P = 10 mA at V_P = 65 mV; I_V = 1 mA at V_V = 350 mV
+
+**Solution:**
+
+1. PVR = I_P/I_V = 10 mA/1 mA = 10
+2. R_n = (V_V - V_P)/(I_V - I_P) = (350 - 65) mV/(1 - 10) mA = 285 mV/(-9 mA)
+3. R_n = -31.7 ohm, so the negative resistance magnitude is 31.7 ohm
+4. Swing between peak and valley: the bias must sit between 65 mV and 350 mV, a window of 285 mV with currents between 10 mA and 1 mA
+5. For oscillation the external series resistance must be under 31.7 ohm and the parallel load resistance above it, so the bias network must not present more than about 30 ohm in series
+
+> [!success]- Answer
+> **PVR = 10, R_n = -31.7 ohm, and the negative-resistance region spans 285 mV from 65 mV to 350 mV.**
+
+> [!warning] Trap
+> Dividing the voltage difference by I_P or by I_V instead of by the CURRENT difference, which gives -28.5 ohm or -285 ohm. The negative resistance is the slope between the two points, so both differences are needed, and the sign must come out negative.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `10÷1` → **10** = PVR.
+> 2. `(350−65)÷(1−10)` → **−31.7** $\Omega$ = $R_n$; both differences are required.
+> 3. Swing: `350−65` → **285** mV between $V_P$ and $V_V$.
+>
+> Dividing by $I_P$ or $I_V$ alone gives −28.5 $\Omega$ or −285 $\Omega$; it is the slope.
+
+### P5. Select the best of varactor, Schottky or tunnel diode for each job and justify the choice numerically: (i) a 100 MHz voltage-controlled oscillator with $L=0.1\ \mu\mathrm{H}$ and the varactor of the earlier problem; (ii) the $5\ \mathrm{A}$, $12\ \mathrm{V}$ freewheeling path of a $100\ \mathrm{kHz}$ buck converter; (iii) a $10\ \mathrm{GHz}$ oscillator needing a negative resistance of at least $30\ \Omega$.
+
+**Given:** Job i: f = 100 MHz, L = 0.1 uH, varactor C_j0 = 100 pF, V_0 = 0.7 V, m = 0.5; Job ii: I_F = 5 A, V_R = 12 V, f = 100 kHz; Job iii: f = 10 GHz, needed |R_n| >= 30 ohm; Tunnel diode: PVR = 10, R_n = -31.7 ohm
+
+**Solution:**
+
+1. Job i: required C = 1/((2*pi*f)^2*L) = 1/((6.2832e8)^2 * 1e-7) = 1/3.948e10 = 25.3 pF. At V_R = 10 V the varactor gives 25.58 pF, so f = 1/(2*pi*sqrt(1e-7*25.58e-12)) = 99.5 MHz, essentially the target: the VARACTOR is correct, with about 2:1 capacitance tuning available
+2. Job ii: forward-drop loss, Schottky 5 A*0.3 V = 1.5 W against pn 5 A*0.7 V = 3.5 W, a 2 W saving; recovery loss adds 0.5*12*5*50e-9*100e3 = 0.15 W for a fast pn against 0.015 W for the Schottky. The reverse stress is only 12 V, so a 45 V Schottky is safe: the SCHOTTKY wins
+3. Job iii: the tunnel diode provides R_n = -31.7 ohm, which exceeds the required 30 ohm magnitude; a 10 GHz signal has a 100 ps period, and tunnelling is not transit-time limited, so the TUNNEL DIODE is the only one of the three that can oscillate there
+4. Rejections with numbers: a varactor cannot rectify or switch 5 A; a Schottky has no negative-resistance region and its junction capacitance and package inductance make 10 GHz oscillation impractical; a tunnel diode cannot tune a 100 MHz oscillator over a 2:1 capacitance range
+
+> [!success]- Answer
+> **i) varactor, since 25.58 pF at 10 V gives 99.5 MHz with 0.1 uH; ii) Schottky, saving about 2.15 W of conduction and recovery loss at only 12 V reverse stress; iii) tunnel diode, whose -31.7 ohm exceeds the required 30 ohm and works at 10 GHz.**
+
+> [!warning] Trap
+> Choosing the Schottky for the clamp or converter without checking the reverse voltage and leakage, or choosing the varactor for a switching job because it has the lowest capacitance. Each device's mechanism, not its headline number, decides the application.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1÷((2π×1E8)²×1E-7)` → **2.533e-11** F = **25.3** pF required at 100 MHz.
+> 2. The varactor gives 25.58 pF at 10 V, so `1÷(2π√(1E-7×25.58E-12))` → **9.95e7** Hz, essentially the target.
+> 3. Job ii savings: `5×(0.7−0.3)` → **2.0** W plus `0.5×12×5×100E3×(50E-9−5E-9)` → **0.135** W.
+>
+> 10 GHz needs a negative resistance of 31.7 $\Omega$ above 30 $\Omega$ and no transit-time limit.
+
+## Traps & Exam Notes
+
+- **Omitting $V_0$ from the varactor equation.** $C_j=\frac{C_{j0}}{(1+V_R/V_0)^m}$ contains the built-in potential because the depletion width depends on the total junction voltage. Using $(1+V_R)^m$ underestimates the capacitance at high bias and throws the tuned frequency off by several percent.
+- **Forward-biasing a varactor.** The capacitance formula holds only for $V_R\ge0$. A forward-biased varactor conducts, its $Q$ collapses to that of a ordinary diode, and in a tuned circuit it rectifies the RF and shifts its own bias point. Tuning lines therefore use a blocking capacitor and an RF choke.
+- **Using the wrong grading coefficient.** $m=1/2$ is for an abrupt junction and $m=1/3$ for a linearly graded one; a hyperabrupt tuning varactor has $m>1/2$ by design. Using $m=1/2$ on a hyperabrupt device understates the tuning ratio available from the same voltage swing.
+- **Treating a Schottky as a drop-in replacement for a $pn$ diode.** Its reverse leakage is orders of magnitude larger and roughly doubles every $10\ \mathrm{^\circ C}$, and its reverse breakdown is typically only 20-100 V. At high temperature the leakage loss $V_RI_R$ can exceed the forward-drop saving.
+- **Comparing forward drops measured at different currents.** $V_F$ is logarithmic in $I_F$, so a $0.3\ \mathrm{V}$ Schottky figure quoted at 1 mA is not the drop at 1 A. Always compare $I_FV_F$ at the actual operating current and temperature.
+- **Thinking the tunnel diode is a minority-carrier device.** Its current below the valley comes from quantum-mechanical tunnelling through a junction only about $10\ \mathrm{nm}$ wide, not from diffusion or injection. That is why it is fast enough for microwave work — and why the negative-resistance region exists only between $V_P$ and $V_V$.
+- **Ignoring the circuit resistance around a tunnel diode.** The negative resistance is useful only if $R_s<|R_n|<R_p$. Too much series resistance or too small a parallel load swamps it and the circuit simply will not oscillate, no matter how good the PVR is.
+
+## See Also
+
+- [[03_Diode_Characteristics_and_Shockley]]
+- [[04_Diode_Models_and_Load_Line]]
+- [[14_Optoelectronics_and_Solar_Cells]]
+
+---
+
+[[14_Optoelectronics_and_Solar_Cells|⬅ 14]] · [[_MOC_Semiconductor_Devices|MOC]] · [[00_Dashboard|Dashboard]] · *end* ➡

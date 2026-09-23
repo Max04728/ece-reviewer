@@ -1,0 +1,613 @@
+[
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/01_Complex_Numbers,_Euler_and_De_Moivre.json",
+    "problem": 1,
+    "expect": "in polar and exponential form, giving the principal argument.",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2` in degrees: `SHIFT` `Pol(` `-1` `,` `√3` `)` `=` → $r$ = **2** (held in `X`), $\\theta$ = **120** (held in `Y`) — the quadrant comes out right with no adjustment.",
+        "`Y` `×` `π` `÷` `180` `=` → **2.0944** rad, so $z = 2\\angle 120^\\circ = 2e^{j2\\pi/3}$."
+      ],
+      "note": "`Pol(` returns the four-quadrant angle; `tan^-1(√3 ÷ -1)` returns **-60**, the quadrant-IV value the trap describes."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/01_Complex_Numbers,_Euler_and_De_Moivre.json",
+    "problem": 2,
+    "expect": "Evaluate $(1+j)^{10}$ in rectangular form.",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `(1+j)^10` `=` → **0 + 32j** in `▶a+bi` display.",
+        "Modulus cross-check: `(√2)^10` `=` → **32**, and the angle wrap $10\\times 45^\\circ = 450^\\circ$ is handled internally as $90^\\circ$."
+      ],
+      "note": "The power is exact in CPLX; the $450^\\circ$ reduction that a radian-mode `cos(450)` ruins never enters."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/01_Complex_Numbers,_Euler_and_De_Moivre.json",
+    "problem": 3,
+    "expect": "Find all cube roots of",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`8^(1÷3)` `=` → **2** — the principal root only, which is exactly the incomplete answer.",
+        "`2∠120` `=` → **-1 + 1.7321j**, then `2∠240` `=` → **-1 - 1.7321j** (the `∠` key takes $r\\angle\\theta$ and returns $a+bj$)."
+      ],
+      "note": "The three roots are $2\\angle 0^\\circ, 2\\angle 120^\\circ, 2\\angle 240^\\circ$; `8^(1÷3)` alone shows only the first."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/03_Sequences_and_Convergence_Tests.json",
+    "problem": 1,
+    "expect": "2n+1}$ converge?",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1E6 ÷ (2×1E6+1)` → **0.49999975**, and `1E9 ÷ (2×1E9+1)` → **0.4999999998**.",
+        "Both readings sit on $1/2$, so $a_n$ does not tend to 0 and the series diverges before any other test is tried."
+      ],
+      "note": "The divergence test wants the *limit* of the terms, and this is the whole computation."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/03_Sequences_and_Convergence_Tests.json",
+    "problem": 3,
+    "expect": "2^{n}}{n!}",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`Apps` `Σ` `Σ(2^X ÷ X!, 1, 20)` → **6.389056** — the partial sums have settled on the finite value $e^2-1$.",
+        "Ratio term at large $n$: `2 ÷ (1E3+1)` → **0.001998** and `2 ÷ (1E6+1)` → **2E-6**, so $L = 0 < 1$."
+      ],
+      "note": "$\\sum 2^n/n!$ is exactly $e^2-1$; a settled partial sum and $L=0$ are the same verdict."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/03_Sequences_and_Convergence_Tests.json",
+    "problem": 4,
+    "expect": "Classify the convergence",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`Apps` `Σ` `Σ((-1)^(X+1) ÷ √X, 1, 1000)` → **0.5891**, and at 1001 terms → **0.6207**: the partial sums oscillate in a fixed band instead of marching off.",
+        "`Apps` `Σ` `Σ(1 ÷ √X, 1, 1000)` → **61.80**, and `∫dx` `∫(X^-0.5, 1, 1E6)` → **1998** — the absolute series is unbounded."
+      ],
+      "note": "Bounded oscillation of $\\sum a_n$ against unbounded growth of $\\sum\\lvert a_n\\rvert$ is exactly conditional convergence."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/04_Power_Series_Radius_of_Convergence.json",
+    "problem": 1,
+    "expect": "x^{n}}{n}$.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Endpoint $x = 1$: `∫dx` `∫(1 ÷ X, 1, 1000)` → **6.9078** and `∫(1 ÷ X, 1, 1E6)` → **13.816** — the harmonic area grows like $\\ln N$, so it diverges.",
+        "Endpoint $x = -1$: `Apps` `Σ` `Σ((-1)^X ÷ X, 1, 1000)` → **-0.6926**, closing on $-\\ln 2$ = **-0.6931** — convergent."
+      ],
+      "note": "One endpoint settles and one does not, which is why the interval is $[-1,1)$ and not closed."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/04_Power_Series_Radius_of_Convergence.json",
+    "problem": 3,
+    "expect": "convergence of $\\displaystyle\\sum_{n=1}^{\\infty} n!\\,x^{n}$.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Set $x = 0.5$ and watch the terms grow: `8!×0.5^8` → **157.5**, `10!×0.5^10` → **3543.75**, `12!×0.5^12` → **116944**.",
+        "The terms blow up for every $x \\neq 0$, so the series converges at the centre alone: $R = 0$ — the reverse of $\\sum x^n/n!$."
+      ],
+      "note": "The factorial is the coefficient here, so it collapses the radius instead of extending it."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/04_Power_Series_Radius_of_Convergence.json",
+    "problem": 5,
+    "expect": "x^{n}}{n^{2}}$.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`Apps` `Σ` `Σ(1 ÷ X², 1, 1000)` → **1.6439**, closing on $\\pi^2/6$ = **1.6449** — a settled, convergent value.",
+        "Both endpoints are that series with alternating signs, and a convergent $\\sum 1/n^2$ makes them absolutely convergent, so both endpoints are kept."
+      ],
+      "note": "Same $R = 1$ as P1 but a closed interval: $1/n$ never settles, $1/n^2$ does."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/05_Taylor_and_Maclaurin_Series.json",
+    "problem": 1,
+    "expect": "e^{-2x}$ through the",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Truncation check at $x = 0.1$: `1-2×0.1+2×0.1²-(4÷3)×0.1³` → **0.8186667**.",
+        "`e^(-0.2)` → **0.8187308**. Agreement to five places says the coefficients $1, -2, 2, -4/3$ are right."
+      ],
+      "note": "Without the factorial: `1-2×0.1+4×0.1²-(8÷6)×0.1³` → **0.8386667**, wrong in the second decimal."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/05_Taylor_and_Maclaurin_Series.json",
+    "problem": 4,
+    "expect": "in powers of $(x-2)$",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Partial sums at $x = 2.5$: `0.5-0.125+0.03125` → **0.40625**, then `-0.125÷16` → **0.3984375**.",
+        "`1÷2.5` → **0.4** sits between the two, so the centre is 2 and the powers are $(x-2)$."
+      ],
+      "note": "A Maclaurin answer left in powers of $x$ gives $1-2.5+6.25-\\cdots$ and misses 0.4 entirely."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/05_Taylor_and_Maclaurin_Series.json",
+    "problem": 5,
+    "expect": "Use series to evaluate",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(e^0.001-1-0.001) ÷ 0.001²` → **0.5001667**.",
+        "At $x = 10^{-4}$: `(e^0.0001-1-0.0001) ÷ 0.0001²` → **0.5000167**, so the limit is $1/2$."
+      ],
+      "note": "Two evaluations replace two L'Hopital differentiations; the numbers converge on the series coefficient $1/2$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/06_Truncation_Error_and_Approximation.json",
+    "problem": 1,
+    "expect": "using the first two terms of its Maclaurin series",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "In RAD: `sin(0.3)` → **0.2955202**, and the two-term value `0.3-0.3³÷6` → **0.2955**.",
+        "Difference **2.0207E-5** against the bound `0.3^5÷120` → **2.025E-5** — inside it, as the alternating rule promises."
+      ],
+      "note": "Degree mode returns `sin(0.3)` = **0.00524**, three orders out — the trap the note names."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/06_Truncation_Error_and_Approximation.json",
+    "problem": 4,
+    "expect": "with the Lagrange remainder",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1+0.5+0.25÷2+0.125÷6` → **1.6458333**, and `e^0.5` → **1.6487213**: the true error is **2.888E-3**.",
+        "Bound with $M = 2$: `2×0.5^4÷24` → **5.208E-3**, which contains that error."
+      ],
+      "note": "Using $M = 1$ gives `0.5^4÷24` = **2.604E-3**, *smaller* than the true error — not a bound at all."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/06_Truncation_Error_and_Approximation.json",
+    "problem": 5,
+    "expect": "are needed to guarantee an error below",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `SOLVE` on `1÷(X+1)²` `ALPHA` `=` `0.01`, guess 10 → `X` = **9**, so $N+1 > 10$ gives $N \\geq 10$.",
+        "Boundary check: `1÷11²` → **0.0082645** (below 0.01) while `1÷10²` → **0.01** (not below)."
+      ],
+      "note": "The bound is on the first *omitted* term $b_{N+1}$, so the inequality is written in $N+1$ and the answer is 10, not 9."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/09_Unit_Step,_Dirac_and_Periodic_Functions.json",
+    "problem": 4,
+    "expect": "e^{-3t}\\delta(t-2)",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "The impulse samples the integrand at $t = 2$, so the integral is one evaluation: `e^(-3×2)` → **2.479E-3** ($e^{-6}$).",
+        "Sampling at the lower limit instead: `e^(-3×0)` → **1**, wrong by a factor of about 400."
+      ],
+      "note": "The sifting property evaluates the *other* factor at $t=2$; there is no antiderivative in the working."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/10_Inverse_Laplace_and_Partial_Fractions.json",
+    "problem": 1,
+    "expect": "(s+1)(s+2)}$.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Residues need no simultaneous equations: with `X` as $s$, `(X+3)÷(X+2)` at `X = -1` → **2**, and `(X+3)÷(X+1)` at `X = -2` → **-1**.",
+        "$F(s) = 2/(s+1) - 1/(s+2)$, so $f(t) = 2e^{-t}-e^{-2t}$; check `2-1` → **1** = $\\lim_{s\\to\\infty}sF(s)$."
+      ],
+      "note": "Each coefficient is the numerator over the *surviving* factor at the pole — the sign of $s+1$ cannot be lost this way."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/10_Inverse_Laplace_and_Partial_Fractions.json",
+    "problem": 2,
+    "expect": "s(s+2)^{2}}$.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(X+4)÷(X+2)²` at `X = 0` → **1** (the $A$ over $s$) and `(X+4)÷X` at `X = -2` → **-1** (the $C$ over $(s+2)^2$).",
+        "The lower repeated-pole coefficient is a derivative: `SHIFT` `d/dx` of `(X+4)÷X` at `X = -2` → **-1** (that is $B$).",
+        "So $F(s) = 1/s - 1/(s+2) - 1/(s+2)^2$ and $f(t) = 1-(1+t)e^{-2t}$; `1-1-0×1` → **0** matches $\\lim_{s\\to\\infty}sF(s) = 0$."
+      ],
+      "note": "Here $B$ and $C$ happen to both be $-1$; only the derivative gives $B$, and the coincidence does not generalise."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/10_Inverse_Laplace_and_Partial_Fractions.json",
+    "problem": 5,
+    "expect": "Use the convolution theorem to find",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "The convolution at $t = 1$ with the shifted kernel: `∫dx` `∫(X × e^(X-1), 0, 1)` → **0.3678794**.",
+        "The answer $f(t) = t-1+e^{-t}$ gives `1-1+e^(-1)` → **0.3678794** — identical.",
+        "The wrong kernel $\\tau e^{-\\tau}$ would give `∫(X × e^(-X), 0, 1)` → **0.2642411**, the 0.264 of the trap."
+      ],
+      "note": "One definite integral decides which convolution the theorem demands."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/11_Fourier_Series_Trigonometric_and_Exponential.json",
+    "problem": 1,
+    "expect": "of the square wave $f(t) = 1$ for",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`∫dx` `∫(sin X, 0, π)` → **2** and `∫(sin X, π, 2π)` → **-2**, so $b_n = (1/\\pi)(2-(-2))$ = `4÷π` → **1.2732**.",
+        "At $n = 3$: `4÷(3π)` → **0.4244**; an even $n$ gives `(1÷π)(0-0)` → **0**."
+      ],
+      "note": "$\\cos n\\pi = (-1)^n$ has already collapsed $b_n$ to $4/(n\\pi)$ for odd $n$; the integrals only confirm it."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/11_Fourier_Series_Trigonometric_and_Exponential.json",
+    "problem": 2,
+    "expect": "Write the exponential Fourier series",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `2 ÷ (jπ)` → **-0.6366j**, that is $c_1 = -j2/\\pi$.",
+        "`Apps` `▶r∠θ` → $\\lvert c_1 \\rvert$ = **0.6366** = $2/\\pi$ at $-90^\\circ$, while the trigonometric $b_1$ was $4/\\pi$ — exactly twice."
+      ],
+      "note": "The two-sided magnitude is half the one-sided amplitude; keying the $\\omega$ numerator as 4 instead of 2 doubles every $c_n$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/11_Fourier_Series_Trigonometric_and_Exponential.json",
+    "problem": 4,
+    "expect": "A half-wave rectified sine of period",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Take $T = 2\\pi$ so $\\omega_0 = 1$: `∫dx` `∫(sin X, 0, π)` → **2**, so $a_0$ = `2 ÷ 2π` → **0.31831** = $1/\\pi$.",
+        "$b_1$: `∫dx` `∫((sin X)², 0, π)` → **1.570796**, then `×2÷2π` → **0.5**.",
+        "$a_1$: `∫dx` `∫(sin X × cos X, 0, π)` → **0** — the cosine coefficient really is zero, not a slip."
+      ],
+      "note": "$\\sin^2$ integrates to half the interval, and that $\\pi/2$ divided by $T = 2\\pi$ is the $1/2$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/11_Fourier_Series_Trigonometric_and_Exponential.json",
+    "problem": 5,
+    "expect": "use Parseval's theorem to find the total mean-square value",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Time domain: `∫dx` `∫(1, 0, 2π)` → **6.2832**, `÷2π` → **1** — the mean square, exactly.",
+        "Fourier side: `Apps` `Σ` `Σ((8÷π²) ÷ (2X-1)², 1, 100)` → **0.99797**, and 1000 terms → **0.99980**, closing on the same **1**."
+      ],
+      "note": "The odd-harmonic tail after $N$ terms is $1/(2(2N-1))$; the series sums to $(8/\\pi^2)(\\pi^2/8) = 1$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/11_Fourier_Series_Trigonometric_and_Exponential.json",
+    "problem": 7,
+    "expect": "Convert the trigonometric pair",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `(3+4j) ÷ 2` → **1.5+2j** = $c_2$, so $c_{-2} = 1.5-2j$.",
+        "`SHIFT` `Pol(` `3` `,` `-4` `)` → $r$ = **5** (in `X`), $\\theta$ = **-53.13** (in `Y`), so $A_2 = 5$ and $\\phi_2 = -\\theta$ = **+53.13°**."
+      ],
+      "note": "$\\phi_n = -\\arctan(b_n/a_n)$ is the *negative* of the `Pol(` angle; reading `Y` straight through flips the sign."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/12_Half-Range_Expansions_and_Symmetry.json",
+    "problem": 1,
+    "expect": "half-range cosine series of $f(x) = x$ on",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`∫dx` `∫(X × cos(πX÷2), 0, 2)` → **-0.8105695**, and $8/\\pi^2$ = **0.8105695**, so $a_1 = -8/\\pi^2$.",
+        "Even $n$: `∫(X × cos(πX), 0, 2)` → **0**; and `2 ÷ 2 × ∫(X, 0, 2)` → **2** gives the constant term $a_0/2$ = **1**."
+      ],
+      "note": "With $L = 2$ the $2/L$ factor is exactly 1, so the keyed integral is already $a_n$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/12_Half-Range_Expansions_and_Symmetry.json",
+    "problem": 2,
+    "expect": "half-range sine series of $f(x) = 1$ on",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "$b_n = (2/\\pi)\\int_0^{\\pi}\\sin nX\\,dX$: `∫dx` `∫(sin X, 0, π)` → **2**, so $b_1$ = `2×2÷π` → **1.2732** = $4/\\pi$.",
+        "Even $n$ vanish: `∫(sin 2X, 0, π)` → **0**.",
+        "Leibniz at $x = \\pi/2$: `Apps` `Σ` `Σ((-1)^(X+1) ÷ (2X-1), 1, 1000)` → **0.785148**, closing on $\\pi/4$ = **0.785398**."
+      ],
+      "note": "The even coefficients are zero because the integral is zero, not because they were skipped."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/13_Fourier_Transform_Properties.json",
+    "problem": 1,
+    "expect": "unit-amplitude rectangular pulse",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "First null from $10^{-3}\\omega = \\pi$: `π ÷ 1E-3` → **3141.5927** rad/s.",
+        "In hertz: `1 ÷ 2E-3` → **500** Hz, with the DC value `2E-3` as the pulse area in front of the sinc."
+      ],
+      "note": "**500 rad/s** is the trap; the null sits at $2\\pi/\\tau$, which `π ÷ 1E-3` keeps visible."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/13_Fourier_Transform_Properties.json",
+    "problem": 2,
+    "expect": "evaluate its magnitude and phase at",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`MODE` `2`: `1 ÷ (4+3j)` → **0.16-0.12j**.",
+        "`Apps` `▶r∠θ` → $\\lvert F(3) \\rvert$ = **0.2** (in `X`), and `Apps` `Arg` → **-36.87°** at $\\omega = 3$ rad/s."
+      ],
+      "note": "The magnitude is $1/\\sqrt{4^2+3^2} = 1/5$; the sloppy $\\sqrt{4^2}+3$ route returns 0.1429."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/13_Fourier_Transform_Properties.json",
+    "problem": 3,
+    "expect": "is delayed so that it now occupies",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "In RAD: `sin(1) ÷ 1` → **0.8414710** — that is sinc(1), not 1.",
+        "$\\lvert G(1000)\\rvert$ = `2E-3 × 0.8414710` → **1.6829E-3** V·s (the shift leaves the magnitude alone).",
+        "Phase from the delay: `-1000 × 1E-3` → **-1** rad, and `×180÷π` → **-57.2958°**."
+      ],
+      "note": "`sin(1)` is radians; degree mode would return **0.01745** here."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/13_Fourier_Transform_Properties.json",
+    "problem": 4,
+    "expect": "to find the energy of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Time domain: `∫dx` `∫(e^(-8X), 0, 10)` → **0.125** J (a volt across 1 Ω).",
+        "Frequency route: `1 ÷ 2π × ∫(1 ÷ (16+X²), -1E6, 1E6)` → **0.125** — the $1/2\\pi$ is what makes the two sides agree."
+      ],
+      "note": "Without the $1/2\\pi$ the frequency integral returns $\\pi/4$ = **0.7854**, which is $2\\pi$ times the true energy."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/14_Bessel_Functions.json",
+    "problem": 1,
+    "expect": "A circular membrane of radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Put the radius in metres in a variable: `0.05` `SHIFT` `STO` `A`, then `2.4048 ÷ A` → **48.096** rad/m.",
+        "The next zero uses the same line: `5.5201 ÷ A` → **110.40** rad/m."
+      ],
+      "note": "The only arithmetic in the problem is the cm to m conversion, and it is inside the division."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/14_Bessel_Functions.json",
+    "problem": 2,
+    "expect": "Use the series definition to evaluate",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`Apps` `Σ` `Σ((-1)^X × 0.5^(2X) ÷ (X!)², 0, 3)` → **0.76519097**; adding the $m = 4$ term gives **0.76519775**.",
+        "So $J_0(1)$ = **0.7652** to four places, the same value the hand series reaches."
+      ],
+      "note": "The denominator is $(X!)^2$ — key `X!` then `x²`. A single `X!` gives **0.7788**, the trap's number."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/15_Legendre_Polynomials.json",
+    "problem": 1,
+    "expect": "$f(x) = x^{2}$ in Legendre",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "$a_0 = (1/2)\\int_{-1}^{1}x^2dx$: `∫dx` `∫(X², -1, 1)` → **0.6666667**, `÷2` → **0.3333333** = $1/3$.",
+        "$a_2 = (5/4)\\int_{-1}^{1}(3x^4-x^2)dx$: `∫dx` `∫(3X^4-X², -1, 1)` → **0.5333333**, `×5÷4` → **0.6666667** = $2/3$.",
+        "Odd coefficients: `∫(X³, -1, 1)` → **0** by parity, so $x^2 = (1/3)P_0 + (2/3)P_2$."
+      ],
+      "note": "The bare projection integral is $4/15$ = **0.2667**; the $(2n+1)/2 = 5/2$ factor is what turns it into $2/3$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/15_Legendre_Polynomials.json",
+    "problem": 3,
+    "expect": "directly from the polynomials",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`∫dx` `∫(((3X²-1)÷2) × ((5X³-3X)÷2), -1, 1)` → **0** — every term is an odd power, as orthogonality requires for $m \\neq n$.",
+        "`∫dx` `∫(((5X³-3X)÷2)², -1, 1)` → **0.2857143** = $2/7$, matching $2/(2n+1)$ at $n = 3$."
+      ],
+      "note": "The $m = n$ integral is not zero; the norm $2/7$ is the number that divides the projection."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/15_Legendre_Polynomials.json",
+    "problem": 4,
+    "expect": "Find the Legendre coefficients",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "The integrand $\\mathrm{sgn}(x)P_n(x)$ is even, so double the half range: $c_1 = (3/2)\\cdot 2\\int_0^1 x\\,dx$ = `1.5×2×∫(X, 0, 1)` → **1.5**.",
+        "$c_3 = 7\\int_0^1(5x^3-3x)/2\\,dx$: `∫dx` `∫((5X³-3X)÷2, 0, 1)` → **-0.125**, `×7` → **-0.875**."
+      ],
+      "note": "`∫dx` cannot see `sgn`, so split at 0 and double the $[0,1]$ half; dropping that factor 2 halves every coefficient."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/15_Legendre_Polynomials.json",
+    "problem": 5,
+    "expect": "use the three-term recurrence to find",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Recurrence at $n = 3$: `7×0.5×(-0.4375) - 3×(-0.125)` → **-1.15625**, then `÷4` → **-0.2890625**.",
+        "Explicit check: `(35×0.5^4 - 30×0.5² + 3) ÷ 8` → **-0.2890625**, identical to the recurrence value."
+      ],
+      "note": "Using $2P_2$ in place of $3P_2$ gives **-0.3203125**, which the explicit polynomial rejects at once."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/16_Matrices,_Determinants,_Rank_and_Inversion.json",
+    "problem": 1,
+    "expect": "by the Sarrus rule and confirm it",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`, define `MatA` = [[2,1,3],[1,3,2],[3,0,1]], then `Apps` `Det` `MatA` → **-16**.",
+        "Cofactor cross-check on one chain: `3×(-9) + 2×3 + 1×5` → **-16**, the same value along column 3."
+      ],
+      "note": "`Det` carries no diagonal-sign convention to invert, so the $+16$ Sarrus slip cannot happen."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/16_Matrices,_Determinants,_Rank_and_Inversion.json",
+    "problem": 2,
+    "expect": "find $\\det A$ and $\\det(3A)$.",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`, define `MatA` = [[4,2],[1,3]], `Apps` `Det` `MatA` → **10**.",
+        "`3` `×` `MatA` `STO` `MatB`, then `Apps` `Det` `MatB` → **90** = $3^2\\det A$, while `3×10` → **30** is the forbidden value."
+      ],
+      "note": "The scaling law needs $k^n$; the matrix routine scales all four entries whether you intend it or not."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/16_Matrices,_Determinants,_Rank_and_Inversion.json",
+    "problem": 3,
+    "expect": "using the adjugate, and verify with the adjugate identity",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`, define `MatA` as in P1, `Apps` `Inv` `MatA` → row 1 reads **-0.1875, 0.0625, 0.4375**.",
+        "`F-D` on **0.0625** → **1/16**, and `Apps` `Det` `MatA` → **-16**: the inverse is the adjugate over $-16$.",
+        "Identity check: `MatA × Inv(MatA)` → the 3×3 identity, so the transpose was not missed."
+      ],
+      "note": "Row 1 of $\\mathrm{adj}(A)$ is column 1 of the cofactor matrix; the identity product is the only proof needed."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/16_Matrices,_Determinants,_Rank_and_Inversion.json",
+    "problem": 5,
+    "expect": "Find every value of $k$ that makes",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Key the row-1 cofactor expression in `X`: `1×(4×3-1×1) - 2×(2×3-1×X) + 3×(2×1-4×X)`.",
+        "`SHIFT` `SOLVE` with guess 0 → `X` = **0.5**, and the `L-R` residual reads **0**.",
+        "The trap value: at `X = 0` the same expression is **5**, not 0 — one zero entry never makes a matrix singular."
+      ],
+      "note": "The expression is $5-10k$, so the singular set is the single value $k = 1/2$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/17_Cramer\u2019s_Rule_and_Linear_Systems.json",
+    "problem": 1,
+    "expect": "$5x + 2y = 19$",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`MODE` `5` `1` (2 unknowns): `5`, `2`, `19` then `1`, `3`, `8` → $x$ = **3.153846154**, $y$ = **1.615384615**.",
+        "`F-D` on each → **41/13** and **21/13**.",
+        "Check: `5×41÷13 + 2×21÷13` → **19**."
+      ],
+      "note": "The swapped-numerator answer $x = 21/13$ fails that substitution, which is why the check costs one line."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/17_Cramer\u2019s_Rule_and_Linear_Systems.json",
+    "problem": 2,
+    "expect": "$-x + z = 0$, $3y + 2z = 5$",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`MODE` `5` `2` (3 unknowns), missing terms entered as 0: rows (-1, 0, 1, 0), (0, 3, 2, 5), (2, 1, -2, 5) → $x$ = **-5**, $y$ = **5**, $z$ = **-5**.",
+        "Check: `3×5 + 2×(-5)` → **5** and `2×(-5) + 5 - 2×(-5)` → **5**."
+      ],
+      "note": "Every row needs all three coefficients; a shifted row changes $\\det A = 2$ and every root."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/17_Cramer\u2019s_Rule_and_Linear_Systems.json",
+    "problem": 3,
+    "expect": "have a non-trivial solution? Give a non-trivial solution for the smallest",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "$\\det A = -k^3+3k-2$, so `MODE` `5` page 2 `2` (cubic) with `-1`, `0`, `3`, `-2` → $k$ = **1, 1, -2**.",
+        "Smallest root $k = -2$: the system becomes $x+y-2z = 0$, $x-2y+z = 0$, $-2x+y+z = 0$.",
+        "Check $(1,1,1)$: `1+1-2×1` → **0**, `1-2×1+1` → **0**, `-2×1+1+1` → **0**."
+      ],
+      "note": "The repeated root 1 is still a singular value — the cubic prints it twice rather than reporting one root."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/18_Eigenvalues_and_Eigenvectors.json",
+    "problem": 1,
+    "expect": "Find the eigenvalues and a corresponding eigenvector for each of",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`MODE` `5` page 2 `1` (quadratic) with `1`, `4`, `3` → $\\lambda$ = **-1, -3**, from $\\lambda^2+4\\lambda+3$.",
+        "`MODE` `7`: `Apps` `Det` `MatA` → **3** = $(-1)(-3)$, and `1-5` → **-4** = $(-1)+(-3)$.",
+        "Eigenpair check: define `MatB` = [[2],[1]], then `MatA × MatB` → [[-2],[-1]] = $-1\\times(2,1)$."
+      ],
+      "note": "The $\\det(\\lambda I-A)$ sign flip gives $\\lambda^2-4\\lambda+3$; its roots 1 and 3 fail the trace check instantly."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/18_Eigenvalues_and_Eigenvectors.json",
+    "problem": 3,
+    "expect": "and use the result to compute $A^{4}$.",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "Characteristic polynomial $\\lambda^3-8\\lambda^2+20\\lambda-16$: `MODE` `5` page 2 `2` with `1`, `-8`, `20`, `-16` → $\\lambda$ = **4, 2, 2**.",
+        "`MODE` `7`, define `MatA`, then `MatA × MatA` `SHIFT` `STO` `MatB` → [[10,6,0],[6,10,0],[0,0,4]].",
+        "`MatB × MatB` → [[136,120,0],[120,136,0],[0,0,16]] = $A^4$, in two squarings instead of $P$, $P^{-1}$ and two products."
+      ],
+      "note": "Trace 8 and determinant 16 confirm the roots before any matrix is keyed: $4+2+2$ and $4\\cdot 2\\cdot 2$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/04_Advanced_Engineering_Math/18_Eigenvalues_and_Eigenvectors.json",
+    "problem": 4,
+    "expect": "Use the trace and determinant of $B=",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`MODE` `5` page 2 `1` with `1`, `-6`, `5` (from $t^2-(\\mathrm{tr}B)t+\\det B$) → $\\lambda$ = **5, 1**.",
+        "`MODE` `7`: `Apps` `Det` `MatB` → **5** = $1\\times 5$, and `2+4` → **6** = $1+5$.",
+        "Eigenvector check: define `MatC` = [[1],[3]], then `MatB × MatC` → [[5],[15]] = $5\\times(1,3)$."
+      ],
+      "note": "Reading the diagonal as 2 and 4 passes the sum 6 but fails the product 8 against $\\det B = 5$."
+    }
+  }
+]

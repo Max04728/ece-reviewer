@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Power Triangle — P, Q, S, Power Factor and Correction</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// P, Q and S are one right triangle, and every exam question about them is a question
+// about which side or which angle is given:
+//   the horizontal leg is P = V·I·cos φ        (watts, the side that does work)
+//   the vertical leg is Q = V·I·sin φ          (VAR, the side that sloshes)
+//   the hypotenuse is S = V·I                  (VA, what the transformer/breaker sees)
+// Three traps are built in deliberately:
+//   1. V and I here are RMS. Using peak values inflates every answer by 2×.
+//   2. Q flips sign with the load: + for inductive (lagging), − for capacitive (leading).
+//      Power factor angles are often just given as "pf = 0.8", and the student must
+//      decide lagging or leading before the Q they compute is right.
+//   3. Correction adds Q of the OPPOSITE sign; it never changes P. The capacitor only
+//      supplies the difference between the old and the new Q.
+
+widget({
+  title: 'Power Triangle — P, Q, S, Power Factor and Correction Capacitor',
+  description:
+    'Slide V_rms, I_rms and the phase angle and watch the triangle redraw. P is always the horizontal leg; Q swings above the axis for an inductive load and below it for a capacitive one. The correction panel computes the capacitor that lifts the power factor to your target.',
+  height: 430,
+  controls: [
+    { id: 'V', label: 'V_rms', min: 10, max: 480, step: 1, value: 230, unit: 'V' },
+    { id: 'I', label: 'I_rms', min: 0.5, max: 60, step: 0.5, value: 20, unit: 'A' },
+    { id: 'phi', label: 'phase angle φ', min: 0, max: 85, step: 0.5, value: 36.87, unit: '°' },
+    { id: 'kind', label: 'load', type: 'select', options: [
+      { value: 'ind', label: 'inductive (lagging, Q > 0)' },
+      { value: 'cap', label: 'capacitive (leading, Q < 0)' },
+    ], value: 'ind' },
+    { id: 'target', label: 'target pf for correction', min: 0.70, max: 1.0, step: 0.01, value: 0.95 },
+    { id: 'f', label: 'frequency f', min: 50, max: 60, step: 10, value: 60, unit: 'Hz' },
+    { id: 'showC', label: 'show correction', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const phi = (v.phi * Math.PI) / 180;
+    const S = v.V * v.I;
+    const P = S * Math.cos(phi);
+    const sgn = v.kind === 'ind' ? 1 : -1;
+    const Q = sgn * S * Math.sin(phi);
+    const pf = Math.cos(phi);
+    const Qc = v.V * v.I * Math.sin(phi);              // magnitude of the load's Q
+    const phiNew = Math.acos(Math.min(1, v.target));
+    const Qtarget = P * Math.tan(phiNew);
+    // dQ is the reactive power the capacitor must supply. It can never be negative: if the
+    // load is already better than the target, no correction is added (never remove VAR).
+    const dQ = Math.max(Math.abs(Q) - Qtarget, 0);
+    const Qcap = sgn * dQ;                             // signed correction (opposite of Q)
+    const C = (dQ / (2 * Math.PI * v.f * v.V * v.V)) * 1e6;  // µF
+    const needC = dQ > 1e-9;
+    return {
+      phi, S, P, Q, pf, sgn, Qtarget, Qcap, C, dQ, needC,
+      IActive: v.I * Math.cos(phi), IReactive: v.I * Math.sin(phi),
+      Z: v.V / v.I, R: (v.V / v.I) * Math.cos(phi), X: (v.V / v.I) * Math.sin(phi) * sgn,
+      pfNew: v.target, phiNewDeg: (phiNew * 180) / Math.PI,
+      Snew: Math.sqrt(P * P + Qtarget * Qtarget),
+    };
+  },
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h, pad = plot.pad;
+    plot.clear();
+    ctx.save();
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.textAlign = 'left';
+    const seg = (x1, y1, x2, y2, color, w, dash) => {
+      ctx.strokeStyle = color; ctx.lineWidth = w || 2.5;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    const txt = (s, x, y, color, align, font) => {
+      ctx.fillStyle = color || PALETTE.text;
+      ctx.textAlign = align || 'left';
+      ctx.font = font || '12px ui-monospace, monospace';
+      ctx.fillText(s, x, y);
+    };
+
+    // ---------------- left: the triangle to scale ----------------
+    const x0 = pad + 10;
+    const baseY = pad + (H - 2 * pad) * 0.58;          // the P axis sits mid-panel
+    const maxPx = (W - 2 * pad) * 0.46;
+    const scale = maxPx / Math.max(out.S, 1e-9);       // S is the longest side, so it sets the scale
+    const lenP = out.P * scale;
+    const lenQ = Math.abs(out.Q) * scale;
+    const yTip = baseY - out.sgn * lenQ;               // inductive goes UP, capacitive DOWN
+
+    // axes of the triangle
+    seg(x0 - 12, baseY, x0 + maxPx + 26, baseY, PALETTE.axis, 1.4);
+    txt('P (W) →', x0 + maxPx + 30, baseY + 4, PALETTE.dim);
+    seg(x0, baseY - 150, x0, baseY + 150, PALETTE.axis, 1.4);
+
+    // triangle edges
+    seg(x0, baseY, x0 + lenP, baseY, PALETTE.accent, 3.5);              // P
+    seg(x0 + lenP, baseY, x0 + lenP, yTip, PALETTE.accent2, 3.5);       // Q
+    seg(x0, baseY, x0 + lenP, yTip, PALETTE.accent3, 3.5);              // S
+
+    // right-angle marker
+    const m = 11;
+    const sy = out.sgn;
+    ctx.strokeStyle = PALETTE.dim; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x0 + lenP - m, baseY);
+    ctx.lineTo(x0 + lenP - m, baseY - sy * m);
+    ctx.lineTo(x0 + lenP, baseY - sy * m);
+    ctx.stroke();
+
+    // angle arc at the origin
+    const arcR = Math.min(70, Math.max(30, lenP * 0.32));
+    ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.arc(x0, baseY, arcR, sy > 0 ? -out.phi : 0, sy > 0 ? 0 : out.phi);
+    ctx.stroke();
+    txt('φ = ' + fmt(v.phi, 4) + '°', x0 + arcR * Math.cos(out.phi / 2) + 6,
+      baseY - sy * (arcR * Math.sin(out.phi / 2)) + (sy > 0 ? 0 : 12), PALETTE.warn);
+
+    // side labels
+    txt('P = ' + fmt(out.P, 5) + ' W', x0 + lenP / 2 - 30, baseY + 18, PALETTE.accent);
+    txt('Q = ' + fmt(out.Q, 5) + ' VAR', x0 + lenP + 8, baseY - sy * lenQ / 2, PALETTE.accent2);
+    const midS = [x0 + lenP / 2 - 34, baseY - sy * lenQ / 2 - 8];
+    txt('S = ' + fmt(out.S, 5) + ' VA', midS[0], midS[1] + (sy > 0 ? -6 : 16), PALETTE.accent3);
+    txt(out.sgn > 0 ? 'lagging (inductive)' : 'leading (capacitive)',
+      x0 + 4, baseY - sy * 12 + (sy > 0 ? -8 : 22), out.sgn > 0 ? PALETTE.accent2 : PALETTE.accent5);
+
+    // correction overlay: the capacitor removes part of Q (nothing to do if dQ is zero)
+    if (v.showC && out.needC) {
+      const yNew = baseY - out.sgn * out.Qtarget * scale;
+      seg(x0 + lenP, yTip, x0 + lenP, yNew, PALETTE.accent5, 3, [5, 4]);
+      seg(x0 + lenP, yNew, x0 + lenP, baseY, PALETTE.accent5, 1.4, [3, 3]);
+      seg(x0, baseY, x0 + lenP, yNew, PALETTE.accent5, 1.8, [6, 4]);
+      txt("after correction: Q' = " + fmt(out.sgn * out.Qtarget, 5) + ' VAR, pf = ' + fmt(v.target, 3),
+        x0 + 4, yNew + (sy > 0 ? -9 : 19), PALETTE.accent5);
+      txt("ΔQ = |Q| − Q' = " + fmt(out.dQ, 5) + ' VAR  →  add ' + fmt(out.dQ / 1000, 4) +
+        ' kVAr in parallel (' + fmt(out.C, 4) + ' µF)',
+        x0 - 4, baseY + (sy > 0 ? 78 : -92), PALETTE.accent5);
+    } else if (v.showC) {
+      txt('load pf = ' + fmt(out.pf, 4) + ' already meets the target ' + fmt(v.target, 3) +
+        ' — no capacitor needed',
+        x0 - 4, baseY + (sy > 0 ? 78 : -92), PALETTE.accent3);
+    }
+
+    txt('triangle drawn to scale — the hypotenuse is always S = V_rms × I_rms', x0, pad + 12, PALETTE.dim, 'left', '11px ui-monospace, monospace');
+    ctx.restore();
+
+    // ---------------- formula strip with substituted numbers ----------------
+    const f = document.getElementById('pt-formula');
+    if (f) {
+      const kindWord = v.kind === 'ind' ? 'inductive → Q is POSITIVE (lagging)' : 'capacitive → Q is NEGATIVE (leading)';
+      f.innerHTML =
+        '<div><strong>S = V·I</strong> = ' + fmt(v.V, 4) + ' × ' + fmt(v.I, 4) + ' = <strong>' + fmt(out.S, 5) + ' VA</strong>' +
+        ' &nbsp;(V and I are RMS — using peak values here is a 2× error)</div>' +
+        '<div><strong>P = V·I·cos φ</strong> = ' + fmt(v.V, 4) + ' × ' + fmt(v.I, 4) + ' × cos ' + fmt(v.phi, 4) + '° = <strong>' + fmt(out.P, 5) + ' W</strong>' +
+        ' &nbsp;|&nbsp; <strong>Q = V·I·sin φ</strong> = ' + fmt(v.V, 4) + ' × ' + fmt(v.I, 4) + ' × sin ' + fmt(v.phi, 4) + '° = ' + fmt(Math.abs(out.Q), 5) + ' VAR, signed ' + fmt(out.Q, 5) + '</div>' +
+        '<div><strong>pf = cos φ = P/S</strong> = ' + fmt(out.P, 4) + '/' + fmt(out.S, 4) + ' = <strong>' + fmt(out.pf, 5) + '</strong> ' +
+        (v.kind === 'ind' ? 'lagging' : 'leading') + ' &nbsp;|&nbsp; ' + kindWord + '</div>' +
+        '<div><strong>Impedance behind it:</strong> |Z| = V/I = ' + fmt(out.Z, 5) + ' Ω → R = |Z|cos φ = ' + fmt(out.R, 5) +
+        ' Ω, X = |Z|sin φ = ' + fmt(Math.abs(out.X), 5) + ' Ω (' + (v.kind === 'ind' ? 'inductive, +jX' : 'capacitive, −jX') + ')</div>' +
+        (v.showC
+          ? '<div><strong>Correction to pf = ' + fmt(v.target, 3) + "</strong> (φ' = " + fmt(out.phiNewDeg, 4) + '°): ' +
+            "Q' = P·tan φ' = " + fmt(out.P, 4) + ' × ' + fmt(Math.tan(out.phiNew), 4) + ' = ' + fmt(out.Qtarget, 5) + ' VAR' +
+            " &nbsp;|&nbsp; ΔQ = |Q| − Q' = " + fmt(Math.abs(out.Q), 5) + ' − ' + fmt(out.Qtarget, 5) + ' = <strong>' +
+            fmt(out.dQ, 5) + ' VAR = ' + fmt(out.dQ / 1000, 5) + ' kVAr</strong>' +
+            (out.needC ? '' : ' — the load already beats the target, so nothing is added') + '</div>' +
+            '<div><strong>C = ΔQ / (2πf·V²)</strong> = ' + fmt(out.dQ, 5) + ' / (2π × ' + fmt(v.f, 4) + ' × ' + fmt(v.V, 4) + '²) = <strong>' +
+            fmt(out.C, 5) + ' µF</strong> (in parallel with the load). P is unchanged at ' + fmt(out.P, 5) +
+            ' W; the new apparent power drops to ' + fmt(out.Snew, 5) + ' VA.</div>'
+          : '<div>Correction panel hidden — tick "show correction" to size the capacitor.</div>');
+    }
+  },
+  readout: (out) => ({
+    'P (real, W)': fmt(out.P, 5) + ' W',
+    'Q (reactive, VAR)': fmt(out.Q, 5) + ' VAR',
+    'S (apparent, VA)': fmt(out.S, 5) + ' VA',
+    'power factor': fmt(out.pf, 5) + (out.sgn > 0 ? ' lagging' : ' leading'),
+    'phase angle φ': fmt((out.phi * 180) / Math.PI, 4) + '°',
+    'in-phase current': fmt(out.IActive, 5) + ' A',
+    'quadrature current': fmt(out.IReactive, 5) + ' A',
+    'Q needed for target pf': fmt(out.dQ, 5) + ' VAR',
+    'correction capacitor': fmt(out.C, 5) + ' µF',
+  }),
+});
+
+const host = document.getElementById('app');
+
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'pt-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight — P, Q and S are the same triangle seen three ways, so any two of them fix the third.</strong> ' +
+  'S = √(P² + Q²) and pf = cos φ = P/S; a pf of 0.8 always means φ = 36.87°, no matter what V and I are. ' +
+  '<strong>The mistakes this prevents:</strong> (1) computing P with peak voltage or peak current instead of RMS — ' +
+  'P = V_m I_m cos φ / 2 is the same number only because of that factor of 2; here V and I are RMS and S = VI exactly. ' +
+  '(2) Forgetting that Q is signed: an inductive load draws lagging current and has Q &gt; 0 (this is the Philippine ' +
+  'distribution norm, and the reason Meralco bills a power-factor penalty below about 0.85–0.90), while a capacitive ' +
+  'load has Q &lt; 0. If you drop the sign you will size the correction capacitor with the wrong polarity. ' +
+  '(3) Believing correction changes the real power. It cannot: the capacitor is lossless, P stays exactly the same, ' +
+  'only Q and S shrink. The capacitor supplies ΔQ = P(tan φ_old − tan φ_new) VAR, and its value is ' +
+  'C = ΔQ / (2πf V²) — a bigger V needs a much smaller capacitor for the same VAR, because V is squared. ' +
+  'Add the capacitor in PARALLEL (a series capacitor would change the load voltage). ' +
+  '<strong>Exam reflex:</strong> kVA is what limits a transformer and trips a breaker; kW is what you pay for; ' +
+  'kVAr is what you are penalised for.';
+host.appendChild(note);
+</script>
+</body>
+</html>

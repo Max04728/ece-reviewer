@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constellation Diagram Explorer — d_min, Symbol Energy and Eb/N0 for a Target BER</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Every digital-modulation question reduces to one geometric quantity: the minimum
+// Euclidean distance d_min between constellation points, because with average symbol
+// energy Es fixed,
+//     P(error) ~ Q( sqrt(d_min^2 / 2N0) )
+// and d_min^2/Es is a property of the constellation SHAPE alone. Two schemes with the same
+// spectral efficiency (bits/symbol) can have very different shapes, and that is the whole
+// 16-QAM vs 16-PSK question.
+//
+// Reference values with Es normalised to 1:
+//   BPSK   : points +/-1,                d = 2,      d^2/Es = 4
+//   QPSK   : points on radius 1,         d = sqrt2,  d^2/Es = 2
+//   8-PSK  : radius 1,                   d = 2sin(pi/8) = 0.7654
+//   16-PSK : radius 1,                   d = 2sin(pi/16) = 0.3902
+//   16-QAM : grid +/-1, +/-3 on a side,  d = 2,      d^2/Es = 0.4  (Es = 10 for d = 2)
+// So at equal Es the squared distance ratio is 0.4/0.1522 = 2.63 -> 4.2 dB in dB terms,
+// and at equal Eb/N0 (the fairer comparison) the advantage is 10log10(4/0.4) = 10 dB
+// in energy, shared over the same 4 bits -> 10 - 10log10(4)... see the printed numbers.
+
+// Q-function via the complementary error function (erfc through a rational approximation
+// of the incomplete gamma function is overkill; this is the standard Craig/Numerical
+// Recipes style erfc with ~1e-7 relative accuracy, plenty for a BER readout).
+function erfc(x) {
+  const z = Math.abs(x);
+  const t = 2 / (2 + z);
+  const ty = 4 * t - 2;
+  const cof = [-1.3026537197817094, 6.4196979235649026e-1, 1.9476473204185836e-2,
+    -9.561514786808631e-3, -9.46595344482036e-4, 3.66839497852761e-4,
+    4.2523324806907e-5, -2.0278578112534e-5, -1.624290004647e-6,
+    1.303655835580e-6, 1.5626441722e-8, -8.5238095915e-8,
+    6.529054439e-9, 5.059343495e-9, -9.91364156e-10, -2.27365122e-10,
+    9.6467911e-11, 2.394038e-12, -6.886027e-12, 8.94487e-13,
+    3.13092e-13, -1.12708e-13, 3.81e-16, 7.106e-15];
+  let d = 0, dd = 0;
+  for (let j = cof.length - 1; j > 0; j--) { const tmp = d; d = ty * d - dd + cof[j]; dd = tmp; }
+  const ans = t * Math.exp(-z * z + 0.5 * (cof[0] + ty * d) - dd);
+  return x >= 0 ? ans : 2 - ans;
+}
+const Qf = (x) => 0.5 * erfc(x / Math.SQRT2);
+
+function erfinv(y) {
+  // Winitzki initial guess + two Newton refinements on erf
+  const a = 0.147;
+  const ln1 = Math.log(1 - y * y);
+  const t1 = 2 / (Math.PI * a) + ln1 / 2;
+  let x = Math.sign(y) * Math.sqrt(Math.sqrt(t1 * t1 - ln1 / a) - t1);
+  for (let i = 0; i < 3; i++) {
+    const e = 0.5 * erfc(-x / Math.SQRT2) - (0.5 + y / 2);
+    const der = Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+    x -= e / der;
+  }
+  return x;
+}
+
+// Modulation definitions. Each returns constellation points with average symbol energy 1.
+const MODS = {
+  'BPSK': {
+    k: 1, name: 'BPSK (2-PSK)',
+    points: () => [[-1, 0], [1, 0]],
+    shape: 'd²/Es = 4',
+    boundary: 'the imaginary axis (Re = 0)',
+    ber: (ebn0, Es) => Qf(Math.sqrt(2 * ebn0)),
+    berLabel: 'BER = Q(√(2Eb/N0))',
+    family: 'psk',
+  },
+  'QPSK': {
+    k: 2, name: 'QPSK (4-PSK)',
+    points: () => [[1, 0], [0, 1], [-1, 0], [0, -1]],
+    shape: 'd²/Es = 2',
+    boundary: 'the two axes rotated 45° (Re = ±Im)',
+    ber: (ebn0) => Qf(Math.sqrt(2 * ebn0)),
+    berLabel: 'BER = Q(√(2Eb/N0)) — same as BPSK, per bit',
+    family: 'psk',
+  },
+  '8-PSK': {
+    k: 3, name: '8-PSK',
+    points: () => ring(8),
+    shape: 'd²/Es = 4sin²(π/8) = 0.5858',
+    boundary: 'radial lines halfway between neighbours',
+    ber: (ebn0, Es) => (2 / 3) * Qf(Math.sqrt(2 * Es) * Math.sin(Math.PI / 8)),
+    berLabel: 'BER ≈ (2/3)·Q(√(2Es/N0)·sin(π/8))',
+    family: 'psk',
+  },
+  '16-PSK': {
+    k: 4, name: '16-PSK',
+    points: () => ring(16),
+    shape: 'd²/Es = 4sin²(π/16) = 0.1522',
+    boundary: 'radial lines halfway between neighbours',
+    ber: (ebn0, Es) => (2 / 4) * Qf(Math.sqrt(2 * Es) * Math.sin(Math.PI / 16)),
+    berLabel: 'BER ≈ (2/4)·Q(√(2Es/N0)·sin(π/16))',
+    family: 'psk',
+  },
+  '16-QAM': {
+    k: 4, name: '16-QAM',
+    points: () => {
+      const g = [-3, -1, 1, 3], s = Math.sqrt(10);
+      const p = [];
+      for (const a of g) for (const b of g) p.push([a / s, b / s]);
+      return p;
+    },
+    shape: 'd²/Es = 4/10 = 0.4',
+    boundary: 'the lines Re = 0, Im = 0 and Re,Im = ±2/√10',
+    // With Es the average symbol energy, d² = 0.4Es, so the per-axis argument is
+    // d/sqrt(2N0) = sqrt(Es/5N0); Gray mapping gives 3/4 of a symbol error per axis.
+    ber: (ebn0, Es) => (3 / 4) * Qf(Math.sqrt(Es / 5)),
+    berLabel: 'BER ≈ (3/4)·Q(√(Es/5N0)) = (3/8)·erfc(√(Es/10N0))',
+    family: 'qam',
+  },
+};
+
+function ring(M) {
+  const p = [];
+  for (let i = 0; i < M; i++) {
+    const th = 2 * Math.PI * i / M + Math.PI / M;
+    p.push([Math.cos(th), Math.sin(th)]);
+  }
+  return p;
+}
+
+const frame = (ctx, plot, { top, bottom, yMin, yMax }) => {
+  const px0 = plot.pad, px1 = plot.w - plot.pad;
+  return {
+    px0, px1, top, bottom, yMin, yMax,
+    X: (x, xMin, xMax) => px0 + ((x - xMin) / (xMax - xMin)) * (px1 - px0),
+    Y: (y) => bottom - ((y - yMin) / (yMax - yMin)) * (bottom - top),
+    line(x1, y1, x2, y2, color, width = 1.5, dash = null) {
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color;
+      ctx.lineWidth = width; ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    },
+    text(s, x, y, color = PALETTE.text, align = 'left', font = '11px ui-monospace, monospace') {
+      ctx.save(); ctx.fillStyle = color; ctx.textAlign = align; ctx.font = font;
+      ctx.fillText(s, x, y); ctx.restore();
+    },
+  };
+};
+
+widget({
+  title: 'Constellation Explorer — Minimum Distance, Symbol Energy and Eb/N0 for a Target BER',
+  description:
+    'Every scheme here is normalised to the same average symbol energy, so the picture is a fair fight: the scheme with the larger minimum distance wins. Compare 16-QAM and 16-PSK at the same spectral efficiency and watch d_min decide the answer.',
+  height: 560,
+  controls: [
+    { id: 'mod', label: 'modulation', type: 'select', options: Object.keys(MODS), value: '16-QAM' },
+    { id: 'ebn0', label: 'Eb/N0', min: 0, max: 20, step: 0.1, value: 10, unit: 'dB' },
+    { id: 'target', label: 'target BER', type: 'select', options: [
+      { value: '1e-3', label: '1 × 10⁻³' }, { value: '1e-4', label: '1 × 10⁻⁴' },
+      { value: '1e-5', label: '1 × 10⁻⁵' }, { value: '1e-6', label: '1 × 10⁻⁶' },
+      { value: '1e-8', label: '1 × 10⁻⁸' },
+    ], value: '1e-5' },
+    { id: 'boundaries', label: 'show decision boundaries', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const M = MODS[v.mod];
+    const pts = M.points();
+    const ebn0 = Math.pow(10, v.ebn0 / 10);
+    const Es = ebn0 * M.k;                         // Es/N0, since Es = k·Eb
+    // measured minimum distance directly from the point set (must match M.shape)
+    let dmin = Infinity, pair = null;
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const dx = pts[i][0] - pts[j][0], dy = pts[i][1] - pts[j][1];
+      const d2 = dx * dx + dy * dy;
+      if (d2 < dmin) { dmin = d2; pair = [pts[i], pts[j]]; }
+    }
+    dmin = Math.sqrt(dmin);
+    const esAvg = pts.reduce((s, p) => s + p[0] * p[0] + p[1] * p[1], 0) / pts.length;
+    const ber = M.ber(ebn0, Es);
+    // Eb/N0 needed for the target BER, found by bisection on the scheme's own formula
+    const target = parseFloat(v.target);
+    let lo = 1e-4, hi = 40;
+    for (let it = 0; it < 80; it++) {
+      const mid = 0.5 * (lo + hi);
+      const b = M.ber(Math.pow(10, mid / 10), Math.pow(10, mid / 10) * M.k);
+      if (b > target) lo = mid; else hi = mid;
+    }
+    const ebn0Target = 0.5 * (lo + hi);
+    // the two 4-bit schemes, always computed for the comparison strip
+    const p16q = MODS['16-QAM'].points(), p16p = MODS['16-PSK'].points();
+    const dq = minDist(p16q), dp = minDist(p16p);
+    const b16q = MODS['16-QAM'].ber(ebn0, Es), b16p = MODS['16-PSK'].ber(ebn0, Es);
+    return {
+      pts, M, ebn0, Es, dmin, dmin2: dmin * dmin, esAvg, ber, pair,
+      ebn0Target, target, dq, dp, b16q, b16p,
+      ratio: (dq * dq) / (dp * dp),
+    };
+  },
+  draw: (ctx, v, o, plot) => {
+    plot.clear();
+
+    // ------------------------------------------------ constellation (left) --
+    const L = frame(ctx, plot, { top: 46, bottom: 470, yMin: -1.95, yMax: 1.95 });
+    const LW = L.px0 + (L.px1 - L.px0) * 0.52;      // right edge of the constellation panel
+    const cx = (L.px0 + LW) / 2, cy = (L.top + L.bottom) / 2;
+    const R = Math.min((LW - L.px0) / 2, (L.bottom - L.top) / 2) / 1.5;
+    const PX = (x) => cx + x * R, PY = (y) => cy - y * R;
+    // axes
+    L.line(L.px0, cy, LW, cy, PALETTE.axis, 1.2);
+    L.line(cx, L.top, cx, L.bottom, PALETTE.axis, 1.2);
+    L.text('I', LW - 6, cy - 6, PALETTE.dim, 'right');
+    L.text('Q', cx + 6, L.top + 12, PALETTE.dim);
+    // unit circle / energy reference
+    ctx.save(); ctx.strokeStyle = 'rgba(160,160,190,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832); ctx.stroke(); ctx.restore();
+    L.text('dashed circle: |s| = 1 (unit symbol energy per axis pair)', L.px0, L.top - 6, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+
+    // decision boundaries
+    if (v.boundaries) {
+      if (o.M.family === 'psk') {
+        const Mp = o.pts.length;
+        for (let i = 0; i < Mp; i++) {
+          const th = 2 * Math.PI * i / Mp + Math.PI / Mp;
+          L.line(cx, cy, cx + 1.9 * R * Math.cos(th), cy - 1.9 * R * Math.sin(th), 'rgba(249,226,175,0.30)', 1, [5, 4]);
+        }
+      } else {
+        // square QAM: the boundaries sit exactly between adjacent levels (2/sqrt10)
+        const b = 2 / Math.sqrt(10);
+        for (const c of [-2 * b, 0, 2 * b]) {
+          L.line(cx + c * R, L.top, cx + c * R, L.bottom, 'rgba(249,226,175,0.30)', 1, [5, 4]);
+          L.line(L.px0, cy - c * R, LW, cy - c * R, 'rgba(249,226,175,0.30)', 1, [5, 4]);
+        }
+      }
+      L.text('dashed radial/grid lines: decision boundaries', L.px0, L.bottom + 16, PALETTE.warn, 'left', '10px ui-monospace, monospace');
+    }
+    // points
+    o.pts.forEach((p, i) => {
+      ctx.save(); ctx.fillStyle = PALETTE.accent;
+      ctx.beginPath(); ctx.arc(PX(p[0]), PY(p[1]), 6, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = PALETTE.bg; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+      if (o.pts.length <= 8) L.text('s' + i, PX(p[0]) + 8, PY(p[1]) - 8, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    });
+    // minimum-distance segment
+    if (o.pair) {
+      L.line(PX(o.pair[0][0]), PY(o.pair[0][1]), PX(o.pair[1][0]), PY(o.pair[1][1]), PALETTE.accent2, 3.5);
+      const mx = (PX(o.pair[0][0]) + PX(o.pair[1][0])) / 2, my = (PY(o.pair[0][1]) + PY(o.pair[1][1])) / 2;
+      L.text('d_min = ' + fmt(o.dmin, 4), mx + 4, my + (o.dmin > 1 ? 16 : -8), PALETTE.accent2, 'left', '11px ui-monospace, monospace');
+    }
+    L.text(o.M.name + '  —  ' + o.M.k + ' bit(s)/symbol, ' + o.M.shape, L.px0, 26, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    L.text('Es = 1 for every scheme (all point sets are energy-normalised)', L.px0, 42, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+
+    // ------------------------------------------------------ BER curve (right) --
+    const X0 = LW + 30;
+    const C = frame(ctx, plot, { top: 60, bottom: 470, yMin: -9, yMax: 0 });
+    C.line(X0, C.bottom, C.px1, C.bottom, PALETTE.axis, 1.5);
+    C.line(X0, C.top, X0, C.bottom, PALETTE.axis, 1.5);
+    const dbX = (db) => X0 + (db / 20) * (C.px1 - X0);
+    for (let db = 0; db <= 20; db += 5) {
+      C.line(dbX(db), C.bottom, dbX(db), C.bottom + 4, PALETTE.dim, 1.5);
+      C.text(String(db), dbX(db), C.bottom + 15, PALETTE.dim, 'center', '10px ui-monospace, monospace');
+    }
+    for (let e = 0; e >= -9; e--) {
+      const Y = C.Y(e);
+      C.line(X0, Y, C.px1, Y, 'rgba(160,160,190,0.20)', 1, [3, 3]);
+      C.text('1e' + e, X0 - 4, Y + 4, PALETTE.dim, 'right', '9px ui-monospace, monospace');
+    }
+    C.text('Eb/N0 (dB) →', C.px1, C.bottom + 30, PALETTE.dim, 'right', '10px ui-monospace, monospace');
+    C.text('BER (log)', X0 + 4, C.top - 8, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    // curves for every scheme, so the ranking is visible at a glance
+    const order = ['BPSK', 'QPSK', '8-PSK', '16-QAM', '16-PSK'];
+    const cols = { 'BPSK': PALETTE.accent, 'QPSK': PALETTE.accent3, '8-PSK': PALETTE.accent5, '16-QAM': PALETTE.accent4, '16-PSK': PALETTE.accent2 };
+    for (const key of order) {
+      const M = MODS[key];
+      const sel = key === v.mod;
+      ctx.save();
+      ctx.strokeStyle = cols[key]; ctx.lineWidth = sel ? 3 : 1.4;
+      if (!sel) ctx.globalAlpha = 0.65;
+      ctx.beginPath();
+      let started = false;
+      for (let db = 0; db <= 20.001; db += 0.25) {
+        const e = Math.pow(10, db / 10);
+        const b = M.ber(e, e * M.k);
+        const Y = C.Y(Math.log10(Math.max(b, 1e-12)));
+        const XX = dbX(db);
+        if (!started) { ctx.moveTo(XX, Y); started = true; } else ctx.lineTo(XX, Y);
+      }
+      ctx.stroke(); ctx.restore();
+      C.text(key, C.px1 - 4, C.top + 12 + order.indexOf(key) * 14, cols[key], 'right', (sel ? 'bold ' : '') + '10px ui-monospace, monospace');
+    }
+    // marker at the current operating point
+    const Yop = C.Y(Math.log10(Math.max(o.ber, 1e-12)));
+    const Xop = dbX(Math.min(v.ebn0, 20));
+    C.line(Xop, C.top, Xop, C.bottom, 'rgba(249,226,175,0.5)', 1.2, [4, 4]);
+    ctx.save(); ctx.fillStyle = PALETTE.warn;
+    ctx.beginPath(); ctx.arc(Xop, Yop, 5.5, 0, 6.2832); ctx.fill(); ctx.restore();
+    C.text('now: ' + fmt(o.ber, 3), Xop - 6, Yop - 10, PALETTE.warn, 'right', '11px ui-monospace, monospace');
+    // target BER marker
+    const Yt = C.Y(Math.log10(o.target));
+    C.line(X0, Yt, C.px1, Yt, 'rgba(243,139,168,0.55)', 1.4, [6, 4]);
+    C.text('target ' + fmt(o.target, 2) + ' needs Eb/N0 = ' + fmt(o.ebn0Target, 4) + ' dB for ' + v.mod,
+      C.px1 - 4, Yt - 6, PALETTE.accent2, 'right', '10px ui-monospace, monospace');
+
+    // ------------------------------------------------ 16-QAM vs 16-PSK strip --
+    const B = frame(ctx, plot, { top: 500, bottom: 546, yMin: 0, yMax: 1 });
+    const rows = [
+      ['16-QAM', 'd_min = ' + fmt(o.dq, 5), 'BER @ ' + fmt(v.ebn0, 4) + ' dB = ' + fmt(o.b16q, 3), PALETTE.accent4],
+      ['16-PSK', 'd_min = ' + fmt(o.dp, 5), 'BER @ ' + fmt(v.ebn0, 4) + ' dB = ' + fmt(o.b16p, 3), PALETTE.accent2],
+    ];
+    rows.forEach((r, i) => {
+      const y = B.top + 14 + i * 20;
+      B.text(r[0], B.px0 + 4, y, r[3], 'left', 'bold 12px ui-monospace, monospace');
+      B.text(r[1], B.px0 + 90, y, PALETTE.text, 'left', '12px ui-monospace, monospace');
+      B.text(r[2], B.px0 + 250, y, r[3], 'left', '12px ui-monospace, monospace');
+    });
+    B.text('same 4 bits/symbol, same energy — d² ratio = ' + fmt(o.ratio, 4) + ' (' + fmt(10 * Math.log10(o.ratio), 4)
+      + ' dB in energy) in favour of 16-QAM: a square lattice packs points closer together than a circle does',
+      B.px0 + 4, B.top + 56, PALETTE.warn, 'left', '10px ui-monospace, monospace');
+
+    // -------------------------------------------------------- substituted ---
+    const F = document.getElementById('cd-formula');
+    if (F) {
+      F.innerHTML =
+        '<div><strong>' + o.M.name + '</strong>: ' + o.M.k + ' bit(s)/symbol (spectral efficiency ' + o.M.k
+        + ' bit/s/Hz), decision boundaries = ' + o.M.boundary + ', ' + o.M.shape + '</div>'
+        + '<div><strong>d_min measured from the drawn points</strong> = ' + fmt(o.dmin, 6) + ' (with Es = 1) so d²_min/Es = '
+        + fmt(o.dmin2, 6) + '; mean symbol energy check: (1/N)Σ|s|² = ' + fmt(o.esAvg, 6) + ' → the set is energy-normalised</div>'
+        + '<div><strong>Operating point:</strong> Eb/N0 = ' + fmt(v.ebn0, 4) + ' dB → Es/N0 = Eb/N0 + 10log₁₀(k) = '
+        + fmt(v.ebn0, 4) + ' + ' + fmt(10 * Math.log10(o.M.k), 4) + ' = ' + fmt(10 * Math.log10(o.Es), 4) + ' dB. '
+        + o.M.berLabel + ' = <strong>' + fmt(o.ber, 4) + '</strong></div>'
+        + '<div><strong>Eb/N0 for BER = ' + fmt(o.target, 2) + ':</strong> solve the same expression backwards → <strong>'
+        + fmt(o.ebn0Target, 5) + ' dB</strong> (BPSK needs 9.59 dB for 10⁻⁵; every scheme is read against that baseline)</div>'
+        + '<div><strong>16-QAM vs 16-PSK at equal Es:</strong> d_min = ' + fmt(o.dq, 5) + ' vs ' + fmt(o.dp, 5)
+        + ', so d² ratio = ' + fmt(o.ratio, 5) + ' = ' + fmt(10 * Math.log10(o.ratio), 4)
+        + ' dB. At Eb/N0 = ' + fmt(v.ebn0, 4) + ' dB the BERs are ' + fmt(o.b16q, 3) + ' and ' + fmt(o.b16p, 3)
+        + ' — 16-QAM wins because a square lattice uses the plane efficiently while 16 points on a circle must crowd together.</div>'
+        + '<div><strong>Why PSK stops scaling:</strong> for M-PSK d²/Es = 4sin²(π/M) → 4π²/M², so each doubling of M costs about 6 dB; '
+        + 'QAM gains 3 dB per doubling by also using amplitude. That is why 16-QAM, 64-QAM and 256-QAM carry Wi-Fi and cable, '
+        + 'while PSK is effectively abandoned past 8-PSK.</div>';
+    }
+  },
+  readout: (out, state) => ({
+    'modulation': out.M.name,
+    'bits per symbol': String(out.M.k),
+    'd_min (Es = 1)': fmt(out.dmin, 6),
+    'd²_min / Es': fmt(out.dmin2, 6),
+    'mean symbol energy': fmt(out.esAvg, 6),
+    'Es/N0': fmt(10 * Math.log10(out.Es), 4) + ' dB',
+    'BER at this Eb/N0': fmt(out.ber, 4),
+    'Eb/N0 for target BER': fmt(out.ebn0Target, 5) + ' dB',
+    '16-QAM d_min': fmt(out.dq, 5),
+    '16-PSK d_min': fmt(out.dp, 5),
+    'QAM/PSK d² ratio': fmt(out.ratio, 5) + '  (' + fmt(10 * Math.log10(out.ratio), 4) + ' dB)',
+  }),
+});
+
+function minDist(pts) {
+  let m = Infinity;
+  for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+    const dx = pts[i][0] - pts[j][0], dy = pts[i][1] - pts[j][1];
+    m = Math.min(m, dx * dx + dy * dy);
+  }
+  return Math.sqrt(m);
+}
+
+const host = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'cd-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight: performance is decided by the geometry of the constellation, not by the modulation name.</strong> '
+  + 'With the average symbol energy held fixed, the error probability depends only on d²_min/Es, a pure shape factor: '
+  + '4 for BPSK, 2 for QPSK, 0.586 for 8-PSK, 0.4 for 16-QAM and 0.152 for 16-PSK. Multiplying M by four costs about '
+  + '6 dB in PSK but only about 4 dB in QAM, which is why 16-QAM (and its square descendants) carry every high-rate '
+  + 'standard in use.'
+  + '<br><strong>Three mistakes this widget prevents.</strong> '
+  + '(1) <em>Comparing schemes at equal Es/N0 instead of equal Eb/N0.</em> These are different yardsticks and they give '
+  + 'different rankings. Es = k·Eb, so a 4-bit symbol gets 6 dB of "free" Es at the same Eb/N0. The widget computes the '
+  + 'curve in Eb/N0 — which is the fair comparison for a fixed information rate — and prints the Es/N0 conversion so '
+  + 'you can see the 10log₁₀(k) shift explicitly. '
+  + '(2) <em>Assuming QPSK is twice as good as BPSK because it carries twice the bits.</em> It is not: QPSK and BPSK have '
+  + 'identical BER against Eb/N0 (both give Q(√(2Eb/N0))). QPSK buys bandwidth, not power. Only the constellation shape '
+  + 'buys power. '
+  + '(3) <em>Forgetting that 16-QAM is more sensitive to amplitude distortion.</em> Its information lives in both phase '
+  + 'and amplitude, so a nonlinear amplifier that compresses the outer ring destroys the decision boundaries — the '
+  + 'practical reason satellite links often prefer constant-envelope PSK/FSK even at a power penalty, and the reason '
+  + 'cable and Wi-Fi (linear channels) can use QAM freely.'
+  + '<br><strong>Exam reflex:</strong> "compare 16-PSK and 16-QAM at the same Eb/N0" → d² ratio 4/0.4 = 10 = 10 dB at '
+  + 'equal Es; since both carry 4 bits, that is the whole advantage, and 10⁻⁵ needs roughly Eb/N0 = 13.5 dB for 16-QAM '
+  + 'against about 23 dB for 16-PSK — a number worth remembering as the reason 16-PSK is a textbook exercise rather '
+  + 'than a deployed standard.';
+host.appendChild(note);
+</script>
+</body>
+</html>

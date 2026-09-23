@@ -1,0 +1,92 @@
+{
+  "scope": "Explain OFDM's orthogonal subcarriers and cyclic prefix, distinguish OFDMA from OFDM, and compute processing gain and jamming margin for direct-sequence and frequency-hopping spread spectrum.",
+  "intuition": "OFDM turns one fast, multipath-plagued carrier into hundreds of slow, well-behaved ones. Spread spectrum does the opposite: it turns a narrow signal into a wide one so that interference and interception both become hard.",
+  "concept": [
+    "**OFDM in one idea.** A wideband channel suffers frequency-selective fading and needs a complicated equalizer. If instead you split the band into $N$ narrow subcarriers, each subcarrier sees a nearly flat channel and needs only a single complex gain to correct. Choose the subcarrier spacing equal to the reciprocal of the symbol duration, $\\Delta f = 1/T_u$, and the subcarriers become *orthogonal*: over one symbol interval each subcarrier completes an integer number of cycles, so the integral of the product of any two different subcarriers is exactly zero. They overlap in spectrum without interfering, which is what makes OFDM spectrally efficient — no guard bands between subcarriers.",
+    "**Implementation and the cyclic prefix.** OFDM is generated with an inverse FFT and demodulated with an FFT, so hundreds of subcarriers cost one transform rather than hundreds of oscillators. The remaining problem is multipath: a delayed echo of the previous symbol would overlap the current one. The fix is the *cyclic prefix* — the last portion of each symbol is copied to its front, so as long as the echo delay is shorter than the prefix the receiver discards the corrupted prefix and the useful part of the symbol is intact. The prefix costs bandwidth (typically 7–25% overhead) and buys complete immunity to inter-symbol interference within its length, at the price of no inter-carrier interference either.",
+    "**The PAPR problem.** Because hundreds of independently modulated subcarriers add in phase from time to time, an OFDM signal has a high peak-to-average power ratio — often 10 dB or more. That forces the power amplifier to back off substantially, wasting efficiency, and it is the reason LTE uses *SC-FDMA* (single-carrier FDMA) on the uplink, where the handset's battery and amplifier matter most. OFDMA is used on the downlink and in Wi-Fi, where the base station can afford a linear amplifier.",
+    "**OFDM versus OFDMA.** OFDM is a *modulation* technique: one user occupies all subcarriers for the duration of a transmission. OFDMA is a *multiple-access* technique: different users are assigned different groups of subcarriers (resource blocks) in the same symbol interval, so several users transmit simultaneously on interleaved slices of the band. That is what allows a base station to schedule capacity in fine time-frequency granularity, giving each user only the spectrum its channel and traffic need. The distinction matters in exams: OFDM is one user, many subcarriers; OFDMA is many users, each with a slice.",
+    "**Direct-sequence spread spectrum.** In DSSS each data bit is multiplied by a pseudorandom chip sequence whose rate is much higher than the data rate, spreading the signal across a wide band. A legitimate receiver multiplies by the same sequence and collapses the signal back to its narrow bandwidth, while any narrowband interferer is spread by the same operation and its power is diluted. The ratio of chip rate to data rate is the processing gain, which is the interference rejection in linear terms. Because the spreading code is required to despread, DSSS also provides a degree of privacy, and the wide bandwidth makes the signal hard to detect or jam narrowly. IEEE 802.11b uses DSSS with complementary code keying, and GPS uses it for ranging accuracy.",
+    "**Frequency-hopping spread spectrum.** FHSS avoids interference rather than averaging it: the carrier hops among many frequencies according to a pseudorandom sequence, dwelling briefly on each. In *fast* hopping the hop rate exceeds the symbol rate, so a symbol is spread over several hops; in *slow* hopping several symbols fit in one dwell. FHSS is more resistant to near-far problems than DSSS, is simpler to synchronise, and is used in Bluetooth (1600 hops per second over 79 channels of 1 MHz) and in legacy 802.11 frequency-hopping. Its weakness is that a follower jammer can track the hop sequence if it can detect it, whereas DSSS cannot be followed in the same way. The *jamming margin* quantifies how much stronger an interferer may be before the link fails."
+  ],
+  "formulas": [
+    { "q": "Subcarrier spacing", "e": "\\Delta f = \\frac{1}{T_u}", "n": "Orthogonality condition. LTE uses 15 kHz, so the useful symbol is 66.7 us." },
+    { "q": "Total symbol duration", "e": "T_{sym} = T_u + T_{cp}", "n": "T_cp is the cyclic prefix. LTE's normal prefix is 4.7 us, giving 71.4 us." },
+    { "q": "Cyclic prefix overhead", "e": "\\eta_{cp} = \\frac{T_{cp}}{T_{sym}}", "n": "4.7/71.4 = 6.6% for LTE normal prefix; up to 25% for the extended prefix." },
+    { "q": "Subcarrier count", "e": "N = B/\\Delta f", "n": "20 MHz/15 kHz is about 1333; a 2048-point FFT with 1200 used subcarriers is the LTE 20 MHz configuration." },
+    { "q": "OFDM data rate", "e": "R = \\frac{N_{used} \\times \\log_2 M \\times \\mathrm{coding}}{T_{sym}}", "n": "1200 subcarriers at 64-QAM over 71.4 us gives about 100 Mbps before coding." },
+    { "q": "Peak-to-average power ratio", "e": "\\mathrm{PAPR} \\approx 10\\log_{10} N\\ \\mathrm{dB}", "n": "Grows with the subcarrier count. The reason SC-FDMA is used on the uplink." },
+    { "q": "Processing gain (DSSS)", "e": "\\mathrm{PG} = \\frac{R_{chip}}{R_{bit}}", "n": "11 Mcps over 1 Mbps gives PG = 11. Must use consistent units." },
+    { "q": "Processing gain in dB", "e": "\\mathrm{PG}_{dB} = 10\\log_{10}\\!\\left(\\frac{R_{chip}}{R_{bit}}\\right)", "n": "PG = 11 gives 10.4 dB; PG = 128 gives 21.1 dB." },
+    { "q": "Jamming margin", "e": "M_j = \\mathrm{PG}_{dB} - \\left(\\frac{S}{N}\\right)_{req} - L_{impl}", "n": "L_impl is implementation loss, typically 2-3 dB. Result in dB." },
+    { "q": "FHSS dwell time", "e": "T_{dwell} = \\frac{1}{R_{hop}}", "n": "Bluetooth hops 1600 times per second, so the dwell is 625 us." },
+    { "q": "Fast versus slow hopping", "e": "\\mathrm{fast}: R_{hop} > R_{sym}; \\quad \\mathrm{slow}: R_{hop} < R_{sym}", "n": "Fast hopping spreads each symbol over several hops; slow hopping fits several symbols per hop." },
+    { "q": "FHSS channel count", "e": "N = \\frac{B_{total}}{B_{hop}}", "n": "Bluetooth: 83.5 MHz of 2.4 GHz ISM with 1 MHz hops gives 79 channels." }
+  ],
+  "problems": [
+    {
+      "prompt": "An LTE carrier uses a $15\\ \\mathrm{kHz}$ subcarrier spacing and a normal cyclic prefix of $4.7\\ \\mu\\mathrm{s}$. Find the useful symbol duration, the total symbol duration and the prefix overhead.",
+      "give": ["delta_f = 15 kHz", "T_cp = 4.7 us"],
+      "steps": [
+        "T_u = 1/delta_f = 1/15 000 = 66.67 us",
+        "T_sym = 66.67 + 4.7 = 71.37 us",
+        "Overhead = 4.7/71.37 = 0.0659",
+        "= 6.6%"
+      ],
+      "ans": "$T_u = 66.7\\ \\mu\\mathrm{s}$, $T_{sym} = 71.4\\ \\mu\\mathrm{s}$, overhead $6.6\\%$",
+      "trap": "Using the useful symbol duration as the total and so overstating the achievable data rate. The rate is set by $T_{sym}$, which is longer than $T_u$ by the prefix — a 6.6% capacity cost that is easy to drop."
+    },
+    {
+      "prompt": "An OFDM system uses 1200 subcarriers with 64-QAM and a total symbol duration of $71.4\\ \\mu\\mathrm{s}$. Find the uncoded data rate.",
+      "give": ["N_used = 1200", "64-QAM = 6 bits/symbol", "T_sym = 71.4 us"],
+      "steps": [
+        "Bits per OFDM symbol = 1200 x 6 = 7200 bits",
+        "Symbol rate = 1/71.4e-6 = 14 006 symbols/s",
+        "R = 7200 x 14 006",
+        "= 100 843 000 bps",
+        "So about 100.8 Mbps before channel coding"
+      ],
+      "ans": "$100.8\\ \\mathrm{Mbps}$ uncoded",
+      "trap": "Using $\\log_2 M = 64$ instead of 6, which would give a nonsense 1 Gbps per symbol. Also: the quoted 100 Mbps LTE figure includes coding, so the uncoded rate is higher and the coded rate lower — check which one a question asks for."
+    },
+    {
+      "prompt": "A DSSS system transmits 1 Mbps of data with an 11 Mcps chip sequence. Find the processing gain in ratio and dB.",
+      "give": ["R_bit = 1 Mbps", "R_chip = 11 Mcps"],
+      "steps": [
+        "PG = R_chip/R_bit = 11e6/1e6",
+        "= 11",
+        "PG_dB = 10 log10(11) = 10 x 1.0414",
+        "= 10.41 dB"
+      ],
+      "ans": "$\\mathrm{PG} = 11 = 10.4\\ \\mathrm{dB}$",
+      "trap": "Reporting the spreading factor 11 as 11 dB. The ratio and the decibel value are different numbers; 11 as a ratio is 10.4 dB."
+    },
+    {
+      "prompt": "A DSSS receiver has a processing gain of $21\\ \\mathrm{dB}$, requires an $S/N$ of $10\\ \\mathrm{dB}$ at its output, and has $2\\ \\mathrm{dB}$ of implementation loss. Find the jamming margin.",
+      "give": ["PG = 21 dB", "(S/N)req = 10 dB", "L = 2 dB"],
+      "steps": [
+        "Mj = PG - (S/N)req - L",
+        "= 21 - 10 - 2",
+        "= 9 dB"
+      ],
+      "ans": "Jamming margin $= 9\\ \\mathrm{dB}$",
+      "trap": "Forgetting the implementation loss, or subtracting it with the wrong sign. The margin is what is left of the processing gain after the receiver's own requirements are met, so both subtractions reduce it."
+    }
+  ],
+  "traps": [
+    "**Confusing OFDM with OFDMA.** OFDM is a modulation scheme in which one user occupies all subcarriers. OFDMA assigns different subcarrier groups to different users simultaneously. A question about 'how many users per symbol' is asking about OFDMA, not OFDM.",
+    "**Forgetting the cyclic prefix in rate calculations.** The prefix adds 7–25% to the symbol duration and therefore removes that fraction of the capacity. Using $T_u$ instead of $T_{sym}$ overstates the data rate.",
+    "**Reporting the spreading factor as a decibel value.** A processing gain of 11 is 10.4 dB; a processing gain of 128 is 21.1 dB. The two numbers are not interchangeable.",
+    "**Assuming OFDM is the uplink choice in LTE.** OFDM's high PAPR forces amplifier back-off, which is unacceptable in a battery-powered handset. LTE uses SC-FDMA on the uplink precisely to keep the envelope nearly constant.",
+    "**Believing slow and fast hopping differ only in speed.** The definitions are relative to the symbol rate: fast hopping means the hop rate exceeds the symbol rate so each symbol is spread over several hops, which changes how a partial-band jammer affects the link.",
+    "**Treating spread spectrum as increasing capacity.** Spreading does not create bits; it trades bandwidth for interference rejection and privacy. DSSS capacity is interference-limited and every added user reduces everyone's $E_b/N_0$.",
+    "**Ignoring that the cyclic prefix must exceed the delay spread.** If an echo arrives later than the prefix, the symbol is corrupted, inter-carrier interference appears and the orthogonality argument collapses. Prefix length is a design trade against cell size."
+  ],
+  "refs": [
+    "[[16_Multiple_Access_FDMA,_TDMA,_CDMA]]",
+    "[[07_Wireless_LAN_and_CSMA_-_CA]]",
+    "[[19_Cellular_Generations_2G_to_5G]]",
+    "[[15_WDM_and_DWDM]]"
+  ],
+  "prereqs": ["[[16_Multiple_Access_FDMA,_TDMA,_CDMA]]"]
+}

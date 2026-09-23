@@ -1,0 +1,42 @@
+{
+  "scope": "Recall the ISDB-T Philippine digital television standard and the NTSC-M analog reference numbers behind channel bandwidth, segment, carrier and line-rate questions.",
+  "intuition": "Television is a band-plan problem before it is a modulation problem: one 6 MHz channel must carry picture, sound, colour and now a whole digital multiplex, so every standard is a story about how that 6 MHz is carved up — 13 OFDM segments for ISDB-T, one vestigial-sideband video signal plus an FM sound carrier for NTSC.",
+  "concept": [
+    "**The Philippine standard is ISDB-T.** The National Telecommunications Commission adopted Integrated Services Digital Broadcasting – Terrestrial (the Japanese standard, also used in Brazil as ISDB-Tb) in 2010, and the analog NTSC-M switch-off (ASO) has been repeatedly rescheduled rather than completed on its original target. A common exam error is to answer DVB-T2 (Europe/ Africa) or ATSC (North America); the Philippines is ISDB-T, and its channel bandwidth is **6 MHz** like ATSC's.",
+    "**The 6 MHz channel is split into 13 segments plus a guard band.** ISDB-T is *Band Segmented Transmission OFDM* (BST-OFDM): the channel is divided into 14 equal parts, each with a width of: $6\\ \\mathrm{MHz}/14 = 428.6\\ \\mathrm{kHz}$. Of those parts, 13 are active segments (nominal 432 kHz each) and the remainder is the guard band. So the *occupied* bandwidth is: $13 \\times 428.6\\ \\mathrm{kHz} = 5.57\\ \\mathrm{MHz}$, not 6 MHz. Each segment independently chooses QPSK, 16-QAM or 64-QAM and a convolutional inner code rate (1/2, 2/3, 3/4, 5/6, 7/8) with an outer Reed–Solomon code, and the parameters can differ segment by segment — that layered structure is the whole point of the standard. **1seg** is the centre segment (segment 0), roughly 430 kHz wide, using DQPSK for a rugged partial-reception mode aimed at handheld and mobile receivers; the remaining 12 segments carry HDTV/SDTV. An OFDM guard interval of 1/4, 1/8, 1/16 or 1/32 of the useful symbol (1/8 typical) absorbs multipath echoes. Video is an MPEG-2 transport stream carrying H.264/AVC; audio is AAC.",
+    "**The NTSC-M analog reference.** 525 lines per frame, 2:1 interlace, 60 fields/s, 30 frames/s (29.97 in colour), giving a horizontal line rate of $525 \\times 29.97 = 15734\\ \\mathrm{Hz}$. Video is limited to 4.2 MHz and transmitted as **vestigial sideband** (VSB) in a 6 MHz channel, with a 1.25 MHz vestige retained below the picture carrier; the FM aural carrier sits 4.5 MHz above the picture carrier. VHF-low channel 2 occupies 54–60 MHz (picture carrier 55.25 MHz), so the picture carrier of channel $n$ on VHF-low is $f_v = 55.25 + 6(n-2)\\ \\mathrm{MHz}$; channel 7 is 174–180 MHz, channel 13 is 210–216 MHz, and UHF channel 14 is 470–476 MHz. PAL/CCIR (625 lines, 50 fields/s, 5.0–6.0 MHz video) uses 8 MHz channels — never mix the two line/field counts in one problem. Coverage questions then reuse the Friis machinery, starting from the wavelength: $\\lambda(\\mathrm{m}) = 300/f(\\mathrm{MHz})$. The free-space loss at VHF/UHF then follows."
+  ],
+  "formulas": [
+    { "q": "ISDB-T channel bandwidth", "e": "B_{ch} = 6\\ \\mathrm{MHz}", "n": "Philippine/Japanese/Brazilian terrestrial channel. DVB-T in Europe is 7 or 8 MHz; ATSC is also 6 MHz but not segmented." },
+    { "q": "ISDB-T segment bandwidth", "e": "B_{seg} = \\dfrac{6\\ \\mathrm{MHz}}{14} = 428.6\\ \\mathrm{kHz}", "n": "6 MHz divided into 14 parts: 13 active segments plus the guard band. Quoted as 432 kHz nominal — the nominal figure is rounded, the 428.6 kHz figure is exact." },
+    { "q": "Occupied bandwidth", "e": "B_{occ} = 13 \\times 428.6\\ \\mathrm{kHz} = 5.57\\ \\mathrm{MHz}", "n": "What the 13 active segments actually occupy inside the 6 MHz channel; the leftover 0.43 MHz is the guard band to the adjacent channel." },
+    { "q": "1seg bandwidth", "e": "B_{1seg} \\approx 430\\ \\mathrm{kHz}", "n": "Centre segment (segment 0) only, DQPSK, partial reception for handhelds. It is ONE segment inside the same 6 MHz channel, not a separate 6 MHz channel." },
+    { "q": "OFDM guard interval", "e": "T_g = \\left(\\tfrac{1}{4},\\ \\tfrac{1}{8},\\ \\tfrac{1}{16},\\ \\tfrac{1}{32}\\right) T_u", "n": "Cyclic prefix fraction of the useful symbol, absorbing multipath; 1/8 is typical for ISDB-T. This is a TIME guard interval, not the 0.43 MHz frequency guard band." },
+    { "q": "NTSC-M line rate", "e": "f_h = 525 \\times 29.97 = 15734\\ \\mathrm{Hz}", "n": "Monochrome 525/60 gives 525 x 30 = 15750 Hz; colour NTSC drops the frame rate to 29.97 Hz. Know both numbers." },
+    { "q": "NTSC-M total lines per frame", "e": "N = 2 \\times 262.5 = 525\\ \\mathrm{lines}", "n": "2:1 interlace, 262.5 lines per field, 60 fields/s, 30 frames/s. PAL is 625 lines / 50 fields / 25 frames." },
+    { "q": "NTSC video bandwidth and channel", "e": "B_{video} = 4.2\\ \\mathrm{MHz},\\quad B_{ch} = 6\\ \\mathrm{MHz}", "n": "Vestigial sideband: full upper sideband plus a 1.25 MHz vestige of the lower sideband. PAL uses 5.0-6.0 MHz video in an 8 MHz channel." },
+    { "q": "Sound carrier offset", "e": "f_s = f_v + 4.5\\ \\mathrm{MHz}", "n": "FM aural carrier above the NTSC-M picture carrier; it must still fall inside the 6 MHz channel, which is why the video bandwidth cannot be 5 MHz." },
+    { "q": "VHF-low picture carrier", "e": "f_v = 55.25 + 6(n-2)\\ \\mathrm{MHz}", "n": "Channels 2-6. Ch 2 = 54-60 MHz, Ch 7 = 174-180 MHz, Ch 13 = 210-216 MHz, UHF Ch 14 = 470-476 MHz. The 6 MHz spacing is the channel bandwidth." },
+    { "q": "Free-space wavelength", "e": "\\lambda(\\mathrm{m}) = \\dfrac{300}{f(\\mathrm{MHz})}", "n": "f in MHz only. At 600 MHz, lambda = 0.5 m; at 55.25 MHz, lambda = 5.43 m. Putting f in GHz in this form makes the answer 1000x too small." },
+    { "q": "Free-space path loss", "e": "L_{fs} = 32.44 + 20\\log_{10} f_{\\mathrm{MHz}} + 20\\log_{10} d_{\\mathrm{km}}", "n": "Reused from the Friis link. Sets the coverage-contour radius for a given ERP and receiver sensitivity." }
+  ],
+  "traps": [
+    "**Confusing the 6 MHz channel with the 5.57 MHz occupied bandwidth.** ISDB-T uses 13 of 14 equal parts, so 13 x 428.6 kHz = 5.57 MHz. A related error is dividing 6 MHz by 12 or by 13 and reporting 13 x 500 kHz = 6.5 MHz — 500 kHz per segment is not an ISDB-T number.",
+    "**Treating 1seg as its own 6 MHz channel.** 1seg is the centre segment of the *same* 6 MHz channel, about 430 kHz wide, using DQPSK; the other 12 segments carry the HDTV/SDTV service simultaneously.",
+    "**Assuming the Philippines adopted DVB-T2 or ATSC.** The NTC chose ISDB-T in 2010 and the analog switch-off (ASO) has been repeatedly rescheduled; DVB-T2 is European/African and ATSC is North American.",
+    "**Using $\\lambda = 300/f$ with $f$ in GHz.** The 300 constant is calibrated for MHz. For f in GHz use $\\lambda(\\mathrm{m}) = 0.3/f(\\mathrm{GHz})$.",
+    "**Mixing NTSC 525/60 with PAL 625/50.** Quoting a 625-line, 50-field system as American NTSC-M, or giving NTSC an 8 MHz channel, mixes two standards. NTSC-M: 525/60, 4.2 MHz video, 6 MHz channel. PAL/CCIR: 625/50, 5.0-6.0 MHz video, 8 MHz channel.",
+    "**Reading the 4.5 MHz sound offset as the sound bandwidth.** 4.5 MHz is the *spacing* between the picture and aural carriers, not the FM deviation or the sound channel width.",
+    "**Calling the OFDM guard interval a frequency guard band.** The 1/8 guard interval is a repetition in time (cyclic prefix) for multipath; the 0.43 MHz guard is the unused part of the 6 MHz channel."
+  ],
+  "refs": [
+    "[[06_FSPL_and_Friis_Transmission_Equation]]",
+    "[[01_Antenna_Parameters_Directivity,_Gain,_EIRP]]",
+    "[[08_Space_Wave_and_Radio_Horizon]]",
+    "[[11_Radar_Range_Equation_and_Microwave_Links]]"
+  ],
+  "prereqs": [
+    "[[06_FSPL_and_Friis_Transmission_Equation]]",
+    "[[08_Space_Wave_and_Radio_Horizon]]"
+  ]
+}

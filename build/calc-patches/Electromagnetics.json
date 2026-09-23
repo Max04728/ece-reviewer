@@ -1,0 +1,1097 @@
+[
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/01_Coordinate_Systems_and_Vector_Algebra.json",
+    "problem": 1,
+    "expect": "and the unit vector",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(3²+(-4)²+12²)=` → $\\lvert\\mathbf{A}\\rvert$ = **13**; store it with `SHIFT` `STO` `A`.",
+        "`3÷A` `ALPHA` `:` `(-)4÷A` `ALPHA` `:` `12÷A` `=` → **0.2308** → **-0.3077** → **0.9231**.",
+        "Magnitude check: `√(0.2308²+0.3077²+0.9231²)=` → **1.0000**, so the unit vector is right."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/01_Coordinate_Systems_and_Vector_Algebra.json",
+    "problem": 2,
+    "expect": "from Cartesian to cylindrical and to spherical coordinates",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "In degrees: `SHIFT` `Pol(3,4)=` → X = **5** = $\\rho$, Y = **53.13** = $\\phi$.",
+        "`√(X²+5²)=` → $r$ = **7.071**; `SHIFT` `cos⁻¹(5÷Ans)=` → $\\theta$ = **45.00°**.",
+        "$\\phi$ is unchanged, so the answers are $(5,\\,53.13^\\circ,\\,5)$ and $(7.071,\\,45^\\circ,\\,53.13^\\circ)$."
+      ],
+      "note": "`Pol(` lands the radius in `X` and the angle in `Y` — one keypress replaces atan2."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/01_Coordinate_Systems_and_Vector_Algebra.json",
+    "problem": 3,
+    "expect": "Express the spherical point",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `Pol(4\\sin30,60)=` → X = **1** = $x$, Y = **1.7321** = $y$.",
+        "`4\\cos30=` → $z$ = **3.4641**.",
+        "Both components come from one `Pol(` because $\\rho=r\\sin\\theta=$ **2** is the radius of the $xy$-projection."
+      ],
+      "note": "`Pol(r,·)` returns $r\\cos$ in `X` and $r\\sin$ in `Y` — exactly the $(x,y)$ pair. Keep degrees mode on."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/01_Coordinate_Systems_and_Vector_Algebra.json",
+    "problem": 4,
+    "expect": "Find the angle between",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3÷(√(2²+1²+1²)×√(1²+3²+2²))=` → $\\cos\\theta$ = **0.32733**.",
+        "`SHIFT` `cos⁻¹` `Ans` `=` → $\\theta$ = **70.89°**.",
+        "The numerator alone is `2×1+1×3+(-)1×2=` → **3**, the dot product."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/02_Gradient,_Divergence,_Curl_and_Laplacian.json",
+    "problem": 1,
+    "expect": "and the electric field at the point",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×1×2×3` `ALPHA` `:` `1²×3` `ALPHA` `:` `1²×2` `=` → $\\nabla V$ = **12** → **3** → **2** V/m.",
+        "`√(12²+3²+2²)=` → $\\lvert\\mathbf{E}\\rvert$ = **12.53** V/m.",
+        "$\\mathbf{E}=-\\nabla V$ negates the three components to **-12**, **-3**, **-2** V/m."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/02_Gradient,_Divergence,_Curl_and_Laplacian.json",
+    "problem": 5,
+    "expect": "Find the volume charge density, using",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×1.1294E5=` → $\\lvert d^2V/dx^2\\rvert$ = **2.2588E5** V/m².",
+        "`(-)` `SHIFT` `CVALUE` `32` `×` `(-)` `Ans` `=` → $\\rho_v$ = **2.000E-6** C/m³, with code `32` = $\\varepsilon_0$.",
+        "The two minus signs cancel: Poisson gives $\\rho_v=-\\varepsilon_0\\nabla^2V$ and $\\nabla^2V$ is negative here."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/03_Divergence_and_Stokes_Theorems.json",
+    "problem": 2,
+    "expect": "evaluate the outward flux through the sphere",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`∫dx` of $16\\pi X^3$ from 0 to 2 `=` → **201.06** on the volume side.",
+        "Surface side: `4×4\\pi×2²=` → **201.06** — $A_r=4$ at $r=2$ times the area $4\\pi r^2=16\\pi$.",
+        "Both routes return $64\\pi$; the $4\\pi$ Jacobian is not optional."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/04_Coulomb’s_Law_and_E_Field.json",
+    "problem": 1,
+    "expect": "Find the magnitude and direction of the force between them",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8.988E9×2E-6×3E-6÷0.5²=` → $F$ = **0.2157** N.",
+        "Powers-of-ten check: `2E-6×3E-6=` → **6E-12** C², not `6E-6` — that is where the $10^{6}$ disappears.",
+        "Opposite signs make the product negative, so the same magnitudes with like signs would give **0.2157** N of repulsion instead of attraction."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/04_Coulomb’s_Law_and_E_Field.json",
+    "problem": 2,
+    "expect": "at the point $(0,3,4)$",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(0+3²+4²)=` → $r$ = **5** m; `8.988E9×5E-9÷Ans²=` → $\\lvert\\mathbf{E}\\rvert$ = **1.7976** V/m.",
+        "Scale by the unit vector: `0.6×1.7976` `ALPHA` `:` `0.8×1.7976` `=` → **1.079** → **1.438** V/m.",
+        "The point is $(0,3,4)$, so $\\mathbf{a}_r=(0,\\,0.6,\\,0.8)$ — divide each coordinate by $r=5$."
+      ],
+      "note": "Using `3` or `4` alone for $r$ is the trap: `8.988E9×5E-9÷9=` gives 4.99 V/m, off by 2.8x."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/04_Coulomb’s_Law_and_E_Field.json",
+    "problem": 3,
+    "expect": "Find the point on the line between them where",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "From $4/x^2=1/(1-x)^2$: `MODE` `5`, page 2, `1` quadratic, enter 3, -8, 4 for $3x^2-8x+4=0$ `=` → x = **2** and **0.6667**.",
+        "Reject $x=2$ because it lies outside $0<x<1$, leaving **0.6667** m from the 4 uC charge.",
+        "Cross-check the field balance there: `4÷0.6667²=` → **9.00** and `1÷(1-0.6667)²=` → **9.00**."
+      ],
+      "note": "Squaring $2/x=1/(1-x)$ introduces a root; only the one between the charges is physical."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/04_Coulomb’s_Law_and_E_Field.json",
+    "problem": 4,
+    "expect": "An infinite line charge has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2\\pi×` `SHIFT` `CVALUE` `32` `×0.1=` → **5.5635E-12**, the $2\\pi\\varepsilon_0\\rho$ denominator.",
+        "`20E-9÷Ans=` → $E$ = **3.595E3** V/m = **3.60** kV/m.",
+        "`4\\pi` in place of `2\\pi` gives **5.39E4** V/m — half, the point-charge slip in one keystroke."
+      ],
+      "note": "Code `32` is $\\varepsilon_0$; the cylindrical symmetry gives $2\\pi$, not $4\\pi$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/04_Coulomb’s_Law_and_E_Field.json",
+    "problem": 5,
+    "expect": "Two infinite parallel sheets carry",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5E-9÷(2×` `SHIFT` `CVALUE` `32` `)=` → one sheet gives $E$ = **282.4** V/m, its $\\sigma/2\\varepsilon_0$.",
+        "Between: `2×Ans=` → **564.7** V/m, from the $+$ to the $-$ sheet.",
+        "Outside: `282.4−282.4=` → **0** V/m, the two equal and opposite contributions cancelling."
+      ],
+      "note": "Code `32` is $\\varepsilon_0$; using $E=\\sigma/\\varepsilon_0$ for a free sheet doubles the gap field to 1130 V/m."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/05_Gauss_Law_and_Applications.json",
+    "problem": 1,
+    "expect": "is at the centre of a spherical Gaussian surface",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10E-9÷(4\\pi×0.2²)=` → $D$ = **1.989E-8** C/m².",
+        "`Ans÷` `SHIFT` `CVALUE` `32` `=` → $E$ = **2247** V/m, with code `32` = $\\varepsilon_0$.",
+        "Point-charge check: `8.988E9×10E-9÷0.2²=` → **2247** V/m, agreeing."
+      ],
+      "note": "$r^2$ is `0.04`, not `0.2`; keying `0.2` gives 11.2 nC/m², four times too large."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/05_Gauss_Law_and_Applications.json",
+    "problem": 2,
+    "expect": "An insulating sphere of radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8.988E9×4E-6=` → $kQ$ = **35952**; store with `SHIFT` `STO` `A`.",
+        "`A×0.01÷0.02³=` → inside $E$ = **4.494E7** V/m; `A÷0.04²=` → outside $E$ = **2.247E7** V/m.",
+        "Ratio check: `4.494E7÷2.247E7=` → **2.00**, exactly $a/r_1$."
+      ],
+      "note": "Inside, only the fraction $(r/a)^3=1/8$ of $Q$ is enclosed; `kQ/r²` there gives 8x too much."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/05_Gauss_Law_and_Applications.json",
+    "problem": 3,
+    "expect": "A long coaxial line has inner conductor charge",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`30E-9÷(2\\pi×` `SHIFT` `CVALUE` `32` `×0.005)=` → $E$ = **1.078E5** V/m = **108** kV/m.",
+        "Unit check: `0.005` m is the 5 mm radius; leaving `5` gives **108** V/m, off by $10^{3}$.",
+        "The same line with `4\\pi` returns **5.39E4** V/m, the cylindrical-symmetry trap."
+      ],
+      "note": "Code `32` is $\\varepsilon_0$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/05_Gauss_Law_and_Applications.json",
+    "problem": 4,
+    "expect": "An infinite sheet carries a uniform free surface charge",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8E-9÷2=` → $D$ = **4.0E-9** C/m² — the pillbox has two faces, so the half survives.",
+        "`Ans÷` `SHIFT` `CVALUE` `32` `=` → $E$ = **451.8** V/m on each side, with code `32` = $\\varepsilon_0$.",
+        "Without the half: `8E-9÷` `SHIFT` `CVALUE` `32` `=` → **903.5** V/m, double."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/05_Gauss_Law_and_Applications.json",
+    "problem": 5,
+    "expect": "A conducting sphere of radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8.988E9×20E-9÷0.1²=` → $E$ at 10 cm = **1.7976E4** V/m; at $r=2$ cm, inside the conductor, $E$ = **0**.",
+        "`20E-9÷(4\\pi×0.05²)=` → $\\sigma$ = **6.366E-7** C/m² = **637** nC/m².",
+        "Check: `Ans÷` `SHIFT` `CVALUE` `32` `=` → **7.19E4** V/m, which equals $kQ/a^2$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/06_Electric_Potential_and_Gradient.json",
+    "problem": 2,
+    "expect": "Find the potential at $(0,0.3)$ m",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `Pol(0.2,0.3)=` → X = **0.36056**, which is $r_2=\\sqrt{0.2^2+0.3^2}$; Y = 56.31° is not needed.",
+        "`8.988E9×2E-6÷0.3+8.988E9×(-)2E-6÷X=` → $V$ = **10063.5** V, about **10.06** kV.",
+        "The two contributions are **59920** V and **-49856** V; the negative charge keeps its own sign."
+      ],
+      "note": "`Pol(` is the fastest distance finder; $r_2>r_1$ is what leaves 10 kV rather than zero."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/06_Electric_Potential_and_Gradient.json",
+    "problem": 3,
+    "expect": "The potential in a region is",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6×1×2` `ALPHA` `:` `3×1²` `ALPHA` `:` `0` `=` → $\\nabla V$ = **12** → **3** → **0** V/m.",
+        "`√(12²+3²)=` → $\\lvert\\mathbf{E}\\rvert$ = **12.37** V/m.",
+        "$\\mathbf{E}=-\\nabla V$ = **-12** $\\mathbf{a}_x$ **-3** $\\mathbf{a}_y$ V/m, with $E_z$ = **0** by inspection."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/06_Electric_Potential_and_Gradient.json",
+    "problem": 4,
+    "expect": "How much work must an external agent do",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8.988E9×10E-6×(1÷0.5−1÷1)×5E-6=` → $W_{\\mathrm{ext}}$ = **0.4494** J.",
+        "The bracket is the potential difference: `8.988E9×10E-6×(1÷0.5−1÷1)=` → **89880** V.",
+        "Sign check: the field does the negative of this, `(-)Ans=` → **-0.4494** J; the agent's work is positive."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/06_Electric_Potential_and_Gradient.json",
+    "problem": 5,
+    "expect": "A long line charge has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`15E-9÷(2\\pi×` `SHIFT` `CVALUE` `32` `)=` → $\\lambda/2\\pi\\varepsilon_0$ = **269.6** V, with code `32` = $\\varepsilon_0$.",
+        "`×\\ln(5)=` → $V_A-V_B$ = **434.0** V; the closer point at 1 cm is the higher one.",
+        "The log takes a ratio, so `\\ln(5÷1)=` → **1.6094** is unit-independent."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/07_Dipoles_and_Polarization.json",
+    "problem": 2,
+    "expect": "on the axis and on the equatorial plane at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8.988E9×2E-12÷0.01³=` → equatorial $E$ = **1.7976E4** V/m.",
+        "`×2=` → axial $E$ = **3.5952E4** V/m; the axis/equator ratio is exactly **2**.",
+        "Both scale as $1/r^3$: the wrong power `8.988E9×2E-12÷0.01²=` → **1.80E2** V/m."
+      ],
+      "note": "`r = 10` mm must be keyed as `0.01`; the cube is what makes the dipole field fall so fast."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/07_Dipoles_and_Polarization.json",
+    "problem": 3,
+    "expect": "to a uniform field",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E-12×1E4×\\sin30=` → $\\tau$ = **1.0E-8** N·m.",
+        "`(-)2E-12×1E4×\\cos30=` → $U$ = **-1.732E-8** J.",
+        "The swap is visible: `2E-12×1E4×\\cos30=` → **1.73E-8**, the torque answer off by 73 %."
+      ],
+      "note": "Torque takes the sine, energy the cosine, and the minus in $U=-\\mathbf{p}\\cdot\\mathbf{E}$ stays."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/07_Dipoles_and_Polarization.json",
+    "problem": 4,
+    "expect": "A slab of dielectric occupies",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "The bound sheets are **4E-9** C/m² on the top face and **-4E-9** C/m² on the bottom, because $\\mathbf{a}_n$ reverses.",
+        "`4E-9÷` `SHIFT` `CVALUE` `32` `=` → $E$ = **451.8** V/m, from top to bottom.",
+        "$\\rho_b=-\\nabla\\cdot\\mathbf{P}$ = **0** because $\\mathbf{P}$ is uniform, so the pair of sheets is the whole source."
+      ],
+      "note": "Code `32` is $\\varepsilon_0$; the depolarization field always opposes $\\mathbf{P}$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/08_Dielectrics_and_Boundary_Conditions.json",
+    "problem": 1,
+    "expect": "exists in air between isolated plates",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `32` `×1E4=` → $D$ = **8.854E-8** C/m², frozen because the plates are isolated.",
+        "`1E4÷4=` → $E$ = **2500** V/m.",
+        "`SHIFT` `CVALUE` `32` `×3×Ans=` → $P$ = **6.640E-8** C/m², from $P=(\\varepsilon_r-1)\\varepsilon_0E$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/08_Dielectrics_and_Boundary_Conditions.json",
+    "problem": 2,
+    "expect": "A field in air makes",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`\\tan45×3=` → **3** = $\\tan\\theta_2$, from $\\tan\\theta_2=\\tan\\theta_1\\,\\varepsilon_{r2}/\\varepsilon_{r1}$.",
+        "`SHIFT` `\\tan⁻¹` `Ans` `=` → $\\theta_2$ = **71.57°** from the normal.",
+        "Inverted ratio check: `SHIFT` `\\tan⁻¹(1÷3)=` → **18.43°**, the trap answer."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/08_Dielectrics_and_Boundary_Conditions.json",
+    "problem": 4,
+    "expect": "A conductor surface in a dielectric with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E-8÷(2.5×` `SHIFT` `CVALUE` `32` `)=` → $E$ = **903.5** V/m in the dielectric, with code `32` = $\\varepsilon_0$.",
+        "`×2.5=` → **2259** V/m in air, exactly $\\varepsilon_r$ times larger.",
+        "The conductor fixes $D_n$ = **2.0E-8** C/m², not $E_n$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/08_Dielectrics_and_Boundary_Conditions.json",
+    "problem": 5,
+    "expect": "A parallel-plate capacitor has $A=0.01$ m",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `32` `×0.01÷0.5E-3=` → $C_0$ = **1.7708E-10** F = **177.1** pF.",
+        "`×6=` → $C$ = **1.0625E-9** F = **1.06** nF.",
+        "$\\varepsilon_r$ enters once: the air value is `÷6=` → **2.951E-11** F, exactly $\\varepsilon_r$ times smaller."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 1,
+    "expect": "An air-filled parallel-plate capacitor has plates of area",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `32` `×0.02÷1E-4=` → $C$ = **1.7708E-9** F = **1.77** nF.",
+        "`×100=` → $Q$ = **1.7708E-7** C = **177** nC.",
+        "The gap is `1E-4` m: keying `0.1` returns **1.77** uF, a factor of $10^{3}$ high."
+      ],
+      "note": "`CONVT` Distance, mm to m, inserts the `1E-4` without counting zeros."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 2,
+    "expect": "plates are separated by $d=0.2$ mm and the gap is filled with polyethylene",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.25×` `SHIFT` `CVALUE` `32` `×0.05÷0.2E-3=` → $C$ = **4.980E-9** F = **4.98** nF.",
+        "Air-only check: `÷2.25=` → **2.213E-9** F = **2.21** nF, smaller by exactly $\\varepsilon_r$.",
+        "Applying $\\varepsilon_r$ twice would return `4.98×2.25=` → **11.2** nF."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 3,
+    "expect": "A coaxial cable has inner radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2\\pi×2.5×` `SHIFT` `CVALUE` `32` `×2÷\\ln(4)=` → $C$ = **2.0065E-10** F = **200.7** pF.",
+        "Per metre: `÷2=` → **100.3** pF/m, the figure cable data sheets quote.",
+        "Only the ratio $b/a$ = **4.00** enters, so any consistent unit gives the same capacitance."
+      ],
+      "note": "The parallel-plate form with the 3 mm gap gives 59 pF — wrong geometry, the field falls as $1/\\rho$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 4,
+    "expect": "A coaxial cable must have",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.4×` `SHIFT` `ln` `(2\\pi×2.3×` `SHIFT` `CVALUE` `32` `÷1E-10)=` → $b$ = **1.438** mm, with `SHIFT` `ln` being $e^x$.",
+        "The exponent is $\\ln(b/a)$ = **1.2796**; `÷0.4=` → $b/a$ = **3.595** confirms it.",
+        "Reading 1.2796 as the ratio instead gives $b$ = **0.512** mm, inside the inner conductor."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 5,
+    "expect": "A spherical capacitor has inner radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4\\pi×` `SHIFT` `CVALUE` `32` `×0.02×0.05÷0.03=` → $C$ = **3.709E-12** F = **3.71** pF.",
+        "The same line without the $4\\pi$ gives **0.295** pF, the error being a factor of $4\\pi$.",
+        "Sum check: `4\\pi×` `SHIFT` `CVALUE` `32` `=` → **1.1127E-10** is the $4\\pi\\varepsilon_0$ of the formula."
+      ],
+      "note": "Radii, not diameters: keying 0.04 and 0.10 multiplies $C$ by 4."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 6,
+    "expect": "Find the capacitance of an isolated conducting sphere",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4\\pi×` `SHIFT` `CVALUE` `32` `×0.1=` → $C$ = **1.1126E-11** F = **11.13** pF.",
+        "`×500=` → $Q$ = **5.563E-9** C = **5.56** nC.",
+        "Dimensional check: the answer is $\\varepsilon_0$ times a length, while `4\\pi×` `SHIFT` `CVALUE` `32` `×0.1²=` → **1.11E-12** is the $4\\pi a^2$ slip."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 9,
+    "expect": "The gap contains two layers",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.01÷(0.5E-3÷(4×` `SHIFT` `CVALUE` `32` `)+0.5E-3÷(2×` `SHIFT` `CVALUE` `32` `))=` → $C$ = **2.361E-10** F = **236** pF.",
+        "Series check: `1÷(1÷7.083E-10+1÷3.542E-10)=` → **2.361E-10** F, identical.",
+        "The layer terms $d/\\varepsilon$ are **1.4118E7** and **2.8236E7**; they add, so $C$ is below either layer alone."
+      ],
+      "note": "Averaging the two permittivities is the trap: layers in a gap are in series, never in parallel."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/09_Capacitance_from_Geometry.json",
+    "problem": 10,
+    "expect": "is charged to $V=200$ V in air",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `32` `×0.05÷1E-3=` → $C$ = **4.427E-10** F = **0.443** nF.",
+        "`×200²÷2=` → $W$ = **8.854E-6** J = **8.85** uJ.",
+        "`SHIFT` `CVALUE` `32` `×0.05×200²÷(2×1E-3²)=` → $F$ = **8.854E-3** N = **8.85** mN."
+      ],
+      "note": "The half in $F=\\varepsilon_0AV^2/2d^2$ is the $E/2$ a plate actually feels; dropping it gives 17.7 mN."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/10_Electrostatic_Energy_and_Forces.json",
+    "problem": 1,
+    "expect": "Find the potential energy of the system of two charges",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8.988E9×2E-6×(-)2E-6÷0.1=` → $U$ = **-0.3595** J.",
+        "Charge product first: `2E-6×(-)2E-6=` → **-4E-12** C²; the negative product is the whole sign.",
+        "Magnitudes alone would give `8.988E9×2E-6×2E-6÷0.1=` → **+0.3595** J, the classic lost sign."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/10_Electrostatic_Energy_and_Forces.json",
+    "problem": 3,
+    "expect": "A uniform field $E=100$ kV/m exists throughout a volume",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.5×` `SHIFT` `CVALUE` `32` `×1E10=` → $u$ = **0.04427** J/m³ = **44.3** mJ/m³.",
+        "`×0.5=` → $W$ = **0.022135** J = **22.1** mJ.",
+        "The field is `1E5`, so $E^2$ is `1E10`: keying `100` gives `0.5×` `SHIFT` `CVALUE` `32` `×100²=` → **4.43E-8** J/m³."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/10_Electrostatic_Energy_and_Forces.json",
+    "problem": 4,
+    "expect": "and is held at $V=100$ V",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.5×` `SHIFT` `CVALUE` `32` `×0.01×100²÷0.5E-3²=` → $F$ = **1.7708E-3** N = **1.77** mN.",
+        "Using the full gap field $E=V/d$ doubles it: `2×Ans=` → **3.54E-3** N, the $F=QE$ trap.",
+        "The gap enters squared, so `0.5` mm must be keyed `0.5E-3`, not `0.5`."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/10_Electrostatic_Energy_and_Forces.json",
+    "problem": 5,
+    "expect": "A conductor surface in air has a field of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.5×` `SHIFT` `CVALUE` `32` `×3E6²=` → $p$ = **39.84** Pa outward.",
+        "Without the half: `2×Ans=` → **79.7** Pa, exactly double.",
+        "The pressure is outward for either sign of $\\sigma$, because `(-)3E6` squared still gives **39.84** Pa."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/11_Current_Density_and_Continuity.json",
+    "problem": 1,
+    "expect": "A copper wire of cross-section",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2÷1E-6=` → $J$ = **2E6** A/m², since $1$ mm² is `1E-6` m².",
+        "`Ans÷(8.5E28×` `SHIFT` `CVALUE` `23` `)=` → $v_d$ = **1.469E-4** m/s = **0.147** mm/s, with code `23` = $e$.",
+        "The wrong area `1E-3` returns **2E3** A/m² and a drift velocity 1000x too large."
+      ],
+      "note": "`CONVT` Area, mm² to m², inserts the `1E-6` directly."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/11_Current_Density_and_Continuity.json",
+    "problem": 2,
+    "expect": "Find the resistance of a copper conductor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.72E-8×100÷2.5E-6=` → $R$ = **0.688** ohm.",
+        "`2.5E-6` m² is the 2.5 mm²; leaving `2.5E-3` returns **6.88E-4** ohm, a factor of $10^{3}$ low.",
+        "The numerator is `1.72E-8×100=` → **1.72E-6** ohm·m²."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/11_Current_Density_and_Continuity.json",
+    "problem": 3,
+    "expect": "and carries a field of $0.05$ V/m",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5.8E7×0.05=` → $J$ = **2.9E6** A/m².",
+        "`×2E-6=` → $I$ = **5.8** A through the 2 mm² section.",
+        "The section is `2E-6` m², not `2E-3`: `2.9E6×2E-3=` → **5800** A is the unit slip."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/11_Current_Density_and_Continuity.json",
+    "problem": 5,
+    "expect": "A cylindrical conductor of radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`∫dx` of $4E6(1-X÷1E-3)×2\\pi X$ from 0 to `1E-3` `=` → $I$ = **4.189** A.",
+        "Closed form: `4E6×2\\pi×1E-6÷6=` → **4.189** A, since the linear fall makes the mean $J_{\\max}/3$.",
+        "The no-integral estimate `4E6×\\pi×1E-3²=` → **12.57** A over-counts by 3."
+      ],
+      "note": "`∫dx` takes the $2\\pi r\\,dr$ area element inside the integrand; the integration variable is `X`."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/12_Biot-Savart_Law.json",
+    "problem": 1,
+    "expect": "at a point $5$ cm from a long straight wire",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `×10÷(2\\pi×0.05)=` → $B$ = **4.0E-5** T = **40** uT, with code `33` = $\\mu_0$.",
+        "Shortcut check: `2E-7×10÷0.05=` → **4.0E-5** T, since $\\mu_0/2\\pi$ is exactly `2E-7`.",
+        "Doubling the distance halves it: `2E-7×10÷0.1=` → **2.0E-5** T."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/12_Biot-Savart_Law.json",
+    "problem": 2,
+    "expect": "A circular loop of radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `×5÷(2×0.02)=` → $B$ = **1.5708E-4** T = **157** uT.",
+        "Diameter slip: the same line with `0.04` returns **78.5** uT, half.",
+        "The missing-factor-2 slip `÷0.02=` returns **314** uT, double."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/12_Biot-Savart_Law.json",
+    "problem": 3,
+    "expect": "find the flux density on the axis at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `×5×0.02²÷(2×(0.02²+0.02²)^1.5)=` → $B$ = **5.5536E-5** T = **55.5** uT.",
+        "Ratio check: `55.5÷157=` → **0.354**, the $1/2^{3/2}$ on-axis-at-$z=a$ factor.",
+        "Dropping the `^1.5` returns **1.57E-6** T — below the centre value, which is impossible."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/13_Ampere’s_Circuital_Law.json",
+    "problem": 1,
+    "expect": "A long cylindrical conductor of radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5×1E-3÷(2\\pi×(2E-3)²)=` → inside $H$ = **198.9** A/m; `5÷(2\\pi×4E-3)=` → outside $H$ = **198.9** A/m.",
+        "The coincidence is geometric: 4 mm is exactly $2a$, so the two formulas cross there.",
+        "Surface: `5÷(2\\pi×2E-3)=` → **397.9** A/m, and `×` `SHIFT` `CVALUE` `33` `=` → $B$ = **5.00E-4** T = **0.500** mT."
+      ],
+      "note": "The outside formula at 1 mm gives `5÷(2\\pi×1E-3)=` → 796 A/m, four times too much."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/13_Ampere’s_Circuital_Law.json",
+    "problem": 2,
+    "expect": "An ideal solenoid has $1000$ turns per metre",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000×2=` → $H$ = **2000** A/m, axial and uniform.",
+        "`×` `SHIFT` `CVALUE` `33` `=` → $B$ = **2.513E-3** T = **2.51** mT in air.",
+        "`×1000=` → $B$ = **2.513** T with $\\mu_r=1000$, while $H$ stays **2000** A/m."
+      ],
+      "note": "Applying $\\mu_r$ to $H$ as well gives 2510 T, above the saturation of every known material."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/13_Ampere’s_Circuital_Law.json",
+    "problem": 3,
+    "expect": "A toroid has $500$ turns, a mean radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`500÷(2\\pi×0.1)=` → $H$ = **795.8** A/m.",
+        "`×` `SHIFT` `CVALUE` `33` `=` → $B$ = **1.000E-3** T = **1.00** mT.",
+        "The $nI$ slip with the total turn count gives `500×1=` → **500** A/m, low by 1.59x."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/13_Ampere’s_Circuital_Law.json",
+    "problem": 4,
+    "expect": "A coaxial cable has inner radius $a=1$ mm, an outer conductor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10×5E-4÷(2\\pi×(1E-3)²)=` → **795.8** A/m at 0.5 mm; `10÷(2\\pi×2E-3)=` → **795.8** A/m at 2 mm.",
+        "Inside the shield: `10×(1.6E-5−1.225E-5)÷(2\\pi×3.5E-3×(1.6E-5−9E-6))=` → **243.6** A/m, sense reversed.",
+        "Outside the enclosed net current is `10−10=` → **0**, so $H$ = **0** A/m at 6 mm."
+      ],
+      "note": "Ignoring the shield return current gives `10÷(2\\pi×3.5E-3)=` → 455 A/m and hides the reversal."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/14_Magnetic_Boundary_Conditions_and_Vector_Potential.json",
+    "problem": 1,
+    "expect": "with the normal to a flat interface with a material of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.1×\\cos30=` → $B_{1n}$ = **0.08660** T; `0.1×\\sin30=` → $B_{1t}$ = **0.05000** T; `×4=` → $B_{2t}$ = **0.2000** T.",
+        "`SHIFT` `Pol(0.0866,0.2)=` → X = $B_2$ = **0.2179** T, Y = $\\theta_2$ = **66.59°** from the normal.",
+        "Scaling the whole vector by 4 would give `4×0.1=` → **0.400** T, the trap."
+      ],
+      "note": "`Pol(` reads the rectangular pair $(B_{2n},B_{2t})$ as a magnitude and angle in one keypress; keep degrees mode."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/14_Magnetic_Boundary_Conditions_and_Vector_Potential.json",
+    "problem": 3,
+    "expect": "A long straight wire along the z-axis carries",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(-)2E-6×\\ln(0.5)=` → $A_z$ = **1.3863E-6** Wb/m.",
+        "`2E-6÷0.5=` → $B_\\phi$ = **4.0E-6** T, the same as $\\mu_0I/2\\pi\\rho$.",
+        "The additive constant is fixed by the reference: $A_z$ at 1 m is **0**, so $C$ = **0**."
+      ],
+      "note": "$\\mu_0I/2\\pi$ collapses to `2E-7×10=` → 2E-6 Wb/m; $\\mathbf{A}$ runs along the wire, $\\mathbf{B}$ around it."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 1,
+    "expect": "A solenoid has 500 turns, length 25 cm",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `×500²×4E-4÷0.25=` → $L$ = **5.0265E-4** H = **0.503** mH, with code `33` = $\\mu_0$.",
+        "Area slip: keying `4` instead of `4E-4` returns **5.03** H, a factor of $10^{4}$.",
+        "The $N^2$ matters: `×500=` instead of `×500²` returns **1.005E-6** H."
+      ],
+      "note": "`CONVT` Area converts $4$ cm² to `4E-4` m² directly."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 2,
+    "expect": "is now wound on a ferrite core",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "With $L$ = **5.0265E-4** H in `Ans`: `×2000=` → $L$ = **1.0053** H.",
+        "`0.5×Ans×0.1²=` → $W$ = **5.0265E-3** J = **5.03** mJ.",
+        "The core multiplies $L$ once: `1.0053×0.1²÷2=` → **5.0265E-3** J, against **2.513E-3** J air-cored."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 3,
+    "expect": "A toroid has 200 turns, rectangular cross-section",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `×1000×200²×0.01×\\ln(1.5)÷(2\\pi)=` → $L$ = **0.03244** H = **32.4** mH.",
+        "`\\ln(1.5)=` → **0.4055** is the geometry factor.",
+        "Using $(b-a)=0.01$ m instead of the log returns **0.80** mH, a factor of 40 out."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 4,
+    "expect": "A coaxial cable has an inner conductor radius of 1 mm",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `÷(2\\pi)×\\ln(4)=` → $L/l$ = **2.7726E-7** H/m = **277** nH/m.",
+        "Only two numbers are needed: `\\ln(4)=` → **1.3863** and $\\mu_0/2\\pi$ = **2E-7**.",
+        "The ratio $b/a$ = **4.00** is unchanged if both radii are doubled, so the inductance is too."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 5,
+    "expect": "A two-wire transmission line has conductors of radius",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `÷\\pi×\\ln(200)=` → $L/l$ = **2.1193E-6** H/m = **2.12** uH/m.",
+        "`\\ln(200)=` → **5.2983**, and the ratio $D/a$ = **200** is unit-independent.",
+        "Using $2\\pi$ in place of $\\pi$ in the denominator returns **1.06E-6** H/m, exactly half."
+      ],
+      "note": "Both conductors contribute a $\\mu_0/2\\pi$ log term, so the denominator is $\\pi$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 8,
+    "expect": "A magnetic circuit has a core of cross-sectional area",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.8²×5E-4÷(2×` `SHIFT` `CVALUE` `33` `)=` → $F$ = **127.3** N, with code `33` = $\\mu_0$.",
+        "`5E-4` m² is the $5$ cm², and the 1 mm gap never enters $F=B^2A/2\\mu_0$.",
+        "Forgetting the half returns **254.6** N, exactly double."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 9,
+    "expect": "A solenoid of 1000 turns and length 30 cm",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `×1000×2÷0.3=` → $B$ = **8.3776E-3** T = **8.38** mT.",
+        "`×6E-4=` → $\\Phi_B$ = **5.0265E-6** Wb = **5.03** uWb through one cross-section.",
+        "The flux linkage is $N$ times larger: `×1000=` → **5.0265E-3** Wb-turns."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/15_Inductance_from_Geometry_and_Materials.json",
+    "problem": 10,
+    "expect": "Verify the solenoid formula",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Linkage route: `1000×5.0265E-6÷2=` → $L$ = **2.5133E-3** H = **2.51** mH.",
+        "Direct route: `SHIFT` `CVALUE` `33` `×1000²×6E-4÷0.3=` → **2.5133E-3** H, identical.",
+        "The routes agree only because of the $N^2$: `×1000×6E-4÷0.3=` → **2.513E-6** H is the single-$N$ slip."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/16_Magnetic_Forces,_Torque_and_Lorentz.json",
+    "problem": 1,
+    "expect": "An electron travels at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `03` `×1E6÷(` `SHIFT` `CVALUE` `23` `×0.01)=` → $r$ = **5.686E-4** m = **0.569** mm.",
+        "`SHIFT` `CVALUE` `23` `×0.01÷(2\\pi×` `SHIFT` `CVALUE` `03` `)=` → $f$ = **2.799E8** Hz = **280** MHz.",
+        "Period check: `1÷Ans=` → **3.573E-9** s = **3.57** ns, matching $2\\pi r/v$."
+      ],
+      "note": "Code `03` is $m_e$ in kg and code `23` is $e$ in C, so no gram conversion is possible."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/16_Magnetic_Forces,_Torque_and_Lorentz.json",
+    "problem": 4,
+    "expect": "Two long parallel wires are",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `33` `×20×20÷(2\\pi×0.05)=` → $F/L$ = **1.6E-3** N/m = **1.6** mN/m.",
+        "Both current directions give the same magnitude **1.6E-3** N/m, and same-direction currents attract.",
+        "Distance in cm is the trap: `÷5=` returns **1.6E-5** N/m, 100 times too small."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/16_Magnetic_Forces,_Torque_and_Lorentz.json",
+    "problem": 5,
+    "expect": "A Hall-effect sample",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5×0.5÷(8.5E28×` `SHIFT` `CVALUE` `23` `×1E-3)=` → $V_H$ = **1.836E-7** V = **0.184** uV.",
+        "The denominator is $nqt$ = **1.3617E7**, with code `23` = $e$; the sample width never appears.",
+        "Multiplying by a 1 cm width would return `×1E-2=` → **1.836E-9** V, 100 times too small."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/17_Faraday’s_Law_and_Motional_EMF.json",
+    "problem": 2,
+    "expect": "A generator coil has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`200×0.4×0.02×377=` → peak $\\mathcal{E}$ = **603.2** V.",
+        "`÷√2=` → rms = **426.5** V.",
+        "`377÷(2\\pi)=` → $f$ = **60.0** Hz, which identifies the 377 rad/s source."
+      ],
+      "note": "Dropping $\\omega$ leaves $NBA$ = **1.6** Wb — a flux linkage quoted as a voltage, 377 times too small."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/18_Maxwell’s_Equations_and_Displacement_Current.json",
+    "problem": 1,
+    "expect": "A parallel-plate capacitor has plates of area $0.01$ m",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `32` `×1E5×2\\pi×1E6=` → peak $J_d$ = **5.563** A/m², with code `32` = $\\varepsilon_0$.",
+        "`×0.01=` → peak $I_d$ = **0.05563** A = **55.6** mA.",
+        "Conduction route: `SHIFT` `CVALUE` `32` `×0.01÷1E-3×100×2\\pi×1E6=` → **0.05563** A, identical."
+      ],
+      "note": "The $\\cos\\omega t$ is common to both routes, so the equality holds instant by instant."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/18_Maxwell’s_Equations_and_Displacement_Current.json",
+    "problem": 2,
+    "expect": "In a certain region the electric field is",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `32` `×50×1E8=` → $J_{d,\\max}$ = **0.04427** A/m² = **44.3** mA/m².",
+        "The time derivative supplies the `1E8`: the peak of $\\partial E/\\partial t$ is **5E9** V/(m·s).",
+        "Dropping it: `SHIFT` `CVALUE` `32` `×50=` → **4.427E-10** C/m², the flux density $D$ and not a current."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/19_EM_Wave_Equations_and_Uniform_Plane_Waves.json",
+    "problem": 1,
+    "expect": "A uniform plane wave in air at $100$ MHz has an electric field amplitude",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3E8÷1E8=` → $\\lambda$ = **3** m; `2\\pi÷Ans=` → $\\beta$ = **2.094** rad/m.",
+        "`10÷` `SHIFT` `CVALUE` `37` `=` → $H_0$ = **0.0265** A/m = **26.5** mA/m, with code `37` = $Z_0$.",
+        "Direction: $\\mathbf{a}_z\\times\\mathbf{a}_x=\\mathbf{a}_y$, so $\\mathbf{H}$ is along $+\\mathbf{a}_y$ at **26.5** mA/m."
+      ],
+      "note": "`SHIFT` `CVALUE` `28` is the exact $c_0=2.9979\\times10^{8}$ m/s; $Z_0$ = 376.73 ohm against the 377 shorthand."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/19_EM_Wave_Equations_and_Uniform_Plane_Waves.json",
+    "problem": 2,
+    "expect": "propagates in a lossless dielectric with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3E8÷√(4×1)=` → $v_p$ = **1.5E8** m/s; `÷1E8=` → $\\lambda$ = **1.5** m.",
+        "`377÷√4=` → $\\eta$ = **188.5** ohm, exactly $\\eta_0/2$.",
+        "The square root is the whole point: `377÷4=` → **94.25** ohm is the trap answer."
+      ],
+      "note": "`SHIFT` `CVALUE` `37` returns the exact 376.73 ohm, giving 188.4 ohm."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/20_Waves_in_Lossy_Media_and_Skin_Depth.json",
+    "problem": 1,
+    "expect": "Find the skin depth and the attenuation constant of copper at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5.8E7÷(2\\pi×1E6×` `SHIFT` `CVALUE` `32` `)=` → $\\tan\\delta$ = **1.04E12**, far above 1, so the conductor branch applies.",
+        "`1÷√(\\pi×1E6×` `SHIFT` `CVALUE` `33` `×5.8E7)=` → $\\delta$ = **6.609E-5** m = **66.1** um.",
+        "`1÷Ans=` → $\\alpha$ = **1.513E4** Np/m, identical to $\\sqrt{\\pi f\\mu\\sigma}$."
+      ],
+      "note": "Codes `32` and `33` are $\\varepsilon_0$ and $\\mu_0$; treating $\\mu_r=1$ as $\\mu=1$ H/m gives 74 nm instead of 66 um."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/20_Waves_in_Lossy_Media_and_Skin_Depth.json",
+    "problem": 2,
+    "expect": "Classify it by loss tangent",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E-4÷(2\\pi×1E8×2.25×` `SHIFT` `CVALUE` `32` `)=` → $\\tan\\delta$ = **0.0160**, a low-loss dielectric.",
+        "Low-loss branch: `(2E-4÷2)×√(` `SHIFT` `CVALUE` `33` `÷(2.25×` `SHIFT` `CVALUE` `32` `))=` → $\\alpha$ = **2.512E-2** Np/m.",
+        "The conductor shortcut `√(\\pi×1E8×` `SHIFT` `CVALUE` `33` `×2E-4)=` → **0.281** Np/m, 11 times too large."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/20_Waves_in_Lossy_Media_and_Skin_Depth.json",
+    "problem": 3,
+    "expect": "A 1 MHz wave penetrates copper",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Three skin depths is $\\alpha z$ = **3.000** Np by definition, since $\\alpha=1/\\delta$.",
+        "`3×8.686=` → **26.06** dB.",
+        "`SHIFT` `ln` `(-)3=` → **0.0498**, so **4.98 %** of the surface amplitude remains."
+      ],
+      "note": "One neper is $20\\log_{10}e=8.686$ dB for an amplitude; the 4.343 dB/Np figure gives 13 dB."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/20_Waves_in_Lossy_Media_and_Skin_Depth.json",
+    "problem": 4,
+    "expect": "Find the surface resistance and the complex intrinsic impedance of copper at",
+    "calc": {
+      "mode": "CPLX",
+      "steps": [
+        "`1÷√(\\pi×1E8×` `SHIFT` `CVALUE` `33` `×5.8E7)=` → $\\delta$ = **6.609E-6** m = **6.61** um, with code `33` = $\\mu_0$.",
+        "`1÷(5.8E7×Ans)=` → $R_s$ = **2.609E-3** ohm per square.",
+        "Enter `(1+i)×2.609E-3` then `Apps` `▶r∠θ` → **3.690E-3** ohm at **45°**."
+      ],
+      "note": "From 1 MHz to 100 MHz $\\delta$ shrinks 10x but $R_s$ grows only $\\sqrt{100}=10$; the 45° phase is fixed by $(1+j)$."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/21_Reflection_and_Transmission_at_Boundaries.json",
+    "problem": 1,
+    "expect": "strikes a lossless dielectric with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `37` `÷√4=` → $\\eta_2$ = **188.4** ohm, or 188.5 on the exam shorthand of 377.",
+        "`(Ans−` `SHIFT` `CVALUE` `37` `)÷(Ans+` `SHIFT` `CVALUE` `37` `)=` → $\\Gamma$ = **-0.3333**.",
+        "`(1−Ans)÷(1+Ans)=` → $s$ = **2.00**; the power split is $\\lvert\\Gamma\\rvert^2$ = **11.1 %** reflected, **88.9 %** transmitted."
+      ],
+      "note": "$\\lvert\\tau\\rvert^2=4/9$ is not the transmitted power; the two fractions must add to 1."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/21_Reflection_and_Transmission_at_Boundaries.json",
+    "problem": 2,
+    "expect": "Find the Brewster angle for light in air",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `\\tan⁻¹(1.5)=` → $\\theta_B$ = **56.31°**; `SHIFT` `\\sin⁻¹(\\sin(Ans)÷1.5)=` → $\\theta_t$ = **33.69°**.",
+        "`56.31+33.69=` → **90.00°**, the perpendicular-ray condition that defines Brewster incidence.",
+        "`(251.3×\\cos56.31−377×\\cos33.69)÷(251.3×\\cos56.31+377×\\cos33.69)=` → $\\Gamma_\\perp$ = **-0.385**."
+      ],
+      "note": "`arctan(n1/n2)` returns 33.69°, which is the refracted angle, not the Brewster angle."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/21_Reflection_and_Transmission_at_Boundaries.json",
+    "problem": 3,
+    "expect": "Find the critical angle for total internal reflection",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `\\sin⁻¹(1÷1.5)=` → $\\theta_c$ = **41.81°** from the glass side.",
+        "`SHIFT` `\\sin⁻¹(1.5)=` → **Math ERROR**, because $\\sin\\theta_t>1$ has no real solution.",
+        "That error is the answer for the reverse direction: it fails at every one of the 0-90° incidences, so no critical angle exists."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/21_Reflection_and_Transmission_at_Boundaries.json",
+    "problem": 4,
+    "expect": "A 3 GHz wave in air must cross into a dielectric half-space",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(377×188.5)=` → $\\eta_s$ = **266.6** ohm; `(377÷Ans)²=` → $\\varepsilon_{rs}$ = **2.00**.",
+        "`3E8÷3E9÷√2÷4=` → $d$ = **0.01768** m = **17.7** mm.",
+        "$\\lambda_s$ = **0.07071** m inside the layer, against $\\lambda_0$ = **0.1** m in air."
+      ],
+      "note": "Codes `28` and `37` hold the exact $c_0$ and $Z_0$; the $\\lambda_0/4=25$ mm thickness is the trap."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/21_Reflection_and_Transmission_at_Boundaries.json",
+    "problem": 5,
+    "expect": "A wave in air is incident on glass",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `\\sin⁻¹(\\sin30÷1.5)=` → $\\theta_t$ = **19.47°**; `\\cos(Ans)` `SHIFT` `STO` `B` → **0.9428**, `\\cos30` `SHIFT` `STO` `A` → **0.8660**.",
+        "`(251.3×A−377×B)÷(251.3×A+377×B)=` → $\\Gamma_\\perp$ = **-0.2405**; `(1−Ans)÷(1+Ans)=` → SWR = **1.63**.",
+        "`(251.3×B−377×A)÷(251.3×B+377×A)=` → $\\Gamma_\\parallel$ = **-0.1590**; SWR = **1.38**."
+      ],
+      "note": "Storing $\\cos\\theta_i$ in `A` and $\\cos\\theta_t$ in `B` makes the parallel case a one-key cosine swap."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/22_Intrinsic_Impedance_and_Poynting_Vector.json",
+    "problem": 1,
+    "expect": "A uniform plane wave in air has an electric field amplitude of $100$ V/m",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100÷` `SHIFT` `CVALUE` `37` `=` → $H_0$ = **0.2654** A/m = **265** mA/m, with code `37` = $Z_0$.",
+        "`100²÷(2×` `SHIFT` `CVALUE` `37` `)=` → $\\langle S\\rangle$ = **13.27** W/m².",
+        "Product check: `100×0.2654÷2=` → **13.27** W/m², agreeing."
+      ],
+      "note": "$Z_0$ is 376.73 ohm; the 377 shorthand gives 13.26 W/m², and dropping the half gives 26.5 W/m²."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/22_Intrinsic_Impedance_and_Poynting_Vector.json",
+    "problem": 3,
+    "expect": "Find the radiation pressure this wave exerts",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`13.26÷` `SHIFT` `CVALUE` `28` `=` → $p$ = **4.42E-8** Pa = **44.2** nPa on the absorber, with code `28` = $c_0$.",
+        "`×0.5=` → $F$ = **2.21E-8** N on the 0.5 m² panel.",
+        "Perfect reflector: `13.26÷3E8×2=` → **8.84E-8** Pa = **88.4** nPa, exactly double."
+      ],
+      "note": "The factor 2 is for reversed momentum; applying it to a black surface is the doubling trap."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/05_Electromagnetics/22_Intrinsic_Impedance_and_Poynting_Vector.json",
+    "problem": 4,
+    "expect": "travels in a lossless dielectric with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`377÷√2.25=` → $\\eta$ = **251.3** ohm, the $\\eta_0/\\sqrt{\\varepsilon_r}$ form.",
+        "`100÷Ans=` → $H_0$ = **0.3979** A/m, up from **0.2653** A/m in air.",
+        "`10000÷(2×Ans)=` → $\\langle S\\rangle$ = **19.89** W/m², against **13.26** W/m² for the same $E_0$ in air."
+      ],
+      "note": "$377\\varepsilon_r=848$ ohm is the trap, and it predicts less power: $\\eta$ falls, so $H_0$ rises."
+    }
+  }
+]

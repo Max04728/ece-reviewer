@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skin Depth versus Frequency</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, si, PALETTE } from '../../../Assets/vault.js';
+
+// Skin depth answers one exam question repeatedly: how deep does the current actually
+// go, and what does that do to the resistance? Because delta falls as 1/sqrt(f), the
+// answer changes enormously across the spectrum, and the AC resistance ratio is what
+// the board actually asks for. Plotting on log-log axes makes the -1/2 slope -- and
+// therefore the "quadruple f to halve delta" rule -- impossible to miss.
+
+const MU0 = 4 * Math.PI * 1e-7;
+const EPS0 = 8.854e-12;
+
+// Real conductivities (S/m). mu_r = 1 for all of these: copper, aluminium, brass and
+// seawater are all non-magnetic, so mu = mu_0 and the whole difference is sigma.
+const MATS = {
+  copper: { sigma: 5.8e7, er: 1, color: '#fab387', note: 'annealed copper, the IACS reference' },
+  aluminium: { sigma: 3.54e7, er: 1, color: '#89b4fa', note: 'about 61 % of copper' },
+  brass: { sigma: 1.5e7, er: 1, color: '#a6e3a1', note: '70/30 cartridge brass, ~26 % of copper' },
+  silver: { sigma: 6.17e7, er: 1, color: '#cba6f7', note: 'the best conductor, 6 % better than copper' },
+  seawater: { sigma: 4.0, er: 81, color: '#f38ba8', note: 'typical seawater: salty, and a conductor at RF' },
+};
+
+/** log10 of the skin depth, used for the log-log axis. */
+function logDelta(logF, sigma) {
+  const f = Math.pow(10, logF);
+  return Math.log10(1 / Math.sqrt(Math.PI * f * MU0 * sigma));
+}
+
+function lenLabel(e) {
+  if (e === 3) return '1 km';
+  if (e === 0) return '1 m';
+  if (e === -3) return '1 mm';
+  if (e === -6) return '1 \u00b5m';
+  if (e === -9) return '1 nm';
+  return '10^' + e + ' m';
+}
+
+function freqLabel(e) {
+  if (e === 0) return '1 Hz';
+  if (e === 3) return '1 kHz';
+  if (e === 6) return '1 MHz';
+  if (e === 9) return '1 GHz';
+  return '10^' + e;
+}
+
+/**
+ * AC-to-DC resistance ratio of a round wire of radius a.
+ * Standard engineering approximation: series 1 + x^4/48 below x = 1.7, asymptotic
+ * x/2 + 1/4 + 3/(32x) above it (x = a/delta). Good to a few percent.
+ */
+function acRatio(x) {
+  if (x < 1.7) return 1 + Math.pow(x, 4) / 48;
+  return x / 2 + 0.25 + 3 / (32 * x);
+}
+
+let handle = null, formulaEl = null, noteEl = null;
+
+handle = widget({
+  title: 'Skin Depth versus Frequency',
+  description:
+    'Delta = 1/sqrt(pi f mu sigma). Log-log axes make the -1/2 slope obvious: to halve the skin depth you must quadruple the frequency. The horizontal line is the conductor radius \u2014 above it the interior stops carrying current.',
+  height: 470,
+  range: { xMin: 0, xMax: 10, yMin: -7, yMax: 3.2 },
+  controls: [
+    { id: 'mat', label: 'material', type: 'select', options: Object.keys(MATS).map((k) => ({ value: k, label: k + '  (\u03c3 = ' + fmt(MATS[k].sigma, 3) + ' S/m)' })), value: 'copper' },
+    { id: 'lf', label: 'frequency \u2014 log\u2081\u2080 f (Hz)', min: 0, max: 10, step: 0.02, value: 6 },
+    { id: 'a', label: 'conductor radius a (mm)', min: 0.05, max: 10, step: 0.05, value: 1 },
+    { id: 'showAll', label: 'show all materials', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const M = MATS[v.mat];
+    const sigma = M.sigma;
+    const f = Math.pow(10, v.lf);
+    const aM = v.a * 1e-3;
+
+    const delta = 1 / Math.sqrt(Math.PI * f * MU0 * sigma);
+    const alpha = 1 / delta;
+    const beta = alpha;
+    const Rs = 1 / (sigma * delta);
+    const x = aM / delta;
+    const ratio = acRatio(x);
+    const RdcPerM = 1 / (sigma * Math.PI * aM * aM);   // ohm per metre of wire
+    const RacPerM = RdcPerM * ratio;
+
+    const tanD = sigma / (2 * Math.PI * f * EPS0 * M.er);
+    const vp = 2 * Math.PI * f * delta;
+    const lambda = 2 * Math.PI * delta;
+    const fc = 1 / (Math.PI * MU0 * sigma * aM * aM);   // delta = a
+
+    const regime = tanD > 10 ? 'good conductor (tan\u03b4 \u226b 1)'
+      : tanD < 0.1 ? 'good dielectric (tan\u03b4 \u226a 1) \u2014 the shortcut does NOT apply'
+      : 'quasi-conductor \u2014 use the exact \u03b1, \u03b2 formulas';
+
+    return { v, M, sigma, f, aM, delta, alpha, beta, Rs, x, ratio, RdcPerM, RacPerM, tanD, vp, lambda, fc, regime, logDelta: Math.log10(delta) };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: 0, xMax: 10, yMin: -7, yMax: 3.2 });
+    plot.clear();
+
+    // ---- decade grid, hand-drawn because both axes are logarithmic -----------
+    for (let e = 0; e <= 10; e++) {
+      plot.segment(e, -7, e, 3.2, { color: e % 3 === 0 ? PALETTE.grid : 'rgba(58,58,82,0.55)', width: 1 });
+      if (e % 2 === 0) {
+        plot.text(freqLabel(e), plot.X(e), plot.Y(-7) + 16, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+      }
+    }
+    for (let e = -7; e <= 3; e++) {
+      plot.segment(0, e, 10, e, { color: PALETTE.grid, width: 1 });
+      plot.text(lenLabel(e), plot.pad - 6, plot.Y(e) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+
+    // ---- the "interior is unused" region: delta < a --------------------------
+    const logA = Math.log10(out.aM);
+    if (logA > -7) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(243,139,168,0.10)';
+      ctx.fillRect(plot.X(0), plot.Y(logA), plot.X(10) - plot.X(0), plot.Y(-7) - plot.Y(logA));
+      ctx.restore();
+      plot.segment(0, logA, 10, logA, { color: PALETTE.accent2, width: 1.6, dash: [6, 4] });
+      plot.text('a = ' + fmt(v.a, 3) + ' mm  \u2014 below this line \u03b4 < a: current rides only in the surface layer',
+        plot.X(0) + 8, plot.Y(logA) - 7, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    }
+
+    // ---- one curve per material ---------------------------------------------
+    const keys = Object.keys(MATS);
+    const order = v.showAll ? keys.filter((k) => k !== v.mat).concat([v.mat]) : [v.mat];
+    for (const k of order) {
+      const sel = k === v.mat;
+      plot.fn((lf) => logDelta(lf, MATS[k].sigma), 0, 10, {
+        color: MATS[k].color,
+        width: sel ? 3.4 : 1.5,
+        dash: sel ? null : [5, 4],
+        samples: 240,
+      });
+    }
+
+    // ---- the chosen operating point ------------------------------------------
+    plot.segment(v.lf, -7, v.lf, 3.2, { color: 'rgba(249,226,175,0.75)', width: 1.6, dash: [4, 4] });
+    plot.dot(v.lf, out.logDelta, { color: PALETTE.warn, r: 6 });
+
+    // ---- legend + headline numbers -------------------------------------------
+    let ly = plot.pad + 20;
+    plot.text('skin depth \u03b4 (m)', plot.pad + 4, plot.pad - 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    ctx.save();
+    ctx.font = '11px ui-monospace, monospace';
+    for (const k of keys) {
+      const st = k === v.mat;
+      ctx.fillStyle = MATS[k].color;
+      ctx.fillRect(plot.w - plot.pad - 250, ly - 8, 16, 4);
+      ctx.fillStyle = st ? PALETTE.text : PALETTE.dim;
+      ctx.fillText(k + '  \u03c3 = ' + fmt(MATS[k].sigma, 3) + ' S/m', plot.w - plot.pad - 228, ly);
+      ly += 16;
+    }
+    ctx.restore();
+
+    const fTxt = out.f >= 1e6 ? fmt(out.f / 1e6, 4) + ' MHz' : out.f >= 1e3 ? fmt(out.f / 1e3, 4) + ' kHz' : fmt(out.f, 4) + ' Hz';
+    const by = plot.Y(-5.9);
+    plot.text(v.mat + ' at f = ' + fTxt, plot.pad + 8, by, { color: PALETTE.text, font: '13px system-ui, sans-serif' });
+    plot.text('\u03b4 = ' + si(out.delta, 'm') + '   (' + fmt(out.delta, 4) + ' m)      \u03b1 = \u03b2 = 1/\u03b4 = ' + si(out.alpha, 'Np/m'),
+      plot.pad + 8, by + 20, { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+    if (out.delta < out.aM) {
+      plot.text('a/\u03b4 = ' + fmt(out.x, 4) + '  \u2192  R_ac/R_dc \u2248 ' + fmt(out.ratio, 4) + '   (the interior is no longer used)',
+        plot.pad + 8, by + 40, { color: PALETTE.accent2, font: '12px ui-monospace, monospace' });
+    } else {
+      plot.text('a/\u03b4 = ' + fmt(out.x, 4) + '  \u2192  R_ac/R_dc \u2248 ' + fmt(out.ratio, 4) + '   (current still uses the whole cross-section)',
+        plot.pad + 8, by + 40, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+    }
+  },
+  readout: (out) => ({
+    'frequency f': si(out.f, 'Hz', 5),
+    'skin depth \u03b4': si(out.delta, 'm') + '  (' + fmt(out.delta, 4) + ' m)',
+    'attenuation \u03b1 = 1/\u03b4': si(out.alpha, 'Np/m') + '   (8.686\u00b7\u03b1 = ' + si(8.686 * out.alpha, 'dB/m') + ')',
+    'amplitude remaining at 1\u03b4 / 2\u03b4 / 5\u03b4': '36.8 % / 13.5 % / 0.67 %',
+    'surface resistance R_s': si(out.Rs, '\u03a9') + ' per square',
+    'radius a': fmt(out.v.a, 3) + ' mm',
+    'a / \u03b4': fmt(out.x, 4),
+    'R_ac / R_dc (round wire)': fmt(out.ratio, 4) + '\u00d7  [' + si(out.RdcPerM * 1e3, '\u03a9/km') + ' \u2192 ' + si(out.RacPerM * 1e3, '\u03a9/km') + ']',
+    'onset frequency (\u03b4 = a)': si(out.fc, 'Hz', 5),
+    'phase velocity inside the metal': si(out.vp, 'm/s', 4) + '   (= 2\u03c0f\u03b4, NOT c)',
+    'wavelength inside the metal': si(out.lambda, 'm') + '   (= 2\u03c0\u03b4, NOT \u03b4)',
+    'loss tangent \u03c3/(\u03c9\u03b5)': fmt(out.tanD, 4),
+    'regime': out.regime,
+  }),
+  onChange: (v) => syncUI(v),
+});
+
+// --- page furniture ---------------------------------------------------------
+function makeFormulaBox() {
+  const d = document.createElement('div');
+  d.style.cssText =
+    'margin-top:14px;padding:10px 12px;background:#27273a;border:1px solid #3a3a52;' +
+    'border-left:3px solid #89b4fa;border-radius:6px;font-family:ui-monospace,Consolas,monospace;' +
+    'font-size:0.86rem;line-height:1.65;white-space:pre-wrap;color:#e4e4f0';
+  document.getElementById('app').appendChild(d);
+  return d;
+}
+
+function syncUI(v) {
+  if (!formulaEl) return;
+  const M = MATS[v.mat];
+  const sigma = M.sigma;
+  const f = Math.pow(10, v.lf);
+  const aM = v.a * 1e-3;
+  const delta = 1 / Math.sqrt(Math.PI * f * MU0 * sigma);
+  const Rs = 1 / (sigma * delta);
+  const x = aM / delta;
+  const tanD = sigma / (2 * Math.PI * f * EPS0 * M.er);
+  const fc = 1 / (Math.PI * MU0 * sigma * aM * aM);
+  const loc = delta >= aM ? 'the current still uses the whole cross-section' : 'the current no longer uses the conductor interior';
+
+  formulaEl.innerHTML = [
+    'SKIN DEPTH \u2014 GOOD-CONDUCTOR RESULT (valid when tan\u03b4 = \u03c3/(\u03c9\u03b5) \u226b 1)',
+    '  \u03b4 = 1 / \u221a(\u03c0 f \u03bc \u03c3) = \u221a(2 / (\u03c9 \u03bc \u03c3))        \u03b1 = \u03b2 = 1/\u03b4 = \u221a(\u03c0 f \u03bc \u03c3)',
+    '  R_s = 1/(\u03c3\u03b4) = \u221a(\u03c0 f \u03bc / \u03c3)          v_p = \u03c9/\u03b2 = 2\u03c0f\u03b4        \u03bb = 2\u03c0\u03b4',
+    '',
+    '  \u03bc = \u03bc\u2080 = 4\u03c0\u00d710\u207b\u2077 = 1.2566\u00d710\u207b\u2076 H/m   (all these materials are non-magnetic)',
+    '  \u03b5\u2080 = 8.854\u00d710\u207b\u00b9\u00b2 F/m',
+    '',
+    'SUBSTITUTED VALUES',
+    '  material  ' + v.mat + ',  \u03c3 = ' + fmt(sigma, 4) + ' S/m,  \u03b5r = ' + fmt(M.er, 4),
+    '  f         ' + fmt(f, 5) + ' Hz',
+    '  \u03c0 f \u03bc \u03c3   = \u03c0(' + fmt(f, 4) + ')(1.2566\u00d710\u207b\u2076)(' + fmt(sigma, 4) + ') = ' + fmt(Math.PI * f * MU0 * sigma, 5),
+    '  \u03b4         = 1/\u221a(' + fmt(Math.PI * f * MU0 * sigma, 5) + ') = ' + fmt(delta, 5) + ' m = ' + si(delta, 'm'),
+    '  \u03b1 = \u03b2     = ' + fmt(1 / delta, 5) + ' Np/m      (8.686\u03b1 = ' + fmt(8.686 / delta, 5) + ' dB/m)',
+    '  R_s       = 1/[(' + fmt(sigma, 4) + ')(' + fmt(delta, 4) + ')] = ' + fmt(Rs, 5) + ' \u03a9 per square',
+    '  tan\u03b4      = \u03c3/(2\u03c0f\u03b5\u2080\u03b5r) = ' + fmt(tanD, 5) + '  \u2192 ' + (tanD > 10 ? 'good conductor, shortcut valid' : tanD < 0.1 ? 'good dielectric, shortcut INVALID' : 'quasi-conductor, use exact \u03b1 and \u03b2'),
+    '',
+    'AC RESISTANCE OF A ROUND WIRE (radius a = ' + fmt(v.a, 4) + ' mm)',
+    '  a/\u03b4 = ' + fmt(x, 5) + '   \u2192   R_ac/R_dc \u2248 ' + fmt(acRatio(x), 5) + (x < 1.7 ? '   [low-frequency form 1 + (a/\u03b4)\u2074/48]' : '   [asymptotic form a/2\u03b4 + 1/4 + 3\u03b4/32a]'),
+    '  onset of skin effect (\u03b4 = a) at f = 1/(\u03c0\u03bc\u03c3a\u00b2) = ' + fmt(fc, 5) + ' Hz',
+    '  \u2192 at this frequency ' + loc + '.',
+  ].join('\n');
+}
+
+// --- initial paint ----------------------------------------------------------
+if (typeof document !== 'undefined' && handle) {
+  formulaEl = makeFormulaBox();
+  noteEl = document.createElement('div');
+  noteEl.className = 'vault-widget-note';
+  noteEl.innerHTML =
+    '<strong>Depth, not wavelength.</strong> \u03b4 is measured INWARD FROM THE SURFACE \u2014 it is the depth at ' +
+    'which the wave amplitude has fallen to 1/e = 36.8 % of its surface value. It is not a wavelength and it is not ' +
+    'a radius. At 2\u03b4 only 13.5 % remains and at 5\u03b4 just 0.67 %, which is why the current crowds into a thin ' +
+    'shell and why a thick wire stops helping. The wavelength inside a conductor is \u03bb = 2\u03c0\u03b4 \u2014 6.28 times ' +
+    'the skin depth, so the two are easily confused; at 1 MHz in copper \u03b4 = 66.1 \u00b5m but \u03bb = 415 \u00b5m. ' +
+    'Because \u03b4 \u221d 1/\u221af, halving \u03b4 requires QUADRUPLING the frequency \u2014 that is the whole reason the ' +
+    'log-log line is straight with slope \u2212\u00bd. Copper at 1 MHz gives \u03b4 = 66.1 \u00b5m and R_s = 0.261 m\u03a9 ' +
+    'per square, rising to 6.61 \u00b5m and 2.61 m\u03a9 at 100 MHz. ' +
+    '<strong>The mistake this prevents:</strong> using \u03b4 = 1/\u221a(\u03c0f\u03bc\u03c3) outside the good-conductor ' +
+    'regime \u2014 for seawater the loss tangent must be checked, and above the visible range seawater stops being a ' +
+    'conductor; and quoting the phase velocity as 1/\u221a(\u03bc\u03b5) = c inside metal, when the real value is ' +
+    '\u03c9/\u03b2 = 2\u03c0f\u03b4 (415 m/s in copper at 1 MHz, six orders of magnitude below c). Also: the AC ' +
+    'resistance ratio a/2\u03b4 is dimensionless and only valid once \u03b4 is comfortably smaller than the radius.';
+  document.getElementById('app').appendChild(noteEl);
+  syncUI(handle.state.values);
+}
+</script>
+</body>
+</html>

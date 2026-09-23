@@ -1,0 +1,111 @@
+{
+  "scope": "Solve homogeneous first-order ODEs of the form dy/dx = f(y/x) with the substitution y = vx, and handle equations reducible to separable form by u = ax + by + c.",
+  "intuition": "A homogeneous equation depends on x and y only through their ratio, so the ratio itself is the natural variable. Switching to v = y/x turns a two-variable slope condition into a separable equation in v and x.",
+  "concept": [
+    "**Recognising a homogeneous equation.** The equation $M\\,dx+N\\,dy=0$ is homogeneous when $M$ and $N$ are homogeneous of the *same* degree $n$: $M(tx,ty)=t^{n}M(x,y)$ and $N(tx,ty)=t^{n}N(x,y)$. Dividing by $x^{n}$ then leaves a right-hand side that depends only on $y/x$, so the equation can be written: $\\frac{dy}{dx}=f\\!\\left(\\frac{y}{x}\\right)$. Equivalently, every term must have the same total degree in $x$ and $y$ — $x^2+y^2$ and $xy$ both have degree 2, so $\\frac{dy}{dx}=\\frac{x^2+y^2}{2xy}$ is homogeneous.",
+    "**The substitution and the derivative that goes with it.** Put $y=vx$, so $v=y/x$ is the new unknown. Differentiating the product gives $\\frac{dy}{dx}=v+x\\frac{dv}{dx}$. Substituting into $\\frac{dy}{dx}=f(v)$ gives $x\\frac{dv}{dx}=f(v)-v$, which is **separable** in $v$ and $x$: $\\frac{dv}{f(v)-v}=\\frac{dx}{x}$. This is the whole method — homogeneity guarantees that $x$ cancels out of the right-hand side, leaving the two variables separated.",
+    "**Why the x must cancel.** If the substitution leaves an $x$ behind in $f(v)-v$, the equation was not homogeneous. That is the self-check: after substituting, every $x$ must disappear from the $v$-side. When it does not, either the equation needs a different substitution or it is linear and belongs in [[02_Linear_First_Order_and_Bernoulli]].",
+    "**After integrating, go back to y.** The integral gives a relation in $v$ and $x$; the answer is only finished when $v$ is replaced by $y/x$. Forgetting the back-substitution is the classic way to lose all the marks on an otherwise perfect solution.",
+    "**Zeros of $f(v)-v$ give singular solutions.** Values $v=c$ with $f(c)=c$ make $x\\frac{dv}{dx}=0$, so $y=cx$ is a solution that the separated form divides away. These straight lines through the origin are usually present in the final implicit answer only for particular values of $C$.",
+    "**The other reduction: $\\frac{dy}{dx}=f(ax+by+c)$.** When $x$ and $y$ appear only in the single combination $ax+by+c$, put $u=ax+by+c$. Then $\\frac{du}{dx}=a+b\\,f(u)$, which is separable. Note this is a *different* substitution from $v=y/x$: the equation $\\frac{dy}{dx}=x+y+1$ is not homogeneous (the degrees 1, 1 and 0 do not match), and $v=y/x$ would fail on it while $u=x+y+1$ succeeds immediately.",
+    "**Domain and sign.** The integral of the $v$-side often produces $\\ln\\lvert x\\rvert$, so the solution is quoted on $x>0$ or $x<0$ separately, and any square roots that appear (as in $\\sqrt{1+v^{2}}$) fix the sign of the constant. State the interval; an implicit relation that silently assumes $x>0$ is incomplete."
+  ],
+  "formulas": [
+    { "q": "Homogeneous form", "e": "\\frac{dy}{dx}=f\\!\\left(\\frac{y}{x}\\right)", "n": "The slope depends on x and y only through their ratio y/x." },
+    { "q": "Degree test", "e": "M(tx,ty)=t^{n}M(x,y),\\quad N(tx,ty)=t^{n}N(x,y)", "n": "Both M and N must be homogeneous of the SAME degree n." },
+    { "q": "Substitution", "e": "y=vx,\\qquad \\frac{dy}{dx}=v+x\\frac{dv}{dx}", "n": "The product rule supplies the v term; dropping it is the most common error in this topic." },
+    { "q": "Reduced separable equation", "e": "x\\frac{dv}{dx}=f(v)-v", "n": "Every x must cancel here. A surviving x means the equation was not homogeneous." },
+    { "q": "Separated form", "e": "\\int\\frac{dv}{f(v)-v}=\\int\\frac{dx}{x}=\\ln\\lvert x\\rvert+C", "n": "Then replace v by y/x. Quote the interval on one side of x = 0." },
+    { "q": "Singular straight lines", "e": "f(c)=c\\ \\Rightarrow\\ y=cx", "n": "Lost when dividing by f(v) - v; list them separately." },
+    { "q": "Shift substitution", "e": "u=ax+by+c\\ \\Rightarrow\\ \\frac{du}{dx}=a+b\\,f(u)", "n": "For dy/dx = f(ax + by + c). Not the same as v = y/x." },
+    { "q": "Worked pattern", "e": "\\frac{dy}{dx}=\\frac{x^{2}+y^{2}}{2xy}\\ \\Rightarrow\\ x^{2}-y^{2}=Cx", "n": "Standard homogeneous example: the solution family is a set of hyperbolas through the origin." }
+  ],
+  "problems": [
+    {
+      "prompt": "Solve $(x^2+y^2)\\,dx-2xy\\,dy=0$.",
+      "give": ["M = x^2 + y^2", "N = -2xy"],
+      "steps": [
+        "Both M and N have degree 2, so the equation is homogeneous",
+        "Write $\\dfrac{dy}{dx}=\\dfrac{x^{2}+y^{2}}{2xy}$ and set $y=vx$, $\\dfrac{dy}{dx}=v+x\\dfrac{dv}{dx}$",
+        "$v+xv'=\\dfrac{1+v^{2}}{2v}$, so $xv'=\\dfrac{1+v^{2}-2v^{2}}{2v}=\\dfrac{1-v^{2}}{2v}$",
+        "Separate: $\\dfrac{2v}{1-v^{2}}\\,dv=\\dfrac{dx}{x}$",
+        "$-\\ln\\lvert 1-v^{2}\\rvert=\\ln\\lvert x\\rvert+C$, so $x(1-v^{2})=K$",
+        "Back-substitute $v=y/x$: $x\\left(1-\\dfrac{y^{2}}{x^{2}}\\right)=K$, i.e. $x^{2}-y^{2}=Kx$",
+        "Also $v=\\pm1$ gives the singular solutions $y=\\pm x$ (the case $K=0$)"
+      ],
+      "ans": "$x^{2}-y^{2}=Cx$, together with the singular lines $y=\\pm x$.",
+      "trap": "Writing $\\frac{dy}{dx}=x\\frac{dv}{dx}$ and dropping the $v$. That omits the linear term and produces an equation in $v$ that no longer matches the original; the check is that $x$ must cancel completely from $f(v)-v$."
+    },
+    {
+      "prompt": "Solve $\\dfrac{dy}{dx}=\\dfrac{x+y}{x-y}$.",
+      "give": ["numerator and denominator both degree 1", "homogeneous"],
+      "steps": [
+        "Divide numerator and denominator by $x$: $\\dfrac{dy}{dx}=\\dfrac{1+v}{1-v}$ with $v=y/x$",
+        "$v+xv'=\\dfrac{1+v}{1-v}$, so $xv'=\\dfrac{1+v}{1-v}-v=\\dfrac{1+v-v+v^{2}}{1-v}=\\dfrac{1+v^{2}}{1-v}$",
+        "Separate: $\\dfrac{1-v}{1+v^{2}}\\,dv=\\dfrac{dx}{x}$",
+        "$\\displaystyle\\int\\dfrac{dv}{1+v^{2}}-\\int\\dfrac{v\\,dv}{1+v^{2}}=\\arctan v-\\tfrac12\\ln(1+v^{2})=\\ln\\lvert x\\rvert+C$",
+        "Since $\\ln\\lvert x\\rvert+\\tfrac12\\ln(1+v^{2})=\\tfrac12\\ln(x^{2}+y^{2})$, the relation simplifies",
+        "Back-substitute $v=y/x$"
+      ],
+      "ans": "$\\arctan\\!\\left(\\dfrac{y}{x}\\right)=\\tfrac12\\ln(x^{2}+y^{2})+C$ (implicit).",
+      "trap": "Integrating $\\frac{1-v}{1+v^{2}}$ as a single log. It splits into $\\frac{1}{1+v^{2}}-\\frac{v}{1+v^{2}}$, whose integrals are $\\arctan v$ and $-\\frac12\\ln(1+v^{2})$ — an inverse-tangent term that cannot be dropped."
+    },
+    {
+      "prompt": "Solve $\\left(y+\\sqrt{x^{2}+y^{2}}\\right)dx-x\\,dy=0$ for $x>0$.",
+      "give": ["M = y + sqrt(x^2+y^2)", "N = -x"],
+      "steps": [
+        "Solve for the slope: $\\dfrac{dy}{dx}=\\dfrac{y+\\sqrt{x^{2}+y^{2}}}{x}$",
+        "Divide by $x$: with $v=y/x$ this is $\\dfrac{dy}{dx}=v+\\sqrt{1+v^{2}}$",
+        "$v+xv'=v+\\sqrt{1+v^{2}}$, so $xv'=\\sqrt{1+v^{2}}$ — the $v$ cancels, confirming homogeneity",
+        "$\\dfrac{dv}{\\sqrt{1+v^{2}}}=\\dfrac{dx}{x}$, and $\\displaystyle\\int\\dfrac{dv}{\\sqrt{1+v^{2}}}=\\ln\\!\\left(v+\\sqrt{1+v^{2}}\\right)$",
+        "$\\ln\\!\\left(v+\\sqrt{1+v^{2}}\\right)=\\ln x+C$, so $v+\\sqrt{1+v^{2}}=Cx$",
+        "Back-substitute $v=y/x$ and multiply by $x>0$"
+      ],
+      "ans": "$y+\\sqrt{x^{2}+y^{2}}=Cx^{2}$.",
+      "trap": "Using $\\int\\frac{dv}{\\sqrt{1+v^{2}}}=\\arcsin v$. It is $\\operatorname{arsinh}v=\\ln\\left(v+\\sqrt{1+v^{2}}\\right)$; arcsin belongs with $\\sqrt{1-v^{2}}$, and the two are not interchangeable."
+    },
+    {
+      "prompt": "Solve $\\dfrac{dy}{dx}=x+y+1$.",
+      "give": ["x and y appear only as x + y + 1"],
+      "steps": [
+        "The degrees do not match, so this is NOT homogeneous; use the shift $u=x+y+1$",
+        "$\\dfrac{du}{dx}=1+\\dfrac{dy}{dx}=1+u$",
+        "Separate: $\\dfrac{du}{1+u}=dx$",
+        "$\\ln\\lvert 1+u\\rvert=x+C$, so $1+u=Ce^{x}$",
+        "Since $u=x+y+1$: $x+y+2=Ce^{x}$, so $y=Ce^{x}-x-2$",
+        "Check: $y'=Ce^{x}-1$ and $x+y+1=x+Ce^{x}-x-2+1=Ce^{x}-1$"
+      ],
+      "ans": "$y=Ce^{x}-x-2$.",
+      "trap": "Applying $v=y/x$ because the equation 'looks like a differential equation about x and y'. After $v=y/x$ the reduced equation is $xv'=1+v+1/x$, which still contains $x$ — the tell that homogeneity was never there. $\\frac{dy}{dx}=x+y+1$ is linear, and the shift $u=x+y+1$ is the fast route."
+    },
+    {
+      "prompt": "Solve $\\dfrac{dy}{dx}=(x+y)^{2}$.",
+      "give": ["right-hand side depends only on x + y"],
+      "steps": [
+        "Put $u=x+y$, so $\\dfrac{du}{dx}=1+\\dfrac{dy}{dx}=1+u^{2}$",
+        "Separate: $\\dfrac{du}{1+u^{2}}=dx$",
+        "$\\arctan u=x+C$, so $u=\\tan(x+C)$",
+        "Since $u=x+y$: $x+y=\\tan(x+C)$",
+        "Check: $y'=\\sec^{2}(x+C)-1=\\tan^{2}(x+C)=(x+y)^{2}$"
+      ],
+      "ans": "$y=\\tan(x+C)-x$, defined on intervals not containing $x=-C\\pm\\dfrac{\\pi}{2}$.",
+      "trap": "Expanding $(x+y)^{2}=x^{2}+2xy+y^{2}$ and treating the equation as homogeneous of degree 2. A homogeneous right-hand side must be degree **zero** in the ratio sense — here the term $(x+y)^{2}$ has degree 2 and the left side has degree 0, so the shift substitution is the right tool."
+    }
+  ],
+  "traps": [
+    "**Dropping the $v$ in $\\frac{dy}{dx}=v+x\\frac{dv}{dx}$.** This alone accounts for most wrong answers in the topic; without the $v$ the reduced equation does not match the original at all.",
+    "**Not verifying homogeneity before substituting.** If $f(v)-v$ still contains $x$, the substitution is invalid. Check that $M(tx,ty)=t^{n}M$ and $N(tx,ty)=t^{n}N$ for the *same* $n$ first.",
+    "**Failing to back-substitute $v=y/x$.** An answer in $v$ is an answer to a different problem. Every occurrence of $v$ must become $y/x$ before the solution is finished.",
+    "**Using $v=y/x$ on $\\frac{dy}{dx}=f(ax+by+c)$.** Equations that depend on $x$ and $y$ only through $ax+by+c$ need $u=ax+by+c$; $v=y/x$ leaves an $x$ behind and does not separate.",
+    "**Discarding the singular lines $y=cx$ where $f(c)=c$.** Dividing by $f(v)-v$ removes them, and they are genuine solutions (often the $C=0$ member of the family, but sometimes not).",
+    "**Losing a factor of 2 in the log integral.** $\\int\\frac{2v}{1-v^{2}}dv=-\\ln\\lvert 1-v^{2}\\rvert$, not $-2\\ln\\lvert 1-v^{2}\\rvert$; forgetting the substitution $u=1-v^{2}$ halves or doubles the exponent of the final answer.",
+    "**Quoting an implicit solution with no interval.** The integration produces $\\ln\\lvert x\\rvert$, so the family splits across $x=0$; state the side that contains the data."
+  ],
+  "refs": [
+    "[[01_Separation_of_Variables]]",
+    "[[02_Linear_First_Order_and_Bernoulli]]",
+    "[[03_Exact_Equations_and_Integrating_Factors]]",
+    "[[06_Mixtures_and_Orthogonal_Trajectories]]"
+  ],
+  "prereqs": ["[[01_Separation_of_Variables]]", "[[02_Algebraic_Substitution]]"]
+}

@@ -1,0 +1,171 @@
+---
+id: ECE-06-08
+title: "PWM Techniques"
+part: "02_Electronics_Engineering"
+area: "06_Power_Electronics_and_Systems"
+topic: 8
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[01_Power_Switches_MOSFET,_IGBT,_GTO,_TRIAC]]", "[[04_Buck_Converter]]", "[[07_Inverters_Half-Bridge_and_Full-Bridge]]"]
+tags: ["ece", "electronics_engineering", "power_electronics_and_systems"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 08 — PWM Techniques
+
+> [!abstract] Scope
+> Apply duty-ratio and modulation-index definitions to choppers and sine-triangle inverters, read the harmonic sideband spectrum, and estimate switching loss, gate-drive power, dead-time duty loss and the overmodulation ceiling.
+
+## Core Concept
+
+> [!tip] Intuition
+> PWM replaces a lossy linear pass element with a switch that is always fully on or fully off, and puts the control information in the *timing* of the on-interval. The average over one switching cycle follows the reference; the switching ripple is what the filter removes.
+
+**Duty ratio is the whole idea.** A switch that connects a load to $V_{dc}$ for $t_{on}$ out of every $T_s$ delivers an average of $$V_{o(avg)} = DV_{dc}, \qquad D = \frac{t_{on}}{T_s} = t_{on}f_s.$$ In a DC-DC chopper this is the control law, and an LC filter turns the rectangle into a smooth DC whose ripple is set by $f_s$ and the filter corner. In an inverter the duty is not constant: a full bridge driven by a sine-triangle comparison has $D(t) = \tfrac{1}{2}\left[1 + m_a\sin\omega_m t\right]$, so the switching-cycle average traces the wanted sinusoid. Because the device is either on with almost no voltage across it or off with almost no current through it, the conduction loss is small and the remaining losses are the switching transitions and the gate drive.
+
+**The two modulation indices and the spectrum.** Two independent numbers describe sine-triangle PWM. The **amplitude modulation ratio** $m_a = V_m/V_c$ (peak reference over peak carrier) sets the output amplitude and must stay at or below 1; the **frequency modulation ratio** $m_f = f_c/f_m$ sets where the harmonics land and should be a large odd integer, which makes the output half-wave symmetric and suppresses the even sidebands. The output contains the wanted component at $f_m$ plus harmonic groups centred on $f_c$, $2f_c$, $3f_c$ and so on, with sidebands spaced $f_m$ apart: $f_h = f_c \pm kf_m$. The group amplitudes follow Bessel functions $J_k(m_a\pi/2)$, so they do **not** fall off as $1/k$ - the first sideband pair around $f_c$ is the largest and it sets the filter requirement. In the linear region the control law is $V_{o1,peak} = m_aV_{dc}$ for a full bridge whose load swings between $+V_{dc}$ and $-V_{dc}$ (**convention stated and used throughout this note:** $V_{dc}$ is the whole bus, the carrier peak defines $m_a$, and the load sees $\pm V_{dc}$; a text that takes the half-bridge level instead writes the same law as $m_aV_{dc}/2$, so always check which convention a problem uses before dividing or doubling).
+
+**Single-pulse, multiple-pulse and sinusoidal PWM.** Single-pulse PWM produces one pulse of total width $2d$ per half cycle; its fundamental peak is $(4V_{dc}/\pi)\sin d$ and its odd harmonics are $(4V_{dc}/(n\pi))\sin(nd)$. The $\sin(nd)$ factor is a free notch: at $d = 60^\circ$ (a 120-degree pulse) the third harmonic vanishes because $\sin 180^\circ = 0$, while the fifth survives at $\sin 300^\circ = -0.866$. Multiple-pulse PWM splits each half cycle into $p$ equal pulses, which moves the first significant harmonic group out to $h = 2p \pm 1$ - with $p = 5$ the lowest is the 9th - at the price of a smaller fundamental for the same pulse width. Sinusoidal PWM is the limiting case in which the pulse widths themselves follow the sine: the low-order harmonics collapse and essentially only the fundamental plus the carrier sidebands remain, so the output filter only has to be effective near $f_c$. Overmodulation ($m_a > 1$) breaks the linear law: $V_{o1,peak}$ no longer equals $m_aV_{dc}$ and saturates toward the square-wave limit $4V_{dc}/\pi = 1.273V_{dc}$, so the last 27% of amplitude is bought with a reappearance of the 5th and 7th harmonics that no high-frequency filter can remove.
+
+**Losses, drive and dead time.** Two mechanisms sit on top of conduction loss. Switching loss comes from the finite rise and fall times, during which voltage and current overlap: each transition burns a triangular energy $\tfrac{1}{2}V_{ds}I_o t$, and with one turn-on and one turn-off per switching period, $$P_{sw} = \tfrac{1}{2}V_{ds}I_o(t_r + t_f)f_s.$$ Gate drive then costs $P_g = Q_gV_{gs}f_s$ plus the peak current needed to move $Q_g$ inside the wanted transition time. This produces the central PWM trade: raising $f_s$ shrinks the filter inductors and capacitors and pushes the sidebands further from the wanted band, but $P_{sw}$ and $P_g$ rise in direct proportion to $f_s$. A MOSFET with 50 ns transitions can switch at 100 kHz at full current; an IGBT with 2 us of total transition time cannot, and its 7.5 W of overlap loss at 300 V, 10 A and 20 kHz would already need a heatsink. Dead time is the other tax: without a blanking interval between the two switches of a leg they conduct together and short the bus, and the blanking interval itself produces an output voltage error of about $V_{dc}t_df_s$ (equivalently $V_{dc}t_d/T_s$ per switching instant) that appears as low-order distortion and caps the usable duty at $1 - 2t_df_s$.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Duty ratio | $D = \frac{t_{on}}{T_s} = t_{on}f_s$ | 0 <= D <= 1. Reduced in practice by dead time to D_max = 1 - 2 t_d f_s. |
+| Averaged chopper output | $V_{o(avg)} = DV_{dc}$ | Average of the switched waveform for any load. For a bare resistive load this is the AVERAGE, not the rms: V_rms = V_dc sqrt(D). |
+| Amplitude modulation ratio | $m_a = \frac{V_m}{V_c}$ | Peak reference over peak carrier. Keep m_a <= 1 for linear operation; m_a > 1 is overmodulation and the output no longer follows m_a. |
+| Frequency modulation ratio | $m_f = \frac{f_c}{f_m}$ | Carrier over reference frequency. Choose a large odd integer to suppress even sidebands; m_f sets the harmonic group positions, not the output amplitude. |
+| Linear-region fundamental, sinusoidal PWM | $V_{o1,peak} = m_aV_{dc}, \qquad V_{o1,rms} = \frac{m_aV_{dc}}{\sqrt{2}}$ | Convention: V_dc is the whole bus, the load swings between +V_dc and -V_dc, and m_a is referenced to the carrier peak. Under the half-bus convention the same waveform reads m_a V_dc/2. |
+| Square-wave (overmodulation) ceiling | $V_{o1,peak,max} = \frac{4V_{dc}}{\pi} = 1.273V_{dc}$ | The largest fundamental a two-level output can carry. At m_a = 1 the fundamental peak is only V_dc, so overmodulation can add at most 27%. |
+| Harmonic sideband frequencies | $f_h = f_c \pm kf_m, \quad k = 0, 1, 2, \ldots$ | Groups repeat around 2f_c, 3f_c, ... Choose the output filter corner below the LOWEST sideband, not at f_c alone. |
+| Switching loss per device | $P_{sw} = \tfrac{1}{2}V_{ds}I_o(t_r + t_f)f_s$ | One turn-on plus one turn-off per switching period, each a triangular V-I overlap. Add gate drive P_g = Q_g V_gs f_s. Scale with f_s, not with the output frequency. |
+
+## Interactive Widget
+
+**PWM Duty Cycle Viewer**
+
+![[PWM_Duty_Cycle_Viewer.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. A chopper switches a 48 V bus at $f_s = 10\ \mathrm{kHz}$ with $t_{on} = 40\ \mu\mathrm{s}$. Find the duty ratio, the average output, and then the power in a 12 ohm load both with and without an ideal LC filter.
+
+**Given:** V_dc = 48 V; T_s = 100 us (f_s = 10 kHz); t_on = 40 us; R = 12 ohm
+
+**Solution:**
+
+1. f_s = 1/T_s = 1/100e-6 = 10.0 kHz
+2. D = t_on/T_s = 40/100 = 0.400
+3. Average output: V_o(avg) = D V_dc = 0.400(48) = 19.2 V, so the average load current is I_avg = 19.2/12 = 1.60 A
+4. Unfiltered resistive load: V_rms = V_dc sqrt(D) = 48 sqrt(0.4) = 48(0.6325) = 30.4 V
+5. So P = V_rms^2/R = (30.4)^2/12 = 76.8 W, with I_rms = 30.4/12 = 2.53 A
+6. With an ideal LC filter the load sees a steady 19.2 V, giving I = 1.60 A and P = V I = 30.7 W
+
+> [!success]- Answer
+> **$D = 0.400$, $V_{o(avg)} = 19.2\ \mathrm{V}$ ($I_{avg} = 1.60\ \mathrm{A}$); unfiltered $V_{rms} = 30.4\ \mathrm{V}$ and $P = 76.8\ \mathrm{W}$; filtered $P = 30.7\ \mathrm{W}$.**
+
+> [!warning] Trap
+> Using $V_{o(avg)} = DV_{dc} = 19.2\ \mathrm{V}$ as if it were the rms. For the bare resistive load the rms is $V_{dc}\sqrt{D} = 30.4\ \mathrm{V}$, so the resistor burns 76.8 W - 2.5 times the filtered figure. Average and rms coincide only after the filter.
+
+### P2. A full bridge with $V_{dc} = 200\ \mathrm{V}$ is driven by single-pulse PWM with a 120-degree pulse in each half cycle (total width $2d = 120^\circ$). Find the fundamental peak and rms and the 3rd and 5th harmonic amplitudes.
+
+**Given:** V_dc = 200 V; single-pulse PWM; pulse width 2d = 120 deg per half cycle; f_out = 60 Hz
+
+**Solution:**
+
+1. Half-width d = 120/2 = 60 deg = pi/3 rad
+2. Fundamental peak V_1 = (4 V_dc/pi) sin d = (4 x 200/3.1416) sin 60 deg = 254.6(0.8660) = 220.5 V
+3. V_1,rms = 220.5/sqrt(2) = 155.9 V
+4. 3rd harmonic: V_3 = (4 V_dc/(3 pi)) sin(3d) = (254.6/3) sin 180 deg = 84.9(0) = 0 V, so this pulse width deliberately cancels the 3rd harmonic
+5. 5th harmonic: V_5 = (254.6/5) sin(5 x 60 deg) = 50.9 sin 300 deg = 50.9(-0.8660) = -44.1 V, so its amplitude is 44.1 V peak
+
+> [!success]- Answer
+> **$V_{1,peak} = 220.5\ \mathrm{V}$ ($V_{1,rms} = 155.9\ \mathrm{V}$), $V_3 = 0$, $V_5 = 44.1\ \mathrm{V}$ peak.**
+
+> [!warning] Trap
+> Using the square-wave fundamental $4V_{dc}/\pi = 254.6\ \mathrm{V}$ because the pulse looks 'wide'. The $\sin d$ factor costs 13.4% of the fundamental at $d = 60^\circ$ and is exactly what buys the 3rd-harmonic cancellation, so ignoring it hides the design intent.
+
+### P3. A full bridge with $V_{dc} = 400\ \mathrm{V}$ uses sinusoidal PWM with $m_a = 0.8$, $m_f = 15$ and a 60 Hz reference. Find the carrier frequency, the fundamental peak and rms, and the four lowest sideband harmonics.
+
+**Given:** V_dc = 400 V; m_a = 0.8; m_f = 15; f_m = 60 Hz; whole-bus convention
+
+**Solution:**
+
+1. Carrier frequency f_c = m_f f_m = 15(60) = 900 Hz
+2. Fundamental peak = m_a V_dc = 0.8(400) = 320 V
+3. V_o1,rms = 320/sqrt(2) = 226.3 V
+4. Sidebands at f_c +/- f_m = 900 +/- 60 = 840 Hz and 960 Hz
+5. Sidebands at f_c +/- 2f_m = 900 +/- 120 = 780 Hz and 1020 Hz
+6. m_a = 0.8 <= 1, so the inverter is in the linear region and the lowest harmonic is 780 Hz, thirteen times the wanted 60 Hz
+
+> [!success]- Answer
+> **$f_c = 900\ \mathrm{Hz}$, $V_{o1,peak} = 320\ \mathrm{V}$, $V_{o1,rms} = 226.3\ \mathrm{V}$, sidebands at 780 Hz, 840 Hz, 960 Hz and 1020 Hz.**
+
+> [!warning] Trap
+> Sizing the output filter for 900 Hz and forgetting the $\pm 2f_m$ sidebands. The lowest harmonic sits at $m_f - 2 = 13$ times the fundamental, so a notch at $f_c$ alone leaves the 780 Hz component in the output.
+
+### P4. A design asks for $m_a = 1.4$ on the same 400 V bus, expecting $V_{o1,peak} = 560\ \mathrm{V}$. Check whether that is achievable and state the real limit.
+
+**Given:** V_dc = 400 V; m_a = 1.4; full bridge, two-level output
+
+**Solution:**
+
+1. The linear law would give V_o1,peak = m_a V_dc = 1.4(400) = 560 V
+2. That is impossible: the load is only ever connected to +400 V or -400 V, so no fundamental can exceed the square-wave value 4 V_dc/pi
+3. Ceiling: 4(400)/3.1416 = 509.3 V peak, i.e. 509.3/sqrt(2) = 360.1 V rms
+4. The linear prediction overshoots by (560 - 509.3)/509.3 = 9.96%
+5. The true overmodulated value lies between the m_a = 1 value of 400 V peak and the 509.3 V ceiling, and the 5th (300 Hz) and 7th (420 Hz) harmonics return
+
+> [!success]- Answer
+> **Not achievable: the two-level ceiling is $4V_{dc}/\pi = 509.3\ \mathrm{V}$ peak ($360.1\ \mathrm{V}$ rms), and the real output lies between 400 V and 509.3 V peak with new low-order harmonics.**
+
+> [!warning] Trap
+> Extrapolating $V_{o1,peak} = m_aV_{dc}$ past $m_a = 1$. At $m_a = 1.4$ it promises 560 V from a 400 V bus, which violates the 509.3 V two-level ceiling; the whole 27% of extra range costs 5th and 7th harmonic distortion.
+
+### P5. A MOSFET switches $V_{ds} = 300\ \mathrm{V}$ at $I_o = 10\ \mathrm{A}$ with $t_r = 100\ \mathrm{ns}$ and $t_f = 150\ \mathrm{ns}$ at $f_s = 20\ \mathrm{kHz}$; its gate charge is $Q_g = 60\ \mathrm{nC}$ driven from 12 V, and $R_{DS(on)} = 0.1\ \Omega$ at $D = 0.5$. Find the switching loss, the gate-drive power and the conduction loss.
+
+**Given:** V_ds = 300 V; I_o = 10 A; t_r = 100 ns; t_f = 150 ns; f_s = 20 kHz; Q_g = 60 nC; V_gs = 12 V; R_DS(on) = 0.1 ohm; D = 0.5
+
+**Solution:**
+
+1. Triangular overlap energy per transition: E = 0.5 V_ds I_o t = 0.5(300)(10) t = 1500t joules
+2. Turn-on: E_on = 1500(100e-9) = 150 uJ; turn-off: E_off = 1500(150e-9) = 225 uJ; total 375 uJ per switching period
+3. P_sw = E f_s = 375e-6 x 20e3 = 7.50 W (formula check: 0.5(300)(10)(250e-9)(20e3) = 7.50 W)
+4. Gate drive: P_g = Q_g V_gs f_s = 60e-9(12)(20e3) = 14.4 mW
+5. Conduction: I_rms = I_o sqrt(D) = 10 sqrt(0.5) = 7.07 A, so P_cond = (7.07)^2(0.1) = 5.00 W
+6. Total device loss about 12.5 W, which sets the heatsink requirement
+
+> [!success]- Answer
+> **$P_{sw} = 7.50\ \mathrm{W}$ ($E_{sw} = 375\ \mu\mathrm{J}$ per cycle), $P_g = 14.4\ \mathrm{mW}$, conduction $5.00\ \mathrm{W}$, total about $12.5\ \mathrm{W}$.**
+
+> [!warning] Trap
+> Dropping the factor 1/2 or using the wrong frequency. Without the 1/2 the answer doubles to 15.0 W, and substituting the 60 Hz output frequency for $f_s = 20\ \mathrm{kHz}$ gives 22.5 mW - both mistakes make a thermally impossible design look comfortable.
+
+## Traps & Exam Notes
+
+- **Swapping the two modulation indices.** $m_a = V_m/V_c$ is dimensionless and must satisfy $m_a \le 1$ (0.8 is normal), while $m_f = f_c/f_m$ is a frequency ratio and should be a large odd integer (15, 21). Writing $m_a = 15$ commands gross overmodulation and $m_f = 0.8$ puts the carrier below the output frequency.
+- **Extrapolating the linear law past $m_a = 1$.** At $m_a = 1.4$ a 400 V bus appears to give 560 V peak, but the two-level ceiling is $4V_{dc}/\pi = 509.3\ \mathrm{V}$ and the 5th and 7th harmonics return.
+- **Forgetting the $\sqrt{2}$.** $m_aV_{dc}$ is a peak: for $m_a = 0.8$ on a 400 V bus the peak is 320 V and the rms is 226.3 V. Quoting 320 V rms oversizes the output by 41%.
+- **Mixing the two $m_a$ conventions.** With the whole bus $V_{dc}$ and a load swinging $\pm V_{dc}$ the fundamental peak is $m_aV_{dc}$; with a single leg swinging 0 to $V_{dc}$ it is $m_aV_{dc}/2$. Substituting the wrong one halves or doubles the whole design.
+- **Treating $DV_{dc}$ as an rms.** For a chopper feeding a bare resistor $V_{avg} = DV_{dc} = 19.2\ \mathrm{V}$ but $V_{rms} = V_{dc}\sqrt{D} = 30.4\ \mathrm{V}$, so the power is 76.8 W, not 30.7 W.
+- **Estimating switching loss with the wrong 1/2 or the wrong frequency.** $P_{sw} = \tfrac{1}{2}V_{ds}I_o(t_r+t_f)f_s$; at 300 V, 10 A, 250 ns and 20 kHz that is 7.50 W, while dropping the 1/2 gives 15.0 W and using $f_m = 60\ \mathrm{Hz}$ gives 22.5 mW.
+- **Ignoring dead time in the duty budget.** Two blanking intervals per period cost $2t_df_s$ of duty - 3% at 20 kHz with $t_d = 1.5\ \mu\mathrm{s}$ - so $D$ cannot exceed 0.94 and a design that needs 0.97 sags with the loop saturated.
+- **Sizing the filter from $f_c$ alone.** The harmonic groups sit at $f_c \pm kf_m$ (780 Hz and 1020 Hz for $f_c = 900\ \mathrm{Hz}$, $f_m = 60\ \mathrm{Hz}$), so the filter corner must be below the lowest sideband, not at the carrier.
+- **Choosing a huge $f_s$ for a clean spectrum without checking the loss.** $P_{sw}$ is proportional to $f_s$: the same 300 V, 10 A device with 250 ns transitions burns 7.50 W at 20 kHz but 37.5 W at 100 kHz, which usually forces a different device rather than a bigger heatsink.
+
+## See Also
+
+- [[07_Inverters_Half-Bridge_and_Full-Bridge]]
+- [[01_Power_Switches_MOSFET,_IGBT,_GTO,_TRIAC]]
+- [[04_Buck_Converter]]
+- [[05_Boost_Converter]]
+- [[02_Thermal_Resistance_and_Heat_Sinking]]
+
+---
+
+[[07_Inverters_Half-Bridge_and_Full-Bridge|⬅ 07]] · [[_MOC_Power_Electronics_and_Systems|MOC]] · [[00_Dashboard|Dashboard]] · [[09_Linear_Voltage_Regulators|09 ➡]]

@@ -1,0 +1,107 @@
+{
+  "scope": "Turning a reciprocal two-port into a three-element T or pi network, and converting between the two forms with the delta-wye transform.",
+  "intuition": "A reciprocal two-port has only three independent numbers (z12 = z21), so three impedances should be able to imitate it exactly. The T and pi shapes are the two ways of wiring those three elements, and they are duals of each other: a shunt leg becomes a series arm and admittances replace impedances. The catch is that the three extracted numbers need not be positive — the mathematics stays valid even when the physical network cannot be built from passive parts.",
+  "concept": [
+    "**Why a T equivalent exists at all: only three numbers are free.** A general two-port needs four parameters, but reciprocity forces $z_{12} = z_{21}$, leaving $z_{11}$, $z_{12}$ and $z_{22}$ independent. A T network has exactly three elements, so the counting works, and opening the ports gives an immediate reading: with port 2 open the current $I_1$ must return through the shunt leg, so $z_{11} = Z_a + Z_b$ and $z_{21} = Z_b$; from the other side $z_{22} = Z_b + Z_c$ and $z_{12} = Z_b$. Inverting those three equations yields the extraction recipe $Z_a = z_{11} - z_{12}$, $Z_b = z_{12}$, $Z_c = z_{22} - z_{12}$. Note the structure: the shunt leg *is* the transfer impedance, and the two series arms are the diagonal entries with the transfer term subtracted out. That is why a passive reciprocal network almost always produces a T equivalent with a positive middle element — $z_{12}$ is the shared coupling, and it must be smaller than both driving-point impedances or one of the outer arms goes negative.",
+    "**The pi equivalent is the exact dual, and the dual's transfer arm is negative.** Repeat the reading with short-circuited ports on a pi network of shunt arms $Y_a$ (input), $Y_c$ (output) and series arm $Y_b$. With the output shorted the output shunt is bypassed, so $y_{11} = Y_a + Y_b$; with the input shorted $y_{22} = Y_b + Y_c$; and a drive of 1 V at port 1 pushes $Y_b$ times 1 V out of the shorted port in the direction opposite to the reference $I_2$, so $y_{12} = y_{21} = -Y_b$. Extracting from the y matrix gives $Y_a = y_{11} + y_{12}$, $Y_b = -y_{12}$, $Y_c = y_{22} + y_{12}$. Compare the two recipes and the sign pattern is the whole story: in the z domain the extraction uses *differences* on the diagonal and the off-diagonal directly; in the y domain it uses *sums* on the diagonal and the negated off-diagonal. Because a passive pi network always has $y_{12} = y_{21} < 0$, the extracted series arm $Y_b = -y_{12}$ comes out positive, as it should.",
+    "**The delta-wye transform is the bridge between the two shapes.** With $S = Z_aZ_b + Z_bZ_c + Z_cZ_a$, a T of impedances $Z_a, Z_b, Z_c$ becomes a pi whose arms are $R_{ab} = S/Z_c$ (the shunt arm at port 1, formed by the series path $Z_a + Z_b$), $R_{bc} = S/Z_a$ (the series arm, formed by $Z_b + Z_c$) and $R_{ca} = S/Z_b$ (the shunt arm at port 2, formed by $Z_c + Z_a$). Each delta arm is the sum of pair products divided by the *opposite* wye arm — that 'opposite' is the step students skip, and skipping it produces a pi that fails the cross-check. Going the other way, a pi of admittances $Y_a, Y_b, Y_c$ becomes a T with $Z_a = \\frac{Y_b}{\\sum Y_iY_j}$, $Z_b = \\frac{Y_c}{\\sum Y_iY_j}$ and $Z_c = \\frac{Y_a}{\\sum Y_iY_j}$. Two sanity checks are worth memorising: the products that build the two transforms are reciprocal, $S_{Z} = 1/S_{Y}$, so extracting a T from a pi and converting back must return the original arms exactly; and a T with all three arms equal to $Z$ becomes a balanced pi of $3Z$ per arm, the familiar factor of three.",
+    "**When the extracted elements go negative, and what that really means.** Three cases are worth separating. First, a network that is *not reciprocal* ($z_{12} \\neq z_{21}$) has no equivalent at all, T or pi: three passive elements cannot reproduce four independent numbers, and the extraction formulas silently produce a T only because they ignore $z_{21}$ entirely. Second, a *reciprocal* network can still produce a negative element. If $z_{12} > z_{11}$ then $Z_a = z_{11} - z_{12}$ is negative, as happens in a bridged-T or in some active networks; the T is then still a valid mathematical equivalent — it reproduces the port behaviour exactly for every load — but it is not realisable with passive resistors, because a negative resistance delivers power instead of absorbing it. Third, an RC network with a shunt capacitor can extract as a T containing an inductor, and the converse. The practical rule for the exam: build the equivalent, do not judge it. A negative element is a legal answer and the correct one when the arithmetic gives it; what is illegal is asserting that such a network is passive or applying passivity-based shortcuts (like assuming every element dissipates) to it. If a problem asks whether the equivalent is *realisable*, the answer is no whenever any extracted element is negative."
+  ],
+  "formulas": [
+    { "q": "T extraction from z", "e": "Z_a = z_{11} - z_{12}, \\qquad Z_b = z_{12}, \\qquad Z_c = z_{22} - z_{12}", "n": "Requires reciprocity, z12 = z21. All three in ohm; any of them may come out negative." },
+    { "q": "Pi extraction from y", "e": "Y_a = y_{11} + y_{12}, \\qquad Y_b = -y_{12}, \\qquad Y_c = y_{22} + y_{12}", "n": "Requires y12 = y21. Yb is the series arm and is positive for a passive pi because y12 < 0." },
+    { "q": "T network z parameters (forward reading)", "e": "z_{11} = Z_a + Z_b, \\quad z_{12} = z_{21} = Z_b, \\quad z_{22} = Z_b + Z_c", "n": "The relation the extraction inverts. Use it to check a reconstructed T." },
+    { "q": "Pi network y parameters (forward reading)", "e": "y_{11} = Y_a + Y_b, \\quad y_{12} = y_{21} = -Y_b, \\quad y_{22} = Y_b + Y_c", "n": "Check the negative sign on the off-diagonal: it comes from I2 leaving port 2." },
+    { "q": "T to Pi (wye to delta)", "e": "R_{ab} = \\frac{\\sum Z_iZ_j}{Z_c}, \\quad R_{bc} = \\frac{\\sum Z_iZ_j}{Z_a}, \\quad R_{ca} = \\frac{\\sum Z_iZ_j}{Z_b}", "n": "Sum of pair products over the OPPOSITE wye arm; Rab is the shunt arm at port 1, Rbc the series arm, Rca the shunt arm at port 2. In ohm; negative arms possible." },
+    { "q": "Pi to T (delta to wye)", "e": "Z_a = \\frac{Y_b}{Y_aY_b + Y_bY_c + Y_cY_a}, \\quad Z_b = \\frac{Y_c}{\\sum Y_iY_j}, \\quad Z_c = \\frac{Y_a}{\\sum Y_iY_j}", "n": "Each wye arm is the opposite delta admittance over the sum of pair products. In ohm." },
+    { "q": "Symmetrical T special case", "e": "Z_a = Z_c = Z_1,\\; Z_b = Z_2 \\;\\Rightarrow\\; R_{shunt} = 2Z_1 + Z_2, \\quad R_{series} = \\frac{Z_2(2Z_1 + Z_2)}{Z_1}", "n": "Both pi shunt arms equal 2Z1 + Z2. Check: Z1 = 10, Z2 = 20 gives 40 ohm shunts and a 60 ohm series arm." },
+    { "q": "Equal-arm wye-delta factor", "e": "Z_a = Z_b = Z_c = Z \\;\\Rightarrow\\; R_{delta} = 3Z", "n": "The classic factor of three. A balanced T of 30 ohm becomes a balanced pi of 90 ohm per arm; equivalently Y = 1/(3Z)." },
+    { "q": "Equivalent-circuit validity condition", "e": "z_{12} = z_{21} \\quad \\mathrm{or} \\quad y_{12} = y_{21}", "n": "Non-reciprocal two-ports (dependent sources) have NO three-element reciprocal equivalent, T or pi." },
+    { "q": "Realisability test", "e": "\\mathrm{passive\\ realisable} \\iff Z_a > 0,\\; Z_b > 0,\\; Z_c > 0", "n": "A negative extracted element still gives a correct but ACTIVE equivalent; the network is not passive." }
+  ],
+  "problems": [
+    {
+      "prompt": "**Build the T equivalent from given z parameters.** A two-port has $z_{11} = 30\\ \\Omega$, $z_{12} = z_{21} = 12\\ \\Omega$, $z_{22} = 22\\ \\Omega$. Find its T equivalent and verify by recomputing the z parameters from the equivalent.",
+      "give": ["z11 = 30 ohm", "z12 = z21 = 12 ohm", "z22 = 22 ohm"],
+      "steps": [
+        "Reciprocity holds because z12 = z21 = 12 ohm, so a T equivalent exists",
+        "Z_a = z11 - z12 = 30 - 12 = 18 ohm",
+        "Z_b = z12 = 12 ohm and Z_c = z22 - z12 = 22 - 12 = 10 ohm",
+        "Verify forward: z11 = Za + Zb = 18 + 12 = 30 ohm (matches), z21 = Zb = 12 ohm (matches), z22 = Zb + Zc = 12 + 10 = 22 ohm (matches)",
+        "All three elements are positive, so the equivalent is realisable with ordinary resistors"
+      ],
+      "ans": "Za = 18 ohm, Zb = 12 ohm, Zc = 10 ohm, all positive; the equivalent reproduces z11 = 30, z12 = z21 = 12, z22 = 22 ohm.",
+      "trap": "Placing 12 ohm in the middle but then also subtracting it from the wrong diagonal. Za comes from z11 and Zc from z22: getting them the wrong way round gives Za = 10 and Zc = 18, which still reproduces z11 and z22 only if the network happens to be symmetric — here it is not, so the swap is detectable and wrong."
+    },
+    {
+      "prompt": "**Build the pi equivalent from given y parameters.** A two-port has $y_{11} = 60\\ \\mathrm{mS}$, $y_{12} = y_{21} = -10\\ \\mathrm{mS}$, $y_{22} = 40\\ \\mathrm{mS}$. Find its pi equivalent as three conductances and then as three resistances.",
+      "give": ["y11 = 60 mS", "y12 = y21 = -10 mS", "y22 = 40 mS"],
+      "steps": [
+        "Reciprocity holds because y12 = y21, so a pi equivalent exists",
+        "Y_a = y11 + y12 = 60 + (-10) = 50 mS, so Ra = 1/0.05 = 20 ohm",
+        "Y_b = -y12 = +10 mS, so Rb = 1/0.01 = 100 ohm",
+        "Y_c = y22 + y12 = 40 + (-10) = 30 mS, so Rc = 1/0.03 = 33.33 ohm",
+        "Verify forward: y11 = Ya + Yb = 50 + 10 = 60 mS (matches), y12 = -Yb = -10 mS (matches), y22 = Yb + Yc = 10 + 30 = 40 mS (matches)"
+      ],
+      "ans": "Ya = 50 mS, Yb = 10 mS, Yc = 30 mS, i.e. Ra = 20 ohm, Rb = 100 ohm, Rc = 33.33 ohm, all positive.",
+      "trap": "Subtracting the off-diagonal instead of adding it: Ya = 60 - (-10) = 70 mS. In the pi extraction the diagonal formulas are SUMS (y11 + y12), because y12 is negative for a passive pi; adding when you should subtract makes the shunt arms too large and the check y11 = Ya + Yb fails."
+    },
+    {
+      "prompt": "**Convert a given T to its pi equivalent** using the delta-wye transform. A T network has $Z_a = 10\\ \\Omega$, $Z_b = 15\\ \\Omega$, $Z_c = 20\\ \\Omega$. Find the pi network and verify that both networks give the same $z_{11}$.",
+      "give": ["Za = 10 ohm", "Zb = 15 ohm", "Zc = 20 ohm"],
+      "steps": [
+        "Write the T z parameters first, because they are what the pi must reproduce: z11 = Za + Zb = 25 ohm, z12 = z21 = Zb = 15 ohm, z22 = Zb + Zc = 35 ohm, and dz = (25)(35) - (15)(15) = 650 ohm^2",
+        "Take the safe route and convert to the y set, which needs no arm-assignment guesswork: y11 = z22/dz = 35/650 = 0.053846 S, y12 = y21 = -z12/dz = -15/650 = -0.023077 S, y22 = z11/dz = 25/650 = 0.038462 S",
+        "Extract the pi from those y values: Ya = y11 + y12 = 0.053846 - 0.023077 = 0.030769 S, giving Ra = 1/0.030769 = 32.50 ohm as the input shunt",
+        "Yb = -y12 = +0.023077 S, giving Rb = 1/0.023077 = 43.33 ohm as the series arm; Yc = y22 + y12 = 0.038462 - 0.023077 = 0.015385 S, giving Rc = 65.00 ohm as the output shunt",
+        "Cross-check with the wye-delta transform: the three delta arms of this wye are S/Zc = 650/20 = 32.50 ohm (port 1 to the inner node), S/Za = 650/10 = 65.00 ohm (inner node to port 2) and S/Zb = 650/15 = 43.33 ohm (port 2 to port 1). These are exactly the three pi arms, confirming Ra = 32.50, Rb = 43.33 and Rc = 65.00 ohm",
+        "Final check on the shared measurement: with the output shorted, y11 = Ya + Yb = 0.030769 + 0.023077 = 0.053846 S, matching y11 from the z matrix, so both networks present the same short-circuit input admittance"
+      ],
+      "ans": "Pi arms: input shunt Ra = 32.50 ohm (Ya = 30.77 mS), series arm Rb = 43.33 ohm (Yb = 23.08 mS), output shunt Rc = 65.00 ohm (Yc = 15.38 mS).",
+      "trap": "Assigning the three delta arms to the pi by their names instead of by a port measurement. The wye-delta step returns 32.50, 43.33 and 65.00 ohm but does not say which is the series arm, and any assignment still looks plausible. Close with y11 = Ya + Yb = z22/dz, which picks the correct pairing uniquely."
+    },
+    {
+      "prompt": "**Extract z from a circuit, then the T equivalent.** A bridged-T network has $R_1 = 20\\ \\Omega$ in series with port 1, a $10\\ \\Omega$ resistor bridging from the input node to the output node, a $40\\ \\Omega$ shunt from the input-side internal node to the common lead, and $R_2 = 30\\ \\Omega$ in series to port 2. Find the z parameters and the T equivalent.",
+      "give": ["R1 = 20 ohm in series at port 1", "Rf = 10 ohm bridged directly from input node to output node", "R3 = 40 ohm shunt from the input-side inner node to common", "R2 = 30 ohm in series at port 2"],
+      "steps": [
+        "With port 2 open (I2 = 0) no current can flow in R2, so the output node is fed only through Rf; the shunt R3 is in parallel with Rf, giving R3 || Rf = (40)(10)/50 = 8 ohm",
+        "Then z11 = R1 + (R3 || Rf) = 20 + 8 = 28 ohm",
+        "The voltage at the inner node is V1 x 8/(20 + 8) = (2/7)V1, so z21 = V2/I1 with I2 = 0 equals the inner-node voltage divided by I1 = z11 (2/7) = 28(2/7) = 8 ohm",
+        "By reciprocity z12 = z21 = 8 ohm (the network is built only from resistors). Find z22 with port 1 open (I1 = 0): the current I2 enters port 2 through R2, and at the output node the paths to the common lead are Rf in series with (R1 + R3)... instead read the mirror: R1 and R3 in parallel with Rf across port 2 gives z22 = R2 + (Rf || (R1 + R3)) = 30 + (10 || 60) = 30 + 600/70 = 30 + 8.571 = 38.571 ohm",
+        "T extraction: Za = z11 - z12 = 28 - 8 = 20 ohm = R1 (as expected), Zb = z12 = 8 ohm = R3 || Rf (as expected), Zc = z22 - z12 = 38.571 - 8 = 30.571 ohm, all positive so the T is realisable"
+      ],
+      "ans": "[z] = [[28, 8], [8, 38.571]] ohm; T equivalent Za = 20 ohm, Zb = 8 ohm, Zc = 30.571 ohm.",
+      "trap": "Treating the bridge resistor as part of the series path and computing z11 = 20 + 40 + 10 = 70 ohm. With port 2 open the bridge Rf and the shunt R3 are in PARALLEL between the inner node and the common lead, so they combine to 8 ohm — not in series."
+    },
+    {
+      "prompt": "**An extracted element comes out negative.** A reciprocal two-port has $z_{11} = 15\\ \\Omega$, $z_{12} = z_{21} = 20\\ \\Omega$, $z_{22} = 40\\ \\Omega$. Extract the T equivalent, then the pi equivalent, and explain what the negative elements mean.",
+      "give": ["z11 = 15 ohm", "z12 = z21 = 20 ohm", "z22 = 40 ohm"],
+      "steps": [
+        "Reciprocity holds (z12 = z21), so equivalents exist",
+        "Z_a = z11 - z12 = 15 - 20 = -5 ohm",
+        "Z_b = z12 = +20 ohm, Z_c = z22 - z12 = 40 - 20 = 20 ohm",
+        "Convert to pi via the wye-delta relation with S = ZaZb + ZbZc + ZcZa = (-100) + 400 + (-100) = 200 ohm^2: the shunt arm at port 1 is S/Zc = 200/20 = 10 ohm, the series arm is S/Za = 200/(-5) = -40 ohm, and the shunt arm at port 2 is S/Zb = 200/20 = 10 ohm. Equivalently in admittances Ya = 0.1 S, Yb = -0.025 S, Yc = 0.1 S",
+        "Interpretation: the T has a -5 ohm input series element and the pi has a -40 ohm series arm; both are mathematically exact — they reproduce the port behaviour for every load — but a negative resistance delivers power, so neither can be built from passive resistors. Such parameters arise only from networks containing active devices"
+      ],
+      "ans": "T: Za = -5 ohm, Zb = 20 ohm, Zc = 20 ohm. Pi: Ra = 10 ohm, Rb = -40 ohm, Rc = 10 ohm. Not realisable with passive elements.",
+      "trap": "Discarding the negative sign and reporting Za = +5 ohm to make the network look physical. That equivalent reproduces z11 = 25 ohm instead of 15 ohm and every downstream answer is wrong; the negative element is the correct exam answer, and it is precisely the signal that the network needs active components."
+    }
+  ],
+  "traps": [
+    "**Extracting a T or pi equivalent from a non-reciprocal two-port.** Three elements cannot represent four independent numbers. If $z_{12} \\neq z_{21}$ (a dependent source is inside), no reciprocal equivalent exists; the extraction formulas will still return three numbers but they reproduce only the diagonal and one off-diagonal, so the equivalent is silently wrong for the other direction.",
+    "**Mixing up differences and sums between the two extractions.** From z the diagonal arms are DIFFERENCES ($Z_a = z_{11} - z_{12}$); from y the shunt arms are SUMS ($Y_a = y_{11} + y_{12}$). The off-diagonal also flips: $Z_b = +z_{12}$ but $Y_b = -y_{12}$. Getting any one of these wrong still yields a plausible-looking network that fails the recomputation check.",
+    "**Reading the delta-wye result as conductance when it is resistance.** The wye-delta step $R_{ab} = \\sum Z_iZ_j / Z_c$ returns an ARM RESISTANCE (43.33 ohm for a T of 10, 15, 20 ohm). Feeding those numbers into $y_{11} = Y_a + Y_b$ as if they were siemens gives y11 = 0.0231 S and a pi whose input impedance is 43.33 ohm instead of 25 ohm. Convert to admittances before adding.",
+    "**Declaring a negative extracted element 'impossible' and changing the answer.** The extraction is exact; a negative element means the original network is active (or the equivalent simply needs an active realisation). Only the claim of *passive* realisability fails, not the equivalence.",
+    "**Assuming the equivalent preserves reciprocity AND symmetry.** A T equivalent of an asymmetric reciprocal network has $Z_a \\neq Z_c$ and is itself asymmetric. Only a network with $z_{11} = z_{22}$ yields a symmetric T, and only then does the equal-arm factor-of-three shortcut apply.",
+    "**Forgetting that the equivalent is valid only at the frequency of the test.** With reactive elements the extracted $Z_a, Z_b, Z_c$ are complex and frequency dependent; a T that matched at 1 kHz will not match at 10 kHz unless the element values track the frequency. Always carry $j\\omega$ terms through the extraction."
+  ],
+  "refs": [
+    "[[02_Z_and_Y_Parameters]]",
+    "[[07_Reciprocity_and_Symmetry_Conditions]]",
+    "[[06_Parameter_Conversions_and_Determinants]]"
+  ],
+  "prereqs": [
+    "[[01_Two-Port_Variables_and_Conventions]]",
+    "[[03_Series_and_Parallel_AC_Analysis]]"
+  ]
+}

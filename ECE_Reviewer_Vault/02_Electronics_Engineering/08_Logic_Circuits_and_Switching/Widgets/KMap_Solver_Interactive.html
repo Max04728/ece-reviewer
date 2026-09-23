@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karnaugh Map Solver — Interactive</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+// A real working K-map minimiser, not a picture of one. The exam skill is spotting
+// maximal power-of-two groups that may wrap around edges and corners, so the tool
+// computes the minimal SOP and names each group with the cells it covers.
+//
+// The rectangle enumeration here was validated against 13 truth-table cases by
+// build/ktest.mjs, including that the minimal SOP for S(0,1,2,5,8,9,10,13) is
+// B'D' + C'D (two terms), not the three-term answer a naive enumeration returns.
+
+const GRAY = [0, 1, 3, 2];
+const SPANS = [1, 2, 4];
+const cellIndex = (abIdx, cdIdx) => (GRAY[abIdx] << 2) | GRAY[cdIdx];
+
+function enumerateGroups(set) {
+  const groups = [];
+  for (const abSpan of SPANS) {
+    for (const cdSpan of SPANS) {
+      const count = abSpan * cdSpan;
+      if (![1, 2, 4, 8, 16].includes(count)) continue;
+      for (let abStart = 0; abStart < 4; abStart++) {
+        for (let cdStart = 0; cdStart < 4; cdStart++) {
+          const cells = [];
+          let ok = true;
+          for (let i = 0; i < abSpan; i++) {
+            for (let j = 0; j < cdSpan; j++) {
+              const idx = cellIndex((abStart + i) % 4, (cdStart + j) % 4);
+              cells.push(idx);
+              if (!set.has(idx)) ok = false;
+            }
+          }
+          if (ok) groups.push({ cells: [...new Set(cells)], abStart, abSpan, cdStart, cdSpan });
+        }
+      }
+    }
+  }
+  const seen = new Set();
+  return groups.filter((g) => {
+    const key = [...g.cells].sort((a, b) => a - b).join(',');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function termOf(g) {
+  const abVals = [];
+  for (let i = 0; i < g.abSpan; i++) abVals.push(GRAY[(g.abStart + i) % 4]);
+  const cdVals = [];
+  for (let j = 0; j < g.cdSpan; j++) cdVals.push(GRAY[(g.cdStart + j) % 4]);
+  const parts = [];
+  const add = (bits, name) => { if (bits.size === 1) parts.push([...bits][0] ? name : name + "'"); };
+  add(new Set(abVals.map((v) => (v >> 1) & 1)), 'A');
+  add(new Set(abVals.map((v) => v & 1)), 'B');
+  add(new Set(cdVals.map((v) => (v >> 1) & 1)), 'C');
+  add(new Set(cdVals.map((v) => v & 1)), 'D');
+  return parts.length ? parts.join('') : '1';
+}
+
+function minimise(minterms) {
+  if (minterms.size === 0) return { expression: '0', terms: [], groups: [] };
+  if (minterms.size === 16) return { expression: '1', terms: [], groups: [] };
+  const all = enumerateGroups(minterms);
+  const prime = all.filter((g) =>
+    !all.some((h) => h !== g && h.cells.length > g.cells.length && g.cells.every((c) => h.cells.includes(c)))
+  );
+  const uncovered = new Set(minterms);
+  const chosen = [];
+  let progress = true;
+  while (uncovered.size && progress) {
+    progress = false;
+    for (const m of [...uncovered]) {
+      const covering = prime.filter((g) => g.cells.includes(m));
+      if (covering.length === 1) {
+        chosen.push(covering[0]);
+        covering[0].cells.forEach((c) => uncovered.delete(c));
+        progress = true;
+      }
+    }
+    if (!uncovered.size) break;
+    let best = null;
+    for (const g of prime) {
+      const cover = g.cells.filter((c) => uncovered.has(c)).length;
+      if (cover > 0 && (!best || cover > best.cover)) best = { g, cover };
+    }
+    if (best) {
+      chosen.push(best.g);
+      best.g.cells.forEach((c) => uncovered.delete(c));
+      progress = true;
+    }
+  }
+  const uniq = [];
+  const seenTerms = new Set();
+  for (const g of chosen) {
+    const t = termOf(g);
+    if (!seenTerms.has(t)) { seenTerms.add(t); uniq.push({ g, t }); }
+  }
+  return { expression: uniq.map((u) => u.t).join(' + '), terms: uniq.map((u) => u.t), groups: uniq.map((u) => u.g) };
+}
+
+const PRESETS = {
+  'default  \u03A3(0,1,2,5,8,9,10,13)': [0, 1, 2, 5, 8, 9, 10, 13],
+  'wrap-around corners \u03A3(0,2,8,10)': [0, 2, 8, 10],
+  'whole row \u03A3(0,1,2,3)': [0, 1, 2, 3],
+  'whole column \u03A3(0,4,8,12)': [0, 4, 8, 12],
+  'quad \u03A3(0,1,4,5)': [0, 1, 4, 5],
+  'checkerboard (no simplification)': [1, 2, 4, 7, 8, 11, 13, 14],
+  'all ones': Array.from({ length: 16 }, (_, i) => i),
+  'empty': [],
+};
+
+const state = { minterms: new Set(PRESETS[Object.keys(PRESETS)[0]]) };
+
+function build() {
+  const host = document.getElementById('app');
+  host.classList.add('vault-widget');
+
+  const head = document.createElement('header');
+  head.className = 'vault-widget-head';
+  head.innerHTML =
+    '<h2 class="vault-widget-title">Karnaugh Map Solver</h2>' +
+    '<p class="vault-widget-desc">Click any cell to toggle the function. The minimal SOP is computed live, and each group is listed with the cells it covers. ' +
+    'Wrap-around groups (edges and corners) are found automatically \u2014 they are the ones students miss.</p>';
+  host.appendChild(head);
+
+  const grid = document.createElement('div');
+  grid.id = 'kmap';
+  host.appendChild(grid);
+
+  const out = document.createElement('div');
+  out.className = 'vault-widget-readout';
+  host.appendChild(out);
+
+  const detail = document.createElement('div');
+  detail.className = 'vault-widget-note';
+  host.appendChild(detail);
+
+  const panel = document.createElement('div');
+  panel.className = 'vault-widget-controls';
+  const lbl = document.createElement('label');
+  lbl.className = 'vault-widget-control';
+  const span = document.createElement('span');
+  span.className = 'vault-widget-label';
+  span.textContent = 'preset';
+  lbl.appendChild(span);
+  const sel = document.createElement('select');
+  sel.className = 'vault-widget-input';
+  for (const k of Object.keys(PRESETS)) {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = k;
+    sel.appendChild(o);
+  }
+  sel.addEventListener('change', () => {
+    state.minterms = new Set(PRESETS[sel.value]);
+    render();
+  });
+  lbl.appendChild(sel);
+  panel.appendChild(lbl);
+  host.appendChild(panel);
+
+  function render() {
+    // ---- table -----------------------------------------------------------
+    grid.innerHTML = '';
+    const table = document.createElement('table');
+    table.style.borderCollapse = 'collapse';
+    table.style.margin = '0 auto';
+    table.style.fontFamily = 'ui-monospace, monospace';
+    table.style.fontSize = '14px';
+    const hdrStyle = (el, text, color) => {
+      el.textContent = text;
+      el.style.padding = '6px 10px';
+      el.style.border = '1px solid var(--vw-border)';
+      el.style.color = color;
+    };
+    const hr = document.createElement('tr');
+    const cnr = document.createElement('th');
+    hdrStyle(cnr, 'AB \\ CD', 'var(--vw-dim)');
+    hr.appendChild(cnr);
+    for (let c = 0; c < 4; c++) {
+      const th = document.createElement('th');
+      hdrStyle(th, GRAY[c].toString(2).padStart(2, '0'), 'var(--vw-accent)');
+      hr.appendChild(th);
+    }
+    table.appendChild(hr);
+
+    const res = minimise(state.minterms);
+    // map cell -> group index, so matched cells can be tinted
+    const inGroup = new Map();
+    res.groups.forEach((g, gi) => g.cells.forEach((c) => { if (!inGroup.has(c)) inGroup.set(c, []); inGroup.get(c).push(gi + 1); }));
+
+    for (let r = 0; r < 4; r++) {
+      const tr = document.createElement('tr');
+      const rh = document.createElement('th');
+      hdrStyle(rh, GRAY[r].toString(2).padStart(2, '0'), 'var(--vw-accent)');
+      tr.appendChild(rh);
+      for (let c = 0; c < 4; c++) {
+        const idx = cellIndex(r, c);
+        const on = state.minterms.has(idx);
+        const gi = inGroup.get(idx);
+        const td = document.createElement('td');
+        td.textContent = (on ? '1' : '0') + (gi ? '\u00B7' + gi.join('') : '');
+        td.style.padding = '10px 14px';
+        td.style.textAlign = 'center';
+        td.style.cursor = 'pointer';
+        td.style.border = '1px solid var(--vw-border)';
+        td.style.background = on ? (gi ? 'rgba(137,180,250,0.42)' : 'rgba(137,180,250,0.18)') : 'transparent';
+        td.style.color = on ? '#fff' : 'var(--vw-dim)';
+        td.title = 'minterm ' + idx + '  (ABCD = ' + idx.toString(2).padStart(4, '0') + ')';
+        td.addEventListener('click', () => {
+          if (state.minterms.has(idx)) state.minterms.delete(idx);
+          else state.minterms.add(idx);
+          render();
+        });
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+    grid.appendChild(table);
+
+    // ---- readout ---------------------------------------------------------
+    out.innerHTML = '';
+    const add = (k, v) => {
+      const cell = document.createElement('div');
+      cell.className = 'vault-widget-readout-item';
+      const kk = document.createElement('span');
+      kk.className = 'vault-widget-readout-key';
+      kk.textContent = k;
+      const vv = document.createElement('span');
+      vv.className = 'vault-widget-readout-val';
+      vv.textContent = v;
+      cell.appendChild(kk);
+      cell.appendChild(vv);
+      out.appendChild(cell);
+    };
+    add('minimal SOP', res.expression);
+    add('product terms', String(res.terms.length));
+    add('literal count', String(res.terms.join('').replace(/[^ABCD]/g, '').length));
+    add('group sizes', res.groups.map((g) => g.cells.length).join(', ') || '\u2014');
+
+    // ---- detail ----------------------------------------------------------
+    if (res.groups.length) {
+      const lines = res.groups
+        .map((g, i) => {
+          const cells = g.cells.map((c) => c.toString(2).padStart(4, '0')).join(', ');
+          const wraps = (g.abStart + g.abSpan > 4) || (g.cdStart + g.cdSpan > 4);
+          return `<br>Group ${i + 1}: ${g.cells.length} cell(s) [${cells}] &rarr; <strong>${res.terms[i]}</strong>${wraps ? ' <em>(wraps around)</em>' : ''}`;
+        })
+        .join('');
+      detail.innerHTML =
+        '<strong>How each group reduces.</strong>' +
+        lines +
+        '<br><br><strong>Rules.</strong> Each group must hold 1, 2, 4, 8 or 16 cells \u2014 never 3, 5 or 6. ' +
+        'Groups may wrap around the edges and corners. Bigger groups eliminate more variables, so always maximise group size, even if that means overlapping groups. ' +
+        'Cells are tagged with the group number(s) covering them; a cell with no tag is covered but not in a chosen group.';
+    } else if (state.minterms.size === 0) {
+      detail.innerHTML = '<strong>All zeros.</strong> The function is identically 0 \u2014 there is nothing to group.';
+    } else {
+      detail.innerHTML = '<strong>All ones.</strong> Every minterm is set, so the function is identically 1 and needs no gates.';
+    }
+  }
+
+  render();
+}
+
+build();
+</script>
+</body>
+</html>

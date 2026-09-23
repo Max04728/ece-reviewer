@@ -1,0 +1,153 @@
+---
+id: EST-03-01
+title: "Pulse Modulation: PAM, PWM, PPM"
+part: "04_EST"
+area: "03_Digital_Communications"
+topic: 1
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[08_Sampling_Theorem_and_Aliasing]]"]
+tags: ["ece", "est", "digital_communications"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 01 — Pulse Modulation: PAM, PWM, PPM
+
+> [!abstract] Scope
+> Distinguish PAM, PWM and PPM as analog pulse modulation schemes: what parameter of the pulse carries the sample, how much bandwidth each demands, and how the Nyquist sampling rate sets all three.
+
+## Core Concept
+
+> [!tip] Intuition
+> Sampling chops the message into a train of narrow pulses. PAM puts the message in the pulse height, PWM in the pulse width, PPM in the pulse position. All three are still analog modulation — the varied parameter is continuous, not quantized.
+
+**Everything starts with sampling.** If a message is bandlimited to $f_m$, sampling it at $f_s \geq 2f_m$ produces a train of pulses whose parameter tracks the message. That pulse train *is* the modulated signal. PAM modulates amplitude, PWM modulates width, PPM modulates position. Because the sampled parameter is still continuous, none of the three is digital — only PCM quantizes.
+
+**PAM (Pulse Amplitude Modulation).** The amplitude of each pulse is proportional to the sample value at the sampling instant. Two flavours exist: *natural* sampling, where the pulse top follows the message shape and the spectrum is undistorted, and *flat-top* (sample-and-hold) sampling, where the top is clamped and an aperture distortion $\mathrm{sinc}$ envelope appears. PAM is the easiest to generate and the natural format for time-division multiplexing, but it is the most noise-sensitive of the three because noise adds directly to the amplitude that carries the information. Its minimum bandwidth is $B_{PAM} = \dfrac{1}{2\tau}$, where $\tau$ is the pulse width.
+
+**PWM (Pulse Width / Pulse Duration Modulation).** The pulse amplitude is constant and the *width* varies with the sample. Constant amplitude is the whole point: amplitude noise can be sliced off with a limiter, so PWM is far more noise-immune than PAM. Recovery needs only a low-pass filter, which is why PWM survives in class-D audio amplifiers, switch-mode motor drives and cheap servo links. The price is bandwidth:
+$$B_{PWM} = \dfrac{1}{\tau} = 2B_{PAM}$$
+for the same pulse width. PWM can be converted to PPM simply by differentiating the waveform, since the trailing edge of each PWM pulse encodes the same information.
+
+**PPM (Pulse Position Modulation).** A fixed-width, fixed-amplitude pulse is shifted earlier or later within its time slot according to the sample. It has the best noise immunity of the three — neither amplitude nor width carries the information, only the *time of arrival* of an edge — but it demands the most bandwidth and, critically, needs frame synchronisation, because a receiver cannot tell a late pulse in slot $n$ from an early pulse in slot $n+1$. The standard bandwidth ladder is $B_{PAM} : B_{PWM} : B_{PPM} = 1 : 2 : 4$, i.e.
+$$B_{PPM} = \dfrac{2}{\tau}$$
+
+**Why the ladder exists.** Each step adds one more dimension of edge handling. PAM only has to resolve a level, so it needs roughly one pulse-width of channel. PWM must resolve two edges (leading and trailing), doubling the requirement. PPM must resolve an edge to within a fraction of a pulse — equivalently, it must preserve the *derivative* of the PWM waveform — which doubles the requirement again. The rule of thumb to remember for boards: **PPM > PWM > PAM in bandwidth, and PAM > PWM > PPM in noise susceptibility.**
+
+**TDM framing follows immediately.** With $N$ channels sampled at $f_s$, one frame lasts $T_s = 1/f_s$ and each channel gets $T_{slot} = T_s/N$ (less any synchronisation bit and guard time). PAM is what TDM actually multiplexes at the physical layer; PCM then quantizes and encodes each PAM sample. A PAM/TDM system is therefore the front end of every PCM hierarchy.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Nyquist sampling rate | $f_s \geq 2 f_m$ | Applies to all three schemes. In practice f_s is set above the floor to leave an anti-alias guard band (8 kHz for 3.4 kHz speech). |
+| PAM minimum bandwidth | $B_{PAM} = \frac{1}{2\tau}$ | Flat-top sampling with pulse width tau. tau in seconds gives B in Hz. |
+| PWM minimum bandwidth | $B_{PWM} = \frac{1}{\tau} = 2 B_{PAM}$ | Two edges must be resolved per pulse. |
+| PPM minimum bandwidth | $B_{PPM} = \frac{2}{\tau} = 4 B_{PAM}$ | Largest of the three. Also needs frame sync, which PAM/PWM do not. |
+| Bandwidth ladder | $B_{PAM} : B_{PWM} : B_{PPM} = 1 : 2 : 4$ | Comparative result for equal pulse width tau. Boards test this ratio, not an absolute constant. |
+| TDM slot duration | $T_{slot} = \frac{T_s}{N} = \frac{1}{N f_s}$ | Subtract sync-bit time and guard time before dividing by N. |
+| PAM duty cycle | $D = \frac{\tau}{T_s} = \tau f_s$ | Dimensionless. Needed for average-power problems. |
+| PWM average power | $P_{avg} = D \, P_{peak}$ | Valid while the pulse amplitude is constant, which is the defining property of PWM. |
+| Frame rate | $f_{frame} = f_s = \frac{1}{T_s}$ | One frame per sampling interval, regardless of N. |
+
+## Worked Problems
+
+### P1. A flat-top PAM system uses pulses of width $\tau = 2\ \mu\mathrm{s}$. Find the minimum channel bandwidth.
+
+**Given:** tau = 2 us; flat-top PAM
+
+**Solution:**
+
+1. B_PAM = 1/(2 tau)
+2. = 1/(2 x 2e-6)
+3. = 1/(4e-6)
+4. = 250 000 Hz
+
+> [!success]- Answer
+> **$250\ \mathrm{kHz}$**
+
+> [!warning] Trap
+> Using $B = 1/\tau$ instead of $1/(2\tau)$ — that is the PWM result and it doubles the answer.
+
+### P2. A voice channel bandlimited to $4\ \mathrm{kHz}$ is sampled at $8\ \mathrm{kHz}$ and time-division multiplexed with 24 other channels. One synchronisation bit plus $1\ \mu\mathrm{s}$ of guard time is reserved per frame. Find the available slot time per channel.
+
+**Given:** fm = 4 kHz; fs = 8 kHz; N = 24 channels; 1 sync bit + 1 us guard per frame
+
+**Solution:**
+
+1. Frame period: Ts = 1/fs = 1/8000 = 125 us
+2. Reserve sync and guard: usable = 125 - 1 = 124 us
+3. Divide among channels: Tslot = 124 us / 24
+4. = 5.17 us per channel
+
+> [!success]- Answer
+> **$5.17\ \mu\mathrm{s}$ per channel**
+
+> [!warning] Trap
+> Dividing the full 125 us by 24 and ignoring the sync/guard reservation. The frame period is fixed by fs, not by the number of channels.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Frame period: `1÷8000 : Ans×10^6` → **1.25×10^{-4}** s → **125** µs; the sync bit plus 1 µs guard leaves **124** µs.
+> 2. `124÷24` → $T_{slot}$ = **5.1667** µs, i.e. **5.17** µs per channel (`SHIFT` `ENG` re-expresses it as 5.167×10^-6 s).
+>
+> The frame period is fixed by $f_s$ alone, so the `−1` for sync and guard comes before the divide by 24.
+
+### P3. A PAM system occupies a minimum bandwidth of $100\ \mathrm{kHz}$. What minimum bandwidths do the equivalent PWM and PPM systems need for the same pulse width?
+
+**Given:** B_PAM = 100 kHz; same tau in all three
+
+**Solution:**
+
+1. Use the ladder B_PAM : B_PWM : B_PPM = 1 : 2 : 4
+2. B_PWM = 2 x 100 kHz = 200 kHz
+3. B_PPM = 4 x 100 kHz = 400 kHz
+
+> [!success]- Answer
+> **PWM $200\ \mathrm{kHz}$; PPM $400\ \mathrm{kHz}$**
+
+> [!warning] Trap
+> Reversing the ordering. PPM is the most bandwidth-hungry, not the least, even though it has the best noise immunity.
+
+### P4. A PWM waveform switches between $0\ \mathrm{V}$ and $12\ \mathrm{V}$ with a pulse width of $5\ \mu\mathrm{s}$ in a $25\ \mu\mathrm{s}$ period. Find the duty cycle and the average power delivered to a $1\ \Omega$ load.
+
+**Given:** Vpeak = 12 V; tau = 5 us; Ts = 25 us; R = 1 ohm
+
+**Solution:**
+
+1. Duty cycle D = tau/Ts = 5/25 = 0.2 = 20%
+2. Peak power P_peak = V^2/R = 144/1 = 144 W
+3. Average power P_avg = D x P_peak = 0.2 x 144
+4. = 28.8 W
+
+> [!success]- Answer
+> **$D = 20\%$, $P_{avg} = 28.8\ \mathrm{W}$**
+
+> [!warning] Trap
+> Averaging the voltage instead of the power. For a switched waveform $V_{avg} = 0.2 \times 12 = 2.4\ \mathrm{V}$, and $2.4^2/1 = 5.76\ \mathrm{W} \neq 28.8\ \mathrm{W}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `5÷25` → $D$ = **0.2** = **20** % duty cycle.
+> 2. `12^2÷1×Ans` → $P_{avg}$ = **28.8** W — the chain squares the voltage before averaging.
+>
+> Averaging the voltage first gives `0.2×12` = **2.4** V and `2.4^2÷1` = **5.76** W, not 28.8 W.
+
+## Traps & Exam Notes
+
+- **Assuming PPM has the same bandwidth as PAM.** For equal pulse width the ladder is $1:2:4$, so $B_{PPM} = 4B_{PAM}$. Memory hook: noise immunity and bandwidth rank in *opposite* orders.
+- **Confusing PPM with PCM.** Pulse *position* modulation is still analog — the position is a continuous variable and noise shows up as timing jitter. Pulse *code* modulation quantizes and encodes, so it is digital and is covered by the PCM note.
+- **Forgetting PPM needs frame synchronisation.** A PPM receiver cannot distinguish a late pulse in the current slot from an early pulse in the next, so a sync pulse per frame is mandatory. PAM and PWM carry an unambiguous per-pulse reference and do not need it.
+- **Using $B = 1/\tau$ for PAM.** The half comes from the flat-top (sample-and-hold) aperture; dropping it doubles the answer. Conversely, using $1/(2\tau)$ for PWM halves it.
+- **Setting $f_s = 2f_m$ and treating it as achievable.** The theoretical floor forces an unrealizable brick-wall anti-alias filter; every real standard leaves a guard band (8 kHz sampling for 3.4 kHz speech), so exam numbers rarely sit exactly on $2f_m$.
+
+## See Also
+
+- [[02_PCM_Sampling,_Quantizing,_Encoding]]
+- [[03_Quantization_Noise_and_SQNR]]
+- [[14_Multiplexing_FDM,_TDM,_T1_and_E1]]
+
+---
+
+⬅ *start* · [[_MOC_Digital_Communications|MOC]] · [[00_Dashboard|Dashboard]] · [[02_PCM_Sampling,_Quantizing,_Encoding|02 ➡]]

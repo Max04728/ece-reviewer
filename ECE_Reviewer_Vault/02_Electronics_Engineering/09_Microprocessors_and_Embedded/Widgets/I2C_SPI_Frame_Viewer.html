@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I2C and SPI Frame Viewer — Wire-Level Bit Patterns</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Both serial buses draw as the same thing: a set of digital lines in bit slots.
+// The plot range IS the bit axis, so every edge lands on a slot boundary and the
+// address on the wire can be read off the picture bit by bit.
+
+const LOW = 0.15, HIGH = 0.75;      // within a lane, in data units
+const LV = (level) => (level ? HIGH : LOW);
+
+/** Build the I2C frame: START, 8 address+R/W bits, ACK, 8 data bits, ACK, STOP. */
+function i2cFrame(addr, read, data, slaveAck) {
+  const byte = ((addr & 0x7F) << 1) | (read ? 1 : 0);
+  const abits = [];
+  for (let i = 7; i >= 0; i--) abits.push((byte >> i) & 1);   // slots 0..7
+  const dbits = [];
+  for (let i = 7; i >= 0; i--) dbits.push((data >> i) & 1);   // slots 9..16
+  const ackLevel = slaveAck ? 0 : 1;
+
+  // SDA: set while SCL is low, held across the whole slot
+  const sda = [[-1.6, -1.2, 1], [-1.2, 0, 0]];
+  for (let i = 0; i < 8; i++) sda.push([i, i + 1, abits[i]]);
+  sda.push([8, 9, ackLevel]);
+  for (let i = 0; i < 8; i++) sda.push([9 + i, 10 + i, dbits[i]]);
+  sda.push([17, 18.3, ackLevel]);
+  sda.push([18.3, 18.9, 1]);                                   // STOP: SDA rises while SCL is high
+
+  // SCL: idle high, 18 pulses (one per bit including both ACK bits)
+  const scl = [[-1.6, -0.8, 1], [-0.8, 0.45, 0], [0.45, 1, 1]];
+  for (let i = 1; i < 18; i++) {
+    scl.push([i, i + 0.45, 0]);
+    scl.push([i + 0.45, i + 1, 1]);
+  }
+  scl.push([18, 18.9, 1]);
+
+  const markers = [];
+  for (let i = 0; i < 18; i++) markers.push([i + 0.72, LV(sda.find((s) => s[0] <= i && s[1] > i)[2])]);
+  return {
+    xMin: -2.5, xMax: 19.1, yMin: -0.6, yMax: 2.35,
+    lanes: [
+      { name: 'SCL', lane: 1, segs: scl, color: PALETTE.accent },
+      { name: 'SDA', lane: 0, segs: sda, color: PALETTE.accent3 },
+    ],
+    bounds: { from: 0, to: 18, labels: 'bits' },
+    bands: [[8, 9, 'ACK'], [17, 18, 'ACK']],
+    events: [[-1.2, 'START', PALETTE.warn], [18.3, 'STOP', PALETTE.warn]],
+    markers,
+    clocks: 18, bitTimes: 20,
+    ackSlots: [8, 17],
+    addrByte: byte, abits, dbits, ackLevel,
+  };
+}
+
+/** Build the SPI frame for one of the four CPOL/CPHA modes. */
+function spiFrame(data, miso, mode) {
+  const cpol = (mode >> 1) & 1, cpha = mode & 1;
+  const mbits = [], sbits = [];
+  for (let i = 7; i >= 0; i--) { mbits.push((data >> i) & 1); sbits.push((miso >> i) & 1); }
+
+  const cs = [[-1.4, -0.5, 1], [-0.5, 8.5, 0], [8.5, 9.6, 1]];
+  const sclk = [[-1.4, 0.25, cpol]];
+  for (let i = 0; i < 8; i++) {
+    sclk.push([i + 0.25, i + 0.75, cpol ? 0 : 1]);
+    sclk.push([i + 0.75, i + 1.25, cpol]);
+  }
+  const dataEdge = cpha ? 0.25 : 0;       // where the bit changes
+  const sample = cpha ? 0.75 : 0.25;      // where it is sampled
+  const mosi = [[-1.4, dataEdge, 0]];
+  const misoSegs = [[-1.4, dataEdge, 0]];
+  for (let i = 0; i < 8; i++) {
+    mosi.push([i + dataEdge, i + 1 + dataEdge, mbits[i]]);
+    misoSegs.push([i + dataEdge, i + 1 + dataEdge, sbits[i]]);
+  }
+  const markers = [];
+  for (let i = 0; i < 8; i++) {
+    markers.push([i + sample, LV(mbits[i]) + 1, PALETTE.accent]);
+    markers.push([i + sample, LV(sbits[i]), PALETTE.accent5]);
+  }
+  return {
+    xMin: -2.5, xMax: 9.8, yMin: -0.6, yMax: 4.35,
+    lanes: [
+      { name: 'CS', lane: 3, segs: cs, color: PALETTE.accent4 },
+      { name: 'SCLK', lane: 2, segs: sclk, color: PALETTE.accent },
+      { name: 'MOSI', lane: 1, segs: mosi, color: PALETTE.accent3 },
+      { name: 'MISO', lane: 0, segs: misoSegs, color: PALETTE.accent5 },
+    ],
+    bounds: { from: 0, to: 8, labels: 'bits' },
+    bands: [],
+    events: [[-0.5, 'CS low', PALETTE.accent4], [8.5, 'CS high', PALETTE.accent4]],
+    markers,
+    clocks: 8, bitTimes: 8,
+    cpol, cpha, mbits, sbits, mode,
+  };
+}
+
+widget({
+  title: 'I2C and SPI Frame Viewer — the Bits on the Wire',
+  description:
+    'Type an address and a data byte and see the actual levels on each line, bit by bit, with the START and STOP conditions, the ACK slots, and the SPI sampling edges marked. Every transfer shown here is generated from the same bytes the readout quotes.',
+  height: 620,
+  controls: [
+    { id: 'proto', label: 'bus', type: 'select', options: [
+      { value: 'i2c', label: 'I2C (2 wires: SCL, SDA)' },
+      { value: 'spi', label: 'SPI (4 wires: CS, SCLK, MOSI, MISO)' }], value: 'i2c' },
+    { id: 'addr', label: 'I2C 7-bit slave address (decimal)', min: 0, max: 127, step: 1, value: 80 },
+    { id: 'rw', label: 'I2C direction', type: 'select', options: [
+      { value: 'w', label: 'write (R/W bit = 0)' }, { value: 'r', label: 'read (R/W bit = 1)' }], value: 'w' },
+    { id: 'ack', label: 'slave response', type: 'select', options: [
+      { value: 'ack', label: 'ACK (SDA pulled low)' }, { value: 'nack', label: 'NACK (SDA left high)' }], value: 'ack' },
+    { id: 'data', label: 'data byte (decimal 0-255)', min: 0, max: 255, step: 1, value: 60 },
+    { id: 'miso', label: 'SPI MISO byte from the slave', min: 0, max: 255, step: 1, value: 165 },
+    { id: 'mode', label: 'SPI mode (CPOL, CPHA)', type: 'select', options: [
+      { value: '0', label: 'mode 0  CPOL=0 CPHA=0' },
+      { value: '1', label: 'mode 1  CPOL=0 CPHA=1' },
+      { value: '2', label: 'mode 2  CPOL=1 CPHA=0' },
+      { value: '3', label: 'mode 3  CPOL=1 CPHA=1' }], value: '0' },
+    { id: 'speed', label: 'bus clock', type: 'select', options: [
+      { value: '100000', label: '100 kHz (I2C standard mode)' },
+      { value: '400000', label: '400 kHz (I2C fast mode)' },
+      { value: '1000000', label: '1 MHz (I2C fast mode plus / slow SPI)' },
+      { value: '10000000', label: '10 MHz (SPI)' }], value: '100000' },
+  ],
+
+  compute: (v) => {
+    const addr = Math.round(v.addr), data = Math.round(v.data), miso = Math.round(v.miso);
+    const read = v.rw === 'r', ack = v.ack === 'ack';
+    const f = Number(v.speed);
+    const frame = v.proto === 'i2c'
+      ? i2cFrame(addr, read, data, ack)
+      : spiFrame(data, miso, Number(v.mode));
+    const addrByte = ((addr & 0x7F) << 1) | (read ? 1 : 0);
+    return { proto: v.proto, addr, data, miso, read, ack, f, frame,
+             addrByte, addrHex: addr.toString(16).toUpperCase(),
+             byteHex: addrByte.toString(16).toUpperCase().padStart(2, '0'),
+             dataHex: data.toString(16).toUpperCase().padStart(2, '0'),
+             misoHex: miso.toString(16).toUpperCase().padStart(2, '0'),
+             addrBin: addr.toString(2).padStart(7, '0'),
+             byteBin: addrByte.toString(2).padStart(8, '0'),
+             dataBin: data.toString(2).padStart(8, '0'),
+             misoBin: miso.toString(2).padStart(8, '0'),
+             frameSeconds: frame.bitTimes / f };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const F = out.frame;
+    plot.setRange({ xMin: F.xMin, xMax: F.xMax, yMin: F.yMin, yMax: F.yMax });
+    plot.clear();
+
+    const W = plot.w, H = plot.h;
+    const lw = 2.4;
+
+    // ------------------------------------------------------------ bit lattice
+    for (let i = 0; i <= F.clocks; i++) {
+      plot.segment(i, F.yMin, i, F.yMax, { color: 'rgba(58,58,82,0.9)', width: 1, dash: [3, 4] });
+    }
+    // shaded bands (the ACK slots for I2C)
+    for (const [b0, b1] of F.bands) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(249,226,175,0.10)';
+      ctx.fillRect(plot.X(b0), plot.Y(F.yMax), plot.X(b1) - plot.X(b0), plot.Y(F.yMin) - plot.Y(F.yMax));
+      ctx.restore();
+      ctx.save();
+      ctx.strokeStyle = 'rgba(249,226,175,0.55)';
+      ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
+      ctx.strokeRect(plot.X(b0), plot.Y(F.yMax), plot.X(b1) - plot.X(b0), plot.Y(F.yMin) - plot.Y(F.yMax));
+      ctx.restore();
+    }
+
+    // --------------------------------------------------------------- the lines
+    for (const ln of F.lanes) {
+      const y = ln.lane;
+      for (const [x0, x1, level] of ln.segs) {
+        plot.segment(x0, y + LV(level), x1, y + LV(level), { color: ln.color, width: lw });
+      }
+      // vertical transitions
+      for (let i = 1; i < ln.segs.length; i++) {
+        const a = ln.segs[i - 1], b = ln.segs[i];
+        if (a[2] !== b[2] && Math.abs(a[1] - b[0]) < 1e-9) {
+          plot.segment(b[0], y + LV(a[2]), b[0], y + LV(b[2]), { color: ln.color, width: lw });
+        }
+      }
+      plot.label(ln.name, F.xMin + 0.06, y + 0.55, { color: ln.color, font: 'bold 12px ui-monospace, monospace', align: 'left' });
+    }
+
+    // sampling markers
+    for (const m of F.markers) {
+      plot.dot(m[0], m[1], { color: m[2] || PALETTE.warn, r: 3.4 });
+    }
+
+    // special conditions
+    for (const [x, lab, col] of F.events) {
+      plot.segment(x, F.yMin, x, F.yMax, { color: col, width: 1.6, dash: [6, 4] });
+      plot.label(lab, x, F.yMax - 0.18, { color: col, font: 'bold 11px ui-monospace, monospace', align: 'center' });
+    }
+
+    // ----------------------------------------------------------- bit numbering
+    const labels = out.proto === 'i2c'
+      ? ['A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'A0', 'R/W', 'ACK', 'D7', 'D6', 'D5', 'D4', 'D3', 'D2', 'D1', 'D0', 'ACK']
+      : ['b7', 'b6', 'b5', 'b4', 'b3', 'b2', 'b1', 'b0'];
+    for (let i = 0; i < labels.length; i++) {
+      const isAck = labels[i] === 'ACK';
+      plot.label(labels[i], i + 0.5, F.yMin + 0.22, {
+        color: isAck ? PALETTE.warn : PALETTE.dim,
+        font: (isAck || labels[i] === 'R/W') ? 'bold 11px ui-monospace, monospace' : '11px ui-monospace, monospace',
+        align: 'center',
+      });
+    }
+
+    // ---------------------------------------------------------------- headline
+    plot.text(out.proto === 'i2c'
+      ? 'I2C frame: SDA carries ' + out.byteBin + ' (address ' + out.addrBin + ' + R/W) then ' + out.dataBin +
+        ', and the slave answers in the shaded ACK slot'
+      : 'SPI frame, mode ' + String(F.mode) + ' (CPOL=' + String(F.cpol) + ', CPHA=' + String(F.cpha) + '): ' +
+        'MOSI = ' + out.dataBin + ', MISO = ' + out.misoBin + ', sampled on the ' +
+        (F.cpha ? 'trailing' : 'leading') + ' clock edge',
+      16, 22, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+
+    const sub = out.proto === 'i2c'
+      ? 'address 0x' + out.addrHex + ' shifted left one and OR-ed with R/W gives 0x' + out.byteHex +
+        ' = ' + out.byteBin + '; ' + String(F.clocks) + ' clock pulses, ' + String(F.bitTimes) +
+        ' bit times including START and STOP, frame time ' + fmt(out.frameSeconds * 1e6, 4) + ' us at ' + fmt(out.f / 1000, 4) + ' kHz'
+      : String(F.clocks) + ' clock cycles, one per bit, MSB first; frame time ' + fmt(out.frameSeconds * 1e6, 4) +
+        ' us at ' + fmt(out.f / 1e6, 4) + ' MHz; the dots mark the instant each line is sampled';
+    plot.text(sub, 16, 40, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+
+    if (out.proto === 'i2c') {
+      plot.text('ACK = the receiver pulls SDA low for the ninth clock, so a low SDA in the ACK slot means the byte landed; a high SDA is a NACK.',
+        16, H - 14, { color: out.ack ? PALETTE.accent3 : PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    } else {
+      plot.text('Mode ' + String(F.mode) + ': idle clock is ' + (F.cpol ? 'high' : 'low') + ', data is ' +
+        (F.cpha ? 'changed on the leading edge and sampled on the trailing edge' : 'changed on the trailing edge and sampled on the leading edge') + '.',
+        16, H - 14, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    }
+  },
+
+  readout: (out) => {
+    const base = {
+      'bus': out.proto === 'i2c' ? 'I2C' : 'SPI',
+      'address (7 bits)': out.addrBin + '  = 0x' + out.addrHex + '  = ' + String(out.addr),
+      'address byte on the wire': out.byteBin + '  = 0x' + out.byteHex,
+      'direction': out.proto === 'i2c' ? (out.read ? 'READ (R/W = 1)' : 'WRITE (R/W = 0)') : 'full duplex (MOSI and MISO at once)',
+      'data byte': out.dataBin + '  = 0x' + out.dataHex + '  = ' + String(out.data),
+      'clock pulses in the frame': String(out.frame.clocks),
+      'bit times (incl. START/STOP)': String(out.frame.bitTimes),
+      'frame duration': fmt(out.frameSeconds * 1e6, 4) + ' us at ' + fmt(out.f, 4) + ' Hz',
+    };
+    if (out.proto === 'i2c') {
+      base['ACK slot contents'] = out.ack ? 'SDA low = ACK (slave answered)' : 'SDA high = NACK (nobody answered)';
+      base['START condition'] = 'SDA falls while SCL is high (x = -1.2 on the plot)';
+      base['STOP condition'] = 'SDA rises while SCL is high (x = 18.3 on the plot)';
+      base['bits on SDA'] = out.byteBin.split('').join(' ') + '  ' + out.dataBin.split('').join(' ');
+    } else {
+      base['SPI mode'] = 'mode ' + String(out.frame.mode) + '  (CPOL = ' + String(out.frame.cpol) + ', CPHA = ' + String(out.frame.cpha) + ')';
+      base['clock idle level'] = out.frame.cpol ? 'high (CPOL = 1)' : 'low (CPOL = 0)';
+      base['data sampled on'] = out.frame.cpha ? 'the trailing edge' : 'the leading edge';
+      base['data changes on'] = out.frame.cpha ? 'the leading edge' : 'the trailing edge';
+      base['MISO byte'] = out.misoBin + '  = 0x' + out.misoHex + '  = ' + String(out.miso);
+      base['clock cycles'] = String(out.frame.clocks) + '  (8 bits, no ACK bit in SPI - the slave is selected by CS instead)';
+    }
+    return base;
+  },
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'i2cspi-note';
+document.getElementById('app').appendChild(note);
+note.innerHTML =
+  '<strong>Both buses send the most significant bit first, and that single fact is where most exam marks ' +
+  'are lost.</strong> An I2C address is 7 bits, but it never travels alone: the byte on the wire is ' +
+  '<code>(address &lt;&lt; 1) | R/W</code>, so slave 0x50 is written as 0xA0 and read as 0xA1. Read the ' +
+  'waveform as 7 address bits plus one direction bit, and the ninth clock is the ACK slot, not another data ' +
+  'bit. Count the clocks and you get a free check that your frame is the right length: 8 address bits + ACK + ' +
+  '8 data bits + ACK = 18 clock pulses, plus START and STOP, which are not clocked bits at all.<br>' +
+  '<strong>START and STOP are defined by SDA moving while SCL is high.</strong> That is the only time SDA is ' +
+  'allowed to change outside a low clock period, which is exactly why the bus can tell a control condition ' +
+  'from a data bit. A repeated START is the same falling edge without an intervening STOP - used to change ' +
+  'direction without releasing the bus.<br>' +
+  '<strong>The ACK bit is driven by the receiver, not the transmitter.</strong> The master releases SDA for ' +
+  'the ninth clock and the slave pulls it low to say the byte arrived. A high SDA there is a NACK, and it is ' +
+  'the standard way an I2C master finds out whether a device exists at an address - which is why a bus scan ' +
+  'is nothing more than a series of one-byte writes and a NACK test.<br>' +
+  '<strong>SPI has no ACK and no address.</strong> A dedicated CS line selects the slave, so all eight clocks ' +
+  'are data and the frame is exactly one byte long in each direction. The trap is the mode: CPOL sets the ' +
+  'idle clock level and CPHA sets which edge samples the data. Mode 0 (CPOL = 0, CPHA = 0) samples on the ' +
+  'rising edge and changes data on the falling edge; mode 3 is its mirror. Mode 1 and mode 2 are the other ' +
+  'pair. Get the mode wrong and the received byte is shifted by one bit - which looks like a plausible but ' +
+  'wrong number rather than an obvious failure, so always check the sampling edge against the datasheet ' +
+  'timing diagram before trusting a reading.';
+</script>
+</body>
+</html>

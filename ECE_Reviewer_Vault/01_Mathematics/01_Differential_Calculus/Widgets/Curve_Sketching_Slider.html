@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curve Sketching — Derivative and Concavity</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, d, PALETTE } from '../../../Assets/vault.js';
+
+// The insight this widget targets: f' locates extrema, f'' decides their type and
+// the concavity. Sliding x so students can see the sign of f' and f'' change at the
+// critical point and the inflection is the whole lesson.
+
+const f = (x, a, b, c) => a * x * x * x + b * x * x + c * x;
+const df = (x, a, b, c) => 3 * a * x * x + 2 * b * x + c;
+const d2f = (x, a, b) => 6 * a * x + 2 * b;
+
+function rootsOf(a, b, c) {
+  // critical points: 3a x^2 + 2b x + c = 0
+  const A = 3 * a, B = 2 * b, C = c;
+  if (Math.abs(A) < 1e-9) {
+    if (Math.abs(B) < 1e-9) return [];
+    return [-C / B];
+  }
+  const disc = B * B - 4 * A * C;
+  if (disc < 0) return [];
+  const s = Math.sqrt(disc);
+  return [(-B - s) / (2 * A), (-B + s) / (2 * A)].sort((p, q) => p - q);
+}
+
+widget({
+  title: 'Curve Sketching — Extrema, Concavity and Inflection',
+  description:
+    'Move x and watch the sign of the first derivative (which way the curve goes) and the second derivative (which way it bends). Critical points appear where f′ = 0.',
+  height: 440,
+  range: { xMin: -4, xMax: 4, yMin: -12, yMax: 12 },
+  controls: [
+    { id: 'a', label: 'a  (cubic coefficient)', min: -1, max: 1, step: 0.05, value: 1 },
+    { id: 'b', label: 'b  (quadratic coefficient)', min: -3, max: 3, step: 0.1, value: 0 },
+    { id: 'c', label: 'c  (linear coefficient)', min: -6, max: 6, step: 0.1, value: -3 },
+    { id: 'x', label: 'x  (point of interest)', min: -4, max: 4, step: 0.01, value: 1 },
+  ],
+  compute: (v) => {
+    const { a, b, c, x } = v;
+    const y = f(x, a, b, c);
+    const slope = df(x, a, b, c);
+    const curv = d2f(x, a, b);
+    const crit = rootsOf(a, b, c);
+    const classified = crit.map((r) => {
+      const second = d2f(r, a, b);
+      const type = Math.abs(second) < 1e-9 ? 'inconclusive (f″=0)' : second < 0 ? 'local max' : 'local min';
+      return { r, type, second };
+    });
+    return { a, b, c, x, y, slope, curv, classified };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: -4, xMax: 4, yMin: -12, yMax: 12 });
+    plot.clear().grid(1, 2).axes();
+
+    const curve = (t) => f(t, out.a, out.b, out.c);
+    plot.fn(curve, -4, 4, { color: PALETTE.accent, width: 2.5, samples: 600 });
+
+    // tangent line at the current x
+    const { x, y, slope } = out;
+    const tl = (t) => y + slope * (t - x);
+    plot.fn(tl, x - 3, x + 3, { color: PALETTE.warn, width: 1.5, dash: [6, 4], samples: 4 });
+
+    // concavity shading: draw a small parabola-ish hint near x
+    if (Math.abs(out.curv) > 1e-6) {
+      const up = out.curv > 0;
+      plot.dot(x, y, { color: up ? PALETTE.accent3 : PALETTE.accent2, r: 6 });
+    } else {
+      plot.dot(x, y, { color: PALETTE.warn, r: 6 });
+    }
+
+    // mark critical points
+    for (const cp of out.classified) {
+      const cy = curve(cp.r);
+      plot.dot(cp.r, cy, {
+        color: cp.type === 'local max' ? PALETTE.accent2 : cp.type === 'local min' ? PALETTE.accent3 : PALETTE.warn,
+        r: 4,
+        label: cp.type === 'local max' ? 'max' : cp.type === 'local min' ? 'min' : 'f″=0',
+      });
+    }
+
+    plot.text('f(x) = ax³ + bx² + cx', plot.pad + 6, plot.pad + 14, {
+      color: PALETTE.text, font: '13px ui-monospace, monospace',
+    });
+    plot.text('dashed = tangent at x', plot.pad + 6, plot.pad + 32, {
+      color: PALETTE.warn, font: '12px ui-monospace, monospace',
+    });
+  },
+  readout: (out) => {
+    const slopeWord = Math.abs(out.slope) < 1e-6 ? 'zero — critical point' : out.slope > 0 ? 'positive — increasing' : 'negative — decreasing';
+    const curvWord = Math.abs(out.curv) < 1e-6 ? 'zero — possible inflection' : out.curv > 0 ? 'positive — concave UP' : 'negative — concave DOWN';
+    const rows = {
+      'x': fmt(out.x, 4),
+      'f(x)': fmt(out.y, 4),
+      "f'(x)": fmt(out.slope, 4),
+      "f''(x)": fmt(out.curv, 4),
+      "first derivative test": slopeWord,
+      "concavity": curvWord,
+    };
+    if (out.classified.length) {
+      rows['critical point(s)'] = out.classified.map((c) => `x=${fmt(c.r, 3)} → ${c.type}`).join(';  ');
+    } else {
+      rows['critical point(s)'] = 'none (f′ has no real zero)';
+    }
+    return rows;
+  },
+});
+
+// note appended under the widget
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Reading the signs.</strong> Where f′ changes from + to −, the curve turns from rising to falling: a local maximum. ' +
+  'Where f″ is positive the curve holds water (concave up) and a critical point there is a minimum. ' +
+  'Where f″ = 0 the second-derivative test is <em>inconclusive</em> — you must fall back to the first-derivative sign test.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

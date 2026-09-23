@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Root Locus Animator — K / (s(s+a)(s+b))</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Root locus is memorised as a set of rules but rarely *seen*. Here K is a slider,
+// so the three closed-loop poles physically crawl away from the open-loop poles at
+// s = 0, -a, -b, split at the breakaway point, and finally cross into the right half
+// plane at K = ab(a+b). Everything on screen is computed from a,b,K — nothing is
+// tabulated, so an exam question with odd values of a and b behaves correctly.
+
+const KMAX = 50;
+const PERMS = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+
+/** Roots of s^3 + A s^2 + B s + C (real coefficients). */
+function cubicRoots(A, B, C) {
+  const p = B - (A * A) / 3;
+  const q = (2 * A * A * A) / 27 - (A * B) / 3 + C;
+  const sh = -A / 3;
+  const disc = (q / 2) * (q / 2) + (p / 3) * (p / 3) * (p / 3);
+  const out = [];
+  if (disc > 1e-12) {
+    const sq = Math.sqrt(disc);
+    const u = Math.cbrt(-q / 2 + sq);
+    const v = Math.cbrt(-q / 2 - sq);
+    const re = -(u + v) / 2 + sh;
+    const im = (Math.abs(u - v) * Math.sqrt(3)) / 2;
+    out.push({ re: u + v + sh, im: 0 }, { re, im }, { re, im: -im });
+  } else if (disc < -1e-12) {
+    const r = 2 * Math.sqrt(-p / 3);
+    const arg = Math.max(-1, Math.min(1, ((3 * q) / (2 * p)) * Math.sqrt(-3 / p)));
+    const phi = Math.acos(arg);
+    for (let k = 0; k < 3; k++) {
+      out.push({ re: r * Math.cos(phi / 3 - (2 * Math.PI * k) / 3) + sh, im: 0 });
+    }
+  } else if (Math.abs(p) < 1e-12) {
+    out.push({ re: sh, im: 0 }, { re: sh, im: 0 }, { re: sh, im: 0 });
+  } else {
+    const u = Math.cbrt(-q / 2);
+    out.push({ re: 2 * u + sh, im: 0 }, { re: -u + sh, im: 0 }, { re: -u + sh, im: 0 });
+  }
+  return out;
+}
+
+/** Closed-loop poles of 1 + K/(s(s+a)(s+b)) = 0, i.e. s^3 + (a+b)s^2 + ab s + K = 0. */
+const locusPoles = (K, a, b) => cubicRoots(a + b, a * b, K);
+
+/** Sweep K from 0 to Kmax and chain the roots into three continuous branches. */
+function trackBranches(a, b, Kmax, N) {
+  const branches = [[], [], []];
+  let prev = null;
+  for (let i = 0; i <= N; i++) {
+    const K = (i / N) * Kmax;
+    const rs = locusPoles(K, a, b);
+    if (!prev) {
+      const seed = rs.slice().sort((p, q) => q.re - p.re);
+      for (let j = 0; j < 3; j++) branches[j].push({ K, re: seed[j].re, im: seed[j].im });
+      prev = seed.map((p) => ({ re: p.re, im: p.im }));
+      continue;
+    }
+    let best = PERMS[0];
+    let bestCost = Infinity;
+    for (const perm of PERMS) {
+      let c = 0;
+      for (let j = 0; j < 3; j++) {
+        const dr = prev[j].re - rs[perm[j]].re;
+        const di = prev[j].im - rs[perm[j]].im;
+        c += dr * dr + di * di;
+      }
+      if (c < bestCost) { bestCost = c; best = perm; }
+    }
+    for (let j = 0; j < 3; j++) {
+      branches[j].push({ K, re: rs[best[j]].re, im: rs[best[j]].im });
+      prev[j] = { re: rs[best[j]].re, im: rs[best[j]].im };
+    }
+  }
+  return branches;
+}
+
+/** Parametric path in the s-plane; the Plot class has no polyline primitive. */
+function polyline(plot, pts, color, width, dash) {
+  if (!pts.length) return;
+  const { ctx } = plot;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  if (dash) ctx.setLineDash(dash);
+  ctx.beginPath();
+  for (let i = 0; i < pts.length; i++) {
+    const px = plot.X(pts[i].re);
+    const py = plot.Y(pts[i].im);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Clip a ray from (x0,y0) at angle ang to the current plot rectangle. */
+function rayEnd(plot, x0, y0, ang) {
+  const dx = Math.cos(ang);
+  const dy = Math.sin(ang);
+  let t = 1e4;
+  if (Math.abs(dx) > 1e-9) t = Math.min(t, ((dx > 0 ? plot.xMax : plot.xMin) - x0) / dx);
+  if (Math.abs(dy) > 1e-9) t = Math.min(t, ((dy > 0 ? plot.yMax : plot.yMin) - y0) / dy);
+  return [x0 + dx * t, y0 + dy * t];
+}
+
+const cplx = (re, im) => {
+  if (Math.abs(im) < 1e-6) return fmt(re, 4);
+  return fmt(re, 4) + (im > 0 ? ' + j' : ' − j') + fmt(Math.abs(im), 4);
+};
+
+const app = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+app.appendChild(formula);
+
+widget({
+  title: 'Root Locus Animator — G(s) = K / (s(s+a)(s+b))',
+  description:
+    'Three open-loop poles at s = 0, −a, −b and no zeros. Slide K and watch the closed-loop poles split at the breakaway point, splay out along the ±60° asymptotes, and cross the jω axis at K = ab(a+b). The faint dashed path is where K is going; the solid path is where K is now.',
+  height: 520,
+  range: { xMin: -3.2, xMax: 3.2, yMin: -4.2, yMax: 4.2 },
+  controls: [
+    { id: 'a', label: 'open-loop pole a  (at s = −a)', min: 0.2, max: 5, step: 0.05, value: 1 },
+    { id: 'b', label: 'open-loop pole b  (at s = −b)', min: 0.2, max: 5, step: 0.05, value: 2 },
+    { id: 'K', label: 'gain K  (slider max 50)', min: 0, max: KMAX, step: 0.05, value: 2 },
+    { id: 'showAsym', label: 'show asymptotes + centroid', type: 'checkbox', value: true },
+    { id: 'showGhost', label: 'show path still to come (K larger)', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const a = v.a, b = v.b, K = v.K;
+    const A = a + b, B = a * b;
+
+    // Real-axis locus: to the LEFT of an odd number of poles. Poles are 0, -a, -b,
+    // so the segments are (0, -min(a,b)) and (-max(a,b), -infinity).
+    const s1 = Math.min(a, b), s2 = Math.max(a, b);
+
+    // Breakaway: dK/ds = -(3s^2 + 2(a+b)s + ab) = 0, keep roots with K > 0.
+    const qd = 4 * (a + b) * (a + b) - 12 * a * b;
+    const sq = Math.sqrt(Math.max(0, qd));
+    const breaks = [];
+    for (const s of [(-2 * (a + b) + sq) / 6, (-2 * (a + b) - sq) / 6]) {
+      const Kb = -(s * s * s + A * s * s + B * s);
+      if (Kb > 1e-9) breaks.push({ s, K: Kb });
+    }
+    breaks.sort((p, q) => q.s - p.s);
+
+    // Asymptotes: n - m = 3 branches, no zeros.
+    const nm = 3;
+    const angles = [];
+    for (let k = 0; k < nm; k++) angles.push(((2 * k + 1) * 180) / nm);
+    const centroid = (0 - a - b) / nm;
+
+    // Routh on s^3 + (a+b)s^2 + ab s + K: marginal when K = ab(a+b), at s = ±j*sqrt(ab).
+    const Kcrit = a * b * (a + b);
+    const wCross = Math.sqrt(a * b);
+
+    const branches = trackBranches(a, b, KMAX, 480);
+    const poles = locusPoles(K, a, b).sort((p, q) => q.re - p.re || q.im - p.im);
+    const stable = poles.every((p) => p.re < -1e-9);
+
+    return { a, b, K, s1, s2, A, B, breaks, angles, nm, centroid, Kcrit, wCross, branches, poles, stable };
+  },
+  draw: (ctx, v, out, plot) => {
+    const bp = out.breaks.length ? out.breaks[0] : null;
+    formula.innerHTML =
+      '<strong>Governing formulas, with the current numbers substituted.</strong><br>' +
+      '<span class="vault-mono">G(s) = K / (s(s+a)(s+b)) = K / (s³ + (a+b)s² + ab·s) = ' +
+      fmt(out.K, 4) + ' / (s³ + ' + fmt(out.A, 3) + 's² + ' + fmt(out.B, 3) + 's)</span><br>' +
+      '<span class="vault-mono">breakaway: dK/ds = −(3s² + 2(a+b)s + ab) = 0 → s = ' +
+      (bp ? fmt(bp.s, 4) + ', where K = ' + fmt(bp.K, 4) : 'no real root with K &gt; 0') + '</span><br>' +
+      '<span class="vault-mono">asymptotes: angle = (2k+1)·180° / (n−m) = (2k+1)·180° / 3 = ' +
+      out.angles.map((x) => fmt(x, 3) + '°').join(', ') + '  ·  centroid σa = (0 − a − b)/3 = ' +
+      fmt(out.centroid, 4) + '</span><br>' +
+      '<span class="vault-mono">jω crossing: K = ab(a+b) = ' + fmt(out.a, 3) + '·' + fmt(out.b, 3) + '·' +
+      fmt(out.A, 3) + ' = ' + fmt(out.Kcrit, 4) + '  ·  ω = √(ab) = ' + fmt(out.wCross, 4) + ' rad/s</span>';
+
+    const Rr = Math.cbrt(KMAX);
+    const xMin = -(out.s2 + 1.4);
+    const xMax = Math.max(1.1, Rr * 0.8 + 0.4);
+    const yMax = Math.max(1.6, Rr * 1.2);
+    plot.setRange({ xMin, xMax, yMin: -yMax, yMax });
+    plot.clear().grid(1, 1).axes();
+
+    // --- real-axis segments that are part of the locus -----------------
+    plot.segment(0, 0, -out.s1, 0, { color: PALETTE.accent3, width: 5 });
+    plot.segment(-out.s2, 0, xMin, 0, { color: PALETTE.accent3, width: 5 });
+
+    // --- asymptote rays and centroid -----------------------------------
+    if (v.showAsym) {
+      for (const ang of out.angles) {
+        const [ex, ey] = rayEnd(plot, out.centroid, 0, (ang * Math.PI) / 180);
+        plot.segment(out.centroid, 0, ex, ey, { color: 'rgba(203,166,247,0.5)', width: 1.5, dash: [7, 5] });
+      }
+      plot.dot(out.centroid, 0, { color: PALETTE.accent5, r: 3 });
+      plot.text('centroid σa', plot.X(out.centroid) + 8, plot.Y(0) - 8, { color: PALETTE.accent5, font: '11px ui-monospace, monospace' });
+    }
+
+    // --- branch paths ---------------------------------------------------
+    const cols = [PALETTE.accent, PALETTE.accent4, PALETTE.accent5];
+    const NB = out.branches[0].length;
+    const kIdx = Math.round((out.K / KMAX) * (NB - 1));
+    if (v.showGhost) {
+      for (let j = 0; j < 3; j++) {
+        polyline(plot, out.branches[j].slice(Math.max(0, kIdx)), 'rgba(160,160,190,0.32)', 1.5, [4, 4]);
+      }
+    }
+    for (let j = 0; j < 3; j++) polyline(plot, out.branches[j].slice(0, kIdx + 1), cols[j], 2.5, null);
+
+    // --- features -------------------------------------------------------
+    if (bp) {
+      plot.dot(bp.s, 0, { color: PALETTE.accent2, r: 5 });
+      plot.text('breakaway s = ' + fmt(bp.s, 4) + '  (K = ' + fmt(bp.K, 3) + ')',
+        plot.X(bp.s) - 6, plot.Y(0) + 20, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    }
+    if (out.Kcrit <= KMAX) {
+      plot.segment(0, -out.wCross, 0, out.wCross, { color: 'rgba(166,227,161,0.65)', width: 1.5, dash: [3, 3] });
+      plot.dot(0, out.wCross, { color: PALETTE.accent3, r: 4 });
+      plot.dot(0, -out.wCross, { color: PALETTE.accent3, r: 4 });
+      plot.text('jω crossing at K = ' + fmt(out.Kcrit, 4), plot.X(0) + 9, plot.Y(out.wCross) - 8,
+        { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+
+    // open-loop poles
+    const seen = [];
+    for (const px of [0, -out.s1, -out.s2]) {
+      if (seen.some((q) => Math.abs(q - px) < 1e-9)) continue;
+      seen.push(px);
+      plot.text('✕', plot.X(px) - 5, plot.Y(0) + 6, { color: PALETTE.accent2, font: 'bold 15px ui-monospace, monospace' });
+    }
+
+    // closed-loop poles at the current K
+    for (const p of out.poles) plot.dot(p.re, p.im, { color: PALETTE.warn, r: 4 });
+
+    // --- info panel -----------------------------------------------------
+    const bx = plot.pad + 10, by = plot.pad + 12;
+    ctx.save();
+    ctx.fillStyle = 'rgba(30,30,46,0.88)';
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.rect(bx - 8, by - 6, 396, 96);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    const poleText = out.poles.map((p) => cplx(p.re, p.im)).join(' , ');
+    plot.text('1 + K / (s(s+a)(s+b)) = 0    s³ + (a+b)s² + ab·s + K = 0', bx, by + 10,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('s³ + ' + fmt(out.A, 3) + 's² + ' + fmt(out.B, 3) + 's + ' + fmt(out.K, 4) + ' = 0',
+      bx, by + 28, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('closed-loop poles: ' + poleText, bx, by + 46,
+      { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+    plot.text(out.stable ? 'K < ab(a+b) = ' + fmt(out.Kcrit, 4) + '  →  STABLE'
+      : 'K > ab(a+b) = ' + fmt(out.Kcrit, 4) + '  →  UNSTABLE (poles in RHP)',
+    bx, by + 64, { color: out.stable ? PALETTE.accent3 : PALETTE.accent2, font: '12px ui-monospace, monospace' });
+    plot.text('slider K max = 50   ·   branch colours = individual closed-loop poles',
+      bx, by + 82, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    plot.text('σ  (real)', plot.X(xMin) + 6, plot.Y(-yMax) - 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('jω', plot.X(0) + 6, plot.Y(yMax) + 14, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+  },
+  readout: (out) => ({
+    'stability': out.stable ? 'STABLE — all poles in LHP' : 'UNSTABLE — pole(s) in RHP',
+    'gain K': fmt(out.K, 4),
+    'closed-loop poles': out.poles.map((p) => cplx(p.re, p.im)).join(' , '),
+    'breakaway point s': out.breaks.length ? fmt(out.breaks[0].s, 4) : 'none in range',
+    'K at breakaway': out.breaks.length ? fmt(out.breaks[0].K, 4) : '—',
+    'asymptote angles': out.angles.map((x) => fmt(x, 3) + '°').join(' , '),
+    'centroid σa': fmt(out.centroid, 4),
+    'jω crossing: K': out.Kcrit <= KMAX ? fmt(out.Kcrit, 4) : '> 50 (out of slider range)',
+    'jω crossing: ω': fmt(out.wCross, 4) + ' rad/s',
+    'K margin to instability': out.Kcrit > out.K ? fmt(out.Kcrit - out.K, 4) : 'already unstable',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The exam point.</strong> The breakaway point is NOT the midpoint of the two poles — ' +
+  'it is the root of dK/ds = 0, here s = −0.4226 for a = 1, b = 2, which is where K = 0.3849. ' +
+  'With three poles and no zeros the asymptote angles are (2k+1)180°/3 = ±60° and 180°, meeting at the ' +
+  'centroid σa = (0 − a − b)/3 = −1. The Routh array gives the marginal gain directly: K = ab(a+b) = 6, ' +
+  'with the crossing at s = ±j√(ab) = ±j1.4142. Watch what happens as a → b: the two left-hand poles merge, ' +
+  'and the breakaway slides toward −a/3.';
+app.appendChild(note);
+
+app.insertBefore(formula, app.querySelector('.vault-widget-canvas'));
+</script>
+</body>
+</html>

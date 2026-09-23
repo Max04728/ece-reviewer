@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radio Horizon Calculator — LOS Geometry over the Curved Earth</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Radio horizon and line-of-sight geometry.
+//
+//   geometric (optical) horizon   d_opt = sqrt(2 a h)          a = 6371 km
+//   effective Earth radius        a_e   = k a,  k = 4/3        a_e = 8494.67 km
+//   radio horizon                 d_rad = sqrt(2 a_e h) = sqrt(2 k a h)
+//   handy form                    d_km  = 4.12 sqrt(h_m)       for k = 4/3
+//
+// The sqrt(2 a h) form is the tangent length from the antenna to the horizon on a
+// sphere of radius a, and it is also (to better than 0.001 %) the arc length along
+// the surface, because h << a. Both channels are printed so the student can see the
+// two readings agree.
+//
+// The refraction factor is not a fudge: a radio ray in the standard atmosphere bends
+// downward, so it reaches farther around the bulge than a straight light ray would.
+// Replacing the true Earth with a fictitious Earth of radius k a makes the ray
+// straight again, which is the whole trick of the 4/3-Earth model.
+
+/** Raw (unrounded) horizon in km for one antenna height in metres. */
+const horizonKm = (hM, k) => Math.sqrt(2 * k * 6371 * (hM / 1000));
+
+/**
+ * Height of the Earth's curved surface above the straight chord joining the two antenna
+ * bases, in metres, at fractional position t along the path (0 at TX, 1 at RX).
+ *
+ * Geometry. Put the centre of the Earth at the origin, radius R, the two antenna bases at
+ * angles +/- alpha = +/- D/(2R) from the vertical, and measure L from the TX end and
+ * M = D - L from the RX end. The surface dips below the straight chord by
+ *
+ *     B = R(1 - cos(L/R)) - (L/D) * R(1 - cos(D/R))
+ *
+ * whose small-angle expansion is B = L*M / (2R). At the midpoint (L = M = D/2) this is
+ * D^2/(8R), the familiar Earth-bulge formula; for D = 30 km and R = 6371 km that is
+ * 17.658 m. The exact circular value at the midpoint is 2R sin^2(D/(4R)) = 17.658 m, so
+ * the parabolic form is good to 3 mm over 200 km. It is used because it is the form the
+ * exam quotes and because it is exactly zero at both endpoints.
+ *
+ * L and M are in metres here, and the division by R (also metres) is what makes the
+ * result metres -- mixing kilometres into the numerator is the classic way to get an
+ * answer three orders of magnitude out.
+ */
+function bulgeExact(D, t, a) {
+  if (D <= 0) return 0;
+  const tt = Math.min(1, Math.max(0, t));
+  const L = D * 1000 * tt;                   // metres from the TX end
+  const M = D * 1000 * (1 - tt);             // metres to the RX end
+  const R = a * 1000;                        // metres
+  return (L * M) / (2 * R);
+}
+
+/** First Fresnel-zone radius in metres at fractional position t. */
+function fresnelR1(D, t, fGHz) {
+  const d1 = Math.max(1e-9, D * t);
+  const d2 = Math.max(1e-9, D * (1 - t));
+  return 17.32 * Math.sqrt((d1 * d2) / (fGHz * Math.max(1e-9, D)));
+}
+
+/**
+ * The longest path for which the 60 percent first-Fresnel clearance still holds, in km,
+ * for two antennas of height ht and hr metres over effective Earth radius a km, at
+ * frequency fGHz. This is almost always shorter than the radio horizon, and often
+ * dramatically so: r1 grows only as sqrt(D) while the bulge grows as D^2, so the margin
+ * eventually collapses.
+ *
+ * The margin (LOS clearance minus 0.6 r1) is NOT monotonic: at very short distances the
+ * Fresnel radius still exceeds the available heights, so the margin can start negative,
+ * rise through a maximum, and then fall away. That is why the zero crossing is found by
+ * scanning outward from the peak of a coarse sweep and then bisecting inside the bracket
+ * - plain bisection on [0, horizon] would land in the wrong interval.
+ */
+function fresnelLimitedSpan(ht, hr, fGHz, radioHorizonKm, a) {
+  const margin = (Dd) => {
+    if (Dd <= 0.01) return -1e9;
+    const b = bulgeExact(Dd, 0.5, a);
+    const rr = fresnelR1(Dd, 0.5, fGHz);
+    return ((ht + hr) / 2 - b) - 0.6 * rr;
+  };
+
+  const hiTry = Math.min(Math.max(radioHorizonKm, 1), 4000);
+  let bestM = -1e9;
+  let bestI = -1;
+  for (let i = 0; i <= 2000; i++) {
+    const m = margin((hiTry * i) / 2000);
+    if (m > bestM) { bestM = m; bestI = i; }
+  }
+  if (bestI <= 0 || bestM < 0) return 0;        // never meets the criterion at any distance
+
+  // walk right from the peak to the first interval where the margin turns negative
+  let far = hiTry;
+  for (let i = bestI + 1; i <= 2000; i++) {
+    if (margin((hiTry * i) / 2000) < 0) { far = (hiTry * i) / 2000; break; }
+  }
+  // walk left from the peak to the last interval where the margin is still negative
+  let near = 0.01;
+  for (let i = bestI - 1; i >= 0; i--) {
+    if (margin((hiTry * i) / 2000) < 0) { near = (hiTry * i) / 2000; break; }
+  }
+  if (margin(far) >= 0) return far;             // criterion holds all the way out
+
+  let lo = near;
+  let hi = far;
+  for (let i = 0; i < 80; i++) {
+    const mid = (lo + hi) / 2;
+    if (margin(mid) >= 0) lo = mid; else hi = mid;
+  }
+  return lo;
+}
+
+widget({
+  title: 'Radio Horizon Calculator — Line of Sight over the Curved Earth',
+  description:
+    'Set both antenna heights and the path length and see the line-of-sight geometry drawn to scale. ' +
+    'The readout gives the geometric horizon, the radio horizon with the standard 4/3-Earth refraction ' +
+    'factor, the height needed to close a link, and the first-Fresnel-zone clearance.',
+  height: 500,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'ht', label: 'transmit antenna height h_t (m)', min: 1, max: 200, step: 1, value: 30 },
+    { id: 'hr', label: 'receive antenna height h_r (m)', min: 1, max: 200, step: 1, value: 10 },
+    { id: 'D', label: 'separation between antennas D (km)', min: 1, max: 200, step: 0.5, value: 30 },
+    { id: 'f', label: 'frequency f (GHz)', min: 0.1, max: 40, step: 0.1, value: 0.9 },
+    { id: 'k', label: 'Earth-radius factor k (1 = no refraction)', min: 1, max: 1.6, step: 1 / 300, value: 1.3333 },
+    { id: 'glass', label: 'mark the 60% first-Fresnel clearance', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const a = 6371;
+    const k = v.k;
+    const ht = v.ht;
+    const hr = v.hr;
+    const D = v.D;
+    const f = v.f;
+
+    const ae = k * a;
+    const dtG = Math.sqrt(2 * a * (ht / 1000));
+    const drG = Math.sqrt(2 * a * (hr / 1000));
+    const dt = Math.sqrt(2 * ae * (ht / 1000));
+    const dr = Math.sqrt(2 * ae * (hr / 1000));
+    const dtArc = (a * Math.acos(a / (a + ht / 1000))) / 1;
+    const dtArcKm = a * Math.acos(a / (a + ht / 1000));
+    const sum = dt + dr;
+    const overshoot = D - sum;                       // > 0 means the path is open
+    const closes = sum >= D;
+
+    // first Fresnel zone and Earth bulge at the midpoint
+    const tMid = 0.5;
+    const bulge = bulgeExact(D, tMid, a);
+    const r1 = fresnelR1(D, tMid, f);
+    const need60 = 0.6 * r1;
+    const losMid = (hr + ht) / 2;
+    const clearance = Math.max(0, losMid - bulge);
+    const fresnelOK = clearance >= need60;
+    const fresnelPct = r1 > 0 ? (clearance / r1) * 100 : 0;
+
+    // the worst clearance over the whole path (matters when the antennas are unequal)
+    let worst = Infinity;
+    let worstAt = 0;
+    for (let i = 1; i < 200; i++) {
+      const t = i / 200;
+      const b = bulgeExact(D, t, a);
+      const los = ht + (hr - ht) * t;
+      const c = los - b;
+      if (c < worst) { worst = c; worstAt = t; }
+    }
+    if (!Number.isFinite(worst)) { worst = 0; worstAt = 0; }
+
+    // height required to close a path of length D, split proportionally to sqrt(h)
+    const needRoot = D / (4.1213 * Math.sqrt(k / 1.3333333));
+    const scale = needRoot / Math.max(1e-9, Math.sqrt(ht) + Math.sqrt(hr));
+    const htReq = ht * scale * scale;
+    const hrReq = hr * scale * scale;
+
+    // The distance at which the 60 percent first-Fresnel criterion still holds. This is
+    // NOT the radio horizon: a path can be geometrically line-of-sight and still have the
+    // Fresnel zone buried in the Earth bulge. Solved by bisection on D, because r1 and the
+    // bulge both depend on D.
+    const fresnelLimit = fresnelLimitedSpan(ht, hr, f, sum, a);
+    const fresnelLimited = fresnelLimit < sum - 0.05;
+
+    // a few named reference cases so the numbers can be checked by hand
+    const refs = [10, 30, 50, 100].map((h) => ({ h, d: horizonKm(h, 1.3333333) }));
+
+    return {
+      k, ht, hr, D, f, a, ae,
+      dtG, drG, dt, dr, sum, overshoot, closes,
+      bulge, r1, need60, losMid, clearance, fresnelOK, fresnelPct, worst, worstAt,
+      needRoot, htReq, hrReq, scale, refs,
+      dtArcKm, dtArc, fresnelLimit, fresnelLimited,
+      horizonPct: dtG > 0 ? ((dt - dtG) / dtG) * 100 : 0,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h;
+    const x0 = 78, x1 = W - 44;
+    const baseY = H - 76;
+    const topY = 74;
+    const D = Math.max(0.001, out.D);
+    const X = (d) => x0 + (d / D) * (x1 - x0);
+
+    plot.clear();
+
+    const bulgeMid = Math.max(0.001, bulgeExact(D, 0.5, out.a));
+    const arcSagPx = 34;
+    const scaleMetersPerPx = bulgeMid / arcSagPx;
+    const heightPx = (h) => (h / scaleMetersPerPx);
+    // Minimum drawn length for a symbol, so a 1 m and a 200 m antenna are both visible.
+    // The true height in metres is always printed next to the symbol, so the picture
+    // never claims a scale it does not have.
+    const MIN_MAST = 14;
+    const maxDraw = baseY - topY - 18;
+    const htp = Math.max(MIN_MAST, Math.min(heightPx(out.ht), maxDraw));
+    const hrp = Math.max(MIN_MAST, Math.min(heightPx(out.hr), maxDraw));
+    const clipped = heightPx(out.ht) > maxDraw || heightPx(out.hr) > maxDraw;
+
+    // ---------------------------------------------------------- curved surface
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(X(0), baseY);
+    for (let i = 0; i <= 240; i++) {
+      const t = i / 240;
+      ctx.lineTo(X(D * t), baseY - arcSagPx * Math.sin(Math.PI * t));
+    }
+    ctx.lineTo(X(D), baseY + 90);
+    ctx.lineTo(X(0), baseY + 90);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(58,58,82,0.55)';
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent4;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= 240; i++) {
+      const t = i / 240;
+      const px = X(D * t), py = baseY - arcSagPx * Math.sin(Math.PI * t);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // the flat-chord reference so the bulge is visible as a separation
+    ctx.save();
+    ctx.strokeStyle = 'rgba(160,160,190,0.5)';
+    ctx.setLineDash([5, 5]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(X(0), baseY);
+    ctx.lineTo(X(D), baseY);
+    ctx.stroke();
+    ctx.restore();
+
+    const surfY = (d) => baseY - arcSagPx * Math.sin(Math.PI * (d / D));
+
+    // --------------------------------------------------------- antenna masts
+    // The bar is drawn with a minimum length so short antennas stay visible; the true
+    // height in metres is printed under every bar, so the picture is never misleading.
+    const mast = (d, hp, col, label, trueH) => {
+      const sx = X(d);
+      const sy = surfY(d);
+      ctx.save();
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy - hp); ctx.stroke();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(sx, sy - hp, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      const right = d < D / 2;
+      plot.text(label + '  ' + fmt(trueH, 4) + ' m', sx + (right ? 9 : -9), sy - hp - 7,
+        { color: col, font: 'bold 11px ui-monospace, monospace', align: right ? 'left' : 'right' });
+      ctx.save();
+      ctx.strokeStyle = PALETTE.dim;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(sx - 5, sy - hp); ctx.lineTo(sx + 5, sy - hp); ctx.stroke();
+      ctx.restore();
+      plot.text('height ' + fmt(trueH, 4) + ' m', sx + (right ? 9 : -9), sy + 12,
+        { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: right ? 'left' : 'right' });
+    };
+    mast(0, htp, PALETTE.accent, 'TX', out.ht);
+    mast(D, hrp, PALETTE.accent2, 'RX', out.hr);
+
+    // ------------------------------------------------------------- line of sight
+    if (out.closes) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent3;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(X(0), surfY(0) - htp);
+      ctx.lineTo(X(D), surfY(D) - hrp);
+      ctx.stroke();
+      ctx.restore();
+      plot.text('LINE OF SIGHT CLEAR', (X(0) + X(D)) / 2, surfY(D / 2) - Math.max(htp, hrp) - 12,
+        { color: PALETTE.accent3, font: 'bold 12px ui-monospace, monospace', align: 'center' });
+    } else {
+      const dT = out.dt;
+      const dR = out.dr;
+      const yT = surfY(0) - htp;
+      const yR = surfY(D) - hrp;
+      // ray from each antenna toward the other's horizon point
+      if (dT < D) {
+        const y1 = yT + (yR - yT) * (dT / D);
+        const y2 = surfY(Math.min(D, dT + dR));
+        ctx.save();
+        ctx.strokeStyle = PALETTE.accent3;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(X(0), yT); ctx.lineTo(X(dT), y1); ctx.stroke();
+        ctx.restore();
+      }
+      if (dR < D) {
+        const y1 = yT + (yR - yT) * ((D - dR) / D);
+        ctx.save();
+        ctx.strokeStyle = PALETTE.accent2;
+        ctx.lineWidth = 2.2;
+        ctx.setLineDash([7, 4]);
+        ctx.beginPath(); ctx.moveTo(X(D), yR); ctx.lineTo(X(D - dR), y1); ctx.stroke();
+        ctx.restore();
+      }
+      // the gap
+      const gapX = X(Math.min(D, dT));
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent2;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(gapX, surfY(Math.min(D, dT)) - 16);
+      ctx.lineTo(gapX, surfY(Math.min(D, dT)) + 16);
+      ctx.moveTo(gapX - 7, surfY(Math.min(D, dT)) - 9);
+      ctx.lineTo(gapX, surfY(Math.min(D, dT)) - 16);
+      ctx.lineTo(gapX + 7, surfY(Math.min(D, dT)) - 9);
+      ctx.stroke();
+      ctx.restore();
+      plot.text('NO LINE OF SIGHT — the two horizon points do not overlap by ' + fmt(out.overshoot * -1, 4) + ' km',
+        (X(0) + X(D)) / 2, surfY(D / 2) - 26,
+        { color: PALETTE.accent2, font: 'bold 12px ui-monospace, monospace', align: 'center' });
+    }
+
+    // --------------------------------------------- radio horizon and geometric mark
+    const markDist = (dKm, col, txt) => {
+      if (dKm > D * 1.02) {
+        plot.text(txt + ' is beyond the right edge (' + fmt(dKm, 4) + ' km)', X(D) - 6, surfY(D) + 30,
+          { color: col, font: '10px ui-monospace, monospace', align: 'right' });
+        return;
+      }
+      const sx = X(dKm);
+      ctx.save();
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(sx, surfY(dKm) - 22); ctx.lineTo(sx, surfY(dKm) + 20); ctx.stroke();
+      ctx.restore();
+      plot.text(txt, sx, surfY(dKm) + 34, { color: col, font: 'bold 10px ui-monospace, monospace', align: 'center' });
+    };
+    markDist(out.dt, PALETTE.warn, 'radio horizon of TX = ' + fmt(out.dt, 4) + ' km');
+    if (Math.abs(out.dr - out.dt) > 0.05) markDist(out.dr, PALETTE.accent5, 'radio horizon of RX = ' + fmt(out.dr, 4) + ' km');
+    if (out.fresnelLimited) {
+      markDist(out.fresnelLimit, PALETTE.accent2, 'Fresnel-limited span = ' + fmt(out.fresnelLimit, 4) + ' km');
+    }
+
+    const geoX = X(Math.min(D, out.dtG));
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(geoX, surfY(Math.min(D, out.dtG)) - 8); ctx.lineTo(geoX, surfY(Math.min(D, out.dtG)) + 8); ctx.stroke();
+    ctx.restore();
+
+    // ------------------------------------------------- first Fresnel zone at the middle
+    if (v.glass) {
+      const mx = X(D / 2);
+      const surf = surfY(D / 2);
+      const losY = surf - (htp + hrp) / 2;
+      const r1px = Math.max(2, out.r1 / scaleMetersPerPx);
+      const c60 = Math.max(0, out.need60 / scaleMetersPerPx);
+      ctx.save();
+      ctx.strokeStyle = out.fresnelOK ? 'rgba(166,227,161,0.85)' : 'rgba(243,139,168,0.9)';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(mx, losY - r1px); ctx.lineTo(mx, losY + r1px); ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.strokeStyle = out.fresnelOK ? PALETTE.accent3 : PALETTE.accent2;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(mx - 6, losY - c60); ctx.lineTo(mx + 6, losY - c60); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(mx - 6, losY + c60); ctx.lineTo(mx + 6, losY + c60); ctx.stroke();
+      ctx.restore();
+      plot.text('1st Fresnel r1 = ' + fmt(out.r1, 4) + ' m,  60% = ' + fmt(out.need60, 4) + ' m',
+        mx + 10, losY - r1px - 6, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+      plot.text('LOS clears the bulge by ' + fmt(out.clearance, 4) + ' m',
+        mx + 10, losY - r1px + 8, { color: out.fresnelOK ? PALETTE.accent3 : PALETTE.accent2, font: 'bold 10px ui-monospace, monospace' });
+    }
+
+    // ------------------------------------------------------------- axis + labels
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(x0, surfY(0) + 16); ctx.lineTo(x1, surfY(D) + 16); ctx.stroke();
+    ctx.restore();
+    for (let i = 0; i <= 4; i++) {
+      const d = D * i / 4;
+      const sx = X(d);
+      const sy = surfY(d) + 16;
+      ctx.save();
+      ctx.strokeStyle = PALETTE.axis;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy + 6); ctx.stroke();
+      ctx.restore();
+      plot.text(fmt(d, 4), sx, sy + 19, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('distance along the path (km), drawn on the curved Earth', (x0 + x1) / 2, baseY + 70,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    plot.text('vertical scale follows the bulge: 1 px = ' + fmt(scaleMetersPerPx, 3) + ' m, so the antenna' +
+      (out.ht === 1 && out.hr === 1 ? '' : 's are') + ' too short to draw to scale at this distance ' +
+      '(the true height is printed at each mast)', x0, baseY + 86,
+      { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    plot.text('exact circular-Earth bulge at the midpoint = ' + fmt(out.bulge, 4) + ' m over ' + fmt(D, 4) +
+      ' km   (elevation of the surface above the chord)', x0, topY - 56,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // -------------------------------------------------- governing formulas
+    plot.text('d_radio = sqrt(2 k a h)   with k = ' + fmt(out.k, 5) + ', a = 6371 km  ->  d_km = ' +
+      fmt(4.1213 * Math.sqrt(out.k / 1.3333333), 5) + ' sqrt(h_m)', 16, 20,
+      { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('d_t = sqrt(2 x ' + fmt(out.k, 5) + ' x ' + fmt(out.a, 5) + ' x ' + fmt(out.ht, 4) + '/1000) = ' +
+      fmt(out.dt, 5) + ' km        d_r = sqrt(2 x ' + fmt(out.k, 5) + ' x ' + fmt(out.a, 5) + ' x ' +
+      fmt(out.hr, 4) + '/1000) = ' + fmt(out.dr, 5) + ' km        d_t + d_r = ' + fmt(out.sum, 5) + ' km',
+      16, 38, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    plot.text('geometric horizon (k = 1): sqrt(2 x 6371 x ' + fmt(out.ht, 4) + '/1000) = ' + fmt(out.dtG, 5) +
+      ' km  for TX,  ' + fmt(out.drG, 5) + ' km for RX   ->   refraction extends the horizon by ' +
+      fmt(out.horizonPct, 4) + ' %  (sqrt(4/3) = 1.1547, i.e. +15.47 %)',
+      16, topY - 36, { color: PALETTE.accent5, font: '11px ui-monospace, monospace' });
+    plot.text('first Fresnel zone at midpath:  r1 = 17.32 sqrt(d1 d2 / (f D)) = 17.32 sqrt((' +
+      fmt(D / 2, 4) + ')(' + fmt(D / 2, 4) + ') / (' + fmt(out.f, 4) + ' x ' + fmt(D, 4) + ')) = ' +
+      fmt(out.r1, 4) + ' m   ->  60% criterion needs ' + fmt(out.need60, 4) + ' m',
+      16, topY - 18, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const n = (x, s) => fmt(x, s);
+    const rows = {};
+    rows['geometric horizon of TX (k = 1)'] = n(out.dtG, 5) + ' km';
+    rows['geometric horizon of RX (k = 1)'] = n(out.drG, 5) + ' km';
+    rows['radio horizon of TX'] = n(out.dt, 5) + ' km';
+    rows['radio horizon of RX'] = n(out.dr, 5) + ' km';
+    rows['refraction gain over k = 1'] = n(out.horizonPct, 4) + ' percent (sqrt(k) - 1; 4/3 gives 15.47 percent)';
+    rows['total line-of-sight distance'] = n(out.sum, 5) + ' km (d_TX + d_RX)';
+    rows['separation D'] = n(out.D, 5) + ' km';
+    rows['link geometrically LOS at D?'] = out.closes
+      ? 'YES, the radio horizons overlap by ' + n(out.sum - out.D, 5) + ' km'
+      : 'NO, the horizons fall short by ' + n(out.D - out.sum, 5) + ' km';
+    rows['maximum span for these heights'] = n(out.sum, 5) + ' km (d_TX + d_RX)';
+    rows['height needed to close D'] = out.closes
+      ? 'already closed at these heights'
+      : n(out.htReq, 5) + ' m at TX together with ' + n(out.hrReq, 5) + ' m at RX';
+    rows['Earth bulge at midpath'] = n(out.bulge, 5) + ' m (surface above the chord)';
+    rows['worst clearance along the path'] = n(out.worst, 5) + ' m at ' + n(out.worstAt * 100, 4) + ' percent of the path';
+    rows['LOS clearance at midpath'] = out.clearance > 0
+      ? n(out.clearance, 5) + ' m above the bulge (midpoint LOS height ' + n(out.losMid, 5) + ' m minus bulge)'
+      : 'the LOS line is ' + n(out.bulge - out.losMid, 5) + ' m BELOW the surface at the midpoint';
+    rows['first Fresnel radius r1 at midpath'] = n(out.r1, 5) + ' m at ' + n(out.f, 5) + ' GHz';
+    rows['60 percent Fresnel clearance'] = n(out.need60, 5) + ' m';
+    rows['Fresnel criterion'] = out.fresnelOK
+      ? 'PASS, clearance is ' + n(out.fresnelPct, 4) + ' percent of r1 (need 60)'
+      : 'FAIL, clearance is only ' + n(out.fresnelPct, 4) + ' percent of r1 (need 60)';
+    rows['max span on the 60 percent criterion'] = out.fresnelLimit < 0.5
+      ? 'zero - the criterion is not met even at point-blank range at this frequency'
+      : n(out.fresnelLimit, 5) + ' km' +
+        (out.fresnelLimited ? '  (Fresnel-limited, much shorter than the radio horizon)' : '  (equals the radio horizon)');
+    rows['effective Earth radius, k times a'] = n(out.ae, 5) + ' km';
+    rows['radio horizon constant in use'] = n(4.1213 * Math.sqrt(out.k / 1.3333333), 5) + ' (d_km = C sqrt(h_m))';
+    rows[out.closes ? 'what the picture shows' : 'what the picture shows (no LOS)'] = out.closes
+      ? 'a straight line between the two antennas that never touches the surface'
+      : 'each antenna can see only to its own horizon; the regions past those points are in shadow';
+    rows['reference radio horizons (k = 4/3)'] = out.refs.map((r) => 'h=' + r.h + ' m -> ' + fmt(r.d, 4) + ' km').join('   |   ');
+    return rows;
+  },
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Where the 4.12 comes from.</strong> The horizon of an antenna of height h on a sphere of radius a ' +
+  'is the tangent length d = sqrt(2 a h), and because h is tiny compared with a, that tangent length and the ' +
+  'arc along the surface agree to better than 0.001 percent. With refraction folded in by replacing a with ' +
+  'k a, d = sqrt(2 k a h) = sqrt(2 x (4/3) x 6371) x sqrt(h_km). Working the constant in metres, ' +
+  'sqrt(2 x 1.3333 x 6371000) = 4121.3, so d_km = 4.12 sqrt(h_m). That is the whole formula -- there is no ' +
+  'separate "radio horizon constant" to memorise beyond 4.12 (and 4.12 = sqrt(2 x 4/3 x 6371/1000)).<br>' +
+  '<strong>Why refraction extends the horizon by exactly 15.47 percent.</strong> The standard atmosphere has ' +
+  'a refractive index that falls with height, so a ray launched horizontally bends downward and follows the ' +
+  'curve of the Earth a little longer than a straight light ray would. In the k = 4/3 model the path is ' +
+  'straight again but the Earth is fatter, and since d is proportional to sqrt(k), the gain is ' +
+  'sqrt(4/3) - 1 = 15.47 percent -- independent of h, frequency and everything else. Set k = 1 in this widget ' +
+  'and watch every horizon shrink by that exact factor.<br>' +
+  '<strong>Line of sight is not the same as a usable link.</strong> A path can clear the ground and still ' +
+  'fail, because the first Fresnel zone must be substantially clear for the wavefront to arrive intact. The ' +
+  'usual criterion is that at least 60 percent of r1 = 17.32 sqrt(d1 d2 / (f_GHz D)) is unobstructed. Treat ' +
+  'that number with respect: r1 is LARGEST at the midpoint, GROWS as the frequency falls (longer wavelength, ' +
+  'fatter zone), and grows with the path length. At 900 MHz over 30 km, r1 at the midpoint is 50 m, so the ' +
+  'criterion asks for 30 m of clearance where the Earth bulge alone is already 17.7 m -- which is exactly why ' +
+  'real 900 MHz links are either short or use towers far taller than the horizon distance alone would demand. ' +
+  'The readout therefore quotes the distance at which the 60 percent criterion still holds, separately from ' +
+  'the radio horizon, and the two are often wildly different.<br>' +
+  '<strong>Exam mistake this prevents:</strong> quoting 4.12 sqrt(h) as the geometric horizon. It is the ' +
+  '<em>radio</em> horizon -- it already contains the 4/3 factor. If a question says "optical line of sight" ' +
+  'or gives k = 1, the constant is sqrt(2 x 6371 / 1000) = 3.57, giving d_km = 3.57 sqrt(h_m), which is ' +
+  '13 percent shorter than 4.12 sqrt(h). The second slip is using the transmitter height for both ends of a ' +
+  'two-antenna path: the total span is sqrt(2kah_t) PLUS sqrt(2kah_r), not sqrt(2ka(h_t + h_r)). Adding the ' +
+  'heights first and taking one square root understates the span -- for h_t = 30 m and h_r = 10 m it gives ' +
+  '26.0 km instead of the correct 31.1 km. The third slip is forgetting to convert h to metres: the 4.12 ' +
+  'constant only works with h in metres, and a height in feet needs d_mi = 1.23 sqrt(h_ft).';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

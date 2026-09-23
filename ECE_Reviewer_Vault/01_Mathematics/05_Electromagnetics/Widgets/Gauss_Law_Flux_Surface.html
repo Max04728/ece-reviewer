@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gauss's Law — Flux Through a Closed Surface</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, si, PALETTE } from '../../../Assets/vault.js';
+
+// Gauss's law is one line to state and then routinely distrusted. Candidates believe
+// that moving the charge off centre, changing the shape of the surface, or parking
+// another charge alongside will change the flux. This widget literally counts the
+// field lines crossing the drawn surface, outward count minus inward count, so the
+// invariance is something the eye can check rather than something to be memorised.
+
+const EPS0 = 8.854e-12;   // F/m
+const R = 1;              // sphere radius / cube half-side, in figure units
+
+// The canvas is a fixed 900 px wide with a 34 px pad, so choosing the y-range fixes
+// the x-range that keeps one figure unit the same length on both axes (no squashed
+// circles). Height 470 -> inner 832 x 402 px, so the x span must be 3.1 * 832/402.
+const VIEW = { xMin: -3.208, xMax: 3.208, yMin: -1.55, yMax: 1.55 };
+
+const CONFIGS = {
+  sphere_centre: {
+    label: 'Point charge at the centre of a sphere',
+    surf: 'sphere', where: 'centre',
+    claim: 'Every line leaves once, normal to the surface, spread perfectly evenly. Net crossings = number of lines drawn.',
+  },
+  cube_centre: {
+    label: 'Point charge at the centre of a cube',
+    surf: 'cube', where: 'centre',
+    claim: 'A cube is NOT a symmetry surface for Gauss\u2019s law, so D is not uniform over the faces \u2014 but the total flux is identical to the sphere. By symmetry each face carries exactly Q/6.',
+  },
+  sphere_offcentre: {
+    label: 'Charge off-centre, still inside the sphere',
+    surf: 'sphere', where: 'inside',
+    claim: 'The field is no longer uniform over the surface: the near side is dense, the far side sparse. The two effects cancel exactly, so the total flux is unchanged.',
+  },
+  outside: {
+    label: 'Charge outside the closed surface',
+    surf: 'sphere', where: 'outside',
+    claim: 'Field lines still cross the surface, but every line that enters also leaves. Net flux is exactly zero: Q_enc = 0, so \u03a8 = 0.',
+  },
+};
+
+const KEYS = Object.keys(CONFIGS);
+
+// --- geometry helpers -------------------------------------------------------
+/** Positive ray parameters where the ray p + t*u meets the circle of radius r. */
+function hitSphere(px, py, ux, uy, r) {
+  const b = px * ux + py * uy;
+  const c = px * px + py * py - r * r;
+  const disc = b * b - c;
+  if (disc < 0) return [];
+  const s = Math.sqrt(disc);
+  return [-b - s, -b + s].filter((t) => t > 1e-9);
+}
+
+/** Positive ray parameters where the ray meets the square |x|,|y| = S from inside. */
+function hitSquare(px, py, ux, uy, S) {
+  const ts = [];
+  if (Math.abs(ux) > 1e-12) ts.push((S - px) / ux, (-S - px) / ux);
+  if (Math.abs(uy) > 1e-12) ts.push((S - py) / uy, (-S - py) / uy);
+  return ts
+    .filter((t) => {
+      if (t <= 1e-9) return false;
+      const x = px + t * ux, y = py + t * uy;
+      return Math.abs(x) <= S + 1e-9 && Math.abs(y) <= S + 1e-9;
+    })
+    .filter((t, i, arr) => arr.findIndex((u) => Math.abs(u - t) < 1e-6) === i);  // corner rays hit one point, not two
+}
+
+/** Outward unit normal of the surface at a hit point. */
+function outwardNormal(surf, x, y, S) {
+  if (surf === 'sphere') {
+    const n = Math.hypot(x, y) || 1;
+    return [x / n, y / n];
+  }
+  // square: the coordinate sitting on the boundary decides the face
+  if (Math.abs(Math.abs(x) - S) < Math.abs(Math.abs(y) - S)) return [Math.sign(x), 0];
+  return [0, Math.sign(y)];
+}
+
+function arrowHead(ctx, px, py, ang, size, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.translate(px, py);
+  ctx.rotate(ang);
+  ctx.beginPath();
+  ctx.moveTo(size, 0);
+  ctx.lineTo(-size * 0.85, size * 0.62);
+  ctx.lineTo(-size * 0.85, -size * 0.62);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+let handle = null;          // the object widget() returns, for show/hide + syncUI
+let formulaEl = null, noteEl = null;
+
+handle = widget({
+  title: 'Gauss\u2019s Law \u2014 Flux Depends Only on the Enclosed Charge',
+  description:
+    'Pick a configuration and watch the field lines cross the closed surface. The net number of crossings (outward \u2212 inward) tracks Q_enc exactly \u2014 the shape of the surface and any charge outside it change nothing.',
+  height: 470,
+  range: VIEW,
+  controls: [
+    { id: 'config', label: 'configuration', type: 'select', options: KEYS.map((k) => ({ value: k, label: CONFIGS[k].label })), value: KEYS[0] },
+    { id: 'Q', label: 'charge Q (nC)', min: -20, max: 20, step: 0.5, value: 5 },
+    { id: 'off', label: 'off-centre offset (\u00d7 R)', min: 0, max: 0.9, step: 0.01, value: 0.5 },
+    { id: 'out', label: 'distance beyond surface (\u00d7 R)', min: 0.1, max: 1.6, step: 0.02, value: 0.5 },
+  ],
+  compute: (v) => {
+    const C = CONFIGS[v.config];
+    const Q = v.Q * 1e-9;                       // coulombs
+    let xc = 0;                                  // charge position on the x-axis
+    let enclosed = true;
+
+    if (C.where === 'inside') xc = v.off * R;
+    else if (C.where === 'outside') { xc = R + v.out; enclosed = false; }
+
+    const Qenc = enclosed ? Q : 0;
+    const Psi = Qenc;                            // flux of D, in coulombs
+    const PhiE = Qenc / EPS0;                    // flux of E, in N m^2 / C
+
+    // Field-line count is made proportional to |Q| so the picture is quantitative.
+    const nLines = Math.max(4, Math.min(40, Math.round(Math.abs(v.Q) * 2)));
+
+    // Trace the drawn rays and count signed crossings of the surface.
+    const hits = [];
+    let outCount = 0, inCount = 0;
+    const sgn = v.Q >= 0 ? 1 : -1;               // direction of E along the ray
+    for (let i = 0; i < nLines; i++) {
+      const th = (2 * Math.PI * i) / nLines + 0.13;
+      const ux = Math.cos(th), uy = Math.sin(th);
+      const ts = C.surf === 'sphere' ? hitSphere(xc, 0, ux, uy, R) : hitSquare(xc, 0, ux, uy, R);
+      for (const t of ts) {
+        const hx = xc + t * ux, hy = t * uy;
+        const [nx, ny] = outwardNormal(C.surf, hx, hy, R);
+        const leaving = sgn * (ux * nx + uy * ny) > 0;
+        if (leaving) outCount++; else inCount++;
+        hits.push({ x: hx, y: hy, leaving });
+      }
+    }
+    const net = outCount - inCount;
+
+    return { C, Q, Qenc, Psi, PhiE, xc, nLines, hits, outCount, inCount, net, enclosed, off: v.off, out: v.out };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange(VIEW);
+    plot.clear().grid(0.5, 0.5);
+
+    const { C, xc, nLines } = out;
+    const sgn = v.Q >= 0 ? 1 : -1;
+    const chargeColor = v.Q >= 0 ? PALETTE.accent2 : PALETTE.accent;
+
+    // --- the closed surface -------------------------------------------------
+    ctx.save();
+    if (C.surf === 'sphere') {
+      const rpx = plot.X(R) - plot.X(0);
+      ctx.beginPath();
+      ctx.arc(plot.X(0), plot.Y(0), rpx, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(137,180,250,0.07)';
+      ctx.fill();
+      ctx.setLineDash([7, 5]);
+      ctx.strokeStyle = PALETTE.accent;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else {
+      const x0 = plot.X(-R), x1 = plot.X(R), y0 = plot.Y(R), y1 = plot.Y(-R);
+      ctx.fillStyle = 'rgba(137,180,250,0.07)';
+      ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      ctx.setLineDash([7, 5]);
+      ctx.strokeStyle = PALETTE.accent;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    }
+    ctx.restore();
+
+    // --- field lines --------------------------------------------------------
+    const L = 4.2;
+    for (let i = 0; i < nLines; i++) {
+      const th = (2 * Math.PI * i) / nLines + 0.13;
+      const ux = Math.cos(th), uy = Math.sin(th);
+      plot.segment(xc, 0, xc + L * ux, L * uy, {
+        color: v.Q >= 0 ? 'rgba(243,139,168,0.55)' : 'rgba(137,180,250,0.55)',
+        width: 1.2,
+      });
+      // arrowhead showing the direction of E
+      const ta = 0.55;
+      const ax = xc + ta * ux, ay = ta * uy;
+      const ang = Math.atan2(plot.Y(0) - plot.Y(uy * 0.1), plot.X(ux * 0.1) - plot.X(0));
+      arrowHead(ctx, plot.X(ax), plot.Y(ay), sgn > 0 ? ang : ang + Math.PI, 5, chargeColor);
+    }
+
+    // --- crossings ----------------------------------------------------------
+    for (const h of out.hits) {
+      plot.dot(h.x, h.y, { color: h.leaving ? PALETTE.accent3 : PALETTE.accent4, r: 3.4 });
+    }
+
+    // --- the charge ---------------------------------------------------------
+    plot.dot(xc, 0, { color: chargeColor, r: 7 });
+    plot.text(v.Q >= 0 ? '+' : '\u2212', plot.X(xc) - 4, plot.Y(0) + 5, {
+      color: '#1e1e2e', font: 'bold 13px ui-monospace, monospace',
+    });
+    plot.label('Q = ' + fmt(v.Q, 3) + ' nC', xc - 0.15, -0.22, {
+      color: chargeColor, font: '12px ui-monospace, monospace',
+    });
+
+    // --- annotation ---------------------------------------------------------
+    const title = C.label;
+    plot.text(title, plot.pad + 6, plot.pad + 16, { color: PALETTE.text, font: '13px system-ui, sans-serif' });
+    plot.text('outward crossings ' + out.outCount + '   inward crossings ' + out.inCount + '   net ' + out.net,
+      plot.pad + 6, plot.pad + 34, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+    plot.text('net \u221d \u03a8 = Q_enc = ' + (out.enclosed ? fmt(v.Q, 3) + ' nC' : '0 (charge outside)'),
+      plot.pad + 6, plot.pad + 52, { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+
+    if (C.where === 'inside' && xc > 0.15) {
+      plot.label('denser here', 0.15, R - 0.32, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+      plot.label('sparser here', -R + 0.08, R - 0.32, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+    }
+    if (C.where === 'outside') {
+      plot.text('every entering line leaves again \u2014 net zero', plot.pad + 6, plot.Y(-1.35), {
+        color: PALETTE.accent4, font: '12px ui-monospace, monospace',
+      });
+    }
+    if (C.surf === 'cube') {
+      plot.text('per face: Q_enc / 6 = ' + fmt((v.Q * 1e-9) / 6, 3) + ' C', plot.pad + 6, plot.Y(-1.35), {
+        color: PALETTE.dim, font: '12px ui-monospace, monospace',
+      });
+    }
+  },
+  readout: (out) => ({
+    'enclosed charge Q_enc': out.enclosed ? fmt(out.Q, 4) + ' C' : '0 C  (charge is outside)',
+    'flux \u03a8 = Q_enc': si(out.Psi, 'C'),
+    'flux of E = Q_enc / \u03b5\u2080': fmt(out.PhiE, 5) + ' N\u00b7m\u00b2/C',
+    'lines out \u2212 in': out.net + ' of ' + out.nLines + ' drawn',
+    'surface shape': out.C.surf === 'sphere' ? 'sphere (R = 1)' : 'cube (side = 2)',
+    'vs. centred sphere, same Q': out.enclosed ? 'identical \u2014 \u0394 = 0 %' : '\u03a8 = 0 either way',
+  }),
+  onChange: (v) => syncUI(v),
+});
+
+// --- page furniture: substituted formula + closing insight -------------------
+function makeFormulaBox() {
+  const d = document.createElement('div');
+  d.style.cssText =
+    'margin-top:14px;padding:10px 12px;background:#27273a;border:1px solid #3a3a52;' +
+    'border-left:3px solid #89b4fa;border-radius:6px;font-family:ui-monospace,Consolas,monospace;' +
+    'font-size:0.86rem;line-height:1.65;white-space:pre-wrap;color:#e4e4f0';
+  document.getElementById('app').appendChild(d);
+  return d;
+}
+
+function setVis(id, on) {
+  const c = handle && handle.controls[id];
+  if (!c) return;
+  const w = c.input.closest('.vault-widget-control');
+  if (w) w.style.display = on ? '' : 'none';
+}
+
+function syncUI(v) {
+  const C = CONFIGS[v.config];
+  setVis('off', C.where === 'inside');
+  setVis('out', C.where === 'outside');
+
+  if (formulaEl) {
+    const Q = v.Q * 1e-9;
+    const enc = C.where !== 'outside';
+    const Qenc = enc ? Q : 0;
+    const lines = [
+      'GAUSS\u2019S LAW        \u03a8 = \u222e D \u00b7 dS = Q_enc          \u03a6_E = \u222e E \u00b7 dS = Q_enc / \u03b5\u2080',
+      '\u03b5\u2080 = 8.854\u00d710\u207b\u00b9\u00b2 F/m      R = 1 (sphere radius = cube half-side)',
+      '',
+      'configuration    ' + C.label,
+      'Q (the source)   ' + fmt(v.Q, 4) + ' nC',
+      'Q_enc            ' + (enc ? fmt(v.Q, 4) + ' nC' : '0 C   \u2190 the charge is outside the surface'),
+      '\u03a8 = Q_enc        ' + fmt(Qenc, 4) + ' C  =  ' + si(Qenc, 'C'),
+      '\u03a6_E = Q_enc/\u03b5\u2080  ' + fmt(Qenc / EPS0, 5) + ' N\u00b7m\u00b2/C',
+      '',
+      'The radius R and the shape of the surface appear nowhere in the answer \u2014',
+      'only Q_enc does. Change any dimension and nothing above moves.',
+    ];
+    formulaEl.innerHTML = lines.join('\n');
+  }
+  if (noteEl) noteEl.innerHTML = '<strong>' + C.label + '.</strong> ' + C.claim;
+}
+
+// --- initial paint of the formula + insight ---------------------------------
+if (typeof document !== 'undefined' && handle) {
+  formulaEl = makeFormulaBox();
+  noteEl = document.createElement('div');
+  noteEl.className = 'vault-widget-note';
+  noteEl.innerHTML =
+    '<strong>The point.</strong> \u03a8 = Q_enc, full stop. It does not depend on the shape of the ' +
+    'surface, on the size of the surface, on where the enclosed charge sits inside it, or on any charge ' +
+    'outside it. Moving the charge off centre makes the lines bunch on the near side and thin out on the ' +
+    'far side \u2014 the two changes cancel, and the net count of crossings is untouched. A charge outside ' +
+    'the surface sends in exactly as many lines as it sends out, contributing zero. ' +
+    '<strong>The mistake this prevents:</strong> answering "the flux changes because the charge is closer ' +
+    'to one side" or "a cube encloses more flux than a sphere". Both are wrong: only Q_enc enters, and a ' +
+    'charge outside the surface contributes exactly nothing \u2014 it neither adds nor subtracts flux.';
+  document.getElementById('app').appendChild(noteEl);
+  syncUI(handle.state.values);
+}
+</script>
+</body>
+</html>

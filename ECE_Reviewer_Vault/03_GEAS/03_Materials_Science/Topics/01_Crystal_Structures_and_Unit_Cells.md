@@ -1,0 +1,278 @@
+---
+id: GEAS-03-01
+title: "Crystal Structures and Unit Cells"
+part: "03_GEAS"
+area: "03_Materials_Science"
+topic: 1
+tier: 1
+depth: full
+problem_count: 10
+prereqs: ["[[01_Atomic_Structure_and_Configurations]]"]
+tags: ["ece", "geas", "materials_science"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 01 — Crystal Structures and Unit Cells
+
+> [!abstract] Scope
+> Identify the Bravais lattice behind a given atomic arrangement and compute lattice parameter, atomic radius, coordination number and theoretical density from unit-cell geometry.
+
+## Core Concept
+
+> [!tip] Intuition
+> A crystal is a unit cell repeated forever. Every exam question in this topic is the same question in disguise: how many whole atoms belong to one cell, and how does the cell edge relate to the atom's radius? Answer those two and the density follows.
+
+**The unit cell is the accounting trick.** A crystal is a lattice plus a basis. The lattice is the infinite array of equivalent points; the basis is the atom group attached to each point. The unit cell is the smallest box that, tiled in three dimensions, reproduces the whole crystal. When you count atoms 'in' a cell you are really dividing ownership: a corner atom is shared by 8 adjacent cells and therefore counts $\frac{1}{8}$; a face-centre by 2 cells, $\frac{1}{2}$; an edge-centre by 4 cells, $\frac{1}{4}$; a body-centre belongs to only one cell, $1$. Getting the sharing fractions right is the single most common source of wrong answers in the whole area, because a mistake there propagates straight into the density.
+
+**The seven systems and fourteen Bravais lattices.** The seven crystal systems are classified by the *shape* of the cell — the axial lengths $a, b, c$ and the interaxial angles $\alpha, \beta, \gamma$: cubic ($a=b=c$, $90^\circ$), tetragonal ($a=b\neq c$, $90^\circ$), orthorhombic ($a\neq b\neq c$, $90^\circ$), rhombohedral/trigonal ($a=b=c$, equal angles $\neq 90^\circ$), hexagonal ($a=b\neq c$, $\alpha=\beta=90^\circ$, $\gamma=120^\circ$), monoclinic (one angle $\neq 90^\circ$) and triclinic (all unequal, all angles different). Adding the possible centring types — primitive P, base-centred C, body-centred I, face-centred F — gives exactly **14 Bravais lattices**. The board likes the count (7 systems, 14 lattices) and the fact that no crystal has five-fold rotational symmetry: only 1, 2, 3, 4 and 6-fold axes are compatible with a space-filling lattice.
+
+**The four structures the board actually tests.** Simple cubic (SC) has 1 lattice point per cell and coordination number 6; atoms touch along the cube edge, so $a = 2R$. Body-centred cubic (BCC) has points at the 8 corners plus the body centre, $n = 8(\frac{1}{8}) + 1 = 2$, CN = 8; the body-centre atom touches the corner atoms, so the contact direction is the body diagonal, $\sqrt{3}a = 4R$. Face-centred cubic (FCC) has points at the corners plus the six face centres, $n = 8(\frac{1}{8}) + 6(\frac{1}{2}) = 4$, CN = 12; contact is along the face diagonal, $\sqrt{2}a = 4R$. Hexagonal close-packed (HCP) has $n = 6$ and CN = 12 with $c/a = 1.633$ for ideal spheres. SC is rare in metals (only polonium); BCC metals include Fe, Cr, W, Mo; FCC metals include Cu, Al, Ni, Au, Ag, Pb. HCP metals include Mg, Zn, Ti. Metals are dense-packed because metallic bonding is non-directional — the atoms behave as hard spheres and simply maximise the number of touching neighbours.
+
+**Why the radius relation is a geometry problem, not a fact to memorise.** In a close-packed direction the atoms touch, so the centre-to-centre distance equals $2R$. For FCC that direction is the face diagonal, whose length is $\sqrt{a^2+a^2} = \sqrt{2}\,a = 4R$. For BCC the close-packed direction is the body diagonal $\sqrt{3}\,a = 4R$ (the corner atoms do **not** touch each other along the edge in BCC — the edge length is larger than $2R$). In SC the edge itself is the contact direction, $a = 2R$. Deriving the relation each time, rather than reciting it, is what protects you when a question asks about a direction rather than the cell constant.
+
+**Theoretical density and what a discrepancy means.** $\rho = \dfrac{nA}{V_c N_A}$ where $n$ is atoms per cell, $A$ the atomic weight in g/mol, $V_c$ the cell volume and $N_A$ Avogadro's number. A unit cell of side $a$ given in ångströms needs $\hat{A}\rightarrow\mathrm{cm}$ conversion, $1\ \hat{A} = 10^{-8}\ \mathrm{cm}$, so a cell of side $3.615\ \hat{A}$ is $3.615\times10^{-8}\ \mathrm{cm}$ on a side. When the *measured* density comes out slightly *below* the theoretical value, the crystal is not perfect: vacancies, interstitials or substitutional impurities change the mass-per-cell without changing the lattice parameter much. Vacancy concentration is often quoted straight from that density deficit, $\dfrac{\Delta\rho}{\rho_{th}} \approx$ fraction of vacant sites. A measured density *above* theoretical is a different story — it usually means the sample contains a denser second phase or the lattice parameter was measured on a strained or alloyed crystal.
+
+**What changes with temperature and alloying.** Raising the temperature expands the lattice parameter (thermal expansion) while the number of atoms per cell stays fixed, so density falls. Adding a substitutional solute of different size distorts the cell and can either raise or lower $a$ — Vegard's law treats the lattice parameter of a solid solution as a weighted average of the end members. Martensite in steel is the classic board example of a *distorted* cell: carbon trapped interstitially in BCC iron stretches the cell into a body-centred tetragonal one, which is why quenched steel is hard and brittle.
+
+## Derivation
+
+**FCC: $\sqrt{2}\,a = 4R$.** In an FCC cell the atoms sit at the eight corners and the centres of all six faces. Consider one face, a square of side $a$ with an atom at each corner and one at the centre. The face-centre atom touches the two corner atoms diagonally across that face. The face diagonal has length $\sqrt{a^2 + a^2} = \sqrt{2}\,a$, and it spans exactly four atomic radii: $R$ from the corner atom to its centre, $2R$ across the face-centre atom, $R$ to the far corner. Setting $\sqrt{2}\,a = 4R$ and solving, $R = \dfrac{\sqrt{2}\,a}{4} = \dfrac{a}{2\sqrt{2}}$, and $a = \dfrac{4R}{\sqrt{2}} = 2\sqrt{2}\,R$.
+
+**BCC: $\sqrt{3}\,a = 4R$.** The body-centre atom touches the eight corner atoms. The body diagonal from one corner to the opposite corner passes through the body centre: $\sqrt{a^2 + (\sqrt{2}\,a)^2} = \sqrt{3}\,a$, and it contains $R + 2R + R = 4R$. Hence $\sqrt{3}\,a = 4R$, or $a = \dfrac{4R}{\sqrt{3}}$ and $R = \dfrac{\sqrt{3}\,a}{4}$. Nothing touches along the cube edge in BCC — the edge length is $a = \frac{4R}{\sqrt{3}} \approx 2.31R$, noticeably longer than the $2R$ an edge-touching structure would give.
+
+**FCC atomic packing factor.** The cell volume is $a^3$ and, from the radius relation, $a = \dfrac{4R}{\sqrt{2}}$, so $V_c = \left(\dfrac{4R}{\sqrt{2}}\right)^3 = \dfrac{64R^3}{2\sqrt{2}} = \dfrac{32R^3}{\sqrt{2}} = 16\sqrt{2}\,R^3$. Each cell owns 4 atoms, each of volume $\dfrac{4}{3}\pi R^3$, so $V_{atoms} = \dfrac{16\pi R^3}{3}$. Therefore APF $= \dfrac{16\pi R^3/3}{16\sqrt{2}\,R^3} = \dfrac{\pi}{3\sqrt{2}} = \dfrac{\pi\sqrt{2}}{6} \approx 0.7405$. The same 0.74 is the maximum packing for equal spheres in three dimensions, which is why both FCC and HCP reach it.
+
+**BCC atomic packing factor.** $a = \dfrac{4R}{\sqrt{3}}$, so $V_c = \dfrac{64R^3}{3\sqrt{3}}$ and, with $n = 2$ atoms, $V_{atoms} = \dfrac{8\pi R^3}{3}$. APF $= \dfrac{8\pi R^3/3}{64R^3/(3\sqrt{3})} = \dfrac{8\pi \cdot 3\sqrt{3}}{3 \cdot 64} = \dfrac{\pi\sqrt{3}}{8} \approx 0.6802$. The lower value than FCC is exactly why BCC metals are, in general, less dense than FCC metals of comparable atomic weight.
+
+**Simple cubic packing factor.** $a = 2R$, $V_c = 8R^3$, one atom per cell: APF $= \dfrac{\frac{4}{3}\pi R^3}{8R^3} = \dfrac{\pi}{6} \approx 0.5236$. 
+
+**Theoretical density from a unit cell.** The mass of one cell is the mass of the $n$ atoms it owns: $m = \dfrac{nA}{N_A}$. The volume is $V_c$ (for cubic cells, $V_c = a^3$). Then $\rho = \dfrac{m}{V_c} = \dfrac{nA}{V_c N_A}$. Two unit conversions decide every numerical answer: $1\ \hat{A} = 10^{-8}\ \mathrm{cm}$ for the cell edge, and the density then lands directly in $\mathrm{g/cm^3}$ because $A$ is in g/mol and $N_A$ is per mol.
+
+**Radius from a measured density (the inverse problem).** Rearranging the density equation for a cubic cell: $a = \left(\dfrac{nA}{\rho N_A}\right)^{1/3}$, then apply the structure's radius relation — $R = a/2$ for SC, $R = \sqrt{3}\,a/4$ for BCC, $R = \sqrt{2}\,a/4$ for FCC. This is how atomic radii are measured experimentally, and it is a favourite board question because it forces you to use both the density formula and the contact geometry.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Atoms per unit cell | $n = \frac{N_{corners}}{8} + \frac{N_{faces}}{2} + \frac{N_{edges}}{4} + N_{interior}$ | Sharing rule; corner counts 1/8, face 1/2, edge 1/4, interior 1. Gives 1 for SC, 2 for BCC, 4 for FCC, 6 for HCP. |
+| FCC radius relation | $a = \frac{4R}{\sqrt{2}} = 2\sqrt{2}\,R$ | Atoms touch along the face diagonal. Use only for FCC; inserting a in metres and reading R in cm is the usual slip. |
+| BCC radius relation | $a = \frac{4R}{\sqrt{3}} \approx 2.31R$ | Contact along the body diagonal. The cube edge is not a contact direction in BCC, so a is not 2R. |
+| SC radius relation | $a = 2R$ | Contact along the cube edge. Only Po among metals; the tempting default that is wrong for BCC and FCC. |
+| HCP ideal axial ratio | $\frac{c}{a} = \sqrt{\frac{8}{3}} \approx 1.633$ | Ideal close packing. Real HCP metals deviate (Zn 1.856, Mg 1.624) and the cell volume becomes \frac{3\sqrt{3}}{2}a^2c. |
+| Theoretical density | $\rho = \frac{nA}{V_c N_A}$ | A in g/mol, N_A = 6.022\times10^{23}. For a cubic cell V_c = a^3 with a in cm; using a in Å makes the answer 10^{24} times too large. |
+| Cubic cell volume | $V_c = a^3$ | Cubic systems only. Convert a from Å to cm first: 1\ \hat{A} = 10^{-8}\ \mathrm{cm}, so a^3 carries 10^{-24}. |
+| HCP cell volume | $V_c = \frac{3\sqrt{3}}{2}a^2c$ | Three primitive cells in the hexagonal prism. Forgetting the 3\sqrt{3}/2 factor inflates density by about 1.4. |
+| Lattice parameter from density | $a = \left(\frac{nA}{\rho N_A}\right)^{1/3}$ | Cubic cells only, and n must match the assumed structure. Try the structure, then check the radius is physically sensible. |
+| Atomic radius from density (FCC) | $R = \frac{\sqrt{2}}{4}\left(\frac{4A}{\rho N_A}\right)^{1/3}$ | The inverse problem for FCC; answers come out in cm, multiply by 10^{8} for Å. |
+| Atomic packing factor | $APF = \frac{n\left(\frac{4}{3}\pi R^3\right)}{V_c}$ | Dimensionless, always \leq 0.7405. Use R and V_c in the same length unit or the ratio is garbage. |
+| Density deficit from vacancies | $\frac{\Delta\rho}{\rho_{th}} \approx \frac{N_{vac}}{N_{sites}}$ | Measured density below theoretical signals vacancies, provided a was measured on the same sample. |
+| Coordination numbers | $CN_{SC} = 6,\ CN_{BCC} = 8,\ CN_{FCC} = CN_{HCP} = 12$ | Nearest-neighbour count. Confusing CN with atoms per cell (1, 2, 4, 6) is the classic mismatch. |
+| Angstrom to centimetre | $1\ \hat{A} = 10^{-10}\ \mathrm{m} = 10^{-8}\ \mathrm{cm}$ | Applies to every a, R and d in this area. Cube it carefully: (10^{-8})^3 = 10^{-24}. |
+
+## Interactive Widget
+
+**Unit Cell 3D Viewer**
+
+![[Unit_Cell_3D_Viewer.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. Copper is FCC with lattice parameter $a = 3.615\ \hat{A}$. Find the atomic radius of copper in ångströms and in picometres.
+
+**Given:** FCC structure; $a = 3.615\ \hat{A}$
+
+**Solution:**
+
+1. FCC atoms touch along the face diagonal: sqrt(2) a = 4R
+2. R = sqrt(2) a / 4 = 1.4142(3.615)/4
+3. R = 5.1123/4 = 1.2781 Å
+4. In picometres: 1.2781 Å x 100 pm/Å = 127.8 pm
+
+> [!success]- Answer
+> **$R = 1.278\ \hat{A} = 127.8\ \mathrm{pm}$ (the accepted value is 0.128 nm).**
+
+> [!warning] Trap
+> Using $a = 2R$ (the SC relation) gives $R = 1.808\ \hat{A}$, 41% too large. If the problem says FCC, the contact direction is the face diagonal, never the edge.
+
+### P2. Iron at room temperature is BCC with $a = 2.866\ \hat{A}$ and $A = 55.85\ \mathrm{g/mol}$. Compute its theoretical density and compare it with the measured $7.87\ \mathrm{g/cm^3}$.
+
+**Given:** BCC; $a = 2.866\ \hat{A}$; $A = 55.85\ \mathrm{g/mol}$; $N_A = 6.022\times10^{23}\ \mathrm{mol^{-1}}$
+
+**Solution:**
+
+1. Atoms per cell: n = 8(1/8) + 1 (body centre) = 2
+2. Convert a: 2.866 Å = 2.866e-8 cm, so V_c = (2.866e-8)^3 = 2.354e-23 cm^3
+3. Numerator nA = 2(55.85) = 111.70 g/mol
+4. ρ = 111.70 / (2.354e-23 x 6.022e23) = 111.70 / 14.176
+5. ρ = 7.88 g/cm^3
+
+> [!success]- Answer
+> **$\rho_{th} = 7.88\ \mathrm{g/cm^3}$, within about 0.1% of the measured $7.87\ \mathrm{g/cm^3}$ — the crystal is essentially defect-free at that level.**
+
+> [!warning] Trap
+> Counting BCC as 1 atom per cell (corners only) and reporting $3.94\ \mathrm{g/cm^3}$. The body-centre atom is owned entirely by that cell, so n = 2.
+
+### P3. Aluminium is FCC with $A = 26.98\ \mathrm{g/mol}$, $\rho = 2.70\ \mathrm{g/cm^3}$ and $a = 4.05\ \hat{A}$. Verify the number of atoms per unit cell implied by these data.
+
+**Given:** FCC; $a = 4.05\ \hat{A}$; $A = 26.98\ \mathrm{g/mol}$; $\rho = 2.70\ \mathrm{g/cm^3}$
+
+**Solution:**
+
+1. V_c = (4.05e-8)^3 = 6.643e-23 cm^3
+2. Mass per cell available: ρ V_c = 2.70 x 6.643e-23 = 1.7936e-22 g
+3. Moles per cell = 1.7936e-22 / 26.98 = 6.647e-24 mol
+4. Atoms per cell = 6.647e-24 x 6.022e23 = 4.00
+
+> [!success]- Answer
+> **$n = 4$, exactly as FCC requires — the data are self-consistent.**
+
+> [!warning] Trap
+> Dividing the cell volume by the atomic volume of a sphere and expecting 4; the packing factor (0.74) means only 74% of the cell is matter, so that shortcut returns about 5.4 and looks like a contradiction.
+
+### P4. Tungsten is BCC with $a = 3.165\ \hat{A}$ and $A = 183.84\ \mathrm{g/mol}$. Find its theoretical density and its atomic radius.
+
+**Given:** BCC; $a = 3.165\ \hat{A}$; $A = 183.84\ \mathrm{g/mol}$
+
+**Solution:**
+
+1. n = 2 for BCC
+2. V_c = (3.165e-8)^3 = 3.171e-23 cm^3
+3. ρ = 2(183.84) / (3.171e-23 x 6.022e23) = 367.68 / 19.100
+4. ρ = 19.25 g/cm^3
+5. Radius: R = sqrt(3) a/4 = 1.7321(3.165)/4 = 1.370 Å
+
+> [!success]- Answer
+> **$\rho = 19.25\ \mathrm{g/cm^3}$, $R = 1.370\ \hat{A}$. The very high density is why tungsten is the classic incandescent filament material.**
+
+> [!warning] Trap
+> Reporting $R = a/2 = 1.583\ \hat{A}$ by treating BCC as edge-contacting. The BCC edge is 2.31R long, so that value overstates the radius by 15.5%.
+
+### P5. Gold is FCC with $A = 196.97\ \mathrm{g/mol}$ and $\rho = 19.3\ \mathrm{g/cm^3}$. Estimate its lattice parameter in ångströms and its atomic radius in nanometres.
+
+**Given:** FCC; $A = 196.97\ \mathrm{g/mol}$; $\rho = 19.3\ \mathrm{g/cm^3}$; $n = 4$
+
+**Solution:**
+
+1. a^3 = nA/(ρ N_A) = 4(196.97)/(19.3 x 6.022e23)
+2. Numerator 787.88; denominator 1.1622e25
+3. a^3 = 6.779e-23 cm^3, so a = (6.779e-23)^(1/3) = 4.078e-8 cm
+4. a = 4.078 Å
+5. R = sqrt(2) a/4 = 1.4142(4.078)/4 = 1.442 Å = 0.144 nm
+
+> [!success]- Answer
+> **$a = 4.078\ \hat{A}$ (textbook 4.078 Å) and $R = 0.144\ \mathrm{nm}$.**
+
+> [!warning] Trap
+> Leaving $a$ in centimetres and writing $a = 4.078\times10^{-8}\ \hat{A}$. The cube root of a cm³ number is a cm number; multiply by $10^{8}$ to reach ångströms.
+
+### P6. A cubic metal is found to have $n = 2$ atoms per cell, $A = 52.00\ \mathrm{g/mol}$ and measured $\rho = 7.20\ \mathrm{g/cm^3}$. Determine its lattice parameter and identify the structure.
+
+**Given:** $n = 2$; $A = 52.00\ \mathrm{g/mol}$; $\rho = 7.20\ \mathrm{g/cm^3}$
+
+**Solution:**
+
+1. a^3 = nA/(ρ N_A) = 2(52.00)/(7.20 x 6.022e23)
+2. Numerator 104.0; denominator 4.336e24
+3. a^3 = 2.399e-23 cm^3, so a = 2.884e-8 cm
+4. a = 2.884 Å, which is the chromium lattice parameter
+5. With n = 2 the structure is body-centred cubic (CN = 8)
+
+> [!success]- Answer
+> **$a = 2.884\ \hat{A}$; the metal is BCC chromium ($2.884\ \hat{A}$, $A = 52.00$).**
+
+> [!warning] Trap
+> Assuming FCC because most familiar metals are FCC, then computing $a = 4.087\ \hat{A}$ and matching nothing. The given $n = 2$ already fixes BCC — FCC would need $n = 4$.
+
+### P7. Zinc is HCP with $a = 2.662\ \hat{A}$, $c = 4.949\ \hat{A}$ and $A = 65.38\ \mathrm{g/mol}$. Find its theoretical density.
+
+**Given:** HCP, $n = 6$; $a = 2.662\ \hat{A}$; $c = 4.949\ \hat{A}$; $A = 65.38\ \mathrm{g/mol}$
+
+**Solution:**
+
+1. V_c = (3 sqrt(3)/2) a^2 c = 2.5981(2.662e-8)^2(4.949e-8)
+2. a^2 = 7.086e-16 cm^2; times c gives 3.507e-23; times 2.5981
+3. V_c = 9.111e-23 cm^3
+4. ρ = 6(65.38) / (9.111e-23 x 6.022e23) = 392.28 / 54.867
+5. ρ = 7.15 g/cm^3
+
+> [!success]- Answer
+> **$\rho = 7.15\ \mathrm{g/cm^3}$ (measured 7.14 g/cm³).**
+
+> [!warning] Trap
+> Using $V_c = a^2c$ gives $3.51\times10^{-23}\ \mathrm{cm^3}$ and $\rho = 18.6\ \mathrm{g/cm^3}$ — 2.6 times too high. The hexagonal prism holds three primitive cells, hence the $3\sqrt{3}/2$ factor.
+
+### P8. A specimen of FCC nickel ($A = 58.69\ \mathrm{g/mol}$, $a = 3.517\ \hat{A}$) is measured to have a density of $8.86\ \mathrm{g/cm^3}$ instead of the theoretical value. Estimate the fraction of vacant lattice sites.
+
+**Given:** FCC, $n = 4$; $a = 3.517\ \hat{A}$; $A = 58.69\ \mathrm{g/mol}$; $\rho_{meas} = 8.86\ \mathrm{g/cm^3}$
+
+**Solution:**
+
+1. V_c = (3.517e-8)^3 = 4.350e-23 cm^3
+2. ρ_th = 4(58.69)/(4.350e-23 x 6.022e23) = 234.76/26.196
+3. ρ_th = 8.962 g/cm^3
+4. Density deficit = (8.962 - 8.86)/8.962 = 0.102/8.962 = 0.0114
+5. Vacant fraction ≈ 1.1% of the sites
+
+> [!success]- Answer
+> **$\rho_{th} = 8.96\ \mathrm{g/cm^3}$; about **1.1%** of lattice sites are vacant.**
+
+> [!warning] Trap
+> Comparing against the handbook density 8.91 g/cm³ instead of recomputing from the given $a$. Theoretical and handbook values differ slightly, and using the wrong baseline flips the sign of the deficit into a nonsense negative vacancy count.
+
+### P9. A metal crystallises in the simple cubic structure with $a = 3.00\ \hat{A}$. Find its atomic radius, its atomic packing factor and the percentage of the cell that is empty space.
+
+**Given:** SC; $a = 3.00\ \hat{A}$
+
+**Solution:**
+
+1. SC contact is along the edge: R = a/2 = 1.50 Å
+2. APF = n(4/3)πR^3/V_c = 1 x 4.18879 x 3.375/27.0
+3. APF = π/6 = 0.5236
+4. Empty space = 1 - 0.5236 = 0.4764 = 47.6%
+
+> [!success]- Answer
+> **$R = 1.50\ \hat{A}$, APF $= 0.524$ (52.4% filled), 47.6% void.**
+
+> [!warning] Trap
+> Quoting APF $= 0.68$ from BCC memory. For SC the packing is $\pi/6 \approx 0.52$; the 0.68 value belongs to BCC and 0.74 to FCC/HCP.
+
+### P10. Iron transforms from BCC ($a = 2.866\ \hat{A}$, $A = 55.85$) to FCC ($a = 3.591\ \hat{A}$) above $912\ ^\circ\mathrm{C}$. Compute both theoretical densities and state which phase is denser, and by what percentage.
+
+**Given:** BCC: $n = 2$, $a = 2.866\ \hat{A}$; FCC: $n = 4$, $a = 3.591\ \hat{A}$; $A = 55.85\ \mathrm{g/mol}$
+
+**Solution:**
+
+1. V_c(BCC) = (2.866e-8)^3 = 2.354e-23 cm^3; ρ = 111.70/(2.354e-23 x 6.022e23) = 7.88 g/cm^3
+2. V_c(FCC) = (3.591e-8)^3 = 4.631e-23 cm^3; ρ = 223.40/(4.631e-23 x 6.022e23) = 8.01 g/cm^3
+3. Difference = (8.01 - 7.88)/7.88 = 0.0165
+4. The FCC phase is denser by about 1.7%
+
+> [!success]- Answer
+> **$\rho_{BCC} = 7.88\ \mathrm{g/cm^3}$, $\rho_{FCC} = 8.01\ \mathrm{g/cm^3}$; FCC is denser by $\approx 1.7\%$.**
+
+> [!warning] Trap
+> Asserting FCC must be denser because its packing factor is higher. APF is higher (0.74 vs 0.68) but the FCC lattice parameter is larger, so the *density* gain is only about 1.7% — a small margin that a sloppy $a$ value easily reverses.
+
+## Traps & Exam Notes
+
+- **Miscounting atoms per cell.** Using 1 for BCC or 2 for FCC shifts density by a factor of 2 and is invisible unless you sanity-check against a known value. BCC = 2, FCC = 4, SC = 1, HCP = 6.
+- **Using the SC contact relation on a close-packed cell.** $a = 2R$ is valid only for SC. Using it on FCC overstates $R$ by 41%; BCC needs $\sqrt{3}a = 4R$ and FCC needs $\sqrt{2}a = 4R$.
+- **Forgetting to cube the ångström conversion.** $1\ \hat{A} = 10^{-8}\ \mathrm{cm}$, so $a^3$ contributes $10^{-24}$. Quoting $a$ in ångströms inside $V_c = a^3$ makes the density $10^{24}$ times too large (or, if you then 'fix' it by an arbitrary power of ten, wrong by a factor of 1000).
+- **Confusing coordination number with atoms per cell.** CN is 6/8/12 for SC/BCC/FCC; atoms per cell is 1/2/4. They are different numbers and a question that asks for one is not asking for the other.
+- **Assuming every cubic metal is FCC.** Iron, chromium, tungsten, molybdenum and vanadium are BCC at room temperature. Assigning them FCC inflates the computed density by about 34% (4 atoms where 2 exist).
+- **Using $V_c = a^2c$ for HCP.** The hexagonal prism contains three primitive cells, so $V_c = \frac{3\sqrt{3}}{2}a^2c$. Dropping that factor gives a density about 2.6 times too high.
+- **Treating the ideal HCP axial ratio as universal.** $c/a = 1.633$ holds only for ideal spheres. Zinc is 1.856 and cadmium 1.886, so plugging 1.633 into a zinc density calculation makes it wrong by about 12%.
+- **Reading a density deficit as measurement noise.** A measured density below theoretical is *evidence of vacancies*; reporting it as 'experimental error' throws away the point of the question. Use $\Delta\rho/\rho \approx$ vacancy fraction.
+
+## See Also
+
+- [[02_Atomic_Packing_Factor_and_Density]]
+- [[03_Miller_Indices]]
+- [[04_Crystal_Imperfections]]
+- [[05_Stress,_Strain_and_Mechanical_Properties]]
+
+---
+
+⬅ *start* · [[_MOC_Materials_Science|MOC]] · [[00_Dashboard|Dashboard]] · [[02_Atomic_Packing_Factor_and_Density|02 ➡]]

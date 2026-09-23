@@ -1,0 +1,249 @@
+/* ============================================================================
+ * snippets.css — shared styling for ECE_Reviewer widgets and vault callouts.
+ * Pairs with Assets/vault.js. Widgets only need their own page-specific tweaks.
+ * ==========================================================================*/
+
+:root {
+  --vw-bg: #1e1e2e;
+  --vw-panel: #27273a;
+  --vw-panel-2: #2f2f45;
+  --vw-border: #3a3a52;
+  --vw-text: #e4e4f0;
+  --vw-dim: #a0a0be;
+  --vw-accent: #89b4fa;
+  --vw-accent-2: #f38ba8;
+  --vw-accent-3: #a6e3a1;
+  --vw-accent-4: #fab387;
+  --vw-warn: #f9e2af;
+  --vw-radius: 10px;
+  --vw-gap: 10px;
+}
+
+/* ---------------------------------------------------------------- layout -- */
+
+/* The widget is a plain NATURAL-HEIGHT document, and that is load-bearing. The embed is sized
+   `height: max-content`, so the frame fits the content exactly and nothing can be clipped.
+   Any rule that makes content height depend on FRAME height — `height: 100%`,
+   `min-height: 100%`, a flex canvas that grows to fill, or a `@media (max-height: ...)` rule —
+   fights fit-to-content sizing: the frame shrinks, the content shrinks with it, and the bottom
+   is clipped a little more on every pass (observed as a progressive 1/2 -> 1/4 -> 1/8 cut).
+   Rule: page height must be a function of CONTENT ONLY, never of the frame. */
+html, body { background: var(--vw-bg); }
+body { margin: 0; } /* the 8px UA margin would otherwise add 16px of scrollable space */
+
+.vault-widget {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 14px;
+  /* Slack for Embed HTML's fit-to-content measurement, which lands slightly SHORT of the real
+     page height and suppresses the iframe's scrollbar, so the bottom band is silently clipped.
+     This padding is dark and empty, so the clipped band falls on blank space instead of the
+     last row of a value table. Sized for the observed ~40px shortfall, with margin to spare.
+     If a widget ever loses content again, raise THIS value before touching anything else. */
+  padding-bottom: 50px;
+  background: var(--vw-bg);
+  color: var(--vw-text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.vault-widget-head { margin-bottom: var(--vw-gap); }
+
+.vault-widget-title {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.vault-widget-desc {
+  margin: 0;
+  color: var(--vw-dim);
+  font-size: 0.92rem;
+}
+
+.vault-widget-canvas {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius);
+  background: var(--vw-bg);
+}
+
+/* -------------------------------------------------------------- controls -- */
+
+.vault-widget-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--vw-gap);
+  margin-top: var(--vw-gap);
+  padding: var(--vw-gap);
+  background: var(--vw-panel);
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius);
+}
+
+.vault-widget-control {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+  align-items: center;
+}
+
+.vault-widget-label {
+  font-size: 0.84rem;
+  color: var(--vw-dim);
+}
+
+.vault-widget-value {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 0.84rem;
+  color: var(--vw-accent);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.vault-widget-input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--vw-accent);
+  background: transparent;
+}
+
+select.vault-widget-input {
+  padding: 5px 6px;
+  color: var(--vw-text);
+  background: var(--vw-panel-2);
+  border: 1px solid var(--vw-border);
+  border-radius: 6px;
+  font-size: 0.86rem;
+}
+
+input[type="checkbox"].vault-widget-input {
+  width: auto;
+  justify-self: start;
+  transform: scale(1.15);
+}
+
+/* --------------------------------------------------------------- readout -- */
+
+.vault-widget-readout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin-top: var(--vw-gap);
+}
+
+.vault-widget-readout-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  background: var(--vw-panel);
+  border: 1px solid var(--vw-border);
+  border-left: 3px solid var(--vw-accent);
+  border-radius: 6px;
+}
+
+.vault-widget-readout-key {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vw-dim);
+}
+
+.vault-widget-readout-val {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--vw-text);
+}
+
+/* ------------------------------------------------------------ utilities -- */
+
+.vault-widget-note {
+  margin-top: var(--vw-gap);
+  padding: 10px 12px;
+  background: var(--vw-panel-2);
+  border-left: 3px solid var(--vw-warn);
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: var(--vw-dim);
+}
+
+.vault-widget-btn {
+  padding: 6px 12px;
+  color: var(--vw-bg);
+  background: var(--vw-accent);
+  border: 0;
+  border-radius: 6px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vault-widget-btn:hover { filter: brightness(1.1); }
+.vault-widget-btn.ghost {
+  color: var(--vw-text);
+  background: transparent;
+  border: 1px solid var(--vw-border);
+}
+
+.vault-mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+.vault-good { color: var(--vw-accent-3); }
+.vault-bad { color: var(--vw-accent-2); }
+
+/* ------------------------------------------- Obsidian callout accenting -- */
+
+.callout[data-callout="trap"] {
+  --callout-color: 243, 139, 168;
+  --callout-icon: lucide-alert-triangle;
+}
+
+.callout[data-callout="formula"] {
+  --callout-color: 137, 180, 250;
+  --callout-icon: lucide-sigma;
+}
+
+.callout[data-callout="drill"] {
+  --callout-color: 166, 227, 161;
+  --callout-icon: lucide-dumbbell;
+}
+
+/* ------------------------------------------------- compact table styling -- */
+
+.markdown-rendered table {
+  font-size: 0.92em;
+}
+
+/* Centre cell contents VERTICALLY. Markdown offers no vertical-alignment syntax, and cells
+   default to baseline alignment, so a row whose Expression is a tall \begin{pmatrix} leaves
+   the quantity and notes text pinned to the TOP of the row instead of beside the maths.
+   `!important` because the app and theme stylesheets also set this and the user asked for it
+   explicitly. */
+.markdown-rendered table th,
+.markdown-rendered table td {
+  vertical-align: middle !important;
+}
+
+.markdown-rendered table th {
+  background: var(--background-secondary);
+  white-space: nowrap;
+}
+
+/* Keep long formula tables readable on narrow panes. */
+.markdown-rendered table td:nth-child(2) {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+}
+
+/* NOTE: do NOT add `@media (max-height: ...)` rules here. They make the content's height
+   depend on the frame's height, which fights the embed's fit-to-content sizing and clips the
+   bottom of the widget progressively. Compact the chrome with fixed values instead. */
+
+@media (max-width: 560px) {
+  .vault-widget { padding: 10px; }
+  .vault-widget-controls { grid-template-columns: 1fr; }
+  .vault-widget-readout { grid-template-columns: 1fr 1fr; }
+}

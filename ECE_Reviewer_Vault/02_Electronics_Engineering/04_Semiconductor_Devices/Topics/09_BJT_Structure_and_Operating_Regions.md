@@ -1,0 +1,182 @@
+---
+id: ECE-04-09
+title: "BJT Structure and Operating Regions"
+part: "02_Electronics_Engineering"
+area: "04_Semiconductor_Devices"
+topic: 9
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_PN_Junction_and_Depletion_Region]]", "[[04_Diode_Models_and_Load_Line]]"]
+tags: ["ece", "electronics_engineering", "semiconductor_devices"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 09 — BJT Structure and Operating Regions
+
+> [!abstract] Scope
+> Decide which of the four operating regions an NPN or PNP BJT is in from its terminal voltages, and use that region to choose the correct current and voltage relations.
+
+## Core Concept
+
+> [!tip] Intuition
+> A BJT is two junctions sharing a very thin, lightly doped base. Forward-bias the emitter junction and the emitter floods the base with carriers; because the base is thin, almost all of them cross to the collector instead of recombining, so a small base current controls a collector current many times larger.
+
+**Construction is deliberately lopsided.** An NPN transistor is three regions in one crystal: an $n^{+}$ **emitter**, a thin lightly doped $p$ **base**, and an $n$ **collector**. The doping is not symmetric. The emitter is the most heavily doped (about $10^{19}$ to $10^{20}\ \mathrm{cm^{-3}}$) because its job is to *inject* carriers. The base is the thinnest region (well under $1\ \mu\mathrm{m}$ in a planar device) and the most lightly doped (about $10^{15}$ to $10^{17}\ \mathrm{cm^{-3}}$) because its job is to *let carriers pass through*. The collector is moderately doped but physically the largest region because it must dissipate the power. The PNP is the same sandwich with every type flipped: $p^{+}$ emitter, $n$ base, $p$ collector. Swapping the letters changes nothing about the physics, only the sign of every voltage and the direction of every current, which is why an examiner can ask the PNP version of any NPN question.
+
+**Why the thin base is the whole trick.** The device has two junctions, base-emitter (BE) and base-collector (BC), and four ways to bias them. In *forward-active* mode the BE junction is forward biased and the BC junction is reverse biased. The forward-biased BE junction injects a large number of majority carriers (electrons for an NPN) into the base. If the base were thick, those carriers would recombine with holes there and the structure would behave as two back-to-back diodes. Because the base is thin and lightly doped, the injected electrons diffuse across it quickly and arrive at the reverse-biased BC depletion region, where the strong field sweeps them into the collector. Only the few percent that recombine in the base become base current. So $I_C \approx I_E$ while $I_B$ stays small: it is the geometry and doping ratio that makes $\beta$ large, not anything in the external circuit.
+
+**The four regions are just the four bias combinations.** (i) **Cutoff**: both junctions reverse biased, only leakage flows, $I_C \approx I_{CEO}$, and the device is an open switch. (ii) **Forward-active**: BE forward, BC reverse; the amplifying region, with $V_{BE}\approx0.7\ \mathrm{V}$, $I_C=\beta I_B$, and $I_C$ almost independent of $V_{CE}$. (iii) **Saturation**: both junctions forward; a closed switch with $V_{CE(sat)}\approx0.2\ \mathrm{V}$, where $I_C$ is set by the external resistors and the base is driven with more current than $I_C/\beta$, so $\beta_{forced}=I_C/I_B<\beta$. (iv) **Inverse-active**: BE reverse, BC forward; the transistor still amplifies but with a tiny $\beta$ (often under 5) because the collector was never designed to inject carriers efficiently. The numeric test is one line: compute $V_{BE}$ and $V_{BC}$ for an NPN. Both forward means saturation, BE forward with BC reverse means forward-active, both reverse means cutoff. Equivalently, if the collector sits below the base, the BC junction is forward biased.
+
+**Terminal currents, the control question, and the thermal limit.** For an NPN, conventional current *enters* the collector and the base and *leaves* the emitter, with $I_E=I_C+I_B$ by KCL; for a PNP the arrows reverse. A candidate answer whose three currents do not satisfy KCL at the device is wrong before any arithmetic is checked. The BJT is a **current-controlled** device: $I_C$ is a multiple of the input *current* $I_B$, and since the input port is a forward-biased diode its input resistance is low ($h_{ie}$ of a few $\mathrm{k\Omega}$), so the drive stage must supply real base current. The FET is the opposite, a **voltage-controlled** device whose insulated or reverse-biased gate draws essentially no current, giving input resistance from $10^{9}\ \Omega$ (JFET) to $10^{12}\ \Omega$ and beyond (MOSFET). Finally the thermal limit:
+$$P_D\approx V_{CE}I_C$$
+is worst in active mode where both factors are large at once, and $T_J=T_A+P_D\theta_{JA}$ must stay below the rated maximum, typically $150\ \mathrm{^\circ C}$. Saturation cuts $P_D$ by roughly the ratio $V_{CE}/V_{CE(sat)}$, which is why a saturated switch needs a far smaller heat sink than a linear amplifier passing the same current.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| KCL at the transistor | $I_E = I_C + I_B$ | Exact for NPN and PNP in every region. A set of currents that does not satisfy this is wrong; never replace it with I_E = I_C except as a stated approximation for large beta. |
+| Active-region collector current | $I_C = \beta I_B$ | Forward-active ONLY. beta is h_FE, typically 50-300, and varies with current, V_CE and temperature. In saturation I_C is smaller than beta*I_B. |
+| Base-emitter drop, NPN forward-active | $V_{BE} \approx 0.7\ \mathrm{V}$ | Silicon at room temperature and moderate current; a PNP uses V_EB = 0.7 V with the emitter more positive. Has a temperature coefficient of about -2 mV per degree C. |
+| Saturation voltage, silicon | $V_{CE(sat)} \approx 0.2\ \mathrm{V}$ | Both junctions forward. Treat it as a fixed drop for a switch. Setting it to 0 V lets the current run away to V_CC/R_C, the classic saturation arithmetic error. |
+| Largest collector current the circuit allows | $I_{C(sat)} = \frac{V_{CC} - V_{CE(sat)}}{R_C}$ | Collector-resistor stage. If beta*I_B exceeds this value the transistor is saturated and I_C is clamped here. |
+| Minimum base current to saturate | $I_{B(min)} = \frac{I_{C(sat)}}{\beta}$ | Only just saturates at exactly this value. Real designs use 2 to 10 times more, i.e. beta_forced = I_C/I_B of 10 to 50, to survive beta spread and heating. |
+| Region test for an NPN | $\mathrm{cutoff:\ } V_{BE} < 0.5\ \mathrm{V},\ V_{BC} < 0 \qquad \mathrm{active:\ } V_{BE} \approx 0.7\ \mathrm{V},\ V_{BC} < 0 \qquad \mathrm{saturation:\ } V_{BE} \approx 0.7\ \mathrm{V},\ V_{BC} > 0$ | V_BC = V_B - V_C. Both junctions forward gives saturation; both reverse gives cutoff; BE forward with BC reverse gives forward-active. Reverse every sign for a PNP. |
+| Collector-emitter voltage from the supply | $V_{CE} = V_{CC} - I_C R_C$ | Simple collector-resistor stage, with the emitter grounded. A result at or below 0.2 V (or negative) means your active-mode assumption was invalid. |
+| Device power dissipation | $P_D = V_{CE} I_C + V_{BE} I_B$ | The second term is usually under 1 percent and is dropped in hand work. Maximum dissipation occurs in active mode, not in cutoff or saturation. |
+| Junction temperature | $T_J = T_A + P_D \theta_{JA}$ | theta_JA in degrees C per watt from the data sheet, including the heat-sink path if one is used. Rated T_J(max) is typically 150 C, so derate the allowable power above 25 C ambient. |
+
+## Worked Problems
+
+### P1. Three silicon NPN transistors are measured with respect to ground: (a) $V_E=0$, $V_B=0.7\ \mathrm{V}$, $V_C=5.0\ \mathrm{V}$; (b) $V_E=1.0\ \mathrm{V}$, $V_B=1.7\ \mathrm{V}$, $V_C=1.2\ \mathrm{V}$; (c) $V_E=0$, $V_B=-0.2\ \mathrm{V}$, $V_C=5.0\ \mathrm{V}$. Name the operating region of each.
+
+**Given:** Device a: V_E = 0 V, V_B = 0.7 V, V_C = 5.0 V; Device b: V_E = 1.0 V, V_B = 1.7 V, V_C = 1.2 V; Device c: V_E = 0 V, V_B = -0.2 V, V_C = 5.0 V; Silicon, V_BE = 0.7 V in conduction
+
+**Solution:**
+
+1. Device a: V_BE = 0.7 - 0 = 0.7 V, forward biased; V_BC = 0.7 - 5.0 = -4.3 V, reverse biased. BE conducts and BC blocks, so the device is forward-active.
+2. Device b: V_BE = 1.7 - 1.0 = 0.7 V, forward biased; V_BC = 1.7 - 1.2 = +0.5 V, also forward biased. Both junctions on means saturation, and V_CE = 1.2 - 1.0 = 0.2 V agrees.
+3. Device c: V_BE = -0.2 - 0 = -0.2 V, reverse biased; V_BC = -0.2 - 5.0 = -5.2 V, reverse biased. Both junctions off means cutoff, with only leakage current.
+4. Rule applied throughout: both junctions forward = saturation, BE forward with BC reverse = forward-active, both reverse = cutoff.
+
+> [!success]- Answer
+> **a) forward-active; b) saturation with V_CE = V_CE(sat) = 0.2 V; c) cutoff (leakage only).**
+
+> [!warning] Trap
+> Judging the region from V_CE alone. Device (b) has only 0.2 V across it and looks like a low-V_CE amplifier, but V_BC = +0.5 V means the base-collector junction is injecting, so it is saturated. The discriminator is V_BC = V_B - V_C, and note the sign order: V_C - V_B would give the wrong answer.
+
+### P2. An NPN transistor is in forward-active mode with $\beta=150$ and $I_B=20\ \mu\mathrm{A}$. Find $I_C$, $I_E$ and $\alpha$.
+
+**Given:** beta = 150; I_B = 20 uA; Forward-active mode
+
+**Solution:**
+
+1. I_C = beta * I_B = 150 * 20 uA = 3000 uA = 3.00 mA
+2. I_E = I_C + I_B = 3.00 mA + 0.020 mA = 3.02 mA
+3. alpha = I_C / I_E = 3.00 / 3.02 = 0.9934
+4. Check with alpha = beta/(1+beta) = 150/151 = 0.9934, which matches
+
+> [!success]- Answer
+> **I_C = 3.00 mA, I_E = 3.02 mA, alpha = 0.9934.**
+
+> [!warning] Trap
+> Writing I_E = I_C = 3.00 mA. The base current is 0.66 percent of the emitter current here; dropping it forces alpha to exactly 1, which no real BJT can reach, and it is the error that later makes a current-gain problem inconsistent.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `150×20E-6` → **3.00** mA = $I_C$.
+> 2. `+20E-6` → **3.02** mA = $I_E$; `3÷3.02` → **0.9934** = $\alpha$, matching `150÷151`.
+>
+> Dropping $I_B$ from $I_E$ forces $\alpha = 1$, which no real device reaches.
+
+### P3. An NPN switch runs from $V_{CC}=10\ \mathrm{V}$ with $R_C=1\ \mathrm{k\Omega}$, is driven by $I_B=100\ \mu\mathrm{A}$, and has $\beta=200$. Is it saturated? Give the actual $I_C$, $V_{CE}$ and $\beta_{forced}$.
+
+**Given:** V_CC = 10 V; R_C = 1 kohm; I_B = 100 uA; beta = 200; V_CE(sat) = 0.2 V
+
+**Solution:**
+
+1. If it were active: I_C = beta * I_B = 200 * 100 uA = 20.0 mA
+2. The most the collector branch can carry is I_C(sat) = (V_CC - V_CE(sat))/R_C = (10 - 0.2)/1000 = 9.8 mA
+3. Since 20.0 mA > 9.8 mA the active-mode assumption is impossible, so the device is saturated and I_C is clamped at 9.8 mA
+4. V_CE = V_CE(sat) = 0.2 V and beta_forced = I_C/I_B = 9.8 mA / 100 uA = 98, which is less than beta = 200 and confirms saturation
+
+> [!success]- Answer
+> **Saturated: I_C = 9.8 mA, V_CE = 0.2 V, beta_forced = 98.**
+
+> [!warning] Trap
+> Answering I_C = 20 mA from beta*I_B. In saturation the collector current is fixed by the external resistors and beta*I_B is only an upper bound the device cannot reach. A related error is using V_CE = 0 in I_C(sat), which gives 10 mA and hides how much saturation margin the drive actually has.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. If active: `200×100E-6` → **20.0** mA, which is impossible.
+> 2. `(10−0.2)÷1000` → **9.8** mA = $I_{C(sat)}$; the 0.2 V matters here.
+> 3. `9.8E-3÷100E-6` → **98** = $\beta_{forced} < \beta$, confirming saturation.
+>
+> Using $V_{CE} = 0$ gives 10 mA and hides how much saturation margin the drive has.
+
+### P4. For a similar stage, $V_{CC}=10\ \mathrm{V}$, $R_C=500\ \Omega$, $\beta=100$ and $I_B=100\ \mu\mathrm{A}$. Find $V_{CE}$, then the minimum $I_B$ that would saturate the transistor.
+
+**Given:** V_CC = 10 V; R_C = 500 ohm; beta = 100; I_B = 100 uA; V_CE(sat) = 0.2 V
+
+**Solution:**
+
+1. Assume active: I_C = beta * I_B = 100 * 100 uA = 10.0 mA
+2. I_C(sat) = (V_CC - 0.2)/R_C = (10 - 0.2)/500 = 19.6 mA. Since 10.0 mA < 19.6 mA the assumption holds and the device is forward-active
+3. V_CE = V_CC - I_C*R_C = 10 - (10.0 mA)(500 ohm) = 10 - 5.0 = 5.0 V
+4. To saturate: I_B(min) = I_C(sat)/beta = 19.6 mA / 100 = 196 uA
+
+> [!success]- Answer
+> **V_CE = 5.0 V (forward-active); I_B(min) = 196 uA is required to reach saturation.**
+
+> [!warning] Trap
+> Reporting V_CE = V_CC = 10 V by forgetting the drop across R_C, or applying I_C = beta*I_B a second time after I_C(sat) is known. Also note 196 uA is the bare edge of saturation; a practical design drives 0.5 to 2 mA so that beta spread over temperature cannot pull the switch back into the active region.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `100×100E-6` → **10.0** mA against `(10−0.2)÷500` → **19.6** mA, so the device is active.
+> 2. `10−10E-3×500` → **5.0** V = $V_{CE}$; `19.6E-3÷100` → **196** µA = $I_{B(min)}$.
+>
+> 196 µA is the bare edge of saturation; practical designs drive 2 to 10 times more.
+
+### P5. A BJT operates with $V_{CE}=5\ \mathrm{V}$, $I_C=80\ \mathrm{mA}$ and $I_B=0.5\ \mathrm{mA}$. Find its dissipation and the junction temperature for $T_A=40\ \mathrm{^\circ C}$ and $\theta_{JA}=200\ \mathrm{^\circ C/W}$, then compare with the same collector current in saturation.
+
+**Given:** V_CE = 5 V; I_C = 80 mA; I_B = 0.5 mA; V_BE = 0.7 V; T_A = 40 C; theta_JA = 200 C/W; T_J(max) = 150 C; V_CE(sat) = 0.2 V
+
+**Solution:**
+
+1. P_D = V_CE*I_C + V_BE*I_B = (5)(0.080) + (0.7)(0.0005) = 0.4000 + 0.00035 = 0.4004 W
+2. T_J = T_A + P_D*theta_JA = 40 + (0.4004)(200) = 40 + 80.1 = 120.1 C
+3. Rated T_J(max) = 150 C, so the margin is about 30 C and the part is acceptable on this board-level thermal path
+4. Saturated at the same I_C: P_D = V_CE(sat)*I_C = 0.2 * 0.080 = 16 mW and T_J = 40 + (0.016)(200) = 43.2 C
+
+> [!success]- Answer
+> **P_D = 400 mW and T_J = 120 C, within the 150 C rating; in saturation the same current gives P_D = 16 mW and T_J = 43 C.**
+
+> [!warning] Trap
+> Using P_D = V_CC*I_C, for example 10 V * 80 mA = 800 mW, by substituting the supply voltage for the actual V_CE. The second common error is ignoring theta_JA and assuming the case sits at ambient; a 1 W part at 25 C is often rated for only a few hundred mW at 70 C ambient.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `5×80E-3+0.7×0.5E-3` → **0.4004** W = $P_D$.
+> 2. `40+Ans×200` → **120.1** °C, inside the 150 °C rating.
+> 3. Saturated at the same current: `0.2×80E-3` → **16** mW and `40+0.016×200` → **43.2** °C.
+>
+> Use the actual $V_{CE}$, not $V_{CC}$; $10\times80$ mA would give 800 mW and a false failure.
+
+## Traps & Exam Notes
+
+- **Assuming active mode and never checking the answer.** If $V_{CC}-I_CR_C$ comes out negative or below $0.2\ \mathrm{V}$, the device cannot be active: recompute $I_C=(V_{CC}-0.2)/R_C$ and set $V_{CE}=0.2\ \mathrm{V}$.
+- **Using $I_C=\beta I_B$ in saturation.** In saturation $I_C<I_B\beta$ and the collector current is fixed by the external resistors. The tell-tale symptom is an $I_C$ larger than $(V_{CC}-0.2)/R_C$.
+- **Naming the region from $V_{BE}$ alone.** An active and a saturated transistor both show $V_{BE}\approx0.7\ \mathrm{V}$. Only $V_{BC}=V_B-V_C$ separates them, and it must be computed with the correct sign order.
+- **Forgetting to reverse polarities for a PNP.** Its emitter sits about $0.7\ \mathrm{V}$ above the base, current enters the emitter, and the saturation drop is $V_{EC(sat)}\approx0.2\ \mathrm{V}$. Copying NPN signs into a PNP circuit flips every current direction and every answer.
+- **Treating 0.7 V and 0.2 V as exact constants.** They are room-temperature conveniences: $V_{BE}$ drops about $2\ \mathrm{mV}$ per degree C and rises with current, and a power transistor may legitimately show $V_{BE}=0.8\ \mathrm{V}$ and $V_{CE(sat)}=1\ \mathrm{V}$.
+- **Confusing the current-controlled BJT with a voltage-controlled FET.** The BJT base must be *supplied* with current; a series base resistor sized for a FET gate (assuming zero current) leaves the BJT with no drive and no collector current.
+
+## See Also
+
+- [[10_BJT_Current_Gains_and_Relationships]]
+- [[01_BJT_DC_Biasing_Configurations]]
+- [[02_Load_Lines_and_Q_Point]]
+
+---
+
+[[08_Zener_Diodes_and_Shunt_Regulators|⬅ 08]] · [[_MOC_Semiconductor_Devices|MOC]] · [[00_Dashboard|Dashboard]] · [[10_BJT_Current_Gains_and_Relationships|10 ➡]]

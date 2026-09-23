@@ -1,0 +1,103 @@
+{
+  "scope": "Quantify how far a bipolar transistor's collector current drifts when leakage, base-emitter voltage and current gain change, and rank the standard bias networks by how well they suppress that drift.",
+  "intuition": "A bias network is a feedback loop that nobody drew as a loop. The transistor tries to push more current as it warms; the emitter resistor turns that extra current into extra emitter voltage, which starves the base and pushes the current back down. The stability factor measures how strong that self-correction is.",
+  "concept": [
+    "**Why a bias point moves at all.** A bias network exists to hold $I_{CQ}$ where the designer put it, but three device parameters drift. The reverse saturation (leakage) current $I_{CO}$ roughly doubles every $10\\ ^{\\circ}\\mathrm{C}$; the base-emitter voltage $V_{BE}$ falls about $2\\ \\mathrm{mV}$ per $^{\\circ}\\mathrm{C}$; and the current gain $\\beta$ drifts about $+0.5\\ \\%$ per $^{\\circ}\\mathrm{C}$ and spreads 2:1 or worse between units of the same part number. Each one moves the collector current, and the stability factor is simply the sensitivity to each. That sensitivity is defined as: $S_X = \\partial I_C/\\partial X$. A good bias network makes all three sensitivities small. Setting the variable to the leakage current makes it dimensionless, and the result is what textbooks mean when they say the stability factor $S$: $S_{I_{CO}} = \\partial I_C/\\partial I_{CO}$.",
+    "**The master formula, and why the sign of the feedback decides everything.** The device obeys $I_C = \\beta I_B + (1+\\beta)I_{CO}$. If the bias network makes $I_B$ depend on $I_C$ — and any emitter or collector feedback resistor does — then differentiating with respect to $I_{CO}$ gives the master formula: $S = (1+\\beta)/[1 - \\beta\\,\\partial I_B/\\partial I_C]$. The sign of $\\partial I_B/\\partial I_C$ is the whole story. In fixed bias, $I_B$ is set by $V_{CC}$ and $R_B$ alone, so $\\partial I_B/\\partial I_C = 0$ and $S = 1+\\beta$, about 101 for $\\beta = 100$: every microamp of extra leakage arrives as a hundred microamps of collector current. An emitter resistor makes $I_B$ fall as $I_C$ rises ($\\partial I_B/\\partial I_C$ negative, genuine negative feedback), and the same formula then delivers a much smaller $S$.",
+    "**Exact results for the standard circuits.** Solve the base circuit with its Thevenin equivalent ($V_{TH}$, $R_{TH} = R_1 \\parallel R_2$) and assume $I_E \\approx I_C$: $I_C = \\beta(V_{TH}-V_{BE})/[R_{TH} + (1+\\beta)R_E]$. Differentiating the collector-current expression gives each sensitivity in turn. The leakage sensitivity is: $S_{I_{CO}} = (1+\\beta)(R_{TH}+R_E)/[R_{TH}+(1+\\beta)R_E]$. The base-emitter voltage sensitivity is: $S_{V_{BE}} = -\\beta/[R_{TH}+(1+\\beta)R_E]$. The current-gain sensitivity is: $S_\\beta = I_C(R_{TH}+R_E)/\\{\\beta[R_{TH}+(1+\\beta)R_E]\\}$. When $R_{TH}$ is much smaller than $\\beta R_E$ the $R_{TH}$ terms wash out of the numerator and denominator and $S_{I_{CO}} \\approx 1 + R_{TH}/R_E$, which is the rule of thumb worth memorising. Fixed bias ($R_E = 0$) is the worst case at $S = 1+\\beta$; a stiff divider with a large $R_E$ drives $S \\to 1$, meaning the collector current barely notices a change in leakage at all. That is why voltage-divider bias with an emitter resistor is the standard configuration whenever the operating point must be predictable, and why a collector-to-base feedback resistor is a weaker compromise version of the same idea.",
+    "**What the numbers mean when temperature moves.** The three contributions add: $\\Delta I_C \\approx S_{I_{CO}}\\Delta I_{CO} + S_{V_{BE}}\\Delta V_{BE} + S_\\beta\\Delta\\beta$. Because $I_{CO}$ doubles every $10\\ ^{\\circ}\\mathrm{C}$, a $30\\ ^{\\circ}\\mathrm{C}$ rise multiplies it by 8; in a fixed-bias stage with $\\beta = 100$ and $I_{CO}$ rising from 0.1 to $0.8\\ \\mu\\mathrm{A}$, that alone adds, to a 2.404 mA quiescent current, the leakage contribution: $101 \\times 0.7\\ \\mu\\mathrm{A} = 71\\ \\mu\\mathrm{A}$, which is about 3 %. The same stage rebuilt as a divider with $R_{TH} = 5.79\\ \\mathrm{k\\Omega}$, $R_E = 1\\ \\mathrm{k\\Omega}$ and $\\beta = 150$ has $S = 6.54$, so the leakage contribution is 23 times smaller. Watch the sign of $S_{V_{BE}}$: it is negative because a warmer transistor needs less $V_{BE}$ for the same current, and a bias network that holds the base voltage fixed responds by pushing more current in. Thermal runaway is the loop in which rising $I_C$ raises the dissipation, which raises the temperature, which raises $I_C$ again; the loop is broken by making $S$ small, not by heatsinking alone."
+  ],
+  "formulas": [
+    { "q": "Stability factor, definition", "e": "S_X = \\frac{\\partial I_C}{\\partial X}", "n": "X is I_CO, V_BE or beta. S(I_CO) is dimensionless, S(V_BE) is in A/V (usually quoted in mA/V), S(beta) is in A per unit of beta." },
+    { "q": "Master stability formula", "e": "S_{I_{CO}} = \\frac{1+\\beta}{1-\\beta\\,\\partial I_B/\\partial I_C}", "n": "Follows from I_C = beta I_B + (1+beta)I_CO. Fixed bias has dI_B/dI_C = 0; an emitter resistor makes the derivative negative, so S falls." },
+    { "q": "Fixed bias", "e": "S_{I_{CO}} = 1+\\beta", "n": "The R_E = 0 worst case: with beta = 100 every 1 uA of extra leakage appears as 101 uA of collector current. R_B does not appear, which is why raising R_B never improves stability." },
+    { "q": "Voltage-divider bias, exact", "e": "S_{I_{CO}} = \\frac{(1+\\beta)(R_{TH}+R_E)}{R_{TH}+(1+\\beta)R_E}", "n": "R_TH = R_1 || R_2 from the Thevenin base circuit, R_E the DC emitter resistance. Its smallest possible value is 1, approached as R_TH -> 0." },
+    { "q": "Voltage-divider bias, rule of thumb", "e": "S_{I_{CO}} \\approx 1 + \\frac{R_{TH}}{R_E}", "n": "Valid when R_TH is much smaller than beta R_E. This is the form to design with: pick R_E and the divider current, then check that the answer is near 1." },
+    { "q": "Base-emitter voltage sensitivity", "e": "S_{V_{BE}} = \\frac{\\partial I_C}{\\partial V_{BE}} = -\\frac{\\beta}{R_{TH}+(1+\\beta)R_E}", "n": "Negative: a warmer device needs less V_BE, so I_C rises. Fixed bias reduces to S = -beta/R_B." },
+    { "q": "Current-gain sensitivity", "e": "S_\\beta = \\frac{\\partial I_C}{\\partial\\beta} = \\frac{I_C(R_{TH}+R_E)}{\\beta\\left[R_{TH}+(1+\\beta)R_E\\right]}", "n": "Units A per unit beta. Divide by I_C for the fractional sensitivity: 0.029 % per unit beta here against 0.67 % for fixed bias." },
+    { "q": "Leakage doubling with temperature", "e": "I_{CO}(T_2) = I_{CO}(T_1)\\,2^{(T_2-T_1)/10}", "n": "Rule of thumb: a 30 degC rise multiplies I_CO by 8. Apply it to I_CO, never to I_C itself." }
+  ],
+  "problems": [
+    {
+      "prompt": "A fixed-bias stage (no emitter resistor) has $\\beta = 100$. Find $S_{I_{CO}}$ and the resulting change in collector current when leakage rises by $0.5\\ \\mu\\mathrm{A}$. Compare with the same leakage change in a voltage-divider stage that has $R_{TH} = 5.79\\ \\mathrm{k\\Omega}$ and $R_E = 1\\ \\mathrm{k\\Omega}$.",
+      "give": ["beta = 100", "R_E = 0 (fixed bias)", "Delta I_CO = 0.5 uA", "R_TH = 5.79 kohm (divider stage)", "R_E = 1 kohm (divider stage)"],
+      "steps": [
+        "Fixed bias: $S_{I_{CO}} = 1 + \\beta = 101$",
+        "$\\Delta I_C = S\\,\\Delta I_{CO} = 101(0.5\\ \\mu\\mathrm{A}) = 50.5\\ \\mu\\mathrm{A}$",
+        "Divider stage: $S = \\dfrac{(1+\\beta)(R_{TH}+R_E)}{R_{TH}+(1+\\beta)R_E} = \\dfrac{101(6.79)}{5.79 + 101} = \\dfrac{685.8}{106.79} = 6.42$",
+        "$\\Delta I_C = 6.42(0.5\\ \\mu\\mathrm{A}) = 3.21\\ \\mu\\mathrm{A}$, i.e. $101/6.42 = 15.7$ times smaller"
+      ],
+      "ans": "Fixed bias $S = 101$ giving $\\Delta I_C = 50.5\\ \\mu\\mathrm{A}$; divider stage $S = 6.42$ giving $\\Delta I_C = 3.21\\ \\mu\\mathrm{A}$.",
+      "trap": "Using S = 1 + beta = 101 for the divider stage as well. That overstates the drift 15.7 times and leads to the false conclusion that the emitter resistor does not help.", "calc": {"mode":"COMP","steps":["`1 + 100` → fixed-bias $S_{I_{CO}}$ = **101**; `× 0.5` → $\\Delta I_C$ = **50.5** $\\mu$A.","`101 × 6.79 ÷ (5.79 + 101)` → divider $S$ = **6.42**; `× 0.5` → $\\Delta I_C$ = **3.21** $\\mu$A.","`101 ÷ 6.42` → the divider drift is **15.7**× smaller."]}
+    },
+    {
+      "prompt": "A voltage-divider bias stage has $V_{CC} = 12\\ \\mathrm{V}$, $R_1 = 39\\ \\mathrm{k\\Omega}$, $R_2 = 6.8\\ \\mathrm{k\\Omega}$, $R_E = 1\\ \\mathrm{k\\Omega}$, $R_C = 2.2\\ \\mathrm{k\\Omega}$, $\\beta = 150$ and $V_{BE} = 0.7\\ \\mathrm{V}$. Find the quiescent current and the exact stability factor, and compare it with the rule of thumb.",
+      "give": ["V_CC = 12 V", "R_1 = 39 kohm", "R_2 = 6.8 kohm", "R_E = 1 kohm", "R_C = 2.2 kohm", "beta = 150", "V_BE = 0.7 V"],
+      "steps": [
+        "$R_{TH} = R_1 \\parallel R_2 = \\dfrac{(39)(6.8)}{39 + 6.8} = \\dfrac{265.2}{45.8} = 5.790\\ \\mathrm{k\\Omega}$",
+        "$V_{TH} = V_{CC}\\dfrac{R_2}{R_1+R_2} = 12\\dfrac{6.8}{45.8} = 1.782\\ \\mathrm{V}$",
+        "$I_{CQ} = \\dfrac{\\beta(V_{TH}-V_{BE})}{R_{TH}+(1+\\beta)R_E} = \\dfrac{150(1.082)}{5.79\\ \\mathrm{k\\Omega} + 151\\ \\mathrm{k\\Omega}} = \\dfrac{162.2}{156.79\\ \\mathrm{k\\Omega}} = 1.035\\ \\mathrm{mA}$",
+        "$S_{I_{CO}} = \\dfrac{(1+\\beta)(R_{TH}+R_E)}{R_{TH}+(1+\\beta)R_E} = \\dfrac{151(6.790)}{156.79} = \\dfrac{1025.3}{156.79} = 6.54$",
+        "Rule of thumb $1 + R_{TH}/R_E = 1 + 5.790 = 6.79$, which is 3.8 % high"
+      ],
+      "ans": "$I_{CQ} = 1.035\\ \\mathrm{mA}$ and $S_{I_{CO}} = 6.54$ (rule of thumb 6.79), so 1 $\\mu\\mathrm{A}$ of extra leakage adds only $6.54\\ \\mu\\mathrm{A}$.",
+      "trap": "Using S = 1 + beta = 151 on the grounds that R_E does not appear in the definition. R_E is exactly what makes S small: the error is a factor of 23 (151 against 6.54).", "calc": {"mode":"COMP","steps":["`39 × 6.8 ÷ 45.8` → $R_{TH}$ = **5.790** k$\\Omega$; `12 × 6.8 ÷ 45.8` → $V_{TH}$ = **1.782** V.","`150 × (1.782 − 0.7) ÷ (5.79 + 151)` → $I_{CQ}$ = **1.035** mA.","`151 × 6.79 ÷ 156.79` → $S$ = **6.54**; the rule of thumb `1 + 5.79` → **6.79**, 3.8 % high."]}
+    },
+    {
+      "prompt": "For the same stage ($R_{TH} = 5.79\\ \\mathrm{k\\Omega}$, $R_E = 1\\ \\mathrm{k\\Omega}$, $\\beta = 150$, $I_{CQ} = 1.035\\ \\mathrm{mA}$), find $S_{V_{BE}}$ and the collector-current change caused by the $V_{BE}$ temperature drift over a $40\\ ^{\\circ}\\mathrm{C}$ rise.",
+      "give": ["R_TH = 5.79 kohm", "R_E = 1 kohm", "beta = 150", "I_CQ = 1.035 mA", "V_BE drift = -2 mV/degC", "temperature rise = 40 degC"],
+      "steps": [
+        "$S_{V_{BE}} = -\\dfrac{\\beta}{R_{TH}+(1+\\beta)R_E} = -\\dfrac{150}{5790 + 151000} = -\\dfrac{150}{156790} = -9.567\\times10^{-4}\\ \\mathrm{A/V}$",
+        "Magnitude $0.957\\ \\mathrm{mA/V}$; with $\\Delta V_{BE} = -2\\ \\mathrm{mV}$ per $^{\\circ}\\mathrm{C}$, $\\Delta I_C = (0.957\\ \\mathrm{mA/V})(0.002\\ \\mathrm{V}) = 1.913\\ \\mu\\mathrm{A}$ per $^{\\circ}\\mathrm{C}$",
+        "Over $40\\ ^{\\circ}\\mathrm{C}$: $\\Delta I_C = 40(1.913\\ \\mu\\mathrm{A}) = 76.5\\ \\mu\\mathrm{A}$",
+        "Fraction of the quiescent current: $76.5/1035 = 7.4\\ \\%$"
+      ],
+      "ans": "$S_{V_{BE}} = -0.957\\ \\mathrm{mA/V}$; the base-emitter drift alone adds $1.91\\ \\mu\\mathrm{A}$ per $^{\\circ}\\mathrm{C}$, about $76\\ \\mu\\mathrm{A}$ (+7.4 %) over $40\\ ^{\\circ}\\mathrm{C}$.",
+      "trap": "Dropping the minus sign and concluding that a warming transistor loses collector current. V_BE falls by about 2 mV per degC, so I_C rises; the sign of S(V_BE) is what carries that information.", "calc": {"mode":"COMP","steps":["`150 ÷ 156790` → $\\lvert S_{V_{BE}} \\rvert$ = **9.567e-4** A/V = **0.957** mA/V.","`0.957 × 2` → **1.913** $\\mu$A per °C (mA/V times mV); `× 40` → **76.5** $\\mu$A over 40 °C.","`76.5 ÷ 1035` → **7.4** % of the quiescent current."]}
+    },
+    {
+      "prompt": "For the same divider stage, find $S_\\beta = \\partial I_C/\\partial\\beta$ and the percentage change in $I_{CQ}$ if the batch of transistors arrives with $\\beta = 160$ instead of 150. Check the answer by computing $I_C$ directly at $\\beta = 160$.",
+      "give": ["R_TH = 5.79 kohm", "R_E = 1 kohm", "beta = 150", "I_CQ = 1.035 mA", "V_TH - V_BE = 1.082 V", "beta spread = 150 to 160"],
+      "steps": [
+        "$S_\\beta = \\dfrac{I_C(R_{TH}+R_E)}{\\beta[R_{TH}+(1+\\beta)R_E]} = \\dfrac{(1.035\\ \\mathrm{mA})(6.79\\ \\mathrm{k\\Omega})}{150(156.79\\ \\mathrm{k\\Omega})}$",
+        "$S_\\beta = \\dfrac{7.027\\ \\mathrm{V}}{23.52\\ \\mathrm{M\\Omega}} = 2.988\\times10^{-7}\\ \\mathrm{A}$ per unit beta $= 0.299\\ \\mu\\mathrm{A}$ per unit beta",
+        "$\\Delta\\beta = 10$ gives $\\Delta I_C \\approx 10(0.299\\ \\mu\\mathrm{A}) = 2.99\\ \\mu\\mathrm{A}$, i.e. $+0.29\\ \\%$",
+        "Direct check at $\\beta = 160$: $I_C = \\dfrac{160(1.082)}{5.79\\ \\mathrm{k\\Omega}+161\\ \\mathrm{k\\Omega}} = \\dfrac{173.1}{166.79\\ \\mathrm{k\\Omega}} = 1.038\\ \\mathrm{mA}$, which is $+2.8\\ \\mu\\mathrm{A}$ (+0.27 %)"
+      ],
+      "ans": "$S_\\beta \\approx 0.30\\ \\mu\\mathrm{A}$ per unit beta, so $\\Delta\\beta = +10$ moves $I_{CQ}$ by about $+0.3\\ \\%$ (direct calculation: $+0.27\\ \\%$).",
+      "trap": "Assuming a divider stage is immune to beta spread because it is insensitive to leakage. Its sensitivity is 23 times smaller than fixed bias, not zero: a 150 to 200 batch change still moves the quiescent current by about 1.1 %.", "calc": {"mode":"COMP","steps":["`1.035 × 6.79 ÷ (150 × 156.79)` → $S_\\beta$ = **2.988e-7** A per unit $\\beta$ = **0.299** $\\mu$A per unit $\\beta$.","`0.299 × 10` → **2.99** $\\mu$A; `÷ 1035` → **+0.29** %.","Direct check at $\\beta$ = 160: `160 × 1.082 ÷ (5.79 + 161)` → $I_C$ = **1.038** mA, that is **+0.27** % on 1.035 mA."]}
+    },
+    {
+      "prompt": "A fixed-bias Ge stage has $V_{CC} = 12\\ \\mathrm{V}$, $R_B = 470\\ \\mathrm{k\\Omega}$, $\\beta = 100$, $V_{BE} = 0.7\\ \\mathrm{V}$ and $I_{CO} = 0.1\\ \\mu\\mathrm{A}$ at $25\\ ^{\\circ}\\mathrm{C}$. Find the collector-current change caused by leakage alone when the temperature reaches $55\\ ^{\\circ}\\mathrm{C}$.",
+      "give": ["V_CC = 12 V", "R_B = 470 kohm", "beta = 100", "V_BE = 0.7 V", "I_CO = 0.1 uA at 25 degC", "temperature = 55 degC"],
+      "steps": [
+        "R_E = 0, so $S_{I_{CO}} = 1 + \\beta = 101$",
+        "$I_{CO}(55) = I_{CO}(25)\\,2^{(55-25)/10} = 0.1\\ \\mu\\mathrm{A} \\times 2^3 = 0.8\\ \\mu\\mathrm{A}$",
+        "$\\Delta I_{CO} = 0.8 - 0.1 = 0.7\\ \\mu\\mathrm{A}$",
+        "$\\Delta I_C = S\\,\\Delta I_{CO} = 101(0.7\\ \\mu\\mathrm{A}) = 70.7\\ \\mu\\mathrm{A}$",
+        "$I_{CQ} = \\dfrac{\\beta(V_{CC}-V_{BE})}{R_B} = \\dfrac{100(11.3)}{470\\ \\mathrm{k\\Omega}} = 2.404\\ \\mathrm{mA}$, so the rise is $70.7/2404 = 2.9\\ \\%$"
+      ],
+      "ans": "$\\Delta I_C = 70.7\\ \\mu\\mathrm{A}$, i.e. $+2.9\\ \\%$ of the 2.404 mA quiescent current, from leakage alone and before the beta and V_BE drifts are added.",
+      "trap": "Doubling I_C itself every 10 degC. The doubling rule applies to I_CO: here I_C rises 2.9 % over 30 degC, whereas applying the rule to I_C would predict 2.404 mA x 8 = 19.2 mA and a destroyed transistor.", "calc": {"mode":"COMP","steps":["`0.1 × 2^(30 ÷ 10)` → $I_{CO}(55)$ = **0.8** $\\mu$A, so $\\Delta I_{CO}$ = **0.7** $\\mu$A.","`101 × 0.7` → $\\Delta I_C$ = **70.7** $\\mu$A, using $S = 1 + \\beta$.","`100 × (12 − 0.7) ÷ 470` → $I_{CQ}$ = **2.404** mA; `70.7 ÷ 2404` → **2.9** %."]}
+    }
+  ],
+  "traps": [
+    "**Using $S = 1+\\beta$ for a divider stage.** With $R_{TH} = 5.79\\ \\mathrm{k\\Omega}$, $R_E = 1\\ \\mathrm{k\\Omega}$ and $\\beta = 150$ the exact factor is 6.54, not 151 — a 23-fold overstatement of the drift.",
+    "**Applying the 10 degC doubling rule to $I_C$.** It belongs to $I_{CO}$: a $30\\ ^{\\circ}\\mathrm{C}$ rise multiplies $I_{CO}$ by 8, which in a fixed-bias stage adds $70.7\\ \\mu\\mathrm{A}$ to a 2.404 mA current, only 2.9 %.",
+    "**Dropping the sign of $S_{V_{BE}}$.** $V_{BE}$ falls about $2\\ \\mathrm{mV}$ per $^{\\circ}\\mathrm{C}$, so the current change is positive; treating the drift as $+2\\ \\mathrm{mV}$ per $^{\\circ}\\mathrm{C}$ predicts the collector current falling when it actually rises by $1.91\\ \\mu\\mathrm{A}$ per $^{\\circ}\\mathrm{C}$.",
+    "**Sign error in the master formula.** Writing $1 + \\beta\\,\\partial I_B/\\partial I_C$ in the denominator makes $S$, which can never be less than 1, come out below 1 for every emitter-degenerated stage.",
+    "**Using $R_1$ instead of $R_1 \\parallel R_2$ for $R_{TH}$.** With 39 kohm and 6.8 kohm the Thevenin resistance is 5.79 kohm, not 39 kohm; the rule of thumb then reads 40 instead of 6.79.",
+    "**Believing an emitter bypass capacitor improves DC stability.** C_E shorts R_E at signal frequency only; the DC stability factor still sees the full R_E. Computing S with R_E = 0 gives the fixed-bias answer 151, 23 times too large.",
+    "**Treating beta as a design constant.** Beta spreads about 2:1 between units and drifts roughly $+0.5\\ \\%$ per $^{\\circ}\\mathrm{C}$; a 150 to 200 batch change still moves this stage's quiescent current by about 1.1 %, which the load-line design has to absorb."
+  ],
+  "refs": [
+    "[[01_BJT_DC_Biasing_Configurations]]",
+    "[[02_Load_Lines_and_Q_Point]]",
+    "[[10_BJT_Current_Gains_and_Relationships]]",
+    "[[09_BJT_Structure_and_Operating_Regions]]"
+  ],
+  "prereqs": [
+    "[[01_BJT_DC_Biasing_Configurations]]",
+    "[[10_BJT_Current_Gains_and_Relationships]]"
+  ]
+}

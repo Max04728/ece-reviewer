@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSI Encapsulation Animator — PDU Names, Headers Added and Address Scope</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Encapsulation is examined as a vocabulary question with one hard idea inside it:
+//   data → segment → packet → frame → bits   (add TCP, then IP, then MAC, then clock it out)
+// and the hard idea is ADDRESS SCOPE. A port identifies a process, an IP address identifies
+// a host END-TO-END and is never rewritten by a router, and a MAC address identifies a NIC
+// on ONE link and is rewritten at every hop. Students who cannot separate those three
+// cannot answer "which addresses change as the frame crosses three routers?" — which is
+// the single most common EST networking item.
+//
+// The animation steps through 14 states: 7 descending (encapsulation) and 7 ascending
+// (decapsulation), with the PDU name, the header added and the address scope printed at
+// every step, plus a hop diagram that shows the MAC/IP behaviour explicitly.
+
+const LAYERS = [
+  { n: 7, name: 'Application', tcpip: 'Application', pdu: 'Data (message)', adds: 'nothing — this is the user data',
+    detail: 'HTTP request, SMTP mail body, DNS query …', proto: 'HTTP / SMTP / FTP / DNS',
+    addr: 'no address', scope: 'the application names a service, not an address', hdr: null },
+  { n: 6, name: 'Presentation', tcpip: 'Application', pdu: 'Data (message)', adds: 'nothing — format translation only',
+    detail: 'character encoding, compression, encryption (TLS sits here)', proto: 'TLS / SSL / MIME / JPEG',
+    addr: 'no address', scope: 'format and encryption only', hdr: null },
+  { n: 5, name: 'Session', tcpip: 'Application', pdu: 'Data (message)', adds: 'nothing — dialogue control only',
+    detail: 'establish / manage / terminate the dialogue, checkpoints', proto: 'RPC / NetBIOS / sockets',
+    addr: 'no address', scope: 'dialogue control only', hdr: null },
+  { n: 4, name: 'Transport', tcpip: 'Transport', pdu: 'Segment (TCP) / Datagram (UDP)',
+    adds: 'TCP or UDP header — 20 bytes minimum for TCP, 8 for UDP',
+    detail: 'source port, destination port, sequence and acknowledgement numbers, flags, window, checksum',
+    proto: 'TCP (reliable, connection-oriented) / UDP (unreliable, connectionless)',
+    addr: 'PORT numbers', scope: 'process-to-process (end to end, never changed in transit)',
+    hdr: { label: 'TCP header', bytes: 20, color: '#cba6f7' } },
+  { n: 3, name: 'Network', tcpip: 'Internet', pdu: 'Packet (IP datagram)', adds: 'IP header — 20 bytes (up to 60 with options)',
+    detail: 'source IP, destination IP, TTL, protocol, fragmentation fields, header checksum',
+    proto: 'IP (IPv4 / IPv6), ICMP, routing protocols', addr: 'IP addresses (logical)',
+    scope: 'host-to-host across the whole internetwork (end to end; routers read it but do not rewrite it)',
+    hdr: { label: 'IP header', bytes: 20, color: '#89b4fa' } },
+  { n: 2, name: 'Data Link', tcpip: 'Network Access', pdu: 'Frame',
+    adds: 'frame header (14 bytes) + FCS trailer (4 bytes)',
+    detail: 'destination MAC, source MAC, EtherType; the trailer carries the CRC/FCS',
+    proto: 'Ethernet, PPP, HDLC, 802.11 MAC, ARP (resolves IP to MAC)',
+    addr: 'MAC addresses (physical)', scope: 'node-to-node on ONE link — REWRITTEN BY EVERY L2 DEVICE',
+    hdr: { label: 'Frame header', bytes: 14, color: '#a6e3a1' }, trailer: { label: 'FCS trailer', bytes: 4 } },
+  { n: 1, name: 'Physical', tcpip: 'Network Access', pdu: 'Bits',
+    adds: 'nothing — the frame is serialised onto the medium',
+    detail: 'line coding, voltage levels, bit rate, connectors, modulation',
+    proto: '10BASE-T, 1000BASE-SX, RS-232, DSL', addr: 'no address at all',
+    scope: 'voltage on a wire — this layer has no address', hdr: null },
+];
+
+const stepInfo = (step) => (step <= 6
+  ? { dir: 'down', li: step, label: 'encapsulation' }
+  : { dir: 'up', li: 6 - (step - 7), label: 'decapsulation' });
+
+/** The PDU construction state visible once the stack has processed layer index li. */
+function build(li) {
+  const parts = [{ label: 'Data', detail: 'HTTP GET /index.html', bytes: 100, color: '#fab387' }];
+  if (li >= 3) parts.push({ label: 'TCP header', bytes: 20, color: '#cba6f7' });
+  if (li >= 4) parts.push({ label: 'IP header', bytes: 20, color: '#89b4fa' });
+  if (li >= 5) {
+    parts.push({ label: 'Frame header', bytes: 14, color: '#a6e3a1' });
+    parts.push({ label: 'FCS', bytes: 4, color: '#f9e2af' });
+  }
+  const pdu = li >= 5 ? 'Frame' : li >= 4 ? 'Packet' : li >= 3 ? 'Segment' : 'Data';
+  const overhead = parts.filter((p) => p.label !== 'Data').reduce((s, p) => s + p.bytes, 0);
+  return { parts, pdu, overhead, dataBytes: 100, total: overhead + 100 };
+}
+
+const frame = (ctx, plot, { top, bottom, yMin, yMax }) => {
+  const px0 = plot.pad, px1 = plot.w - plot.pad;
+  return {
+    px0, px1, top, bottom, yMin, yMax,
+    X: (x, xMin, xMax) => px0 + ((x - xMin) / (xMax - xMin)) * (px1 - px0),
+    Y: (y) => bottom - ((y - yMin) / (yMax - yMin)) * (bottom - top),
+    line(x1, y1, x2, y2, color, width = 1.5, dash = null) {
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color;
+      ctx.lineWidth = width; ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    },
+    text(s, x, y, color = PALETTE.text, align = 'left', font = '11px ui-monospace, monospace') {
+      ctx.save(); ctx.fillStyle = color; ctx.textAlign = align; ctx.font = font;
+      ctx.fillText(s, x, y); ctx.restore();
+    },
+  };
+};
+
+const inst = { w: null, timer: null };
+
+// The formula panel and the step buttons are plain DOM next to the canvas — they are not
+// plot content, so they belong to the page, not to the drawing.
+const host = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'osi-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const bar = document.createElement('div');
+bar.style.cssText = 'display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap;';
+const status = document.createElement('span');
+status.className = 'vault-widget-label';
+
+const setStep = (n) => {
+  if (!inst.w) return;
+  const s = Math.max(0, Math.min(13, n));
+  inst.w.state.values.step = s;
+  const range = document.querySelector('.vault-widget-controls input[type="range"]');
+  if (range) range.value = String(s);
+  status.textContent = 'step ' + s + ' of 13  —  ' + stepInfo(s).label
+    + '  —  L' + LAYERS[stepInfo(s).li].n + ' ' + LAYERS[stepInfo(s).li].name;
+  inst.w.render();
+};
+const mkBtn = (label, fn, ghost) => {
+  const b = document.createElement('button');
+  b.className = 'vault-widget-btn' + (ghost ? ' ghost' : '');
+  b.textContent = label;
+  b.type = 'button';
+  b.addEventListener('click', (e) => { e.preventDefault(); fn(); });
+  return b;
+};
+bar.appendChild(mkBtn('◀ previous layer', () => setStep(Math.round(inst.w.state.values.step) - 1), true));
+bar.appendChild(mkBtn('next layer ▶', () => setStep(Math.round(inst.w.state.values.step) + 1)));
+bar.appendChild(mkBtn('▶ play / ❚❚ pause', () => {
+  if (inst.timer) { clearInterval(inst.timer); inst.timer = null; return; }
+  inst.timer = setInterval(() => {
+    const s = Math.round(inst.w.state.values.step);
+    if (s >= 13) { clearInterval(inst.timer); inst.timer = null; return; }
+    setStep(s + 1);
+  }, 900);
+}, true));
+bar.appendChild(mkBtn('↺ reset', () => {
+  if (inst.timer) { clearInterval(inst.timer); inst.timer = null; }
+  setStep(0);
+}, true));
+bar.appendChild(status);
+host.appendChild(bar);
+
+inst.w = widget({
+  title: 'OSI Encapsulation Animator — Data Down, Headers On, Addresses in Scope',
+  description:
+    'Step down the stack to watch each header go on, then step back up to watch it come off. The PDU name, the header added and — the part examinations actually test — which address is meaningful at that layer.',
+  height: 640,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'step', label: 'step (0 = application data, 13 = back at the application)', min: 0, max: 13, step: 1, value: 0 },
+    { id: 'suite', label: 'layer model shown', type: 'select', options: [
+      { value: 'osi', label: 'OSI 7-layer reference model' },
+      { value: 'tcpip', label: 'TCP/IP stack (L7, L4, L3, L2, L1)' },
+    ], value: 'osi' },
+    { id: 'hops', label: 'show the multi-hop address diagram', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const step = Math.round(v.step);
+    const info = stepInfo(step);
+    const L = LAYERS[info.li];
+    return { step, info, L, b: build(info.li), suite: v.suite, hops: v.hops };
+  },
+  draw: (ctx, v, o, plot) => {
+    plot.clear();
+    const R = frame(ctx, plot, { top: 56, bottom: 600, yMin: 0, yMax: 1 });
+    const L = o.L, b = o.b;
+    const down = o.info.dir === 'down';
+
+    // ------------------------------------------------------- title strip --
+    R.text(o.info.label.toUpperCase() + '   step ' + o.step + ' of 13   ' + (down ? 'headers are being ADDED' : 'headers are being STRIPPED'),
+      R.px0, 24, down ? PALETTE.accent : PALETTE.accent3, 'left', 'bold 13px ui-monospace, monospace');
+    R.text(down ? 'the data descends the stack at the SENDER' : 'the data ascends the stack at the RECEIVER',
+      R.px0, 42, PALETTE.dim, 'left', '11px ui-monospace, monospace');
+
+    // --------------------------------------------------------- layer stack --
+    const sx0 = R.px0, sx1 = R.px0 + 268;
+    const rowH = 42, sy0 = 86;
+    R.text('LAYER STACK', sx0, sy0 - 8, PALETTE.dim, 'left', 'bold 10px ui-monospace, monospace');
+    const display = o.suite === 'osi' ? LAYERS : LAYERS.filter((l) => l.n === 7 || l.n >= 4);
+    display.forEach((layer, i) => {
+      const y = sy0 + i * rowH;
+      const active = layer.n === L.n;
+      ctx.save();
+      ctx.fillStyle = active ? 'rgba(137,180,250,0.22)' : 'rgba(47,47,69,0.75)';
+      ctx.fillRect(sx0, y, sx1 - sx0, rowH - 6);
+      ctx.strokeStyle = active ? PALETTE.accent : 'rgba(160,160,190,0.25)';
+      ctx.lineWidth = active ? 2 : 1;
+      ctx.strokeRect(sx0, y, sx1 - sx0, rowH - 6);
+      ctx.restore();
+      R.text('L' + layer.n, sx0 + 6, y + 16, active ? PALETTE.accent : PALETTE.dim, 'left', 'bold 11px ui-monospace, monospace');
+      R.text(layer.name, sx0 + 34, y + 16, active ? PALETTE.text : PALETTE.dim, 'left', '12px ui-monospace, monospace');
+      R.text(layer.pdu, sx0 + 34, y + 30, active ? PALETTE.accent3 : 'rgba(160,160,190,0.6)', 'left', '10px ui-monospace, monospace');
+      if (active) R.text('►', sx1 - 15, y + 22, PALETTE.warn, 'left', 'bold 14px ui-monospace, monospace');
+    });
+    // direction arrow beside the stack
+    const ay0 = sy0 + 4, ay1 = sy0 + display.length * rowH - 12;
+    const ax = sx1 + 16;
+    R.line(ax, ay0, ax, ay1, 'rgba(160,160,190,0.4)', 1.5, [4, 4]);
+    ctx.save();
+    ctx.fillStyle = down ? PALETTE.accent : PALETTE.accent3;
+    ctx.beginPath();
+    if (down) { ctx.moveTo(ax, ay1); ctx.lineTo(ax - 6, ay1 - 10); ctx.lineTo(ax + 6, ay1 - 10); }
+    else { ctx.moveTo(ax, ay0); ctx.lineTo(ax - 6, ay0 + 10); ctx.lineTo(ax + 6, ay0 + 10); }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+
+    // ------------------------------------------------- header construction --
+    const hx0 = sx1 + 44, hx1 = R.px1;
+    R.text('WHAT THIS STEP DOES', hx0, sy0 - 8, PALETTE.dim, 'left', 'bold 10px ui-monospace, monospace');
+    R.text('L' + L.n + ' ' + L.name + ':  ' + L.adds, hx0, sy0 + 12, PALETTE.warn, 'left', '12px ui-monospace, monospace');
+    R.text(L.detail, hx0, sy0 + 29, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    R.text('protocols: ' + L.proto, hx0, sy0 + 45, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+
+    // the PDU as a left-to-right block: frame hdr, IP hdr, TCP hdr, data, FCS
+    const by = sy0 + 62;
+    const availW = hx1 - hx0;
+    const segs = [];
+    if (b.parts.find((p) => p.label === 'Frame header')) segs.push(['Frame hdr', 14, '#a6e3a1']);
+    if (b.parts.find((p) => p.label === 'IP header')) segs.push(['IP hdr', 20, '#89b4fa']);
+    if (b.parts.find((p) => p.label === 'TCP header')) segs.push(['TCP hdr', 20, '#cba6f7']);
+    segs.push(['DATA', 100, '#fab387']);
+    if (b.parts.find((p) => p.label === 'FCS')) segs.push(['FCS', 4, '#f9e2af']);
+    let cx = hx0;
+    for (const [lab, bytes, col] of segs) {
+      const w = Math.max(4, (bytes / b.total) * availW);
+      ctx.save();
+      ctx.fillStyle = col; ctx.globalAlpha = 0.28;
+      ctx.fillRect(cx, by, w, 54);
+      ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 1.6;
+      ctx.strokeRect(cx, by, w, 54);
+      ctx.restore();
+      if (w > 58) {
+        R.text(lab, cx + w / 2, by + 22, col, 'center', '10px ui-monospace, monospace');
+        R.text(bytes + ' B', cx + w / 2, by + 38, PALETTE.text, 'center', '10px ui-monospace, monospace');
+      } else if (w > 18) {
+        R.text(bytes + 'B', cx + w / 2, by + 30, col, 'center', '9px ui-monospace, monospace');
+      }
+      cx += w;
+    }
+    R.text('PDU name now:', hx0, by + 74, PALETTE.dim, 'left', '11px ui-monospace, monospace');
+    R.text(b.pdu, hx0 + 96, by + 74, PALETTE.accent3, 'left', 'bold 13px ui-monospace, monospace');
+    R.text('overhead ' + b.overhead + ' B + payload ' + b.dataBytes + ' B = ' + b.total + ' B  (overhead is '
+      + fmt(b.overhead / b.total * 100, 3) + ' % of every frame)', hx0, by + 91, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    R.text(L.hdr
+      ? 'added at this layer: ' + L.hdr.label + ' (' + L.hdr.bytes + ' B)'
+        + (L.trailer ? '  +  ' + L.trailer.label + ' (' + L.trailer.bytes + ' B)' : '')
+      : 'no header is added at this layer — L7/L6/L5 and L1 contribute control information or bits, not a header',
+      hx0, by + 110, L.hdr ? PALETTE.warn : PALETTE.dim, 'left', '11px ui-monospace, monospace');
+
+    // ------------------------------------------------ address scope panel --
+    const py = by + 130;
+    ctx.save();
+    ctx.fillStyle = 'rgba(47,47,69,0.85)';
+    ctx.fillRect(hx0, py, availW, 44);
+    ctx.strokeStyle = 'rgba(160,160,190,0.3)'; ctx.lineWidth = 1;
+    ctx.strokeRect(hx0, py, availW, 44);
+    ctx.restore();
+    R.text('ADDRESSES PRESENT AT L' + L.n, hx0 + 8, py + 16, PALETTE.dim, 'left', 'bold 10px ui-monospace, monospace');
+    R.text(L.addr + '  —  ' + L.scope, hx0 + 8, py + 33,
+      L.n === 4 ? PALETTE.accent5 : L.n === 3 ? PALETTE.accent : L.n === 2 ? PALETTE.accent3 : PALETTE.dim,
+      'left', '11px ui-monospace, monospace');
+
+    // ------------------------------------------------------- hop diagram ---
+    if (o.hops) {
+      const hy = py + 76;
+      R.text('ACROSS A REAL PATH — the point of layers 2, 3 and 4:', R.px0, hy - 8, PALETTE.dim, 'left', 'bold 10px ui-monospace, monospace');
+      const stops = ['host A', 'switch', 'router 1', 'router 2', 'switch', 'host B'];
+      const gw = (R.px1 - R.px0) / stops.length;
+      const at = Math.min(stops.length - 1, Math.floor(o.step / 2.4));
+      stops.forEach((s, i) => {
+        const x = R.px0 + i * gw + gw / 2;
+        const active = i === at;
+        ctx.save();
+        ctx.fillStyle = active ? 'rgba(249,226,175,0.22)' : 'rgba(47,47,69,0.75)';
+        ctx.fillRect(x - gw / 2 + 4, hy, gw - 8, 28);
+        ctx.strokeStyle = active ? PALETTE.warn : 'rgba(160,160,190,0.3)';
+        ctx.lineWidth = active ? 2 : 1;
+        ctx.strokeRect(x - gw / 2 + 4, hy, gw - 8, 28);
+        ctx.restore();
+        R.text(s, x, hy + 19, active ? PALETTE.warn : PALETTE.dim, 'center', '11px ui-monospace, monospace');
+        if (i > 0) R.line(R.px0 + i * gw - 2, hy + 14, R.px0 + i * gw + 4, hy + 14, 'rgba(160,160,190,0.5)', 1.5);
+      });
+      const barY = hy + 40, barH = 18;
+      // MAC bar: a different pair on every link
+      const segCols = ['#a6e3a1', '#94e2d5', '#f9e2af', '#94e2d5', '#a6e3a1'];
+      for (let k = 0; k < stops.length - 1; k++) {
+        const x = R.px0 + k * gw + gw / 2;
+        ctx.save();
+        ctx.fillStyle = segCols[k % segCols.length]; ctx.globalAlpha = 0.32;
+        ctx.fillRect(x + 2, barY, gw - 4, barH);
+        ctx.globalAlpha = 1; ctx.strokeStyle = segCols[k % segCols.length]; ctx.lineWidth = 1.2;
+        ctx.strokeRect(x + 2, barY, gw - 4, barH);
+        ctx.restore();
+        R.text('MAC pair ' + (k + 1), x + gw / 2, barY + 13, PALETTE.text, 'center', '8px ui-monospace, monospace');
+      }
+      R.text('L2 MAC addresses — REWRITTEN BY EVERY DEVICE (a different pair on every link)', R.px0, barY - 4, PALETTE.accent3, 'left', '9px ui-monospace, monospace');
+      const bars = [
+        ['L3 IP addresses (src 192.168.1.10 → dst 203.0.113.5) — CONSTANT end to end', PALETTE.accent],
+        ['L4 port numbers (src 49152 → dst 80) — CONSTANT end to end', PALETTE.accent5],
+      ];
+      bars.forEach((bar2, i) => {
+        const y = barY + (i + 1) * (barH + 6);
+        ctx.save();
+        ctx.fillStyle = bar2[1]; ctx.globalAlpha = 0.28;
+        ctx.fillRect(R.px0, y, R.px1 - R.px0, barH);
+        ctx.globalAlpha = 1; ctx.strokeStyle = bar2[1]; ctx.lineWidth = 1.5;
+        ctx.strokeRect(R.px0, y, R.px1 - R.px0, barH);
+        ctx.restore();
+        R.text(bar2[0], R.px0 + 6, y + 13, bar2[1], 'left', '9px ui-monospace, monospace');
+      });
+      R.text('three routers = the MAC pair changes FOUR times, the IP pair changes ZERO times',
+        R.px0, barY + 3 * (barH + 6) + 6, PALETTE.warn, 'left', '10px ui-monospace, monospace');
+    }
+
+    // -------------------------------------------------------- substituted --
+    const F = document.getElementById('osi-formula');
+    if (F) {
+      F.innerHTML =
+        '<div><strong>Step ' + o.step + ' — ' + o.info.label + ', L' + L.n + ' ' + L.name + '.</strong> PDU at this layer: '
+        + '<strong>' + L.pdu + '</strong>. Header added: '
+        + (L.hdr ? L.hdr.label + ' (' + L.hdr.bytes + ' bytes)' + (L.trailer ? ' plus the ' + L.trailer.label + ' (' + L.trailer.bytes + ' bytes)' : '')
+          : 'none — this layer adds control information, not a header')
+        + '. Protocols: ' + L.proto + '.</div>'
+        + '<div><strong>Header arithmetic:</strong> payload ' + b.dataBytes + ' B + TCP 20 B + IP 20 B + frame header 14 B + FCS 4 B = '
+        + b.total + ' B, of which <strong>' + b.overhead + ' B (' + fmt(b.overhead / b.total * 100, 3) + ' %) is overhead</strong>. '
+        + 'At this step the PDU is called a <strong>' + b.pdu + '</strong>.</div>'
+        + '<div><strong>Address scope at L' + L.n + ':</strong> ' + L.addr + ' — ' + L.scope + '. '
+        + 'Port = which process; IP = which host, end to end; MAC = which interface, on one link only.</div>'
+        + '<div><strong>Memory hook:</strong> the PDU names nest exactly with the headers — '
+        + 'Data (L7–L5) → Segment (L4, + TCP) → Packet (L3, + IP) → Frame (L2, + MAC/FCS) → Bits (L1). '
+        + 'A switch forwards at L2 and never looks at the IP header; a router forwards at L3 and rebuilds the L2 frame; '
+        + 'only the destination host opens the segment at L4 and reaches L7.</div>'
+        + '<div><strong>The hop question:</strong> source and destination IP are constant from host A to host B, because '
+        + 'IP is the end-to-end address that the routing table resolves. The MAC pair is rewritten at every router '
+        + '(A → R1, R1 → R2, R2 → B), because a MAC address only has meaning on the link it belongs to. '
+        + 'With three routers the MAC pair changes four times and the IP pair changes zero times.</div>';
+    }
+  },
+  readout: (out) => ({
+    'step': out.step + ' / 13',
+    'direction': out.info.label,
+    'layer': 'L' + out.L.n + ' ' + out.L.name,
+    'PDU name': out.b.pdu,
+    'header added here': out.L.hdr ? out.L.hdr.label + ' (' + out.L.hdr.bytes + ' B)' : 'none',
+    'address scope': out.L.addr,
+    'identifies': out.L.scope,
+    'total frame so far': out.b.total + ' bytes',
+    'overhead': out.b.overhead + ' B (' + fmt(out.b.overhead / out.b.total * 100, 3) + ' %)',
+    'protocols': out.L.proto,
+  }),
+  onChange: () => {
+    const s = Math.round(inst.w.state.values.step);
+    status.textContent = 'step ' + s + ' of 13  —  ' + stepInfo(s).label
+      + '  —  L' + LAYERS[stepInfo(s).li].n + ' ' + LAYERS[stepInfo(s).li].name;
+  },
+});
+
+setStep(0);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight: encapsulation is a nesting of headers, and each header answers a different question at a '
+  + 'different scope.</strong> The TCP header says WHICH PROCESS (port), the IP header says WHICH HOST across the '
+  + 'whole internetwork (end to end, never rewritten in transit), and the frame header says WHICH INTERFACE on THIS '
+  + 'link (rewritten by every L2 device). A switch reads only the frame, a router also reads the packet, and only the '
+  + 'destination host opens the segment. Everything else in the OSI model — the seven names, the PDU names, the '
+  + 'protocol lists — hangs off that one hierarchy.'
+  + '<br><strong>Three mistakes this widget prevents.</strong> '
+  + '(1) <em>Saying the MAC address changes "as the packet travels".</em> It does not travel: each router strips the '
+  + 'incoming frame, discards it, builds a new frame for the next link, and the old MAC addresses cease to exist. The '
+  + 'IP packet is the thing that travels, carried inside a different frame on every hop. With three routers the MAC '
+  + 'pair changes four times. '
+  + '(2) <em>Calling everything a "packet".</em> The PDU name is layer-specific and examiners award marks for it: data '
+  + 'at L7–L5, segment at L4, packet (or datagram) at L3, frame at L2, bits at L1. A "TCP packet" is a segment, and '
+  + 'an "IP frame" does not exist. '
+  + '(3) <em>Assuming every layer has an address.</em> L1 has no address at all — it is voltage on a wire — and L7/L6/L5 '
+  + 'contribute no header. A router also has one MAC address PER INTERFACE, not one per device. The address panel '
+  + 'prints the scope for the current layer so the answer to "which addresses are present at layer 1?" is visibly "none".'
+  + '<br><strong>Exam reflex:</strong> an HTTP GET becomes a segment (+20 B TCP), a packet (+20 B IP) and a frame '
+  + '(+14 B Ethernet header, +4 B FCS) = 58 bytes of overhead on every packet. For a 100-byte payload that is 36.7 % '
+  + 'overhead, and the efficiency is 100/158 = 63.3 % — the quantitative version of "why headers matter", and a '
+  + 'favourite board computation.';
+host.appendChild(note);
+</script>
+</body>
+</html>

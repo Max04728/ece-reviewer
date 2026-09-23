@@ -1,0 +1,189 @@
+---
+id: ECE-05-14
+title: "Feedback Amplifier Topologies"
+part: "02_Electronics_Engineering"
+area: "05_Circuit_Analysis_and_Design"
+topic: 14
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[13_Gain-Bandwidth_Product_and_fT]]", "[[01_Op-Amp_Fundamentals_and_Real_Parameters]]"]
+tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 14 — Feedback Amplifier Topologies
+
+> [!abstract] Scope
+> Classify an amplifier by what the feedback network samples at the output and mixes at the input, then compute the closed-loop gain, the desensitivity factor and the four resistance transformations it produces.
+
+## Core Concept
+
+> [!tip] Intuition
+> Feedback is a controller that compares a sample of the output with the input and corrects the difference. Everything about the topology follows from two choices: at the output, do you sample a voltage (connect the sense branch in parallel) or a current (connect it in series); at the input, do you subtract a voltage (series connection) or a current (parallel connection)? Those two choices fix the units of the closed-loop gain and decide whether each port resistance is multiplied or divided by the desensitivity factor.
+
+**The four topologies and what they are called.** The output sampling determines what the closed-loop gain measures, and the input mixing determines the units of the feedback factor $\beta$. (1) *Series-shunt*: the feedback is mixed in series with the input (a voltage subtraction) and samples the output voltage (shunt connection across the load). The result behaves as a voltage amplifier with $A_f = V_o/V_s$ and ideal closed-loop gain $1/\beta$. (2) *Shunt-shunt*: mixed in parallel at the input and sampling the output voltage, giving a transresistance amplifier $A_f = V_o/I_s$ with units of ohms and ideal gain $1/\beta$ in ohms. (3) *Series-series*: mixed in series and sampling the output current (a series sense element in the load branch), giving a transconductance amplifier $A_f = I_o/V_s$ with units of siemens. (4) *Shunt-series*: mixed in parallel and sampling the output current, giving a current amplifier $A_f = I_o/I_s$ that is dimensionless. The naming is (input mixing)(output sampling), which is why series-shunt is the voltage amplifier and shunt-series is the current amplifier; reversing the two words is the single most common exam error.
+
+**The closed-loop formula and the desensitivity factor.** For negative feedback the closed-loop gain is $A_f = A/(1 + A\beta)$, where $A$ is the open-loop gain (including the loading of the feedback network) and $\beta$ is the feedback factor. The denominator is called the desensitivity, or amount of feedback, $D = 1 + A\beta$. When $A\beta \gg 1$, $A_f \to 1/\beta$: the gain depends only on the passive feedback network, which is why feedback amplifiers are stable and interchangeable. The price is that $A_f$ is always slightly less than $1/\beta$: with $A = 1000$ and $\beta = 0.01$ the loop gain is 10, $D = 11$, and $A_f = 1000/11 = 90.9$ rather than the ideal 100 - a shortfall of exactly $1/D = 9.1\%$.
+
+**What feedback buys, quantitatively.** Differentiating $A_f = A/(1+A\beta)$ gives $dA_f/A_f = (1/D)(dA/A)$: a fractional change in open-loop gain is reduced by the factor $D$. Distortion and noise generated inside the amplifier are reduced by the same factor, because the loop sees them as an error at the output and subtracts a corrective signal. Bandwidth moves in the same ratio but in the useful direction: the upper cutoff is multiplied by $D$ while the lower cutoff is divided by $D$, so $f_{Hf} = Df_H$ and $f_{Lf} = f_L/D$. The gain-bandwidth product is unchanged, since the gain fell by $D$ and the bandwidth rose by $D$. With $D = 11$ an amplifier with $|A| = 1000$ at $f_H = 10\ \mathrm{kHz}$ becomes 90.9 at $110\ \mathrm{kHz}$, and 10% open-loop distortion becomes 0.91%.
+
+**Resistance transformations - the table that must be memorised correctly.** The input side is decided by the *mixing*: series mixing adds the feedback voltage in opposition to the source, so the input current for a given source voltage falls and the input resistance is *multiplied* by $D$, $R_{if} = R_iD$ (10 k-ohm becomes 110 k-ohm at $D = 11$). Shunt mixing adds the feedback current in opposition at the input node, so the input resistance is *divided* by $D$, $R_{if} = R_i/D$ (10 k-ohm becomes 909 ohm). The output side is decided by the *sampling*: voltage sampling regulates the output voltage, so the output resistance is *divided* by $D$, $R_{of} = R_o/D$ (50 k-ohm becomes 4.55 k-ohm); current sampling regulates the output current, so the output resistance is *multiplied* by $D$, $R_{of} = R_oD$ (50 k-ohm becomes 550 k-ohm). Ideal voltage amplifiers want high input and low output resistance, and series-shunt delivers exactly that; ideal current amplifiers want the opposite, and shunt-series delivers that.
+
+**When the loop goes regenerative: oscillation.** The closed-loop expression $A_f = A/(1+A\beta)$ blows up when $1 + A\beta = 0$, that is when $A\beta = -1$. In magnitude-phase language this is the Barkhausen condition: the loop gain magnitude must be exactly 1 and the total loop phase shift must be $0^\circ$ (or $360^\circ$). The minus sign and the $0^\circ$ statement are the same condition written under two conventions: if the summing node's inversion is included in $A$, then oscillation needs $A\beta = +1$ at $0^\circ$; if the feedback is defined as negative (the $1+A\beta$ convention used above), the amplifier's own $180^\circ$ is already in $A$ and the network must supply the remaining $180^\circ$, so $A\beta = -1$ at that frequency. In practice, $|A\beta|$ is designed slightly greater than 1 so the oscillation starts from noise, and an amplitude-limiting mechanism (a lamp, an AGC, or supply clipping) then pulls the effective gain back to exactly unity.
+
+**Where the ideal formulas fail.** The expressions for $A_f$, $D$ and the four resistances assume a unilateral amplifier, a feedback network that loads the ports only in the way the analysis assumes, and a single dominant pole for the bandwidth statements. Two practical consequences: first, $A$ and $\beta$ must be the values *including* the loading of the feedback network - measuring $A$ with the network disconnected gives an optimistic loop gain and a wrong $D$. Second, the bandwidth extension by $D$ applies to each pole, so a two-pole amplifier extends its bandwidth by less than $D$ and may peak near the crossover, because the loop gain falls at 40 dB/decade there and the phase margin collapses. The Barkhausen condition also warns that a feedback amplifier that satisfies $|A\beta| = 1$ with the wrong phase at some unintended frequency will oscillate there, which is why the loop must be checked at every frequency where the phase passes $180^\circ$.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Closed-loop gain | $A_f = \frac{A}{1 + A\beta}$ | Negative-feedback convention for any of the four topologies; A and beta must include the loading of the feedback network. Units follow the topology: dimensionless, ohms, siemens or dimensionless. |
+| Desensitivity (amount of feedback) | $D = 1 + A\beta$ | Dimensionless for every topology because A and beta are reciprocal in units. A = 1000 with beta = 0.01 gives A*beta = 10 and D = 11. Requires the loop to be negative: with the wrong signs A*beta is negative and D falls below 1. |
+| Gain stability | $\frac{dA_f}{A_f} = \frac{1}{D}\frac{dA}{A}$ | Fractional sensitivity. A 20 percent change in open-loop gain becomes 20/11 = 1.8 percent closed loop at D = 11. Exact only for small changes, since A_f is not linear in A. |
+| Bandwidth extension | $f_{Hf} = D f_H, \qquad f_{Lf} = \frac{f_L}{D}$ | Upper cutoff moves up, lower cutoff moves down, so the bandwidth grows by D while the gain falls by D and the gain-bandwidth product is preserved. Single-pole assumption: a second pole inside the loop limits the real improvement. |
+| Input resistance | $R_{if} = R_i D\ (\mathrm{series\ mixing}), \qquad R_{if} = \frac{R_i}{D}\ (\mathrm{shunt\ mixing})$ | Decided by the INPUT mixing only. Series mixing raises R_i (10 k-ohm times 11 = 110 k-ohm); shunt mixing lowers it (10 k-ohm over 11 = 909 ohm). |
+| Output resistance | $R_{of} = \frac{R_o}{D}\ (\mathrm{voltage\ sampling}), \qquad R_{of} = R_o D\ (\mathrm{current\ sampling})$ | Decided by the OUTPUT sampling only. Shunt (voltage) sampling lowers R_o (50 k-ohm over 11 = 4.55 k-ohm); series (current) sampling raises it (50 k-ohm times 11 = 550 k-ohm). |
+| Distortion and noise reduction | $\mathrm{THD}_f \approx \frac{\mathrm{THD}}{D}$ | Applies only to distortion and noise GENERATED INSIDE the loop. A 10 percent open-loop THD becomes 0.91 percent at D = 11. Distortion already present in the input signal passes straight through and is not reduced. |
+| Barkhausen oscillation condition | $A\beta = -1 \quad \Longleftrightarrow \quad \lvert A\beta \rvert = 1,\ \angle A\beta = 0^\circ$ | The two forms use different conventions for the summing-node inversion. With the loop magnitude slightly above 1 the oscillation grows until amplitude limiting restores unity; exactly 1 gives sustained oscillation only if the circuit is lossless. |
+
+## Worked Problems
+
+### P1. A voltage amplifier has an open-loop gain $A = 1000$ and a feedback network with $\beta = 0.01$. Find the loop gain, the desensitivity factor, the exact closed-loop gain and the percentage shortfall from the ideal $1/\beta$.
+
+**Given:** $A = 1000$; $\beta = 0.01$
+
+**Solution:**
+
+1. Loop gain: $A\beta = 1000\times0.01 = 10$.
+2. Desensitivity: $D = 1 + A\beta = 1 + 10 = 11$.
+3. Exact closed-loop gain: $A_f = \dfrac{A}{1 + A\beta} = \dfrac{1000}{11} = 90.909$.
+4. Ideal (infinite-loop-gain) value: $1/\beta = 1/0.01 = 100$.
+5. Shortfall: $(100 - 90.909)/100 = 9.091\%$, which equals $1/D = 1/11 = 9.09\%$ as expected.
+6. Improvement over open loop: the gain fell by $1000/90.909 = 11 = D$, so the bandwidth rises by the same factor 11 and the distortion falls by 11.
+
+> [!success]- Answer
+> **$A\beta = 10$, $D = 11$, $A_f = 90.9$, which is 9.09% below the ideal $1/\beta = 100$**
+
+> [!warning] Trap
+> Answering $A_f = 1/\beta = 100$ by assuming the loop gain is infinite. With $A\beta = 10$ the exact result is 90.9, and the 9.1% error is exactly $1/D$ - a systematic bias, not a rounding effect. Equally wrong is $A_f = A/(1 - A\beta) = 1000/(1-10) = -111$, which is positive feedback.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1000 × 0.01` → $A\beta$ = **10**; `+ 1` → $D$ = **11**.
+> 2. `1000 ÷ 11` → $A_f$ = **90.909**.
+> 3. `(100 − 90.909) ÷ 100` → **9.091** % below the ideal $1/\beta$ = 100, which is exactly $1/D$.
+
+### P2. An amplifier with nominal open-loop gain $A = 10\,000$ varies by $\pm20\%$ over temperature. A feedback network with $\beta = 0.001$ is applied. Find $D$, the nominal closed-loop gain, and the closed-loop gain at the two extremes of the open-loop variation.
+
+**Given:** $A = 10\,000$ nominal, $\pm20\%$; $\beta = 0.001$
+
+**Solution:**
+
+1. Loop gain: $A\beta = 10\,000\times0.001 = 10$, so $D = 11$.
+2. Nominal closed-loop gain: $A_f = 10\,000/11 = 909.09$.
+3. Upper extreme $A = 12\,000$: $A\beta = 12$, $A_f = 12\,000/13 = 923.08$.
+4. Lower extreme $A = 8000$: $A\beta = 8$, $A_f = 8000/9 = 888.89$.
+5. Spread: from 888.89 to 923.08, i.e. $-2.2\%$ to $+1.5\%$ about the nominal 909.09, versus the $\pm20\%$ of the open-loop gain.
+6. Small-signal check: $dA_f/A_f = (1/D)(dA/A) = 20\%/11 = 1.8\%$, which brackets the exact $+1.5\%/-2.2\%$ split and confirms the loop is doing its job.
+
+> [!success]- Answer
+> **$D = 11$, nominal $A_f = 909$, ranging from 888.9 to 923.1 - about $\pm2\%$ instead of $\pm20\%$**
+
+> [!warning] Trap
+> Applying the $1/D$ reduction to the gain itself instead of to its fractional change. The gain falls from 10 000 to 909 (a factor 11) while the fractional variation falls from 20% to about 1.8% (also a factor 11). Confusing the two makes students report a $\pm0.18\%$ variation or a gain of $10\,000/1.8$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `10000 × 0.001` → $A\beta$ = **10**, so $D$ = **11**; `10000 ÷ 11` → $A_f$ = **909.1**.
+> 2. At the two extremes: `12000 ÷ 13` → **923.1** and `8000 ÷ 9` → **888.9**.
+> 3. `(923.08 − 909.09) ÷ 909.09` → **+1.5** % and `(888.89 − 909.09) ÷ 909.09` → **−2.2** %, against ±20 % open loop.
+
+### P3. An amplifier has $R_i = 10\ \mathrm{k}\Omega$, $R_o = 50\ \mathrm{k}\Omega$, $A = 1000$ and $\beta = 0.01$, giving $D = 11$. Find $R_{if}$ and $R_{of}$ when the topology is (a) series-shunt (voltage amplifier) and (b) series-series (transconductance amplifier), and give $R_{if}$ for the shunt-shunt case.
+
+**Given:** $R_i = 10\ \mathrm{k}\Omega$; $R_o = 50\ \mathrm{k}\Omega$; $A = 1000$; $\beta = 0.01$, $D = 11$
+
+**Solution:**
+
+1. (a) Series-shunt mixes in series at the input, so $R_{if} = R_iD = (10\ \mathrm{k}\Omega)(11) = 110\ \mathrm{k}\Omega$.
+2. (a) It samples the output voltage, so $R_{of} = R_o/D = 50\ \mathrm{k}\Omega/11 = 4.545\ \mathrm{k}\Omega$.
+3. (b) Series-series also mixes in series, so $R_{if}$ is again $110\ \mathrm{k}\Omega$.
+4. (b) But it samples the output current, so $R_{of} = R_oD = (50\ \mathrm{k}\Omega)(11) = 550\ \mathrm{k}\Omega$.
+5. (c) Shunt-shunt mixes in parallel at the input, so $R_{if} = R_i/D = 10\ \mathrm{k}\Omega/11 = 909\ \Omega$.
+6. The pattern is consistent: mixing sets the input resistance (series multiplies by D, shunt divides by D) and sampling sets the output resistance (voltage divides by D, current multiplies by D).
+
+> [!success]- Answer
+> **(a) $R_{if} = 110\ \mathrm{k}\Omega$, $R_{of} = 4.55\ \mathrm{k}\Omega$; (b) $R_{if} = 110\ \mathrm{k}\Omega$, $R_{of} = 550\ \mathrm{k}\Omega$; (c) shunt-shunt $R_{if} = 909\ \Omega$**
+
+> [!warning] Trap
+> Applying the input rule to the output or vice versa. The words describe different ends of the circuit: at the input, series/shunt describes how the feedback is MIXED; at the output, shunt means a parallel connection that samples VOLTAGE and series means a series sense element that samples CURRENT. Getting them crossed turns a 110 k-ohm input into 909 ohm and a 4.55 k-ohm output into 550 k-ohm.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `10 × 11` → series mixing gives $R_{if}$ = **110** k$\Omega$; `50 ÷ 11` → voltage sampling gives $R_{of}$ = **4.545** k$\Omega$.
+> 2. `50 × 11` → current sampling gives $R_{of}$ = **550** k$\Omega$, with $R_{if}$ still **110** k$\Omega$ for series-series.
+> 3. `10 ÷ 11` → shunt mixing gives $R_{if}$ = **909** $\Omega$.
+
+### P4. A series-shunt feedback amplifier with $A = 1000$ has open-loop $f_L = 100\ \mathrm{Hz}$ and $f_H = 10\ \mathrm{kHz}$. With $\beta = 0.01$ ($D = 11$), find the new cutoff frequencies and verify that the gain-bandwidth product is unchanged.
+
+**Given:** $A = 1000$; $f_L = 100\ \mathrm{Hz}$; $f_H = 10\ \mathrm{kHz}$; $\beta = 0.01$, $D = 11$
+
+**Solution:**
+
+1. New upper cutoff: $f_{Hf} = Df_H = 11\times10\ \mathrm{kHz} = 110\ \mathrm{kHz}$.
+2. New lower cutoff: $f_{Lf} = f_L/D = 100\ \mathrm{Hz}/11 = 9.09\ \mathrm{Hz}$.
+3. Open-loop gain-bandwidth product: $1000\times10\ \mathrm{kHz} = 10\ \mathrm{MHz}$.
+4. Closed-loop gain: $A_f = 1000/11 = 90.909$.
+5. Closed-loop gain-bandwidth product: $90.909\times110\ \mathrm{kHz} = 10.0\ \mathrm{MHz}$, unchanged.
+6. The bandwidth itself grew from $10\ \mathrm{kHz} - 100\ \mathrm{Hz} \approx 9.9\ \mathrm{kHz}$ to $110\ \mathrm{kHz} - 9.09\ \mathrm{Hz} \approx 110\ \mathrm{kHz}$, a factor of about 11, matching the gain reduction.
+
+> [!success]- Answer
+> **$f_{Hf} = 110\ \mathrm{kHz}$, $f_{Lf} = 9.09\ \mathrm{Hz}$, with $|A_f|f_{Hf} = 10\ \mathrm{MHz}$ unchanged**
+
+> [!warning] Trap
+> Extending only the upper cutoff and leaving the lower cutoff alone, or moving both in the same direction. Feedback pushes the high cutoff UP by D and the low cutoff DOWN by D - that is how it simultaneously makes the amplifier faster and more DC-coupled. Applying $D$ as a division to $f_H$ gives 909 Hz instead of 110 kHz.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `11 × 10E3` → $f_{Hf}$ = **110** kHz; `100 ÷ 11` → $f_{Lf}$ = **9.09** Hz.
+> 2. `1000 × 10E3` → the open-loop $GBW$ = **1.0e7** Hz.
+> 3. `1000 ÷ 11` → $A_f$ = **90.91**, and `90.91 × 110E3` → **1.0e7** Hz — unchanged.
+
+### P5. An amplifier with $A = -50$ is to be used as an oscillator. Find the feedback factor magnitude the network must provide, and state what happens when the network provides $|\beta| = 0.025$ and when it provides $|\beta| = 0.015$.
+
+**Given:** $A = -50$ (180 degree phase shift); target: sustained oscillation
+
+**Solution:**
+
+1. For sustained oscillation the loop gain must satisfy $A\beta = -1$ with the negative-feedback convention, i.e. $|A\beta| = 1$ with the total loop phase at $0^\circ$ or $360^\circ$.
+2. The amplifier already contributes $180^\circ$, so the feedback network must contribute the other $180^\circ$; that makes $\beta$ negative and the product $A\beta$ positive.
+3. Required magnitude: $|\beta| = 1/|A| = 1/50 = 0.02$.
+4. With $|\beta| = 0.025$: $|A\beta| = 50\times0.025 = 1.25 > 1$, so the amplitude grows exponentially from noise until the amplifier clips, producing a distorted quasi-square wave rather than a clean sine.
+5. With $|\beta| = 0.015$: $|A\beta| = 50\times0.015 = 0.75 < 1$, so every disturbance decays and the circuit cannot start at all.
+6. A practical design sets $|\beta|$ about 5 percent above the minimum ($0.021$) and adds amplitude limiting so the effective loop gain settles at exactly 1.
+
+> [!success]- Answer
+> **$|\beta| = 0.02$ for sustained oscillation; 0.025 gives growing, clipping oscillation and 0.015 dies out**
+
+> [!warning] Trap
+> Using a positive $\beta$ with an inverting amplifier. With $A = -50$ and $\beta = +0.02$ the product is $A\beta = -1$ in the negative-feedback convention, which is the $1 + A\beta = 0$ pole of the closed-loop gain only if the phase condition is also met; more importantly, students who check only $|A\beta| = 1$ and ignore the $0^\circ/360^\circ$ phase requirement build a circuit that satisfies the magnitude test at a frequency where the phase is wrong and therefore does not oscillate.
+
+## Traps & Exam Notes
+
+- **Reversing the topology names.** The order is (input mixing)(output sampling), so series-shunt is the voltage amplifier ($V_o/V_s$, ideal gain $1/\beta$) and shunt-series is the current amplifier ($I_o/I_s$). Writing "shunt-series voltage amplifier" swaps the sample-and-mix roles and produces the wrong resistance table.
+- **Using $A_f = A/(1 - A\beta)$.** With $A = 1000$ and $\beta = 0.01$ the correct $A_f$ is $1000/11 = 90.9$; the positive-feedback form gives $1000/(1-10) = -111.1$, which is not only the wrong magnitude but predicts runaway instead of stability.
+- **Crossing the resistance rules.** Series mixing multiplies the INPUT resistance by $D$ (10 k-ohm becomes 110 k-ohm) while shunt mixing divides it (10 k-ohm becomes 909 ohm); voltage sampling divides the OUTPUT resistance by $D$ (50 k-ohm becomes 4.55 k-ohm) while current sampling multiplies it (50 k-ohm becomes 550 k-ohm).
+- **Assuming the ideal gain $1/\beta$ immediately.** $A_f$ approaches $1/\beta$ only for $A\beta \gg 1$. At $A\beta = 10$ the exact value is 90.9 against the ideal 100, a 9.1% shortfall that is exactly $1/D$; at $A\beta = 1$ the exact gain is only $A/2$.
+- **Quoting distortion reduction without checking where the distortion is made.** Feedback divides distortion generated inside the loop by $D$ (10% becomes 0.91% at $D = 11$), but distortion already present on the input signal is passed through and even amplified, so a feedback amplifier cannot clean up a dirty source.
+- **Forgetting that the loop gain must include loading.** $A$ and $\beta$ in $D = 1 + A\beta$ must be measured with the feedback network connected. Measuring the open-loop gain with the network removed overstates $A\beta$ and therefore overstates the bandwidth extension and the distortion reduction, sometimes by a factor of two or more.
+
+## See Also
+
+- [[10_Darlington_and_Feedback_Pairs]]
+- [[12_Miller’s_Theorem_and_High-Frequency_Effects]]
+- [[13_Gain-Bandwidth_Product_and_fT]]
+- [[16_Oscillators_RC_Phase_Shift_and_Wien_Bridge]]
+- [[01_Op-Amp_Fundamentals_and_Real_Parameters]]
+- [[02_Linear_Op-Amp_Circuits]]
+
+---
+
+[[13_Gain-Bandwidth_Product_and_fT|⬅ 13]] · [[_MOC_Circuit_Analysis_and_Design|MOC]] · [[00_Dashboard|Dashboard]] · [[15_Power_Amplifiers_Classes_A,_B,_AB,_C|15 ➡]]

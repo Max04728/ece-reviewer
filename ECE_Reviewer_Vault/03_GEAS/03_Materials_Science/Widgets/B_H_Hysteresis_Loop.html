@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B-H Hysteresis Loop</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+/* ============================================================================
+ * B-H hysteresis loop.
+ *
+ * The loop is generated from a parametric branch model rather than a table, so
+ * the three quantities a LET question names are exact by construction:
+ *
+ *   saturation flux density  Bs : the flat top of both branches
+ *   retentivity / remanence  Br : B at H = 0, i.e. Bs.tanh(a)
+ *   coercivity               Hc : the field at which B = 0
+ *
+ *   branch sgn = +1 (lower branch, H rising):
+ *       s = (sgn.H - Hc)/Hc ,  B = sgn . Bs . tanh(a . s . |s|^(k-1))
+ *   branch sgn = -1 (upper branch). The two meet at saturation.
+ *
+ * With k > 1 the curve flattens at the remanence point, which is what makes a
+ * real loop look like a loop rather than a lens; k = 1 is the plain shifted
+ * tanh. Larger k brings the knee in, producing the square loop of a hard
+ * magnetic material.
+ *
+ * ENERGY LOSS: the loop area equals the energy dissipated per unit volume per
+ * cycle, W = closed-integral of H dB (J/m^3 per cycle). It is computed here by
+ * trapezoidal integration of (upper - lower) over a full half period, doubled.
+ * The soft/hard contrast is the whole point: a soft magnetic material has a
+ * thin loop (small loss, good for transformer cores) and a hard one has a fat
+ * loop (large loss, and that is exactly why it stays magnetised).
+ * ==========================================================================*/
+
+/** a sets Br/Bs = tanh(a); a = 0.6 gives Br about 0.54 Bs, a realistic steel. */
+const A_TANH = 0.6;
+
+function branch(h, Bs, Hc, k, sgn) {
+  const s = (sgn * h - Hc) / Hc;
+  const mag = Math.pow(Math.abs(s), k - 1);
+  return sgn * Bs * Math.tanh(A_TANH * s * mag);
+}
+
+/** Composite trapezoidal rule, local so the widget ships one import line. */
+function trap(f, a, b, n) {
+  const h = (b - a) / n;
+  let s = (f(a) + f(b)) / 2;
+  for (let i = 1; i < n; i++) s += f(a + i * h);
+  return s * h;
+}
+
+const MATERIALS = {
+  softIron: { label: 'soft iron', Bs: 1.5, Hc: 80, k: 2, note: 'very soft: thin loop, low loss, used for relay cores and pole pieces' },
+  siliconSteel: { label: 'silicon steel', Bs: 1.8, Hc: 50, k: 2.5, note: 'transformer core material: narrow loop, low loss per cycle' },
+  ferrite: { label: 'ferrite (soft)', Bs: 0.4, Hc: 200, k: 3, note: 'high resistivity, low Bs; the loop is still thin even though Hc is larger' },
+  hardMagnet: { label: 'hard magnetic material (Alnico / NdFeB class)', Bs: 1.2, Hc: 100000, k: 3.5, note: 'fat loop: huge coercivity, so it keeps its magnetisation and has a large loss per cycle' },
+  custom: { label: 'custom (use the sliders)', Bs: 1.2, Hc: 500, k: 2.5, note: 'the sliders drive everything' },
+};
+
+widget({
+  title: 'B-H Hysteresis Loop — Remanence, Coercivity and Loss per Cycle',
+  description:
+    'Saturation flux density, coercivity and the knee exponent set the loop. Retentivity, coercivity and the ' +
+    'saturation points are marked, and the enclosed area is reported as the energy loss per cycle.',
+  height: 500,
+  range: { xMin: -40, xMax: 40, yMin: -1.5, yMax: 1.5 },
+  controls: [
+    {
+      id: 'mat', label: 'material', type: 'select',
+      options: Object.keys(MATERIALS).map((k2) => ({ value: k2, label: MATERIALS[k2].label })),
+      value: 'siliconSteel',
+    },
+    { id: 'Bs', label: 'saturation flux density Bs (T)', min: 0.1, max: 2.4, step: 0.01, value: 1.8 },
+    { id: 'logHc', label: 'coercivity Hc = 10^slider (A/m)', min: 1, max: 5.7, step: 0.05, value: 1.699 },
+    { id: 'k', label: 'knee exponent k (loop squareness)', min: 1, max: 6, step: 0.1, value: 2.5 },
+    { id: 'showLoopArea', label: 'shade the loop area (energy loss)', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const M = MATERIALS[v.mat];
+    const Bs = v.Bs, Hc = Math.pow(10, v.logHc), k = v.k;
+    const Hmax = 4 * Hc;
+    const N = 400;
+    const upper = [], lower = [];
+    for (let i = 0; i <= N; i++) {
+      const h = -Hmax + (2 * Hmax * i) / N;
+      upper.push([h, branch(h, Bs, Hc, k, -1)]);
+      lower.push([h, branch(h, Bs, Hc, k, 1)]);
+    }
+    const Br = branch(0, Bs, Hc, k, -1);            // B at H = 0 on the upper branch
+    const W = 2 * trap((h) => branch(h, Bs, Hc, k, -1) - branch(h, Bs, Hc, k, 1), 0, Hmax, 4000);
+    const WId = 2 * trap((h) => branch(h, Bs, Hc, k, -1) - branch(h, Bs, Hc, k, 1), 0, Hmax, 400);
+    const BsReached = Math.max(Math.abs(branch(Hmax, Bs, Hc, k, -1)), Math.abs(branch(-Hmax, Bs, Hc, k, 1)));
+    const BrRatio = Br / Bs;
+    const squareness = W / (4 * Bs * Hc);
+    return {
+      M, Bs, Hc, k, Hmax, upper, lower, Br, W, WId, BsReached, BrRatio, squareness,
+      showLoopArea: !!v.showLoopArea, logHc: v.logHc,
+      muh: Br / (Hc > 0 ? Hc : 1),
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const Hmax = out.Hmax;
+    const Bmax = Math.max(out.Bs * 1.18, Math.abs(out.Br) * 1.25, 0.1);
+    plot.setRange({ xMin: -Hmax, xMax: Hmax, yMin: -Bmax, yMax: Bmax });
+    plot.clear().grid(Hmax / 4, Bmax / 4).axes();
+
+    // shaded loop area
+    if (out.showLoopArea) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(249,226,175,0.14)';
+      ctx.beginPath();
+      for (let i = 0; i <= out.upper.length - 1; i++) {
+        const [h, b] = out.upper[i];
+        i === 0 ? ctx.moveTo(plot.X(h), plot.Y(b)) : ctx.lineTo(plot.X(h), plot.Y(b));
+      }
+      for (let i = out.lower.length - 1; i >= 0; i--) {
+        const [h, b] = out.lower[i];
+        ctx.lineTo(plot.X(h), plot.Y(b));
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    // the two branches
+    const drawBranch = (pts, color, width) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      ctx.beginPath();
+      pts.forEach(([h, b], i) => { i === 0 ? ctx.moveTo(plot.X(h), plot.Y(b)) : ctx.lineTo(plot.X(h), plot.Y(b)); });
+      ctx.stroke();
+      ctx.restore();
+    };
+    drawBranch(out.lower, PALETTE.accent, 2.6);
+    drawBranch(out.upper, PALETTE.accent2, 2.6);
+
+    // markers
+    plot.dot(0, out.Br, { color: PALETTE.accent3, r: 5 });
+    plot.label('remanence Br = ' + fmt(out.Br, 4) + ' T', plot.X(0) + 8, plot.Y(out.Br) - 8,
+      { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    plot.dot(0, -out.Br, { color: PALETTE.accent3, r: 4 });
+
+    plot.dot(out.Hc, 0, { color: PALETTE.warn, r: 5 });
+    plot.label('coercivity Hc = ' + fmt(out.Hc, 4) + ' A/m', plot.X(out.Hc) + 8, plot.Y(0) + 16,
+      { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    plot.dot(-out.Hc, 0, { color: PALETTE.warn, r: 4 });
+
+    plot.dot(Hmax, branch(Hmax, out.Bs, out.Hc, out.k, -1), { color: PALETTE.accent5, r: 5 });
+    plot.dot(-Hmax, branch(-Hmax, out.Bs, out.Hc, out.k, 1), { color: PALETTE.accent5, r: 5 });
+    plot.label('saturation Bs = ' + fmt(out.Bs, 4) + ' T',
+      plot.pad + 6, plot.Y(Bmax) + 16, { color: PALETTE.accent5, font: '11px ui-monospace, monospace' });
+
+    // axis labels
+    plot.text('H (A/m)', plot.X(Hmax) - 60, plot.Y(0) - 6, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('B (T)', plot.X(0) + 6, plot.Y(Bmax) + 4, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text(out.M.label, plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('upper branch = H falling,  lower branch = H rising',
+      plot.pad + 6, plot.h - 10, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('loop area = ' + fmt(out.W, 5) + ' J/m3 per cycle',
+      plot.pad + 6, plot.h - 28, { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'material': out.M.label,
+    'saturation Bs': fmt(out.Bs, 5) + ' T',
+    'remanence Br (B at H=0)': fmt(out.Br, 5) + ' T',
+    'coercivity Hc (B=0)': fmt(out.Hc, 5) + ' A/m',
+    'Br / Bs': fmt(out.BrRatio, 5),
+    'knee exponent k': fmt(out.k, 4),
+    'loop area W (energy loss)': fmt(out.W, 6) + ' J/m3 per cycle',
+    'loop area, coarse check': fmt(out.WId, 6) + ' J/m3',
+    'B reached at 4.Hc': fmt(out.BsReached, 5) + ' T',
+    'loop squareness W/(4.Bs.Hc)': fmt(out.squareness, 5),
+    'Br / Hc (loop permeability)': fmt(out.muh, 5),
+    'Hmax swept': fmt(out.Hmax, 5) + ' A/m',
+  }),
+
+  onChange: (v) => renderNote(v),
+});
+
+function renderNote(v) {
+  const M = MATERIALS[v.mat];
+  const Bs = v.Bs, Hc = Math.pow(10, v.logHc), k = v.k;
+  const Hmax = 4 * Hc;
+  const Br = branch(0, Bs, Hc, k, -1);
+  const W = 2 * trap((h) => branch(h, Bs, Hc, k, -1) - branch(h, Bs, Hc, k, 1), 0, Hmax, 4000);
+  note.innerHTML =
+    '<div class="vault-mono">'
+    + 'branch model: B = sgn.Bs.tanh(0.6 . ((sgn.H - Hc)/Hc).|(sgn.H - Hc)/Hc|^(k-1)),  sgn = +1 lower, -1 upper<br>'
+    + 'Bs = ' + fmt(Bs, 5) + ' T &nbsp; Hc = ' + fmt(Hc, 5) + ' A/m &nbsp; k = ' + fmt(k, 4) + '<br>'
+    + 'remanence: Br = B(0) = Bs.tanh(0.6) = ' + fmt(Bs, 4) + ' x 0.537 = <strong>' + fmt(Br, 5)
+    + ' T</strong> &nbsp; (Br/Bs = ' + fmt(Br / Bs, 4) + ')<br>'
+    + 'coercivity: B(Hc) = Bs.tanh(0) = 0 exactly, so the loop crosses B = 0 at H = ' + fmt(Hc, 5) + ' A/m<br>'
+    + 'energy loss per cycle: W = closed-integral of H dB = loop area = integral of (upper - lower) from 0 to '
+    + fmt(Hmax, 4) + ' A/m, doubled = <strong>' + fmt(W, 6) + ' J/m^3 per cycle</strong></div>'
+    + '<div style="margin-top:8px"><strong>Exam trap this widget kills:</strong> confusing retentivity with '
+    + 'coercivity. Retentivity (remanence) Br is the flux density that REMAINS at H = 0 &mdash; it is a B value '
+    + 'in tesla, read off the vertical axis. Coercivity Hc is the reverse field needed to drive B back to zero '
+    + '&mdash; it is an H value in A/m, read off the horizontal axis. Answer choices swap the two axes constantly. '
+    + 'The second point is the soft/hard distinction: a transformer core wants a NARROW loop (silicon steel, low '
+    + 'Hc, small area) because the area is the energy lost as heat every cycle, while a permanent magnet wants a '
+    + 'FAT loop (huge Hc, large area) precisely because it must resist demagnetisation. Same curve shape, opposite '
+    + 'requirements. Currently: ' + M.label + ' &mdash; ' + M.note + '.</div>';
+}
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'bh-note';
+document.getElementById('app').appendChild(note);
+renderNote({ mat: 'siliconSteel', Bs: 1.8, logHc: 1.699, k: 2.5, showLoopArea: true });
+</script>
+</body>
+</html>

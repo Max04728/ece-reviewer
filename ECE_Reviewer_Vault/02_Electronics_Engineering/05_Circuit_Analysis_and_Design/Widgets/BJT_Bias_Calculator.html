@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BJT Bias Calculator — Thevenin Base, Q-Point, Region and β Stability</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Every BJT DC bias question runs the same four steps:
+//   1. Reduce the base circuit to a Thevenin equivalent  (V_BB, R_BB)
+//   2. Write the base loop with the emitter reflected:   I_B = (V_BB - V_BE) / (R_BB + (beta+1) R_E)
+//   3. Get I_C = beta I_B,  I_E = (beta+1) I_B
+//   4. Check the region:  V_CE = V_CC - I_C R_C - I_E R_E, and V_CE >= V_CE(sat) or the
+//      transistor is NOT in the active region and step 3 is invalid.
+// Step 4 is what separates a full-mark answer from a half-mark one, and the beta slider is
+// what shows WHY the voltage-divider configuration is the one worth using: with
+// R_BB << (beta+1) R_E the base current barely matters and the Q-point stops moving.
+
+const VBE = 0.7, VCE_SAT = 0.2;
+
+const CONFIGS = {
+  divider: {
+    label: 'voltage divider (R1 from Vcc, R2 to ground, R_E)',
+    uses: ['R1', 'R2', 'Rc', 'Re'],
+    formula: 'V_BB = V_CC·R2/(R1+R2)   R_BB = R1∥R2   I_B = (V_BB − V_BE)/(R_BB + (β+1)R_E)',
+  },
+  fixed: {
+    label: 'fixed bias (R_B from Vcc to base, R_E)',
+    uses: ['Rb', 'Rc', 'Re'],
+    formula: 'V_BB = V_CC   R_BB = R_B   I_B = (V_CC − V_BE)/(R_B + (β+1)R_E)',
+  },
+  collector: {
+    label: 'collector feedback (R_B from collector to base, R_E)',
+    uses: ['Rb', 'Rc', 'Re'],
+    formula: 'V_BB = V_CC   R_BB = R_B + β·R_C   I_B = (V_CC − V_BE)/(R_B + (β+1)R_E + β·R_C)',
+  },
+  emitter: {
+    label: 'emitter feedback (R_B from Vcc to base, R_E)',
+    uses: ['Rb', 'Rc', 'Re'],
+    formula: 'V_BB = V_CC   R_BB = R_B   I_B = (V_CC − V_BE)/(R_B + (β+1)R_E)',
+  },
+};
+
+/** Thevenin base equivalent and the resulting base current, in SI units. */
+function solve(p) {
+  let Vbb, Rbb;
+  if (p.config === 'divider') {
+    Vbb = (p.Vcc * p.R2) / (p.R1 + p.R2);
+    Rbb = (p.R1 * p.R2) / (p.R1 + p.R2);
+  } else if (p.config === 'collector') {
+    Vbb = p.Vcc;
+    Rbb = p.Rb + p.beta * p.Rc;
+  } else {
+    Vbb = p.Vcc;
+    Rbb = p.Rb;
+  }
+  const den = Rbb + (p.beta + 1) * p.Re;
+  const Ib = (Vbb - VBE) / den;
+  const IcAct = p.beta * Ib;
+  const IeAct = (p.beta + 1) * Ib;
+  const VceAct = p.Vcc - IcAct * p.Rc - IeAct * p.Re;
+  // Ib is recomputed in the cutoff branch below, so the returned value must be a `let`.
+  // Declaring it `const` made every divider configuration with a low V_BB throw
+  // "Assignment to constant variable", which left the whole widget blank.
+  let IbOut = Ib;
+  let region, Vce, Ic, Ie;
+  if (Ib <= 0) {
+    // V_BB <= V_BE: the base-emitter junction never turns on
+    region = 'cutoff'; Vce = p.Vcc; Ic = 0; Ie = 0; IbOut = 0;
+  } else if (VceAct < VCE_SAT) {
+    region = 'saturation';
+    Vce = VCE_SAT;
+    Ie = (p.Vcc - VCE_SAT) / (p.Rc + p.Re);
+    Ic = Ie * (p.beta / (p.beta + 1));
+  } else { region = 'active'; Vce = VceAct; Ic = IcAct; Ie = IeAct; }
+  return { Vbb, Rbb, den, Ib: IbOut, Ic, Ie, Vce, VceAct, region, IcAct, IeAct,
+           Vb: region === 'cutoff' ? Vbb : VBE + Ie * p.Re, Ve: Ie * p.Re, Vc: p.Vcc - Ic * p.Rc };
+}
+
+widget({
+  title: 'BJT DC Bias — Thevenin Base, Q-Point and β Stability',
+  description:
+    'Compute the Thevenin base equivalent, the base and collector currents and V_CE, decide whether the device is in the active region, then slide β to see how far the Q-point walks. In a stiff voltage divider it barely moves; in fixed bias it moves almost proportionally.',
+  height: 560,
+  range: { xMin: 0, xMax: 20, yMin: 0, yMax: 10 },
+  controls: [
+    { id: 'config', label: 'bias configuration', type: 'select',
+      options: Object.entries(CONFIGS).map(([k, o]) => ({ value: k, label: o.label })), value: 'divider' },
+    { id: 'Vcc', label: 'supply V_CC (V)', min: 3, max: 30, step: 0.5, value: 12 },
+    { id: 'R1', label: 'R1 (kΩ, Vcc → base)', min: 1, max: 200, step: 1, value: 10 },
+    { id: 'R2', label: 'R2 (kΩ, base → ground)', min: 1, max: 200, step: 1, value: 2.2 },
+    { id: 'Rc', label: 'R_C (kΩ)', min: 0.1, max: 20, step: 0.1, value: 2.7 },
+    { id: 'Re', label: 'R_E (kΩ)', min: 0.1, max: 20, step: 0.1, value: 1 },
+    { id: 'Rb', label: 'R_B (kΩ, fixed / feedback)', min: 1, max: 1000, step: 1, value: 470 },
+    { id: 'beta', label: 'β (h_FE)', min: 20, max: 400, step: 5, value: 100 },
+  ],
+
+  compute: (v) => {
+    const cfg = CONFIGS[v.config] ?? CONFIGS.divider;
+    const p = {
+      config: v.config, Vcc: v.Vcc,
+      R1: v.R1 * 1e3, R2: v.R2 * 1e3, Rc: v.Rc * 1e3, Re: v.Re * 1e3, Rb: v.Rb * 1e3,
+      beta: v.beta,
+    };
+    const on = solve(p);
+    // stability: the same network at a reference beta
+    const betaRef = 100;
+    const ref = solve({ ...p, beta: betaRef });
+    const half = solve({ ...p, beta: Math.max(20, Math.round(v.beta / 2)) });
+    const dbl = solve({ ...p, beta: Math.min(2000, Math.round(v.beta * 2)) });
+
+    // load line
+    const IcSat = v.Vcc / (p.Rc + p.Re);        // where the load line meets V_CE = 0
+    const slope = -(1 / (p.Rc + p.Re));         // dI_C/dV_CE along the load line
+
+    // the Jacobian of the Q-point with respect to beta is not needed: sweep it instead
+    const sweep = [];
+    for (let b = 20; b <= 400; b += 10) {
+      const s = solve({ ...p, beta: b });
+      sweep.push({ beta: b, Ic: s.Ic, Vce: s.Vce, region: s.region });
+    }
+
+    const stiff = (on.Rbb / ((v.beta + 1) * p.Re)) * 100;   // R_BB as a % of (beta+1)R_E
+    const IcPct = ref.Ic > 0 ? ((on.Ic - ref.Ic) / ref.Ic) * 100 : NaN;
+
+    return { cfg, p, on, ref, betaRef, half, dbl, IcSat, slope, sweep, stiff, IcPct,
+             Vcc: v.Vcc, Rc: v.Rc, Re: v.Re };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const o = out.on;
+    const L = { x0: 62, x1: 430, y0: 92, y1: 400 };   // load line
+    const R = { x0: 470, x1: plot.w - 20, y0: 92, y1: 400 }; // circuit + numbers
+
+    // ---------------------------------------------------------------- header
+    plot.text('I_B = (V_BB − V_BE)/(R_BB + (β+1)R_E)      I_C = β·I_B      I_E = (β+1)·I_B      V_CE = V_CC − I_C R_C − I_E R_E',
+      14, 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text(out.cfg.label, 14, 38, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text(out.cfg.formula, 14, 56, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('substituted:  V_BB = ' + fmt(o.Vbb, 4) + ' V,  R_BB = ' + fmt(o.Rbb / 1e3, 5) + ' kΩ  →  I_B = (' +
+      fmt(o.Vbb, 4) + ' − 0.7)/((' + fmt(o.Rbb / 1e3, 5) + ') + ' + (v.beta + 1) + '×' + fmt(v.Re, 4) + ') kΩ = ' + fmt(o.Ib * 1e6, 5) + ' µA',
+      14, 74, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+
+    // ================================================================ load line
+    const VMAX = out.Vcc * 1.04;
+    const IMAX = Math.max(out.IcSat, o.Ic) * 1.15;
+    const X = (u) => L.x0 + (u / VMAX) * (L.x1 - L.x0);
+    const Y = (i) => L.y1 - (i / IMAX) * (L.y1 - L.y0);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(L.x0 - 10, L.y0 - 14, L.x1 - L.x0 + 20, L.y1 - L.y0 + 28);
+    ctx.restore();
+    plot.text('DC load line   I_C = (V_CC − V_CE)/(R_C + R_E)', L.x0 - 10, L.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    // grid
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let g = 1; g <= 5; g++) {
+      const y = L.y1 - (g / 5) * (L.y1 - L.y0);
+      ctx.beginPath(); ctx.moveTo(L.x0, y); ctx.lineTo(L.x1, y); ctx.stroke();
+    }
+    for (let g = 1; g <= 5; g++) {
+      const x = L.x0 + (g / 5) * (L.x1 - L.x0);
+      ctx.beginPath(); ctx.moveTo(x, L.y0); ctx.lineTo(x, L.y1); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(L.x0, L.y1); ctx.lineTo(L.x1, L.y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L.x0, L.y0); ctx.lineTo(L.x0, L.y1); ctx.stroke();
+    ctx.restore();
+
+    // axis labels
+    for (let g = 0; g <= 5; g++) {
+      const u = (g / 5) * VMAX, i = (g / 5) * IMAX;
+      plot.text(fmt(u, 3), L.x0 + (g / 5) * (L.x1 - L.x0), L.y1 + 14,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+      plot.text(fmt(i, 3), L.x0 - 6, L.y1 - (g / 5) * (L.y1 - L.y0) + 4,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }    plot.text('V_CE  (V)', (L.x0 + L.x1) / 2, L.y1 + 30, { color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center' });
+    plot.text('I_C (mA)', L.x0 - 44, L.y0 + 4, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+
+    // the load line itself
+    plot.segment(0, out.IcSat, out.Vcc, 0, { color: PALETTE.accent4, width: 2.2 });
+    // the two intercepts
+    plot.dot(0, out.IcSat, { color: PALETTE.accent2, r: 4.5 });
+    plot.dot(out.Vcc, 0, { color: PALETTE.accent3, r: 4.5 });
+    plot.text('saturation  I_C(sat) = V_CC/(R_C+R_E) = ' + fmt(out.IcSat * 1e3, 5) + ' mA',
+      X(0) + 6, Y(out.IcSat) - 8, { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    plot.text('cutoff  V_CE = V_CC = ' + fmt(out.Vcc, 4) + ' V',
+      X(out.Vcc), Y(0) + 15, { color: PALETTE.accent3, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // Q-point, plus where it was at beta/2 and 2*beta
+    const mark = (s, col, lab) => {
+      if (!isFinite(s.Vce) || !isFinite(s.Ic)) return;
+      plot.dot(s.Vce, s.Ic, { color: col, r: 4 });
+      plot.text(lab, X(s.Vce) + 6, Y(s.Ic) + 14, { color: col, font: '10px ui-monospace, monospace' });
+    };
+    mark(out.half, PALETTE.accent5, 'β = ' + Math.max(20, Math.round(v.beta / 2)));
+    mark(out.dbl, PALETTE.accent5, 'β = ' + Math.round(v.beta * 2));
+    plot.dot(o.Vce, o.Ic, { color: PALETTE.warn, r: 6 });
+    plot.text('Q  (' + fmt(o.Vce, 4) + ' V, ' + fmt(o.Ic, 5) + ' mA)', X(o.Vce) + 8, Y(o.Ic) - 8,
+      { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+
+    plot.text('slope of the load line = −1/(R_C + R_E) = ' + fmt((1 / (out.Rc + out.Re)) * 1e3, 4) +
+      ' mA/V      dV_CE/dI_C = −(R_C + R_E) = −' + fmt((out.Rc + out.Re) / 1e3, 4) + ' kΩ',
+      L.x0 - 10, L.y1 + 46, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // ================================================================ right side
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(R.x0 - 10, R.y0 - 14, R.x1 - R.x0 + 20, R.y1 - R.y0 + 28);
+    ctx.restore();
+    plot.text('β sensitivity of the Q-point', R.x0 - 10, R.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    // small beta sweep chart
+    const S = { x0: R.x0 + 34, x1: R.x1 - 10, y0: R.y0 + 10, y1: R.y0 + 138 };
+    let icMax = 0;
+    for (const p of out.sweep) icMax = Math.max(icMax, p.Ic);
+    icMax = Math.max(icMax, o.Ic) * 1.12 || 1;
+    const SX = (b) => S.x0 + ((b - 20) / 380) * (S.x1 - S.x0);
+    const SY = (i) => S.y1 - (i / icMax) * (S.y1 - S.y0);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let g = 1; g <= 4; g++) {
+      const y = S.y1 - (g / 4) * (S.y1 - S.y0);
+      ctx.beginPath(); ctx.moveTo(S.x0, y); ctx.lineTo(S.x1, y); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(S.x0, S.y1); ctx.lineTo(S.x1, S.y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(S.x0, S.y0); ctx.lineTo(S.x0, S.y1); ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = o.region === 'active' ? PALETTE.accent3 : PALETTE.accent2;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    let st = false;
+    for (const p of out.sweep) {
+      const px = SX(p.beta), py = SY(p.Ic);
+      if (!st) { ctx.moveTo(px, py); st = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    plot.dot(v.beta, o.Ic, { color: PALETTE.warn, r: 4.5 });
+    for (const b of [20, 100, 200, 300, 400]) {
+      plot.text(String(b), SX(b), S.y1 + 13, { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('β', S.x1, S.y1 + 13, { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'right' });
+    plot.text('I_C (mA), peak ' + fmt(icMax, 4), S.x0 - 4, S.y0 - 2, { color: PALETTE.dim, font: '9px ui-monospace, monospace' });
+    plot.text('the flatter this line, the more stable the bias', S.x0, S.y1 + 27, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // the numbers that matter
+    let y = S.y1 + 48;
+    const line = (lab, val, col) => {
+      plot.text(lab, R.x0, y, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+      plot.text(val, R.x1, y, { color: col ?? PALETTE.text, font: 'bold 11px ui-monospace, monospace', align: 'right' });
+      y += 19;
+    };
+    line('V_BB (Thevenin)', fmt(o.Vbb, 5) + ' V', PALETTE.accent);
+    line('R_BB (Thevenin)', fmt(o.Rbb / 1e3, 5) + ' kΩ', PALETTE.accent);
+    line('I_B', fmt(o.Ib * 1e6, 5) + ' µA', PALETTE.accent);
+    line('I_C = β·I_B', fmt(o.Ic * 1e3, 5) + ' mA', PALETTE.accent);
+    line('I_E = (β+1)·I_B', fmt(o.Ie * 1e3, 5) + ' mA', PALETTE.accent);
+    line('V_CE', fmt(o.Vce, 5) + ' V', PALETTE.warn);
+    line('region', o.region.toUpperCase(),
+      o.region === 'active' ? PALETTE.accent3 : o.region === 'saturation' ? PALETTE.accent2 : PALETTE.accent4);
+    line('R_BB / (β+1)R_E', fmt(out.stiff, 4) + ' %', out.stiff < 10 ? PALETTE.accent3 : PALETTE.accent2);
+    line('I_C at β = ' + out.betaRef, fmt(out.ref.Ic * 1e3, 5) + ' mA', PALETTE.accent5);
+    line('I_C shift vs β = ' + out.betaRef, fmt(out.IcPct, 4) + ' %',
+      Math.abs(out.IcPct) < 10 ? PALETTE.accent3 : PALETTE.accent2);
+
+    // verdict strip
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, plot.h - 24, plot.w - 20, 20);
+    ctx.restore();
+    let verdict;
+    if (o.region === 'cutoff') {
+      verdict = 'CUTOFF: V_BB = ' + fmt(o.Vbb, 4) + ' V is at or below V_BE = 0.7 V, so I_B ≈ 0, I_C ≈ 0 and V_CE = V_CC. Nothing conducts.';
+    } else if (o.region === 'saturation') {
+      verdict = 'SATURATION: the active-region solution gave V_CE = ' + fmt(o.VceAct, 4) + ' V, which is below V_CE(sat) = 0.2 V. ' +
+        'The device is a closed switch: I_C = ' + fmt(o.Ic * 1e3, 5) + ' mA is set by the resistors, NOT by β. I_C = βI_B is INVALID here.';
+    } else if (out.stiff < 10) {
+      verdict = 'ACTIVE and STIFF: R_BB = ' + fmt(out.stiff, 4) + '% of (β+1)R_E, so I_C moves only ' + fmt(Math.abs(out.IcPct), 4) +
+        '% when β goes from ' + v.beta + ' to ' + out.betaRef + '. This is why the voltage divider is the standard bias.';
+    } else {
+      verdict = 'ACTIVE but β-DEPENDENT: R_BB is ' + fmt(out.stiff, 4) + '% of (β+1)R_E, and I_C moves ' + fmt(Math.abs(out.IcPct), 4) +
+        '% when β changes from ' + v.beta + ' to ' + out.betaRef + '. Make R_BB smaller (stiffer divider) or R_E larger.';
+    }
+    plot.text(verdict, 16, plot.h - 10,
+      { color: o.region === 'active' ? (out.stiff < 10 ? PALETTE.accent3 : PALETTE.warn) : PALETTE.accent2,
+        font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const o = out.on;
+    const vLabel = 'β = ' + out.p.beta;
+    return {
+      'region of operation': o.region.toUpperCase() +
+        (o.region === 'active' ? ' — I_C = βI_B applies' : o.region === 'saturation' ? ' — I_C set by the resistors, βI_B is invalid' : ' — no base drive'),
+      'Thevenin V_BB': fmt(o.Vbb, 6) + ' V',
+      'Thevenin R_BB': fmt(o.Rbb / 1e3, 6) + ' kΩ',
+      'base loop denominator': fmt(o.Rbb / 1e3, 6) + ' + ' + fmt((out.p.beta + 1) * out.p.Re / 1e3, 6) + ' = ' + fmt(o.den / 1e3, 6) + ' kΩ',
+      'I_B': fmt(o.Ib * 1e6, 6) + ' µA',
+      'I_C': fmt(o.Ic * 1e3, 6) + ' mA' + (o.region === 'saturation' ? '   (clamped)' : '   (= β·I_B)'),
+      'I_E': fmt(o.Ie * 1e3, 6) + ' mA',
+      'V_CE': fmt(o.Vce, 6) + ' V' + (o.region === 'saturation' ? '   (clamped to V_CE(sat))' : ''),
+      'active-region V_CE (before clamping)': fmt(o.VceAct, 6) + ' V',
+      'V_B': fmt(o.Vb, 5) + ' V   (= V_BE + I_E·R_E = 0.7 + ' + fmt(o.Ie * out.p.Re, 5) + ')',
+      'V_E': fmt(o.Ve, 6) + ' V',
+      'V_C': fmt(o.Vc, 6) + ' V',
+      'load-line intercepts': 'I_C(sat) = ' + fmt(out.IcSat * 1e3, 6) + ' mA at V_CE = 0;  V_CE(cutoff) = ' + fmt(out.Vcc, 4) + ' V at I_C = 0',
+      'I_C(sat) formula': 'V_CC/(R_C + R_E) = ' + fmt(out.Vcc, 4) + ' V / ' + fmt(out.Rc + out.Re, 4) + ' Ω = ' + fmt(out.IcSat * 1e3, 5) + ' mA',
+      'R_BB / (β+1)R_E': fmt(out.stiff, 5) + ' %   (< 10 % is the rule for a stiff divider)',
+      'I_C sensitivity to β': fmt(Math.abs(out.IcPct), 5) + ' % change when β rises from ' + vLabel + ' to ' + out.betaRef,
+      'headroom to saturation': fmt(o.Vce - VCE_SAT, 5) + ' V of V_CE above V_CE(sat)',
+      'V_BE used': '0.7 V (silicon)   V_CE(sat) used: 0.2 V',
+    };
+  },
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The bias network exists to make the Q-point independent of β, and the exam tests exactly that.</strong> ' +
+  'The reason is the <code>(β + 1)R_E</code> term in the base loop: a resistor in the emitter is reflected into the base circuit multiplied by (β + 1), ' +
+  'so as long as the Thevenin base resistance is small compared with it — the usual rule is <code>R_BB ≤ 0.1(β + 1)R_E</code>, often written ' +
+  '<code>10R2 ≥ βR_E</code> — the base current is a small correction and <code>I_C ≈ (V_BB − 0.7)/R_E</code> stops depending on β at all. ' +
+  'In fixed bias there is no such term and <code>I_C</code> tracks β almost one-for-one, which is why a transistor swap or a temperature rise ' +
+  'walks the Q-point into saturation or cutoff. ' +
+  'The trap that costs the most marks is forgetting the region check. <code>I_C = βI_B</code> is only true in the ACTIVE region; the algebra will ' +
+  'happily hand you a V_CE below 0.2 V or even negative, and reporting that as the Q-point is wrong. When the active-region V_CE comes out below ' +
+  'V_CE(sat), the transistor is saturated, V_CE is pinned at about 0.2 V, and the current is set by the external resistors: ' +
+  '<code>I_C(sat) = (V_CC − V_CE(sat))/(R_C + R_E)</code>. Redo the arithmetic with that current before quoting it. ' +
+  'Two smaller traps: <code>V_BE = 0.7 V</code> is an assumption you should state, and in a voltage divider it is the <em>Thevenin</em> voltage ' +
+  '<code>V_BB = V_CC R2/(R1 + R2)</code> — not the unloaded divider voltage — that drives the base loop, with <code>R_BB = R1∥R2</code> in series. ' +
+  'Finally, note that <code>I_E = (β + 1)I_B</code>, not <code>βI_B</code>: using β instead of β + 1 gives a V_CE error that grows with R_E.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

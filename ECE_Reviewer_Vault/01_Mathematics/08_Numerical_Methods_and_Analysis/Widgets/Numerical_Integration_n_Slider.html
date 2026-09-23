@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numerical Integration — Trapezoidal vs Simpson with an n Slider</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, trapezoid, simpson } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Two facts decide every board question on numerical quadrature:
+//   (1) the error ORDER: trapezoidal is O(h^2), Simpson 1/3 is O(h^4), so doubling n
+//       divides the trapezoidal error by 4 and the Simpson error by 16;
+//   (2) Simpson 1/3 integrates any cubic EXACTLY (its error carries f^(4)(xi)), so the
+//       error is identically zero below roundoff and the log-log slope is meaningless.
+// A log-log error plot makes both facts visible at once: parallel lines of slope -2 and
+// -4, and one function whose Simpson error falls off the bottom of the chart.
+
+const CASES = [
+  {
+    key: 'cubic', expr: 'f(x) = x³ − 3x² + 2x + 1', note: 'cubic — Simpson is EXACT',
+    a: 0, b: 3, exact: 5.25, simpsonExact: true, exactStr: '21/4 = 5.25',
+    f: (x) => x * x * x - 3 * x * x + 2 * x + 1,
+  },
+  {
+    key: 'quartic', expr: 'f(x) = x⁴', note: 'quartic — Simpson is no longer exact',
+    a: 0, b: 1, exact: 0.2, simpsonExact: false, exactStr: '1/5 = 0.2',
+    f: (x) => x * x * x * x,
+  },
+  {
+    key: 'sine', expr: 'f(x) = sin x', note: 'smooth periodic — both converge fast',
+    a: 0, b: Math.PI, exact: 2, simpsonExact: false, exactStr: '2 (exactly)',
+    f: (x) => Math.sin(x),
+  },
+  {
+    key: 'sqrt', expr: 'f(x) = √(1 + x³)', note: 'f″ blows up at x = 0 — the h² rate only appears at large n',
+    a: 0, b: 2, exact: 3.2483774475532, simpsonExact: false, exactStr: '≈ 3.2483774',
+    f: (x) => Math.sqrt(1 + x * x * x),
+  },
+];
+
+/** Composite trapezoidal rule, also returning the panel data for the drawing. */
+function trapPanels(f, a, b, n) {
+  const h = (b - a) / n;
+  let s = (f(a) + f(b)) / 2;
+  const panels = [];
+  for (let i = 0; i < n; i++) {
+    const x0 = a + i * h, x1 = x0 + h, y0 = f(x0), y1 = f(x1);
+    panels.push({ x0, x1, y0, y1, mid: (x0 + x1) / 2 });
+    if (i > 0) s += f(x0);
+  }
+  return { value: s * h, panels, h };
+}
+
+/** Composite Simpson 1/3 with n forced even; panels are the parabolic triples. */
+function simpPanels(f, a, b, n) {
+  let N = n % 2 ? n + 1 : n;
+  const h = (b - a) / N;
+  let s = f(a) + f(b);
+  for (let i = 1; i < N; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+  const panels = [];
+  for (let i = 0; i < N; i += 2) {
+    const x0 = a + i * h, x1 = x0 + h, x2 = x0 + 2 * h;
+    panels.push({ x0, x1, x2, y0: f(x0), y1: f(x1), y2: f(x2) });
+  }
+  return { value: (s * h) / 3, panels, h, N };
+}
+
+/** The parabola through (x0,y0),(x1,y1),(x2,y2) evaluated at t. */
+function parabola(p, t) {
+  const { x0, x1, x2, y0, y1, y2 } = p;
+  const l0 = ((t - x1) * (t - x2)) / ((x0 - x1) * (x0 - x2));
+  const l1 = ((t - x0) * (t - x2)) / ((x1 - x0) * (x1 - x2));
+  const l2 = ((t - x0) * (t - x1)) / ((x2 - x0) * (x2 - x1));
+  return l0 * y0 + l1 * y1 + l2 * y2;
+}
+
+widget({
+  title: 'Numerical Integration — Trapezoidal vs Simpson 1/3',
+  description:
+    'Shade the panels each rule actually integrates, then watch the error on a log-log axis. Trapezoidal error decays as h² (slope −2), Simpson 1/3 as h⁴ (slope −4). On a cubic, Simpson 1/3 is exact and its error drops to roundoff.',
+  height: 560,
+  range: { xMin: 0, xMax: 40, yMin: -16, yMax: 1 },
+  controls: [
+    { id: 'fn', label: 'integrand', type: 'select',
+      options: CASES.map((c) => ({ value: c.key, label: c.expr + '   on [' + fmt(c.a, 3) + ', ' + fmt(c.b, 3) + ']' })),
+      value: CASES[0].key },
+    { id: 'n', label: 'subintervals n', min: 2, max: 40, step: 2, value: 6 },
+    { id: 'rule', label: 'panels drawn', type: 'select',
+      options: [{ value: 'trap', label: 'trapezoids' }, { value: 'simp', label: 'Simpson parabolas' }],
+      value: 'trap' },
+    { id: 'showCurve', label: 'show exact area fill', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const c = CASES.find((o) => o.key === v.fn) ?? CASES[0];
+    const f = c.f;
+    const n = Math.max(2, Math.round(v.n));
+    const T = trapPanels(f, c.a, c.b, n);
+    const S = simpPanels(f, c.a, c.b, n);
+    const eT = Math.abs(T.value - c.exact);
+    const eS = Math.abs(S.value - c.exact);
+
+    // error history over every even n from 2 to 40, for the log-log chart
+    const hist = [];
+    for (let k = 2; k <= 40; k += 2) {
+      const t = trapezoid(f, c.a, c.b, k);
+      const s = simpson(f, c.a, c.b, k);
+      hist.push({ n: k, eT: Math.abs(t - c.exact), eS: Math.abs(s - c.exact), T: t, S: s });
+    }
+    // observed error ratio between n and 2n: 4 for trapezoidal, 16 for Simpson
+    const at = (k) => hist.find((o) => o.n === k);
+    const n2 = n * 2 <= 40 ? n * 2 : null;
+    const ratioOf = (key) => {
+      const p = at(n), q = n2 ? at(n2) : null;
+      if (!p || !q) return NaN;
+      const num = p[key], den = q[key];
+      if (!isFinite(num) || !isFinite(den)) return NaN;
+      if (num < 1e-14 && den < 1e-14) return 0;    // exact rule: 0 / 0, report as exact
+      if (den < 1e-14) return Infinity;
+      return num / den;
+    };
+    const ratioT = ratioOf('eT');
+    const ratioS = ratioOf('eS');
+
+    const hT = (c.b - c.a) / n;
+    const hS = (c.b - c.a) / S.N;
+
+    return { c, f, n, S, T, eT, eS, hist, ratioT, ratioS, hT, hS, n2,
+             exactEq: S.value === T.value };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const top = 60, bot = plot.h - 30;
+    const A = { x0: 40, x1: 400, y0: top, y1: bot - 46 };  // function + panels
+    const B = { x0: 440, x1: plot.w - 16, y0: top, y1: bot }; // log-log error
+
+    const c = out.c, a = c.a, b = c.b;
+
+    // ---------------------------------------------------------------- header
+    plot.text(c.expr + '      on [' + fmt(a, 4) + ', ' + fmt(b, 4) + ']      ' + c.note,
+      14, 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('exact integral = ' + c.exactStr + '      trapezoidal h = (b−a)/n = ' + fmt(out.hT, 5) +
+      '      Simpson h = ' + fmt(out.hS, 5) + '  (n = ' + out.S.N + ')',
+      14, 38, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('Simpson 1/3 requires an EVEN number of subintervals — an odd n is bumped up by one.',
+      14, 54, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // ================================================================ A: panels
+    let yLo = Infinity, yHi = -Infinity;
+    for (let i = 0; i <= 300; i++) {
+      const y = out.f(a + ((b - a) * i) / 300);
+      if (Number.isFinite(y)) { yLo = Math.min(yLo, y); yHi = Math.max(yHi, y); }
+    }
+    yLo = Math.min(yLo, 0); yHi = Math.max(yHi, 0);
+    const span = Math.max(yHi - yLo, 1e-6);
+    yLo -= span * 0.1; yHi += span * 0.1;
+    const XA = (x) => A.x0 + ((x - a) / (b - a)) * (A.x1 - A.x0);
+    const YA = (y) => A.y1 - ((y - yLo) / (yHi - yLo)) * (A.y1 - A.y0);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(A.x0 - 6, A.y0 - 16, A.x1 - A.x0 + 12, A.y1 - A.y0 + 22);
+    ctx.restore();
+    plot.text(v.rule === 'trap' ? 'trapezoidal panels (straight tops)' : 'Simpson 1/3 parabolic panels',
+      A.x0 - 6, A.y0 - 22, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    // the true area under the curve
+    if (v.showCurve) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(137,180,250,0.18)';
+      ctx.beginPath();
+      ctx.moveTo(XA(a), YA(0));
+      for (let i = 0; i <= 300; i++) {
+        const x = a + ((b - a) * i) / 300;
+        ctx.lineTo(XA(x), YA(out.f(x)));
+      }
+      ctx.lineTo(XA(b), YA(0));
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    // panels
+    if (v.rule === 'trap') {
+      for (const p of out.T.panels) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(243,139,168,0.28)';
+        ctx.strokeStyle = 'rgba(243,139,168,0.9)';
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        ctx.moveTo(XA(p.x0), YA(0));
+        ctx.lineTo(XA(p.x0), YA(p.y0));
+        ctx.lineTo(XA(p.x1), YA(p.y1));
+        ctx.lineTo(XA(p.x1), YA(0));
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      }
+      plot.text('each panel area = (y_i + y_i₊₁)/2 · h', A.x0 + 2, A.y1 + 14,
+        { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    } else {
+      for (const p of out.S.panels) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(166,227,161,0.24)';
+        ctx.strokeStyle = 'rgba(166,227,161,0.95)';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(XA(p.x0), YA(0));
+        const M = 40;
+        for (let i = 0; i <= M; i++) {
+          const t = p.x0 + ((p.x2 - p.x0) * i) / M;
+          ctx.lineTo(XA(t), YA(parabola(p, t)));
+        }
+        ctx.lineTo(XA(p.x2), YA(0));
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      }
+      plot.text('each panel = a parabola through 3 points, width 2h', A.x0 + 2, A.y1 + 14,
+        { color: PALETTE.accent3, font: '10px ui-monospace, monospace' });
+    }
+
+    // curve on top
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= 400; i++) {
+      const x = a + ((b - a) * i) / 400;
+      const y = out.f(x);
+      if (!Number.isFinite(y)) continue;
+      i === 0 ? ctx.moveTo(XA(x), YA(y)) : ctx.lineTo(XA(x), YA(y));
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(XA(a), YA(0)); ctx.lineTo(XA(b), YA(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(XA(a), YA(yLo)); ctx.lineTo(XA(a), YA(yHi)); ctx.stroke();
+    ctx.restore();
+
+    // node ticks
+    for (const p of out.T.panels) {
+      plot.dot(p.x0, 0, { color: PALETTE.dim, r: 2 });
+    }
+    plot.dot(b, 0, { color: PALETTE.dim, r: 2 });
+
+    // approximations strip
+    plot.text('T_n = ' + fmt(out.T.value, 8) + '   error ' + out.eT.toExponential(2),
+      A.x0 - 6, A.y1 + 34, { color: PALETTE.accent2, font: 'bold 10px ui-monospace, monospace' });
+    plot.text('S_n = ' + fmt(out.S.value, 8) + '   error ' + out.eS.toExponential(2),
+      A.x0 - 6, A.y1 + 50, { color: PALETTE.accent3, font: 'bold 10px ui-monospace, monospace' });
+    plot.text('exact = ' + fmt(c.exact, 8),
+      A.x0 - 6, A.y1 + 66, { color: PALETTE.warn, font: 'bold 10px ui-monospace, monospace' });
+
+    // ================================================================ B: log-log
+    const xMinL = 2, xMaxL = 40;
+    const XB = (nn) => B.x0 + (Math.log10(nn / xMinL) / Math.log10(xMaxL / xMinL)) * (B.x1 - B.x0);
+    const YB = (e) => B.y1 - ((Math.log10(Math.max(e, 1e-16)) + 16) / 17) * (B.y1 - B.y0);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(B.x0 - 6, B.y0 - 16, B.x1 - B.x0 + 12, B.y1 - B.y0 + 22);
+    ctx.restore();
+    plot.text('error vs n  (log-log)', B.x0 - 6, B.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    ctx.save();
+    ctx.font = '10px ui-monospace, monospace';
+    for (let k = 0; k >= -16; k--) {
+      const y = YB(Math.pow(10, k));
+      ctx.strokeStyle = k % 4 === 0 ? PALETTE.grid : 'rgba(58,58,82,0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(B.x0, y); ctx.lineTo(B.x1, y); ctx.stroke();
+      if (k % 4 === 0) {
+        ctx.fillStyle = PALETTE.dim; ctx.textAlign = 'right';
+        ctx.fillText('1e' + k, B.x0 - 3, y + 3);
+        ctx.textAlign = 'left';
+      }
+    }
+    for (const nn of [2, 4, 8, 16, 32, 40]) {
+      const x = XB(nn);
+      ctx.strokeStyle = 'rgba(58,58,82,0.75)';
+      ctx.beginPath(); ctx.moveTo(x, B.y0); ctx.lineTo(x, B.y1); ctx.stroke();
+      ctx.fillStyle = PALETTE.dim; ctx.textAlign = 'center';
+      ctx.fillText(String(nn), x, B.y1 + 14);
+      ctx.textAlign = 'left';
+    }
+    ctx.restore();
+    plot.text('n (subintervals)', (B.x0 + B.x1) / 2, B.y1 + 17,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+
+    // reference slopes through the n = 2 trapezoidal error point
+    const base = out.hist[0].eT;
+    if (isFinite(base) && base > 0) {
+      for (const [p, col, lab] of [[2, 'rgba(200,200,220,0.5)', 'slope −2  (O(h²))'],
+                                   [4, 'rgba(200,200,220,0.5)', 'slope −4  (O(h⁴))']]) {
+        ctx.save();
+        ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        for (let i = 0; i <= 60; i++) {
+          const nn = xMinL * Math.pow(xMaxL / xMinL, i / 60);
+          const e = base * Math.pow(nn / 2, -p);
+          i === 0 ? ctx.moveTo(XB(nn), YB(e)) : ctx.lineTo(XB(nn), YB(e));
+        }
+        ctx.stroke(); ctx.restore();
+        const nn2 = 2 * Math.pow(xMaxL / xMinL, 0.55);
+        plot.text(lab, XB(nn2) + 4, YB(base * Math.pow(nn2 / 2, -p)) - 3,
+          { color: 'rgba(205,205,225,0.85)', font: '9px ui-monospace, monospace' });
+      }
+    }
+
+    // the two error histories
+    for (const [key, col, lab] of [['eT', PALETTE.accent2, 'trapezoidal'], ['eS', PALETTE.accent3, 'Simpson 1/3']]) {
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = 2;
+      ctx.beginPath();
+      let st = false;
+      for (const pt of out.hist) {
+        const e = pt[key];
+        if (!isFinite(e) || e <= 0) { st = false; continue; }
+        const px = XB(pt.n), py = YB(e);
+        if (!st) { ctx.moveTo(px, py); st = true; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+      // the current n as a dot
+      const here = out.hist.find((o) => o.n === out.n);
+      if (here && isFinite(here[key]) && here[key] > 0) plot.dot(out.n, here[key], { color: col, r: 4 });
+      void lab;
+    }
+    plot.text('● trapezoidal', B.x0 + 4, B.y0 + 12, { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    plot.text('● Simpson 1/3', B.x0 + 4, B.y0 + 26, { color: PALETTE.accent3, font: '10px ui-monospace, monospace' });
+    if (out.eS === 0 || out.eS < 1e-15) {
+      plot.text('Simpson error = 0 exactly:', B.x0 + 4, B.y0 + 44, { color: PALETTE.warn, font: 'bold 10px ui-monospace, monospace' });
+      plot.text('a cubic has f⁽⁴⁾ = 0, so the', B.x0 + 4, B.y0 + 57, { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+      plot.text('O(h⁴) error term vanishes.', B.x0 + 4, B.y0 + 70, { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    }
+
+    // verdict strip
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, plot.h - 26, plot.w - 20, 22);
+    ctx.restore();
+    const rt = !isFinite(out.ratioT) ? '—' : out.ratioT === 0 ? 'exact (0/0)' : fmt(out.ratioT, 4);
+    const rs = !isFinite(out.ratioS) ? '—' : out.ratioS === 0 ? 'exact (0/0)' : fmt(out.ratioS, 4);
+    let verdict;
+    if (!out.n2) {
+      verdict = 'Slide n back below 20 to see the n → 2n error ratio; doubling n is what exposes the order.';
+    } else if (out.ratioS === 0) {
+      verdict = 'Doubling n from ' + out.n + ' to ' + out.n2 + ' cut the trapezoidal error by ' + rt +
+        '× (theory 4) while the Simpson error is already 0 — a cubic is integrated exactly by Simpson 1/3.';
+    } else {
+      verdict = 'Doubling n from ' + out.n + ' to ' + out.n2 + ' cut the trapezoidal error by ' + rt +
+        '× (theory 4) and the Simpson error by ' + rs + '× (theory 16). Simpson wins by orders of magnitude for the same node count.';
+    }
+    plot.text(verdict, 16, plot.h - 11, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'trapezoidal T(n)': fmt(out.T.value, 9),
+    'Simpson 1/3 S(n)': fmt(out.S.value, 9),
+    'exact integral': fmt(out.c.exact, 9) + '   (' + out.c.exactStr + ')',
+    'trapezoidal error': out.eT.toExponential(4),
+    'Simpson error': out.eS === 0 ? '0 (exact — roundoff only)' : out.eS.toExponential(4),
+    'step h (trapezoid)': fmt(out.hT, 6),
+    'step h (Simpson)': fmt(out.hS, 6) + '   (n = ' + out.S.N + ')',
+    'n → 2n trapezoid ratio': isFinite(out.ratioT) ? (out.ratioT === 0 ? 'exact' : fmt(out.ratioT, 5) + '×   (theory 4 = 2²)') : 'n too large to double',
+    'n → 2n Simpson ratio': isFinite(out.ratioS) ? (out.ratioS === 0 ? 'exact — error already 0' : fmt(out.ratioS, 5) + '×   (theory 16 = 2⁴)') : 'n too large to double',
+    'error formula, trapezoid': 'E_T = −(b−a)/12 · h² · f″(ξ)   →  O(h²)',
+    'error formula, Simpson': 'E_S = −(b−a)/180 · h⁴ · f⁽⁴⁾(ξ)   →  O(h⁴)',
+    'why Simpson is exact here': out.c.simpsonExact
+      ? 'f is a cubic, so f⁽⁴⁾(ξ) = 0 and the error term vanishes identically'
+      : 'f⁽⁴⁾ ≠ 0, so Simpson keeps an O(h⁴) error (it is exact only up to cubics)',
+    'nodes needed for 1e-6 error': 'trapezoid ≈ O(h²), Simpson ≈ O(h⁴): Simpson needs far fewer',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The order is the whole question.</strong> Trapezoidal error is <code>E = −(b−a)/12 · h² · f″(ξ)</code> and Simpson 1/3 error is ' +
+  '<code>E = −(b−a)/180 · h⁴ · f⁽⁴⁾(ξ)</code>. Both are <em>derived by integrating the interpolation error</em>, which is why the powers are 2 and 4 ' +
+  'and not 1 and 2 — a trapezoid interpolates with a straight line (error O(h²) locally, O(h³) for the area), and Simpson uses a parabola. ' +
+  'The practical consequence: halving h multiplies the trapezoidal error by 1/4 and the Simpson error by 1/16, so on a log-log plot the two are straight ' +
+  'lines of slope −2 and −4, and Simpson needs dramatically fewer intervals for the same accuracy. ' +
+  'Two exam traps. First, <em>Simpson 1/3 needs an even number of subintervals</em> — with an odd n you must either add one interval or fall back to ' +
+  'Simpson 3/8 on the last three panels; substituting an odd n into the 1/3 formula silently produces a wrong answer. ' +
+  'Second, <em>Simpson 1/3 is exact for every polynomial up to degree 3</em>, not just quadratics. On a cubic the error readout is zero, and if a question asks ' +
+  'for the minimum n that gives the exact integral, the answer is 2 for a cubic — no amount of extra intervals improves on exact. ' +
+  'Finally, note that the error depends on a derivative of f evaluated <em>somewhere unknown</em> in (a, b): f″ or f⁽⁴⁾ can be enormous on part of the ' +
+  'interval and ruin the accuracy even when the function looks tame, which is exactly what the √(1 + x³) case shows near x = 0.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

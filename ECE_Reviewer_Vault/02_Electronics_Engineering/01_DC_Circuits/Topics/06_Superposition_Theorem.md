@@ -1,0 +1,161 @@
+---
+id: ECE-01-06
+title: "Superposition Theorem"
+part: "02_Electronics_Engineering"
+area: "01_DC_Circuits"
+topic: 6
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[01_Circuit_Variables,_Ohm’s_Law_and_Signs]]", "[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]"]
+tags: ["ece", "electronics_engineering", "dc_circuits"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 06 — Superposition Theorem
+
+> [!abstract] Scope
+> How to get a branch current or voltage as the sum of one-source-at-a-time contributions, which sources get shorted or opened, and why the same trick collapses for power.
+
+## Core Concept
+
+> [!tip] Intuition
+> In a linear circuit the response is a straight-line function of the sources, so adding a second source adds its own private response on top of the first — nothing couples them. Power is the square of a current, and squaring destroys that straight line, which is why the current contributions add but the power contributions do not.
+
+**The statement and why it is true.** For a linear circuit containing $N$ independent sources, any branch current or branch voltage equals the algebraic sum of the $N$ responses obtained by activating one independent source at a time and deactivating the rest:
+$$y = \sum_{k=1}^{N} y_k$$
+The justification is linearity itself — the node or mesh equations form a linear system whose solution is a linear function of the source vector, so each source contributes independently and the contributions superimpose. Resistors, inductors, capacitors and *linear dependent* sources preserve that linearity; a diode, a saturated transistor or an incandescent lamp does not, and superposition must not be used on them. A useful corollary is homogeneity: scaling every independent source by a factor $k$ scales every current and voltage in the network by $k$, while scaling only some of them requires solving the new circuit.
+
+**Deactivating a source, and the one source you must never touch.** A deactivated source is a source whose value is zero: a voltage source with $v = 0$ has no voltage across it whatever current flows, so replace it with a **short circuit**; a current source with $i = 0$ carries nothing whatever voltage appears across it, so replace it with an **open circuit**. Resistors stay exactly where they are — including the resistor that sat in parallel with a current source, which now simply becomes a path to ground. Dependent sources are never deactivated: their value is defined by a voltage or current elsewhere in the same circuit, so switching one off deletes a constraint that the real circuit obeys and moves the answer in whichever direction that constraint happened to pull — too large if the source was loading the node, too small if it was feeding it. Keep every dependent source live in every sub-circuit, re-evaluating its controlling variable inside that sub-circuit.
+
+**Where it fails: power, and anything nonlinear.** Superposition applies to the *linear* quantities $i$ and $v$ only. Power is quadratic, $p = i^2R$, so $p \neq \sum_k p_k$; the correct value uses the summed current, $P = \left(\sum_k i_k\right)^2 R$, whose expansion $R\sum_k i_k^2 + 2R\sum_{j<k} i_j i_k$ contains the cross terms that a naive superposition of powers discards. Those cross terms are frequently as large as the self terms and their sign depends on the relative polarity of the contributions, so there is no bound to lean on. Use superposition when it genuinely saves work — two or three independent sources, or when only one branch quantity is wanted; otherwise solve the whole circuit once with nodal or mesh analysis. Its deeper pay-off is conceptual: it is the licence for treating a DC bias and an AC signal separately in the same circuit, and for splitting a multi-frequency source into one problem per frequency.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Superposition sum | $y_{total} = \sum_{k=1}^{N} y_k$ | y is any branch current or branch voltage and N is the number of independent sources. Contributions are added with their algebraic signs, so keep every reference direction fixed across all sub-circuits. |
+| Deactivating a voltage source | $v_s = 0 \;\Rightarrow\; \mathrm{replace\ with\ a\ short\ circuit}$ | A 0 V source has no voltage across it and does not limit current. Leaving it in place as an open is the most common superposition error. |
+| Deactivating a current source | $i_s = 0 \;\Rightarrow\; \mathrm{replace\ with\ an\ open\ circuit}$ | A 0 A source carries no current but permits any voltage across it. Replacing it with a short instead of an open changes the topology of the sub-circuit. |
+| Dependent sources | $\mathrm{dependent\ sources\ are\ never\ deactivated}$ | Their value tracks a circuit variable, so they must remain in every sub-circuit with their controlling quantity recomputed there. |
+| Power is not superposable | $p = i^2R \neq \sum_{k} i_k^2 R$ | Power is a quadratic function of the response; superposition holds only for the linear quantities i and v. |
+| Correct power from summed currents | $P = \left(\sum_{k} i_k\right)^2 R$ | Add the current contributions first, then square. This is the only correct route to power through superposition. |
+| Cross terms in the expansion | $P = R\sum_k i_k^2 + 2R\sum_{j<k} i_j i_k$ | The second group is exactly what a naive sum of per-source powers omits; its sign follows the relative polarity of the contributions. |
+| Number of sub-circuits | $N \mathrm{\ independent\ sources} \Rightarrow N \mathrm{\ single-source\ sub-circuits}$ | Independent sources may be grouped, but each grouping must be solved as one complete sub-circuit; do not double count a source. |
+| Homogeneity test | $\mathrm{all\ sources} \times k \Rightarrow \mathrm{every\ } i, v \times k$ | A fast check on a finished superposition: scale every source and the answer must scale by the same factor. Failure signals a nonlinear element, i.e. that the method did not apply. |
+
+## Worked Problems
+
+### P1. Find the current through $R_3 = 12\ \Omega$ by superposition. Source 1 is $V_{s1} = 12$ V in series with $R_1 = 2\ \Omega$ feeding node A; source 2 is $V_{s2} = 6$ V in series with $R_2 = 4\ \Omega$ also feeding node A; $R_3 = 12\ \Omega$ runs from node A to ground. Both sources are referenced positive at node A.
+
+**Given:** Vs1 = 12 V in series with R1 = 2 Ω (feeding node A); Vs2 = 6 V in series with R2 = 4 Ω (feeding node A); R3 = 12 Ω from node A to ground
+
+**Solution:**
+
+1. Sub-circuit 1, $V_{s1}$ only: $V_{s2}$ is shorted, so $R_2 = 4\ \Omega$ now runs from node A to ground. With $R_3$, $R_2 \parallel R_3 = \frac{(4)(12)}{16} = 3\ \Omega$, giving $V_A^{(1)} = 12 \cdot \frac{3}{2+3} = 7.2$ V.
+2. The contribution to the branch current is $i_3^{(1)} = 7.2/12 = 0.6$ A.
+3. Sub-circuit 2, $V_{s2}$ only: $V_{s1}$ is shorted, so $R_1 = 2\ \Omega$ runs to ground and $R_1 \parallel R_3 = \frac{(2)(12)}{14} = 1.714\ \Omega$, giving $V_A^{(2)} = 6 \cdot \frac{1.714}{4+1.714} = 1.8$ V and $i_3^{(2)} = 1.8/12 = 0.15$ A.
+4. Add the contributions: $V_A = 7.2 + 1.8 = 9$ V and $I_{R3} = 0.6 + 0.15 = 0.75$ A.
+5. Check against Millman's theorem on the original circuit: $V_A = \frac{12/2 + 6/4}{1/2 + 1/4 + 1/12} = \frac{7.5}{0.8333} = 9$ V, so the superposition result is consistent.
+
+> [!success]- Answer
+> **$I_{R3} = 0.75$ A (node A at $9$ V), built from $0.6$ A $+$ $0.15$ A.**
+
+> [!warning] Trap
+> Opening the source under test instead of shorting it. When $V_{s2}$ is deactivated its branch must still present $R_2 = 4\ \Omega$ from node A to ground; removing $R_2$ as well gives $V_A^{(1)} = 12$ V and a badly wrong total.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Sub-circuit 1, one chain with `ALPHA` `:` — `4×12÷(4+12) : 12×Ans÷(2+Ans) : Ans÷12`
+> 2. $R_2 \parallel R_3$ = **3** Ω → $V_A^{(1)}$ = **7.2** V → $i_3^{(1)}$ = **0.6** A. Sub-circuit 2 repeats with 2 ∥ 12 and the 6 V source, giving **1.8** V and **0.15** A.
+> 3. `0.6+0.15` → $I_{R3}$ = **0.75** A at $V_A$ = **9** V, confirmed by Millman: `(12÷2+6÷4)÷(1÷2+1÷4+1÷12)` = **9** V.
+>
+> Deactivate by SHORTING a voltage source and OPENING a current source. A dependent source is never deactivated.
+
+### P2. Node A carries a $3$ A current source injecting into it, in parallel with $R_1 = 12\ \Omega$ to ground. A second branch, $R_2 = 6\ \Omega$ in series with $V_s = 24$ V (positive terminal toward $R_2$), also connects node A to ground. Find $V_A$ by superposition and then the current in $R_1$.
+
+**Given:** Is = 3 A injecting into node A; R1 = 12 Ω from node A to ground; R2 = 6 Ω in series with Vs = 24 V from node A to ground (+ terminal toward R2)
+
+**Solution:**
+
+1. Sub-circuit 1, $I_s$ only: $V_s$ is shorted, so $R_2 = 6\ \Omega$ shunts node A to ground. $R_1 \parallel R_2 = \frac{(12)(6)}{18} = 4\ \Omega$, so $V_A^{(1)} = 3 \times 4 = 12$ V.
+2. Sub-circuit 2, $V_s$ only: the current source becomes an **open**, leaving $R_1$ and $R_2$ in series across $24$ V, so $V_A^{(2)} = 24 \cdot \frac{12}{12+6} = 16$ V.
+3. Sum the responses: $V_A = 12 + 16 = 28$ V.
+4. Check by nodal analysis on the original circuit: $3 = \frac{V_A}{12} + \frac{V_A - 24}{6}$ gives $36 = V_A + 2V_A - 48$, so $3V_A = 84$ and $V_A = 28$ V.
+5. Then $I_{R1} = 28/12 = 2.333$ A, which is $12/12 + 16/12 = 1 + 1.333$ A from the two sub-circuits.
+
+> [!success]- Answer
+> **$V_A = 28$ V and $I_{R1} = 2.33$ A, from superposition contributions of $12$ V and $16$ V.**
+
+> [!warning] Trap
+> Treating the current source the way you treat the voltage source. A shorted current source forces $V_A^{(1)} = 0$ and yields the wrong total of $16$ V. Zero current means an open and zero voltage means a short: the deactivation follows from the unit of the source, not from its symbol.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Sub-circuit 1 with `ALPHA` `:` — `12×6÷(12+6) : 3×Ans` → $R_1 \parallel R_2$ = **4** Ω → $V_A^{(1)}$ = **12** V.
+> 2. Sub-circuit 2, one chain — `24×12÷(12+6) : Ans+12 : Ans÷12` → $V_A^{(2)}$ = **16** V → $V_A$ = **28** V → $I_{R1}$ = **2.333** A.
+
+### P3. For the circuit of node A: $V_s = 12$ V in series with $R_1 = 3\ \Omega$ drives node A, a $2$ A current source also injects into node A, and $R_L = 6\ \Omega$ runs from node A to ground. (a) Find $I_L$ by superposition. (b) Find the total power in $R_L$. (c) Find the sum of the powers each source would produce alone, and account for the difference.
+
+**Given:** Vs = 12 V in series with R1 = 3 Ω (feeding node A); Is = 2 A injecting into node A; RL = 6 Ω from node A to ground
+
+**Solution:**
+
+1. $V_s$ only, with $I_s$ opened: $R_1$ and $R_L$ are in series, so $i_L^{(1)} = 12/(3+6) = 4/3$ A.
+2. $I_s$ only, with $V_s$ shorted: $R_1 = 3\ \Omega$ is in parallel with $R_L = 6\ \Omega$, so the current divider gives $i_L^{(2)} = 2 \cdot \frac{3}{3+6} = 2/3$ A.
+3. (a) $I_L = 4/3 + 2/3 = 2$ A. Check by nodal analysis: $\frac{12 - V_A}{3} + 2 = \frac{V_A}{6}$ gives $4 - \frac{V_A}{3} + 2 = \frac{V_A}{6}$, so $V_A = 12$ V and $I_L = 12/6 = 2$ A.
+4. (b) $P_L = I_L^2R_L = (2)^2(6) = 24$ W.
+5. (c) Powers computed per source alone: $P^{(1)} = (4/3)^2(6) = 32/3 = 10.67$ W and $P^{(2)} = (2/3)^2(6) = 8/3 = 2.67$ W, whose sum is $40/3 = 13.33$ W — **not** $24$ W. The missing $32/3 = 10.67$ W is the cross term $2R_L i_L^{(1)}i_L^{(2)} = 2(6)(4/3)(2/3) = 32/3$ W, and $13.33 + 10.67 = 24$ W closes the account.
+
+> [!success]- Answer
+> **$I_L = 2$ A and $P_L = 24$ W; the sum of the individual powers is only $13.33$ W, so power superposition under-predicts by $10.67$ W.**
+
+> [!warning] Trap
+> Adding $P^{(1)} + P^{(2)} = 13.33$ W and reporting it as the power in $R_L$. Power is quadratic, so it is the sum of the *currents* that must be squared; the cross term $2Ri_1i_2$ is exactly the part a naive power addition throws away.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Both contributions in one chain with `ALPHA` `:` — `12÷(3+6) : 2×3÷(3+6) : Ans+Ans` gives $i_L^{(1)}$ = **1.333** A, $i_L^{(2)}$ = **0.667** A, $I_L$ = **2** A.
+> 2. Powers per source alone: `(4÷3)²×6 : (2÷3)²×6 : Ans+Ans` → **10.67** W and **2.67** W, summing to **13.33** W against the true $4×6$ = **24** W.
+>
+> The 10.67 W shortfall is the cross term $2R_Li_L^{(1)}i_L^{(2)}$ — power does not superpose, only currents and voltages do.
+
+### P4. Node A is driven by $V_s = 8$ V in series with $R_1 = 2\ \Omega$, and by a $2$ A current source injecting into node A; $R_2 = 4\ \Omega$ runs from node A to ground; and a voltage-controlled current source of $0.25V_A$ leaves node A. Find $V_A$ by superposition, then state the answer you would get if the dependent source were wrongly deactivated.
+
+**Given:** Vs = 8 V in series with R1 = 2 Ω (feeding node A); Is = 2 A injecting into node A; R2 = 4 Ω from node A to ground; VCCS: 0.25·V_A leaving node A
+
+**Solution:**
+
+1. The VCCS stays live in every sub-circuit, with its controlling voltage re-evaluated in each one. Sub-circuit 1, $V_s$ only ($I_s$ open): $\frac{8 - V_A}{2} = \frac{V_A}{4} + 0.25V_A$, i.e. $4 - 0.5V_A = 0.5V_A$, so $V_A^{(1)} = 4$ V.
+2. Sub-circuit 2, $I_s$ only ($V_s$ shorted, so $R_1 = 2\ \Omega$ now returns node A to ground): $2 = \frac{V_A}{2} + \frac{V_A}{4} + 0.25V_A = V_A$, so $V_A^{(2)} = 2$ V.
+3. Sum: $V_A = 4 + 2 = 6$ V. Verify on the original circuit: $\frac{8-6}{2} + 2 = \frac{6}{4} + 0.25(6)$, i.e. $1 + 2 = 1.5 + 1.5 = 3$ A, so KCL balances at node A.
+4. Now the false route: with the VCCS deleted, $V_s$ alone gives $R_1 \parallel R_2 = 2 \parallel 4 = 1.333\ \Omega$ and $V_A^{(1)} = 8 \cdot \frac{4}{6} = 5.333$ V, while $I_s$ alone gives $V_A^{(2)} = 2 \times 1.333 = 2.667$ V, for a false total of $8$ V instead of $6$ V.
+
+> [!success]- Answer
+> **$V_A = 6$ V with the dependent source kept live; deactivating it would produce the incorrect $8$ V.**
+
+> [!warning] Trap
+> Deactivating the VCCS because it is 'a source'. Its value is defined by $V_A$, which changes from sub-circuit to sub-circuit, so it must appear in every one; zeroing it removes a real constraint and inflates $V_A$ from $6$ V to $8$ V.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Sub-circuit 1 with the VCCS live: `(8÷2)÷(0.5+0.25+0.5)` → $V_A^{(1)}$ = **4** V. Sub-circuit 2: `2÷(0.5+0.25+0.25)` → $V_A^{(2)}$ = **2** V.
+> 2. `4+2` → $V_A$ = **6** V, and KCL on the original circuit closes: `(8−6)÷2+2` = **3** A = `6÷4+0.25×6`.
+>
+> The VCCS stays live in every sub-circuit with $V_A$ re-evaluated. Deleting it yields the wrong **8** V, not 6 V.
+
+## Traps & Exam Notes
+
+- **Shorting a current source, or opening a voltage source.** Deactivation sets the source's value to zero, and zero current is an open while zero voltage is a short. Swapping the two silently changes the topology: a shorted current source collapses a node voltage to zero, and an opened voltage source must still leave its series resistor connected to the node.
+- **Deactivating a dependent source.** A dependent source is part of the circuit's defining equations, not an excitation: its value tracks a voltage or current that is being recomputed in each sub-circuit, so it stays live with its controlling variable re-evaluated. Switching it off is the fastest route to a wrong answer that still looks like a clean superposition.
+- **Superposing power.** $P \neq \sum P_k$ because $p = i^2R$ is quadratic; the sum of per-source powers omits the cross terms $2Ri_ji_k$, which are frequently as large as the self terms and can be positive or negative depending on relative polarity.
+- **Mixing reference directions between sub-circuits.** Superposition adds algebraic quantities, so the current arrow and voltage polarity fixed in sub-circuit 1 must be reused verbatim in every later sub-circuit. Re-identifying the arrow with the actual current direction in each sub-circuit turns the sum into a difference and cancels a real contribution.
+
+## See Also
+
+- [[04_Mesh_Analysis_and_Supermesh]]
+- [[05_Nodal_Analysis_and_Supernodes]]
+- [[07_Thevenin_and_Norton_Equivalents]]
+- [[08_Maximum_Power_Transfer_and_Source_Transformation]]
+
+---
+
+[[05_Nodal_Analysis_and_Supernodes|⬅ 05]] · [[_MOC_DC_Circuits|MOC]] · [[00_Dashboard|Dashboard]] · [[07_Thevenin_and_Norton_Equivalents|07 ➡]]

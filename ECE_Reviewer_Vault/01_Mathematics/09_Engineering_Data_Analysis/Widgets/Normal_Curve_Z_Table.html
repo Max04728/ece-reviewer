@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standard Normal Curve — Z Table, Tails, Percentiles and the Empirical Rule</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Every normal-distribution board item is one of four area questions dressed in words:
+// left tail P(Z < z), right tail P(Z > z), between P(z1 < Z < z2), and outside
+// 1 - P(z1 < Z < z2). Get the region wrong and the arithmetic is irrelevant.
+// The probability here is computed from an erf approximation good to ~1e-7, so the
+// readout can be checked against a printed z table, and the z-to-x conversion
+// x = mu + z*sigma is shown with numbers substituted.
+
+/** Abramowitz & Stegun 7.1.26 — |error| < 1.5e-7, ample for 4-decimal table work. */
+function erf(x) {
+  const s = x < 0 ? -1 : 1;
+  const a = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * a);
+  const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-a * a);
+  return s * y;
+}
+const Phi = (z) => 0.5 * (1 + erf(z / Math.SQRT2));
+const phi = (z) => Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
+
+/** Phi^-1 by bisection on Phi: monotone, so this is exact to machine precision. */
+function PhiInv(p) {
+  if (p <= 0) return -Infinity;
+  if (p >= 1) return Infinity;
+  let lo = -40, hi = 40;
+  for (let i = 0; i < 200; i++) {
+    const mid = (lo + hi) / 2;
+    if (Phi(mid) < p) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+const REGIONS = ['left tail  P(Z < z)', 'right tail  P(Z > z)', 'between  P(z1 < Z < z2)', 'outside  1 − P(z1 < Z < z2)'];
+
+widget({
+  title: 'Standard Normal — Z Table, Tails, Percentiles',
+  description:
+    'Pick the region the question is asking for, then read the area, the percentile and the raw-score limits x = μ + zσ. The probability is computed numerically, so it matches a printed z table to four decimals.',
+  height: 584,
+  range: { xMin: -4, xMax: 4, yMin: 0, yMax: 0.45 },
+  controls: [
+    { id: 'z1', label: 'z₁ (lower limit / the z of a one-tail question)', min: -4, max: 4, step: 0.01, value: -1.96 },
+    { id: 'z2', label: 'z₂ (upper limit, used by between / outside)', min: -4, max: 4, step: 0.01, value: 1.96 },
+    { id: 'region', label: 'which area?', type: 'select',
+      options: REGIONS.map((r) => ({ value: r, label: r })), value: REGIONS[0] },
+    { id: 'mu', label: 'population mean μ', min: -50, max: 50, step: 0.5, value: 0 },
+    { id: 'sigma', label: 'standard deviation σ', min: 0.5, max: 25, step: 0.5, value: 1 },
+    { id: 'bands', label: 'show ±1σ / ±2σ / ±3σ reference', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const z1 = Math.min(v.z1, v.z2), z2 = Math.max(v.z1, v.z2);
+    const mu = v.mu, sigma = v.sigma;
+    const F1 = Phi(z1), F2 = Phi(z2);
+    const between = F2 - F1;
+    let p, lo, hi, kind;
+    if (v.region.startsWith('left')) { p = F1; lo = -Infinity; hi = z1; kind = 'left'; }
+    else if (v.region.startsWith('right')) { p = 1 - F1; lo = z1; hi = Infinity; kind = 'right'; }
+    else if (v.region.startsWith('between')) { p = between; lo = z1; hi = z2; kind = 'between'; }
+    else { p = 1 - between; lo = z2; hi = z1; kind = 'outside'; }
+
+    // percentile: the z below which p of the mass lies
+    const zPct = PhiInv(p);
+    const xAt = (z) => mu + z * sigma;
+
+    const bands = [1, 2, 3].map((k) => ({ k, p: Phi(k) - Phi(-k) }));
+    const table = [1.645, 1.96, 2.0, 2.576, 3.0].map((z) => ({ z, a: Phi(z), b: 1 - Phi(z), c: Phi(z) - Phi(-z) }));
+
+    const xMin = mu - 4.1 * sigma, xMax = mu + 4.1 * sigma;
+    return { z1, z2, F1, F2, between, p, lo, hi, kind, zPct, mu, sigma, xAt, bands, table, xMin, xMax,
+             percentile: p * 100 };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const mu = out.mu, sg = out.sigma;
+    // z = -4.1 .. 4.1 spans the panel
+    const P = { x0: 66, x1: plot.w - 24, y0: 84, y1: 300 };
+    const X = (z) => P.x0 + ((z + 4.1) / 8.2) * (P.x1 - P.x0);
+    const Y = (d) => P.y1 - (d / 0.45) * (P.y1 - P.y0);
+
+    // ---------------------------------------------------------------- header
+    plot.text('z = (x − μ)/σ        x = μ + z·σ        P(a < Z < b) = Φ(b) − Φ(a)        φ(z) = e^(−z²/2)/√(2π)',
+      14, 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('Φ computed from erf via Abramowitz & Stegun 7.1.26 (|error| < 1.5×10⁻⁷) — agrees with a printed z table to 4 decimals.',
+      14, 38, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('μ = ' + fmt(mu, 4) + '   σ = ' + fmt(sg, 4) + '   z₁ = ' + fmt(out.z1, 5) + ' → x₁ = μ + z₁σ = ' + fmt(mu, 4) + ' + (' + fmt(out.z1, 5) + ')(' + fmt(sg, 4) + ') = ' + fmt(out.xAt(out.z1), 6),
+      14, 56, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text('z₂ = ' + fmt(out.z2, 5) + ' → x₂ = ' + fmt(mu, 4) + ' + (' + fmt(out.z2, 5) + ')(' + fmt(sg, 4) + ') = ' + fmt(out.xAt(out.z2), 6) +
+      '        Φ(z₁) = ' + fmt(out.F1, 7) + '   Φ(z₂) = ' + fmt(out.F2, 7),
+      14, 74, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+
+    // ------------------------------------------------------- the density curve
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(P.x0 - 8, P.y0 - 12, P.x1 - P.x0 + 16, P.y1 - P.y0 + 16);
+    ctx.restore();
+
+    // shaded region first
+    const shade = (a, b, col) => {
+      ctx.save();
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(X(a), Y(0));
+      const N = 260;
+      for (let i = 0; i <= N; i++) {
+        const z = a + ((b - a) * i) / N;
+        ctx.lineTo(X(z), Y(phi(z)));
+      }
+      ctx.lineTo(X(b), Y(0));
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    };
+    const COL = 'rgba(137,180,250,0.45)';
+    if (out.kind === 'left') shade(-4.1, out.z1, COL);
+    else if (out.kind === 'right') shade(out.z1, 4.1, COL);
+    else if (out.kind === 'between') shade(out.z1, out.z2, COL);
+    else { shade(-4.1, out.z1, COL); shade(out.z2, 4.1, COL); }
+
+    // axis and ticks
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(P.x0, Y(0)); ctx.lineTo(P.x1, Y(0)); ctx.stroke();
+    ctx.restore();
+    for (let z = -4; z <= 4; z++) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(X(z), Y(0)); ctx.lineTo(X(z), Y(0) + 5); ctx.stroke();
+      ctx.restore();
+      plot.text(String(z), X(z), Y(0) + 18, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+      if (z !== 0) {
+        plot.text(fmt(mu + z * sg, 4), X(z), Y(0) + 31, { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      }
+    }
+    plot.text('z  (standard units)', P.x0 - 8, Y(0) + 45, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    plot.text('x  (raw score)', P.x0 - 8, Y(0) + 58, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // the empirical-rule bands behind the curve
+    if (v.bands) {
+      for (const b of out.bands) {
+        plot.segment(X(-b.k), Y(phi(0) * 0.97 + 0.012 * (4 - b.k)), X(b.k), Y(phi(0) * 0.97 + 0.012 * (4 - b.k)),
+          { color: 'rgba(249,226,175,0.5)', width: 1.2, dash: [4, 3] });
+        plot.text('μ ± ' + b.k + 'σ  =  ' + fmt(b.p * 100, 4) + '%',
+          X(0), Y(phi(0) * 0.97 + 0.012 * (4 - b.k)) - 4,
+          { color: PALETTE.warn, font: '10px ui-monospace, monospace', align: 'center' });
+      }
+    }
+
+    // curve
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i = 0; i <= 600; i++) {
+      const z = -4.1 + (8.2 * i) / 600;
+      const y = phi(z);
+      i === 0 ? ctx.moveTo(X(z), Y(y)) : ctx.lineTo(X(z), Y(y));
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // the limit lines
+    const vline = (z, col, lab) => {
+      plot.segment(X(z), Y(0), X(z), Y(phi(z)), { color: col, width: 1.6, dash: [5, 4] });
+      plot.dot(z, phi(z), { color: col, r: 3.6 });
+      plot.text(lab, X(z), Y(phi(z)) - 8, { color: col, font: '11px ui-monospace, monospace', align: 'center' });
+    };
+    if (out.kind === 'left') vline(out.z1, PALETTE.accent2, 'z₁ = ' + fmt(out.z1, 4));
+    else if (out.kind === 'right') vline(out.z1, PALETTE.accent2, 'z₁ = ' + fmt(out.z1, 4));
+    else if (out.kind === 'between') { vline(out.z1, PALETTE.accent2, 'z₁ = ' + fmt(out.z1, 4)); vline(out.z2, PALETTE.accent3, 'z₂ = ' + fmt(out.z2, 4)); }
+    else { vline(out.z1, PALETTE.accent2, 'z₁ = ' + fmt(out.z1, 4)); vline(out.z2, PALETTE.accent3, 'z₂ = ' + fmt(out.z2, 4)); }
+
+    // probability label in the middle of the shaded area
+    const label = (z, txt, col) => plot.text(txt, X(z), Y(phi(0) * 0.45), { color: col, font: 'bold 13px ui-monospace, monospace', align: 'center' });
+    if (out.kind === 'left') label(Math.min(out.z1, -0.4) - 0.5, 'P = ' + fmt(out.p, 7), PALETTE.accent);
+    else if (out.kind === 'right') label(Math.max(out.z1, 0.4) + 0.5, 'P = ' + fmt(out.p, 7), PALETTE.accent);
+    else if (out.kind === 'between') label((out.z1 + out.z2) / 2, 'P = ' + fmt(out.p, 7), PALETTE.accent);
+    else label(0, 'P = ' + fmt(out.p, 7), PALETTE.accent);
+
+    // -------------------------------------------------- empirical-rule strips
+    if (v.bands) {
+      const S = { x0: 66, y0: 372, h: 34, w: plot.w - 90 };
+      plot.text('empirical rule as a reference — the SAME curve, three widths (empirical rule vs exact Φ)',
+        S.x0 - 8, S.y0 - 12, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+      let yy = S.y0;
+      for (const b of out.bands) {
+        const frac = 0.5 * (Phi(b.k) - Phi(-b.k));
+        const cx = S.x0 + S.w / 2;
+        const half = (frac / 0.5) * (S.w / 2);
+        ctx.save();
+        ctx.fillStyle = 'rgba(39,39,58,0.6)';
+        ctx.fillRect(S.x0, yy, S.w, S.h - 8);
+        ctx.fillStyle = b.k === 1 ? 'rgba(137,180,250,0.55)' : b.k === 2 ? 'rgba(166,227,161,0.5)' : 'rgba(250,179,135,0.5)';
+        ctx.fillRect(cx - half, yy, half * 2, S.h - 8);
+        ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+        ctx.strokeRect(S.x0, yy, S.w, S.h - 8);
+        ctx.restore();
+        plot.text('μ ± ' + b.k + 'σ', S.x0 + 8, yy + 18, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+        plot.text('exact ' + fmt(b.p * 100, 5) + '%   (empirical rule says ' + (b.k === 1 ? '68' : b.k === 2 ? '95' : '99.7') + '%)',
+          S.x0 + S.w - 8, yy + 18, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+        yy += S.h;
+      }
+    }
+
+    // -------------------------------------------------- reference z table
+    const T = { x0: 66, y0: 522, w: plot.w - 90 };
+    plot.text('the five z values that cover almost every board question (area to the LEFT, Φ(z)):',
+      T.x0 - 8, T.y0 - 6, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    let tx = T.x0;
+    for (const row of out.table) {
+      const w = 152;
+      ctx.save();
+      ctx.fillStyle = 'rgba(39,39,58,0.75)';
+      ctx.fillRect(tx, T.y0, w - 6, 44);
+      ctx.restore();
+      plot.text('z = ' + row.z.toFixed(3), tx + 6, T.y0 + 15, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+      plot.text('Φ = ' + row.a.toFixed(4), tx + 6, T.y0 + 29, { color: PALETTE.text, font: '10px ui-monospace, monospace' });
+      plot.text('1−Φ = ' + row.b.toFixed(4) + '   ±: ' + row.c.toFixed(4), tx + 6, T.y0 + 41,
+        { color: PALETTE.dim, font: '9px ui-monospace, monospace' });
+      tx += w;
+      if (tx + w > T.x0 + T.w + 40) break;
+    }
+
+    // verdict strip
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, plot.h - 24, plot.w - 20, 20);
+    ctx.restore();
+    plot.text('area = ' + fmt(out.p, 8) + '  →  ' + fmt(out.percentile, 5) + 'th percentile  →  z_' + fmt(out.percentile, 4) +
+      ' = ' + fmt(out.zPct, 5) + '  →  x = ' + fmt(out.xAt(out.zPct), 6) +
+      '        (check: Φ(z₁) = ' + fmt(out.F1, 7) + ', Φ(z₂) = ' + fmt(out.F2, 7) + ')',
+      16, plot.h - 10, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'region asked for': out.kind === 'left' ? 'left tail, P(Z < z₁)'
+      : out.kind === 'right' ? 'right tail, P(Z > z₁) = 1 − Φ(z₁)'
+      : out.kind === 'between' ? 'between, Φ(z₂) − Φ(z₁)'
+      : 'outside, 1 − [Φ(z₂) − Φ(z₁)]',
+    'probability': fmt(out.p, 8),
+    'as a percentage': fmt(out.p * 100, 6) + ' %',
+    'percentile': fmt(out.percentile, 5) + 'th percentile',
+    'Φ(z₁)': fmt(out.F1, 7),
+    'Φ(z₂)': fmt(out.F2, 7),
+    'z₁ → x₁': fmt(out.z1, 5) + '  →  x = μ + zσ = ' + fmt(out.xAt(out.z1), 7),
+    'z₂ → x₂': fmt(out.z2, 5) + '  →  x = μ + zσ = ' + fmt(out.xAt(out.z2), 7),
+    'z of this percentile': 'z = Φ⁻¹(' + fmt(out.p, 6) + ') = ' + fmt(out.zPct, 6),
+    'x of this percentile': fmt(out.xAt(out.zPct), 7),
+    '±1σ (exact)': fmt(out.bands[0].p * 100, 6) + ' %   (empirical 68 %)',
+    '±2σ (exact)': fmt(out.bands[1].p * 100, 6) + ' %   (empirical 95 %)',
+    '±3σ (exact)': fmt(out.bands[2].p * 100, 6) + ' %   (empirical 99.7 %)',
+    'tail beyond ±1.96σ': fmt(2 * (1 - Phi(1.96)) * 100, 5) + ' %   (the 5 % two-tail level)',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The curve never changes shape — only the question does.</strong> There is exactly one standard normal curve; ' +
+  '<code>z = (x − μ)/σ</code> is the rubber sheet that maps any normal population onto it, and <code>x = μ + zσ</code> maps back. ' +
+  'So the whole topic reduces to one skill: reading an area off Φ(z). Memorise four numbers and you can answer most items without a table — ' +
+  '<code>Φ(1.645) = 0.95</code> (one-tail 5 %), <code>Φ(1.96) = 0.975</code> (two-tail 5 %), <code>Φ(2.576) = 0.995</code> (two-tail 1 %), ' +
+  'and the empirical rule <code>68–95–99.7</code> for ±1σ, ±2σ, ±3σ. ' +
+  'Three traps are worth marks. First, <em>left tail versus right tail versus between</em>: P(Z &gt; z) = 1 − Φ(z) and ' +
+  'P(z₁ &lt; Z &lt; z₂) = Φ(z₂) − Φ(z₁); the commonest error is subtracting in the wrong order and reporting a negative probability. ' +
+  'Second, <em>a z value is not a probability and not an x value</em> — z = 1.96 means nothing until you multiply by σ and add μ, and conversely a ' +
+  'raw score of 85 says nothing until you say what μ and σ are. Third, <em>the curve is symmetric, so use it</em>: ' +
+  'Φ(−z) = 1 − Φ(z), which turns every area to the left of a negative z into a subtraction you can do by hand. ' +
+  'Finally, note that the empirical rule is a rounding of the exact areas 68.27 %, 95.45 % and 99.73 % — quoting 99.7 % is fine for the board, ' +
+  'but if a question asks for four decimals you must use Φ, not the rule of thumb.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FM Sideband Spectrum — Bessel Functions, Carson's Rule and Constant Power</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// FM is examined three ways:
+//   (a) "how many significant sidebands?"  -> n is the largest n with |Jn(beta)| >= 0.01,
+//       and for beta > 1 that is n ~ beta + 1 (the same rule Carson encodes);
+//   (b) "what is the bandwidth?"           -> Carson: BW = 2(beta + 1)fm = 2(df + fm);
+//   (c) "does the carrier disappear?"      -> yes, J0(beta) = 0 at beta ~ 2.405, 5.520, 8.654 ...
+// The third one is the great separator: a student who has seen J0 cross zero knows that FM
+// power is distributed among Bessel-weighted components, not that "FM has a carrier plus
+// sidebands" like AM. This widget evaluates the Bessel series exactly (the standard
+// ascending power series, which is stable for the small beta range that matters), so the
+// numbers agree with the Bessel tables used in the exam.
+
+/** J_n(x) as a power series: sum_k (-1)^k (x/2)^(n+2k) / (k! (n+k)!) */
+function besselJ(n, x) {
+  const half = x / 2;
+  let term = 1;
+  for (let i = 1; i <= n; i++) term *= half / i;   // (x/2)^n / n!
+  let sum = term, k = 0;
+  while (k < 500) {
+    k++;
+    term *= -(half * half) / (k * (n + k));
+    sum += term;
+    if (Math.abs(term) < 1e-17 * Math.abs(sum) + 1e-300) break;
+  }
+  return sum;
+}
+
+/** First positive root of J0 — Newton from the classical value 2.4048. */
+function firstJ0Zero() {
+  let x = 2.4048;
+  const J0 = (t) => besselJ(0, t);
+  for (let i = 0; i < 60; i++) {
+    const h = 1e-7;
+    const f = (J0(x + h) - J0(x - h)) / (2 * h);
+    const dx = J0(x) / f;
+    x -= dx;
+    if (Math.abs(dx) < 1e-13) break;
+  }
+  return x;
+}
+
+const BETA_ZERO = firstJ0Zero();   // ~ 2.404826 — the famous "carrier null"
+const THRESH = 0.01;                // "significant sideband" threshold used in exams
+
+const frame = (ctx, plot, { top, bottom, yMin, yMax }) => {
+  const px0 = plot.pad, px1 = plot.w - plot.pad;
+  return {
+    px0, px1, top, bottom, yMin, yMax,
+    X: (x, xMin, xMax) => px0 + ((x - xMin) / (xMax - xMin)) * (px1 - px0),
+    Y: (y) => bottom - ((y - yMin) / (yMax - yMin)) * (bottom - top),
+    line(x1, y1, x2, y2, color, width = 1.5, dash = null) {
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color;
+      ctx.lineWidth = width; ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    },
+    text(s, x, y, color = PALETTE.text, align = 'left', font = '11px ui-monospace, monospace') {
+      ctx.save(); ctx.fillStyle = color; ctx.textAlign = align; ctx.font = font;
+      ctx.fillText(s, x, y); ctx.restore();
+    },
+  };
+};
+
+const NMAX = 8;
+
+widget({
+  title: 'FM Sideband Spectrum — Bessel Amplitudes, Carson Bandwidth, Constant Power',
+  description:
+    'beta = delta_f / fm is the whole story. Raise it and watch the carrier amplitude J0(beta) fall through zero while the power spreads outward over more sidebands — at constant total power Pc.',
+  height: 600,
+  controls: [
+    { id: 'beta', label: 'modulation index β = Δf / fm', min: 0, max: 10, step: 0.005, value: 1, unit: '' },
+    { id: 'fm', label: 'modulating frequency fm', min: 1, max: 15, step: 0.1, value: 5, unit: 'kHz' },
+  ],
+  compute: (v) => {
+    const J = [];
+    for (let n = 0; n <= NMAX; n++) J.push(besselJ(n, v.beta));
+    const A = J.map((x) => Math.abs(x));
+    // sideband powers (each pair n>=1 carries 2 Jn^2, relative to Pc)
+    const pw = A.map((a, n) => (n === 0 ? a * a : 2 * a * a));
+    const sum = pw.reduce((s, x) => s + x, 0);
+    // significant sidebands: largest n with |Jn| >= 0.01
+    let nsig = 0;
+    for (let n = 1; n <= NMAX; n++) if (A[n] >= THRESH) nsig = n;
+    const totalSignif = 2 * nsig + 1;                 // carrier + both sidebands
+    const carson = 2 * (v.beta + 1) * v.fm;           // kHz
+    const df = v.beta * v.fm;                         // peak deviation, kHz
+    const exactBW = 2 * nsig * v.fm;                  // strictly, 2*n*fm
+    // how close are we to a carrier null?
+    const nearNull = Math.abs(A[0]) < 0.06;
+    const nullBeta = BETA_ZERO + Math.round((v.beta - BETA_ZERO) / Math.PI) * Math.PI;
+    // the strict sideband count can only be trusted while the displayed range is wide
+    // enough: at beta = 10 the tenth sideband pair is still above the threshold
+    // NOTE: these must reference the locals declared above, not `o` - `o` is the output
+    // object that only exists inside draw(), so using it here threw "o is not defined"
+    // and left the whole widget blank.
+    const capped = nsig >= NMAX && A[NMAX] >= THRESH;
+    const strictBW = capped ? NaN : 2 * nsig * v.fm;
+    return {
+      J, A, pw, sum, nsig, totalSignif, carson, df, exactBW: strictBW, nearNull, nullBeta,
+      fm: v.fm, beta: v.beta, capped, nDisplay: capped ? 5 : nsig,
+    };
+  },
+  draw: (ctx, v, o, plot) => {
+    plot.clear();
+
+    // ------------------------------------------------- stem plot: |Jn(beta)| --
+    const S = frame(ctx, plot, { top: 34, bottom: 300, yMin: 0, yMax: 1 });
+    const xMin = -0.7, xMax = NMAX + 0.7;
+    const y0 = S.Y(0);
+    S.line(S.px0, y0, S.px1, y0, PALETTE.axis, 1.5);
+    S.text('|J n (β)|', S.px0 - 8, S.top + 6, PALETTE.dim, 'left');
+    // significance threshold
+    S.line(S.px0, S.Y(THRESH), S.px1, S.Y(THRESH), 'rgba(249,226,175,0.55)', 1, [5, 4]);
+    S.text('0.01 significance threshold — sidebands below this are neglected', S.px1, S.Y(THRESH) - 5, PALETTE.warn, 'right', '10px ui-monospace, monospace');
+    for (let n = 0; n <= NMAX; n++) {
+      const X = S.X(n, xMin, xMax);
+      const a = o.A[n];
+      const sig = n === 0 || a >= THRESH;
+      const color = n === 0 ? PALETTE.accent : (sig ? PALETTE.accent3 : 'rgba(160,160,190,0.45)');
+      S.line(X, y0, X, S.Y(a), color, n === 0 ? 3 : 2);
+      if (a > 0.004) {
+        ctx.save(); ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(X, S.Y(a), n === 0 ? 5 : 3.6, 0, 6.2832); ctx.fill(); ctx.restore();
+      }
+      S.text('n=' + n, X, y0 + 14, sig ? PALETTE.text : PALETTE.dim, 'center', '10px ui-monospace, monospace');
+      if (a >= 0.005) S.text(fmt(a, 3), X, S.Y(a) - 8, color, 'center', '10px ui-monospace, monospace');
+      else S.text('~0', X, y0 - 6, PALETTE.dim, 'center', '10px ui-monospace, monospace');
+    }
+    S.text('Bessel amplitudes |Jn(β)| computed from the series Σ (−1)^k (β/2)^(n+2k) / (k! (n+k)!), β = ' + fmt(v.beta, 5),
+      S.px0, S.top - 8, PALETTE.dim);
+    // sign annotation: a Bessel function is negative in the interval between two of its
+    // zeros, and that sign shows up in the FM spectrum as a 180-degree phase reversal.
+    S.text('signs: ' + o.J.map((x, n) => 'J' + n + (x < 0 ? ' −' : ' +')).join('  '),
+      S.px0, S.bottom + 30, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    if (o.nearNull) {
+      S.text('★ CARRIER NULL: J0(' + fmt(v.beta, 4) + ') = ' + fmt(o.J[0], 4) + ' ≈ 0 — the carrier vanishes (first zero at β = ' + fmt(BETA_ZERO, 4) + ')',
+        S.px0, S.bottom + 46, PALETTE.warn, 'left', '11px ui-monospace, monospace');
+    } else {
+      S.text('nearest carrier null: β = ' + fmt(o.nullBeta, 4) + '  (zeros of J0 at 2.405, 5.520, 8.654 …)',
+        S.px0, S.bottom + 46, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    }
+
+    // ------------------------------------------------------ power distribution --
+    const P = frame(ctx, plot, { top: 380, bottom: 470, yMin: 0, yMax: 1.05 });
+    P.line(P.px0, P.Y(0), P.px1, P.Y(0), PALETTE.axis, 1.5);
+    P.line(P.px0, P.Y(1), P.px1, P.Y(1), 'rgba(137,180,250,0.7)', 1.5, [6, 4]);
+    P.text('P = Pc (total, constant — the line never moves)', P.px1, P.Y(1) - 6, PALETTE.accent, 'right', '10px ui-monospace, monospace');
+    const bwBar = 104, bgap = (P.px1 - P.px0 - 6 * bwBar) / 7;
+    const cols = [];
+    cols.push({ label: 'carrier J0²', val: o.pw[0], color: PALETTE.accent });
+    for (let n = 1; n <= 4; n++) cols.push({ label: 'n=±' + n, val: o.pw[n], color: n % 2 ? PALETTE.accent3 : PALETTE.accent5 });
+    const rest = o.pw.slice(5).reduce((s, x) => s + x, 0);
+    cols.push({ label: 'n≥±5', val: rest, color: PALETTE.accent4 });
+    cols.forEach((c, i) => {
+      const x = P.px0 + bgap + i * (bwBar + bgap);
+      const h = Math.max(0.8, (c.val / 1.05) * (P.bottom - P.top));
+      ctx.save(); ctx.fillStyle = c.color; ctx.globalAlpha = 0.85; ctx.fillRect(x, P.bottom - h, bwBar, h);
+      ctx.strokeStyle = c.color; ctx.lineWidth = 1; ctx.strokeRect(x, P.bottom - h, bwBar, h); ctx.restore();
+      P.text(fmt(c.val, 3), x + bwBar / 2, P.bottom - h - 5, PALETTE.dim, 'center', '10px ui-monospace, monospace');
+      P.text(c.label, x + bwBar / 2, P.bottom + 14, c.color, 'center', '10px ui-monospace, monospace');
+    });
+    P.text('Σ(J0² + 2Jn²) = ' + fmt(o.sum, 6) + ' → every watt is still accounted for, it has only been redistributed',
+      P.px0, P.top - 8, PALETTE.accent3);
+
+    // ------------------------------------------------------- substituted eqs --
+    const F = document.getElementById('fm-formula');
+    if (F) {
+      const sb = [];
+      for (let n = 1; n <= o.nsig; n++) sb.push('n=' + n + ':' + fmt(o.A[n], 3));
+      F.innerHTML =
+        '<div><strong>β = Δf / fm</strong> = ' + fmt(o.df, 4) + ' kHz / ' + fmt(v.fm, 4) + ' kHz = <strong>' + fmt(v.beta, 5)
+        + '</strong> &nbsp;(peak deviation Δf = β·fm = ' + fmt(o.df, 5) + ' kHz)</div>'
+        + '<div><strong>Carson: BW = 2(β + 1)fm = 2(Δf + fm)</strong> = 2 × (' + fmt(o.df, 4) + ' + ' + fmt(v.fm, 4) + ') = <strong>'
+        + fmt(o.carson, 5) + ' kHz</strong> &nbsp;|&nbsp; strict count: 2 × n<sub>max</sub> × fm = 2 × '
+        + (o.capped ? 'n' : o.nsig) + ' × ' + fmt(v.fm, 4) + ' = '
+        + (o.capped ? 'beyond the displayed range (every stem up to n = ' + NMAX + ' is still ≥ 0.01 at β = ' + fmt(v.beta, 3) + ')'
+          : fmt(o.exactBW, 5) + ' kHz')
+        + ' &nbsp;(n<sub>max</sub> is the largest n with |Jn| ≥ 0.01)</div>'
+        + '<div><strong>sidebands counted:</strong> carrier + 2 × ' + o.nDisplay + ' = ' + (2 * o.nDisplay + 1) + ' spectral lines shown'
+        + ' &nbsp;|&nbsp; ' + (sb.length ? sb.join('   ') : 'none above threshold') + '</div>'
+        + '<div><strong>P<sub>total</sub> = Pc(J0² + 2ΣJn²) = Pc</strong> = Pc × ' + fmt(o.sum, 6)
+        + ' &nbsp;→ <strong>constant regardless of β</strong> (AM by contrast changes total power with m)</div>'
+        + '<div><strong>carrier component:</strong> P<sub>c,actual</sub> = J0²(β)·Pc = ' + fmt(o.J[0] * o.J[0], 4) + '·Pc = '
+        + fmt(o.pw[0] * 100, 4) + ' % of Pc &nbsp;|&nbsp; that is why an FM transmitter with β near 2.405 radiates no carrier line</div>';
+    }
+  },
+  readout: (out, state) => ({
+    'β = Δf/fm': fmt(out.beta, 5),
+    'peak deviation Δf': fmt(out.df, 4) + ' kHz',
+    'J0(β) (carrier ampl.)': fmt(out.J[0], 5),
+    'J1(β) (1st sideband)': fmt(out.J[1], 5),
+    'significant sidebands': 2 * out.nDisplay + ' (n_max = ' + out.nDisplay + (out.capped ? '+ ' : '') + ')',
+    'spectral lines': String(out.totalSignif),
+    "Carson BW = 2(β+1)fm": fmt(out.carson, 4) + ' kHz',
+    'strict BW = 2·n_max·fm': out.capped ? '> ' + fmt(2 * 8 * out.fm, 4) + ' kHz' : fmt(out.exactBW, 4) + ' kHz',
+    'total power': fmt(out.sum, 6) + ' × Pc (constant)',
+    'carrier power share': fmt(out.pw[0] * 100, 4) + ' % of Pc',
+    'carrier null?': out.nearNull ? 'YES (J0 ≈ 0)' : 'no',
+  }),
+});
+
+const host = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'fm-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight: in FM the total power is fixed at Pc; β only decides how that power is shared out.</strong> '
+  + 'The amplitudes are Bessel functions of the first kind, Jn(β), and the identity Σ Jn²(β) = 1 for every β is why '
+  + 'the power bar never changes height. Wideband FM buys noise immunity by pushing power into more sidebands — it '
+  + 'never buys more power. AM is the opposite: there, m changes the total power and the carrier share is always at '
+  + 'least 2/3.'
+  + '<br><strong>Three mistakes this widget prevents.</strong> '
+  + '(1) <em>Assuming the carrier is always the biggest line.</em> J0(β) passes through zero at β = 2.405 (and 5.520, '
+  + '8.654 …). At that β the carrier is gone and the spectrum is pure sidebands. A question that gives β = 2.4 and '
+  + 'asks for the carrier amplitude expects ≈ 0.002·Ac, not Ac. The readout above shows the nearest null so you can '
+  + 'see how fast J0 falls. '
+  + '(2) <em>Confusing Δf with β.</em> β = Δf/fm is the modulation index and it is dimensionless; Δf is the peak '
+  + 'deviation in Hz. Doubling fm at fixed Δf halves β, which also halves the bandwidth and re-shuffles all the '
+  + 'Bessel amplitudes. Carson\'s rule contains both: BW = 2(Δf + fm), never 2Δf. '
+  + '(3) <em>Calling Carson\'s rule exact.</em> It is an approximation that captures about 98 % of the power; the strict '
+  + 'answer to "how many significant sidebands" is the largest n with |Jn(β)| ≥ 0.01, and the bandwidth is then '
+  + '2·n·fm. For β ≥ 1 both give n ≈ β + 1, which is the working exam rule. The readout prints both so you can see '
+  + 'when they agree and when they do not.'
+  + '<br><strong>Exam reflex:</strong> NBFM (β ≪ 1) keeps only J0 and J1 — carrier plus one sideband pair, exactly like '
+  + 'AM but with the lower sideband inverted; that is why NBFM and AM have the same 2fm bandwidth but different '
+  + 'noise behaviour. WBFM (β ≫ 1) has BW ≈ 2Δf, and the FM improvement is roughly 3β³/2 in power terms.';
+host.appendChild(note);
+</script>
+</body>
+</html>

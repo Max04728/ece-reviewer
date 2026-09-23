@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capacitance from Geometry — Parallel Plate, Coaxial, Spherical</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, si, PALETTE } from '../../../Assets/vault.js';
+
+// One recipe generates every capacitance formula in the syllabus: put +Q/-Q on the
+// electrodes, get D from Gauss's law using the electrode symmetry, integrate E to get
+// V, divide. The widget keeps the geometry visible while the numbers change, so the
+// candidate sees WHERE the logarithm (/ln(b/a), coaxial) and the product (ab/(b-a),
+// spherical) come from instead of memorising three unrelated expressions.
+
+const EPS0 = 8.854e-12;
+
+const MODES = { single: 'single capacitor', series: 'two in series', parallel: 'two in parallel' };
+const GEOMS = { parallel: 'parallel plate', coaxial: 'coaxial (cylindrical)', spherical: 'spherical' };
+
+let handle = null, formulaEl = null, noteEl = null;
+
+handle = widget({
+  title: 'Capacitance from Geometry',
+  description:
+    'C depends only on electrode geometry and the permittivity of the gap \u2014 never on Q or V. Choose a shape, change its dimensions, then combine two of them in series or parallel.',
+  height: 440,
+  controls: [
+    { id: 'mode', label: 'mode', type: 'select', options: Object.keys(MODES).map((k) => ({ value: k, label: MODES[k] })), value: 'single' },
+    { id: 'geom', label: 'geometry', type: 'select', options: Object.keys(GEOMS).map((k) => ({ value: k, label: GEOMS[k] })), value: 'parallel' },
+    { id: 'A', label: 'plate area A (cm\u00b2)', min: 1, max: 1000, step: 1, value: 50 },
+    { id: 'd', label: 'plate separation d (mm)', min: 0.05, max: 20, step: 0.05, value: 1 },
+    { id: 'a', label: 'inner radius a (mm)', min: 0.1, max: 50, step: 0.1, value: 1 },
+    { id: 'b', label: 'outer radius b (mm)', min: 0.2, max: 200, step: 0.1, value: 4 },
+    { id: 'l', label: 'axial length l (cm)', min: 1, max: 500, step: 1, value: 50 },
+    { id: 'er1', label: 'dielectric \u03b5r of C\u2081', min: 1, max: 20, step: 0.05, value: 1 },
+    { id: 'er2', label: 'dielectric \u03b5r of C\u2082', min: 1, max: 20, step: 0.05, value: 4 },
+    { id: 'V', label: 'applied voltage V (V)', min: 1, max: 1000, step: 1, value: 100 },
+  ],
+  compute: (v) => {
+    const aM = v.a * 1e-3, bM = Math.max(v.b, v.a * 1.0001) * 1e-3;
+    const dM = v.d * 1e-3, AM = v.A * 1e-4, lM = v.l * 1e-2;
+    const e1 = EPS0 * v.er1, e2 = EPS0 * v.er2;
+
+    const cap = (e) => {
+      if (v.geom === 'parallel') return (e * AM) / dM;
+      if (v.geom === 'coaxial') return (2 * Math.PI * e * lM) / Math.log(bM / aM);
+      return (4 * Math.PI * e) / (1 / aM - 1 / bM);
+    };
+
+    const C1 = cap(e1);
+    const C2 = cap(e2);
+    let Ceq = C1;
+    if (v.mode === 'series') Ceq = (C1 * C2) / (C1 + C2);
+    else if (v.mode === 'parallel') Ceq = C1 + C2;
+
+    const W = 0.5 * Ceq * v.V * v.V;
+
+    // Peak field in the gap, from V = integral of E
+    let Emax, Ewhere;
+    if (v.geom === 'parallel') { Emax = v.V / dM; Ewhere = 'uniform between the plates'; }
+    else if (v.geom === 'coaxial') { Emax = v.V / (aM * Math.log(bM / aM)); Ewhere = 'at the inner conductor, \u03c1 = a'; }
+    else { Emax = (v.V * bM) / (aM * (bM - aM)); Ewhere = 'at the inner sphere, \u03c1 = a'; }
+
+    // a few derived diagnostics
+    const energyDensity = 0.5 * EPS0 * v.er1 * Emax * Emax;
+    const bClamped = v.b < v.a * 1.0001;
+
+    return { v, C1, C2, Ceq, W, Emax, Ewhere, energyDensity, aM, bM, dM, AM, lM, e1, e2, bClamped };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: -1, xMax: 1, yMin: -1, yMax: 1 });
+    plot.clear();
+
+    const W = plot.w, H = plot.h;
+    ctx.save();
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.textBaseline = 'alphabetic';
+
+    const txt = (s, x, y, color, font, align) =>
+      plot.text(s, x, y, { color: color || PALETTE.text, font: font || '12px ui-monospace, monospace', align: align || 'left' });
+
+    // ---- panel titles ------------------------------------------------------
+    txt('electrode geometry \u2014 ' + GEOMS[v.geom], 24, 26, PALETTE.text, '13px system-ui, sans-serif');
+    txt('C\u2081', 24, 44, PALETTE.accent, '12px ui-monospace, monospace');
+
+    const cx = 250, cy = 245;
+
+    if (v.geom === 'parallel') {
+      const gap = Math.min(160, 34 + (v.d - 0.05) * 7);
+      const top = cy - gap / 2, bot = cy + gap / 2, halfW = 165;
+      // plates
+      ctx.fillStyle = PALETTE.accent2;
+      ctx.fillRect(cx - halfW, top - 7, 2 * halfW, 7);
+      ctx.fillStyle = PALETTE.accent;
+      ctx.fillRect(cx - halfW, bot, 2 * halfW, 7);
+      txt('+Q', cx - halfW - 4, top - 12, PALETTE.accent2, '12px ui-monospace, monospace', 'right');
+      txt('\u2212Q', cx - halfW - 4, bot + 20, PALETTE.accent, '12px ui-monospace, monospace', 'right');
+      // uniform field lines
+      const n = 8;
+      for (let i = 0; i < n; i++) {
+        const x = cx - halfW + 18 + (i * (2 * halfW - 36)) / (n - 1);
+        ctx.strokeStyle = 'rgba(249,226,175,0.55)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.stroke();
+        ctx.fillStyle = 'rgba(249,226,175,0.9)';
+        ctx.beginPath();
+        ctx.moveTo(x, bot - 9); ctx.lineTo(x - 4, bot - 17); ctx.lineTo(x + 4, bot - 17);
+        ctx.closePath(); ctx.fill();
+      }
+      // separation dimension
+      ctx.strokeStyle = PALETTE.dim; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx + halfW + 16, top); ctx.lineTo(cx + halfW + 16, bot); ctx.stroke();
+      txt('d = ' + fmt(v.d, 3) + ' mm', cx + halfW + 22, (top + bot) / 2 + 4, PALETTE.warn);
+      // area dimension
+      ctx.beginPath(); ctx.moveTo(cx - halfW, bot + 34); ctx.lineTo(cx + halfW, bot + 34); ctx.stroke();
+      txt('A = ' + fmt(v.A, 4) + ' cm\u00b2', cx - 40, bot + 50, PALETTE.warn);
+      txt('E = V/d = ' + fmt(out.Emax, 4) + ' V/m', cx - halfW, bot + 74, PALETTE.accent3);
+      txt('gap filled with \u03b5r = ' + fmt(v.er1, 3), cx - halfW, bot + 92, PALETTE.dim);
+    } else {
+      const Rout = 138;
+      const ratio = Math.min(0.94, Math.max(0.06, v.a / v.b));
+      const Rin = Rout * ratio;
+      // dielectric fill
+      ctx.beginPath(); ctx.arc(cx, cy, Rout, 0, Math.PI * 2); ctx.arc(cx, cy, Rin, 0, Math.PI * 2, true);
+      ctx.fillStyle = 'rgba(137,180,250,0.10)'; ctx.fill();
+      // electrodes
+      ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(cx, cy, Rin, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(cx, cy, Rout, 0, Math.PI * 2); ctx.stroke();
+      // radial field
+      for (let i = 0; i < 16; i++) {
+        const th = (2 * Math.PI * i) / 16;
+        const x0 = cx + Rin * Math.cos(th), y0 = cy + Rin * Math.sin(th);
+        const x1 = cx + Rout * Math.cos(th), y1 = cy + Rout * Math.sin(th);
+        ctx.strokeStyle = 'rgba(249,226,175,0.45)'; ctx.lineWidth = 1.1;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+        const ar = Math.atan2(y1 - y0, x1 - x0);
+        const ax = x0 + (x1 - x0) * 0.7, ay = y0 + (y1 - y0) * 0.7;
+        ctx.fillStyle = 'rgba(249,226,175,0.85)';
+        ctx.beginPath();
+        ctx.moveTo(ax + 6 * Math.cos(ar), ay + 6 * Math.sin(ar));
+        ctx.lineTo(ax - 5 * Math.cos(ar) - 3.5 * Math.sin(ar), ay - 5 * Math.sin(ar) + 3.5 * Math.cos(ar));
+        ctx.lineTo(ax - 5 * Math.cos(ar) + 3.5 * Math.sin(ar), ay - 5 * Math.sin(ar) - 3.5 * Math.cos(ar));
+        ctx.closePath(); ctx.fill();
+      }
+      // radius arrows
+      ctx.strokeStyle = PALETTE.dim; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Rin * Math.cos(-0.9), cy + Rin * Math.sin(-0.9)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Rout * Math.cos(-1.25), cy + Rout * Math.sin(-1.25)); ctx.stroke();
+      txt('a = ' + fmt(v.a, 3) + ' mm', cx + Rin * 0.55 - 10, cy - Rin * 0.6, PALETTE.warn);
+      txt('b = ' + fmt(v.b, 3) + ' mm', cx + Rout * 0.55 + 6, cy - Rout * 0.85, PALETTE.warn);
+      if (v.geom === 'coaxial') {
+        txt('length l = ' + fmt(v.l, 4) + ' cm (into the page)', cx - 128, cy + Rout + 34, PALETTE.dim);
+      } else {
+        txt('\u03c1 measured from the shared centre', cx - 128, cy + Rout + 34, PALETTE.dim);
+      }
+      txt('E peaks at \u03c1 = a: ' + fmt(out.Emax, 4) + ' V/m', cx - 128, cy + Rout + 54, PALETTE.accent3);
+      txt('\u03b5r = ' + fmt(v.er1, 3) + ' fills the gap', cx - 128, cy + Rout + 74, PALETTE.dim);
+    }
+
+    // ---- right panel: combination + bar comparison -------------------------
+    const px = 520;
+    txt(v.mode === 'single' ? 'single capacitor' : 'combination \u2014 ' + MODES[v.mode], px, 26, PALETTE.text, '13px system-ui, sans-serif');
+
+    const bar = (label, val, maxVal, y, color) => {
+      const wpx = maxVal > 0 ? Math.max(2, (val / maxVal) * 250) : 2;
+      ctx.fillStyle = color;
+      ctx.fillRect(px + 74, y - 11, wpx, 16);
+      txt(label, px, y + 2, PALETTE.dim);
+      txt(si(val, 'F'), px + 80 + wpx, y + 2, PALETTE.text);
+    };
+    const maxC = Math.max(out.C1, out.C2, out.Ceq) || 1;
+    bar('C\u2081', out.C1, maxC, 70, PALETTE.accent);
+    if (v.mode !== 'single') bar('C\u2082', out.C2, maxC, 104, PALETTE.accent5);
+    bar('C_eq', out.Ceq, maxC, 138, PALETTE.accent3);
+
+    if (v.mode !== 'single') {
+      // two-capacitor schematic
+      const y0 = 210;
+      ctx.strokeStyle = PALETTE.dim; ctx.lineWidth = 1.4;
+      if (v.mode === 'series') {
+        ctx.beginPath();
+        ctx.moveTo(px, y0); ctx.lineTo(px + 18, y0);
+        ctx.moveTo(px + 18, y0 - 22); ctx.lineTo(px + 18, y0 + 22);
+        ctx.moveTo(px + 34, y0 - 22); ctx.lineTo(px + 34, y0 + 22);
+        ctx.moveTo(px + 34, y0); ctx.lineTo(px + 70, y0);
+        ctx.moveTo(px + 70, y0 - 22); ctx.lineTo(px + 70, y0 + 22);
+        ctx.moveTo(px + 86, y0 - 22); ctx.lineTo(px + 86, y0 + 22);
+        ctx.moveTo(px + 86, y0); ctx.lineTo(px + 150, y0);
+        ctx.stroke();
+        txt('C\u2081', px + 12, y0 - 30, PALETTE.accent);
+        txt('C\u2082', px + 64, y0 - 30, PALETTE.accent5);
+        txt('same charge Q on both \u2192 V adds', px + 10, y0 + 48, PALETTE.dim);
+        txt('1/C_eq = 1/C\u2081 + 1/C\u2082', px + 10, y0 + 68, PALETTE.warn);
+        txt('C_eq is smaller than the smaller one', px + 10, y0 + 88, PALETTE.dim);
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(px, y0 - 40); ctx.lineTo(px + 150, y0 - 40);
+        ctx.moveTo(px + 30, y0 - 40); ctx.lineTo(px + 30, y0 - 18);
+        ctx.moveTo(px + 30, y0 - 6); ctx.lineTo(px + 30, y0 + 18);
+        ctx.moveTo(px + 14, y0 - 18); ctx.lineTo(px + 46, y0 - 18);
+        ctx.moveTo(px + 14, y0 - 6); ctx.lineTo(px + 46, y0 - 6);
+        ctx.moveTo(px + 30, y0 + 18); ctx.lineTo(px + 30, y0 + 40);
+        ctx.moveTo(px + 100, y0 - 40); ctx.lineTo(px + 100, y0 - 18);
+        ctx.moveTo(px + 100, y0 - 6); ctx.lineTo(px + 100, y0 + 18);
+        ctx.moveTo(px + 84, y0 - 18); ctx.lineTo(px + 116, y0 - 18);
+        ctx.moveTo(px + 84, y0 - 6); ctx.lineTo(px + 116, y0 - 6);
+        ctx.moveTo(px + 100, y0 + 18); ctx.lineTo(px + 100, y0 + 40);
+        ctx.moveTo(px, y0 + 40); ctx.lineTo(px + 150, y0 + 40);
+        ctx.stroke();
+        txt('C\u2081', px + 6, y0 - 46, PALETTE.accent);
+        txt('C\u2082', px + 76, y0 - 46, PALETTE.accent5);
+        txt('same voltage across both \u2192 Q adds', px + 10, y0 + 66, PALETTE.dim);
+        txt('C_eq = C\u2081 + C\u2082', px + 10, y0 + 86, PALETTE.warn);
+        txt('C_eq is always the largest of the three', px + 10, y0 + 106, PALETTE.dim);
+      }
+    } else {
+      txt('energy W = \u00bd C V\u00b2 = ' + si(out.W, 'J'), px, 196, PALETTE.accent4, '13px system-ui, sans-serif');
+      txt('V = ' + fmt(v.V, 4) + ' V across the gap', px, 218, PALETTE.dim);
+      txt('peak field E = ' + fmt(out.Emax, 4) + ' V/m', px, 238, PALETTE.dim);
+      txt('(' + out.Ewhere + ')', px, 256, PALETTE.dim, '11px ui-monospace, monospace');
+      txt('energy density \u00bd\u03b5E\u00b2 = ' + fmt(out.energyDensity, 4) + ' J/m\u00b3', px, 282, PALETTE.dim);
+      txt('C does not depend on Q or on V.', px, 316, PALETTE.accent3, '12px system-ui, sans-serif');
+      txt('Raise V and W rises as V\u00b2 \u2014 C stays put.', px, 334, PALETTE.dim);
+    }
+
+    if (out.bClamped) {
+      txt('b must exceed a \u2014 b has been clamped for this calculation.', px, H - 18, PALETTE.accent2, '12px ui-monospace, monospace');
+    }
+    ctx.restore();
+  },
+  readout: (out) => ({
+    'C\u2081 (geometry + \u03b5r1)': si(out.C1, 'F'),
+    'C\u2082 (same shape, \u03b5r2)': si(out.C2, 'F'),
+    'C_eq': si(out.Ceq, 'F'),
+    'C_eq in farads': fmt(out.Ceq, 5) + ' F',
+    'stored energy \u00bdCV\u00b2': si(out.W, 'J'),
+    'peak gap field E_max': fmt(out.Emax, 4) + ' V/m',
+    'where E peaks': out.Ewhere,
+    'geometry': GEOMS[out.v.geom] + ', \u03b5r1 = ' + fmt(out.v.er1, 3),
+  }),
+  onChange: (v) => syncUI(v),
+});
+
+// --- page furniture ---------------------------------------------------------
+function makeFormulaBox() {
+  const d = document.createElement('div');
+  d.style.cssText =
+    'margin-top:14px;padding:10px 12px;background:#27273a;border:1px solid #3a3a52;' +
+    'border-left:3px solid #89b4fa;border-radius:6px;font-family:ui-monospace,Consolas,monospace;' +
+    'font-size:0.86rem;line-height:1.65;white-space:pre-wrap;color:#e4e4f0';
+  document.getElementById('app').appendChild(d);
+  return d;
+}
+
+function setVis(id, on) {
+  const c = handle && handle.controls[id];
+  if (!c) return;
+  const w = c.input.closest('.vault-widget-control');
+  if (w) w.style.display = on ? '' : 'none';
+}
+
+const FORMULA = {
+  parallel: 'C = \u03b5\u2080 \u03b5r A / d            (uniform field, fringing ignored)',
+  coaxial: 'C = 2\u03c0 \u03b5\u2080 \u03b5r l / ln(b/a)   (the 1/\u03c1 field forces the logarithm)',
+  spherical: 'C = 4\u03c0 \u03b5\u2080 \u03b5r / (1/a \u2212 1/b) = 4\u03c0 \u03b5\u2080 \u03b5r a b / (b \u2212 a)',
+};
+
+function syncUI(v) {
+  const g = v.geom;
+  setVis('A', g === 'parallel');
+  setVis('d', g === 'parallel');
+  setVis('a', g !== 'parallel');
+  setVis('b', g !== 'parallel');
+  setVis('l', g === 'coaxial');
+  setVis('er2', v.mode !== 'single');
+  if (!formulaEl) return;
+
+  const aM = v.a * 1e-3, bM = Math.max(v.b, v.a * 1.0001) * 1e-3;
+  const e1 = EPS0 * v.er1, e2 = EPS0 * v.er2;
+
+  let sub, C1, C2;
+  if (g === 'parallel') {
+    const AM = v.A * 1e-4, dM = v.d * 1e-3;
+    C1 = (e1 * AM) / dM; C2 = (e2 * AM) / dM;
+    sub = ['A = ' + fmt(v.A, 4) + ' cm\u00b2 = ' + fmt(AM, 4) + ' m\u00b2',
+           'd = ' + fmt(v.d, 4) + ' mm   = ' + fmt(dM, 4) + ' m',
+           'C\u2081 = (8.854\u00d710\u207b\u00b9\u00b2)(' + fmt(v.er1, 3) + ')(' + fmt(AM, 4) + ') / (' + fmt(dM, 4) + ')\n     = ' + fmt(C1, 5) + ' F = ' + si(C1, 'F')];
+  } else if (g === 'coaxial') {
+    const lM = v.l * 1e-2;
+    C1 = (2 * Math.PI * e1 * lM) / Math.log(bM / aM);
+    C2 = (2 * Math.PI * e2 * lM) / Math.log(bM / aM);
+    sub = ['a = ' + fmt(v.a, 4) + ' mm = ' + fmt(aM, 4) + ' m',
+           'b = ' + fmt(v.b, 4) + ' mm = ' + fmt(bM, 4) + ' m     b/a = ' + fmt(bM / aM, 4) + ',  ln(b/a) = ' + fmt(Math.log(bM / aM), 4),
+           'l = ' + fmt(v.l, 4) + ' cm = ' + fmt(lM, 4) + ' m',
+           'C\u2081 = 2\u03c0(8.854\u00d710\u207b\u00b9\u00b2)(' + fmt(v.er1, 3) + ')(' + fmt(lM, 4) + ') / ' + fmt(Math.log(bM / aM), 4) + '\n     = ' + fmt(C1, 5) + ' F = ' + si(C1, 'F')];
+  } else {
+    C1 = (4 * Math.PI * e1) / (1 / aM - 1 / bM);
+    C2 = (4 * Math.PI * e2) / (1 / aM - 1 / bM);
+    sub = ['a = ' + fmt(v.a, 4) + ' mm = ' + fmt(aM, 4) + ' m',
+           'b = ' + fmt(v.b, 4) + ' mm = ' + fmt(bM, 4) + ' m',
+           '1/a \u2212 1/b = ' + fmt(1 / aM - 1 / bM, 5) + ' m\u207b\u00b9',
+           'C\u2081 = 4\u03c0(8.854\u00d710\u207b\u00b9\u00b2)(' + fmt(v.er1, 3) + ') / ' + fmt(1 / aM - 1 / bM, 5) + '\n     = ' + fmt(C1, 5) + ' F = ' + si(C1, 'F')];
+  }
+
+  const lines = ['FORMULA IN USE', '  ' + FORMULA[g], '  \u03b5\u2080 = 8.854\u00d710\u207b\u00b9\u00b2 F/m,  \u03b5 = \u03b5\u2080 \u03b5r', '', 'SUBSTITUTED VALUES', '  ' + sub.join('\n  ')];
+
+  if (v.mode !== 'single') {
+    const Ceq = v.mode === 'series' ? (C1 * C2) / (C1 + C2) : C1 + C2;
+    lines.push('', 'COMBINATION \u2014 ' + MODES[v.mode]);
+    lines.push('  C\u2082 = ' + fmt(C2, 5) + ' F = ' + si(C2, 'F') + '   (\u03b5r2 = ' + fmt(v.er2, 3) + ')');
+    if (v.mode === 'series') {
+      lines.push('  1/C_eq = 1/C\u2081 + 1/C\u2082');
+      lines.push('  1/C_eq = ' + fmt(1 / C1, 5) + ' + ' + fmt(1 / C2, 5) + ' = ' + fmt(1 / C1 + 1 / C2, 5) + ' F\u207b\u00b9');
+    } else {
+      lines.push('  C_eq = C\u2081 + C\u2082');
+      lines.push('  C_eq = ' + fmt(C1, 5) + ' + ' + fmt(C2, 5));
+    }
+    lines.push('  C_eq = ' + fmt(Ceq, 5) + ' F = ' + si(Ceq, 'F'));
+    lines.push('  stored energy W = \u00bd C_eq V\u00b2 = \u00bd(' + fmt(Ceq, 5) + ')(' + fmt(v.V, 4) + ')\u00b2 = ' + fmt(0.5 * Ceq * v.V * v.V, 5) + ' J = ' + si(0.5 * Ceq * v.V * v.V, 'J'));
+  } else {
+    const W = 0.5 * C1 * v.V * v.V;
+    lines.push('', 'STORED ENERGY', '  W = \u00bd C V\u00b2 = \u00bd (' + fmt(C1, 5) + ') (' + fmt(v.V, 4) + ')\u00b2 = ' + fmt(W, 5) + ' J = ' + si(W, 'J'));
+  }
+  formulaEl.innerHTML = lines.join('\n');
+}
+
+// --- initial paint ----------------------------------------------------------
+if (typeof document !== 'undefined' && handle) {
+  formulaEl = makeFormulaBox();
+  noteEl = document.createElement('div');
+  noteEl.className = 'vault-widget-note';
+  noteEl.innerHTML =
+    '<strong>The recipe, not the formulas.</strong> Put \u00b1Q on the electrodes, get D from Gauss\u2019s law ' +
+    'using the symmetry of the electrodes, integrate E along a field line to get V = \u222bE\u00b7dl, then divide: ' +
+    'C = Q/V. If Q survives in your final expression, a step is wrong \u2014 C is pure geometry times permittivity. ' +
+    'The coaxial logarithm exists because E falls as 1/\u03c1 and you must integrate it; the spherical ab/(b\u2212a) exists ' +
+    'because you subtract two 1/\u03c1\u00b2 integrals. ' +
+    '<strong>The mistake this prevents:</strong> forgetting that in the SPHERICAL formula a and b are radii in ' +
+    'METRES \u2014 feed a datasheet\u2019s millimetres straight in and (1/a \u2212 1/b) comes out 1000 times too small, ' +
+    'inflating C by 1000. The coaxial formula is immune, because only the dimensionless ratio b/a enters the logarithm: ' +
+    'that the units cancel there is itself an exam point. The parallel-plate trap is different \u2014 substituting A in ' +
+    'cm\u00b2 while d is in mm leaves C about 10 times too large (10\u2074 too big from A, 10\u00b3 too small from d). ' +
+    'Also: in series the equivalent capacitance is always SMALLER than the smallest capacitor, and in parallel it is ' +
+    'always LARGER than the largest \u2014 use that as a sanity check before you write down a multiple-choice answer. ' +
+    'Raising the voltage changes the stored energy as V\u00b2 but never changes C.';
+  document.getElementById('app').appendChild(noteEl);
+  syncUI(handle.state.values);
+}
+</script>
+</body>
+</html>

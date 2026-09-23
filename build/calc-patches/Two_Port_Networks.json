@@ -1,0 +1,105 @@
+[
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/02_Z_and_Y_Parameters.json",
+    "problem": 3,
+    "expect": "Convert a given [z] to [y].",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`: `Apps` `1` `Dim` sets MatA to 2x2, then `Apps` `2` `Data` to key in `30 10 10 35`.",
+        "`Apps` `▼` `1` `Det` → **950** $\\Omega^2$; `Apps` `▼` `5` `Inv` → the inverse IS $[y]$: **36.84, -10.53, -10.53, 31.58** mS.",
+        "Identity check: `1÷950` → **1.0526** mS$^2$ per $\\Omega^2$, which is $\\Delta_y$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/04_Hybrid_and_Inverse_Hybrid_Parameters.json",
+    "problem": 2,
+    "expect": "Convert an h matrix to a g matrix.",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`: MatA = `18.571 0.42857 -0.42857 0.028571` — the h matrix as it stands, ohms and siemens mixed.",
+        "`Det` → **0.71429**; `Inv` → $[g]$ = **40 mS, -0.6, +0.6, 26.0** $\\Omega$. Inverting the matrix does the whole conversion.",
+        "Reciprocal check: `1÷0.71429` → **1.4**, and $\\Delta_h\\,\\Delta_g = 1$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/06_Parameter_Conversions_and_Determinants.json",
+    "problem": 1,
+    "expect": "and confirm the answer with the determinant identity",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`: MatA = `10 5 5 15`.",
+        "`Det` → **125** $\\Omega^2$; `Inv` → $[y]$ = **0.12, -0.04, -0.04, 0.08** S.",
+        "Determinant identity: `1÷125` → **8.0 mS**$^2$ = $\\Delta_y$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/06_Parameter_Conversions_and_Determinants.json",
+    "problem": 4,
+    "expect": "An active two-port has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20÷5` → **A = 4**; `20×10−10×5` → $\\Delta_z$ = **150** $\\Omega^2$; `150÷5` → **B = 30** $\\Omega$.",
+        "`1÷5` → **C = 0.2 S**; `10÷5` → **D = 2**.",
+        "`4×2−30×0.2` → **2**, not 1, so the network is non-reciprocal — as $z_{12} \\neq z_{21}$ warned."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/06_Parameter_Conversions_and_Determinants.json",
+    "problem": 5,
+    "expect": "For the passive two-port",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`12×9−4²` → $\\Delta_z$ = **92** $\\Omega^2$; `1÷Ans` → $\\Delta_y$ = **10.87 mS**$^2$.",
+        "`(92+4×4)÷9²` → $\\Delta_h$ = **1.333**; `1÷Ans` → $\\Delta_g$ = **0.75**. The last two multiply to 1.",
+        "`4−4` → **0** so $AD - BC = 1$: reciprocal. `12−9` → **3** $\\Omega \\neq 0$: not symmetric."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/08_Interconnections_Series,_Parallel,_Cascade.json",
+    "problem": 1,
+    "expect": "Two T-networks with",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`: MatA = `10 5 5 8`, MatB = `20 4 4 12`. Series at BOTH ports means the z matrices simply ADD.",
+        "`MatA+MatB` → $[z]$ = **30, 9, 9, 20** $\\Omega$; `Det` → **519** $\\Omega^2$.",
+        "The trap: the z-determinants are 55 and 224, and $55+224 = 279$ — determinants do NOT add."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/08_Interconnections_Series,_Parallel,_Cascade.json",
+    "problem": 2,
+    "expect": "Two networks with",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`: MatA = `0.10 -0.02 -0.02 0.08`, MatB = `0.05 -0.01 -0.01 0.06`. Parallel at both ports means the y matrices ADD.",
+        "`MatA+MatB` → $[y]$ = **0.15, -0.03, -0.03, 0.14** S; `Det` → **20.1 mS**$^2$; `Inv` → $[z]$ with **6.97** and **7.46** $\\Omega$ on the diagonal."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/09_Terminated_Networks_and_Gains.json",
+    "problem": 4,
+    "expect": "A symmetric T-section has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(12.5÷0.1)` → $Z_0$ = **11.18** $\\Omega$.",
+        "With $Z_L = Z_0$: `(1.5×11.18+12.5)÷(0.1×11.18+1.5)` → **11.18** $\\Omega$ — the port is matched.",
+        "Note the denominator uses $D = 1.5$, the same as $A$. Using 1 there is the usual slip and gives 13.8 instead."
+      ]
+    }
+  }
+]

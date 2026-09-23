@@ -1,0 +1,63 @@
+---
+id: GEAS-06-08
+title: "Business Model Canvas and SWOT"
+part: "03_GEAS"
+area: "06_Engineering_Management_and_PM"
+topic: 8
+tier: 3
+depth: full
+problem_count: 0
+prereqs: []
+tags: ["ece", "geas", "engineering_management_and_pm"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 08 — Business Model Canvas and SWOT
+
+> [!abstract] Scope
+> The nine Business Model Canvas blocks in order and what each contains, plus the internal/external split of SWOT and the four TOWS strategy pairings.
+
+## Core Concept
+
+> [!tip] Intuition
+> The canvas is one page that has to hold together: who you serve and what they need on the right, what you must own and do on the left, money coming in at the top-right and money going out along the bottom. SWOT lists factors; TOWS turns them into strategies.
+
+**The nine blocks, in order.** Osterwalder's canvas is filled left to right in this sequence: **Customer Segments**, **Value Propositions**, **Channels**, **Customer Relationships**, **Revenue Streams**, **Key Resources**, **Key Activities**, **Key Partnerships**, **Cost Structure**. Read it structurally and it is easier to recall: the right half is market-facing (segments, value propositions, channels, relationships, revenue), the left half is infrastructure (key resources, activities, partnerships), the bottom band is cost and the upper-right is revenue. The blocks are not independent lists — the value proposition must fit the customer segment, channels must reach that segment, and the revenue streams must plausibly cover the cost structure. The canvas is deliberately a *model*, so a substitute for competition and a testable customer need sit inside the Value Propositions block.
+
+**SWOT and TOWS.** SWOT sorts factors into **internal** and **external**: strengths and weaknesses are internal and largely controllable (capability, cost position, brand, skills), while opportunities and threats are external and largely uncontrollable (market growth, regulation, competitor moves, technology shifts). Misplacing a factor — calling 'our skilled RF engineers' an opportunity, or 'cheap imported competitors' a weakness — breaks the analysis. The strategy step is **TOWS**, which pairs the quadrants: **SO** (strengths used to seize opportunities), **ST** (strengths used to avoid or deflect threats), **WO** (overcome weaknesses to pursue opportunities) and **WT** (defensive: avoid the situation or fix the weakness). A SWOT table with no paired strategies is a list, not an analysis.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Nine canvas blocks | $\mathrm{Customer\ Segments},\ \mathrm{Value\ Propositions},\ \mathrm{Channels},\ \mathrm{Customer\ Relationships},\ \mathrm{Revenue\ Streams},\ \mathrm{Key\ Resources},\ \mathrm{Key\ Activities},\ \mathrm{Key\ Partnerships},\ \mathrm{Cost\ Structure}$ | Osterwalder's order; examiners ask for the sequence, and Cost Structure is last. |
+| Market-facing half | $\mathrm{segments} + \mathrm{value} + \mathrm{channels} + \mathrm{relationships} + \mathrm{revenue}$ | The right side of the canvas; it answers who, what, how reached and how paid. |
+| Infrastructure half | $\mathrm{key\ resources} + \mathrm{key\ activities} + \mathrm{key\ partnerships}$ | The left side; it answers what must be owned, done and sourced to deliver the value proposition. |
+| Cost structure types | $\mathrm{cost\ driven} \mid \mathrm{value\ driven}$ | Cost-driven minimizes cost; value-driven tolerates cost for premium value. It must be consistent with the revenue streams. |
+| Revenue streams | $\mathrm{how\ value\ is\ captured\ (pricing\ mechanism)}$ | Distinct from pricing level; state the mechanism (subscription, usage, license, advertising) per stream. |
+| SWOT internal | $S,\ W$ | Strengths and weaknesses are internal and mostly controllable: resources, capability, cost position, brand. |
+| SWOT external | $O,\ T$ | Opportunities and threats are external and mostly uncontrollable: market, regulation, competition, technology. |
+| SO strategy | $\mathrm{Strength} \times \mathrm{Opportunity}$ | Maxi-maxi: use an internal strength to seize an external opportunity; the classic growth strategy. |
+| ST strategy | $\mathrm{Strength} \times \mathrm{Threat}$ | Maxi-mini: use a strength to avoid or reduce exposure to an external threat. |
+| WO strategy | $\mathrm{Weakness} \times \mathrm{Opportunity}$ | Mini-maxi: overcome an internal weakness in order to pursue an external opportunity. |
+| WT strategy | $\mathrm{Weakness} \times \mathrm{Threat}$ | Mini-mini: defensive — avoid the situation, retrench, or fix the weakness before the threat lands. |
+| TOWS pairing rule | $\mathrm{factors} \rightarrow \mathrm{SO},\ \mathrm{ST},\ \mathrm{WO},\ \mathrm{WT}$ | SWOT produces the factor lists; only the pairing step produces strategies. |
+
+## Traps & Exam Notes
+
+- **Listing a strength as an opportunity.** A strength is internal and current ('our in-house calibration lab'); an opportunity is external and future ('growing demand for 5G rollout services').
+- **Filling the canvas as nine unrelated lists.** The blocks must cohere — value proposition to segment, channels to relationship model, revenue streams against cost structure — or the model explains nothing.
+- **Calling a SWOT a TOWS.** No strategy exists until the quadrants are paired into SO/ST/WO/WT; a four-quadrant list with no pairings earns no strategy marks.
+- **Reciting the nine blocks out of order.** Key Resources follows Revenue Streams (not Customer Segments) and Cost Structure is the ninth block; the exam asks for the order as often as for the content.
+- **Classifying a competitor's price cut as a weakness.** It is an external threat; a weakness is something internal to the firm, such as a thin service network.
+
+## See Also
+
+- [[09_Market_Sizing_TAM,_SAM,_SOM]]
+- [[07_Lean_Startup_and_MVP]]
+
+---
+
+[[07_Lean_Startup_and_MVP|⬅ 07]] · [[_MOC_Engineering_Management_and_PM|MOC]] · [[00_Dashboard|Dashboard]] · [[09_Market_Sizing_TAM,_SAM,_SOM|09 ➡]]

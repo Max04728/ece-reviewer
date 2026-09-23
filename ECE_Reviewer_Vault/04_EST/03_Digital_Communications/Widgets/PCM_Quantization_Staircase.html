@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCM Quantization Staircase — Step Size, SQNR and Companding</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// PCM questions are almost always one of three:
+//   (a) SQNR = 6.02n + 1.76 dB — and the trap that this is the FULL-SCALE sine result,
+//       so a signal 20 dB below full scale loses exactly 20 dB of SQNR;
+//   (b) step size / number of levels:  L = 2^n,  delta = (Vmax - Vmin)/L;
+//   (c) bit rate R = n*fs, and bandwidth >= R/2 (Nyquist) or R (practical).
+// The widget measures the SQNR by actually quantizing the waveform, and prints the
+// measured value beside the formula value, so the student saw the assumption behind
+// 6.02n + 1.76 instead of memorising it. The mu-law mode shows the one thing uniform
+// quantization cannot do: protect small signals.
+//
+// Quantizer convention: mid-riser, input range [-FS, +FS], FS = 1 (full scale), so the
+// step is delta = 2FS/L and the peak sine that just fills the range has A = FS.
+
+const FS = 1.0;
+const MU_DEFAULT = 255;   // G.711 North-American mu-law
+
+const muCompress = (x, mu) => Math.sign(x) * Math.log(1 + mu * Math.abs(x)) / Math.log(1 + mu);
+const muExpand = (y, mu) => Math.sign(y) * (Math.pow(1 + mu, Math.abs(y)) - 1) / mu;
+
+const frame = (ctx, plot, { top, bottom, yMin, yMax }) => {
+  const px0 = plot.pad, px1 = plot.w - plot.pad;
+  return {
+    px0, px1, top, bottom, yMin, yMax,
+    X: (x, xMin, xMax) => px0 + ((x - xMin) / (xMax - xMin)) * (px1 - px0),
+    Y: (y) => bottom - ((y - yMin) / (yMax - yMin)) * (bottom - top),
+    line(x1, y1, x2, y2, color, width = 1.5, dash = null) {
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color;
+      ctx.lineWidth = width; ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    },
+    text(s, x, y, color = PALETTE.text, align = 'left', font = '11px ui-monospace, monospace') {
+      ctx.save(); ctx.fillStyle = color; ctx.textAlign = align; ctx.font = font;
+      ctx.fillText(s, x, y); ctx.restore();
+    },
+  };
+};
+
+widget({
+  title: 'PCM Quantization — Staircase, Error, SQNR and μ-law Companding',
+  description:
+    'Quantizing replaces each sample with the nearest of L = 2^n levels. Raise n and watch the error waveform shrink; switch to μ-law and watch the small-signal improvement appear — and the full-scale penalty that pays for it.',
+  height: 600,
+  controls: [
+    { id: 'n', label: 'quantization bits n', min: 1, max: 10, step: 1, value: 4, unit: 'bits' },
+    { id: 'A', label: 'signal amplitude (fraction of FS)', min: 0.01, max: 1, step: 0.01, value: 1 },
+    { id: 'cyc', label: 'signal frequency (cycles shown)', min: 1, max: 25, step: 1, value: 3 },
+    { id: 'mode', label: 'quantizer', type: 'select', options: [
+      { value: 'uniform', label: 'uniform (linear) quantizer' },
+      { value: 'mulaw', label: 'μ-law companded (G.711)' },
+    ], value: 'uniform' },
+    { id: 'mu', label: 'μ (companding parameter)', min: 0, max: 255, step: 1, value: MU_DEFAULT },
+  ],
+  onChange: (v) => {
+    const inp = document.querySelector('select.vault-widget-input');
+    // the mu slider is meaningless in uniform mode — dim it rather than hide it, so the
+    // student still sees that companding is parameterised by mu
+    const labels = document.querySelectorAll('.vault-widget-control');
+    labels.forEach((lab) => {
+      const t = lab.textContent || '';
+      if (t.indexOf('companding parameter') === 0 || t.indexOf('μ (companding') === 0) {
+        const slider = lab.querySelector('input[type="range"]');
+        if (slider) { slider.disabled = v.mode !== 'mulaw'; slider.style.opacity = v.mode !== 'mulaw' ? 0.35 : 1; }
+      }
+    });
+  },
+  compute: (v) => {
+    const n = Math.round(v.n);
+    const L = Math.pow(2, n);
+    const delta = (2 * FS) / L;
+    const A = Math.min(v.A, FS);
+    const clipped = v.A > FS + 1e-9;
+    const mu = v.mode === 'mulaw' ? Math.max(1, v.mu) : 0;
+
+    // sample the waveform densely and quantize it
+    const N = 4096;
+    const tMax = 1;                       // one normalised time unit = v.cyc cycles
+    const w = 2 * Math.PI * v.cyc;
+    const x = (t) => A * Math.sin(w * t);
+    const qUniform = (s) => Math.max(-FS, Math.min(FS, Math.round(s / delta) * delta));
+    const qComp = (s) => {
+      if (mu <= 0) return qUniform(s);
+      const c = muCompress(Math.max(-FS, Math.min(FS, s)), mu);
+      const cq = Math.max(-1, Math.min(1, Math.round(c * L / 2) * (2 / L)));
+      return muExpand(cq, mu);
+    };
+    const q = v.mode === 'mulaw' ? qComp : qUniform;
+
+    let sPow = 0, ePow = 0, eMax = 0, clipCount = 0;
+    const samples = [];
+    for (let i = 0; i <= N; i++) {
+      const t = (i / N) * tMax;
+      const s = x(t);
+      const sq = q(s);
+      const e = s - sq;
+      sPow += s * s; ePow += e * e;
+      eMax = Math.max(eMax, Math.abs(e));
+      if (Math.abs(s) > FS) clipCount++;
+      if (i % 8 === 0) samples.push({ t, s, sq, e });
+    }
+    sPow /= (N + 1); ePow /= (N + 1);
+    const sqnrMeas = ePow > 1e-14 ? 10 * Math.log10(sPow / ePow) : 120;
+    // the textbook result: full-scale sine in a uniform quantizer
+    const sqnrFormula = 6.02 * n + 1.76;
+    const lossFromBackoff = -20 * Math.log10(A / FS);      // dB lost by not filling full scale
+    const sqnrPredicted = sqnrFormula - lossFromBackoff;
+    // mu-law slope gain at the origin: d(expand)/dy at y=0 is mu/ln(1+mu), so with the
+    // signal small enough that it stays in the linear region of the compander the
+    // effective step is delta * ln(1+mu)/mu and the predicted SQNR rises by 20log10 of
+    // the reciprocal of that factor.
+    const muGain = mu > 0 ? mu / Math.log(1 + mu) : 1;
+    const deltaSmall = mu > 0 ? (2 * FS) / (L * muGain) : delta;
+    // deep-backoff (linear-region) prediction — an upper bound that the simulation only
+    // reaches when A is small enough to stay inside that region
+    const sqnrMuPredicted = 6.02 * n + 1.76 + (mu > 0 ? 20 * Math.log10(muGain) : 0);
+    return {
+      n, L, delta, A, mu, sqnrMeas, sqnrFormula, sqnrPredicted, lossFromBackoff,
+      eMax, deltaSmall, samples, sPow, ePow, clipped, clipCount, mode: v.mode,
+      halfStep: delta / 2, muGain, sqnrMuPredicted, cyc: v.cyc,
+      sqnrUniformForCompare: 6.02 * n + 1.76 - (-20 * Math.log10(A / FS)),
+    };
+  },
+  draw: (ctx, v, o, plot) => {
+    plot.clear();
+    const tMax = 1;
+    const yR = 1.25;
+
+    // ------------------------------------------------- staircase / signal --
+    const T = frame(ctx, plot, { top: 34, bottom: 300, yMin: -yR, yMax: yR });
+    T.line(T.px0, T.Y(0), T.px1, T.Y(0), PALETTE.axis, 1);
+    T.line(T.px0, T.Y(FS), T.px1, T.Y(FS), 'rgba(160,160,190,0.35)', 1, [4, 4]);
+    T.line(T.px0, T.Y(-FS), T.px1, T.Y(-FS), 'rgba(160,160,190,0.35)', 1, [4, 4]);
+    T.text('+FS', T.px1 + 3, T.Y(FS) + 4, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    T.text('−FS', T.px1 + 3, T.Y(-FS) + 4, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    // staircase (draw as level dashes so the L levels are countable)
+    ctx.save(); ctx.strokeStyle = PALETTE.accent4; ctx.lineWidth = 2.4; ctx.beginPath();
+    let prev = null;
+    for (let i = 0; i < o.samples.length; i++) {
+      const p = o.samples[i];
+      const X = T.X(p.t, 0, tMax), Y = T.Y(p.sq);
+      if (prev === null) ctx.moveTo(X, Y);
+      else { ctx.lineTo(X, prev); ctx.lineTo(X, Y); }
+      prev = Y;
+    }
+    ctx.stroke(); ctx.restore();
+    // analog input
+    ctx.save(); ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 1.8; ctx.beginPath();
+    o.samples.forEach((p, i) => {
+      const X = T.X(p.t, 0, tMax), Y = T.Y(p.s);
+      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    });
+    ctx.stroke(); ctx.restore();
+    // sample instants and quantized dots, thinned so the picture stays readable
+    const stride = Math.max(1, Math.round(o.samples.length / 90));
+    for (let i = 0; i < o.samples.length; i += stride) {
+      const p = o.samples[i];
+      const X = T.X(p.t, 0, tMax);
+      T.line(X, T.Y(p.s), X, T.Y(p.sq), 'rgba(243,139,168,0.55)', 1);
+      ctx.save(); ctx.fillStyle = PALETTE.warn;
+      ctx.beginPath(); ctx.arc(X, T.Y(p.sq), 2.2, 0, 6.2832); ctx.fill(); ctx.restore();
+    }
+    if (o.clipped) {
+      ctx.save(); ctx.fillStyle = 'rgba(243,139,168,0.12)';
+      ctx.fillRect(T.px0, T.top, T.px1 - T.px0, Math.max(0, T.Y(FS) - T.top));
+      ctx.fillRect(T.px0, T.Y(-FS), T.px1 - T.px0, Math.max(0, T.bottom - T.Y(-FS)));
+      ctx.restore();
+      T.text('input exceeds ±FS → clipping (overload), the quantizer saturates', T.px0 + 6, T.top + 13, PALETTE.accent2);
+    }
+    T.text('analog input (blue) vs quantized staircase (orange), ' + o.L + ' levels, Δ = ' + fmt(o.delta, 4)
+      + (o.mode === 'mulaw' ? '  |  μ-law companding, μ = ' + o.mu : '  |  uniform'),
+      T.px0, T.top - 8, PALETTE.dim);
+    T.text('time →', T.px1, T.bottom + 15, PALETTE.dim, 'right');
+
+    // ----------------------------------------------------- error waveform --
+    const E = frame(ctx, plot, { top: 350, bottom: 432, yMin: -Math.max(o.halfStep * 1.6, 1e-4), yMax: Math.max(o.halfStep * 1.6, 1e-4) });
+    E.line(E.px0, E.Y(0), E.px1, E.Y(0), PALETTE.axis, 1);
+    E.line(E.px0, E.Y(o.halfStep), E.px1, E.Y(o.halfStep), 'rgba(249,226,175,0.4)', 1, [4, 4]);
+    E.line(E.px0, E.Y(-o.halfStep), E.px1, E.Y(-o.halfStep), 'rgba(249,226,175,0.4)', 1, [4, 4]);
+    ctx.save(); ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 1.4; ctx.beginPath();
+    o.samples.forEach((p, i) => {
+      const X = E.X(p.t, 0, tMax), Y = E.Y(p.e);
+      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    });
+    ctx.stroke(); ctx.restore();
+    E.text('quantization error e = x − xq, bounded by ±Δ/2 = ±' + fmt(o.halfStep, 4)
+      + '   (uniform e → noise power Δ²/12; that is where 6.02n + 1.76 comes from)',
+      E.px0, E.top - 6, PALETTE.accent2, 'left', '11px ui-monospace, monospace');
+
+    // ------------------------------------ SQNR bars: formula vs measurement --
+    const B = frame(ctx, plot, { top: 486, bottom: 546, yMin: 0, yMax: Math.max(o.sqnrFormula * 1.15, 30) });
+    const barW = 150, gap = 40;
+    const bars = [
+      { label: 'formula 6.02n+1.76', val: Math.max(0, o.sqnrFormula), color: 'rgba(137,180,250,0.75)' },
+      { label: 'predicted (with backoff)', val: Math.max(0, o.sqnrPredicted), color: 'rgba(249,226,175,0.75)' },
+      { label: 'MEASURED (simulation)', val: Math.max(0, o.sqnrMeas), color: PALETTE.accent3 },
+    ];
+    B.line(B.px0, B.bottom, B.px1, B.bottom, PALETTE.axis, 1.5);
+    bars.forEach((b, i) => {
+      const x = B.px0 + 20 + i * (barW + gap);
+      const h = Math.max(1, (b.val / Math.max(o.sqnrFormula * 1.15, 30)) * (B.bottom - B.top));
+      ctx.save(); ctx.fillStyle = b.color; ctx.fillRect(x, B.bottom - h, barW, h);
+      ctx.strokeStyle = b.color; ctx.lineWidth = 1; ctx.strokeRect(x, B.bottom - h, barW, h); ctx.restore();
+      B.text(b.label, x + barW / 2, B.bottom + 14, PALETTE.dim, 'center', '10px ui-monospace, monospace');
+      B.text(fmt(b.val, 4) + ' dB', x + barW / 2, B.bottom - h - 5, PALETTE.text, 'center', '11px ui-monospace, monospace');
+    });
+    B.text('SQNR (dB)', B.px0 + 4, B.top - 6, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+
+    // -------------------------------------------------------- substituted eq --
+    const F = document.getElementById('pcm-formula');
+    if (F) {
+      const rows = [];
+      rows.push('<div><strong>L = 2ⁿ</strong> = 2^' + o.n + ' = <strong>' + o.L + ' levels</strong> &nbsp;|&nbsp; '
+        + '<strong>Δ = (Vmax − Vmin)/L</strong> = 2(' + fmt(FS, 3) + ')/' + o.L + ' = <strong>' + fmt(o.delta, 5) + ' V</strong>'
+        + ' &nbsp;|&nbsp; half-step Δ/2 = ' + fmt(o.halfStep, 5) + ' V</div>');
+      rows.push('<div><strong>SQNR = 6.02n + 1.76 dB</strong> = 6.02(' + o.n + ') + 1.76 = <strong>' + fmt(o.sqnrFormula, 5)
+        + ' dB</strong> — valid only for a sine that fills the quantizer range. Full-scale backoff: 20log₁₀(A/FS) = '
+        + fmt(-o.lossFromBackoff, 4) + ' dB, so the prediction here is ' + fmt(o.sqnrFormula, 4) + ' − ' + fmt(o.lossFromBackoff, 4)
+        + ' = <strong>' + fmt(o.sqnrPredicted, 5) + ' dB</strong></div>');
+      const sPow = o.sPow, ePow = o.ePow;
+      rows.push('<div><strong>Measured:</strong> S = ' + fmt(sPow, 5) + ' (mean square), N = Δ²/12 = ' + fmt(o.delta * o.delta / 12, 5)
+        + ', simulated N = ' + fmt(ePow, 6) + ' → SQNR = 10log₁₀(S/N) = <strong>' + fmt(o.sqnrMeas, 5) + ' dB</strong>'
+        + ' &nbsp;(|e|<sub>max</sub> = ' + fmt(o.eMax, 4) + ' V = ' + fmt(o.eMax / (o.delta / 2) * 100, 4) + ' % of the Δ/2 bound, so the model is sound)</div>');
+      // The 6.02n + 1.76 + 20log10(A) prediction assumes the error is uniform over ±Δ/2,
+      // which needs the signal to span MANY steps. With only a handful of steps the error
+      // becomes deterministic (a periodic ramp) and the prediction over-estimates.
+      const steps = o.A / o.delta;
+      rows.push(steps < 16
+        ? '<div style="color:var(--vw-accent-2)"><strong>Caution — the formula is outside its validity range for this setting:</strong> '
+          + 'the signal peaks at only ' + fmt(steps, 3) + ' steps (2A/Δ = ' + fmt(2 * o.A, 4) + '/' + fmt(o.delta, 5)
+          + '). With fewer than about 16 steps the quantization error is a deterministic ramp rather than a uniform random '
+          + 'variable, so the measured bar sits well ABOVE the predicted one and the Δ²/12 noise model fails. Raise n or A and '
+          + 'watch the two bars converge — the formula is a large-step result.</div>'
+        : '<div><strong>The model is valid here:</strong> the signal peaks at ' + fmt(steps, 3)
+          + ' steps, so the error really is approximately uniform on ±Δ/2 and Δ²/12 is the correct noise power. '
+          + 'The measured and predicted bars agree.</div>');
+      if (o.mode === 'mulaw') {
+        rows.push('<div><strong>μ-law:</strong> y = sgn(x)·ln(1 + μ|x|)/ln(1 + μ) with μ = ' + o.mu
+          + '. The expander slope at the origin is dy/dx = μ/ln(1 + μ) = ' + fmt(o.muGain, 5)
+          + ', so in the deep-small-signal limit the effective step is only '
+          + '<strong>Δ<sub>small</sub> = Δ·ln(1+μ)/μ = ' + fmt(o.deltaSmall, 6) + ' V</strong> against Δ = ' + fmt(o.delta, 5)
+          + ' V uniform — 20log₁₀(' + fmt(o.muGain, 4) + ') = ' + fmt(20 * Math.log10(o.muGain), 4)
+          + ' dB of theoretical small-signal advantage, upper-bounded at ' + fmt(o.sqnrMuPredicted, 5) + ' dB for this n. '
+          + 'The measured bar is lower whenever A is large enough to leave that linear region — which is exactly why '
+          + 'G.711 uses μ = 255 with 8 bits rather than a smaller μ.</div>');
+      } else {
+        rows.push('<div><strong>μ-law:</strong> not active — the same Δ is used at every signal level, which is why a quiet talker '
+          + 'gets the same absolute noise as a loud one. Switch the quantizer to μ-law companded to see the small-signal fix.</div>');
+      }
+      rows.push('<div><strong>Bit rate:</strong> R = n·f<sub>s</sub>; at the Nyquist rate f<sub>s</sub> = 2f<sub>m</sub> the bandwidth is at least R/2 '
+        + '(and R in practice, since real pulses are not ideal). Each extra bit costs 1 bit/sample and buys 6.02 dB — that trade is the whole design question.</div>');
+      F.innerHTML = rows.join('');
+    }
+  },
+  readout: (out) => ({
+    'bits n': String(out.n),
+    'levels L = 2^n': String(out.L) + (out.L >= 1024 ? ' (1024)' : ''),
+    'step size Δ': fmt(out.delta, 5) + ' V',
+    'quantizer': out.mode === 'mulaw' ? 'μ-law, μ = ' + out.mu : 'uniform',
+    'small-signal step': fmt(out.deltaSmall, 6) + ' V',
+    'SQNR formula': fmt(out.sqnrFormula, 5) + ' dB',
+    'SQNR predicted': fmt(out.sqnrPredicted, 5) + ' dB',
+    'SQNR MEASURED': fmt(out.sqnrMeas, 5) + ' dB',
+    'max |error|': fmt(out.eMax, 5) + ' V',
+    'clipping?': out.clipped ? 'YES — overload' : 'no',
+  }),
+});
+
+const host = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'pcm-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight: 6.02n + 1.76 dB is not a property of PCM, it is a property of one specific operating point</strong> — '
+  + 'a sine wave that exactly fills the quantizer range. Quantization noise power is Δ²/12 and signal power is A²/2, so '
+  + 'SQNR = 10log₁₀(6A²/Δ²). Substituting Δ = 2FS/2ⁿ gives SQNR = 6.02n + 1.76 + 20log₁₀(A/FS). Every bit of backoff '
+  + 'costs a full decibel for decibel, and one extra bit buys 6.02 dB — that is the entire design trade of a PCM system '
+  + 'in one line. The measured bar above is computed by literally quantizing the waveform, so it is the check on whether '
+  + 'you substituted the right A.'
+  + '<br><strong>Three mistakes this widget prevents.</strong> '
+  + '(1) <em>Applying 6.02n + 1.76 to a signal that does not fill the range.</em> A voice signal 20 dB below full scale '
+  + 'in an 8-bit system gives 49.9 − 20 = 29.9 dB, not 49.9 dB. The widget shows both bars moving apart as you lower A. '
+  + '(2) <em>Confusing Δ with the number of levels.</em> Δ = 2FS/L is the step, L = 2ⁿ is the count, and the error is '
+  + 'bounded by ±Δ/2, never ±Δ. For n = 4 and FS = 1 V, Δ = 0.125 V and the worst error is 62.5 mV — quoting 125 mV is '
+  + 'a factor-of-two error the readout rules out. '
+  + '(3) <em>Believing companding is free.</em> μ-law compresses the low-amplitude region so that the *expander* '
+  + 'reconstructs small signals with a finer effective step, but the number of levels is unchanged, so the coarse '
+  + 'region near ±FS gets coarser: the measured SQNR at full scale actually drops slightly. G.711 accepts that because '
+  + 'speech has a high peak-to-average ratio — it optimises the average over the signal distribution, not the worst case.'
+  + '<br><strong>Exam reflex:</strong> given "8-bit PCM, 4 kHz voice, find the bit rate and SQNR", the answer is '
+  + 'R = 8 × 8000 = 64 kbit/s (the G.711 number) and SQNR = 6.02(8) + 1.76 = 49.9 dB. If the question then says the '
+  + 'signal occupies only the top half of the range, halve A → 49.9 − 6.02 = 43.9 dB.';
+host.appendChild(note);
+</script>
+</body>
+</html>

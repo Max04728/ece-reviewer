@@ -1,0 +1,176 @@
+{
+  "scope": "Expand a periodic function in trigonometric and exponential Fourier series, compute the coefficients from symmetry, and convert between the two forms.",
+  "intuition": "A Fourier series says that any well-behaved periodic signal is a sum of harmonics at multiples of the fundamental frequency. The coefficients measure how much of each harmonic the signal contains — which is why a square wave is all odd harmonics and a triangle wave falls off as $1/n^2$.",
+  "concept": [
+    "**The trigonometric form.** For a periodic $f(t)$ with period $T$ and fundamental $\\omega_0 = \\frac{2\\pi}{T}$, the series is: $f(t) = a_0 + \\sum_{n=1}^{\\infty}\\left[a_n\\cos(n\\omega_0 t) + b_n\\sin(n\\omega_0 t)\\right]$. Orthogonality gives the coefficients, with $a_0 = \\frac{1}{T}\\int_T f\\,dt$ as the mean value. The cosine coefficient is: $a_n = \\frac{2}{T}\\int_T f\\cos(n\\omega_0t)\\,dt$. The sine coefficient is: $b_n = \\frac{2}{T}\\int_T f\\sin(n\\omega_0t)\\,dt$. The factor of 2 in $a_n$ and $b_n$ but not in $a_0$ is the single most common transcription error, and it exists because the cosine and sine basis functions have mean square $\\frac12$ while the constant has mean square 1.",
+    "**Why orthogonality gives the coefficients.** Multiplying the series by $\\cos(m\\omega_0t)$ and integrating over one period annihilates every term except the $m$-th. The overlap integral is: $\\int_T\\cos(n\\omega_0t)\\cos(m\\omega_0t)\\,dt = 0$ for $n\\neq m$ and $\\frac{T}{2}$ for $n=m$. That surviving $\\frac{T}{2}$ is precisely where the factor 2 comes from. The same argument with $\\sin$ gives $b_n$, and with a constant gives $a_0$. So the coefficient formulas are not arbitrary — they are the projection of the signal onto each basis function.",
+    "**Symmetry halves the work.** An **even** function ($f(-t)=f(t)$) has $b_n = 0$ and contains only cosines; an **odd** function ($f(-t)=-f(t)$) has $a_n = 0$ and $a_0 = 0$, containing only sines. **Half-wave symmetry** ($f(t \\pm \\frac{T}{2}) = -f(t)$) kills all even harmonics, so only odd $n$ survive. Checking symmetry before integrating usually removes half the integrals and, just as importantly, tells you which coefficients should come out zero so you can catch an algebra error.",
+    "**The exponential form is the same series.** It reads: $f(t) = \\sum_{n=-\\infty}^{\\infty} c_n e^{jn\\omega_0 t}$. Its coefficients are: $c_n = \\frac{1}{T}\\int_T f(t)e^{-jn\\omega_0t}\\,dt$. Negative frequencies appear as a mathematical convenience: a real cosine is $\\frac{1}{2}(e^{j\\theta}+e^{-j\\theta})$, so a single cosine at $n\\omega_0$ is two exponential terms, one at $+n\\omega_0$ and one at $-n\\omega_0$. This is why the exponential spectrum is two-sided while the trigonometric spectrum is one-sided.",
+    "**Converting between the forms.** For $n > 0$: $c_n = \\frac{1}{2}(a_n - jb_n)$. The conjugate is: $c_{-n} = \\frac{1}{2}(a_n + jb_n) = c_n^{*}$. Also $c_0 = a_0$. The complex conjugate symmetry $c_{-n} = c_n^{*}$ holds for every real signal and is a useful check on any computed exponential spectrum. The magnitude $|c_n| = \\frac{1}{2}\\sqrt{a_n^2+b_n^2}$ gives the two-sided amplitude, while $\\sqrt{a_n^2+b_n^2}$ is the one-sided amplitude of the $n$-th harmonic.",
+    "**Parseval's theorem and convergence.** Average power computed in time equals the sum of the power in each harmonic: $\\frac{1}{T}\\int_T f^2dt = a_0^2 + \\frac{1}{2}\\sum_{n=1}^\\infty(a_n^2+b_n^2)$, or in exponential form $\\sum_{n=-\\infty}^{\\infty}|c_n|^2$. Convergence rate is set by smoothness: a discontinuity forces $|c_n| \\sim \\frac{1}{n}$, a corner (continuous but with a jump in slope) gives $\\frac{1}{n^2}$, and a smoother function decays faster. That is why the square wave's harmonics fall only as $1/n$ and the triangle's as $1/n^2$ — and why a discontinuous waveform needs many harmonics to look convincing."
+  ],
+  "derive": [
+    "**Coefficient formulas from orthogonality.** Take the trigonometric series and multiply by $\\cos(m\\omega_0t)$, then integrate over one period:\n\n$$\\int_T f(t)\\cos(m\\omega_0 t)\\,dt = a_0\\underbrace{\\int_T\\cos(m\\omega_0t)\\,dt}_{0} + \\sum_{n=1}^{\\infty}a_n\\underbrace{\\int_T\\cos(n\\omega_0t)\\cos(m\\omega_0t)\\,dt}_{\\frac{T}{2}\\delta_{nm}} + \\sum_{n=1}^{\\infty}b_n\\underbrace{\\int_T\\sin(n\\omega_0t)\\cos(m\\omega_0t)\\,dt}_{0}.$$\n\nOnly the $n=m$ cosine term survives, giving $\\int_T f\\cos(m\\omega_0t)\\,dt = a_m\\frac{T}{2}$, hence $a_m = \\frac{2}{T}\\int_T f\\cos(m\\omega_0t)\\,dt$. The identical argument with $\\sin$ produces $b_m$, and integrating against the constant 1 (which has mean square 1 rather than $\\frac12$) produces $a_0$ with no factor of 2.",
+    "**Square wave, worked.** Let $f(t) = 1$ on $(0,\\pi)$ and $-1$ on $(\\pi,2\\pi)$, i.e. an odd square wave of period $2\\pi$ with $\\omega_0 = 1$.\n\nMean value: $a_0 = \\frac{1}{2\\pi}\\int_0^{2\\pi}f\\,dt = 0$ (equal positive and negative areas).\n\nCosine terms: $a_n = \\frac{1}{\\pi}\\left[\\int_0^{\\pi}\\cos nt\\,dt - \\int_{\\pi}^{2\\pi}\\cos nt\\,dt\\right] = 0$ for every $n$, as symmetry demands for an odd function.\n\nSine terms: $b_n = \\frac{1}{\\pi}\\left[\\int_0^{\\pi}\\sin nt\\,dt - \\int_{\\pi}^{2\\pi}\\sin nt\\,dt\\right]$. The first integral is $\\frac{1-\\cos n\\pi}{n}$ and the second is $\\frac{\\cos n\\pi - \\cos 2n\\pi}{n} = \\frac{\\cos n\\pi - 1}{n}$, so their difference over $\\pi$ gives $b_n = \\frac{2(1-\\cos n\\pi)}{n\\pi}$. Since $\\cos n\\pi = (-1)^n$, this is $b_n = \\frac{4}{n\\pi}$ for odd $n$ and 0 for even $n$. Hence $f(t) = \\frac{4}{\\pi}\\sum_{n\\ \\mathrm{odd}}\\frac{\\sin nt}{n} = \\frac{4}{\\pi}\\left(\\sin t + \\frac{\\sin 3t}{3} + \\frac{\\sin 5t}{5} + \\cdots\\right)$.",
+    "**Exponential coefficients of the same square wave.** With $c_n = \\frac{1}{2\\pi}\\int_0^{2\\pi}f e^{-jnt}dt$, carrying out the two integrals gives $c_n = \\frac{1-(-1)^n}{jn\\pi}$ for $n\\neq0$, i.e. $c_n = \\frac{2}{jn\\pi}$ for odd $n$ and $0$ for even $n$; and $c_0 = 0$. Comparing with the trigonometric result, $|c_n| = \\frac{2}{n\\pi}$ is exactly half of $b_n = \\frac{4}{n\\pi}$ — the two-sided spectrum splits each real harmonic between $+n$ and $-n$. This factor-of-two relationship is the standard check when converting.",
+    "**Convergence at a discontinuity.** The series converges to the midpoint of the jump — for the square wave above, to 0 at $t=0$. This is Dirichlet's theorem, and it explains the Gibbs overshoot: truncating the series produces ripples near the discontinuity whose overshoot is about 9 percent of the jump and does **not** shrink as more terms are added, even though the ripple width does. That non-vanishing overshoot is a property of the truncated series, not an error in the coefficients."
+  ],
+  "formulas": [
+    { "q": "Trigonometric series", "e": "f(t) = a_0 + \\sum_{n=1}^{\\infty}\\left[a_n\\cos(n\\omega_0 t) + b_n\\sin(n\\omega_0 t)\\right]", "n": "omega_0 = 2 pi / T is the fundamental. a_0 is the DC term." },
+    { "q": "DC coefficient", "e": "a_0 = \\frac{1}{T}\\int_T f(t)\\,dt", "n": "The mean value. NO factor of 2 - the constant basis has mean square 1, not 1/2." },
+    { "q": "Cosine coefficients", "e": "a_n = \\frac{2}{T}\\int_T f(t)\\cos(n\\omega_0 t)\\,dt", "n": "Factor of 2 present, unlike a_0. Zero for an odd function." },
+    { "q": "Sine coefficients", "e": "b_n = \\frac{2}{T}\\int_T f(t)\\sin(n\\omega_0 t)\\,dt", "n": "Zero for an even function." },
+    { "q": "Exponential series", "e": "f(t) = \\sum_{n=-\\infty}^{\\infty} c_n e^{jn\\omega_0 t}", "n": "Two-sided: negative frequencies are the conjugate half of each real harmonic." },
+    { "q": "Exponential coefficients", "e": "c_n = \\frac{1}{T}\\int_T f(t)e^{-jn\\omega_0 t}\\,dt", "n": "c_0 = a_0. Valid for any n, positive or negative." },
+    { "q": "Conversion", "e": "c_n = \\tfrac{1}{2}(a_n - jb_n), \\quad c_{-n} = \\tfrac{1}{2}(a_n + jb_n)", "n": "For n > 0. c_{-n} = conj(c_n) for any real signal." },
+    { "q": "Harmonic amplitude", "e": "A_n = \\sqrt{a_n^2 + b_n^2} = 2\\lvert c_n\\rvert", "n": "One-sided amplitude. The exponential magnitude is half of it." },
+    { "q": "Harmonic phase", "e": "\\phi_n = -\\arctan\\frac{b_n}{a_n}", "n": "Phase of the n-th cosine harmonic in the amplitude-phase form." },
+    { "q": "Parseval (trigonometric)", "e": "P = a_0^2 + \\tfrac{1}{2}\\sum_{n=1}^{\\infty}(a_n^2+b_n^2)", "n": "Mean square power. Equal to (1/T) integral of f^2." },
+    { "q": "Parseval (exponential)", "e": "P = \\sum_{n=-\\infty}^{\\infty}\\lvert c_n\\rvert^2", "n": "Same total as the trigonometric form - a useful consistency check." },
+    { "q": "Even symmetry", "e": "f(-t)=f(t) \\Rightarrow b_n = 0", "n": "Cosines only. Check symmetry before integrating." },
+    { "q": "Odd symmetry", "e": "f(-t)=-f(t) \\Rightarrow a_n = 0, \\ a_0 = 0", "n": "Sines only." },
+    { "q": "Half-wave symmetry", "e": "f(t \\pm T/2) = -f(t) \\Rightarrow \\mathrm{odd\\ harmonics\\ only}", "n": "Kills every even n. The classic square-wave case." },
+    { "q": "Convergence rate", "e": "\\lvert c_n\\rvert \\sim \\frac{1}{n} \\mathrm{\\ (jump)}, \\quad \\sim\\frac{1}{n^2} \\mathrm{\\ (corner)}", "n": "Smoothness sets the decay. A jump converges slowly." }
+  ],
+  "problems": [
+    {
+      "prompt": "Find the trigonometric Fourier series of the square wave $f(t) = 1$ for $0 < t < \\pi$ and $-1$ for $\\pi < t < 2\\pi$, period $2\\pi$.",
+      "give": ["period T = 2pi", "omega_0 = 1", "odd function"],
+      "steps": [
+        "Mean value: a_0 = (1/2pi)[integral over positive half + integral over negative half] = 0 by equal areas",
+        "Odd symmetry means all a_n = 0 - state this rather than integrating",
+        "b_n = (1/pi)[int_0^pi sin nt dt - int_pi^2pi sin nt dt]",
+        "First integral = (1 - cos n pi)/n; second = (cos n pi - 1)/n",
+        "b_n = (1/pi)[(1 - cos n pi)/n - (cos n pi - 1)/n] = (2/pi)(1 - cos n pi)/n",
+        "With cos n pi = (-1)^n: b_n = 4/(n pi) for odd n, 0 for even n"
+      ],
+      "ans": "$f(t) = \\dfrac{4}{\\pi}\\left(\\sin t + \\dfrac{\\sin 3t}{3} + \\dfrac{\\sin 5t}{5} + \\cdots\\right)$",
+      "trap": "Integrating for the cosine coefficients despite the function being odd. Recognising the symmetry saves the work and prevents a nonzero a_n from an arithmetic slip.", "calc": {"mode":"COMP","steps":["`∫dx` `∫(sin X, 0, π)` → **2** and `∫(sin X, π, 2π)` → **-2**, so $b_n = (1/\\pi)(2-(-2))$ = `4÷π` → **1.2732**.","At $n = 3$: `4÷(3π)` → **0.4244**; an even $n$ gives `(1÷π)(0-0)` → **0**."],"note":"$\\cos n\\pi = (-1)^n$ has already collapsed $b_n$ to $4/(n\\pi)$ for odd $n$; the integrals only confirm it."}
+    },
+    {
+      "prompt": "Write the exponential Fourier series for the same square wave and give the first three nonzero $c_n$.",
+      "give": ["same square wave"],
+      "steps": [
+        "c_n = (1/2pi) int_0^{2pi} f(t) e^{-jnt} dt",
+        "Splitting the integral and using the standard result gives c_n = (1 - (-1)^n)/(j n pi) for n != 0",
+        "For odd n: c_n = 2/(j n pi); for even n: c_n = 0; c_0 = 0",
+        "Convert to polar: 2/(j n pi) = -j 2/(n pi), magnitude 2/(n pi), phase -90 degrees"
+      ],
+      "ans": "$c_{\\pm1} = \\mp j\\dfrac{2}{\\pi}$, $c_{\\pm3} = \\mp j\\dfrac{2}{3\\pi}$, $c_{\\pm5} = \\mp j\\dfrac{2}{5\\pi}$",
+      "trap": "Reporting $|c_1| = 4/\\pi$ by copying the trigonometric amplitude. The two-sided magnitude is exactly half: $|c_n| = b_n/2 = 2/(n\\pi)$.", "calc": {"mode":"CPLX","steps":["`MODE` `2`: `2 ÷ (jπ)` → **-0.6366j**, that is $c_1 = -j2/\\pi$.","`Apps` `▶r∠θ` → $\\lvert c_1 \\rvert$ = **0.6366** = $2/\\pi$ at $-90^\\circ$, while the trigonometric $b_1$ was $4/\\pi$ — exactly twice."],"note":"The two-sided magnitude is half the one-sided amplitude; keying the $\\omega$ numerator as 4 instead of 2 doubles every $c_n$."}
+    },
+    {
+      "prompt": "A periodic signal is even with period $T = 4$ ms and fundamental amplitude $a_1 = 5$, $a_3 = 2$, all other coefficients zero. Write the signal, find its fundamental frequency, and state what the sine coefficients are.",
+      "give": ["even symmetry", "T = 4 ms", "a1 = 5, a3 = 2"],
+      "steps": [
+        "omega_0 = 2pi/T = 2pi/0.004 = 500 pi rad/s, so f_0 = 250 Hz",
+        "Every b_n = 0 by even symmetry",
+        "f(t) = 5 cos(500 pi t) + 2 cos(1500 pi t)"
+      ],
+      "ans": "$f(t) = 5\\cos(500\\pi t) + 2\\cos(1500\\pi t)$, with $f_0 = 250$ Hz and all $b_n = 0$.",
+      "trap": "Forgetting that the third harmonic is at $3\\omega_0 = 1500\\pi$, not $3\\times$ the numeric value 500. The harmonic index multiplies the angular frequency, not the frequency in Hz directly."
+    },
+    {
+      "prompt": "A half-wave rectified sine of period $T$ has $f(t) = \\sin(\\omega_0 t)$ for $0 < t < T/2$ and 0 for $T/2 < t < T$. Find $a_0$, $a_1$ and $b_1$.",
+      "give": ["half-wave rectified sine", "omega_0 = 2pi/T"],
+      "steps": [
+        "a_0 = (1/T) int_0^{T/2} sin(omega_0 t) dt = (1/T)(2/omega_0) = 1/pi",
+        "a_1 = (2/T) int_0^{T/2} sin(omega_0 t)cos(omega_0 t) dt = (1/T) int_0^{T/2} sin(2 omega_0 t) dt = 0",
+        "b_1 = (2/T) int_0^{T/2} sin^2(omega_0 t) dt = (2/T)(T/4) = 1/2"
+      ],
+      "ans": "$a_0 = \\dfrac{1}{\\pi}$, $a_1 = 0$, $b_1 = \\dfrac{1}{2}$",
+      "trap": "Reporting $a_1 = 0$ as an error. It is correct: the DC term plus a fundamental sine is exactly the right decomposition here, which is why $a_0 = 1/\\pi$ is also the average value of a half-wave rectified sine.", "calc": {"mode":"COMP","steps":["Take $T = 2\\pi$ so $\\omega_0 = 1$: `∫dx` `∫(sin X, 0, π)` → **2**, so $a_0$ = `2 ÷ 2π` → **0.31831** = $1/\\pi$.","$b_1$: `∫dx` `∫((sin X)², 0, π)` → **1.570796**, then `×2÷2π` → **0.5**.","$a_1$: `∫dx` `∫(sin X × cos X, 0, π)` → **0** — the cosine coefficient really is zero, not a slip."],"note":"$\\sin^2$ integrates to half the interval, and that $\\pi/2$ divided by $T = 2\\pi$ is the $1/2$."}
+    },
+    {
+      "prompt": "For the square wave of problem 1, use Parseval's theorem to find the total mean-square value, and verify it against the direct time-domain average.",
+      "give": ["square wave of +/-1", "equal to a time-domain check"],
+      "steps": [
+        "Time domain: f^2 = 1 everywhere, so the mean square is 1",
+        "Fourier: P = a_0^2 + (1/2) sum (a_n^2 + b_n^2); a_0 = 0 and all a_n = 0",
+        "P = (1/2) sum over odd n of (4/(n pi))^2 = (8/pi^2) sum over odd n of 1/n^2",
+        "The odd-term sum is pi^2/8",
+        "P = (8/pi^2)(pi^2/8) = 1, matching"
+      ],
+      "ans": "Mean square $= 1$, confirmed by both routes.",
+      "trap": "Omitting the $\\frac12$ in Parseval's trigonometric form and obtaining 2 instead of 1. The half factor accounts for the mean square of the sinusoids.", "calc": {"mode":"COMP","steps":["Time domain: `∫dx` `∫(1, 0, 2π)` → **6.2832**, `÷2π` → **1** — the mean square, exactly.","Fourier side: `Apps` `Σ` `Σ((8÷π²) ÷ (2X-1)², 1, 100)` → **0.99797**, and 1000 terms → **0.99980**, closing on the same **1**."],"note":"The odd-harmonic tail after $N$ terms is $1/(2(2N-1))$; the series sums to $(8/\\pi^2)(\\pi^2/8) = 1$."}
+    },
+    {
+      "prompt": "A triangular wave of period $2\\pi$, odd, peaks at $+1$, has coefficients $b_n = \\frac{8}{\\pi^2 n^2}(-1)^{(n-1)/2}$ for odd $n$. Compare its convergence with the square wave and explain the difference.",
+      "give": ["triangle: b_n proportional to 1/n^2", "square: proportional to 1/n"],
+      "steps": [
+        "At n = 1 the triangle has b_1 = 8/pi^2 = 0.8106; at n = 3, b_3 = 8/(9 pi^2) = 0.0901",
+        "The square wave has b_1 = 4/pi = 1.2732 and b_3 = 4/(3 pi) = 0.4244",
+        "Ratio of third to first: triangle 0.111, square 0.333",
+        "The triangle's harmonics decay as 1/n^2 because it is continuous with only a slope discontinuity; the square wave has a jump, giving 1/n"
+      ],
+      "ans": "The triangle converges as $1/n^2$ (fast); the square as $1/n$ (slow), because smoothness sets the decay rate.",
+      "trap": "Assuming both waveforms need a similar number of harmonics. The triangle is visually accurate with three or four terms; the square wave needs dozens because of its jump."
+    },
+    {
+      "prompt": "Convert the trigonometric pair $a_2 = 3$, $b_2 = -4$ to exponential coefficients and find the amplitude and phase of the second harmonic.",
+      "give": ["a2 = 3", "b2 = -4"],
+      "steps": [
+        "c_2 = (1/2)(a_2 - j b_2) = (1/2)(3 + j4)",
+        "c_{-2} = conjugate = (1/2)(3 - j4)",
+        "Amplitude: A_2 = sqrt(a_2^2 + b_2^2) = sqrt(9 + 16) = 5",
+        "Check: 2|c_2| = 2 x (1/2)sqrt(9+16) = 5, agreeing",
+        "Phase: phi_2 = -arctan(b_2/a_2) = -arctan(-4/3) = +53.13 degrees"
+      ],
+      "ans": "$c_2 = 1.5 + j2$, $c_{-2} = 1.5 - j2$; amplitude $5$, phase $+53.13^{\\circ}$.",
+      "trap": "Using $c_2 = a_2 - jb_2$ without the $\\frac12$, which doubles the harmonic amplitude. The half is the price of splitting a real harmonic across positive and negative frequencies.", "calc": {"mode":"CPLX","steps":["`MODE` `2`: `(3+4j) ÷ 2` → **1.5+2j** = $c_2$, so $c_{-2} = 1.5-2j$.","`SHIFT` `Pol(` `3` `,` `-4` `)` → $r$ = **5** (in `X`), $\\theta$ = **-53.13** (in `Y`), so $A_2 = 5$ and $\\phi_2 = -\\theta$ = **+53.13°**."],"note":"$\\phi_n = -\\arctan(b_n/a_n)$ is the *negative* of the `Pol(` angle; reading `Y` straight through flips the sign."}
+    },
+    {
+      "prompt": "A periodic current has $a_0 = 2$ A, $a_1 = 4$ A, $b_1 = 3$ A and no other components. Find the total RMS current.",
+      "give": ["DC plus one harmonic"],
+      "steps": [
+        "Mean square from Parseval: P = a_0^2 + (1/2)(a_1^2 + b_1^2)",
+        "= 4 + 0.5(16 + 9) = 4 + 12.5 = 16.5",
+        "I_rms = sqrt(16.5)"
+      ],
+      "ans": "$I_{rms} = \\sqrt{16.5} \\approx 4.062$ A",
+      "trap": "Adding the DC and harmonic magnitudes directly, 2 + 5 = 7 A. RMS combines by sum of squares, not by sum of magnitudes - and the harmonic contributes half its squared amplitude."
+    },
+    {
+      "prompt": "An even periodic signal has period 2 ms. Find its fundamental frequency, list which harmonics can be present, and state whether it has half-wave symmetry.",
+      "give": ["even symmetry", "T = 2 ms"],
+      "steps": [
+        "f_0 = 1/T = 1/0.002 = 500 Hz",
+        "Even symmetry removes all sine terms; cosines at 500 Hz, 1 kHz, 1.5 kHz, ... remain possible",
+        "Half-wave symmetry would remove even harmonics (1 kHz, 2 kHz, ...)",
+        "Even symmetry alone does not imply half-wave symmetry; for example a full-wave rectified sine is even and has only even harmonics, while an even square pulse train has odd and even cosines"
+      ],
+      "ans": "$f_0 = 500$ Hz; only cosine terms, at every multiple of 500 Hz unless half-wave symmetry is also present.",
+      "trap": "Assuming even symmetry means only odd harmonics. Even symmetry governs sine versus cosine; half-wave symmetry governs odd versus even harmonic indices - they are independent properties."
+    },
+    {
+      "prompt": "The square wave of problem 1 is truncated after the third harmonic. Estimate the Gibbs overshoot at the discontinuity as a percentage of the jump.",
+      "give": ["truncated square wave", "jump magnitude 2"],
+      "steps": [
+        "The series converges to the midpoint of the jump, which is 0 for this waveform",
+        "The truncated series peaks above 1 near the transition",
+        "The classical Gibbs overshoot is about 8.95 percent of the jump magnitude, independent of how many terms are kept",
+        "Jump = 2, so the overshoot is about 0.0895 x 2 = 0.179 above the plateau value of 1"
+      ],
+      "ans": "About $9\\%$ of the jump, i.e. a peak of roughly $1.18$ — and it does not shrink as more terms are added.",
+      "trap": "Expecting the overshoot to vanish with enough harmonics. The ripple narrows and moves closer to the discontinuity, but its amplitude converges to about 9 percent of the jump."
+    }
+  ],
+  "traps": [
+    "**Factor of 2 on $a_n$, $b_n$ but not $a_0$.** The $\\frac{2}{T}$ comes from the mean square of sine and cosine being $\\frac12$. The DC term integrates against the constant 1 and takes no factor of 2.",
+    "**Fourier amplitudes are not the exponential magnitudes.** $A_n = \\sqrt{a_n^2+b_n^2} = 2|c_n|$. Reporting $|c_n|$ as the harmonic amplitude halves every answer.",
+    "**Ignoring symmetry.** Checking even or odd or half-wave symmetry before integrating removes half or more of the work and reveals which coefficients *must* be zero, which is an excellent error check.",
+    "**Half-wave rectified sine is not all-zero except DC.** Its fundamental is a *sine* ($b_1 = \\frac12$) with $a_1 = 0$, an easy result to doubt but correct.",
+    "**Convergence rate follows smoothness, not amplitude.** A discontinuous square wave needs far more harmonics than a triangle of the same amplitude. Truncating a discontinuous series produces Gibbs ripples of about 9 percent of the jump that never shrink.",
+    "**Series converges to the midpoint at a jump.** At a discontinuity the series gives the average of the left and right limits, not either one of them.",
+    "**Parseval needs the $\\frac12$.** In the trigonometric form the harmonics contribute $\\frac12(a_n^2+b_n^2)$; dropping the half double-counts every AC component.",
+    "**Harmonic index multiplies $\\omega_0$, not $f_0$ numerically.** The third harmonic is $3\\omega_0$ in rad/s or $3f_0$ in Hz — but if $\\omega_0$ is given, multiplying it by 3 is the operation, not multiplying the number in Hz.",
+    "**Period and frequency inversion.** $\\omega_0 = \\frac{2\\pi}{T}$; confusing $T$ with $f_0$ puts every harmonic at the wrong frequency."
+  ],
+  "refs": [
+    "[[12_Half-Range_Expansions_and_Symmetry]]",
+    "[[13_Fourier_Transform_Properties]]",
+    "[[07_Laplace_Transform_Pairs]]",
+    "[[01_Time_vs_Frequency_and_Line_Spectra]]"
+  ],
+  "prereqs": ["[[03_Sequences_and_Convergence_Tests]]", "[[05_Trigonometric_Integrals_and_Substitution]]"]
+}

@@ -1,0 +1,96 @@
+{
+  "scope": "Express how much solute a solution contains in every unit the board uses, and convert between them without dropping the density or the solvent mass.",
+  "intuition": "Molarity counts solute per litre of the finished solution; molality counts it per kilogram of solvent. Almost everything confusing about concentration units comes from that one difference.",
+  "concept": [
+    "**Molarity is the working unit and it is temperature-dependent.** $M = n/V_{\\mathrm{solution}}$ in litres. Because a solution expands when heated, its volume — and therefore its molarity — drifts with temperature, which is why volumetric glassware is calibrated at 20 °C or 25 °C. Molality avoids this by weighing the solvent instead, so all colligative data (freezing-point depression, boiling-point elevation, vapour-pressure lowering) is tabulated in molality. A 1.00 M aqueous solution is not 1.00 m unless the solution happens to weigh exactly 1.000 kg per litre, and for a concentrated solute it does not.",
+    "**The percent family and ppm.** Mass percent, $\\%w/w$, divides solute mass by SOLUTION mass: a 20.0% glucose solution is 20.0 g glucose in 100.0 g of solution, which means only 80.0 g of water. Volume percent, $\\%v/v$, is used for liquid-in-liquid mixtures such as 95% ethanol. Mass-volume percent, $\\%w/v$, is grams of solute per 100 mL of solution and is common in clinical contexts. Parts per million is a mass ratio, $10^6 \\times m_{\\mathrm{solute}}/m_{\\mathrm{solution}}$; for dilute aqueous solutions 1 ppm is numerically equal to 1 mg/L because 1 L of water weighs about 1 kg, but that equivalence fails the moment the solvent is not water.",
+    "**Mole fraction and normality.** Mole fraction $X_A = n_A/(n_A+n_B)$ is dimensionless and sums to 1 over all components; it is what Raoult's law and Dalton's law want. Normality is molarity scaled by the number of reactive equivalents per formula unit: $N = M \\times n_{eq}$, where $n_{eq}$ counts $\\mathrm{H^+}$ donated by an acid, $\\mathrm{OH^-}$ donated by a base, or electrons exchanged in a redox reaction. That last case is why normality is treacherous — a single bottle of $\\mathrm{KMnO_4}$ is 5 N per molar in acid medium but 3 N per molar in neutral or basic medium, so normality is a property of the reaction, not of the solution.",
+    "**Dilution, mixing, and the density bridge.** Dilution conserves moles, so $M_1V_1 = M_2V_2$ — the volume units cancel, meaning mL may be used on both sides as long as they match. Mixing two solutions of the same solute gives $M_f = (M_1V_1+M_2V_2)/(V_1+V_2)$, which assumes volumes are additive; real solutions contract slightly but the exam ignores it. Converting $\\%w/w$ to molarity needs the density, because the percentage is per 100 g while molarity is per litre. The single expression $M = 10(\\%w/w)\\rho/M_{\\mathrm{solute}}$ handles it, with $\\rho$ in g/mL — and it is the formula that turns '98% sulfuric acid' into 18.4 M rather than a naive 10 M.",
+    "**Preparation is part of the definition.** 'Dilute to 250.0 mL in a volumetric flask' and 'add 250.0 mL of water' produce different concentrations, because the solute occupies volume. The board tests this wording directly: a molarity problem that says 'dissolved in 250 mL of water' expects you to notice that the solution volume is larger than 250 mL and that the item is therefore unanswerable as stated, or it expects you to use the stated solution volume. Read the sentence, not the number."
+  ],
+  "formulas": [
+    { "q": "Molarity", "e": "M = \\frac{n_{solute}}{V_{solution}\\ (\\mathrm{L})}", "n": "Per litre of SOLUTION, not solvent. 250 mL must be entered as 0.250 L or the answer is 1000x too large." },
+    { "q": "Molality", "e": "m = \\frac{n_{solute}}{m_{solvent}\\ (\\mathrm{kg})}", "n": "Per kilogram of SOLVENT. Temperature-independent, which is why colligative data is tabulated this way." },
+    { "q": "Mass percent", "e": "\\%w/w = \\frac{m_{solute}}{m_{solution}} \\times 100", "n": "The denominator is the whole solution. A 20% solution has 80 g of solvent per 100 g, not 100 g." },
+    { "q": "Mass-volume percent", "e": "\\%w/v = \\frac{m_{solute}\\ (\\mathrm{g})}{V_{solution}\\ (\\mathrm{mL})} \\times 100", "n": "Mixed units by design: grams per 100 mL. Do not convert the volume to litres inside this formula." },
+    { "q": "Mole fraction", "e": "X_A = \\frac{n_A}{n_A + n_B}, \\quad X_A + X_B = 1", "n": "Dimensionless. Used in Raoult's law and in Dalton partial pressures; the sum over ALL components is 1." },
+    { "q": "Normality", "e": "N = M \\times n_{eq}", "n": "n_eq counts H+ (acid), OH- (base) or electrons (redox) per formula unit. KMnO4 is 5 in acid, 3 in base." },
+    { "q": "Dilution", "e": "M_1 V_1 = M_2 V_2", "n": "Moles of solute are conserved. Volume units must match on both sides but may be mL on both." },
+    { "q": "Mixing the same solute", "e": "M_{f} = \\frac{M_1V_1 + M_2V_2}{V_1 + V_2}", "n": "Assumes additive volumes, which the exam accepts. A problem that supplies densities wants the mass-weighted calculation instead." },
+    { "q": "Percent w/w to molarity", "e": "M = \\frac{10\\,(\\%w/w)\\,\\rho}{M_{solute}}", "n": "rho in g/mL. Omitting it turns 98% H2SO4 (rho = 1.84, 18.4 M) into a naive 10 M — nearly a factor of two low." },
+    { "q": "Parts per million", "e": "\\mathrm{ppm} = \\frac{m_{solute}}{m_{solution}} \\times 10^{6}", "n": "A mass ratio. It equals mg/L only for dilute aqueous solutions, where 1 L weighs about 1 kg." }
+  ],
+  "problems": [
+    {
+      "prompt": "$5.85\\ \\mathrm{g}$ of $\\mathrm{NaCl}$ ($M = 58.44\\ \\mathrm{g/mol}$) is dissolved in enough water to make $250.0\\ \\mathrm{mL}$ of solution. Find the molarity.",
+      "give": ["m = 5.85 g NaCl", "M(NaCl) = 58.44 g/mol", "V_solution = 250.0 mL"],
+      "steps": [
+        "$n = 5.85/58.44 = 0.1001\\ \\mathrm{mol}$",
+        "Convert the volume: $250.0\\ \\mathrm{mL} = 0.2500\\ \\mathrm{L}$",
+        "$M = 0.1001/0.2500 = 0.4004\\ \\mathrm{mol/L}$"
+      ],
+      "ans": "$0.400\\ \\mathrm{M}$ (3 significant figures).",
+      "trap": "Dividing by 250 instead of 0.2500 and reporting $4.0\\times10^{-4}\\ \\mathrm{M}$, a 1000x error. Molarity is defined per litre."
+    },
+    {
+      "prompt": "What volume of concentrated $12.0\\ \\mathrm{M}\\ \\mathrm{HCl}$ is needed to prepare $500.0\\ \\mathrm{mL}$ of $0.500\\ \\mathrm{M}\\ \\mathrm{HCl}$?",
+      "give": ["M1 = 12.0 M", "M2 = 0.500 M", "V2 = 500.0 mL"],
+      "steps": [
+        "$M_1V_1 = M_2V_2$",
+        "$V_1 = (0.500)(500.0)/12.0$",
+        "$= 20.83\\ \\mathrm{mL}$"
+      ],
+      "ans": "$20.8\\ \\mathrm{mL}$ of the stock acid, diluted to the $500.0\\ \\mathrm{mL}$ mark.",
+      "trap": "Reading the answer as 'add 20.8 mL of acid to 500.0 mL of water'. That makes more than 500 mL of solution and gives a concentration below 0.500 M; the final volume must be 500.0 mL."
+    },
+    {
+      "prompt": "A solution is $20.0\\%$ glucose ($\\mathrm{C_6H_{12}O_6}$, $M = 180.2\\ \\mathrm{g/mol}$) by mass. Find its molality.",
+      "give": ["20.0% w/w glucose", "M(glucose) = 180.2 g/mol"],
+      "steps": [
+        "Take a 100.0 g basis: 20.0 g glucose and 80.0 g water",
+        "$n = 20.0/180.2 = 0.1110\\ \\mathrm{mol}$",
+        "Solvent mass $= 80.0\\ \\mathrm{g} = 0.0800\\ \\mathrm{kg}$",
+        "$m = 0.1110/0.0800 = 1.39\\ \\mathrm{mol/kg}$"
+      ],
+      "ans": "$1.39\\ \\mathrm{mol/kg}$ (molal).",
+      "trap": "Dividing by 0.100 kg (the solution mass) instead of 0.0800 kg (the solvent mass) gives 1.11 m. In a 20% solution, 100 g of solution contains only 80 g of water."
+    },
+    {
+      "prompt": "Find the normality of a $0.0200\\ \\mathrm{M}$ $\\mathrm{KMnO_4}$ solution used in acidic medium, and of a $0.100\\ \\mathrm{M}$ $\\mathrm{H_2SO_4}$ solution used as a diprotic acid.",
+      "give": ["M(KMnO4) = 0.0200 M in acid", "M(H2SO4) = 0.100 M, both protons neutralised"],
+      "steps": [
+        "In acid: $\\mathrm{MnO_4^-} + 8\\mathrm{H^+} + 5e^- \\to \\mathrm{Mn^{2+}} + 4\\mathrm{H_2O}$, so $n_{eq} = 5$",
+        "$N(\\mathrm{KMnO_4}) = 5 \\times 0.0200 = 0.100\\ \\mathrm{N}$",
+        "$\\mathrm{H_2SO_4}$ donates 2 protons, so $n_{eq} = 2$",
+        "$N(\\mathrm{H_2SO_4}) = 2 \\times 0.100 = 0.200\\ \\mathrm{N}$"
+      ],
+      "ans": "$0.100\\ \\mathrm{N}\\ \\mathrm{KMnO_4}$ and $0.200\\ \\mathrm{N}\\ \\mathrm{H_2SO_4}$.",
+      "trap": "Using $n_{eq} = 7$ (manganese's oxidation state) or 4 (the oxygens) for permanganate. The equivalent count is the number of ELECTRONS gained: 5 in acid, 3 in neutral or basic medium."
+    },
+    {
+      "prompt": "How many grams of $\\mathrm{KOH}$ ($M = 56.11\\ \\mathrm{g/mol}$) are needed to prepare $250.0\\ \\mathrm{mL}$ of $0.150\\ \\mathrm{M}$ solution?",
+      "give": ["V = 250.0 mL", "M = 0.150 M", "M(KOH) = 56.11 g/mol"],
+      "steps": [
+        "$n = MV = (0.150)(0.2500) = 0.03750\\ \\mathrm{mol}$",
+        "$m = nM = 0.03750 \\times 56.11$",
+        "$= 2.104\\ \\mathrm{g}$"
+      ],
+      "ans": "$2.10\\ \\mathrm{g}$ of $\\mathrm{KOH}$, dissolved and diluted to $250.0\\ \\mathrm{mL}$.",
+      "trap": "Multiplying 0.150 by 250 to get 37.5 mol and then 2104 g. The volume must be in litres before it is multiplied by molarity."
+    }
+  ],
+  "traps": [
+    "**Molarity per litre of solution versus molality per kilogram of solvent.** A solution made by adding solute to 1.00 L of water is not 1.00 m, because the solute displaces volume and the water weighs less than 1.00 kg per litre of solution. Colligative data always wants molality.",
+    "**Forgetting density when converting %w/w to molarity.** 98% $\\mathrm{H_2SO_4}$ is about 18.4 M because $\\rho = 1.84\\ \\mathrm{g/mL}$; treating 98 g per 100 g as roughly 1 mol per 100 mL gives 10 M and understates it by nearly a factor of two.",
+    "**Reading 'volume of solution' as 'volume of solvent'.** 'Dissolve 5.85 g in 250 mL of water' and 'dilute to 250 mL' are different concentrations, because the dissolved solute contributes volume.",
+    "**Treating normality as a fixed property of a compound.** $\\mathrm{KMnO_4}$ is 5 N per molar in acid and 3 N per molar in base. The same bottle has two normalities depending on which reaction it is used in.",
+    "**Assuming volumes are additive when mixing.** Real solutions contract measurably. The exam accepts $V_1+V_2$, but a problem that hands you densities wants a mass-based calculation instead.",
+    "**Using mg/L as ppm for a non-aqueous solvent.** ppm is $10^6 \\times m_{solute}/m_{solution}$; it coincides with mg/L only when the solution density is 1.00 kg/L, which is true for dilute water and not much else."
+  ],
+  "refs": [
+    "[[04_Mole_Concept_and_Stoichiometry]]",
+    "[[05_Limiting_Reagents_and_Yield]]",
+    "[[08_pH,_pOH_and_Buffers]]"
+  ],
+  "prereqs": ["[[04_Mole_Concept_and_Stoichiometry]]"]
+}

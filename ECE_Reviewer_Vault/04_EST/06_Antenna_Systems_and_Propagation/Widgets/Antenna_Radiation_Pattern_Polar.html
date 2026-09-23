@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Antenna Radiation Pattern — Polar Plot and Array Factor</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, deg, rad } from '../../../Assets/vault.js';
+
+// Polar radiation patterns, drawn in Cartesian canvas space.
+//
+// The shared Plot helper is Cartesian, so the polar conversion is done here:
+//      z = cos(theta)   (theta measured from the array axis / the zenith)
+//      rho = |F(theta)|
+//      x = rho * sin(theta),   y = rho * cos(theta)
+// which puts theta = 0 at the top of the screen and theta = 90 deg on the horizontal.
+//
+// Normalised fields used:
+//   isotropic     E = 1
+//   short dipole  E = sin(theta)                       D = 1.5  (1.76 dBi)
+//   half-wave     E = cos((pi/2) cos theta)/sin theta  D = 1.641 (2.15 dBi)
+//   ULA           AF = |sin(N psi/2) / (N sin(psi/2))|,  psi = k d cos(theta) + beta
+//                 with the half-wave dipole as the element pattern.
+
+const ARRAY_TYPES = ['ula2', 'ula4'];
+
+const typeLabels = {
+  iso: 'isotropic radiator',
+  short: 'short dipole (sin theta)',
+  half: 'half-wave dipole',
+  ula2: '2-element uniform linear array',
+  ula4: '4-element uniform linear array',
+};
+
+/** Normalised element field for the chosen pattern family. */
+function elementField(type, theta) {
+  if (type === 'iso') return 1;
+  if (type === 'short') return Math.abs(Math.sin(theta));
+  if (type === 'half') {
+    const s = Math.sin(theta);
+    const c = Math.cos(theta);
+    if (Math.abs(s) < 1e-9) return 0;
+    return Math.abs(Math.cos((Math.PI / 2) * c) / s);
+  }
+  // arrays use a half-wave dipole element so the element factor is visible
+  const s = Math.sin(theta);
+  const c = Math.cos(theta);
+  if (Math.abs(s) < 1e-9) return 0;
+  return Math.abs(Math.cos((Math.PI / 2) * c) / s);
+}
+
+/** Normalised array factor. Returns 1 for the single-element patterns. */
+function arrayFactor(type, theta, dOverLambda, betaRad) {
+  const N = type === 'ula2' ? 2 : type === 'ula4' ? 4 : 1;
+  if (N === 1) return 1;
+  const psi = 2 * Math.PI * dOverLambda * Math.cos(theta) + betaRad;
+  const den = N * Math.sin(psi / 2);
+  if (Math.abs(den) < 1e-12) return 1;   // psi -> 0: the limit of |sin(Nx)/(N sin x)| is 1
+  return Math.abs(Math.sin(N * psi / 2) / den);
+}
+
+function typeField(type, theta, d, beta) {
+  return elementField(type, theta) * arrayFactor(type, theta, d, beta);
+}
+
+/** Half-power beamwidth in degrees, found by scanning out from the peak. */
+function beamwidth(field, thetaPeak) {
+  const peak = field(thetaPeak);
+  if (!(peak > 0)) return NaN;
+  const target = peak * Math.SQRT1_2;   // field at half power = 1/sqrt(2)
+  const step = rad(0.02);
+  let a = thetaPeak, b = thetaPeak;
+  for (let t = thetaPeak; t <= Math.PI; t += step) {
+    if (field(t) <= target) { a = t; break; }
+  }
+  for (let t = thetaPeak; t >= 0; t -= step) {
+    if (field(t) <= target) { b = t; break; }
+  }
+  return deg(a - b);
+}
+
+/**
+ * Lobes and nulls of the pattern over 0..180 degrees.
+ *
+ * A lobe is counted as a contiguous angular interval where the normalised field stays at
+ * or above 1/sqrt(2) of the peak, so its width IS the half-power beamwidth. Counting
+ * intervals rather than raw local maxima matters: a perfectly uniform pattern (the
+ * isotropic radiator) is a single interval spanning the whole range, not 3599 separate
+ * points that happen to be local maxima of floating-point noise. Adjacent intervals
+ * closer together than 1 degree are merged, because an array's first null can sit inside
+ * one grid step.
+ */
+function scanLobes(field) {
+  const N = 3600;
+  const th = [], val = [];
+  for (let i = 0; i <= N; i++) {
+    const t = Math.PI * i / N;
+    th.push(t); val.push(field(t));
+  }
+  let peak = 0;
+  for (const x of val) if (x > peak) peak = x;
+  const half = peak * Math.SQRT1_2;
+
+  const groups = [];
+  let open = false;
+  let start = 0;
+  for (let i = 0; i <= N; i++) {
+    const above = val[i] >= half;
+    if (above && !open) { open = true; start = i; }
+    else if (!above && open) { open = false; groups.push([start, i - 1]); }
+  }
+  if (open) groups.push([start, N]);
+
+  const merged = [];
+  for (const g of groups) {
+    const last = merged[merged.length - 1];
+    if (last && (g[0] - last[1]) <= N / 180) last[1] = g[1];
+    else merged.push([g[0], g[1]]);
+  }
+  const lobes = merged.map((g) => deg(th[Math.round((g[0] + g[1]) / 2)]));
+
+  const nulls = [];
+  for (let i = 1; i < N; i++) {
+    if (val[i] < 0.005 * peak && val[i] <= val[i - 1] && val[i] <= val[i + 1]) {
+      const ang = deg(th[i]);
+      if (nulls.length === 0 || Math.abs(ang - nulls[nulls.length - 1]) > 1) nulls.push(ang);
+    }
+  }
+  return { lobes, nulls, peak, widths: merged.map((g) => deg(th[g[1]] - th[g[0]])) };
+}
+
+/** Peak of the pattern, returned in degrees. */
+function peakAngle(field) {
+  const N = 7200;
+  let best = 0, bestT = 0;
+  for (let i = 0; i <= N; i++) {
+    const t = Math.PI * i / N;
+    const v = field(t);
+    if (v > best) { best = v; bestT = t; }
+  }
+  return { theta: bestT, value: best };
+}
+
+widget({
+  title: 'Radiation Pattern — Polar Plot and Array Factor',
+  description:
+    'Pick an element pattern or a uniform linear array and read the beamwidth, the directivity and every ' +
+    'null off the plot. For the arrays, d/lambda and the progressive phase shift beta show the two effects ' +
+    'an exam always tests: more elements or wider spacing narrows the main lobe, and beta steers it.',
+  height: 560,
+  range: { xMin: -1.42, xMax: 1.42, yMin: -1.42, yMax: 1.42 },
+  controls: [
+    { id: 'ptype', label: 'pattern', type: 'select',
+      options: [
+        { value: 'iso', label: 'isotropic radiator' },
+        { value: 'short', label: 'short dipole (sin theta)' },
+        { value: 'half', label: 'half-wave dipole' },
+        { value: 'ula2', label: '2-element uniform linear array' },
+        { value: 'ula4', label: '4-element uniform linear array' },
+      ], value: 'half' },
+    { id: 'd', label: 'element spacing d / lambda', min: 0.05, max: 1.5, step: 0.01, value: 0.5 },
+    { id: 'beta', label: 'progressive phase shift beta (deg)', min: -180, max: 180, step: 1, value: 0 },
+    { id: 'db', label: 'radial scale in dB', type: 'checkbox', value: false },
+  ],
+
+  compute: (v) => {
+    const ptype = v.ptype;
+    const isArr = ARRAY_TYPES.indexOf(ptype) >= 0;
+    const d = v.d;
+    const beta = rad(v.beta);
+    const fld = (t) => typeField(ptype, t, d, beta);
+    const pt = peakAngle(fld);
+    const maxF = pt.value > 0 ? pt.value : 1;
+    const fn = (t) => fld(t) / maxF;                 // normalised to 1 at the peak
+
+    // directivity by numerical integration: D = 2 Fmax^2 / integral(F^2 sin(theta) dtheta)
+    const N = 4000;
+    let integ = 0;
+    for (let i = 0; i <= N; i++) {
+      const t = Math.PI * i / N;
+      const w = (i === 0 || i === N) ? 0.5 : 1;
+      integ += w * fld(t) * fld(t) * Math.sin(t);
+    }
+    integ = integ * (Math.PI / N);
+    const D = integ > 1e-12 ? (2 * maxF * maxF) / integ : NaN;
+    const DdBi = D > 0 ? 10 * Math.log10(D) : NaN;
+
+    // array factor alone, for the element-factor-free comparison
+    const afPeak = (() => {
+      let m = 0;
+      for (let i = 0; i <= 3600; i++) {
+        const t = Math.PI * i / 3600;
+        const a = arrayFactor(ptype, t, d, beta);
+        if (a > m) m = a;
+      }
+      return m > 0 ? m : 1;
+    })();
+    let afInteg = 0;
+    for (let i = 0; i <= N; i++) {
+      const t = Math.PI * i / N;
+      const w = (i === 0 || i === N) ? 0.5 : 1;
+      const a = arrayFactor(ptype, t, d, beta) / afPeak;
+      afInteg += w * a * a * Math.sin(t);
+    }
+    afInteg = afInteg * (Math.PI / N);
+    const Daf = afInteg > 1e-12 ? 2 / afInteg : NaN;
+
+    const sc = scanLobes(fn);
+    const hp = beamwidth(fn, pt.theta);
+    const steering = isArr && d > 0
+      ? deg(Math.acos(Math.max(-1, Math.min(1, -beta / (2 * Math.PI * d)))))
+      : 0;
+
+    // dB radial scale for the plot
+    const FLOOR = -30;
+    const radial = (t) => {
+      const a = Math.max(fn(t), 0);
+      if (!v.db) return a;
+      const dB = 20 * Math.log10(Math.max(a, 1e-9));
+      return Math.max(0, 1 + dB / (-FLOOR));
+    };
+    // recompute the lobe/null geometry on the same scale so the readout matches the picture
+    const scScale = v.db ? scanLobes(radial) : sc;
+    // a pattern with no directional variation in the vertical plane is omnidirectional
+    // by definition, so there is no half-power beamwidth to quote
+    // A pattern with no directional variation has no half-power beamwidth. Report 0 rather
+    // than NaN so every consumer of `out` sees a real number; 0 deg is also the literal
+    // truth for a pattern that is above half power everywhere.
+    const hpOut = ptype === 'iso' ? 0 : hp;
+    const widthsOut = ptype === 'iso' ? [] : scScale.widths;
+
+    return {
+      ptype, isArr, d, betaDeg: v.beta, maxF, D, DdBi, Daf, hp: hpOut,
+      lobes: scScale.lobes, nulls: scScale.nulls, widths: widthsOut,
+      nLobes: scScale.lobes.length, nNulls: scScale.nulls.length,
+      steering, radial, fn,
+      thetaMaxDeg: deg(pt.theta),
+      psiAt0: 2 * Math.PI * d + beta,
+      psiAt90: beta,
+      psiAt180: -2 * Math.PI * d + beta,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const cx = plot.w / 2;
+    const cy = plot.h / 2 + 8;
+    const R = Math.min(plot.w, plot.h) * 0.40;
+
+    plot.clear();
+
+    // ------------------------------------------------------------- polar grid
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    const rings = v.db ? [-0, -10, -20, -30] : [0.25, 0.5, 0.75, 1];
+    for (const rg of rings) {
+      const rr = v.db ? (1 + rg / 30) : rg;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R * rr, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    for (let a = 0; a < 180; a += 30) {
+      const t = rad(a);
+      ctx.beginPath();
+      ctx.moveTo(cx - R * Math.sin(t), cy - R * Math.cos(t));
+      ctx.lineTo(cx + R * Math.sin(t), cy + R * Math.cos(t));
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // angle labels around the rim
+    for (let a = 0; a <= 360; a += 30) {
+      const t = rad(a);
+      const lx = cx + (R + 16) * Math.sin(t);
+      const ly = cy - (R + 16) * Math.cos(t);
+      plot.text(String(a) + '\u00B0', lx, ly + 4,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('theta = 0\u00B0 (broadside / zenith)', cx, cy - R - 34,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    plot.text('theta measured from the array axis', cx, cy + R + 30,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    plot.text(v.db ? 'radial scale: 0 to -30 dB' : 'radial scale: linear, normalised to 1 at the peak',
+      cx, cy + R + 46, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+
+    // ------------------------------------------------------------- polar curve
+    const NS = 2000;
+    ctx.save();
+    ctx.strokeStyle = v.db ? PALETTE.accent5 : PALETTE.accent;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= NS; i++) {
+      const t = Math.PI * i / NS;
+      const rho = out.radial(t);
+      const px = cx + R * rho * Math.sin(t);
+      const py = cy - R * rho * Math.cos(t);
+      if (!Number.isFinite(px) || !Number.isFinite(py)) { started = false; continue; }
+      if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // mirrored copy (the pattern is symmetric about the array axis)
+    ctx.save();
+    ctx.strokeStyle = v.db ? 'rgba(203,166,247,0.45)' : 'rgba(137,180,250,0.45)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    for (let i = 0; i <= NS; i++) {
+      const t = Math.PI * i / NS;
+      const rho = out.radial(t);
+      const px = cx - R * rho * Math.sin(t);
+      const py = cy - R * rho * Math.cos(t);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // ------------------------------------------------------- lobes and nulls
+    let li = 0;
+    for (const ang of out.lobes) {
+      const t = rad(ang);
+      const rho = out.radial(t);
+      const px = cx + R * rho * Math.sin(t);
+      const py = cy - R * rho * Math.cos(t);
+      ctx.save();
+      ctx.fillStyle = PALETTE.accent3;
+      ctx.beginPath(); ctx.arc(px, py, 3.4, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      if (li < 4) {
+        plot.text((ang === 0 || ang === 180) ? 'lobe' : 'lobe @ ' + fmt(ang, 4) + '\u00B0',
+          px + 6, py - 5, { color: PALETTE.accent3, font: '10px ui-monospace, monospace' });
+      }
+      li++;
+    }
+    for (let ni = 0; ni < out.nulls.length; ni++) {
+      const ang = out.nulls[ni];
+      const t = rad(ang);
+      const px = cx + R * 1.03 * Math.sin(t);
+      const py = cy - R * 1.03 * Math.cos(t);
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent2;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px - 4, py - 4); ctx.lineTo(px + 4, py + 4);
+      ctx.moveTo(px + 4, py - 4); ctx.lineTo(px - 4, py + 4);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (out.nulls.length) {
+      plot.text('nulls at ' + out.nulls.map((a) => fmt(a, 4)).join(', ') + ' deg', cx, cy + R + 62,
+        { color: PALETTE.accent2, font: '11px ui-monospace, monospace', align: 'center' });
+    }
+
+    // -------------------------------------------------- main-beam direction
+    const tp = rad(out.thetaMaxDeg);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn;
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + R * 1.12 * Math.sin(tp), cy - R * 1.12 * Math.cos(tp));
+    ctx.stroke();
+    ctx.restore();
+    plot.text('main beam at ' + fmt(out.thetaMaxDeg, 5) + '\u00B0', cx + R * 0.55 * Math.sin(tp) + 8,
+      cy - R * 0.55 * Math.cos(tp), { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+
+    // -------------------------------------------------- formula with values
+    let line1, line2, line3;
+    if (out.isArr) {
+      const N = out.ptype === 'ula2' ? 2 : 4;
+      line1 = 'AF = | sin(N psi/2) / (N sin(psi/2)) |   with N = ' + N + ', d/lambda = ' + fmt(out.d, 4) +
+        ', beta = ' + fmt(out.betaDeg, 5) + ' deg';
+      line2 = 'psi = k d cos(theta) + beta = 2pi(' + fmt(out.d, 4) + ') cos(theta) + (' +
+        fmt(rad(out.betaDeg), 5) + ' rad)   ->   psi(0) = ' + fmt(out.psiAt0, 4) + ' rad, psi(90) = ' +
+        fmt(out.psiAt90, 4) + ' rad, psi(180) = ' + fmt(out.psiAt180, 4) + ' rad';
+      line3 = 'main beam at theta0 = arccos(-beta/(kd)) = ' + fmt(out.steering, 5) +
+        ' deg      D(array factor only) = ' + fmt(out.Daf, 5) + ' = ' + fmt(10 * Math.log10(out.Daf > 0 ? out.Daf : 1), 4) + ' dBi';
+    } else {
+      line1 = out.ptype === 'iso' ? 'E(theta) = 1   (equal radiation in every direction, D = 1)'
+        : out.ptype === 'short' ? 'E(theta) = sin(theta)   (short dipole, l << lambda, D = 1.5 exactly)'
+        : 'E(theta) = cos((pi/2) cos theta) / sin theta   (half-wave dipole, D = 1.641 exactly)';
+      line2 = 'D = 2 F_max^2 / integral(F^2 sin(theta) dtheta) over 0..180 deg   ->   D = ' + fmt(out.D, 5) +
+        ' = ' + fmt(out.DdBi, 4) + ' dBi';
+      line3 = 'HPBW = ' + (out.ptype === 'iso' ? 'not defined (uniform pattern, no half-power points)' : fmt(out.hp, 4) + ' deg') +
+        '      lobes = ' + String(out.nLobes) + ', nulls = ' + String(out.nNulls);
+    }
+    plot.text(line1, 16, 22, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text(line2, 16, 40, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    plot.text(line3, 16, 57, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const rows = {
+      'pattern': typeLabels[out.ptype],
+      'main-beam angle theta0': fmt(out.thetaMaxDeg, 5) + ' deg' + (out.isArr ? '  (steered by beta)' : ''),
+      'half-power beamwidth': out.ptype === 'iso' ? 'not defined (uniform pattern)' : fmt(out.hp, 5) + ' deg',
+      'directivity D': Number.isFinite(out.D) ? fmt(out.D, 5) + '  =  ' + fmt(out.DdBi, 4) + ' dBi' : 'n/a',
+      'directivity of the array factor alone': out.isArr ? fmt(out.Daf, 5) + '  =  ' + fmt(10 * Math.log10(out.Daf > 0 ? out.Daf : 1), 4) + ' dBi' : 'n/a (single element)',
+      'number of lobes': String(out.nLobes),
+      'null angles (deg)': out.nNulls ? out.nulls.map((a) => fmt(a, 4)).join(', ') : 'none in 0-180 deg',
+      'element spacing d/lambda': out.isArr ? fmt(out.d, 4) + (out.d >= 1 ? '   GRATING LOBES appear once d/lambda -> 1' : '') : 'n/a',
+      'progressive phase beta': out.isArr ? fmt(out.betaDeg, 5) + ' deg' : 'n/a',
+      'beam steering angle': out.isArr
+        ? (Math.abs(out.steering) < 0.001 ? 'broadside (theta0 = 90 deg to the array axis)' : fmt(out.steering, 5) + ' deg from the array axis')
+        : 'n/a',
+    };
+    if (out.isArr) {
+      rows['psi = kd cos(theta) + beta at theta = 0'] = fmt(out.psiAt0, 5) + ' rad';
+      rows['psi at theta = 90 deg'] = fmt(out.psiAt90, 5) + ' rad';
+      rows['psi at theta = 180 deg'] = fmt(out.psiAt180, 5) + ' rad';
+      rows['first grating lobe if d/lambda >= 1'] = out.d >= 1
+        ? 'present - the visible region now contains more than one in-phase direction'
+        : 'not yet - visible region spans ' + fmt(4 * out.d, 4) + ' rad of psi, less than one full 2pi period';
+    }
+    rows['number of half-power lobes'] = String(out.nLobes) +
+      (out.widths && out.widths.length
+        ? '   (half-power widths: ' + out.widths.map((w) => fmt(w, 4)).join(', ') + ' deg)'
+        : '');
+    return rows;
+  },
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The array factor is a product, not a sum.</strong> For identical elements the total pattern is ' +
+  '(element pattern) x (array factor), so a null of either factor is a null of the whole pattern. ' +
+  'psi = k d cos(theta) + beta is the phase difference between adjacent elements <em>in the direction ' +
+  'theta</em>, and the array factor peaks whenever psi = 0, +/-2pi, +/-4pi... Setting psi = 0 gives the beam ' +
+  'direction: cos(theta0) = -beta/(kd). That one equation answers every steering question on the exam.<br>' +
+  '<strong>Two knobs do two different things.</strong> Increasing the number of elements N narrows the main ' +
+  'lobe (roughly HPBW ~ 2/sqrt(N) in the broadside case) and pushes the first sidelobe down toward -13.2 dB, ' +
+  'but it never creates a new lobe in the visible region. Increasing d/lambda narrows the main lobe too, ' +
+  'because the array becomes electrically longer -- but it also stretches the psi range swept as theta goes ' +
+  'from 0 to 180 deg, which is |psi range| = 4 pi d/lambda. The moment that range exceeds 2pi -- that is, ' +
+  'd/lambda > 1 -- the visible region contains a second in-phase direction and a <em>grating lobe</em> ' +
+  'appears, radiating nearly as strongly as the main beam in a direction you did not intend. That is why ' +
+  'practical arrays keep d <= lambda/2, where the range is exactly 2pi and no grating lobe can exist.<br>' +
+  '<strong>Exam mistake this prevents:</strong> reporting the element directivity when the question asks for ' +
+  'the array. A half-wave dipole is 2.15 dBi and stays 2.15 dBi whatever the array does; the array factor ' +
+  'adds its own directivity on top (for two half-wave dipoles at d = lambda/2 the total is about 5.1 dBi, not ' +
+  '2.15). The second slip is assuming beta = 0 always means broadside: it does, but beta is a <em>phase</em> ' +
+  'shift in radians, so an exam that quotes beta in degrees must be converted before it goes into psi. The ' +
+  'third is forgetting that the pattern is symmetric: theta and 180 - theta give the same |cos theta|, so ' +
+  'every null and lobe angle you quote must be reported with both its mirror angles.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

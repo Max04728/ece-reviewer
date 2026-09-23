@@ -1,0 +1,92 @@
+{
+  "scope": "Turn the per-metre primary constants into the characteristic impedance and propagation constant at a stated frequency, and convert attenuation between nepers and decibels.",
+  "intuition": "A wave travelling down a line settles into a fixed ratio of voltage to current — that ratio is $Z_0$ — while its amplitude decays and its phase rotates at the rates $\\alpha$ and $\\beta$ per metre. $Z_0$ and $\\gamma$ are the secondary constants because they are what the line *does*, derived from what the line *is*.",
+  "concept": [
+    "**Where the two formulas come from.** The telegrapher's equations for a line section are $dV/dz = -zI$ and $dI/dz = -yV$ with $z = R + j\\omega L$ and $y = G + j\\omega C$ per metre. Eliminating $I$ gives $d^{2}V/dz^{2} = zy\\,V$, whose solutions are $e^{\\mp\\gamma z}$. The propagation constant itself is: $\\gamma = \\sqrt{zy} = \\sqrt{(R+j\\omega L)(G+j\\omega C)}$. Substituting a single forward wave back fixes the voltage-to-current ratio: $Z_0 = z/\\gamma = \\sqrt{z/y} = \\sqrt{(R+j\\omega L)/(G+j\\omega C)}$. Both are complex in general: the voltage and current waves decay and rotate, and they do not do so in step on a lossy line.",
+    "**The lossless special case.** With $R = G = 0$, $Z_0 = \\sqrt{L/C}$ is purely real, $\\gamma = j\\omega\\sqrt{LC}$ is purely imaginary, so $\\alpha = 0$ and $\\beta = \\omega\\sqrt{LC}$. Because $\\beta$ is exactly linear in $\\omega$, the phase velocity $v = \\omega/\\beta = 1/\\sqrt{LC}$ is the same at every frequency and $\\lambda = 2\\pi/\\beta = v/f$. This is why a lossless line is the standard model for computing $Z_{\\mathrm{in}}$, $\\Gamma$ and stub lengths: the answers depend on $\\beta l = 2\\pi l/\\lambda$ alone.",
+    "**Low-loss approximations and their price.** When $R \\ll \\omega L$ and $G \\ll \\omega C$ — the usual case above a few hundred kilohertz — expanding the roots gives $\\alpha \\approx R/(2Z_0) + GZ_0/2$ Np/m and $\\beta \\approx \\omega\\sqrt{LC}$. The two terms are separate mechanisms: the copper term grows as $\\sqrt{f}$, the dielectric term as $f$, so their ratio is not fixed by the cable. Attenuation is measured in nepers per metre against **amplitude**, so the level loss is $8.686\\,\\alpha l$ dB; because power goes as amplitude squared, that same 8.686 already contains the factor of two between them.",
+    "**Working formulas you can use in your head.** The coaxial form is: $Z_0 = (60/\\sqrt{\\varepsilon_r})\\ln(b/a) = (138/\\sqrt{\\varepsilon_r})\\log_{10}(b/a)$. For a two-wire line it is: $Z_0 = (120/\\sqrt{\\varepsilon_r})\\ln(2D/d) = (276/\\sqrt{\\varepsilon_r})\\log_{10}(2D/d)$. In air they collapse to $60\\ln(b/a)$ and $120\\ln(2D/d)$. The constants come from a free-space impedance divided by the geometry factor: $\\sqrt{\\mu_0/\\varepsilon_0} = 376.7\\ \\Omega$ over $2\\pi$ (coax) or $\\pi$ (two-wire). Give every number the same name twice: $Z_0 = 1/(vC)$ and The velocity factor is: $\\mathrm{VF} = v/c = 1/\\sqrt{\\varepsilon_r}$. The two must agree with each other, since $\\sqrt{LC} = \\sqrt{\\mu\\varepsilon}$ is forced by the dielectric.",
+    "**When the model breaks.** $Z_0 = \\sqrt{L/C}$ is a *high-frequency* statement. As $f \\to 0$, $z \\to R$ and $y \\to G$, so $Z_0 \\to \\sqrt{R/G}$ — a real but completely different number, and in between it is complex and strongly frequency dependent. A voice-band pair with $R = 10\\ \\Omega/\\mathrm{m}$, $L = 250\\ \\mathrm{nH/m}$, $G = 40\\ \\mu\\mathrm{S/m}$, $C = 100\\ \\mathrm{pF/m}$ has $\\sqrt{L/C} = 50\\ \\Omega$ but $Z_0 = 98.9 - j79.3\\ \\Omega$ at 1 MHz and $500\\ \\Omega$ at 1 kHz. Matching networks, stub lengths and Smith charts all assume $Z_0$ real, so they are only meaningful where the line is low-loss."
+  ],
+  "formulas": [
+    { "q": "Characteristic impedance", "e": "Z_0 = \\sqrt{\\frac{R + j\\omega L}{G + j\\omega C}}", "n": "$\\Omega$. Complex on a lossy line; real only in the lossless and distortionless cases." },
+    { "q": "Propagation constant", "e": "\\gamma = \\alpha + j\\beta = \\sqrt{(R + j\\omega L)(G + j\\omega C)}", "n": "Per metre. $\\alpha$ in Np/m acts on amplitude; $\\beta$ in rad/m sets wavelength." },
+    { "q": "Lossless characteristic impedance", "e": "Z_0 = \\sqrt{\\frac{L}{C}}", "n": "Real. The value quoted on a cable datasheet is this, measured where the line is low-loss." },
+    { "q": "Lossless propagation constant", "e": "\\gamma = j\\beta = j\\omega\\sqrt{LC}, \\qquad \\alpha = 0", "n": "No loss mechanism, so nothing decays; $\\beta$ is linear in $\\omega$." },
+    { "q": "Phase velocity and wavelength", "e": "v = \\frac{\\omega}{\\beta} = \\frac{1}{\\sqrt{LC}}, \\qquad \\lambda = \\frac{2\\pi}{\\beta} = \\frac{v}{f}", "n": "Set by the dielectric only. For air, $v = c$." },
+    { "q": "Low-loss attenuation", "e": "\\alpha \\approx \\frac{R}{2Z_0} + \\frac{G Z_0}{2}", "n": "Np/m. Valid while $R \\ll \\omega L$ and $G \\ll \\omega C$; the two terms scale as $\\sqrt{f}$ and $f$." },
+    { "q": "Low-loss phase constant", "e": "\\beta \\approx \\omega\\sqrt{LC}", "n": "rad/m. Use it with $l$ to get electrical length $\\beta l = 2\\pi l/\\lambda$." },
+    { "q": "Nepers to decibels", "e": "\\mathrm{loss}_{\\mathrm{dB}} = 8.686\\,\\alpha\\,l, \\qquad 1\\ \\mathrm{Np} = 8.686\\ \\mathrm{dB}", "n": "$\\alpha$ is defined on amplitude, so the factor 2 for power is already inside 8.686." },
+    { "q": "Coaxial characteristic impedance", "e": "Z_0 = \\frac{60}{\\sqrt{\\varepsilon_r}}\\ln\\!\\left(\\frac{b}{a}\\right) = \\frac{138}{\\sqrt{\\varepsilon_r}}\\log_{10}\\!\\left(\\frac{b}{a}\\right)", "n": "The 60 form needs $\\ln$; the 138 form needs $\\log_{10}$. Mixing them is a factor 2.303." },
+    { "q": "Two-wire characteristic impedance", "e": "Z_0 = \\frac{120}{\\sqrt{\\varepsilon_r}}\\ln\\!\\left(\\frac{2D}{d}\\right) = \\frac{276}{\\sqrt{\\varepsilon_r}}\\log_{10}\\!\\left(\\frac{2D}{d}\\right)", "n": "Air line: $120\\ln(2D/d)$. Argument is $2D/d$, the surface-to-surface-corrected spacing." },
+    { "q": "Velocity factor and the $1/(vC)$ check", "e": "\\mathrm{VF} = \\frac{v}{c} = \\frac{1}{\\sqrt{\\varepsilon_r}}, \\qquad Z_0 = \\frac{1}{vC}", "n": "$\\mathrm{VF}$ is always $\\leq 1$; an answer above 1 means $c/v$ was used." },
+    { "q": "Low-frequency limit", "e": "Z_0 \\to \\sqrt{\\frac{R}{G}} \\ \\ (f \\to 0)", "n": "Not $\\sqrt{L/C}$. Between the two limits $Z_0$ is complex, which is why audio pairs are not 50 $\\Omega$ lines." }
+  ],
+  "problems": [
+    {
+      "prompt": "A lossless line has $L = 250\\ \\mathrm{nH/m}$ and $C = 100\\ \\mathrm{pF/m}$. Find $Z_0$, the velocity, the velocity factor, and the wavelength and phase constant at 100 MHz.",
+      "give": ["L = 250 nH/m", "C = 100 pF/m", "f = 100 MHz", "lossless"],
+      "steps": [
+        "$Z_0 = \\sqrt{\\dfrac{L}{C}} = \\sqrt{\\dfrac{2.5\\times10^{-7}}{1.0\\times10^{-10}}} = \\sqrt{2500} = 50\\ \\Omega$",
+        "$v = \\dfrac{1}{\\sqrt{LC}} = \\dfrac{1}{\\sqrt{(2.5\\times10^{-7})(1.0\\times10^{-10})}} = \\dfrac{1}{5.0\\times10^{-9}} = 2.0\\times10^{8}\\ \\mathrm{m/s}$",
+        "$\\mathrm{VF} = \\dfrac{v}{c} = \\dfrac{2.0\\times10^{8}}{3.0\\times10^{8}} = 0.667$, so $\\varepsilon_r = 1/\\mathrm{VF}^{2} = 2.25$",
+        "$\\lambda = \\dfrac{v}{f} = \\dfrac{2.0\\times10^{8}}{10^{8}} = 2.0\\ \\mathrm{m}$, and $\\beta = \\dfrac{2\\pi}{\\lambda} = 3.14\\ \\mathrm{rad/m}$"
+      ],
+      "ans": "$Z_0 = 50\\ \\Omega$, $v = 2.0\\times10^{8}\\ \\mathrm{m/s}$, $\\mathrm{VF} = 0.667$, $\\lambda = 2.0\\ \\mathrm{m}$, $\\beta = 3.14\\ \\mathrm{rad/m}$.",
+      "trap": "Using $c$ for $v$: $\\lambda$ comes out 3.0 m and $\\beta$ 2.09 rad/m, both 50% wrong, and every stub length computed from them is wrong by the same factor. Also, $\\mathrm{VF} = v/c = 0.667$ — an answer of 1.5 is $c/v$, and a velocity factor above 1 is impossible.", "calc": {"mode":"COMP","steps":["`√(2.5E-7÷1E-10) : 1÷√(2.5E-7×1E-10)`","`=`: $Z_0$ = **50.0** Ω → $v$ = **2.00e8** m/s.","`Ans÷3E8` → **0.6667** (the velocity factor); then `2.0E8÷1E8` → **2.00** m ($\\lambda$) and `2π÷Ans` → **3.142** rad/m."]}
+    },
+    {
+      "prompt": "A coaxial cable has $b/a = 3.5$ and a polyethylene dielectric with $\\varepsilon_r = 2.26$. Find $Z_0$ from the geometry, then find the $b/a$ that would give exactly 50 $\\Omega$.",
+      "give": ["b/a = 3.5", "ε_r = 2.26", "target Z_0 = 50 Ω for part 2"],
+      "steps": [
+        "$Z_0 = \\dfrac{60}{\\sqrt{\\varepsilon_r}}\\ln(b/a) = \\dfrac{60}{1.5033}(1.2528) = 39.91 \\times 1.2528 = 50.0\\ \\Omega$",
+        "Cross-check with the base-10 form: $\\dfrac{138}{1.5033}\\log_{10}(3.5) = 91.80 \\times 0.5441 = 49.9\\ \\Omega$",
+        "Invert for 50 $\\Omega$: $\\log_{10}(b/a) = \\dfrac{50\\sqrt{2.26}}{138} = \\dfrac{75.17}{138} = 0.5447$",
+        "$b/a = 10^{0.5447} = 3.50$ — the standard 50 $\\Omega$ polyethylene coax is exactly this geometry"
+      ],
+      "ans": "$Z_0 \\approx 50\\ \\Omega$ for $b/a = 3.5$; the 50 $\\Omega$ design requires $b/a = 3.50$ with $\\varepsilon_r = 2.26$.",
+      "trap": "Dropping $\\sqrt{\\varepsilon_r}$ gives $60\\ln(3.5) = 75.2\\ \\Omega$; using $\\ln$ inside the 138 form gives $138(1.2528) = 172.9\\ \\Omega$ before the $\\sqrt{\\varepsilon_r}$ correction and 115 $\\Omega$ after. The 60/120 constants pair with $\\ln$, the 138/276 constants pair with $\\log_{10}$ — never cross them.", "calc": {"mode":"COMP","steps":["`60÷√2.26×ln(3.5)` → **50.0** Ω (the 60 form pairs with `ln`); cross-check `138÷√2.26×log(3.5)` → **49.94** Ω (the 138 form pairs with $\\log_{10}$).","Invert for the 50 Ω design: `10^(50×√2.26÷138)` → **3.50**, the standard polyethylene coax geometry."],"note":"Never cross the pairs: 60/120 take $\\ln$, 138/276 take $\\log_{10}$."}
+    },
+    {
+      "prompt": "A 100 m line has $\\alpha = 0.02\\ \\mathrm{Np/m}$ at the operating frequency. Express the total attenuation in decibels, and find the output power for 10 W input.",
+      "give": ["l = 100 m", "α = 0.02 Np/m", "P_in = 10 W"],
+      "steps": [
+        "$\\alpha l = 0.02 \\times 100 = 2\\ \\mathrm{Np}$",
+        "$\\mathrm{loss}_{\\mathrm{dB}} = 8.686\\,\\alpha l = 8.686 \\times 2 = 17.4\\ \\mathrm{dB}$",
+        "Cross-check as a power ratio: $10^{-17.37/10} = 1.83\\times10^{-2}$",
+        "$\\alpha$ attenuates amplitude as $e^{-\\alpha l}$, so power falls as $e^{-2\\alpha l}$: $P_{\\mathrm{out}} = 10\\,e^{-4} = 0.183\\ \\mathrm{W}$"
+      ],
+      "ans": "Total loss $17.4\\ \\mathrm{dB}$; $P_{\\mathrm{out}} \\approx 0.183\\ \\mathrm{W}$.",
+      "trap": "Writing $P_{\\mathrm{out}} = 10e^{-2} = 1.35\\ \\mathrm{W}$. The 2 Np is an *amplitude* ratio, so the power falls as the square: $e^{-4}$, not $e^{-2}$. The factor of two is already inside the 8.686 dB/Np conversion — applying the $\\times 2$ again after converting to dB double-counts it.", "calc": {"mode":"COMP","steps":["`0.02×100×8.686` → **17.37** dB (2 Np over the run).","`10^(-17.37÷10)` → **1.833e-2**, so $P_{\\mathrm{out}}$ = **0.183** W from 10 W; the same number from `10×e^(−2×0.02×100)` = **0.183** W."],"note":"The 2 Np is an amplitude ratio, so power falls as $e^{-4}$; the factor 2 is already inside 8.686."}
+    },
+    {
+      "prompt": "A coaxial cable at 100 MHz has $R = 0.415\\ \\Omega/\\mathrm{m}$, $L = 250.6\\ \\mathrm{nH/m}$, $G = 12.6\\ \\mu\\mathrm{S/m}$, $C = 100.4\\ \\mathrm{pF/m}$. Find $\\gamma$ and $Z_0$ exactly, then check them against the low-loss approximations.",
+      "give": ["f = 100 MHz", "R = 0.415 Ω/m", "L = 250.6 nH/m", "G = 12.6 μS/m", "C = 100.4 pF/m"],
+      "steps": [
+        "$\\omega = 2\\pi(10^{8}) = 6.283\\times10^{8}\\ \\mathrm{rad/s}$, so $\\omega L = 157.4\\ \\Omega/\\mathrm{m}$ and $\\omega C = 0.06306\\ \\mathrm{S/m}$",
+        "$z = 0.415 + j157.4$ and $y = 1.261\\times10^{-5} + j0.06306$, so $zy = -9.927 + j0.02817$",
+        "$\\gamma = \\sqrt{zy} = 0.00447 + j3.1507$ per metre: $\\alpha = 0.00447\\ \\mathrm{Np/m} = 0.0388\\ \\mathrm{dB/m}$",
+        "$Z_0 = \\sqrt{z/y} = 49.97\\angle -0.07^{\\circ} = 49.97 - j0.061\\ \\Omega$",
+        "Validity check: $R/(\\omega L) = 0.0026$ and $G/(\\omega C) = 2.0\\times10^{-4}$, both $\\ll 1$",
+        "Approximations: $\\alpha \\approx \\dfrac{0.415}{2(50)} + \\dfrac{(1.261\\times10^{-5})(50)}{2} = 0.00415 + 0.00032 = 0.00447\\ \\mathrm{Np/m}$ and $\\beta \\approx \\omega\\sqrt{LC} = 3.1507\\ \\mathrm{rad/m}$"
+      ],
+      "ans": "$\\gamma = 0.00447 + j3.1507$ per metre and $Z_0 = 49.97 - j0.06\\ \\Omega$; the low-loss forms reproduce both to four figures. Loss is $0.0388\\ \\mathrm{dB/m}$, i.e. 3.9 dB per 100 m.",
+      "trap": "Quoting $Z_0 = 50\\ \\Omega$ and $\\alpha = R/(2Z_0)$ only. The dielectric term $GZ_0/2$ is 7% of $\\alpha$ here and dominates above a few gigahertz; and $\\alpha$ is not frequency-flat — at 1 MHz the same cable has $\\alpha = 0.0042\\ \\mathrm{Np/m}$ (0.0036 dB/m), roughly ten times less, because the copper term scales as $\\sqrt{f}$. Substituting $f$ for $\\omega$ (dropping $2\\pi$) makes $\\beta = 0.50\\ \\mathrm{rad/m}$ instead of 3.15.", "calc": {"mode":"CPLX","steps":["`MODE` `2`: `√((0.415+i157.4)(1.261E-5+i0.06306))` → **0.00447 + i3.1505** — the displayed pair *is* $\\alpha + j\\beta$ (0.00447 Np/m and 3.15 rad/m, the note's 0.00447 + j3.1507).","`√((0.415+i157.4)÷(1.261E-5+i0.06306))` → **49.96 − i0.061** Ω, which `Apps` `▶r∠θ` shows as **49.96∠−0.07°**.","Validity and loss: `0.415÷157.4 : 1.261E-5÷0.06306 : 0.00447×8.686` → **2.64e-3** → **2.0e-4** (both far below 1) → **0.0388** dB/m."],"note":"`i` is the `MODE` `2` imaginary unit; the note writes it $j$."}
+    }
+  ],
+  "traps": [
+    "**Reading 1 Np as $e^{-\\alpha l}$ of power.** $\\alpha$ is defined on amplitude, so power follows $e^{-2\\alpha l}$: 2 Np is $e^{-4} = 0.0183$ of the input power, not $e^{-2} = 0.135$. Both happen to be 17.4 dB, so the dB route is the safe one.",
+    "**Using $Z_0 = \\sqrt{L/C}$ at low frequency.** For a pair with $\\sqrt{L/C} = 50\\ \\Omega$, the exact $Z_0$ is $98.9 - j79.3\\ \\Omega$ at 1 MHz and $500\\ \\Omega$ at 1 kHz ($\\sqrt{R/G}$). Any Smith-chart or stub calculation done at those frequencies is invalid, because those tools assume a real $Z_0$.",
+    "**Mixing the 60/120 forms with $\\log_{10}$, or the 138/276 forms with $\\ln$.** For $b/a = 3.5$ and $\\varepsilon_r = 2.26$ the correct answer is 50 $\\Omega$; the crossed versions give 115 $\\Omega$ and 21.7 $\\Omega$.",
+    "**Inverting the velocity factor.** $\\mathrm{VF} = v/c = 1/\\sqrt{\\varepsilon_r} \\leq 1$. A $\\mathrm{VF}$ of 1.5 for polyethylene means $c/v$ was computed — and $\\varepsilon_r$ would then have to be 0.44.",
+    "**Adding the two attenuation mechanisms with the wrong frequency laws.** The conductor term is $\\propto \\sqrt{f}$ and the dielectric term is $\\propto f$. Doubling the frequency multiplies the copper loss by only 1.41 but the dielectric loss by 2, so extrapolating a measured $\\alpha$ from 100 MHz to 1 GHz with a single power law is always wrong.",
+    "**Assuming $\\alpha = 0$ because the datasheet says 50 $\\Omega$.** A real 100 m cable loses 3.9 dB at 100 MHz and 1.2 dB at 10 MHz even though both ends are matched; a matched line is not a lossless line."
+  ],
+  "refs": [
+    "[[01_Primary_Constants_R,_L,_G,_C]]",
+    "[[03_Lossless_and_Distortionless_Lines]]",
+    "[[04_Reflection_Coefficient_and_VSWR]]",
+    "[[05_Input_Impedance_and_Quarter-Wave_Transformer]]"
+  ],
+  "prereqs": ["[[01_Primary_Constants_R,_L,_G,_C]]"]
+}

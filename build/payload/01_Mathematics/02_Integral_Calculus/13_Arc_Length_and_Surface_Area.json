@@ -1,0 +1,109 @@
+{
+  "scope": "Compute arc length of a curve and surface area of a surface of revolution.",
+  "intuition": "Arc length is just Pythagoras applied to a tiny piece of curve: a small horizontal step $dx$ and a small vertical step $dy$ form a right triangle whose hypotenuse is the little bit of arc. Add up all the hypotenuses.",
+  "concept": [
+    "**Arc length from the distance formula.** A small segment of curve has horizontal run $dx$ and vertical rise $dy = f'(x)\\,dx$. By Pythagoras its length is $ds = \\sqrt{dx^2+dy^2} = \\sqrt{1+\\left(\\frac{dy}{dx}\\right)^2}\\,dx$. Summing over the curve gives the arc length $L = \\int_a^b\\sqrt{1+\\left[f'(x)\\right]^2}\\,dx$. Everything else in this topic is a variation on that expression.",
+    "**Choosing the variable to suit the curve.** If the curve is naturally given as $x = g(y)$, integrate $L = \\int_c^d\\sqrt{1+\\left(\\frac{dx}{dy}\\right)^2}\\,dy$. For a polar curve $r = f(\\theta)$ the arc length is $L = \\int_{\\alpha}^{\\beta}\\sqrt{r^2 + \\left(\\frac{dr}{d\\theta}\\right)^2}\\,d\\theta$ — note the $r^2$ term, which arises because motion in polar coordinates has both a radial and a tangential component. For parametric curves, $L = \\int\\sqrt{\\left(\\frac{dx}{dt}\\right)^2+\\left(\\frac{dy}{dt}\\right)^2}\\,dt$.",
+    "**Why arc length integrals are often hard.** The integrand contains a square root of a squared derivative, so the resulting integral is frequently not elementary in closed form. Textbook and exam problems are deliberately constructed so the expression under the radical is a perfect square — if your integrand does not simplify, that is usually a signal to re-examine the algebra rather than to push on.",
+    "**Surface area of revolution.** When a curve is rotated about an axis, each element of arc sweeps a band whose area is the circumference times the arc length: $dS = 2\\pi(\\mathrm{radius})\\,ds$. So about the $x$-axis, $S = 2\\pi\\int_a^b f(x)\\sqrt{1+[f'(x)]^2}\\,dx$; about the $y$-axis with $x = g(y)$, the radius is $x$ and the same structure applies. The key difference from volume is that **surface area uses $ds$, not $dx$** — the slant, not the horizontal projection. Using $dx$ instead of $ds$ and computing the lateral area of a stack of cylinders rather than of a stack of frustums is the classic error.",
+    "**Why the radius multiplies and not the square.** Volume elements use $r^2$ because a disk's cross-section is a circle; area elements use $r$ because a band unrolls into a rectangle whose width is the circumference $2\\pi r$. Keeping these two mentally separate prevents most setup errors in the volume-and-surface questions."
+  ],
+  "formulas": [
+    { "q": "Arc length, y = f(x)", "e": "L = \\int_a^b\\sqrt{1+\\left(f'(x)\\right)^2}\\,dx", "n": "The square root of one plus the slope squared." },
+    { "q": "Arc length, x = g(y)", "e": "L = \\int_c^d\\sqrt{1+\\left(g'(y)\\right)^2}\\,dy", "n": "Use when the curve is given as x in terms of y." },
+    { "q": "Arc length, parametric", "e": "L = \\int_{t_1}^{t_2}\\sqrt{\\left(\\frac{dx}{dt}\\right)^2+\\left(\\frac{dy}{dt}\\right)^2}\\,dt", "n": "Both derivatives appear; no 1 + term." },
+    { "q": "Arc length, polar", "e": "L = \\int_{\\alpha}^{\\beta}\\sqrt{r^2+\\left(\\frac{dr}{d\\theta}\\right)^2}\\,d\\theta", "n": "Note r^2, not 1. Radial plus tangential motion." },
+    { "q": "Arc element", "e": "ds = \\sqrt{1+\\left(\\frac{dy}{dx}\\right)^2}\\,dx", "n": "The building block for all surface area formulas." },
+    { "q": "Surface area about the x-axis", "e": "S = 2\\pi\\int_a^b f(x)\\,ds", "n": "Radius is the distance to the axis (f(x)). Uses ds, not dx." },
+    { "q": "Surface area about the y-axis", "e": "S = 2\\pi\\int_c^d x\\,ds", "n": "Radius is x, the horizontal distance to the axis." },
+    { "q": "Sphere surface check", "e": "S = 2\\pi\\int_{-r}^{r}\\sqrt{r^2-x^2}\\cdot\\frac{r}{\\sqrt{r^2-x^2}}dx = 4\\pi r^2", "n": "Calibration for the method." },
+    { "q": "Cone lateral area check", "e": "S = 2\\pi\\int_0^h \\frac{Rx}{h}\\cdot\\frac{\\sqrt{h^2+R^2}}{h}dx = \\pi R\\sqrt{h^2+R^2}", "n": "The slant height sqrt(h^2+R^2) appears via ds." }
+  ],
+  "problems": [
+    {
+      "prompt": "Find the arc length of $y = \\dfrac{2}{3}x^{3/2}$ from $x = 0$ to $x = 3$.",
+      "give": ["curve constructed so the radical simplifies"],
+      "steps": [
+        "Find the derivative: y' = (2/3)(3/2)x^{1/2} = x^{1/2}",
+        "Then 1 + (y')^2 = 1 + x",
+        "L = ∫_0^3 sqrt(1+x) dx",
+        "Let u = 1 + x: ∫_1^4 u^{1/2} du = [(2/3)u^{3/2}]_1^4",
+        "= (2/3)(8 - 1) = 14/3"
+      ],
+      "ans": "$\\dfrac{14}{3}$ units",
+      "trap": "Forgetting that the radical contains 1 + (y')^2, not just y'. Dropping the 1 makes the integrand wrongly simple and the answer wrong."
+    },
+    {
+      "prompt": "Find the arc length of $y = \\ln(\\sec x)$ from $x = 0$ to $x = \\pi/4$.",
+      "give": ["trigonometric curve, radical becomes a standard integral"],
+      "steps": [
+        "y' = (1/sec x)(sec x tan x) = tan x",
+        "1 + (y')^2 = 1 + tan^2 x = sec^2 x",
+        "sqrt(sec^2 x) = sec x on [0, pi/4] where sec x > 0",
+        "L = ∫_0^{pi/4} sec x dx = [ln|sec x + tan x|]_0^{pi/4}",
+        "= ln(sqrt2 + 1) - ln(1 + 0) = ln(sqrt2 + 1)"
+      ],
+      "ans": "$\\ln(\\sqrt{2}+1)$ units",
+      "trap": "Writing sqrt(sec^2 x) = sec x without checking the sign. On this interval sec x > 0 so it is valid, but on an interval where sec x is negative the absolute value would matter."
+    },
+    {
+      "prompt": "Find the length of the curve $x = \\dfrac{y^4}{4} + \\dfrac{1}{8y^2}$ from $y = 1$ to $y = 2$.",
+      "give": ["x given as a function of y"],
+      "steps": [
+        "dx/dy = y^3 - 1/(4y^3)",
+        "1 + (dx/dy)^2 = 1 + y^6 - 1/2 + 1/(16y^6) = y^6 + 1/2 + 1/(16y^6)",
+        "Recognise a perfect square: = (y^3 + 1/(4y^3))^2",
+        "So sqrt(1 + (dx/dy)^2) = y^3 + 1/(4y^3) for y > 0",
+        "L = ∫_1^2 (y^3 + y^{-3}/4)dy = [y^4/4 - 1/(8y^2)]_1^2",
+        "= (4 - 1/32) - (1/4 - 1/8) = 4 - 1/32 - 1/8",
+        "= 128/32 - 1/32 - 4/32 = 123/32"
+      ],
+      "ans": "$\\dfrac{123}{32}$ units",
+      "trap": "Failing to recognise the perfect square, which leaves an integral that cannot be evaluated in elementary terms. Problems in this form are always built so the radical collapses."
+    },
+    {
+      "prompt": "Find the surface area generated by rotating $y = \\sqrt{x}$ on $[0,4]$ about the $x$-axis.",
+      "give": ["surface of revolution", "uses ds"],
+      "steps": [
+        "y = x^{1/2}, so y' = 1/(2 sqrt x)",
+        "ds = sqrt(1 + 1/(4x)) dx = sqrt((4x+1)/(4x)) dx",
+        "Radius = y = sqrt(x)",
+        "S = 2pi∫_0^4 sqrt(x) * sqrt((4x+1)/(4x)) dx = 2pi∫_0^4 sqrt(x) * sqrt(4x+1)/(2 sqrt x) dx",
+        "The sqrt(x) cancels: S = pi∫_0^4 sqrt(4x+1) dx",
+        "Let u = 4x+1, du = 4dx: S = (pi/4)[(2/3)u^{3/2}]_1^{17}",
+        "= (pi/6)(17^{3/2} - 1)"
+      ],
+      "ans": "$\\dfrac{\\pi}{6}\\left(17\\sqrt{17}-1\\right)$ square units",
+      "trap": "Using dx instead of ds, which computes the area of a stack of cylinders rather than the true surface. Also failing to notice the sqrt(x) cancellation that makes the integral tractable."
+    },
+    {
+      "prompt": "Find the surface area generated by rotating $y = x^3$ on $[0,1]$ about the $x$-axis.",
+      "give": ["straightforward application"],
+      "steps": [
+        "y' = 3x^2, so ds = sqrt(1 + 9x^4) dx",
+        "S = 2pi∫_0^1 x^3 sqrt(1 + 9x^4) dx",
+        "Let u = 1 + 9x^4, du = 36x^3 dx, so x^3 dx = du/36",
+        "S = (2pi/36)∫_1^{10} u^{1/2} du = (pi/18)[(2/3)u^{3/2}]_1^{10}",
+        "= (pi/27)(10^{3/2} - 1)"
+      ],
+      "ans": "$\\dfrac{\\pi}{27}\\left(10\\sqrt{10}-1\\right)$ square units",
+      "trap": "Forgetting the Jacobian factor when substituting: du = 36x^3 dx means x^3 dx = du/36, and losing the 1/36 scales the answer wrongly."
+    }
+  ],
+  "traps": [
+    "**Dropping the 1 in $\\sqrt{1+(y')^2}$.** Arc length is not $\\int|y'|dx$; the horizontal component contributes the 1.",
+    "**Using $dx$ instead of $ds$ for surface area.** The surface uses the slant element $ds$. Substituting $dx$ computes a different (wrong) quantity and is the most common error in the topic.",
+    "**Radius errors in surface area.** About the $x$-axis the radius is $y$; about the $y$-axis it is $x$. The radius is the distance from the arc element to the axis.",
+    "**Missing the Jacobian** when substituting in a surface-area integral. The $du$ relation contributes a constant factor that must be carried.",
+    "**Not exploiting the perfect square.** These integrals are constructed so the radical collapses. If your integrand does not simplify, recheck the derivative algebra.",
+    "**$\\sqrt{\\sec^2 x} = |\\sec x|$, not $\\sec x$, in general.** Determine the sign on the specific interval.",
+    "**Polar arc length needs $r^2$, not 1,** in the radical: $\\sqrt{r^2+(dr/d\\theta)^2}$.",
+    "**Negative radius or negative function values** in a surface integral. Surface area is positive; if the curve lies below the axis, use $|f(x)|$ as the radius."
+  ],
+  "refs": [
+    "[[11_Volumes_by_Slicing,_Disk_and_Washer]]",
+    "[[14_Centroids_and_Pappus-Guldinus]]",
+    "[[02_Algebraic_Substitution]]"
+  ],
+  "prereqs": ["[[02_Algebraic_Substitution]]", "[[05_Trigonometric_Integrals_and_Substitution]]"]
+}

@@ -1,0 +1,162 @@
+---
+id: ECE-07-12
+title: "Signal Conditioning and DAQ"
+part: "02_Electronics_Engineering"
+area: "07_Industrial_Automation_and_Sensors"
+topic: 12
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[03_Instrumentation_and_Difference_Amplifiers]]", "[[01_Op-Amp_Fundamentals_and_Real_Parameters]]"]
+tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 12 — Signal Conditioning and DAQ
+
+> [!abstract] Scope
+> Design the chain between a sensor and a digital reading — amplification, filtering, isolation, current-loop transmission, grounding and sampling — and compute the resolution and error each stage contributes.
+
+## Core Concept
+
+> [!tip] Intuition
+> A sensor produces a tiny, noisy, high-impedance, common-mode-loaded signal; a data acquisition system needs a large, clean, low-impedance, ground-referenced one. Signal conditioning is the ordered set of translations between those two worlds, and each translation has an error budget attached to it.
+
+**The chain and the order of operations.** A complete channel runs sensor, excitation, amplification, filtering, isolation, linearization, transmission, sampling and conversion. The order is not arbitrary: amplification before filtering sets the noise floor and the filter's own noise contribution, filtering before sampling is mandatory (an anti-alias filter after the converter is useless), and isolation belongs after amplification but before the long cable so that the ground loop is broken at the point where it would otherwise inject current. Linearization can be analog (a resistor network across an RTD, a feedback network for a thermocouple) or digital (a lookup table or polynomial in the controller), and modern practice pushes it into the software because the coefficients are easy to update.
+
+**The 4-20 mA current loop.** Industrial transmitters send information as a current, not a voltage, because current is unaffected by the resistance of a long cable and by induced voltages along it. The standard spans 4 mA at 0% to 20 mA at 100% of the measured variable, with the *live zero* at 4 mA doing double duty: it powers a two-wire transmitter, and it distinguishes a genuine zero reading from a broken wire (0 mA) or a failed transmitter. The receiver converts current to voltage with a sense resistor — 250 Ω gives the classic 1-5 V span, 100 Ω gives 0.4-2 V — and that burden voltage must be counted in the loop budget along with the cable resistance: a 24 V supply with a transmitter needing 12 V across it supports $R_{loop} \le (24-12)/0.02 = 600\ \Omega$, so a 500 Ω sense resistor plus cable leaves no margin for a supply sag. The loop is also intrinsically safe to break and re-make, which is why it survives in process plants despite being slower and lower-resolution than a digital bus.
+
+**Grounding, shielding and differential inputs.** A sensor far from the DAQ sits at a different ground potential. A single-ended input referenced to the DAQ's own ground measures that difference along with the signal: 0.5 V of ground-loop offset on a $41\ \mu\mathrm{V/^\circ C}$ thermocouple is a 12 000 °C error. A differential input subtracts the two wires, and its ability to ignore the common part is the CMRR: at 80 dB, 0.5 V reduces to 50 µV, which is 1.2 °C on the same thermocouple. The shield is a separate issue: it should be connected at one end only (normally the source) because grounding both ends creates a loop that carries the very current the shield was meant to divert. Twisted pairs, driven guards and isolated amplifiers are the other standard tools, and isolation is compulsory where the sensor is at mains potential or the cable runs between buildings.
+
+**Sampling: Nyquist, anti-aliasing and the sample-and-hold.** A signal must be sampled at more than twice its highest frequency, and any component above $f_s/2$ folds back to $f_s - f$ and is indistinguishable from a real signal at that lower frequency. The anti-alias filter must therefore be *analog* and must precede the converter, and it is usually much steeper than designers expect: with a first-order roll-off of 20 dB/decade per pole, meeting a 52 dB attenuation requirement at 2.7 times the cutoff needs about six poles. The sample-and-hold holds the value while the converter works, and its accuracy depends on how little the hold capacitor droops — $\Delta V = I_{leak}\Delta t/C$, which is 100 µV for 1 nA into 100 pF over 10 µs but 100 mV over 10 ms — and on the aperture jitter, the sampling instant's uncertainty, which sets an SNR ceiling of about $-20\log_{10}(2\pi f t_j)$ regardless of the ADC's resolution.
+
+**Putting an error budget together.** The resolution of a channel is the smallest change it can report, and it is limited by whichever stage is coarsest: a 12-bit converter with a 5 V range resolves 1.22 mV, so if the amplifier's input offset drifts by 50 µV the reading wanders by 4% of an LSB, and if the excitation current drifts by 0.1% every reading scales by that amount. Accuracy is a separate, usually larger, number: sensor tolerance, amplifier gain and offset errors, reference accuracy, nonlinearity and temperature drift all add, and the sensible design practice is to allocate an error budget per stage in the units of the measured variable rather than in volts, because that is the number the specification quotes. Averaging and digital filtering reduce random noise but do nothing for offset, gain or quantization errors — those must be calibrated out with a shunt, a short, or a known reference.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| 4-20 mA loop scaling | $PV = PV_{min} + \frac{I - 4\ \mathrm{mA}}{16\ \mathrm{mA}}\,(PV_{max}-PV_{min})$ | Linear two-wire transmitter. 4 mA is the live zero (0% of span) and 20 mA is 100%; 0 mA means a broken loop. A 250 ohm sense resistor converts the span to 1-5 V. |
+| Maximum loop resistance | $R_{loop,max} = \frac{V_{supply}-V_{tx,min}}{20\ \mathrm{mA}}$ | A 24 V supply with a 12 V minimum transmitter voltage allows 600 ohm total, including cable and sense resistor. |
+| Nyquist criterion | $f_s \geq 2 f_{max}$ | The sampling rate must exceed twice the highest signal frequency present at the converter input, not just the frequency of interest. |
+| Alias frequency | $f_{alias} = \lvert f - k f_s\rvert$ | For f between f_s/2 and f_s the alias is f_s - f, so an 8 kHz interferer sampled at 10 kHz appears as a 2 kHz signal. |
+| First-order filter roll-off per pole | $A(f) = \frac{1}{\sqrt{1+(f/f_c)^2}}$ | Only -9.1 dB per pole at 2.7 times the cutoff, which is why a 52 dB anti-alias requirement needs about six poles. |
+| Required anti-alias attenuation | $A_{dB} = 20\log_{10}\frac{V_{interferer}}{V_{alias,max}}$ | Set V_alias,max to half an LSB to push aliases below the quantization floor; a 1 V interferer against a 2.44 mV LSB needs 52 dB. |
+| Sample-and-hold droop | $\Delta V = \frac{I_{leak}\,\Delta t}{C}$ | 1 nA into 100 pF for 10 us is 100 uV; the same leakage over 10 ms is 100 mV and destroys the conversion. |
+| Aperture jitter error | $\Delta V = 2\pi f V_p\,t_j$ | 1 ns of jitter on a 1 MHz, 1 V sine is 6.3 mV, capping the SNR near 44 dB no matter how many bits the converter has. |
+| Differential input common-mode error | $V_{err} = \frac{V_{cm}}{CMRR}$ | A single-ended input has effectively no CMRR, so a 0.5 V ground-loop offset appears in full; 80 dB of differential CMRR reduces it to 50 uV. |
+| Shunt-based current measurement | $V = I\,R_{shunt}\,G$ | A 100 A/50 mV shunt with a gain of 100 gives 5 V full scale, so one 12-bit LSB is 24 mA of current. |
+
+## Worked Problems
+
+### P1. A pressure transmitter spans $0-100\ \mathrm{psi}$ over a $4-20\ \mathrm{mA}$ output and is read through a $250\ \mathrm{\Omega}$ sense resistor. Find the current and sense voltage at $37\ \mathrm{psi}$, and the pressure indicated by a measured $15.2\ \mathrm{mA}$.
+
+**Given:** span = 0-100 psi; output = 4-20 mA; R_sense = 250 ohm; PV = 37 psi; I_measured = 15.2 mA
+
+**Solution:**
+
+1. Fraction of span = 37/100 = 0.37
+2. I = 4 mA + 16 mA x 0.37 = 4 + 5.92 = 9.92 mA
+3. V_sense = 9.92 mA x 250 ohm = 2.48 V
+4. Reverse: PV = (15.2 - 4)/16 x 100 = 11.2/16 x 100 = 70 psi
+
+> [!success]- Answer
+> **$9.92\ \mathrm{mA}$ and $2.48\ \mathrm{V}$ at $37\ \mathrm{psi}$; $15.2\ \mathrm{mA}$ indicates $70\ \mathrm{psi}$.**
+
+> [!warning] Trap
+> Scaling the current from 0 mA instead of from the 4 mA live zero. Using $I/20 \times 100$ gives 49.6 psi instead of 37 psi, and treating 4 mA as a fault rather than 0% inverts the whole diagnostic.
+
+### P2. A 24 V loop supply feeds a two-wire transmitter that needs at least 12 V across it, a 250 Ω sense resistor and 100 Ω of cable. Check that the loop works, and determine what happens if the sense resistor is changed to 500 Ω and the supply sags by 10%.
+
+**Given:** V_supply = 24 V; V_tx,min = 12 V; R_sense = 250 ohm; R_cable = 100 ohm; 20 mA maximum
+
+**Solution:**
+
+1. Maximum total loop resistance = (24 - 12)/0.02 = 600 ohm
+2. Present loop: 250 + 100 = 350 ohm, which is below 600 ohm, so the loop works
+3. With a 500 ohm sense resistor: 500 + 100 = 600 ohm, exactly at the limit with no margin
+4. With a 10% supply sag V_supply = 21.6 V: R_max = (21.6 - 12)/0.02 = 480 ohm
+5. 600 ohm > 480 ohm, so the transmitter can no longer drive 20 mA and the loop saturates below full scale
+
+> [!success]- Answer
+> **The loop works at 350 Ω; a 500 Ω sense resistor leaves zero margin and fails once the supply sags to 21.6 V.**
+
+> [!warning] Trap
+> Sizing the sense resistor for a convenient voltage (5 V needs 250 Ω) without checking the loop budget. At 20 mA every extra 100 Ω costs 2 V of headroom, and cable resistance counts the same as the sense resistor.
+
+### P3. A signal band extends to $3\ \mathrm{kHz}$ and is sampled at $f_s = 10\ \mathrm{kHz}$. A $1\ \mathrm{V}$ interferer sits at $8\ \mathrm{kHz}$, and the ADC is a 12-bit, $\pm5\ \mathrm{V}$ converter. Find the alias frequency, the attenuation needed to keep the alias below one LSB, and the filter order required with a $3\ \mathrm{kHz}$ cutoff.
+
+**Given:** signal band = 0-3 kHz; f_s = 10 kHz; interferer = 1 V at 8 kHz; ADC = 12-bit, +/-5 V
+
+**Solution:**
+
+1. Alias frequency = 10 - 8 = 2 kHz, which falls inside the signal band
+2. LSB = 10/4096 = 2.4414 mV
+3. Required attenuation = 20 log(1/0.0024414) = 52.3 dB at 8 kHz
+4. Per-pole attenuation at 8 kHz with fc = 3 kHz: 20 log(1/sqrt(1+(8/3)^2)) = -9.09 dB
+5. Poles needed = 52.3/9.09 = 5.75, so a 6-pole filter
+
+> [!success]- Answer
+> **The $8\ \mathrm{kHz}$ interferer aliases to $2\ \mathrm{kHz}$; keeping it below one LSB needs $52.3\ \mathrm{dB}$, or about six poles at a $3\ \mathrm{kHz}$ cutoff.**
+
+> [!warning] Trap
+> Assuming a single-pole anti-alias filter is enough. At 2.7 times its cutoff a single pole gives only 9 dB, so most of the 1 V interferer passes and appears as a large false 2 kHz signal inside the passband.
+
+### P4. A type K thermocouple ($S = 41\ \mu\mathrm{V/^\circ C}$) on a 30 m run picks up $0.5\ \mathrm{V}$ of common-mode voltage from a ground loop. Find the temperature error for a single-ended input and for a differential input with $CMRR = 80\ \mathrm{dB}$.
+
+**Given:** S = 41 uV/degC; V_cm = 0.5 V; single-ended input; differential CMRR = 80 dB
+
+**Solution:**
+
+1. Single-ended: the full 0.5 V appears as signal, which is 0.5/41e-6 = 12195 degC of error (the channel simply saturates)
+2. Differential: CMRR_linear = 10^(80/20) = 10^4
+3. Error = 0.5/1e4 = 50 uV
+4. Temperature error = 50 uV/41 uV per degC = 1.22 degC
+
+> [!success]- Answer
+> **The single-ended input saturates; the differential input with 80 dB CMRR leaves $50\ \mu\mathrm{V}$, which is $1.22\ ^\circ\mathrm{C}$.**
+
+> [!warning] Trap
+> Connecting a low-level sensor to a single-ended input because the wires are short. Any ground potential difference appears directly in the reading, and for a thermocouple even a few millivolts of it is tens of degrees.
+
+### P5. A 100 A/50 mV shunt measures motor current into an amplifier with a gain of 100 driving a 12-bit, 5 V ADC. Find the voltage at full current, the ADC resolution in amps, and the maximum current that can be measured.
+
+**Given:** shunt = 100 A/50 mV; gain = 100; ADC = 12-bit, 5 V single-ended; V_ref = 5 V
+
+**Solution:**
+
+1. Shunt transfer = 50 mV/100 A = 0.5 mV/A
+2. At 100 A: 50 mV; after a gain of 100 it is 5 V, matching full scale
+3. ADC LSB = 5/4096 = 1.2207 mV
+4. Referred to the shunt: 1.2207 mV/100 = 12.207 uV
+5. Current resolution = 12.207 uV/0.5 mV per A = 0.024414 A = 24.4 mA
+
+> [!success]- Answer
+> **$5\ \mathrm{V}$ at $100\ \mathrm{A}$, with $24.4\ \mathrm{mA}$ per LSB.**
+
+> [!warning] Trap
+> Forgetting that the amplifier's offset is also multiplied by 100. A $100\ \mu\mathrm{V}$ input offset becomes 10 mV at the ADC — eight LSBs, or 0.8 A of apparent current — so a chopper-stabilized amplifier is used for shunt measurement.
+
+## Traps & Exam Notes
+
+- **Reading 4 mA as no signal.** The 4 mA live zero is 0% of span and it powers the transmitter; 0 mA means a broken wire or a dead transmitter, which is the diagnostic the standard was designed to provide.
+- **Sizing the sense resistor without a loop budget.** At 20 mA every 100 Ω of loop resistance drops 2 V, and the transmitter needs its own minimum voltage: a 500 Ω sense resistor on a 24 V loop leaves about 2 V of margin, which a 10% supply sag erases.
+- **Filtering after the ADC.** Aliasing is irreversible: once an 8 kHz interferer has folded to 2 kHz it is indistinguishable from real signal. The anti-alias filter must be analog and must precede the sample-and-hold.
+- **Assuming a single-pole anti-alias filter suffices.** A first-order section gives only 9 dB at 2.7 times its cutoff, so a 52 dB requirement needs roughly six poles — which is why anti-alias sections are the steepest filters in the system.
+- **Using a single-ended input for a remote sensor.** Ground-loop voltage appears in full; a differential input with high CMRR is required, and the shield must be grounded at one end only or the loop it creates carries the interfering current.
+- **Ignoring aperture jitter at high input frequency.** 1 ns of sampling jitter on a 1 MHz, 1 V sine produces 6.3 mV of error and caps the SNR near 44 dB (about 7 effective bits) regardless of the converter's resolution.
+- **Ignoring sample-and-hold droop and charge injection.** 1 nA of leakage into 100 pF droops 100 µV in 10 µs but 100 mV in 10 ms, so a slow converter needs a larger hold capacitor or a buffered hold node.
+- **Confusing resolution with accuracy.** Averaging removes random noise but not offset, gain, reference or nonlinearity errors; those require a shunt calibration, a short-circuit zero or a known reference.
+
+## See Also
+
+- [[13_ADC_Architectures_and_Quantization]]
+- [[03_Instrumentation_and_Difference_Amplifiers]]
+- [[09_Temperature_Sensors]]
+- [[10_Strain_Gauges_and_Wheatstone_Bridge]]
+
+---
+
+[[11_Position_Sensors_LVDT,_Hall,_Encoders|⬅ 11]] · [[_MOC_Industrial_Automation_and_Sensors|MOC]] · [[00_Dashboard|Dashboard]] · [[13_ADC_Architectures_and_Quantization|13 ➡]]

@@ -1,0 +1,104 @@
+{
+  "scope": "Compare ideal, natural and flat-top sampling, and quantify the amplitude droop and jitter error that a finite aperture introduces.",
+  "intuition": "Real samplers do not capture an instant; they capture a short window and then hold it. Holding a value for a finite time is the same as smearing the spectrum with a sinc, which tilts the high frequencies down — the aperture effect.",
+  "concept": [
+    "**Three idealisations, three spectra.** *Ideal (impulse) sampling* multiplies the signal by an impulse train and produces exact replicas of the original spectrum at multiples of $f_s$ — a mathematical convenience, not hardware. *Natural sampling* multiplies the signal by a finite-width pulse train, so the pulse amplitude follows the signal during the pulse. Its replicas are scaled by the pulse train's own Fourier coefficients, $c_n = d\\,\\mathrm{sinc}(nd)$ for duty cycle $d$, but the baseband copy is an *undistorted* scaled copy of the original. *Flat-top sampling* (sample-and-hold) takes the instantaneous value at the sampling instant and holds it constant for the aperture $\\tau$; the held pulse no longer tracks the signal, and that difference produces **aperture distortion**.",
+    "**Where the droop comes from.** Flat-top sampling is mathematically ideal sampling followed by convolution with a rectangular pulse of width $\\tau$. Convolution in time means multiplication in frequency, so every replica — including the baseband one — is multiplied by $\\mathrm{sinc}(f\\tau)e^{-j\\pi f\\tau}$. The exponential is a pure linear phase, a harmless half-aperture delay; the sinc is not. It attenuates high frequencies within the baseband (the **aperture effect** or aperture distortion), and it reaches its first null at $f = 1/\\tau$, where the sampled spectrum vanishes entirely. A flat-top sampler therefore acts like a lowpass filter that the designer did not ask for, and a compensating **aperture equaliser** with response $1/\\mathrm{sinc}(f\\tau)$ is inserted after the sampler in high-fidelity systems.",
+    "**Quantifying the aperture.** The droop at frequency $f$ is $20\\log_{10}|\\mathrm{sinc}(f\\tau)|$ dB, so the design question is inverted: for an allowable droop of $A$ dB at the highest signal frequency $f_{max}$, the aperture must satisfy approximately $\\tau \\le 0.443/f_{max}$ for 3 dB, $\\tau \\le 0.26/f_{max}$ for 1 dB, and $\\tau \\le 0.083/f_{max}$ for 0.1 dB. The pattern is easy to remember: a tighter tolerance costs aperture almost proportionally. The aperture must also be short compared with the sampling interval, $\\tau \\ll T_s$, or the held samples overlap and the reconstruction filter sees pulses wider than the intervals between them.",
+    "**Aperture jitter: the time-domain partner of the same problem.** A real clock has a random sampling instant, with rms uncertainty $\\Delta t$. For a sinusoid of amplitude $A$ and frequency $f$, the voltage error is the slope times the timing error, $\\Delta v \\approx 2\\pi f A\\,\\Delta t$ at the zero crossing where the slope is greatest. Relative to the full-scale amplitude this gives a jitter-limited SNR of $\\mathrm{SNR} = -20\\log_{10}(2\\pi f\\,\\Delta t)$ — a bound that depends only on frequency and jitter, not on the number of bits or the aperture width. At $1\\ \\mathrm{MHz}$ with $10\\ \\mathrm{ps}$ rms jitter the ceiling is about $84\\ \\mathrm{dB}$; at $1\\ \\mathrm{GHz}$ with the same clock it falls to $24\\ \\mathrm{dB}$. This is why high-speed digitisers are clocked from crystal-derived, low-phase-noise sources.",
+    "**Which scheme to use, and what breaks.** Natural sampling is the easiest to analyse and is used in some pulse-width modulation and PPM contexts, but it is awkward to implement because the pulse amplitude must follow the signal continuously. Flat-top sampling is what every sample-and-hold circuit actually does, which is why aperture droop is a real design constraint rather than a textbook curiosity. The step from sample-and-hold also means the sampler's output contains a residual pedestal and switching transients, and the hold capacitor's droop during the hold interval sets a maximum hold time. Finally, both natural and flat-top sampling obey the same Nyquist condition as ideal sampling: the aperture changes the *shape* of the replicas, but it does not prevent aliasing — an anti-alias filter is still required, as in [[10_Anti-Aliasing_Filters]]."
+  ],
+  "formulas": [
+    { "q": "Ideal (impulse) sampled spectrum", "e": "X_s(f) = f_s \\sum_{k} X(f - k f_s)", "n": "Reference case: exact undistorted replicas at multiples of fs." },
+    { "q": "Natural sampling replica scaling", "e": "c_n = d\\, \\mathrm{sinc}(n d), \\quad d = \\frac{\\tau}{T_s}", "n": "The baseband copy is undistorted; higher replicas are weighted by the pulse-train sinc envelope." },
+    { "q": "Flat-top (sample-and-hold) transfer", "e": "H(f) = \\tau\\, \\mathrm{sinc}(f\\tau)\\, e^{-j\\pi f\\tau}", "n": "Applied to every replica, including baseband. The exponential is a delay of tau/2; the sinc is the aperture distortion." },
+    { "q": "Aperture droop in dB", "e": "\\Delta A(f) = 20\\log_{10}\\left\\lvert \\mathrm{sinc}(f \\tau)\\right \\rvert", "n": "sinc(x) = sin(pi x)/(pi x). Negative dB, growing with frequency; the value at the highest signal frequency is what matters." },
+    { "q": "First aperture null", "e": "f_{null} = \\frac{1}{\\tau}", "n": "The sampled spectrum is zero there. Keep 1/tau well above the highest signal frequency." },
+    { "q": "Aperture for a 3 dB droop", "e": "\\tau \\le \\frac{0.443}{f_{max}}", "n": "0.26/fmax for 1 dB, 0.083/fmax for 0.1 dB. Tolerances tighten roughly in proportion to the dB figure." },
+    { "q": "Aperture equaliser", "e": "H_{eq}(f) = \\frac{1}{\\mathrm{sinc}(f\\tau)}", "n": "Flattens the droop but amplifies high-frequency noise; only usable while f << 1/tau." },
+    { "q": "RMS jitter voltage error", "e": "\\Delta v \\approx 2\\pi f A\\, \\Delta t", "n": "Worst case at the steepest point of a sinusoid of amplitude A; the sample's own value is irrelevant." },
+    { "q": "Jitter-limited SNR", "e": "\\mathrm{SNR}_{jitter} = -20\\log_{10}(2\\pi f \\Delta t)", "n": "Independent of amplitude and of the number of bits. Halving the jitter adds 6 dB." },
+    { "q": "Aperture versus sampling interval", "e": "\\tau \\ll T_s", "n": "If the aperture approaches the sampling interval the held pulses merge and reconstruction fails." }
+  ],
+  "problems": [
+    {
+      "prompt": "A $0.5\\ \\mu\\mathrm{s}$ flat-top aperture is used to sample a signal up to $100\\ \\mathrm{kHz}$. Find the aperture droop at $100\\ \\mathrm{kHz}$ and the frequency of the first aperture null.",
+      "give": ["tau = 0.5 us", "fmax = 100 kHz"],
+      "steps": [
+        "Argument: f tau = (1e5)(0.5e-6) = 0.05",
+        "sinc(0.05) = sin(0.05 pi)/(0.05 pi) = sin(0.15708)/0.15708 = 0.15643/0.15708 = 0.99589",
+        "Droop = 20 log10(0.99589) = -0.0358 dB",
+        "First null at 1/tau = 1/(0.5e-6) = 2 MHz"
+      ],
+      "ans": "Droop = -0.036 dB at 100 kHz; first null at 2 MHz.",
+      "trap": "Using the RC-style 20 dB/decade roll-off instead of the sinc. Aperture distortion is a sinc, not a single-pole response, and it has a hard null at 1/tau rather than an asymptotic roll-off.", "calc": {"mode":"COMP","steps":["Angle unit **Rad**: `1E5×0.5E-6` → **0.05** = $f\\tau$; `sin(πAns)÷(πAns)` → **0.99589** = $\\mathrm{sinc}(f\\tau)$.","`20log(0.99589)` → **-0.0357** dB ≈ **-0.036** dB droop at 100 kHz.","`1÷0.5E-6` → **2E6** Hz = **2 MHz**, the first aperture null."],"note":"In Deg mode `sin(π×0.05)` is sin(0.157°) = 0.0027 and the droop is nonsense; set Rad before keying the sinc."}
+    },
+    {
+      "prompt": "Natural sampling and flat-top sampling are both used at the same rate with the same duty cycle, and the receiver must reconstruct the baseband with less than 0.1 dB of amplitude error at $50\\ \\mathrm{kHz}$. Which scheme needs an equaliser, and why?",
+      "give": ["fmax = 50 kHz", "tolerance = 0.1 dB"],
+      "steps": [
+        "Natural sampling scales each replica by the pulse-train coefficient; the baseband copy is a flat, undistorted scaled copy of X(f)",
+        "Flat-top sampling multiplies every replica, baseband included, by sinc(f tau)",
+        "So flat-top sampling introduces a frequency-dependent droop that natural sampling does not",
+        "The remedy for flat-top is an aperture equaliser with response 1/sinc(f tau); natural sampling needs none"
+      ],
+      "ans": "Flat-top sampling needs the aperture equaliser; natural sampling preserves the baseband undistorted.",
+      "trap": "Assuming the hold is 'just a longer sample' and therefore harmless. The hold is a convolution, and convolution in time multiplies the spectrum by a sinc that tilts the baseband."
+    },
+    {
+      "prompt": "A sample-and-hold must keep aperture droop below $0.1\\ \\mathrm{dB}$ at $100\\ \\mathrm{kHz}$. Find the maximum aperture width.",
+      "give": ["fmax = 100 kHz", "allowed droop = 0.1 dB"],
+      "steps": [
+        "Require |sinc(x)| >= 10^(-0.1/20) = 0.98855 with x = f tau",
+        "For small x: sinc(x) ~ 1 - (pi x)^2/6, so 1 - 0.98855 = 0.01145 = (pi x)^2/6",
+        "(pi x)^2 = 0.0687, pi x = 0.2621, x = 0.0834",
+        "tau = x/f = 0.0834/(1e5) = 8.34e-7 s",
+        "Check: sinc(0.0834) = sin(0.2620)/0.2620 = 0.98858, i.e. -0.0997 dB"
+      ],
+      "ans": "tau(max) = 0.834 us, i.e. about 0.083/fmax.",
+      "trap": "Using the 3 dB rule tau = 0.443/fmax and getting 4.4 us, which is more than five times too long. The aperture constant depends on the allowed droop; 0.1 dB is a much tighter requirement than 3 dB.", "calc": {"mode":"COMP","steps":["Rad mode; `SHIFT` `SOLVE` on `20log(sin(π×1E5×X)÷(π×1E5×X))=-0.1` (the inner `=` is `ALPHA` `=`), guess 1E-6, `=` → $X$ = **8.342E-7** s.","So $\\tau_{\\mathrm{max}}$ = **0.834** µs; check `sin(π×1E5×8.342E-7)÷(π×1E5×8.342E-7)` → **0.98858** = **-0.0997** dB."],"note":"The small-angle form gives the same constant: $1-(\\pi x)^2/6$ with $x$ = 0.0834, i.e. $\\tau$ = 0.083/$f_{max}$."}
+    },
+    {
+      "prompt": "A $4\\ \\mathrm{MHz}$ signal with $1\\ \\mathrm{V}$ peak amplitude is sampled by a clock with $20\\ \\mathrm{ps}$ rms jitter. Find the rms voltage error and the jitter-limited SNR.",
+      "give": ["f = 4 MHz", "A = 1 V", "dt = 20 ps rms"],
+      "steps": [
+        "Maximum slope = 2 pi f A = 2 pi (4e6)(1) = 2.513e7 V/s",
+        "Error = slope x dt = (2.513e7)(20e-12) = 5.03e-4 V rms",
+        "SNR = -20 log10(2 pi f dt) = -20 log10(2 pi (4e6)(20e-12))",
+        "2 pi f dt = 5.027e-4, so SNR = -20 log10(5.027e-4) = 65.97 dB"
+      ],
+      "ans": "Error = 0.503 mV rms; jitter-limited SNR = 66.0 dB.",
+      "trap": "Multiplying the error by the number of bits or comparing it with a 16-bit LSB (15.3 uV at 1 V full scale). Jitter sets an absolute SNR ceiling that no extra bits can beat: 66 dB is worse than a 12-bit converter's ideal 74 dB.", "calc": {"mode":"COMP","steps":["`2π×4E6×1` → **2.513E7** V/s = maximum slope; `×20E-12` → **5.027E-4** V = **0.503** mV rms.","`-20log(2π×4E6×20E-12)` → **65.97** dB ≈ **66.0** dB jitter-limited SNR."],"note":"The error is slope times timing error, so it grows with $f$; no number of bits beats this 66 dB ceiling."}
+    },
+    {
+      "prompt": "A flat-top sampler with a $2\\ \\mu\\mathrm{s}$ aperture is clocked at $200\\ \\mathrm{kHz}$. Check whether the aperture is small compared with the sampling interval, and find the phase delay it introduces.",
+      "give": ["tau = 2 us", "fs = 200 kHz"],
+      "steps": [
+        "Sampling interval Ts = 1/fs = 5 us",
+        "Duty cycle = tau/Ts = 2/5 = 0.4, which is not much smaller than 1",
+        "The hold occupies 40 percent of each interval, so the pulses nearly merge",
+        "Phase delay from the linear term e^(-j pi f tau): delay = tau/2 = 1 us at all frequencies",
+        "At 50 kHz this is a phase shift of 360 x (50e3)(1e-6) = 18 degrees, which is frequency-proportional (a pure delay)"
+      ],
+      "ans": "Duty cycle 0.4 — too large for clean reconstruction; the aperture adds a constant 1 us (half-aperture) delay, i.e. 18 degrees of phase at 50 kHz.",
+      "trap": "Treating the hold delay as negligible or as a frequency-independent phase. The exponential term is a pure time delay of tau/2, so its *phase* grows linearly with frequency even though the *time* delay is constant.", "calc": {"mode":"COMP","steps":["`1÷200E3` → **5E-6** s = **5** µs sampling interval; `2E-6×200E3` → **0.4** duty cycle.","`2E-6÷2` → **1E-6** s = **1** µs constant time delay, the $e^{-j\\pi f\\tau}$ half-aperture term.","`360×50E3×1E-6` → **18.0**° phase at 50 kHz — linear in frequency because the delay is constant."],"note":"Duty cycle 0.4 means the held pulses nearly merge; the delay is constant in time but its phase is not."}
+    }
+  ],
+  "traps": [
+    "**Treating flat-top sampling as ideal sampling plus a hold that can be ignored.** The hold is a convolution with a rectangle, so it multiplies the baseband spectrum by $\\mathrm{sinc}(f\\tau)$ — a droop that must be equalised or designed around.",
+    "**Using an RC roll-off for the aperture.** The aperture response is a sinc with a null at $1/\\tau$, not a $20\\ \\mathrm{dB/decade}$ pole. Confusing them gives a wrong droop and misses the null entirely.",
+    "**Applying the 3 dB aperture constant to any tolerance.** $\\tau \\le 0.443/f_{max}$ is for 3 dB, $0.26/f_{max}$ for 1 dB and $0.083/f_{max}$ for 0.1 dB. Using one constant for all tolerances can be off by 5x.",
+    "**Forgetting that flat-top sampling still aliases.** The aperture changes replica *shape*, not replica *position*; $f_s \\ge 2f_m$ and an analog anti-alias filter are still required.",
+    "**Assuming jitter error scales with amplitude only.** The error is slope times timing error, $2\\pi f A\\Delta t$, so it is worst at the highest frequency and at the steepest (zero) crossing. Jitter-limited SNR is independent of the number of bits.",
+    "**Ignoring the hold-time droop.** A sample-and-hold capacitor discharges during the hold; if the hold is long relative to the RC of the switch and capacitor, the held value decays and adds a frequency-independent amplitude error.",
+    "**Confusing natural sampling's envelope with distortion.** In natural sampling the sinc envelope scales *higher replicas*, not the baseband; the baseband copy is undistorted. Reporting 'natural sampling causes sinc distortion of the baseband' inverts the result."
+  ],
+  "refs": [
+    "[[08_Sampling_Theorem_and_Aliasing]]",
+    "[[10_Anti-Aliasing_Filters]]",
+    "[[11_DFT_and_FFT]]"
+  ],
+  "prereqs": [
+    "[[08_Sampling_Theorem_and_Aliasing]]"
+  ]
+}

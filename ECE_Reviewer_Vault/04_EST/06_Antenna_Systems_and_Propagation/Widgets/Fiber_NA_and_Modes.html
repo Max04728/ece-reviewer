@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optical Fiber — NA, V Number and Mode Count</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The exam skill here is the propagation condition. Students memorise V = 2*pi*a*NA/lambda
+// without connecting it to whether the fiber is single-mode, and they confuse the
+// numerical aperture with the acceptance angle. Drawing the acceptance cone and printing
+// V with the mode verdict together is what makes it click.
+
+widget({
+  title: 'Optical Fiber — Numerical Aperture, V Number and Mode Count',
+  description:
+    'Enter the core radius, the core and cladding indices and the wavelength. See the acceptance cone, the V number, and whether the fiber is single-mode or multimode.',
+  height: 470,
+  range: { xMin: -1.3, xMax: 1.3, yMin: -0.15, yMax: 1.45 },
+  controls: [
+    { id: 'a', label: 'core radius a (µm)', min: 1, max: 50, step: 0.5, value: 25 },
+    { id: 'n1', label: 'core index n1', min: 1.4, max: 1.6, step: 0.001, value: 1.48 },
+    { id: 'd', label: 'index difference Δ (%)', min: 0.1, max: 3, step: 0.05, value: 1 },
+    { id: 'lam', label: 'wavelength λ (µm)', min: 0.4, max: 1.8, step: 0.01, value: 0.85 },
+  ],
+  compute: (v) => {
+    // n2 follows from the relative index difference Delta = (n1^2 - n2^2)/(2 n1^2)
+    const delta = v.d / 100;
+    const n1 = v.n1;
+    // solve n2 from Delta: n2 = n1 * sqrt(1 - 2*Delta)
+    const n2 = n1 * Math.sqrt(Math.max(0, 1 - 2 * delta));
+    // Numerical aperture: NA = sqrt(n1^2 - n2^2)
+    const NA = Math.sqrt(Math.max(0, n1 * n1 - n2 * n2));
+    // Acceptance angle in air: sin(theta_a) = NA for n0 = 1
+    const thetaA = Math.asin(Math.min(1, NA));                 // radians
+    const thetaAdeg = (thetaA * 180) / Math.PI;
+    // V number
+    const a = v.a;                       // micrometres
+    const V = (2 * Math.PI * a * NA) / v.lam;
+    // single mode when V < 2.405 (the first zero of J0)
+    const singleMode = V < 2.405;
+    // number of guided modes, standard approximations
+    const M = singleMode ? 1 : Math.round((V * V) / 2);
+    // number of mode groups
+    const Mg = Math.round(V / 2);
+    // fractional refractive index change and the critical angle
+    const critAngle = Math.acos(n2 / n1);
+    const critDeg = (critAngle * 180) / Math.PI;
+    // maximum number of modes if multimode (step index)
+    return { n1, n2, NA, thetaA, thetaAdeg, V, singleMode, M, Mg, critDeg, delta, lam: v.lam, a };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.setRange({ xMin: -1.3, xMax: 1.3, yMin: -0.1, yMax: 1.4 });
+    plot.clear().grid(0.5, 0.2).axes();
+
+    // ---- acceptance cone ---------------------------------------------------
+    const apexX = 0, apexY = 0.12;
+    const coneLen = 1.1;
+    // scale the half-angle for display, so even a 12 degree cone is visible
+    const half = out.thetaA;
+    const dispHalf = Math.max(0.08, Math.min(1.15, half * 2.6));
+    ctx.save();
+    ctx.fillStyle = 'rgba(137,180,250,0.22)';
+    ctx.beginPath();
+    ctx.moveTo(plot.X(apexX), plot.Y(apexY));
+    ctx.lineTo(plot.X(apexX + coneLen * Math.cos(dispHalf)), plot.Y(apexY + coneLen * Math.sin(dispHalf)));
+    ctx.lineTo(plot.X(apexX + coneLen * Math.cos(dispHalf)), plot.Y(apexY - coneLen * Math.sin(dispHalf)));
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+    plot.segment(apexX, apexY, apexX + coneLen * Math.cos(dispHalf), apexY + coneLen * Math.sin(dispHalf), { color: PALETTE.accent, width: 2 });
+    plot.segment(apexX, apexY, apexX + coneLen * Math.cos(dispHalf), apexY - coneLen * Math.sin(dispHalf), { color: PALETTE.accent, width: 2 });
+    plot.segment(apexX - 0.1, apexY, apexX + coneLen + 0.15, apexY, { color: PALETTE.accent, width: 2.5 });
+    plot.dot(apexX, apexY, { color: PALETTE.warn, r: 4 });
+    plot.label('acceptance cone', apexX + coneLen * 0.55, apexY + coneLen * Math.sin(dispHalf) + 0.05, {
+      color: PALETTE.accent, font: '11px ui-monospace, monospace',
+    });
+
+    // ---- fiber cross-section inset ----------------------------------------
+    const cx = 0.78, cy = 0.62, R = 0.34;
+    ctx.save();
+    ctx.fillStyle = 'rgba(203,166,247,0.30)';
+    ctx.beginPath();
+    ctx.arc(plot.X(cx), plot.Y(cy), Math.abs(plot.X(cx + R) - plot.X(cx)), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(137,180,250,0.55)';
+    ctx.beginPath();
+    ctx.arc(plot.X(cx), plot.Y(cy), Math.abs(plot.X(cx + R * 0.55) - plot.X(cx)), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(plot.X(cx), plot.Y(cy), Math.abs(plot.X(cx + R) - plot.X(cx)), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    plot.label('cladding n2 = ' + fmt(out.n2, 5), cx, cy + R + 0.09, { color: PALETTE.accent5, font: '10px ui-monospace, monospace' });
+    plot.label('core n1 = ' + fmt(out.n1, 5), cx, cy - 0.04, { color: PALETTE.accent, font: '10px ui-monospace, monospace' });
+
+    // ---- V number verdict --------------------------------------------------
+    const verdict = out.singleMode ? 'SINGLE MODE  (V < 2.405)' : 'MULTIMODE  (V >= 2.405)';
+    plot.text(verdict, plot.pad + 6, plot.pad + 14, {
+      color: out.singleMode ? PALETTE.accent3 : PALETTE.accent4, font: 'bold 13px ui-monospace, monospace',
+    });
+    plot.text('V = 2πa·NA/λ = ' + fmt(out.V, 5), plot.pad + 6, plot.pad + 30, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+    plot.text('NA = √(n1² − n2²) = ' + fmt(out.NA, 5) + '   θ_a = ' + fmt(out.thetaAdeg, 4) + '°',
+      plot.pad + 6, plot.pad + 45, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('modes M ≈ ' + out.M + '   (display cone angle exaggerated)',
+      plot.pad + 6, plot.pad + 60, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+  },
+  readout: (out) => ({
+    'core index n1': fmt(out.n1, 5),
+    'cladding index n2': fmt(out.n2, 5),
+    'relative index Δ': fmt(out.delta * 100, 4) + ' %',
+    'numerical aperture NA': fmt(out.NA, 5),
+    'acceptance angle θa': fmt(out.thetaAdeg, 4) + ' °',
+    'critical angle at core/clad': fmt(out.critDeg, 4) + ' °',
+    'V number': fmt(out.V, 5),
+    'single-mode cutoff V = 2.405': out.singleMode ? 'satisfied — single mode' : 'exceeded — multimode',
+    'number of modes M': String(out.M),
+    'mode groups Mg': String(out.Mg),
+    'single-mode cutoff radius': fmt((2.405 * out.lam) / (2 * Math.PI * out.NA), 4) + ' µm',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The propagation condition is the whole topic.</strong> A mode propagates only if its propagation constant is real, which happens exactly when V &gt; 2.405 for the LP11 mode — so <em>V &lt; 2.405 means single-mode</em>. ' +
+  'That is why single-mode fiber has a tiny core (about 8–10 µm) and multimode fiber has a large one (50 or 62.5 µm): V grows with core radius, so a big core at 850 nm is unavoidably multimode. ' +
+  '<strong>The mistake this prevents:</strong> confusing the <em>numerical aperture</em> (a property of the fiber, NA = √(n1²−n2²)) with the <em>acceptance angle</em> (the half-angle of the cone of light the fiber will take in, sin θa = NA for an air interface). NA is dimensionless; θa is an angle. ' +
+  'Also note that the mode count uses V²/2, not V, so going from V = 10 to V = 20 quadruples the modes rather than doubling them.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

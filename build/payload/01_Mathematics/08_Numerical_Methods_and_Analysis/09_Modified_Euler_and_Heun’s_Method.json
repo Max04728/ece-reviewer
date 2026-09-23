@@ -1,0 +1,109 @@
+{
+  "scope": "Predict with a full Euler step, then correct with the average of the two endpoint slopes — the second-order method behind the trapezoidal integrator.",
+  "intuition": "Plain Euler commits to the slope at the start of the step and drifts. Modified Euler takes a trial step to see where the curve is heading, measures the slope there too, and uses the average of the two slopes — which is just the trapezoidal rule applied to the slope function.",
+  "concept": [
+    "**Predict, then correct.** Predictor: $\\bar y_{i+1}=y_i+h f(x_i,y_i)$ (a plain Euler step). Corrector: $y_{i+1}=y_i+\\frac{h}{2}\\left[f(x_i,y_i)+f(x_{i+1},\\bar y_{i+1})\\right]$. The predictor supplies an estimate of the end slope; the corrector averages start and end slopes, which is the trapezoidal rule for $\\int y'\\,dx$ over the step.",
+    "**Why the order jumps to two.** A Taylor expansion of the corrector reproduces the $h^{2}$ term of the exact solution, so the local truncation error is $O(h^{3})$ per step and the global error is $O(h^{2})$. The practical consequence is the one to remember: **halving $h$ divides the error by four**, against Euler's factor of two. Heun's method is the second-order Runge-Kutta scheme (RK2).",
+    "**Half-step (midpoint) form.** An equivalent variant predicts to the midpoint instead. It uses two stages. The first is $k_1=f(x_i,y_i)$. The mid-point slope is: $k_2=f\\left(x_i+\\frac{h}{2},\\,y_i+\\frac{h}{2}k_1\\right)$. The advance is then $y_{i+1}=y_i+h k_2$. This is the *modified Euler* (midpoint) method. Both forms are $O(h^{2})$; they are not identical term by term but agree to the order of the method, so an exam that specifies one must be answered with that one.",
+    "**Iterated corrector.** If the corrector is applied repeatedly, the iteration is: $y_{i+1}^{(k+1)}=y_i+\\frac{h}{2}\\left[f(x_i,y_i)+f(x_{i+1},y_{i+1}^{(k)})\\right]$. The values converge to the trapezoidal (implicit) solution. Two iterations are usually enough; further iterations buy little and cost two evaluations each. This is the 'modified Euler with iteration' sometimes examined alongside Heun's method.",
+    "**Cost.** Heun needs two evaluations of $f$ per step against Euler's one, so a fair comparison is: Heun at $h$ versus Euler at $h/2$ (same work). Heun still wins — its error is $O(h^{2})$ against Euler's $O(h)$ at the same total cost, typically by an order of magnitude on the standard test problems.",
+    "**Same stability limit as Euler.** Heun's method applied to $y'=\\lambda y$ has growth factor $1+\\lambda h+\\frac{(\\lambda h)^{2}}{2}$; the stability interval is roughly $-2\\le\\lambda h\\le0$, so the step-size restriction for stiff problems is essentially unchanged. Higher order improves *accuracy*, not the stability ceiling."
+  ],
+  "formulas": [
+    { "q": "Predictor (Euler step)", "e": "\\bar y_{i+1} = y_i + h\\,f(x_i,y_i)", "n": "First stage. Uses known values only." },
+    { "q": "Heun corrector", "e": "y_{i+1} = y_i + \\frac{h}{2}\\left[f(x_i,y_i) + f(x_{i+1},\\bar y_{i+1})\\right]", "n": "Average of the start and predicted-end slopes." },
+    { "q": "Half-step (midpoint) form", "e": "k_1=f(x_i,y_i),\\ k_2=f\\!\\left(x_i+\\frac{h}{2},\\,y_i+\\frac{h}{2}k_1\\right),\\ y_{i+1}=y_i+h k_2", "n": "Modified Euler, equivalent order. Use whichever the question names." },
+    { "q": "Trapezoidal-rule interpretation", "e": "y_{i+1} = y_i + \\int_{x_i}^{x_{i+1}} f\\,dx \\approx y_i + \\frac{h}{2}\\left[f_i + f_{i+1}\\right]", "n": "Why the method is second order: the trapezoidal rule is O(h^2) per step." },
+    { "q": "Local truncation error", "e": "E_{\\mathrm{local}} = O(h^{3})", "n": "One order better than Euler's O(h^2)." },
+    { "q": "Global error order", "e": "E_{\\mathrm{global}} = O(h^{2})", "n": "Halving h divides the error by 4." },
+    { "q": "Iterated corrector", "e": "y_{i+1}^{(k+1)} = y_i + \\frac{h}{2}\\left[f(x_i,y_i)+f(x_{i+1},y_{i+1}^{(k)})\\right]", "n": "Converges to the implicit trapezoidal solution; 2 iterations are usually enough." },
+    { "q": "Stability polynomial", "e": "y_{i+1} = \\left(1+\\lambda h+\\frac{(\\lambda h)^{2}}{2}\\right)y_i", "n": "For y' = lambda y. Stability interval approximately lambda*h in [-2, 0]." }
+  ],
+  "problems": [
+    {
+      "prompt": "Use Heun's method on $\\dfrac{dy}{dx}=x+y$, $y(0)=1$ with $h=0.1$ to find $y(0.2)$.",
+      "give": ["f(x,y) = x + y", "y(0) = 1", "h = 0.1"],
+      "steps": [
+        "Step 1 predictor: k1 = f(0, 1) = 0 + 1 = 1.0000; ybar = 1 + 0.1(1.0000) = 1.100000",
+        "Step 1 corrector: k2 = f(0.1, 1.100000) = 0.1 + 1.1 = 1.2000; y1 = 1 + (0.1/2)(1.0000 + 1.2000) = 1 + 0.05(2.2) = 1.110000",
+        "Step 2 predictor: k1 = f(0.1, 1.110000) = 0.1 + 1.11 = 1.2100; ybar = 1.11 + 0.1(1.2100) = 1.231000",
+        "Step 2 corrector: k2 = f(0.2, 1.231000) = 0.2 + 1.231 = 1.4310; y2 = 1.11 + 0.05(1.2100 + 1.4310) = 1.11 + 0.05(2.6410) = 1.242050",
+        "Exact: y = 2e^x - x - 1, so y(0.2) = 2(1.221403) - 0.2 - 1 = 1.242806",
+        "Error: 1.242050 - 1.242806 = -7.56e-4 (0.061%); plain Euler at the same h gives 1.220000, an error of 0.023 (1.8%)"
+      ],
+      "ans": "$y(0.2) \\approx 1.242050$ versus the exact $1.242806$; error $7.6\\times10^{-4}$, about 30 times smaller than Euler's at the same step.",
+      "trap": "Using the predictor value as the answer. The predictor $\\bar y=1.2310$ is not the result — it is only the input to the corrector, and reporting it discards the entire second-order gain."
+    },
+    {
+      "prompt": "Carry Heun's method one step further on the same problem with $h=0.2$: find $y(0.4)$ from $y(0.2)=1.240000$.",
+      "give": ["h = 0.2", "previous step gave y(0.2) = 1.240000"],
+      "steps": [
+        "Predictor: k1 = f(0.2, 1.240000) = 0.2 + 1.24 = 1.4400; ybar = 1.24 + 0.2(1.4400) = 1.528000",
+        "Corrector slope: k2 = f(0.4, 1.528000) = 0.4 + 1.528 = 1.9280",
+        "Corrector: y(0.4) = 1.24 + (0.2/2)(1.4400 + 1.9280) = 1.24 + 0.1(3.3680) = 1.576800",
+        "Exact: y(0.4) = 2e^{0.4} - 0.4 - 1 = 2(1.491825) - 1.4 = 1.583649",
+        "Error: 1.576800 - 1.583649 = -6.85e-3",
+        "Compare with Euler at h = 0.2, which gives 1.550400 at x = 0.4 — an error of -0.033, about 5 times larger"
+      ],
+      "ans": "$y(0.4) \\approx 1.576800$ (exact $1.583649$); error $-6.8\\times10^{-3}$.",
+      "trap": "Reverting to a single slope for the second step, i.e. finishing step 1 with the corrector but starting step 2 as plain Euler. Heun's method applies the predictor-corrector pair at *every* step, not just the first."
+    },
+    {
+      "prompt": "Show that Heun's method is second order by comparing the errors at $h=0.2$, $h=0.1$ and $h=0.05$ for $y'=x+y$, $y(0)=1$ at $x=1$.",
+      "give": ["exact y(1) = 2e - 2 = 3.436564"],
+      "steps": [
+        "h = 0.2 (5 steps): y(1) = 3.405416; error = -0.031147",
+        "h = 0.1 (10 steps): y(1) = 3.428162; error = -0.008402",
+        "h = 0.05 (20 steps): y(1) = 3.434382; error = -0.002182",
+        "Error ratios: 0.031147/0.008402 = 3.71; 0.008402/0.002182 = 3.85",
+        "A ratio near 4 when h is halved is the signature of O(h^2); Euler would give a ratio near 2",
+        "Plain Euler at h = 0.2 gives 2.976640 for comparison — an error of 0.460, fifteen times Heun's at the same step"
+      ],
+      "ans": "Error ratios $3.7$ and $3.9$ confirm $O(h^{2})$; Heun's error is 15 times smaller than Euler's at $h=0.2$.",
+      "trap": "Reporting the ratio as 2 because 'the method is a corrected Euler'. The corrector removes the $h^{2}$ term, so the ratio is 4; a ratio near 2 means the corrector step was skipped or applied to the wrong stage."
+    },
+    {
+      "prompt": "Apply the modified-Euler midpoint form to $y'=x-y$, $y(0)=1$ with $h=0.1$ for two steps, and compare with Heun's method and the exact solution $y=x-1+2e^{-x}$.",
+      "give": ["f(x,y) = x - y", "y(0) = 1", "h = 0.1"],
+      "steps": [
+        "Step 1: k1 = f(0,1) = 0 - 1 = -1.0000; midpoint slope k2 = f(0.05, 1 + 0.05(-1)) = f(0.05, 0.95) = 0.05 - 0.95 = -0.9000; y1 = 1 + 0.1(-0.9000) = 0.910000",
+        "Step 2: k1 = f(0.1, 0.91) = 0.1 - 0.91 = -0.8100; k2 = f(0.15, 0.91 + 0.05(-0.81)) = f(0.15, 0.869500) = 0.15 - 0.8695 = -0.7195; y2 = 0.91 + 0.1(-0.7195) = 0.838050",
+        "Exact: y(0.2) = 0.2 - 1 + 2e^{-0.2} = -0.8 + 2(0.818731) = 0.837461",
+        "Error: 0.838050 - 0.837461 = 5.89e-4",
+        "Heun's method on the same step gives y2 = 0.838050 as well (both stages evaluated at the same h = 0.1 agree to 6 decimals here)",
+        "Plain Euler gives y2 = 1 + 0.1(-1) = 0.9, then 0.9 + 0.1(0.1-0.9) = 0.820000 — an error of 0.017, about 29 times larger"
+      ],
+      "ans": "$y(0.2) \\approx 0.838050$ (exact $0.837461$), error $5.9\\times10^{-4}$; Euler gives $0.820000$.",
+      "trap": "Evaluating the midpoint slope at $x_i+\\frac{h}{2}$ but with the *unadvanced* $y_i$. The midpoint state is $y_i+\\frac{h}{2}k_1$; using $y_i$ turns the method back into something first order."
+    },
+    {
+      "prompt": "For $y'=y$, $y(0)=1$ with $h=0.4$, compare one Euler step, one Heun step, and two iterations of the corrector. Exact $y(0.4)=e^{0.4}=1.491825$.",
+      "give": ["h = 0.4 (a deliberately coarse step to separate the methods)"],
+      "steps": [
+        "Euler: y1 = 1 + 0.4(1) = 1.400000; error = -0.091825",
+        "Heun predictor: ybar = 1.4; corrector slope = 1.4; y1 = 1 + (0.4/2)(1 + 1.4) = 1 + 0.2(2.4) = 1.480000; error = -0.011825",
+        "Iterated corrector, iteration 1: y1 = 1 + 0.2(1 + 1.48) = 1.496000; iteration 2: y1 = 1 + 0.2(1 + 1.496) = 1.499200",
+        "The iterates 1.480000 -> 1.496000 -> 1.499200 are converging toward the trapezoidal solution, which satisfies y1 = 1 + 0.2(1 + y1), i.e. y1 = 1.2/0.8 = 1.500000",
+        "Errors: Euler 0.0918, Heun 0.0118, iterated 0.0032 (iteration 1) and 0.0004 (iteration 2), implicit limit 0.008175 (an overestimate now)",
+        "The implicit trapezoidal value 1.500000 overestimates while Heun underestimates; both are far closer than Euler"
+      ],
+      "ans": "Euler $1.4000$, Heun $1.4800$, iterated corrector $1.4960\\to1.4992$ converging to the implicit value $1.5000$; exact $1.4918$.",
+      "trap": "Believing more corrector iterations always improve the answer. The iteration converges to the *implicit trapezoidal* solution $1.5000$, whose error ($+0.0082$) is larger than Heun's single correction ($-0.0118$ is larger still, but the limit is not exact) — iteration fixes the implicit equation, it does not make the quadrature exact."
+    }
+  ],
+  "traps": [
+    "**Reporting the predictor as the answer.** The predictor is an auxiliary value; the corrected value is the result. This is the most common way to lose the entire second-order benefit.",
+    "**Averaging the slope with the wrong endpoint.** The corrector uses $f(x_i,y_i)$ and $f(x_{i+1},\\bar y_{i+1})$ — the *predicted* end state, not the previous step's end slope. Reusing $f(x_i,y_i)$ twice collapses the method to Euler.",
+    "**Claiming $O(h)$ because it 'is Euler plus a correction'.** The averaged endpoint slope cancels the $h^{2}$ local term: the global order is $O(h^{2})$ and the error ratio on halving is 4, not 2.",
+    "**Midpoint form evaluated with $y_i$ instead of $y_i+\\frac{h}{2}k_1$.** The half-step advance in $y$ is what makes it second order; omitting it drops the order.",
+    "**Expecting better stability than Euler.** Heun's stability interval is about the same ($-2\\le\\lambda h\\le0$). A stiff problem still forces a small step; order does not rescue stability.",
+    "**Two iterations of the corrector assumed to converge to the exact solution.** It converges to the implicit trapezoidal value, which has its own truncation error — do not iterate expecting the exact answer.",
+    "**Mixing step sizes between the predictor and the corrector.** Both stages use the same $h$; a half-step predictor with a full-step corrector is a different (and incoherent) scheme."
+  ],
+  "refs": [
+    "[[08_Euler’s_Method]]",
+    "[[10_Runge-Kutta_4th_Order]]",
+    "[[06_Trapezoidal_Rule]]"
+  ],
+  "prereqs": ["[[08_Euler’s_Method]]"]
+}

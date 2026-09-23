@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fetch - Decode - Execute Animator — Instruction Cycle Step Through</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+// A pure-DOM widget: no canvas and no range input, so there is nothing to import
+// from vault.js. The CPU below is simulated for real -- every register value on
+// screen comes from executing the micro-operations in order, and the memory map is
+// copied at each step, so nothing is asserted that the model does not do.
+
+// ------------------------------------------------------------------ the machine
+// 8-bit accumulator, 64 bytes of memory, one 8-bit stack pointer, one interrupt
+// vector. Every instruction is exactly two bytes: opcode + operand.
+const OPS = {
+  0x1: { name: 'LDA', operand: true, desc: 'load the accumulator from the operand address' },
+  0x2: { name: 'STA', operand: true, desc: 'store the accumulator to the operand address' },
+  0x3: { name: 'ADD', operand: true, desc: 'add the memory operand to the accumulator' },
+  0x4: { name: 'SUB', operand: true, desc: 'subtract the memory operand from the accumulator' },
+  0x5: { name: 'JMP', operand: true, desc: 'unconditional jump to the operand address' },
+  0x6: { name: 'JZ', operand: true, desc: 'jump only if the zero flag is set' },
+  0x7: { name: 'RTI', operand: true, desc: 'return from interrupt: pop PC and re-enable interrupts' },
+  0xF: { name: 'HLT', operand: true, desc: 'stop the clock' },
+};
+const ISR_ADDR = 0x30;
+const STACK_TOP = 0x3F;
+
+const PROGS = {
+  p1: {
+    label: 'zero test, branch taken, store',
+    code: [0x10, 0x20, 0x40, 0x21, 0x60, 0x0A, 0x10, 0x22, 0x30, 0x21, 0x30, 0x22, 0x20, 0x23, 0xF0, 0x00],
+    data: [[0x20, 12], [0x21, 12], [0x22, 7], [0x23, 0], [0x24, 0], [0x25, 1]],
+    story: 'M[20] = 12 and M[21] = 12, so SUB leaves A = 0 and sets Z. The JZ at 0x04 jumps over the two instructions at 0x06 and 0x08, and the program stores A = 7 into M[23].',
+  },
+  p2: {
+    label: 'countdown loop (JMP + JZ)',
+    code: [0x10, 0x20, 0x40, 0x21, 0x20, 0x20, 0x60, 0x0A, 0x50, 0x02, 0xF0, 0x00],
+    data: [[0x20, 3], [0x21, 1], [0x24, 0], [0x25, 1]],
+    story: 'M[20] starts at 3 and the loop subtracts 1, stores it and jumps back until A reaches 0. The zero flag is what ends the loop, so watch Z and A together.',
+  },
+};
+
+const ISR_CODE = [0x10, 0x24, 0x30, 0x25, 0x20, 0x24, 0x70, 0x00];
+
+const hex2 = (n) => ((n & 0xFF) + 0x100).toString(16).slice(1).toUpperCase();
+const hex1 = (n) => (n & 0xF).toString(16).toUpperCase();
+const bin8 = (n) => (n & 0xFF).toString(2).padStart(8, '0');
+
+/**
+ * Run the machine from reset and record one snapshot per micro-operation.
+ * Nothing here is scripted: the snapshots are produced by executing the
+ * micro-operations against the same memory array the widget displays.
+ */
+function buildTrace(progKey, irqPending0, ien0, maxSteps) {
+  const prog = PROGS[progKey];
+  const mem = new Uint8Array(64);
+  mem.set(prog.code, 0);
+  for (const [a, val] of prog.data) mem[a] = val;
+  mem.set(ISR_CODE, ISR_ADDR);
+
+  const c = { pc: 0, a: 0, z: 0, c: 0, ir: 0, mar: 0, mdr: 0, sp: STACK_TOP, ien: ien0 ? 1 : 0, halted: false };
+  let irq = !!irqPending0;
+  let irqLatched = false;
+  const steps = [];
+
+  const snap = (phase, op, note, flag) => {
+    steps.push({
+      phase, op, note: note || '', flag: flag || '',
+      pc: c.pc, a: c.a, z: c.z, cy: c.c, ir: c.ir, mar: c.mar, mdr: c.mdr,
+      sp: c.sp, ien: c.ien, halted: c.halted,
+      mem: mem.slice(),
+      irq, irqLatched,
+    });
+  };
+
+  let guard = 0;
+  while (steps.length < maxSteps && !c.halted && guard++ < 300) {
+    // ---------------------------------------------------------------- FETCH
+    c.mar = c.pc;
+    snap('FETCH', 'MAR <- PC', 'the program counter is placed on the address bus');
+    c.mdr = mem[c.mar];
+    snap('FETCH', 'MDR <- M[MAR]', 'memory returns the byte at ' + hex2(c.mar) + ', which is the opcode');
+    c.ir = c.mdr;
+    c.pc = (c.pc + 1) & 0xFF;
+    snap('FETCH', 'IR <- MDR ; PC <- PC + 1', 'opcode latched into the instruction register, PC already points at the operand');
+
+    // --------------------------------------------------------------- DECODE
+    const op = (c.ir >> 4) & 0xF;
+    const m = OPS[op];
+    if (!m) {
+      c.halted = true;
+      snap('DECODE', 'opcode ' + hex2(c.ir) + ' is not in the instruction set', 'the CPU has no defined action, so it stops', 'bad');
+      break;
+    }
+    snap('DECODE', 'decode ' + hex2(c.ir) + ' -> ' + m.name, m.desc, 'ok');
+    c.mar = c.pc;
+    snap('DECODE', 'MAR <- PC', 'point the address bus at the operand byte');
+    c.mdr = mem[c.mar];
+    c.pc = (c.pc + 1) & 0xFF;
+    snap('DECODE', 'MDR <- M[MAR] ; PC <- PC + 1', 'operand = ' + hex2(c.mdr) +
+      ' is now in MDR, PC points past the instruction');
+
+    // -------------------------------------------------------------- EXECUTE
+    if (op === 0x1 || op === 0x3 || op === 0x4) {
+      c.mar = c.mdr;
+      snap('EXECUTE', 'MAR <- MDR', 'the operand field is an ADDRESS, so it goes back out on the address bus');
+      c.mdr = mem[c.mar];
+      snap('EXECUTE', 'MDR <- M[MAR]', 'memory returns the data at ' + hex2(c.mar) + ' = ' + hex2(c.mdr));
+      if (op === 0x1) { c.a = c.mdr; c.z = c.a === 0 ? 1 : 0; snap('EXECUTE', 'A <- MDR', 'accumulator loaded, Z updated from A'); }
+      if (op === 0x3) {
+        const s = c.a + c.mdr; c.c = s > 0xFF ? 1 : 0; c.a = s & 0xFF; c.z = c.a === 0 ? 1 : 0;
+        snap('EXECUTE', 'A <- A + MDR', 'sum is ' + String(s) + ', carry = ' + String(c.c) + ', Z updated from A');
+      }
+      if (op === 0x4) {
+        const d2 = c.a - c.mdr; c.c = d2 < 0 ? 1 : 0; c.a = d2 & 0xFF; c.z = c.a === 0 ? 1 : 0;
+        snap('EXECUTE', 'A <- A - MDR', 'difference is ' + String(d2) + ', borrow = ' + String(c.c) + ', Z updated from A');
+      }
+    } else if (op === 0x2) {
+      c.mar = c.mdr;
+      snap('EXECUTE', 'MAR <- MDR', 'the operand field is the ADDRESS to write, so it goes out on the address bus');
+      c.mdr = c.a;
+      snap('EXECUTE', 'MDR <- A', 'the data to be written goes on the data bus');
+      mem[c.mar] = c.mdr;
+      snap('EXECUTE', 'M[MAR] <- MDR', 'written to address ' + hex2(c.mar));
+    } else if (op === 0x5) {
+      c.pc = c.mdr;
+      snap('EXECUTE', 'PC <- MDR', 'unconditional jump to ' + hex2(c.mdr));
+    } else if (op === 0x6) {
+      if (c.z) {
+        c.pc = c.mdr;
+        snap('EXECUTE', 'Z = 1 so PC <- MDR', 'branch TAKEN to ' + hex2(c.mdr), 'ok');
+      } else {
+        snap('EXECUTE', 'Z = 0 so PC is not changed', 'branch NOT taken, execution falls through to ' + hex2(c.pc), 'no');
+      }
+    } else if (op === 0x7) {
+      c.pc = mem[c.sp];
+      snap('EXECUTE', 'PC <- M[SP]', 'return address popped from the stack at ' + hex2(c.sp));
+      c.sp = (c.sp + 1) & 0xFF;
+      c.ien = 1;
+      snap('EXECUTE', 'SP <- SP + 1 ; IEN <- 1', 'stack pointer restored and interrupts re-enabled');
+    } else if (op === 0xF) {
+      c.halted = true;
+      snap('EXECUTE', 'halt', 'the clock stops; PC now points at the byte after HLT', 'bad');
+    }
+
+    // ------------------------------------------------------------ INTERRUPT
+    if (irq && c.ien && !c.halted) {
+      c.sp = (c.sp - 1) & 0xFF;
+      mem[c.sp] = c.pc;
+      snap('INTERRUPT', 'SP <- SP - 1 ; M[SP] <- PC', 'the return address ' + hex2(c.pc) + ' is pushed at ' + hex2(c.sp));
+      c.ien = 0;
+      c.pc = ISR_ADDR;
+      snap('INTERRUPT', 'IEN <- 0 ; PC <- interrupt vector ' + hex2(ISR_ADDR),
+        'interrupts are disabled so the service routine cannot be interrupted, and the PC jumps to the vector');
+      irq = false;
+      irqLatched = false;
+    } else if (irq && !c.ien) {
+      irqLatched = true;
+      snap('INTERRUPT', 'interrupt requested but IEN = 0', 'the request is latched and waits: a masked interrupt is not lost, it is deferred', 'no');
+    }
+  }
+  if (steps.length >= maxSteps) {
+    snap('EXECUTE', 'step limit reached', 'the trace was cut off at ' + String(maxSteps) + ' micro-operations');
+  }
+  return steps;
+}
+
+/** Program listing derived from the bytes in memory, so it can never disagree. */
+function listing(mem, from, to) {
+  const rows = [];
+  let pc = from;
+  while (pc <= to - 2) {
+    const op = (mem[pc] >> 4) & 0xF;
+    const m = OPS[op];
+    if (!m) break;
+    rows.push({
+      addr: pc,
+      bytes: hex2(mem[pc]) + ' ' + hex2(mem[pc + 1]),
+      text: m.name + ' ' + hex2(mem[pc + 1]),
+      desc: m.desc,
+    });
+    pc += 2;
+    if (op === 0xF) break;
+  }
+  return rows;
+}
+
+// ------------------------------------------------------------------ the widget
+const state = { prog: 'p1', irq: false, ien: true, cur: 0, steps: [] };
+
+function rebuild(preserve) {
+  state.steps = buildTrace(state.prog, state.irq, state.ien, 400);
+  state.cur = preserve ? Math.min(state.cur, state.steps.length - 1) : 0;
+}
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function build() {
+  const host = document.getElementById('app');
+  host.classList.add('vault-widget');
+
+  const head = el('header', 'vault-widget-head');
+  head.appendChild(el('h2', 'vault-widget-title', 'Fetch - Decode - Execute Animator'));
+  head.appendChild(el('p', 'vault-widget-desc',
+    'Step one micro-operation at a time through a tiny real machine: an 8-bit accumulator, 64 bytes of memory, a two-byte instruction format and one interrupt vector. Every register and every memory cell shown is the result of executing the step above it.'));
+  host.appendChild(head);
+
+  // ---------------------------------------------------------------- controls
+  const panel = el('div', 'vault-widget-controls');
+  const mk = (label, node) => {
+    const w = el('label', 'vault-widget-control');
+    w.appendChild(el('span', 'vault-widget-label', label));
+    node.className = 'vault-widget-input' + (node.tagName === 'SELECT' ? '' : '');
+    w.appendChild(node);
+    return w;
+  };
+  const sel = document.createElement('select');
+  for (const key of Object.keys(PROGS)) {
+    const o = document.createElement('option');
+    o.value = key;
+    o.textContent = PROGS[key].label;
+    sel.appendChild(o);
+  }
+  sel.addEventListener('change', () => { state.prog = sel.value; rebuild(false); render(); });
+  panel.appendChild(mk('program', sel));
+
+  const irqBox = document.createElement('input');
+  irqBox.type = 'checkbox';
+  irqBox.addEventListener('change', () => { state.irq = irqBox.checked; rebuild(false); render(); });
+  panel.appendChild(mk('interrupt request pending', irqBox));
+
+  const ienBox = document.createElement('input');
+  ienBox.type = 'checkbox';
+  ienBox.checked = true;
+  ienBox.addEventListener('change', () => { state.ien = ienBox.checked; rebuild(false); render(); });
+  panel.appendChild(mk('interrupts enabled at reset (IEN)', ienBox));
+  host.appendChild(panel);
+
+  // ------------------------------------------------------------ step buttons
+  const btns = el('div', 'vault-widget-controls');
+  const mkBtn = (label, fn, ghost) => {
+    const b = el('button', 'vault-widget-btn' + (ghost ? ' ghost' : ''), label);
+    b.addEventListener('click', fn);
+    const w = el('label', 'vault-widget-control');
+    w.appendChild(b);
+    return w;
+  };
+  btns.appendChild(mkBtn('previous step', () => { if (state.cur > 0) { state.cur--; render(); } }, true));
+  btns.appendChild(mkBtn('next step', () => { if (state.cur < state.steps.length - 1) { state.cur++; render(); } }));
+  btns.appendChild(mkBtn('run to end', () => { state.cur = state.steps.length - 1; render(); }));
+  btns.appendChild(mkBtn('reset', () => { state.cur = 0; render(); }, true));
+  host.appendChild(btns);
+
+  // -------------------------------------------------------- phase indicator
+  const phases = el('div');
+  phases.style.display = 'grid';
+  phases.style.gridTemplateColumns = 'repeat(4, 1fr)';
+  phases.style.gap = '8px';
+  phases.style.marginTop = '14px';
+  host.appendChild(phases);
+
+  // ------------------------------------------------------------- step banner
+  const banner = el('div');
+  banner.style.marginTop = '12px';
+  banner.style.padding = '12px 14px';
+  banner.style.background = 'var(--vw-panel)';
+  banner.style.border = '1px solid var(--vw-border)';
+  banner.style.borderLeft = '3px solid var(--vw-accent)';
+  banner.style.borderRadius = '8px';
+  host.appendChild(banner);
+
+  // ------------------------------------------------------------- registers
+  const regs = el('div');
+  regs.style.display = 'grid';
+  regs.style.gridTemplateColumns = 'repeat(auto-fit, minmax(118px, 1fr))';
+  regs.style.gap = '8px';
+  regs.style.marginTop = '12px';
+  host.appendChild(regs);
+
+  // --------------------------------------------------- memory + program view
+  const cols = el('div');
+  cols.style.display = 'grid';
+  cols.style.gridTemplateColumns = 'minmax(320px, 1fr) minmax(300px, 1fr)';
+  cols.style.gap = '14px';
+  cols.style.marginTop = '14px';
+  const memHost = el('div');
+  const progHost = el('div');
+  cols.appendChild(memHost);
+  cols.appendChild(progHost);
+  host.appendChild(cols);
+
+  // -------------------------------------------------------------- readout
+  const out = el('div', 'vault-widget-readout');
+  host.appendChild(out);
+
+  const warnBox = el('div', 'vault-widget-note');
+  warnBox.style.display = 'none';
+  host.appendChild(warnBox);
+
+  function card(parent, title) {
+    const d = el('div');
+    d.style.border = '1px solid var(--vw-border)';
+    d.style.borderRadius = '8px';
+    d.style.background = 'var(--vw-panel)';
+    d.style.padding = '10px';
+    if (title) {
+      const h = el('div', null, title);
+      h.style.fontSize = '0.78rem';
+      h.style.textTransform = 'uppercase';
+      h.style.letterSpacing = '0.04em';
+      h.style.color = 'var(--vw-dim)';
+      h.style.marginBottom = '8px';
+      d.appendChild(h);
+    }
+    parent.appendChild(d);
+    return d;
+  }
+
+  function render() {
+    const s = state.steps[state.cur];
+    if (!s) return;
+
+    // phase indicator
+    phases.innerHTML = '';
+    const LABEL = { FETCH: 'fetch the instruction', DECODE: 'decode + operand fetch', EXECUTE: 'execute', INTERRUPT: 'interrupt' };
+    for (const p of ['FETCH', 'DECODE', 'EXECUTE', 'INTERRUPT']) {
+      const d = el('div');
+      const on = s.phase === p;
+      d.style.padding = '8px 10px';
+      d.style.textAlign = 'center';
+      d.style.borderRadius = '8px';
+      d.style.border = '1px solid ' + (on ? 'var(--vw-accent)' : 'var(--vw-border)');
+      d.style.background = on ? 'rgba(137,180,250,0.22)' : 'var(--vw-panel)';
+      d.style.color = on ? 'var(--vw-text)' : 'var(--vw-dim)';
+      d.style.fontWeight = on ? '650' : '400';
+      d.style.fontSize = '0.86rem';
+      d.textContent = p;
+      const sub = el('div', null, LABEL[p]);
+      sub.style.fontSize = '0.7rem';
+      sub.style.color = 'var(--vw-dim)';
+      sub.style.fontWeight = '400';
+      d.appendChild(sub);
+      phases.appendChild(d);
+    }
+
+    // banner
+    banner.innerHTML = '';
+    const line1 = el('div');
+    line1.style.fontFamily = 'ui-monospace, monospace';
+    line1.style.fontSize = '1rem';
+    line1.style.color = s.flag === 'bad' ? 'var(--vw-accent-2)' : 'var(--vw-accent)';
+    line1.textContent = s.phase + '   ' + s.op;
+    banner.appendChild(line1);
+    const line2 = el('div', null, s.note);
+    line2.style.marginTop = '6px';
+    line2.style.fontSize = '0.88rem';
+    line2.style.color = 'var(--vw-dim)';
+    banner.appendChild(line2);
+    const line3 = el('div');
+    line3.style.marginTop = '6px';
+    line3.style.fontFamily = 'ui-monospace, monospace';
+    line3.style.fontSize = '0.82rem';
+    line3.style.color = 'var(--vw-warn)';
+    line3.textContent = 'step ' + String(state.cur + 1) + ' of ' + String(state.steps.length) +
+      '   |   address bus MAR = ' + hex2(s.mar) + '   data bus MDR = ' + hex2(s.mdr) +
+      '   |   IR = ' + hex2(s.ir) + ' (' + bin8(s.ir) + ')';
+    banner.appendChild(line3);
+
+    // registers
+    regs.innerHTML = '';
+    const add = (k, v, col) => {
+      const d = el('div');
+      d.style.padding = '8px 10px';
+      d.style.border = '1px solid var(--vw-border)';
+      d.style.borderRadius = '6px';
+      d.style.background = 'var(--vw-panel)';
+      const kk = el('div', null, k);
+      kk.style.fontSize = '0.7rem';
+      kk.style.textTransform = 'uppercase';
+      kk.style.letterSpacing = '0.04em';
+      kk.style.color = 'var(--vw-dim)';
+      const vv = el('div', null, v);
+      vv.style.fontFamily = 'ui-monospace, monospace';
+      vv.style.fontSize = '1.05rem';
+      vv.style.color = col || 'var(--vw-text)';
+      d.appendChild(kk);
+      d.appendChild(vv);
+      regs.appendChild(d);
+    };
+    add('PC', hex2(s.pc) + '  (' + String(s.pc) + ')');
+    add('IR', hex2(s.ir) + '  ' + ((OPS[(s.ir >> 4) & 0xF] || { name: '??' }).name));
+    add('MAR', hex2(s.mar));
+    add('MDR', hex2(s.mdr));
+    add('A', hex2(s.a) + '  (' + String(s.a) + ')', 'var(--vw-accent)');
+    add('Z flag', String(s.z), s.z ? 'var(--vw-accent-3)' : 'var(--vw-dim)');
+    add('C / borrow', String(s.cy), s.cy ? 'var(--vw-warn)' : 'var(--vw-dim)');
+    add('SP', hex2(s.sp));
+    add('IEN', String(s.ien), s.ien ? 'var(--vw-accent-3)' : 'var(--vw-accent-2)');
+    add('IRQ', s.irqLatched ? 'latched (masked)' : (s.irq ? 'pending' : 'none'),
+      s.irq || s.irqLatched ? 'var(--vw-warn)' : 'var(--vw-dim)');
+    add('state', s.halted ? 'HALTED' : 'running', s.halted ? 'var(--vw-accent-2)' : 'var(--vw-accent-3)');
+
+    // memory map
+    memHost.innerHTML = '';
+    const memBox = card(memHost, 'memory (64 bytes) — MAR highlighted, PC marked with >');
+    const tbl = document.createElement('table');
+    tbl.style.borderCollapse = 'collapse';
+    tbl.style.fontFamily = 'ui-monospace, monospace';
+    tbl.style.fontSize = '12px';
+    tbl.style.width = '100%';
+    const hr = document.createElement('tr');
+    hr.appendChild(el('th', null, ''));
+    for (let c2 = 0; c2 < 16; c2++) {
+      const th = el('th', null, hex1(c2));
+      th.style.color = 'var(--vw-dim)';
+      th.style.padding = '2px 4px';
+      th.style.fontWeight = '400';
+      hr.appendChild(th);
+    }
+    tbl.appendChild(hr);
+    for (let row = 0; row < 4; row++) {
+      const tr = document.createElement('tr');
+      const th = el('th', null, hex1(row) + '0');
+      th.style.color = 'var(--vw-dim)';
+      th.style.padding = '2px 6px';
+      th.style.textAlign = 'right';
+      th.style.fontWeight = '400';
+      tr.appendChild(th);
+      for (let col = 0; col < 16; col++) {
+        const a = row * 16 + col;
+        const td = el('td', null, hex2(s.mem[a]));
+        td.style.padding = '2px 4px';
+        td.style.textAlign = 'center';
+        td.style.border = '1px solid var(--vw-border)';
+        const isCode = a < 0x10;
+        const isData = a >= 0x20 && a <= 0x27;
+        const isIsr = a >= ISR_ADDR && a < ISR_ADDR + 8;
+        td.style.background = isCode ? 'rgba(137,180,250,0.16)'
+          : isIsr ? 'rgba(203,166,247,0.16)'
+          : isData ? 'rgba(166,227,161,0.14)' : 'transparent';
+        td.style.color = s.mem[a] ? 'var(--vw-text)' : 'var(--vw-dim)';
+        if (a === s.mar) {
+          td.style.outline = '2px solid var(--vw-warn)';
+          td.style.color = 'var(--vw-warn)';
+        }
+        if (a === s.pc) td.textContent = '>' + hex2(s.mem[a]);
+        tr.appendChild(td);
+      }
+      tbl.appendChild(tr);
+    }
+    memBox.appendChild(tbl);
+    const key = el('div', null, 'blue = program code (00-0F)   green = data (20-27)   purple = interrupt service routine at 30   yellow outline = MAR (the address on the bus right now)');
+    key.style.marginTop = '8px';
+    key.style.fontSize = '0.74rem';
+    key.style.color = 'var(--vw-dim)';
+    memBox.appendChild(key);
+
+    // program listing
+    progHost.innerHTML = '';
+    const listBox = card(progHost, 'disassembly, read straight out of memory');
+    const mkList = (rows, title2, base) => {
+      const t = el('div', null, title2);
+      t.style.fontSize = '0.78rem';
+      t.style.color = 'var(--vw-accent)';
+      t.style.margin = '6px 0 4px';
+      listBox.appendChild(t);
+      const tab = document.createElement('table');
+      tab.style.borderCollapse = 'collapse';
+      tab.style.fontFamily = 'ui-monospace, monospace';
+      tab.style.fontSize = '12px';
+      tab.style.width = '100%';
+      for (const r of rows) {
+        const tr = document.createElement('tr');
+        const cur = r.addr === s.pc || (r.addr < s.pc && s.pc <= r.addr + 1);
+        const c1 = el('td', null, hex2(r.addr));
+        const c2 = el('td', null, r.bytes);
+        const c3 = el('td', null, r.text);
+        for (const c of [c1, c2, c3]) {
+          c.style.padding = '3px 6px';
+          c.style.border = '1px solid var(--vw-border)';
+          c.style.color = cur ? 'var(--vw-warn)' : 'var(--vw-text)';
+          c.style.background = cur ? 'rgba(249,226,175,0.12)' : 'transparent';
+        }
+        c1.style.color = 'var(--vw-dim)';
+        c2.style.color = 'var(--vw-dim)';
+        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3);
+        tab.appendChild(tr);
+      }
+      listBox.appendChild(tab);
+    };
+    mkList(listing(s.mem, 0, 0x10), 'main program', 0);
+    mkList(listing(s.mem, ISR_ADDR, ISR_ADDR + 8), 'interrupt service routine (vector ' + hex2(ISR_ADDR) + ')', ISR_ADDR);
+
+    // readout
+    out.innerHTML = '';
+    const ra = (k, v) => {
+      const d = el('div', 'vault-widget-readout-item');
+      d.appendChild(el('span', 'vault-widget-readout-key', k));
+      d.appendChild(el('span', 'vault-widget-readout-val', v));
+      out.appendChild(d);
+    };
+    ra('current phase', s.phase);    ra('micro-operation', s.op);
+    ra('program counter', hex2(s.pc) + '  (' + String(s.pc) + ')');
+    ra('instruction register', hex2(s.ir) + ' = ' + bin8(s.ir));
+    ra('accumulator A', hex2(s.a) + ' = ' + String(s.a) + '  (Z = ' + String(s.z) + ')');
+    ra('stack pointer', hex2(s.sp));
+    ra('interrupts enabled', s.ien ? 'yes' : 'no (masked)');
+    ra('interrupt request', s.irqLatched ? 'latched, waiting for IEN' : (s.irq ? 'pending' : 'none'));
+    ra('M[23] (program 1 result)', hex2(s.mem[0x23]) + ' = ' + String(s.mem[0x23]));
+    ra('M[20] (loop counter)', hex2(s.mem[0x20]) + ' = ' + String(s.mem[0x20]));
+    ra('M[24] (ISR counter)', hex2(s.mem[0x24]) + ' = ' + String(s.mem[0x24]));
+    ra('machine state', s.halted ? 'HALTED' : 'running');
+
+    // the interrupt changes the numeric answer, and the reason is worth saying out loud
+    if (state.irq && state.ien) {
+      warnBox.style.display = '';
+      warnBox.innerHTML = '<strong>Watch what the interrupt does to the arithmetic.</strong> This service ' +
+        'routine does not save the accumulator, so it destroys whatever the main program was holding. In ' +
+        'program 1 the SUB after the interrupt now runs with A = 8 instead of 12, the zero flag never sets, ' +
+        'the JZ falls through, and M[23] ends up 26 instead of 7. Nothing about the main program changed - ' +
+        'only the moment the interrupt arrived. A real handler pushes the flags and the accumulator on entry ' +
+        'and pops them before RTI; that save-and-restore is exactly what makes an interrupt transparent. ' +
+        'Untick the request to see the undisturbed answer.';
+    } else {
+      warnBox.style.display = 'none';
+    }
+  }
+
+  rebuild(false);
+  render();
+}
+
+build();
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'fde-note';
+document.getElementById('app').appendChild(note);
+note.innerHTML =
+  '<strong>The instruction cycle is a fixed sequence of register transfers, and every exam question about it ' +
+  'is really a question about which register holds what and when.</strong> Fetch is ' +
+  '<code>MAR <- PC</code>, <code>MDR <- M[MAR]</code>, <code>IR <- MDR</code>, <code>PC <- PC + 1</code>. ' +
+  'Decode is nothing but control logic reading <code>IR</code>, plus a second bus cycle to pull the operand ' +
+  'byte into <code>MDR</code>. Execute is the only part that differs between instructions, and for a ' +
+  'memory-reference instruction it needs a THIRD bus cycle: the operand field is an address, so it must go ' +
+  'back out through <code>MAR</code> before the data can come in. That is why LDA takes longer than an ' +
+  'immediate load, and it is the detail the widget shows step by step.<br>' +
+  '<strong>Trap 1 - the program counter has already moved.</strong> By the time execute runs, PC points past ' +
+  'the instruction (past the operand for a two-byte format). A jump writes the target into PC, but a ' +
+  'not-taken conditional branch leaves the incremented PC alone. If you think PC still points at the opcode ' +
+  'during execute, every branch target you calculate is off by the instruction length.<br>' +
+  '<strong>Trap 2 - flags are set by the ALU, not by the move.</strong> LDA and ADD and SUB update Z from the ' +
+  'new accumulator value; STA and JMP touch no flags. Trace the zero flag through the countdown loop and the ' +
+  'loop ends exactly when A becomes 0 - not when the memory cell is zero, and not one iteration early. ' +
+  'Getting the flag update wrong is the single most common error in instruction-trace questions.<br>' +
+  '<strong>Trap 3 - an interrupt is a push, not a jump.</strong> The CPU pushes the return address, clears the ' +
+  'interrupt-enable bit so the handler cannot be interrupted by itself, loads PC from the vector, and RTI ' +
+  'reverses all of it. Turning IEN off does not throw the request away: a masked request stays latched, which ' +
+  'is why a handler can miss an edge but can never lose a level-triggered interrupt. Note also that the ' +
+  'interrupt is checked at the END of an instruction, never in the middle, because a half-finished ' +
+  'instruction has no valid return address.';
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First-Order RC / RL Step Response — τ, the 63.2 % Point and the 1τ–5τ Table</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Two facts decide most first-order transient exam questions, and both are easily mixed up:
+//   1. WHICH quantity has τ = RC (capacitor VOLTAGE) and which has τ = L/R (inductor
+//      CURRENT). The "other" quantity in each circuit jumps instantly — a capacitor
+//      voltage cannot jump, an inductor current cannot jump, and the dual statement is
+//      what the exam tests.
+//   2. The universal shape y(t) = y(∞) + [y(0) − y(∞)]·e^(−t/τ): at 1τ you are 63.2 %
+//      of the way, at 5τ you are 99.3 % of the way (engineering "steady state").
+// The widget plots both the charge and the discharge so the SAME τ governs both, and
+// prints the 1τ…5τ table with the values locked to decades of τ, not to seconds.
+
+const TAU_NOTE = {
+  RC: 'τ = R·C. This is the time constant of the CAPACITOR VOLTAGE. The capacitor current can and does jump instantly at t = 0 (i = V/R through an uncharged C).',
+  RL: 'τ = L/R. This is the time constant of the INDUCTOR CURRENT. The inductor voltage can and does jump instantly at t = 0 (all of V across L), but its current cannot.',
+};
+
+widget({
+  title: 'First-Order Step Response — RC and RL on the Same τ Skeleton',
+  description:
+    'Pick RC or RL, then slide R, C or L. The curve is always plotted against t/τ, so the shape never changes — only the time constant does. The 63.2 % point at 1τ and the 99.3 % point at 5τ are marked, and the 1τ–5τ table is filled in.',
+  height: 420,
+  range: { xMin: 0, xMax: 5, yMin: 0, yMax: 1.15 },
+  controls: [
+    { id: 'mode', label: 'circuit', type: 'select', options: [
+      { value: 'RC', label: 'RC — series R, capacitor C' },
+      { value: 'RL', label: 'RL — series R, inductor L' },
+    ], value: 'RC' },
+    { id: 'R', label: 'R', min: 10, max: 10000, step: 10, value: 1000, unit: 'Ω' },
+    { id: 'C', label: 'C (RC mode)', min: 0.1, max: 1000, step: 0.1, value: 100, unit: 'µF' },
+    { id: 'L', label: 'L (RL mode)', min: 1, max: 1000, step: 1, value: 100, unit: 'mH' },
+    { id: 'V', label: 'source V', min: 1, max: 50, step: 0.5, value: 10, unit: 'V' },
+    { id: 'phase', label: 'event at t = 0', type: 'select', options: [
+      { value: 'charge', label: 'switch ON — energise from 0' },
+      { value: 'discharge', label: 'switch OFF — de-energise to 0' },
+    ], value: 'charge' },
+  ],
+  compute: (v) => {
+    const isRC = v.mode === 'RC';
+    const tau = isRC ? v.R * v.C * 1e-6 : (v.L * 1e-3) / v.R;
+    const y0 = v.phase === 'charge' ? 0 : v.V;
+    const yInf = v.phase === 'charge' ? v.V : 0;
+    const y = (t) => yInf + (y0 - yInf) * Math.exp(-t / tau);
+    // the quantity with τ is the capacitor voltage (RC) or the inductor current (RL)
+    const label = isRC ? 'v_C(t)' : 'i_L(t)';
+    const unit = isRC ? 'V' : 'A';
+    // the dual quantity, which jumps instantly
+    const other = isRC
+      ? { label: 'i_C(t) = C·dv/dt', unit: 'A',
+          f: (t) => -((y0 - yInf) / v.R) * Math.exp(-t / tau),
+          peak: (y0 - yInf) / v.R, peakTxt: 'i jumps to ' + fmt((y0 - yInf) / v.R, 4) + ' A at t = 0⁺' }
+      : { label: 'v_L(t) = L·di/dt', unit: 'V',
+          f: (t) => (y0 - yInf) * Math.exp(-t / tau),
+          peak: y0 - yInf, peakTxt: 'v_L jumps to ' + fmt(y0 - yInf, 4) + ' V at t = 0⁺' };
+    const rows = [1, 2, 3, 4, 5].map((k) => ({
+      k, t: k * tau, y: y(k * tau),
+      pct: yInf !== 0 ? (100 * y(k * tau)) / yInf : (100 * (y0 - y(k * tau))) / (y0 || 1),
+    }));
+    return { isRC, tau, y, y0, yInf, label, unit, other, rows, phase: v.phase };
+  },
+  draw: (ctx, v, out, plot) => {
+    const pad = plot.pad, W = plot.w, H = plot.h;
+    plot.setRange({ xMin: -0.12, xMax: 5.12, yMin: -0.07, yMax: 1.16 });
+    plot.clear();
+    // axes drawn by hand: the shared axes() labels every unit tick, which would print
+    // "1,2,3,4,5" on an axis that is really 1τ, 2τ, 3τ … so the τ labels win.
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let k = 0; k <= 5; k++) {
+      ctx.beginPath(); ctx.moveTo(plot.X(k), plot.Y(0)); ctx.lineTo(plot.X(k), plot.Y(1.2)); ctx.stroke();
+    }
+    for (let f = 0; f <= 1.2; f += 0.2) {
+      ctx.beginPath(); ctx.moveTo(plot.X(0), plot.Y(f)); ctx.lineTo(plot.X(5.12), plot.Y(f)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(plot.X(0), plot.Y(0)); ctx.lineTo(plot.X(5.12), plot.Y(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(plot.X(0), plot.Y(0)); ctx.lineTo(plot.X(0), plot.Y(1.15)); ctx.stroke();
+    ctx.fillStyle = PALETTE.dim; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
+    for (let f = 0.2; f <= 1.001; f += 0.2) {
+      ctx.fillText(f.toFixed(1), plot.X(0) - 6, plot.Y(f) + 4);
+    }
+    ctx.restore();
+
+    // horizontal guide at the final value
+    plot.segment(-0.12, 1, 5.12, 1, { color: PALETTE.accent3, width: 1, dash: [6, 4] });
+    plot.label('final value (1.000 = ' + fmt(out.yInf, 4) + ' ' + out.unit + ')', 0.06, 1.035,
+      { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+
+    // the tangent at t = 0 reaches the final value at exactly t = τ
+    plot.segment(0, 0, 1, 1, { color: PALETTE.accent4, width: 1.4, dash: [5, 4] });
+
+    // the response, normalised to the final value so the shape is always the same
+    const frac = (t) => {
+      const t0 = out.yInf + (out.y0 - out.yInf) * Math.exp(-t / out.tau);
+      return out.yInf !== 0 ? t0 / out.yInf : (out.y0 - t0) / (out.y0 || 1);
+    };
+    plot.fn(frac, 0, 5.12, { color: PALETTE.accent, width: 2.6, samples: 500 });
+
+    // 1τ marker — 63.2 %
+    plot.dot(1, 0.632, { color: PALETTE.warn, r: 5 });
+    plot.segment(0, 0.632, 1, 0.632, { color: PALETTE.warn, width: 1, dash: [3, 3] });
+    plot.segment(1, 0, 1, 0.632, { color: PALETTE.warn, width: 1, dash: [3, 3] });
+    plot.label('63.2 % at t = 1τ = ' + fmt(out.tau, 4) + ' s', 1.07, 0.70,
+      { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+
+    // 5τ marker — 99.3 %
+    plot.dot(5, 0.9933, { color: PALETTE.accent2, r: 4 });
+    plot.label('99.3 % at 5τ (steady state)', 3.05, 0.945,
+      { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+
+    // τ ticks under the axis
+    for (let k = 1; k <= 5; k++) {
+      plot.segment(k, -0.03, k, 0, { color: PALETTE.axis, width: 1.4 });
+      plot.text(k + 'τ', plot.X(k), plot.Y(-0.055), { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('time (each tick = ' + fmt(out.tau, 4) + ' s)', plot.X(5.12), plot.Y(-0.055),
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+    plot.text(out.label + ' as a fraction of its final value', plot.X(3.2), plot.Y(1.10),
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // ---- substituted arithmetic + 1τ…5τ table (DOM, so the numbers stay selectable) ----
+    const note = document.getElementById('rcrl-formula');
+    if (note) {
+      const t = (x) => fmt(x, 4) + ' s';
+      const rowHtml = out.rows.map((r) =>
+        '<tr><td>' + r.k + 'τ</td><td>' + t(r.t) + '</td><td>' + fmt(r.y, 5) + ' ' + out.unit +
+        '</td><td>' + fmt(r.pct, 4) + ' %</td></tr>').join('');
+      const tauLine = out.isRC
+        ? 'τ = R·C = ' + fmt(v.R, 4) + ' Ω × ' + fmt(v.C, 4) + ' µF = ' + fmt(v.R * v.C * 1e-6, 4) + ' s'
+        : 'τ = L/R = ' + fmt(v.L, 4) + ' mH / ' + fmt(v.R, 4) + ' Ω = ' + fmt((v.L * 1e-3) / v.R, 4) + ' s';
+      const expr = out.phase === 'charge'
+        ? out.label + '(t) = ' + fmt(out.yInf, 4) + '·(1 − e^(−t/τ)) ' + out.unit + ',  t ≥ 0'
+        : out.label + '(t) = ' + fmt(out.y0, 4) + '·e^(−t/τ) ' + out.unit + ',  t ≥ 0';
+      note.innerHTML =
+        '<div><strong>' + (out.isRC ? 'RC' : 'RL') + ' circuit</strong> &nbsp; ' + tauLine +
+        ' &nbsp;|&nbsp; ' + (out.isRC
+          ? 'τ = R·C is the time constant of the CAPACITOR VOLTAGE'
+          : 'τ = L/R is the time constant of the INDUCTOR CURRENT') + '</div>' +
+        '<div><strong>Universal form:</strong> y(t) = y(∞) + [y(0) − y(∞)]·e^(−t/τ) &nbsp;→&nbsp; ' + expr +
+        ' &nbsp;with y(0) = ' + fmt(out.y0, 4) + ' ' + out.unit + ' and y(∞) = ' + fmt(out.yInf, 4) + ' ' + out.unit + '</div>' +
+        '<div><strong>The other quantity:</strong> ' + out.other.label + ' — ' + out.other.peakTxt +
+        ', then decays with the same τ. That one is NOT the τ = ' + (out.isRC ? 'RC' : 'L/R') + ' quantity.</div>' +
+        '<table style="width:100%;border-collapse:collapse;margin-top:6px;font-family:ui-monospace,monospace;font-size:12px">' +
+        '<tr style="color:var(--vw-accent)"><th style="text-align:left">t</th><th style="text-align:left">actual time</th>' +
+        '<th style="text-align:left">' + out.label + '</th><th style="text-align:left">% of ' +
+        (out.phase === 'charge' ? 'final' : 'initial') + '</th></tr>' + rowHtml + '</table>' +
+        '<div style="margin-top:6px">Slope at t = 0 is ' + fmt((out.yInf - out.y0) / out.tau, 4) + ' ' + out.unit +
+        '/s: the straight (orange dashed) tangent reaches the final value at exactly t = τ — that is the geometric ' +
+        'meaning of the time constant.</div>';
+    }
+  },
+  readout: (out) => ({
+    'τ': fmt(out.tau, 5) + ' s',
+    'quantity with τ': out.label,
+    'y(1τ) — 63.2 %': fmt(out.rows[0].y, 5) + ' ' + out.unit,
+    'y(2τ) — 86.5 %': fmt(out.rows[1].y, 5) + ' ' + out.unit,
+    'y(3τ) — 95.0 %': fmt(out.rows[2].y, 5) + ' ' + out.unit,
+    'y(5τ) — 99.3 %': fmt(out.rows[4].y, 5) + ' ' + out.unit,
+    'time to 5τ (settling)': fmt(5 * out.tau, 5) + ' s',
+    'other quantity jumps to': fmt(out.other.peak, 5) + ' ' + out.other.unit + ' at t = 0⁺',
+  }),
+});
+
+const host = document.getElementById('app');
+
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'rcrl-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight — τ belongs to one specific quantity, not to the whole circuit.</strong> ' +
+  'In an RC circuit τ = RC is the time constant of the <em>capacitor voltage</em> v_C; the capacitor ' +
+  'current i_C = C·dv_C/dt starts at V/R and decays with the same τ. In an RL circuit τ = L/R is the ' +
+  'time constant of the <em>inductor current</em> i_L; the inductor voltage starts at V and decays with ' +
+  'the same τ. ' +
+  '<strong>The mistake this prevents:</strong> quoting "τ = RC" for an RL circuit, or assuming the ' +
+  'inductor current has τ = L/R AND the inductor voltage also e-folds from zero — the inductor voltage ' +
+  'starts at full value and decays DOWN, it does not rise. The continuity rules are the real exam hook: ' +
+  'a capacitor voltage cannot jump and an inductor current cannot jump, so those are the quantities you ' +
+  'write the exponential for, and the other one you get by differentiation (or by KVL/KCL at t = 0⁺). ' +
+  '<strong>Remember the three numbers:</strong> 1τ → 63.2 %, 2τ → 86.5 %, 5τ → 99.3 % (call it steady ' +
+  'state). After 5τ an examiner expects you to treat the transient as finished. Also note the widget ' +
+  'plots against t/τ: R and C only move the horizontal scale, never the shape — changing R does not ' +
+  '"make the curve different", it makes it slower or faster.';
+host.appendChild(note);
+</script>
+</body>
+</html>

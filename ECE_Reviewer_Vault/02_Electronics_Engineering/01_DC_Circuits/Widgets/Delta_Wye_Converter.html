@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delta ↔ Wye Converter — Formulas, Arithmetic and Both Topologies</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// The Δ-Y transform is pure algebra, and the exam only ever asks two things:
+//   1. write the correct formula (the "product over sum" Δ→Y, the "sum of products
+//      over the opposite resistor" Y→Δ), and
+//   2. remember that a BALANCED bank is just ÷3 or ×3.
+// The classic error is mixing the two directions up — using R_ab = Ra·Rb/(Ra+Rb+Rc),
+// which is dimensionally fine but wrong, or pairing the Y resistor with the wrong
+// "opposite" Δ resistor (R_ab is opposite Rc, not Ra).
+//
+// Model: one pair of slider triples. Either the delta triple is the input and the wye
+// triple is derived, or the other way round. Both are always shown, and R_eq between
+// terminals a-b is computed from BOTH forms as a self-check — a correct transform must
+// give the same answer either way.
+
+widget({
+  title: 'Delta ↔ Wye (Δ-Y) Converter — Formula, Substitution and Both Topologies',
+  description:
+    'Type three resistors in one form and read the exact equivalent in the other. R_eq at terminals a-b is computed from both networks as a built-in check: if the conversion is right, the two numbers must agree.',
+  height: 420,
+  range: { xMin: 0, xMax: 10, yMin: 0, yMax: 10 },
+  controls: [
+    { id: 'mode', label: 'input form', type: 'select', options: [
+      { value: 'delta', label: 'I have DELTA resistors (Δ → Y)' },
+      { value: 'wye', label: 'I have WYE resistors (Y → Δ)' },
+    ], value: 'delta' },
+    { id: 'r1', label: 'resistor A', min: 1, max: 100, step: 0.5, value: 50, unit: 'Ω' },
+    { id: 'r2', label: 'resistor B', min: 1, max: 100, step: 0.5, value: 30, unit: 'Ω' },
+    { id: 'r3', label: 'resistor C', min: 1, max: 100, step: 0.5, value: 20, unit: 'Ω' },
+  ],
+  compute: (v) => {
+    const r1 = v.r1, r2 = v.r2, r3 = v.r3;
+    let delta, wye;
+    if (v.mode === 'delta') {
+      // Δ (R_ab, R_bc, R_ca) → Y (Ra, Rb, Rc)
+      delta = { ab: r1, bc: r2, ca: r3 };
+      const S = r1 + r2 + r3;
+      wye = { a: (r2 * r3) / S, b: (r3 * r1) / S, c: (r1 * r2) / S };
+    } else {
+      // Y (Ra, Rb, Rc) → Δ (R_ab, R_bc, R_ca)
+      wye = { a: r1, b: r2, c: r3 };
+      const S = r1 * r2 + r2 * r3 + r3 * r1;
+      delta = { ab: S / r3, bc: S / r1, ca: S / r2 };
+    }
+    // R_eq looking into terminals a-b. Delta: R_ab in parallel with the path R_bc + R_ca.
+    // Wye: the third arm lands on the open terminal c, so it carries no current and the
+    // answer is simply Ra + Rb. Both forms must agree — that is the built-in check.
+    const reqDelta = (delta.ab * (delta.bc + delta.ca)) / (delta.ab + delta.bc + delta.ca);
+    const reqWye = wye.a + wye.b;
+    const balanced = Math.abs(r1 - r2) < 1e-9 && Math.abs(r2 - r3) < 1e-9;
+    return { delta, wye, reqDelta, reqWye, balanced, mode: v.mode };
+  },
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h, pad = plot.pad;
+    const cx = (f) => pad + f * (W - 2 * pad);
+    const cy = (f) => pad + f * (H - 2 * pad);
+    const seg = (x1, y1, x2, y2, color, w, dash) => {
+      ctx.strokeStyle = color; ctx.lineWidth = w || 2;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    const dotAt = (x, y, color, r) => {
+      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r || 4, 0, Math.PI * 2); ctx.fill();
+    };
+    const txt = (s, x, y, color, font, align) => {
+      ctx.fillStyle = color || PALETTE.text;
+      ctx.font = font || '12px ui-monospace, monospace';
+      ctx.textAlign = align || 'left';
+      ctx.fillText(s, x, y);
+    };
+    // resistor: a gap with a value label at its midpoint
+    const res = (x1, y1, x2, y2, val, color, label) => {
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+      const ux = dx / L, uy = dy / L;
+      const g = 13;
+      ctx.fillStyle = PALETTE.bg;
+      ctx.beginPath(); ctx.arc(mx, my, g, 0, Math.PI * 2); ctx.fill();
+      seg(x1, y1, mx - ux * g, my - uy * g, color, 2);
+      seg(mx + ux * g, my + uy * g, x2, y2, color, 2);
+      ctx.fillStyle = PALETTE.panel;
+      ctx.fillRect(mx - 30, my - 9, 60, 18);
+      ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+      ctx.strokeRect(mx - 30, my - 9, 60, 18);
+      txt((label ? label + ' ' : '') + fmt(val, 4) + ' Ω', mx, my + 4, color, '12px ui-monospace, monospace', 'center');
+    };
+
+    // ---- divider ----
+    seg(cx(0.5), pad - 12, cx(0.5), H - pad + 6, PALETTE.grid, 1, [4, 4]);
+
+    // ---- LEFT: delta ----
+    const da = [cx(0.06), cy(0.14)];      // terminal a  (top-left)
+    const db = [cx(0.44), cy(0.14)];      // terminal b  (top-right)
+    const dc = [cx(0.25), cy(0.80)];      // terminal c  (bottom)
+    txt('DELTA (Δ)', da[0] - 4, pad - 16, out.mode === 'delta' ? PALETTE.warn : PALETTE.dim, '13px ui-monospace, monospace');
+    if (out.mode === 'delta') txt('(given)', da[0] + 88, pad - 16, PALETTE.warn, '11px ui-monospace, monospace');
+    res(da[0], da[1], db[0], db[1], out.delta.ab, PALETTE.accent, 'R_ab');
+    res(db[0], db[1], dc[0], dc[1], out.delta.bc, PALETTE.accent3, 'R_bc');
+    res(dc[0], dc[1], da[0], da[1], out.delta.ca, PALETTE.accent5, 'R_ca');
+    dotAt(da[0], da[1], PALETTE.warn); dotAt(db[0], db[1], PALETTE.warn); dotAt(dc[0], dc[1], PALETTE.warn);
+    txt('a', da[0] - 12, da[1] + 5, PALETTE.warn); txt('b', db[0] + 8, db[1] + 5, PALETTE.warn);
+    txt('c', dc[0] + 8, dc[1] + 10, PALETTE.warn);
+    txt('R_eq(a-b) = ' + fmt(out.reqDelta, 4) + ' Ω', da[0] - 4, H - pad + 4, PALETTE.dim, '11px ui-monospace, monospace');
+
+    // ---- RIGHT: wye ----
+    const wa = [cx(0.56), cy(0.14)];      // terminal a
+    const wb = [cx(0.94), cy(0.14)];      // terminal b
+    const wc = [cx(0.75), cy(0.80)];      // terminal c
+    const wn = [cx(0.75), cy(0.45)];      // neutral node
+    txt('WYE (Y)', wa[0] - 10, pad - 16, out.mode === 'wye' ? PALETTE.warn : PALETTE.dim, '13px ui-monospace, monospace');
+    if (out.mode === 'wye') txt('(given)', wa[0] + 74, pad - 16, PALETTE.warn, '11px ui-monospace, monospace');
+    res(wa[0], wa[1], wn[0], wn[1], out.wye.a, PALETTE.accent, 'Ra');
+    res(wb[0], wb[1], wn[0], wn[1], out.wye.b, PALETTE.accent3, 'Rb');
+    res(wc[0], wc[1], wn[0], wn[1], out.wye.c, PALETTE.accent5, 'Rc');
+    dotAt(wa[0], wa[1], PALETTE.warn); dotAt(wb[0], wb[1], PALETTE.warn); dotAt(wc[0], wc[1], PALETTE.warn);
+    dotAt(wn[0], wn[1], PALETTE.accent2, 3.5);
+    txt('n', wn[0] + 8, wn[1] + 4, PALETTE.accent2, '11px ui-monospace, monospace');
+    txt('a', wa[0] - 12, wa[1] + 5, PALETTE.warn); txt('b', wb[0] + 8, wb[1] + 5, PALETTE.warn);
+    txt('c', wc[0] + 8, wc[1] + 10, PALETTE.warn);
+    txt('R_eq(a-b) = ' + fmt(out.reqWye, 4) + ' Ω', wa[0] - 12, H - pad + 4, PALETTE.dim, '11px ui-monospace, monospace');
+
+    // ---- equivalence banner ----
+    const agree = Math.abs(out.reqDelta - out.reqWye) < 1e-9 * Math.max(1, out.reqDelta);
+    ctx.fillStyle = PALETTE.panel;
+    ctx.fillRect(cx(0.52), cy(0.86), (W - 2 * pad) * 0.46, 26);
+    txt((agree ? '✓ same R_eq(a-b) — the two networks are equivalent' : '✗ mismatch — bug in the transform'),
+      cx(0.535), cy(0.86) + 18, agree ? PALETTE.accent3 : PALETTE.accent2, '11px ui-monospace, monospace');
+
+    // ---- formula + substituted arithmetic ----
+    const note = document.getElementById('dy-formula');
+    if (note) {
+      const r1 = v.r1, r2 = v.r2, r3 = v.r3;
+      let html;
+      if (v.mode === 'delta') {
+        const S = r1 + r2 + r3;
+        html =
+          '<div><strong>Δ → Y</strong> &nbsp; R_Y = (product of the two Δ resistors touching that node) ÷ (sum of all three Δ resistors)</div>' +
+          '<div>Ra = (R_ab · R_ca)/ΣR = (' + fmt(r1, 3) + ' × ' + fmt(r3, 3) + ')/' + fmt(S, 4) + ' = <strong>' + fmt(out.wye.a, 5) + ' Ω</strong></div>' +
+          '<div>Rb = (R_ab · R_bc)/ΣR = (' + fmt(r1, 3) + ' × ' + fmt(r2, 3) + ')/' + fmt(S, 4) + ' = <strong>' + fmt(out.wye.b, 5) + ' Ω</strong></div>' +
+          '<div>Rc = (R_bc · R_ca)/ΣR = (' + fmt(r2, 3) + ' × ' + fmt(r3, 3) + ')/' + fmt(S, 4) + ' = <strong>' + fmt(out.wye.c, 5) + ' Ω</strong></div>' +
+          (out.balanced
+            ? '<div><strong>Balanced shortcut:</strong> all three Δ values are ' + fmt(r1, 4) + ' Ω, so divide by 3: ' + fmt(r1, 4) + '/3 = ' + fmt(out.wye.a, 5) + ' Ω each.</div>'
+            : '<div>Balance check: ' + fmt(r1, 3) + ', ' + fmt(r2, 3) + ', ' + fmt(r3, 3) + ' Ω are not equal, so the ÷3 shortcut does NOT apply — use the full formulas above.</div>');
+      } else {
+        const S = r1 * r2 + r2 * r3 + r3 * r1;
+        html =
+          '<div><strong>Y → Δ</strong> &nbsp; R_Δ = (sum of the three pairwise products of the Y resistors) ÷ (the Y resistor OPPOSITE that side)</div>' +
+          '<div>R_ab = (RaRb + RbRc + RcRa)/Rc = ' + fmt(S, 5) + '/' + fmt(r3, 3) + ' = <strong>' + fmt(out.delta.ab, 5) + ' Ω</strong></div>' +
+          '<div>R_bc = (RaRb + RbRc + RcRa)/Ra = ' + fmt(S, 5) + '/' + fmt(r1, 3) + ' = <strong>' + fmt(out.delta.bc, 5) + ' Ω</strong></div>' +
+          '<div>R_ca = (RaRb + RbRc + RcRa)/Rb = ' + fmt(S, 5) + '/' + fmt(r2, 3) + ' = <strong>' + fmt(out.delta.ca, 5) + ' Ω</strong></div>' +
+          (out.balanced
+            ? '<div><strong>Balanced shortcut:</strong> all three Y values are ' + fmt(r1, 4) + ' Ω, so multiply by 3: ' + fmt(r1, 4) + '×3 = ' + fmt(out.delta.ab, 5) + ' Ω each.</div>'
+            : '<div>Balance check: ' + fmt(r1, 3) + ', ' + fmt(r2, 3) + ', ' + fmt(r3, 3) + ' Ω are not equal, so the ×3 shortcut does NOT apply — use the full formulas above.</div>');
+      }
+      html += '<div style="margin-top:4px">Check — R_eq(a-b) from Δ: ' + fmt(out.reqDelta, 5) +
+        ' Ω &nbsp;=&nbsp; from Y: ' + fmt(out.reqWye, 5) + ' Ω &nbsp;→&nbsp; ' +
+        (agree ? 'identical, so the transform is correct.' : 'MISMATCH.') + '</div>';
+      note.innerHTML = html;
+    }
+  },
+  readout: (out) => ({
+    'R_ab (delta)': fmt(out.delta.ab, 5) + ' Ω',
+    'R_bc (delta)': fmt(out.delta.bc, 5) + ' Ω',
+    'R_ca (delta)': fmt(out.delta.ca, 5) + ' Ω',
+    'Ra (wye)': fmt(out.wye.a, 5) + ' Ω',
+    'Rb (wye)': fmt(out.wye.b, 5) + ' Ω',
+    'Rc (wye)': fmt(out.wye.c, 5) + ' Ω',
+    'R_eq(a-b) both forms': fmt(out.reqDelta, 5) + ' / ' + fmt(out.reqWye, 5) + ' Ω',
+    'balanced?': out.balanced ? 'yes — ÷3 or ×3' : 'no — use full formula',
+  }),
+  onChange: (v, state) => {
+    // Switching the input form must not silently relabel the numbers: when the student
+    // flips Δ→Y, seed the sliders with the wye values that correspond to what they were
+    // already looking at, so the picture does not jump. (state.controls is not exposed by
+    // vault.js, so the slider nodes are reached through the widget's own class name.)
+    const prev = state.lastMode;
+    state.lastMode = v.mode;
+    if (!prev || prev === v.mode) return;
+    const r1 = v.r1, r2 = v.r2, r3 = v.r3;
+    let next;
+    if (v.mode === 'wye') {
+      const S = r1 + r2 + r3;
+      next = [(r1 * r3) / S, (r1 * r2) / S, (r2 * r3) / S];   // Δ(ab,bc,ca) → Y(a,b,c)
+    } else {
+      const S = r1 * r2 + r2 * r3 + r3 * r1;
+      next = [S / r3, S / r2, S / r1];                        // Y(a,b,c) → Δ(ab,bc,ca)
+    }
+    const ranges = document.querySelectorAll('#app .vault-widget-input[type="range"]');
+    next.forEach((val, i) => {
+      if (!ranges[i]) return;
+      const clamped = Math.min(100, Math.max(1, Math.round(val * 2) / 2));
+      ranges[i].value = String(clamped);
+      ranges[i].dispatchEvent(new Event('input'));
+    });
+  },
+});
+
+const host = document.getElementById('app');
+
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'dy-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight — pick the form that removes a node, then check with R_eq.</strong> ' +
+  'A Δ has no neutral point, so it cannot be series-parallel reduced; a Y does. That is the only reason ' +
+  'the transform exists. ' +
+  '<strong>Pairing rule (the mistake this prevents):</strong> in Δ → Y each Y arm is the product of the ' +
+  'TWO Δ resistors that touch its node, divided by the sum — so Ra (the arm at node a) uses R_ab and R_ca. ' +
+  'In Y → Δ each Δ side is the sum of the three pairwise products divided by the Y arm <em>opposite</em> ' +
+  'that side — R_ab is opposite Rc, never Ra. Mixing those up (or using "product over sum" in the Y → Δ ' +
+  'direction) is the single most common Δ-Y error. ' +
+  '<strong>Shortcut to memorise:</strong> a balanced bank converts by ÷3 going Δ → Y and ×3 going Y → Δ ' +
+  '(30 Ω Δ = 10 Ω Y). Never apply the ÷3 to an unbalanced bank — the widget flags when it is legal. ' +
+  'Finally, a Δ-Y conversion never changes the terminal behaviour, so R_eq(a-b) must come out identical ' +
+  'from both drawings; the widget prints both values so you can police your own arithmetic.';
+host.appendChild(note);
+</script>
+</body>
+</html>

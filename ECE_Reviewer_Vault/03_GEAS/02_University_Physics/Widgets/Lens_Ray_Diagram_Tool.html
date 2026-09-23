@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lens and Mirror Ray Diagram — Three Principal Rays, Every Case</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// One sign convention, one equation, four elements, and every case handled --
+// including the object inside the focal length, where the image flips to virtual.
+//
+// Real-is-positive convention (stated on the canvas as well):
+//   do > 0 always (object on the left, in front of the element)
+//   f  > 0 converging (convex lens, concave mirror), f < 0 diverging
+//   di > 0 real image, di < 0 virtual image
+//   m  = -di/do ; m < 0 inverted, |m| > 1 enlarged
+// The mirror is drawn physically, not unfolded: a real image really does land on
+// the object side of a concave mirror, and a virtual one really is behind it.
+
+widget({
+  title: 'Lens and Mirror Ray Diagram — Three Principal Rays, Every Case',
+  description:
+    'Focal length (negative allowed), object distance and object height, for a thin lens or a spherical mirror. The three principal rays, the image position and height, the magnification and the real/virtual and upright/inverted verdict all come from 1/f = 1/do + 1/di. Slide the object inside the focal length to watch the image turn virtual.',
+  height: 560,
+  controls: [
+    { id: 'kind', label: 'element', type: 'select', options: [
+      { value: 'lens', label: 'thin lens (f > 0 converging, f < 0 diverging)' },
+      { value: 'mirror', label: 'spherical mirror (f > 0 concave, f < 0 convex)' }], value: 'lens' },
+    { id: 'f', label: 'focal length f (cm, sign matters)', min: -60, max: 60, step: 0.5, value: 20 },
+    { id: 'doo', label: 'object distance do (cm)', min: 2, max: 200, step: 1, value: 40 },
+    { id: 'ho', label: 'object height ho (cm)', min: 1, max: 10, step: 0.5, value: 4 },
+    { id: 'showRays', label: 'draw the three principal rays', type: 'checkbox', value: true },
+    { id: 'showVirtual', label: 'draw the dashed virtual extensions', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const S = v.kind === 'mirror' ? -1 : 1;      // which side a real image sits on
+    const f = v.f, doo = v.doo, ho = v.ho;
+    const noPower = Math.abs(f) < 0.5;
+    const denom = noPower ? NaN : 1 / f - 1 / doo;
+    // relative tolerance so that do = f (image at infinity) is caught, not fudged
+    const atFocus = !noPower && Math.abs(denom) < 1e-9 * Math.max(1, Math.abs(1 / f), 1 / doo);
+    const di = atFocus || noPower ? NaN : 1 / denom;
+    const m = atFocus || noPower ? NaN : -di / doo;
+    const hi = m * ho;
+    const real = di > 0;
+    const xImg = S * di;                          // drawing coordinate of the image
+    const tiny = 1e-9;
+    // classification: for f < 0 the answer is the same everywhere, so say that
+    // instead of pretending the do-versus-2f ladder applies to a diverging element
+    let regime;
+    if (noPower) regime = 'f = 0: no power, no finite image';
+    else if (f < 0) regime = v.kind === 'mirror'
+      ? 'convex mirror (f < 0): always virtual, upright, reduced, formed behind the mirror'
+      : 'diverging lens (f < 0): always virtual, upright, reduced, on the same side as the object';
+    else if (Math.abs(doo - f) < tiny) regime = 'do = f: the outgoing rays are parallel, so the image is at infinity';
+    else if (Math.abs(doo - 2 * f) < tiny) regime = 'do = 2f: image at 2f, real, inverted, same size';
+    else if (doo > 2 * f) regime = 'do > 2f: image between f and 2f, real, inverted, reduced';
+    else if (doo > f) regime = 'f < do < 2f: image beyond 2f, real, inverted, enlarged';
+    else regime = 'do < f: virtual, upright, enlarged, ' +
+      (v.kind === 'mirror' ? 'behind the mirror' : 'on the same side as the object');
+    // the parallel ray leaves the element towards the focus at S*f
+    const xF = S * f;
+    return { S, f, doo, ho, di, m, hi, real, xImg, noPower, atFocus, regime,
+             element: v.kind === 'mirror' ? 'spherical mirror' : 'thin lens',
+             xF, showRays: !!v.showRays, showVirtual: !!v.showVirtual,
+             conv: f > 0 ? 'converging' : 'diverging' };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h;
+    const txt = (s, x, y, col, al, fnt) => plot.text(s, x, y,
+      { color: col || PALETTE.dim, font: fnt || '11px ui-monospace, monospace', align: al || 'left' });
+
+    // ---------------------------------------------------- sign convention banner
+    txt('SIGN CONVENTION (stated, not implied): distances measured from the element; do > 0 for an object in front; ' +
+      'f > 0 converging; di > 0 real, di < 0 virtual; m = -di/do.',
+      14, 20, PALETTE.warn, 'left', '12px ui-monospace, monospace');
+    txt('1/f = 1/do + 1/di   ->   di = 1/(1/f - 1/do) = 1/(1/(' + fmt(out.f, 5) + ') - 1/(' + fmt(out.doo, 5) + ')) = ' +
+      (out.atFocus ? 'infinity' : out.noPower ? 'undefined (f is 0)' : fmt(out.di, 5) + ' cm') +
+      '        m = -di/do = ' + (out.atFocus ? 'infinite' : out.noPower ? '--' : fmt(out.m, 5)) +
+      '        hi = m ho = ' + (out.atFocus ? 'infinite' : out.noPower ? '--' : fmt(out.hi, 5) + ' cm'),
+      14, 40, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    txt(out.noPower
+      ? 'f is essentially zero: the element has no power and forms no finite image.'
+      : out.atFocus
+        ? 'Object exactly at the focal point: every outgoing ray is parallel, so the image is at infinity and the magnification is infinite.'
+        : 'Verdict: ' + (out.real ? 'REAL' : 'VIRTUAL') + ', ' + (out.m < 0 ? 'INVERTED' : 'UPRIGHT') + ', ' +
+          (Math.abs(out.m) > 1 ? 'ENLARGED' : Math.abs(out.m) < 1 ? 'REDUCED' : 'SAME SIZE') +
+          ' - image height ' + fmt(Math.abs(out.hi), 4) + ' cm is |m| = ' + fmt(Math.abs(out.m), 5) +
+          ' times the object height, and it sits ' + fmt(Math.abs(out.xImg), 5) + ' cm from the element on the ' +
+          (out.S < 0 ? (out.real ? 'object side, in front of the mirror' : 'far side, behind the mirror')
+                     : (out.real ? 'far side of the lens' : 'object side of the lens')) + '.',
+      14, 58, out.real ? PALETTE.accent2 : PALETTE.accent5, 'left', '12px ui-monospace, monospace');
+
+    // ------------------------------------------------------------- plot ranges
+    const far = (out.atFocus || out.noPower) ? out.doo * 2 : Math.abs(out.xImg);
+    const xLeft = -Math.max(out.doo * 1.12, Math.abs(out.f) * 2.1, out.xImg < 0 ? far * 1.12 : 0, 5);
+    const xRight = Math.max(Math.abs(out.f) * 2.1, out.xImg > 0 ? far * 1.12 : 0, out.doo * 0.3, 5);
+    const yLim = Math.max(out.ho, out.noPower || out.atFocus ? out.ho : Math.abs(out.hi), 1) * 1.55;
+    plot.setRange({ xMin: xLeft, xMax: xRight, yMin: -yLim, yMax: yLim });
+    plot.clear().grid(
+      Math.max(1, Math.round((xRight - xLeft) / 10) || 1) * 1,
+      Math.max(0.5, Math.round(yLim / 3 * 2) / 2));
+    plot.segment(xLeft, 0, xRight, 0, { color: PALETTE.axis, width: 1.4 });
+
+    const dotAt = (x, y, col, r) => {
+      ctx.save();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(plot.X(x), plot.Y(y), r || 4, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    };
+    const arrow = (x, y0, y1, col, dash) => {
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = 3;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath(); ctx.moveTo(plot.X(x), plot.Y(y0)); ctx.lineTo(plot.X(x), plot.Y(y1)); ctx.stroke();
+      ctx.setLineDash([]);
+      const dirn = y1 >= y0 ? 1 : -1;
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(plot.X(x), plot.Y(y1));
+      ctx.lineTo(plot.X(x) - 5, plot.Y(y1 - dirn * yLim * 0.09));
+      ctx.lineTo(plot.X(x) + 5, plot.Y(y1 - dirn * yLim * 0.09));
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    };
+    const raySeg = (x0, y0, x1, y1, col, dash, wdt) => {
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = wdt || 1.8;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath(); ctx.moveTo(plot.X(x0), plot.Y(y0)); ctx.lineTo(plot.X(x1), plot.Y(y1)); ctx.stroke();
+      ctx.restore();
+    };
+
+    // --------------------------------------------------------------- element
+    const lensH = yLim * 0.82;
+    if (v.kind === 'lens') {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      const bow = Math.abs(xRight - xLeft) * 0.035;
+      const s = out.f >= 0 ? 1 : -1;
+      ctx.moveTo(plot.X(0), plot.Y(lensH));
+      ctx.quadraticCurveTo(plot.X(bow * s), plot.Y(0), plot.X(0), plot.Y(-lensH));
+      ctx.quadraticCurveTo(plot.X(-bow * s), plot.Y(0), plot.X(0), plot.Y(lensH));
+      ctx.stroke();
+      ctx.restore();
+      txt('LENS', plot.X(0) + 8, plot.Y(lensH) - 6, PALETTE.accent, 'left', 'bold 11px ui-monospace, monospace');
+    } else {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      const bul = Math.abs(xRight - xLeft) * 0.05;
+      ctx.moveTo(plot.X(0), plot.Y(lensH));
+      ctx.quadraticCurveTo(plot.X(out.f >= 0 ? -bul : bul), plot.Y(0), plot.X(0), plot.Y(-lensH));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(137,180,250,0.35)';
+      ctx.lineWidth = 1.2;
+      for (let i = 1; i <= 5; i++) {
+        const yy = -lensH + (i / 6) * 2 * lensH;
+        ctx.beginPath(); ctx.moveTo(plot.X(0), plot.Y(yy)); ctx.lineTo(plot.X(bul * 0.5), plot.Y(yy)); ctx.stroke();
+      }
+      ctx.restore();
+      txt('MIRROR (reflecting side is the left, where the object is)',
+        plot.X(0) + 8, plot.Y(lensH) - 6, PALETTE.accent, 'left', 'bold 11px ui-monospace, monospace');
+    }
+
+    // ------------------------------------------------------------ focal points
+    for (const [xv, lab, col] of [[out.xF, 'F (far focus: parallel rays pass through here)', PALETTE.accent3],
+                                  [-out.xF, 'F (near focus)', PALETTE.accent3]]) {
+      if (xv > xLeft && xv < xRight) {
+        dotAt(xv, 0, col, 4);
+        txt(lab, plot.X(xv), plot.Y(0) + 16, col, 'center', '10px ui-monospace, monospace');
+      }
+    }
+    for (const xv of [2 * out.xF, -2 * out.xF]) {
+      if (xv > xLeft && xv < xRight) {
+        dotAt(xv, 0, PALETTE.dim, 3);
+        txt('2F', plot.X(xv), plot.Y(0) - 6, PALETTE.dim, 'center', '10px ui-monospace, monospace');
+      }
+    }
+
+    // ----------------------------------------------------------------- object
+    arrow(-out.doo, 0, out.ho, PALETTE.warn);
+    dotAt(-out.doo, out.ho, PALETTE.warn, 3.5);
+    txt('object ' + fmt(out.ho, 3) + ' cm at do = ' + fmt(out.doo, 4) + ' cm',
+      plot.X(-out.doo) - 8, plot.Y(out.ho) - 10, PALETTE.warn, 'right');
+
+    // ------------------------------------------------------------------ image
+    if (!out.noPower && !out.atFocus && Math.abs(out.xImg) < 6 * Math.max(Math.abs(xLeft), xRight)) {
+      const col = out.real ? PALETTE.accent2 : PALETTE.accent5;
+      arrow(out.xImg, 0, out.hi, col, out.real ? null : [7, 5]);
+      dotAt(out.xImg, out.hi, col, 4);
+      txt('image ' + fmt(Math.abs(out.hi), 4) + ' cm ' + (out.real ? '(real, solid)' : '(virtual, dashed)'),
+        plot.X(out.xImg) + (out.xImg < 0 ? -8 : 8), plot.Y(out.hi) + (out.hi >= 0 ? -12 : 18), col,
+        out.xImg < 0 ? 'right' : 'left');
+    }
+
+    // ------------------------------------------------------- the three rays
+    if (out.showRays && !out.noPower) {
+      const xo = -out.doo, ho2 = out.ho;
+      const showV = out.showVirtual;
+      const C = [PALETTE.accent, PALETTE.accent3, PALETTE.accent4];
+
+      if (out.atFocus) {
+        // every outgoing ray is parallel, with the direction the centre ray takes
+        const slope = -out.S * ho2 / out.doo;
+        const xEnd = out.S > 0 ? xRight : xLeft;
+        for (const [y0, i] of [[ho2, 0], [0, 2]]) {
+          raySeg(xo, ho2, 0, y0, C[i]);
+          raySeg(0, y0, xEnd, y0 + slope * xEnd, C[i]);
+        }
+        const yB = -ho2 * out.f / (out.doo - out.f);
+        raySeg(xo, ho2, 0, yB, C[1]);
+        raySeg(0, yB, xEnd, yB + slope * xEnd, C[1]);
+      } else {
+        const xi = out.xImg, hi2 = out.hi;
+
+        // R1: parallel to the axis, then through the far focal point
+        raySeg(xo, ho2, 0, ho2, C[0]);
+        raySeg(0, ho2, xi, hi2, C[0]);
+        if (!out.real && showV) raySeg(0, ho2, xi, hi2, C[0], [4, 4], 1.1);
+
+        // R2: through the near focal point, then parallel to the axis
+        const xNear = -out.f;
+        const yB = -ho2 * out.f / (out.doo - out.f);
+        raySeg(xo, ho2, 0, yB, C[1]);
+        raySeg(0, yB, xi, yB, C[1]);
+        if (!out.real && showV) raySeg(0, yB, xi, yB, C[1], [4, 4], 1.1);
+
+        // R3: through the optical centre (or the mirror vertex), undeviated
+        raySeg(xo, ho2, 0, 0, C[2]);
+        raySeg(0, 0, xi, hi2, C[2]);
+        if (!out.real && showV) raySeg(0, 0, xi, hi2, C[2], [4, 4], 1.1);
+
+        // the near-focal construction line, drawn faintly
+        raySeg(xo, ho2, xNear, 0, 'rgba(166,227,161,0.35)', [3, 4], 1.1);
+      }
+
+      txt('R1 parallel then through F', plot.pad + 4, H - 76, C[0], 'left', '10px ui-monospace, monospace');
+      txt('R2 through F then parallel to the axis', plot.pad + 4, H - 60, C[1], 'left', '10px ui-monospace, monospace');
+      txt('R3 through the centre / vertex, undeviated', plot.pad + 4, H - 44, C[2], 'left', '10px ui-monospace, monospace');
+    }
+
+    txt('distances in cm, measured from the element; the vertical scale is exaggerated so the rays stay readable',
+      plot.pad + 4, H - 24, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+  },
+
+  readout: (out) => {
+    const r = {
+      'element': out.conv + ' ' + out.element,
+      'f (signed)': fmt(out.f, 5) + ' cm',
+      'object distance do': fmt(out.doo, 5) + ' cm',
+      'image distance di': out.atFocus ? 'infinity' : out.noPower ? 'no finite image (f = 0)' : fmt(out.di, 5) + ' cm  ' +
+        (out.real ? '(positive: real)' : '(negative: virtual)'),
+      'image height hi': out.atFocus ? 'infinity' : out.noPower ? '--' : fmt(out.hi, 5) + ' cm',
+      'magnification m = -di/do': out.atFocus ? 'infinity' : out.noPower ? '--' : fmt(out.m, 5),
+      'image type': out.noPower ? 'none' : out.atFocus ? 'at infinity' : (out.real ? 'REAL' : 'VIRTUAL'),
+      'orientation': out.m < 0 ? 'INVERTED (m < 0)' : 'UPRIGHT (m > 0)',
+      'size': out.noPower || out.atFocus ? '--' : (Math.abs(out.m) > 1 ? 'ENLARGED' : Math.abs(out.m) < 1 ? 'REDUCED' : 'same size'),
+      'regime': out.noPower ? 'f = 0: no power' : out.regime,
+      'check: 1/f - 1/do': out.noPower ? '--' : fmt(1 / out.f - 1 / out.doo, 6) + ' cm^-1',
+      'check: 1/di': out.atFocus || out.noPower ? '--' : fmt(1 / out.di, 6) + ' cm^-1   (must match the row above)',
+      'drawing position of the image': out.atFocus || out.noPower ? '--' :
+        fmt(out.xImg, 5) + ' cm ' + (out.S < 0 ? '(mirror: negative x = in front, on the object side)' : '(lens: positive x = beyond the lens)'),
+    };
+    return r;
+  },
+
+  onChange: (values) => { /* the note below is static; nothing to update */ },
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'lens-note';
+document.getElementById('app').appendChild(note);
+note.innerHTML =
+  '<strong>The whole topic is one equation and one sign convention, and the exam punishes only the ' +
+  'convention.</strong> Everything here uses real-is-positive: <code>1/f = 1/do + 1/di</code> with ' +
+  '<code>do &gt; 0</code> for an object in front of the element, <code>f &gt; 0</code> for a converging ' +
+  'element (convex lens, concave mirror) and <code>f &lt; 0</code> for a diverging one (concave lens, convex ' +
+  'mirror), <code>di &gt; 0</code> for a real image and <code>di &lt; 0</code> for a virtual image, and ' +
+  '<code>m = -di/do</code> so the sign of m carries upright versus inverted by itself.<br>' +
+  '<strong>Trap 1 - an object inside the focal length.</strong> With a converging element and ' +
+  '<code>do &lt; f</code>, the algebra gives a NEGATIVE di: a virtual, upright, enlarged image on the same ' +
+  'side as the object. Dropping that minus sign turns a magnifying glass into a camera, and every follow-up ' +
+  'answer inherits the error. Notice also that the three rays still converge - just backwards, so you must ' +
+  'extend them with dashed lines to find the image.<br>' +
+  '<strong>Trap 2 - converging does not mean real, and diverging can never be real.</strong> A convex lens ' +
+  'with the object inside f makes a virtual image, so the test is the SIGN of di, not the shape of the ' +
+  'element. A diverging element (concave lens, convex mirror) has <code>f &lt; 0</code>, so ' +
+  '<code>1/di = 1/f - 1/do</code> is always negative: a diverging element can only ever produce a virtual, ' +
+  'upright, reduced image, no matter where the object is.<br>' +
+  '<strong>Trap 3 - a mirror is not a lens with a new label.</strong> For a spherical mirror ' +
+  '<code>f = R/2</code>, so a radius of curvature of 40 cm means f = 20 cm, not 40. The magnification rule is ' +
+  'identical, but the image geometry is not: a real image from a concave mirror forms in FRONT of the mirror, ' +
+  'on the same side as the object, which is why this widget draws it there rather than unfolding the diagram. ' +
+  'Sign errors on R/2 and on which side a mirror image lands are the two most common mirror mistakes.<br>' +
+  '<strong>Fast self-checks.</strong> A real image is always inverted and always on the far side of the ' +
+  'light; a virtual image is always upright and on the incoming side. If your answer has a real upright ' +
+  'image, or a virtual inverted one, it is wrong before you check any arithmetic. And ' +
+  '<code>|m| = hi/ho</code> must agree with <code>|di/do|</code> - compute both and compare. Finally, ' +
+  'watch the units: f, do and di must all be in the same unit before substituting, and the answer comes ' +
+  'back in that unit.';
+</script>
+</body>
+</html>

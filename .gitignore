@@ -1,0 +1,33 @@
+# ============================================================
+# Obsidian vault + ECE reviewer — ignore rules
+# Notes, payloads, widgets and .obsidian config ARE tracked.
+# What follows is only per-device state and OS noise.
+# ============================================================
+
+# --- OS / editor noise ---
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~
+
+# --- Obsidian: per-device window layout ---
+# These change on every pane drag and will conflict on EVERY sync
+# between desktop and tablet. Never track them.
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspaces.json
+.obsidian/cache/
+
+# --- Obsidian: plugin state that holds credentials or device paths ---
+# obsidian-git can store your GitHub HTTPS token in this file.
+# Ignoring it keeps the token out of the repo and lets each device
+# keep its own sync interval.
+.obsidian/plugins/obsidian-git/data.json
+
+# --- Obsidian local trash ---
+.trash/
+
+# --- Node / build tooling ---
+node_modules/
+*.log

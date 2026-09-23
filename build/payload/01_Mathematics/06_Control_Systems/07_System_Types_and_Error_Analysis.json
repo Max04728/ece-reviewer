@@ -1,0 +1,104 @@
+{
+  "scope": "Classify a loop by the number of open-loop poles at the origin and use that type to predict accuracy, disturbance rejection and the stability trade-off.",
+  "intuition": "System type counts how many pure integrations sit in the loop. Each integration buys one order of accuracy (a step, a ramp, a parabola) at the cost of $90^\\circ$ of phase — which is exactly why accuracy and stability are always in tension.",
+  "concept": [
+    "**Definition.** The system type is the number of poles of the **open-loop** $G(s)H(s)$ at the origin. Type 0: no integrator. Type 1: one. Type 2: two. It is not the order of the system, not the number of closed-loop poles, and not the number of poles in the plant alone — it is the multiplicity of $s=0$ in the loop transfer function.",
+    "**The accuracy table.** Multiplying the loop by $1/s$ converts each error constant into the next one: $K_p=\\lim_{s\\to0}GH$, $K_v=\\lim_{s\\to0}sGH$, $K_a=\\lim_{s\\to0}s^2GH$. So a type-1 loop has $K_p=\\infty$ (zero step error) and a finite $K_v$ (finite ramp error), while $K_a=0$ (infinite parabolic error). The three rows of the table are the same limit evaluated with one, two and three powers of $s$.",
+    "**Why integrators buy accuracy.** The input transforms carry powers of $1/s$: step $1/s$, ramp $1/s^2$, parabola $1/s^3$. The error is $\\dfrac{R(s)}{1+GH}$; the integrator poles in $GH$ cancel those powers in the limit, leaving a finite ratio. Without enough integrators the limit diverges, and the answer is 'infinite error', not 'zero error'.",
+    "**Scaling a non-unit input.** A step of height $A$ gives $e_{ss}=A/(1+K_p)$; a ramp of slope $A$ gives $e_{ss}=A/K_v$; a parabola $r(t)=At^2/2$ gives $A/K_a$. Board questions frequently scale the input; do not report the unit-input error.",
+    "**Disturbance rejection depends on location.** For a disturbance entering at the plant input, $Y=\\dfrac{G}{1+GC}D$. A step disturbance is fully rejected only if the *controller* contains the integrator ($GC\\to\\infty$ as $s\\to0$), because then $G/(1+GC)\\to0$. An integrator inside the plant but downstream of the disturbance entry point does not reject that disturbance. Reference tracking and disturbance rejection are different requirements.",
+    "**The trade-off, quantified.** Each integrator contributes $-90^\\circ$ of phase at all frequencies, so a type-2 loop has at least $180^\\circ$ of phase lag built in before the plant poles are counted. Raising the gain to satisfy $K_v$ pushes the gain crossover out to where the phase is worse, so a type-2 loop is always conditionally stable at best. Sensitivity formalises the same trade: $S=\\dfrac{1}{1+GH}$ is the fraction of a plant change that appears at the output, and $T=\\dfrac{GH}{1+GH}$ is the complementary sensitivity, with $S+T=1$ at every frequency — you cannot make both small at once."
+  ],
+  "formulas": [
+    { "q": "System type", "e": "\\mathrm{type} = \\mathrm{number\\ of\\ poles\\ of}\\ G(s)H(s)\\ \\mathrm{at}\\ s=0", "n": "Open-loop poles only. Not the order, not the closed-loop poles." },
+    { "q": "Type 0 accuracy", "e": "e_{ss} = \\frac{1}{1+K_p},\\ \\infty,\\ \\infty", "n": "Step, ramp, parabola. Kp finite, Kv = Ka = 0." },
+    { "q": "Type 1 accuracy", "e": "e_{ss} = 0,\\ \\frac{1}{K_v},\\ \\infty", "n": "Step, ramp, parabola. Kp = infinite, Kv finite, Ka = 0." },
+    { "q": "Type 2 accuracy", "e": "e_{ss} = 0,\\ 0,\\ \\frac{1}{K_a}", "n": "Step, ramp, parabola. Kp = Kv = infinite, Ka finite." },
+    { "q": "Scaled step input", "e": "e_{ss} = \\frac{A}{1+K_p}", "n": "r(t) = A u(t). Scales linearly with the input size." },
+    { "q": "Scaled ramp input", "e": "e_{ss} = \\frac{A}{K_v}", "n": "r(t) = A t. Slope A in units per second." },
+    { "q": "Disturbance at the plant input", "e": "\\frac{Y(s)}{D(s)} = \\frac{G(s)}{1+G(s)C(s)}", "n": "Goes to zero for a step disturbance only if C has an integrator." },
+    { "q": "Sensitivity", "e": "S(s) = \\frac{1}{1+G(s)H(s)}", "n": "Fraction of a plant perturbation that reaches the output." },
+    { "q": "Complementary sensitivity", "e": "T(s) = \\frac{G(s)H(s)}{1+G(s)H(s)},\\quad S+T = 1", "n": "Small S and small T cannot both hold at the same frequency." },
+    { "q": "Adding an integrator", "e": "\\mathrm{type} \\to \\mathrm{type}+1,\\ \\mathrm{phase\\ lag} + 90^\\circ", "n": "Improves the error constant but eats phase margin; re-check stability." }
+  ],
+  "problems": [
+    {
+      "prompt": "A unity-feedback loop has $G(s)=\\dfrac{20(s+2)}{s^2(s+10)}$. State the system type, find $K_a$ and the parabolic error, and confirm stability.",
+      "give": ["G(s) = 20(s+2)/(s^2(s+10))", "unity feedback"],
+      "steps": [
+        "Two poles at $s=0$ (the $s^2$), so the type is 2",
+        "Type 2 means zero step and ramp error: $K_p = K_v = \\infty$",
+        "$K_a = \\lim_{s\\to0}s^2\\cdot\\dfrac{20(s+2)}{s^2(s+10)} = \\dfrac{20(2)}{10} = 4\\ \\mathrm{s^{-2}}$",
+        "$e_{ss} = 1/K_a = 0.25$ for a unit parabola",
+        "Stability: CE $= s^2(s+10)+20(s+2) = s^3+10s^2+20s+40$; Routh gives $s^1$ entry $(10\\cdot20-40)/10 = 16 > 0$ and first column $1, 10, 16, 40$ — all positive, so stable"
+      ],
+      "ans": "Type 2; $K_a = 4\\ \\mathrm{s^{-2}}$; parabolic error $0.25$; closed loop stable.",
+      "trap": "Calling this type 3 because the denominator degree is 3, or type 1 by counting only the plant's $s$ factor. Type counts poles at $s=0$: here exactly two.", "calc": {"mode":"EQN","steps":["`20×2÷10 : 1÷Ans` → $K_a=$ **4** s⁻² → $e_{ss}=1/K_a=$ **0.25** for a unit parabola ($K_p=K_v=\\infty$ from the $s^2$).","`MODE` `5` page 2 `2` (cubic) with `1`, `10`, `20`, `40` → $x=$ **-8.148**, **-0.926±j2.013** — all real parts negative, so the loop is stable and the error is real."]}
+    },
+    {
+      "prompt": "A unity-feedback loop has $G(s)=\\dfrac{K}{s(s+3)}$. Find the ramp error as a function of $K$, and the smallest $K$ giving $e_{ss}\\le0.02$ for a unit ramp. Check stability.",
+      "give": ["G = K/(s(s+3))", "unit ramp", "e_ss <= 0.02"],
+      "steps": [
+        "Type 1 (one pole at the origin), so the step error is zero",
+        "$K_v = \\lim_{s\\to0}s\\cdot\\dfrac{K}{s(s+3)} = \\dfrac{K}{3}$",
+        "$e_{ss} = \\dfrac{1}{K_v} = \\dfrac{3}{K}$",
+        "$\\dfrac{3}{K}\\le0.02 \\Rightarrow K\\ge150$",
+        "Stability: CE $= s^2+3s+K$, roots have real part $-1.5$ for every $K>0$ — stable, so $K\\ge150$ is achievable"
+      ],
+      "ans": "$e_{ss} = 3/K$; $K\\ge150$ gives $e_{ss}\\le0.02$; the loop is stable for all $K>0$.",
+      "trap": "Answering $K = 150$ without the stability check. Here it happens to be fine, but a third-order plant would impose an upper bound on $K$ and the requested accuracy might be impossible.", "calc": {"mode":"EQN","steps":["`3÷0.02` → $e_{ss}=3/K\\le 0.02$ needs $K\\ge$ **150** (with $K_v=K/3$).","`MODE` `5` page 2 `1` with `1`, `3`, `150` → $x=-1.5\\pm j12.16$; the real part of the pair is $-a_1/2=-1.5$ for every $K>0$, so $K=150$ is stable."],"note":"Stability for all $K>0$ follows from that fixed real part — change $K$ and the $x$ pair moves only vertically."}
+    },
+    {
+      "prompt": "At DC a loop has $G(0)H(0) = 100$. Find the sensitivity, the complementary sensitivity, and the steady-state error to a unit step.",
+      "give": ["GH(0) = 100", "unity step"],
+      "steps": [
+        "$S(0) = \\dfrac{1}{1+100} = \\dfrac{1}{101} = 0.0099$",
+        "$T(0) = \\dfrac{100}{101} = 0.9901$",
+        "Check: $S+T = 0.0099+0.9901 = 1$",
+        "$e_{ss} = \\dfrac{1}{1+K_p} = \\dfrac{1}{101} = 0.0099$, identical to $S(0)$"
+      ],
+      "ans": "$S(0)=0.0099$, $T(0)=0.9901$, $e_{ss}=0.0099$ — the step error equals the DC sensitivity.",
+      "trap": "Reporting $e_{ss}=1/100=0.01$ from $K_p$ alone. The step error is $S(0)=1/(1+K_p)$, so a DC loop gain of 100 buys a 0.99% error, not 1%.", "calc": {"mode":"COMP","steps":["`1÷101` `SHIFT` `STO` `A` `ALPHA` `:` `100÷101` → $S(0)=$ **0.009901** → $T(0)=$ **0.990099**.","`A+Ans` → **1.0000**, the $S+T=1$ check; the step error $1/(1+K_p)=$ **0.0099** is identical to $S(0)$, not $1/100$."]}
+    },
+    {
+      "prompt": "A plant $G(s)=\\dfrac{10}{s+1}$ is controlled by $C(s)=1$ with a unit step disturbance entering at the plant input. Find the steady-state output due to the disturbance. Then repeat with $C(s)=1+\\dfrac{1}{s}$.",
+      "give": ["G = 10/(s+1)", "step disturbance at plant input", "C = 1, then C = 1 + 1/s"],
+      "steps": [
+        "With $C=1$: $\\dfrac{Y}{D} = \\dfrac{G}{1+G} = \\dfrac{10}{s+11}$",
+        "For $D=1/s$: $y_{ss} = \\lim_{s\\to0}s\\cdot\\dfrac{10}{s(s+11)} = \\dfrac{10}{11} = 0.909$",
+        "With the integrator: $GC = \\dfrac{10}{s+1}\\cdot\\dfrac{s+1}{s} = \\dfrac{10}{s}$",
+        "$\\dfrac{Y}{D} = \\dfrac{G}{1+GC} = \\dfrac{10/(s+1)}{1+10/s} = \\dfrac{10s}{(s+1)(s+10)}$",
+        "$y_{ss} = \\lim_{s\\to0}s\\cdot\\dfrac{10s}{s(s+1)(s+10)} = 0$"
+      ],
+      "ans": "With P control only, the disturbance leaves a steady output of $0.909$; with the controller integrator it is rejected exactly ($y_{ss}=0$).",
+      "trap": "Keeping $C=1$ but expecting zero disturbance error because 'the loop has high gain'. Only a controller integrator ($GC\\to\\infty$ at DC) drives $G/(1+GC)$ to zero.", "calc": {"mode":"COMP","steps":["`10÷11` → with $C=1$, $\\dfrac{Y}{D}=\\dfrac{10}{s+11}$ and the pole at $-11$ is left half plane, so $y_{ss}=$ **0.9091**.","With $C=1+1/s$ the path is $\\dfrac{10s}{(s+1)(s+10)}$: key it at $s=0$, `10×0÷(1×10)` → **0**, so the controller integrator rejects the step disturbance exactly."]}
+    },
+    {
+      "prompt": "A type-1 loop has $K_v = 20\\ \\mathrm{s^{-1}}$. Find the steady-state error for $r(t)=3t$ and for $r(t)=5u(t)$.",
+      "give": ["type 1", "Kv = 20 /s", "ramp slope 3", "step height 5"],
+      "steps": [
+        "Step of height 5: $K_p=\\infty$ for a type-1 loop, so $e_{ss} = 5/(1+\\infty) = 0$",
+        "Ramp: $R(s) = 3/s^2$, so $e_{ss} = \\lim_{s\\to0}\\dfrac{s\\cdot3/s^2}{1+GH} = \\dfrac{3}{K_v}$",
+        "$e_{ss} = 3/20 = 0.15$",
+        "The unit-input ramp error would have been $1/20 = 0.05$; the slope scales the answer"
+      ],
+      "ans": "Step error $0$; ramp error $0.15$.",
+      "trap": "Reporting $1/K_v = 0.05$ for the $3t$ input. Every error constant is defined for the *unit* input; a scaled input multiplies the error by the same factor."
+    }
+  ],
+  "traps": [
+    "**Counting system type as the order of the denominator.** Type is the multiplicity of $s=0$ in $GH$, so $s^2(s+10)$ is type 2, and $(s+1)^3$ is type 0.",
+    "**Confusing 'infinite error' with 'zero error'.** A type-0 loop has $K_v=0$, so its ramp error is $\\infty$; a type-1 loop has $K_v=\\infty$ only if the numerator does not vanish at the origin.",
+    "**Forgetting that a non-unit input scales the error.** $e_{ss}=A/(1+K_p)$, $A/K_v$, $A/K_a$.",
+    "**Quoting an error constant without a stability check.** $K_v$ is defined from the open loop, so it exists even when the closed loop is unstable — and then the error number is fiction.",
+    "**Assuming an integrator anywhere rejects a disturbance.** Only an integrator *upstream* of the disturbance entry point (i.e. in the controller) drives the disturbance-to-output transfer to zero at DC.",
+    "**Designing for accuracy alone.** Every added integrator costs $90^\\circ$ of phase; a type-3 loop is practically impossible to stabilise without heavy compensation.",
+    "**Treating $S$ and $T$ as independently reducible.** $S+T=1$ at every frequency; pushing one down pushes the other up. Measurement noise rides on $T$, plant drift on $S$."
+  ],
+  "refs": [
+    "[[06_Steady_State_Error_and_Error_Constants]]",
+    "[[12_PID_Controllers_and_Tuning]]",
+    "[[08_Routh-Hurwitz_Criterion]]"
+  ],
+  "prereqs": ["[[06_Steady_State_Error_and_Error_Constants]]"]
+}

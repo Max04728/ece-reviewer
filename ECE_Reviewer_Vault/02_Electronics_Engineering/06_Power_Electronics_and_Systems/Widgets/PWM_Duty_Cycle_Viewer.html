@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PWM — Carrier, Reference, Duty Cycle and Overmodulation</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, rad } from '../../../Assets/vault.js';
+
+// PWM is one comparator and one triangle. Everything examinable follows from that:
+//   m_a = V_ref,peak / V_carrier,peak     (the modulation index)
+//   duty D = V_ref / V_carrier,peak      (a DC reference; a sine reference makes D vary)
+//   sinusoidal PWM, linear region:  V_out,fundamental,peak = m_a V_dc / 2
+//   m_a > 1  ->  OVERMODULATION: the reference leaves the carrier, pulses are dropped,
+//               the output stops being proportional to the reference and harmonics appear.
+// The widget locates the fundamental by DFT of the numerically switched waveform, so the
+// m_a Vdc/2 rule is verified rather than quoted.
+
+/** Trapezoidal integral of f over [a,b] with n steps. */
+function trapz(f, a, b, n) {
+  const h = (b - a) / n;
+  let s = (f(a) + f(b)) / 2;
+  for (let i = 1; i < n; i++) s += f(a + i * h);
+  return s * h;
+}
+
+widget({
+  title: 'PWM Generation — Carrier, Reference, Duty Cycle and the Overmodulation Limit',
+  description:
+    'A reference is compared against a triangular carrier; the comparator output drives the switch. Slide m_a past 1 and the reference crosses outside the carrier - the pulses start to be dropped and the output stops tracking the reference. The dashed green curve is the switching-cycle average, i.e. what the load actually sees after the ripple is filtered out.',
+  height: 640,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'ref', label: 'reference type', type: 'select', value: 'sine',
+      options: [
+        { value: 'sine', label: 'sinusoidal reference (inverter)' },
+        { value: 'dc', label: 'DC reference (buck-type duty control)' },
+      ] },
+    { id: 'ma', label: 'modulation index m_a = Vref/Vcarrier', min: 0.05, max: 2, step: 0.01, value: 0.8 },
+    { id: 'Ddc', label: 'DC reference level (DC mode only)', min: 0.02, max: 1.2, step: 0.01, value: 0.5 },
+    { id: 'fc', label: 'carrier frequency fc (Hz)', min: 200, max: 8000, step: 100, value: 2000 },
+    { id: 'f1', label: 'reference frequency f1 (Hz)', min: 10, max: 120, step: 1, value: 50 },
+    { id: 'Vdc', label: 'DC bus V_dc (V)', min: 10, max: 400, step: 5, value: 200 },
+    { id: 'avg', label: 'show switching-cycle average', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const sine = v.ref === 'sine';
+    const Vdc = v.Vdc;
+    const ma = v.ma;
+    const Vc = 1;                       // carrier peak, normalised
+    const Vref = sine ? ma * Vc : v.Ddc * Vc;
+    const mf = v.fc / v.f1;             // frequency ratio
+    const T1 = 1 / v.f1;
+    const nSub = 60;                    // sub-samples per carrier period
+    const Tc = 1 / v.fc;
+
+    // comparator: reference > carrier  ->  switch ON (output = +Vdc)
+    const carrierAt = (t) => {
+      const ph = ((t / Tc) % 1 + 1) % 1;
+      return Vc * (ph < 0.5 ? 4 * ph - 1 : 3 - 4 * ph);   // -1 .. +1 triangle
+    };
+    const refAt = (t) => (sine ? Vref * Math.sin(2 * Math.PI * v.f1 * t) : Vref);
+    const gate = (t) => (refAt(t) > carrierAt(t) ? 1 : 0);
+    const vo = (t) => (gate(t) ? Vdc : 0);
+
+    // exact duty from the comparator geometry, sampled per switching cycle
+    const dutyAt = (t) => {
+      const ref = refAt(t);
+      const d = (ref / Vc + 1) / 2;
+      return Math.min(1, Math.max(0, d));
+    };
+
+    const cycles = Math.round(mf * (sine ? 2 : 1));
+    const nCyc = sine ? 2 : 1;                       // reference periods drawn
+    const span = nCyc * T1;
+
+    // --- switching-cycle average waveform (what the load sees after filtering) --
+    const avgAt = (t) => (sine ? Vref * Math.sin(2 * Math.PI * v.f1 * t) : Vref) * Vdc / (2 * Vc) + Vdc / 2;
+
+    // --- statistics on the switched waveform --------------------------------
+    const NS = 8000 * nCyc;
+    const avg = trapz(vo, 0, span, NS) / span;
+    const rms = Math.sqrt(trapz((t) => vo(t) * vo(t), 0, span, NS) / span);
+    const w1 = 2 * Math.PI * v.f1;
+    const a1 = (2 / span) * trapz((t) => vo(t) * Math.cos(w1 * t), 0, span, NS);
+    const b1 = (2 / span) * trapz((t) => vo(t) * Math.sin(w1 * t), 0, span, NS);
+    const V1peak = Math.hypot(a1, b1);
+    const V1rms = V1peak / Math.SQRT2;
+
+    const VfundTheory = (ma * Vdc) / 2;              // linear-region law
+    const Vac = Math.sqrt(Math.max(0, rms * rms - avg * avg));
+    const thd = V1rms > 1e-9 ? Math.sqrt(Math.max(0, Vac * Vac - V1rms * V1rms)) / V1rms : NaN;
+
+    const over = sine ? ma > 1 : Vref > Vc;
+    const dMean = sine ? 0.5 : dutyAt(0);
+    const dMin = sine ? Math.max(0, 0.5 - ma / 2) : dutyAt(0);
+    const dMax = sine ? Math.min(1, 0.5 + ma / 2) : dutyAt(0);
+    const harmonicGroup = v.fc - 2 * v.f1;
+
+    return {
+      sine, ma, Vdc, Vc, Vref, mf, fc: v.fc, f1: v.f1, Tc, T1, span, nCyc,
+      gate, vo, refAt, carrierAt, dutyAt, avgAt,
+      avg, rms, V1peak, V1rms, VfundTheory, Vac, thd, over, dMean, dMin, dMax,
+      harmonicGroup, cycles,
+      valid: true,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    const L = 74, Rr = W - 96, span = out.span;
+    const X = (t) => L + (t / span) * (Rr - L);
+    const panels = [
+      { name: 'reference vs triangular carrier', color: PALETTE.accent, y0: 62, y1: 236, lo: -1.25, hi: 1.25 },
+      { name: 'comparator output = gate pulses', color: PALETTE.warn, y0: 268, y1: 336, lo: -0.3, hi: 1.3 },
+      { name: 'switched output v_o', color: PALETTE.accent3, y0: 368, y1: 520, lo: -0.12 * out.Vdc, hi: 1.18 * out.Vdc },
+    ];
+    const Yof = (p, val) => p.y1 - ((val - p.lo) / (p.hi - p.lo)) * (p.y1 - p.y0);
+
+    // backdrops
+    for (const p of panels) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(39,39,58,0.55)';
+      ctx.fillRect(L, p.y0, Rr - L, p.y1 - p.y0);
+      ctx.strokeStyle = PALETTE.grid;
+      ctx.lineWidth = 1;
+      for (let k = 0; k <= 8; k++) {
+        const x = L + (k / 8) * (Rr - L);
+        ctx.beginPath(); ctx.moveTo(x, p.y0); ctx.lineTo(x, p.y1); ctx.stroke();
+      }
+      ctx.restore();
+      plot.text(p.name, L, p.y0 - 7, { color: p.color, font: 'bold 11px ui-monospace, monospace' });
+    }
+
+    // ---- panel 1: reference and carrier ------------------------------------
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    for (let i = 0; i <= 6000; i++) {
+      const t = (i / 6000) * span;
+      const px = X(t), py = Yof(panels[0], out.carrierAt(t));
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = PALETTE.accent;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i = 0; i <= 3000; i++) {
+      const t = (i / 3000) * span;
+      const px = X(t), py = Yof(panels[0], out.refAt(t));
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    // carrier band limits
+    ctx.save();
+    ctx.strokeStyle = 'rgba(243,139,168,0.45)';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    for (const lv of [out.Vc, -out.Vc]) {
+      const y = Yof(panels[0], lv);
+      ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(Rr, y); ctx.stroke();
+    }
+    ctx.restore();
+    const yz1 = Yof(panels[0], 0);
+    plot.text('0', L - 6, yz1 + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('+Vc', L - 6, Yof(panels[0], out.Vc) + 4, { color: PALETTE.accent2, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('-Vc', L - 6, Yof(panels[0], -out.Vc) + 4, { color: PALETTE.accent2, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('reference' + (out.sine ? ' (sine)' : ' (DC)'), L + 8, panels[0].y0 + 14,
+      { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    plot.text('triangular carrier at fc = ' + fmt(out.fc, 5) + ' Hz', L + 160, panels[0].y0 + 14,
+      { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    if (out.over) {
+      plot.text('\u26A0 reference EXCEEDS the carrier band \u2014 overmodulation',
+        L + 8, panels[0].y0 + 30, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+    }
+
+    // ---- panel 2: gate pulses ----------------------------------------------
+    ctx.save();
+    ctx.fillStyle = 'rgba(249,226,175,0.42)';
+    ctx.beginPath();
+    const yTop = Yof(panels[1], 1), yBot = Yof(panels[1], 0);
+    let prev = 0, tStart = 0, open = false;
+    for (let i = 0; i <= 40000; i++) {
+      const t = (i / 40000) * span;
+      const g = out.gate(t);
+      if (g === 1 && !open) { tStart = t; open = true; }
+      if (g === 0 && open) {
+        ctx.rect(X(tStart), yTop, Math.max(0.6, X(t) - X(tStart)), yBot - yTop);
+        open = false;
+      }
+      prev = g;
+    }
+    if (open) ctx.rect(X(tStart), yTop, Math.max(0.6, Rr - X(tStart)), yBot - yTop);
+    ctx.fill();
+    ctx.restore();
+    plot.text('ON when reference > carrier', L + 8, panels[1].y0 + 14,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // ---- panel 3: switched output ------------------------------------------
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= 40000; i++) {
+      const t = (i / 40000) * span;
+      const y = out.vo(t);
+      const px = X(t), py = Yof(panels[2], y);
+      if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    if (v.avg) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent5;
+      ctx.lineWidth = 2.2;
+      ctx.setLineDash([7, 5]);
+      ctx.beginPath();
+      for (let i = 0; i <= 1200; i++) {
+        const t = (i / 1200) * span;
+        const px = X(t), py = Yof(panels[2], out.avgAt(t));
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+      plot.label('switching-cycle average = m_a(Vdc/2)sin(w1 t) + Vdc/2', span * 0.52, out.Vdc * 0.94,
+        { color: PALETTE.accent5, font: '10px ui-monospace, monospace' });
+    }
+    const yVdc = Yof(panels[2], out.Vdc);
+    const y0 = Yof(panels[2], 0);
+    plot.text('V_dc = ' + fmt(out.Vdc, 4) + ' V', L - 6, yVdc + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('0 V', L - 6, y0 + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // time axis
+    for (let k = 0; k <= 8; k++) {
+      const t = (k / 8) * span;
+      plot.text(fmt(t * 1000, 4) + ' ms', L + (k / 8) * (Rr - L), panels[2].y1 + 18,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+
+    // ---- formula strip -----------------------------------------------------
+    plot.text('m_a = V_ref,peak / V_c,peak = ' + fmt(out.ma, 4) + ' / ' + fmt(out.Vc, 3) + ' = ' + fmt(out.ma, 4) +
+      '      m_f = fc/f1 = ' + fmt(out.fc, 5) + '/' + fmt(out.f1, 4) + ' = ' + fmt(out.mf, 4),
+      16, 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('linear region: V_o1,peak = m_a V_dc / 2 = ' + fmt(out.ma, 4) + ' x ' + fmt(out.Vdc, 4) + ' / 2 = ' +
+      fmt(out.VfundTheory, 5) + ' V      |  DFT of the drawn waveform finds ' + fmt(out.V1peak, 5) + ' V',
+      16, 37, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+
+    // ---- verdict -----------------------------------------------------------
+    let verdict;
+    if (!out.sine) {
+      verdict = 'DC reference at ' + fmt(out.Vref, 4) + ' gives a constant duty cycle D = ' +
+        fmt(out.dMean, 5) + ', so V_o,avg = D x V_dc = ' + fmt(out.dMean * out.Vdc, 5) + ' V (a buck converter).';
+    } else if (out.over) {
+      verdict = 'OVERMODULATION (m_a = ' + fmt(out.ma, 4) + ' > 1): the reference is outside the carrier for part of ' +
+        'each cycle, pulses are dropped, D saturates at ' + fmt(out.dMax, 4) + ', the fundamental no longer follows ' +
+        'm_a V_dc/2 (' + fmt(out.V1peak, 5) + ' V instead of ' + fmt(out.VfundTheory, 5) + ' V) and low-order harmonics appear.';
+    } else {
+      verdict = 'LINEAR PWM (m_a = ' + fmt(out.ma, 4) + ' <= 1): duty swings from ' + fmt(out.dMin, 4) + ' to ' +
+        fmt(out.dMax, 4) + ', the fundamental follows m_a V_dc/2 exactly, and the first harmonic group sits around ' +
+        fmt(out.harmonicGroup, 5) + ' Hz (sidebands fc +/- 2f1 and above).';
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, H - 30, W - 20, 24);
+    ctx.restore();
+    plot.text(verdict, 16, H - 13, {
+      color: out.over ? PALETTE.warn : PALETTE.accent3,
+      font: 'bold 11px ui-monospace, monospace',
+    });
+  },
+
+  readout: (out) => ({
+    'modulation index m_a': fmt(out.ma, 5),
+    'reference type': out.sine ? 'sinusoidal' : 'DC level',
+    'reference peak V_ref': fmt(out.Vref, 5) + '  (carrier peak ' + fmt(out.Vc, 3) + ')',
+    'duty cycle D': out.sine
+      ? 'mean ' + fmt(out.dMean, 5) + '   range ' + fmt(out.dMin, 5) + ' .. ' + fmt(out.dMax, 5)
+      : fmt(out.dMean, 5),
+    'V_o,avg = D x V_dc': fmt(out.avg, 6) + ' V',
+    'V_o,rms': fmt(out.rms, 6) + ' V',
+    'fundamental amplitude (DFT)': fmt(out.V1peak, 6) + ' V peak',
+    'fundamental law m_a V_dc/2': fmt(out.VfundTheory, 6) + ' V peak',
+    'switching frequency fc': fmt(out.fc, 5) + ' Hz',
+    'frequency ratio m_f = fc/f1': fmt(out.mf, 5),
+    'harmonic sidebands start near': fmt(out.harmonicGroup, 5) + ' Hz  (fc - 2f1)',
+    'output THD (below fc)': isFinite(out.thd) ? fmt(out.thd * 100, 4) + ' %' : 'n/a (DC reference)',
+    'overmodulation?': out.over ? 'YES \u2014 output no longer linear in m_a' : 'no \u2014 linear region',
+    'regulation': out.sine ? 'm_a <= 1 keeps V1 proportional to m_a' : 'D directly sets V_o,avg',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The one line to remember.</strong> In the linear region the fundamental of a sinusoidally-PWM inverter is ' +
+  '<code>V_o1,peak = m_a V_dc / 2</code> (so the line-to-line rms is <code>m_a V_dc / (2 sqrt 2)</code>). ' +
+  'The DFT in this widget recomputes it from the switched waveform, so you can watch it hold at m_a = 0.5 and then ' +
+  'break the instant m_a passes 1.<br>' +
+  '<strong>Overmodulation is the exam trap.</strong> Push m_a above 1 and the reference leaves the triangular ' +
+  'carrier. The comparator cannot produce a duty cycle above 1, the pulses are clipped away for part of each ' +
+  'half-cycle, and the output gains low-order harmonics while the fundamental stops rising as m_a V_dc/2 predicts. ' +
+  'The square-wave limit (m_a = 3.24 for the six-step case) is where the fundamental is only ' +
+  '<code>2V_dc/pi = 0.637 V_dc</code> - notice that is <em>below</em> the naive m_a V_dc/2 at m_a = 1.27, which is ' +
+  'exactly why the linear formula must not be extrapolated past m_a = 1.<br>' +
+  '<strong>Duty cycle is not the modulation index.</strong> For a sinusoidal reference the instantaneous duty is ' +
+  '<code>D(t) = 0.5 + (m_a/2)sin(w1 t)</code>, so D sweeps the whole 0..1 range for m_a = 1 and the average is ' +
+  'always 0.5. Quoting "the duty cycle is m_a" is the mistake that costs the item - m_a sets the <em>swing</em> of ' +
+  'the duty cycle, not its value. Only in DC-reference mode does a single duty cycle exist, and there ' +
+  '<code>V_o,avg = D V_dc</code> with no factor of 2 anywhere.';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+{
+  "scope": "Compute Johnson (thermal) noise voltage, current and available power for a resistor at a known temperature and bandwidth, including the 290 K reference floor.",
+  "intuition": "Electrons in any resistor jitter thermally, so the voltage across it wanders randomly even with no source connected. The wander is broadband and depends only on resistance, absolute temperature and the bandwidth you look through — it does not care what the resistor is made of or how much current flows.",
+  "concept": [
+    "**Where it comes from and what it depends on.** Thermal noise, also called Johnson or Nyquist noise, is produced by the random thermal motion of charge carriers in any dissipative element. It is present in every resistor, in the resistance of a wire, and in the real part of any impedance. Its one-sided voltage density is $S_v = 4kTR$ ($\\mathrm{V^2/Hz}$), so the rms open-circuit voltage in a bandwidth $B$ is $V_n = \\sqrt{4kTRB}$. Notice what is *not* in the formula: no current, no material, no applied voltage. A resistor carries the same thermal noise whether it is in a circuit or on the bench.",
+    "**The available-power result is the one to memorise.** A resistor's noise can be modelled as an EMF $V_n$ in series with $R$. Delivering to a matched load ($R_L = R$) puts half the EMF across the load, and the resulting available power is $P_n = kTB$ — **independent of $R$**. That independence is what makes the noise floor a universal reference: any matched system at $290\\ \\mathrm{K}$ has $kTB$ available. At $290\\ \\mathrm{K}$, $kT = 4.00\\times10^{-21}\\ \\mathrm{W/Hz}$, which is $-174\\ \\mathrm{dBm/Hz}$. A receiver of bandwidth $B$ therefore has a noiseless floor of $-174 + 10\\log_{10}B$ dBm, so $1\\ \\mathrm{MHz}$ gives $-114\\ \\mathrm{dBm}$ and $100\\ \\mathrm{kHz}$ gives $-124\\ \\mathrm{dBm}$.",
+    "**Voltage, current and power are three views of one source.** The same resistor can be represented as a Thevenin EMF $V_n = \\sqrt{4kTRB}$ or a Norton current $I_n = \\sqrt{4kTGB} = \\sqrt{4kTB/R}$, with $G = 1/R$. Both are correct; which one to use depends on whether the following stage looks like a high impedance (use the current form) or a low impedance (use the voltage form). The power form is the least error-prone when you are moving between stages, because you never have to track source impedance.",
+    "**Combining several resistors.** Uncorrelated noise sources add as powers, so resistors in series give $V_{n,total} = \\sqrt{4kT(R_1+R_2)B}$ and resistors in parallel give a current whose square adds — which is exactly equivalent to replacing the network by its Norton equivalent resistance. For equal resistors, this means the total rms voltage is only $\\sqrt{2}$ times one of them, not twice. Thermal noise is also additive across cascaded blocks at the same temperature, but cascaded *stages* with gain must be handled with noise factor instead (see [[05_SNR,_Noise_Factor_and_Noise_Figure]]).",
+    "**What the model does not cover.** The white thermal model assumes thermal equilibrium and frequencies well below $kT/h$ (roughly $6\\ \\mathrm{THz}$ at room temperature) where quantum effects appear; it also assumes the source impedance is purely resistive. A resistor carrying DC current develops additional excess (current) noise, and any semiconductor device produces shot and flicker noise on top of its thermal noise. Finally, temperature must be in kelvin: $27\\ \\mathrm{^\\circ C}$ is about $300\\ \\mathrm{K}$, while the IEEE noise reference $290\\ \\mathrm{K}$ is a convention ($17\\ \\mathrm{^\\circ C}$) chosen so that $F = 1 + T_e/T_0$ is defined once and for all."
+  ],
+  "formulas": [
+    { "q": "Open-circuit rms thermal noise voltage", "e": "V_n = \\sqrt{4 k T R B}", "n": "T in kelvin, B in Hz, R in ohms; result in V rms. Independent of any applied current." },
+    { "q": "Short-circuit rms thermal noise current", "e": "I_n = \\sqrt{4 k T G B} = \\sqrt{\\frac{4 k T B}{R}}", "n": "Norton equivalent of the same source, G = 1/R. Use when the following stage is a high impedance or a current input." },
+    { "q": "Available thermal noise power", "e": "P_n = k T B", "n": "Power deliverable to a matched load. Crucially independent of R." },
+    { "q": "Voltage noise density", "e": "S_v(f) = 4 k T R \\quad \\mathrm{V^2/Hz}", "n": "One-sided and white. Multiply by B, then take the square root to undo the squaring." },
+    { "q": "Current noise density", "e": "S_i(f) = 4 k T G \\quad \\mathrm{A^2/Hz}", "n": "Same source seen as a current generator." },
+    { "q": "Noise floor in dBm", "e": "N(\\mathrm{dBm}) = -174 + 10\\log_{10}\\left(\\frac{B}{1\\ \\mathrm{Hz}}\\right)", "n": "Available power at 290 K for a noiseless matched system. Already includes the 1/4 factor of the EMF." },
+    { "q": "Matched-load power from the EMF", "e": "P_{load} = \\frac{V_n^{2}}{4R} = kTB", "n": "The 4R, not R, is the trap. Vn^2/R is four times too large." },
+    { "q": "Series resistors at the same T", "e": "V_{n,tot} = \\sqrt{4kT(R_1 + R_2)B}", "n": "Equivalent to adding noise powers; the rms voltages add in quadrature." },
+    { "q": "293 K / 300 K shortcut", "e": "kT \\approx 4.0\\times10^{-21}\\ \\mathrm{W/Hz} \\mathrm{\\ at\\ } 290\\ \\mathrm{K}", "n": "Handy exam constant; do not substitute 300 K when the problem says 290 K, and never plug in Celsius." }
+  ],
+  "problems": [
+    {
+      "prompt": "A $1\\ \\mathrm{k\\Omega}$ resistor at $290\\ \\mathrm{K}$ is connected to an amplifier of bandwidth $1\\ \\mathrm{MHz}$. Find the rms noise voltage and the available noise power in dBm.",
+      "give": ["R = 1 kohm", "T = 290 K", "B = 1 MHz"],
+      "steps": [
+        "kT = (1.38e-23)(290) = 4.002e-21 W/Hz",
+        "4kTRB = 4 x 4.002e-21 x 1000 x 1e6 = 1.6008e-11 V^2",
+        "Vn = sqrt(1.6008e-11) = 4.00e-6 V rms",
+        "Pn = kTB = (4.002e-21)(1e6) = 4.00e-15 W",
+        "In dBm: 10 log10(4.00e-15 / 1e-3) = -114 dBm, which is -174 + 60"
+      ],
+      "ans": "Vn = 4.00 uV rms; Pn = 4.00 fW = -114 dBm.",
+      "trap": "Reporting the power as Vn^2/R = 1.6e-11/1000 = 1.6e-14 W (-108 dBm). That is the power in a matched load only after the 1/4 factor, which is exactly why kTB is the safe route.", "calc": {"mode":"COMP","steps":["`4×k×290×1E3×1E6` with $k$ = `SHIFT` `CVALUE` `25` → **1.6016E-11** V²; `ALPHA` `:` `√Ans` → **4.002E-6** V = **4.00** µV rms.","`k×290×1E6` → **4.004E-15** W = **4.00** fW; `10log(Ans÷1E-3)` → **-113.98** dBm ≈ **-114** dBm."],"note":"`V_n^2/R` = 1.60e-14 W is the -108 dBm trap; `kTB` already carries the matched-load $\\frac{1}{4}$, so never divide by $R$."}
+    },
+    {
+      "prompt": "A 6 MHz television channel is received by a $50\\ \\Omega$ antenna at an effective temperature of $290\\ \\mathrm{K}$. Find the rms noise voltage across the input and the available noise power.",
+      "give": ["R = 50 ohm", "B = 6 MHz", "T = 290 K"],
+      "steps": [
+        "4kTRB = 4 x 4.002e-21 x 50 x 6e6 = 4.802e-12 V^2",
+        "Vn = sqrt(4.802e-12) = 2.19e-6 V = 2.19 uV rms",
+        "Pn = kTB = (4.002e-21)(6e6) = 2.40e-14 W",
+        "dBm: -174 + 10 log10(6e6) = -174 + 67.8 = -106.2 dBm"
+      ],
+      "ans": "Vn = 2.19 uV rms; Pn = 2.40e-14 W = -106.2 dBm.",
+      "trap": "Scaling the 1 kohm answer by the resistance ratio. Voltage goes as sqrt(R), so 50 ohms is 1/sqrt(20) of the 1 kohm case, while the available *power* kTB is unchanged by R.", "calc": {"mode":"COMP","steps":["`4×k×290×50×6E6` with $k$ = `SHIFT` `CVALUE` `25` → **4.805E-12** V²; `√Ans` → **2.192E-6** V = **2.19** µV rms.","`k×290×6E6` → **2.402E-14** W = **24.0** fW; `-174+10log(6E6)` → **-106.2** dBm.","Against the 1 kΩ case: `√(50÷1000)` → **0.2236**, a **12.9** dB drop in voltage while `kTB` is unchanged by $R$."],"note":"Voltage noise scales as $\\sqrt{R}$ (so 50 Ω is $1/\\sqrt{20}$ of 1 kΩ); available power does not depend on $R$ at all."}
+    },
+    {
+      "prompt": "Two resistors, $2\\ \\mathrm{k\\Omega}$ and $3\\ \\mathrm{k\\Omega}$, are in series at $290\\ \\mathrm{K}$ across a $10\\ \\mathrm{kHz}$ bandwidth. Find the total rms noise voltage two ways: by combining the resistances and by adding the individual noise powers.",
+      "give": ["R1 = 2 kohm", "R2 = 3 kohm", "B = 10 kHz", "T = 290 K"],
+      "steps": [
+        "Combined: R = 5 kohm, 4kTRB = 4(4.002e-21)(5000)(1e4) = 8.004e-13 V^2, Vn = 0.895 uV",
+        "Individually: V1^2 = 4(4.002e-21)(2000)(1e4) = 3.202e-13 V^2, V1 = 0.566 uV",
+        "V2^2 = 4(4.002e-21)(3000)(1e4) = 4.802e-13 V^2, V2 = 0.693 uV",
+        "Quadrature sum: sqrt(3.202e-13 + 4.802e-13) = sqrt(8.004e-13) = 0.895 uV"
+      ],
+      "ans": "Vn = 0.895 uV rms either way; the individual contributions add as powers, not as voltages.",
+      "trap": "Adding 0.566 + 0.693 = 1.26 uV. Uncorrelated noise sources add in quadrature, so the correct total is smaller — 0.895 uV, which is only 1.58 times the larger source.", "calc": {"mode":"COMP","steps":["`4×k×290×5E3×1E4` with $k$ = `SHIFT` `CVALUE` `25` → **8.008E-13** V²; `√Ans` → **8.949E-7** V = **0.895** µV rms total.","`4×k×290×2E3×1E4 : 4×k×290×3E3×1E4` → **3.203E-13** V² → **4.805E-13** V² (the individual noise powers).","`√(3.203E-13+4.805E-13)` → **8.949E-7** V = **0.895** µV, matching the combined-resistance route."],"note":"Powers add, voltages do not: 0.566 + 0.693 = 1.26 µV is the trap, and the quadrature sum is only 1.58x the larger source."}
+    },
+    {
+      "prompt": "The same $1\\ \\mathrm{k\\Omega}$ resistor is now heated to $400\\ \\mathrm{K}$ with the bandwidth unchanged at $1\\ \\mathrm{MHz}$. Find the new rms noise voltage and the dB increase over the $290\\ \\mathrm{K}$ value of $4.00\\ \\mu\\mathrm{V}$.",
+      "give": ["R = 1 kohm", "T = 400 K", "B = 1 MHz"],
+      "steps": [
+        "4kTRB = 4(1.38e-23)(400)(1000)(1e6) = 2.208e-11 V^2",
+        "Vn = sqrt(2.208e-11) = 4.70e-6 V rms",
+        "Ratio to 290 K: sqrt(400/290) = sqrt(1.379) = 1.174",
+        "In dB: 20 log10(1.174) = 1.39 dB"
+      ],
+      "ans": "Vn = 4.70 uV rms, a 1.39 dB increase (a 17.4 percent rise).",
+      "trap": "Using 20 log10(400/290) = 2.79 dB. Noise voltage goes as sqrt(T), so the voltage ratio is sqrt(400/290) and the dB figure is half of what a power ratio would give.", "calc": {"mode":"COMP","steps":["`4×k×400×1E3×1E6` with $k$ = `SHIFT` `CVALUE` `25` → **2.209E-11** V²; `√Ans` → **4.700E-6** V = **4.70** µV rms.","`√(400÷290)` → **1.174** = the voltage ratio.","`20log(1.174)` → **1.397** dB ≈ **1.39** dB."],"note":"Noise voltage goes as $\\sqrt{T}$, so the rise is half of $20\\log_{10}(400/290)$ = 2.79 dB — the trap answer."}
+    },
+    {
+      "prompt": "An rms noise voltage of $10\\ \\mu\\mathrm{V}$ is measured across a $10\\ \\mathrm{k\\Omega}$ resistor at $290\\ \\mathrm{K}$. What bandwidth was the measurement made over?",
+      "give": ["Vn = 10 uV", "R = 10 kohm", "T = 290 K"],
+      "steps": [
+        "Vn^2 = 4kTRB, so B = Vn^2 / (4kTR)",
+        "Vn^2 = (10e-6)^2 = 1e-10 V^2",
+        "4kTR = 4(1.38e-23)(290)(1e4) = 1.6008e-16 V^2/Hz",
+        "B = 1e-10 / 1.6008e-16 = 6.25e5 Hz"
+      ],
+      "ans": "B = 625 kHz.",
+      "trap": "Forming the ratio 1e-10/(4kTR) after forgetting to square Vn, or dividing by 4kTRB with B still in kHz. The density 4kTR is the V^2/Hz quantity; the measurement bandwidth is what is missing.", "calc": {"mode":"COMP","steps":["`(10E-6)²` → **1E-10** V² — square the measured voltage first.","`4×k×290×1E4` with $k$ = `SHIFT` `CVALUE` `25` → **1.6016E-16** V²/Hz = $4kTR$.","`1E-10÷1.6016E-16` → **6.244E5** Hz ≈ **0.62** MHz."],"note":"Rounded $k$ = 1.38e-23 gives 1.6008e-16 and 6.25e5 Hz; both are the same measurement. The quotient is $V_n^2/(4kTR)$."}
+    }
+  ],
+  "traps": [
+    "**Treating $kTB$ as if it depended on resistance.** The available thermal noise power is the same for $1\\ \\Omega$ and $1\\ \\mathrm{M\\Omega}$ at the same temperature and bandwidth. Only the voltage and current representations change with R.",
+    "**Using $V_n^2/R$ as the delivered power.** The open-circuit EMF delivers $V_n^2/(4R) = kTB$ into a matched load. Dropping the factor 4 (or 6 dB) makes every noise budget optimistic.",
+    "**Adding noise voltages linearly.** Independent sources combine as $\\sqrt{V_1^2+V_2^2}$. Two equal $4\\ \\mu\\mathrm{V}$ sources give $5.66\\ \\mu\\mathrm{V}$, not $8\\ \\mu\\mathrm{V}$.",
+    "**Plugging in degrees Celsius.** The formula needs kelvin: $27\\ \\mathrm{^\\circ C} = 300\\ \\mathrm{K}$, and the IEEE noise reference is $290\\ \\mathrm{K}$ ($17\\ \\mathrm{^\\circ C}$). Using 290 in place of a stated 300 K shifts the answer by 0.15 dB; using 27 is catastrophic.",
+    "**Applying the $-174\\ \\mathrm{dBm/Hz}$ constant twice.** It already contains the $kT$ factor and the matched-load $\\tfrac{1}{4}$. Multiplying by another $V_n^2/(4R)$ double-counts the reference.",
+    "**Forgetting that B is the noise bandwidth, not the 3 dB bandwidth.** For a single-pole filter the equivalent noise bandwidth is $\\frac{\\pi}{2}f_c \\approx 1.57 f_c$, so using the 3 dB bandwidth underestimates the noise by about 2 dB.",
+    "**Assuming thermal noise dies away at DC.** It is white down to DC, which is why a DC-coupled instrument sees its full $kTB$ floor; only the $1/f$ device noise rises above it at low frequency."
+  ],
+  "refs": [
+    "[[02_Power_Spectral_Density]]",
+    "[[04_Shot,_Flicker_and_Transit-Time_Noise]]",
+    "[[05_SNR,_Noise_Factor_and_Noise_Figure]]",
+    "[[06_Equivalent_Noise_Temperature]]"
+  ],
+  "prereqs": [
+    "[[02_Power_Spectral_Density]]"
+  ]
+}

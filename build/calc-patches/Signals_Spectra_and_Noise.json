@@ -1,0 +1,664 @@
+[
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/01_Time_vs_Frequency_and_Line_Spectra.json",
+    "problem": 1,
+    "expect": "Find the duty cycle, the DC level, the fundamental frequency",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1E-3÷5E-3` → **0.2** = $d$; store it with `SHIFT` `STO` `A` (recall with `ALPHA` `A`).",
+        "`10×A : 1÷5E-3 : 1÷1E-3` → DC = **2.0** V → $f_0$ = **200** Hz → first null = **1000** Hz.",
+        "`2×10×A×sin(πA)÷(πA)` → $A_1$ = **3.742** V one-sided (the half-height $\\lvert c_1\\rvert$ = 1.871 V)."
+      ],
+      "note": "There is no sinc key, so key sinc as `sin(πA)÷(πA)`, angle unit Rad; keep the leading 2 or you land on the 1.871 V trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/01_Time_vs_Frequency_and_Line_Spectra.json",
+    "problem": 2,
+    "expect": "and the envelope reaches its first null at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷2E3` → **5E-4** s = **0.5** ms = $T$ (the line spacing *is* $f_0$); store with `SHIFT` `STO` `A`.",
+        "`1÷20E3` → **5E-5** s = **50** µs = $\\tau$ (from the null, not from the line spacing).",
+        "`Ans÷A` → **0.1** = $d$."
+      ],
+      "note": "Two different reciprocals: line spacing gives $T$, the null gives $\\tau$. Dividing the null by the period is the whole problem."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/01_Time_vs_Frequency_and_Line_Spectra.json",
+    "problem": 3,
+    "expect": "Use Parseval's theorem on the first three nonzero harmonics",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20÷π : 20÷(3π) : 20÷(5π)` → **6.366** V → **2.122** V → **1.273** V (the odd-harmonic amplitudes $4A/n\\pi$).",
+        "`0.5×((20÷π)²+(20÷(3π))²+(20÷(5π))²)` → **23.33** W in those three harmonics (each contributes $A_n^2/2$).",
+        "`5²` → exact **25.0** W ($V_{\\mathrm{rms}}$ = peak for a square wave); `25-23.33` → **1.67** W left in the odd-harmonic tail."
+      ],
+      "note": "Square before summing: amplitudes add 6.37 + 2.12 + 1.27 = 9.76 V, which is the trap the note warns about."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/01_Time_vs_Frequency_and_Line_Spectra.json",
+    "problem": 4,
+    "expect": "which harmonics are exactly absent when the duty cycle is 25 percent",
+    "calc": {
+      "mode": "TABLE",
+      "steps": [
+        "`MODE` `6` TABLE, angle unit Rad: `f(X) = sin(π×0.25X)÷(π×0.25X)`, Start 1, End 12, Step 1.",
+        "Reading the table: $X$ = 4, 8, 12 come back as **0** (residue below 1e-14); every other line is non-zero, so harmonics 4, 8, 12 vanish.",
+        "Back in `MODE` `1` COMP: `8×0.25` → DC = **2.0** V."
+      ],
+      "note": "The zeros sit only at whole multiples of $1/d$ = 4, so the table kills the 'the even harmonics are missing' answer at a glance."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/02_Power_Spectral_Density.json",
+    "problem": 2,
+    "expect": "feeds a receiver of bandwidth",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4×k×290×1E4` with $k$ = `SHIFT` `CVALUE` `25` → **1.6016E-16** V²/Hz = $S_v$; store with `SHIFT` `STO` `A`.",
+        "`√(A×2E4)` → **1.790E-6** V = **1.79** µV rms open-circuit.",
+        "`k×290×2E4` → **8.008E-17** W = **80** aW available; the $V_n^2/(4R)$ check `1.790E-6²÷4E4` → **8.008E-17** W agrees."
+      ],
+      "note": "`SHIFT` `CVALUE` 25 is $k = 1.380649\\times10^{-23}$; the note's rounded $1.38\\times10^{-23}$ gives 8.00e-17 W — the same 80 aW."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/02_Power_Spectral_Density.json",
+    "problem": 3,
+    "expect": "A spectrum analyzer quotes a noise floor of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(-174÷10) : Ans×1E-3 : Ans÷2` → **3.981E-18** mW/Hz → **3.981E-21** W/Hz (one-sided $N_0$) → **1.991E-21** W/Hz (two-sided).",
+        "`3.981E-21×1E5` → $P$ = **3.981E-16** W.",
+        "`-174+10log(1E5)` → **-124** dBm."
+      ],
+      "note": "`log` is base 10 and `10^x` is `SHIFT` `log`; the `×1E-3` is the mW→W step, so missing it leaves every power 1000x low."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/02_Power_Spectral_Density.json",
+    "problem": 5,
+    "expect": "A $1/f$ (flicker) noise density is",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20E-18×1000` → **2E-14** V² = $K$ in $S_v = K/f$; store it with `SHIFT` `STO` `A`.",
+        "`A×ln(100)` → **9.210E-14** V² from 10 Hz to 1 kHz; the `∫dx` route, integrating `A÷x` from 10 to 1000, gives the same.",
+        "`20E-18×990` → **1.980E-14** V² for a flat density; `10log(9.210E-14÷Ans)` → **6.68** dB underestimate."
+      ],
+      "note": "`ln`, not `log`: one decade of $1/f$ contributes $K\\ln 10 = 2.303K$, not $K$ times the bandwidth."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/03_Thermal_and_Johnson_Noise.json",
+    "problem": 1,
+    "expect": "is connected to an amplifier of bandwidth",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4×k×290×1E3×1E6` with $k$ = `SHIFT` `CVALUE` `25` → **1.6016E-11** V²; `ALPHA` `:` `√Ans` → **4.002E-6** V = **4.00** µV rms.",
+        "`k×290×1E6` → **4.004E-15** W = **4.00** fW; `10log(Ans÷1E-3)` → **-113.98** dBm ≈ **-114** dBm."
+      ],
+      "note": "`V_n^2/R` = 1.60e-14 W is the -108 dBm trap; `kTB` already carries the matched-load $\\frac{1}{4}$, so never divide by $R$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/03_Thermal_and_Johnson_Noise.json",
+    "problem": 2,
+    "expect": "television channel is received by a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4×k×290×50×6E6` with $k$ = `SHIFT` `CVALUE` `25` → **4.805E-12** V²; `√Ans` → **2.192E-6** V = **2.19** µV rms.",
+        "`k×290×6E6` → **2.402E-14** W = **24.0** fW; `-174+10log(6E6)` → **-106.2** dBm.",
+        "Against the 1 kΩ case: `√(50÷1000)` → **0.2236**, a **12.9** dB drop in voltage while `kTB` is unchanged by $R$."
+      ],
+      "note": "Voltage noise scales as $\\sqrt{R}$ (so 50 Ω is $1/\\sqrt{20}$ of 1 kΩ); available power does not depend on $R$ at all."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/03_Thermal_and_Johnson_Noise.json",
+    "problem": 3,
+    "expect": "are in series at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4×k×290×5E3×1E4` with $k$ = `SHIFT` `CVALUE` `25` → **8.008E-13** V²; `√Ans` → **8.949E-7** V = **0.895** µV rms total.",
+        "`4×k×290×2E3×1E4 : 4×k×290×3E3×1E4` → **3.203E-13** V² → **4.805E-13** V² (the individual noise powers).",
+        "`√(3.203E-13+4.805E-13)` → **8.949E-7** V = **0.895** µV, matching the combined-resistance route."
+      ],
+      "note": "Powers add, voltages do not: 0.566 + 0.693 = 1.26 µV is the trap, and the quadrature sum is only 1.58x the larger source."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/03_Thermal_and_Johnson_Noise.json",
+    "problem": 4,
+    "expect": "resistor is now heated to",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4×k×400×1E3×1E6` with $k$ = `SHIFT` `CVALUE` `25` → **2.209E-11** V²; `√Ans` → **4.700E-6** V = **4.70** µV rms.",
+        "`√(400÷290)` → **1.174** = the voltage ratio.",
+        "`20log(1.174)` → **1.397** dB ≈ **1.39** dB."
+      ],
+      "note": "Noise voltage goes as $\\sqrt{T}$, so the rise is half of $20\\log_{10}(400/290)$ = 2.79 dB — the trap answer."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/03_Thermal_and_Johnson_Noise.json",
+    "problem": 5,
+    "expect": "What bandwidth was the measurement made over?",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(10E-6)²` → **1E-10** V² — square the measured voltage first.",
+        "`4×k×290×1E4` with $k$ = `SHIFT` `CVALUE` `25` → **1.6016E-16** V²/Hz = $4kTR$.",
+        "`1E-10÷1.6016E-16` → **6.244E5** Hz ≈ **0.62** MHz."
+      ],
+      "note": "Rounded $k$ = 1.38e-23 gives 1.6008e-16 and 6.25e5 Hz; both are the same measurement. The quotient is $V_n^2/(4kTR)$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/04_Shot,_Flicker_and_Transit-Time_Noise.json",
+    "problem": 1,
+    "expect": "A diode carries a DC current of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×q×1E-3×1E4` with $q$ = `SHIFT` `CVALUE` `23` (1.602e-19 C) → **3.204E-18** A².",
+        "`√Ans` → **1.790E-9** A = **1.79** nA rms."
+      ],
+      "note": "The whole formula is $2qI_0B$: there is no temperature and no series resistance to key, which is exactly the note's trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/04_Shot,_Flicker_and_Transit-Time_Noise.json",
+    "problem": 2,
+    "expect": "A photodiode delivers",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×q×1E-5×1E6` with $q$ = `SHIFT` `CVALUE` `23` → **3.204E-18** A²; `√Ans` → **1.790E-9** A = **1.79** nA.",
+        "`1E-5×1E6 : 1E-3×1E4` → **10** → **10**: the product $I_0B$ has not changed, which is why P1 and P2 agree."
+      ],
+      "note": "Noise tracks $\\sqrt{I_0B}$: current down 100x with bandwidth up 100x is a wash, not a 10x improvement."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/04_Shot,_Flicker_and_Transit-Time_Noise.json",
+    "problem": 3,
+    "expect": "A device has a shot-noise current density of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×q×1E-3` with $q$ = `SHIFT` `CVALUE` `23` → **3.204E-22** A²/Hz shot density; store with `SHIFT` `STO` `A`.",
+        "`3.2E-20÷A` → $f_c$ = **99.9** Hz ≈ **100** Hz, the crossing of the two densities.",
+        "`10log((A+3.2E-20÷1000)÷A)` → **0.41** dB, the rise at 1 kHz — a decade above $f_c$ the flicker term is already negligible."
+      ],
+      "note": "Flicker is not white, so the two densities cross at $f_c$; the band quantity is the integral of the sum, not a product."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/04_Shot,_Flicker_and_Transit-Time_Noise.json",
+    "problem": 4,
+    "expect": "A microwave transistor has a carrier transit time of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷(2π×50E-12)` → **3.183E9** Hz = **3.18** GHz, the $\\theta$ = 1 threshold.",
+        "`2π×1E9×50E-12` → **0.3142** rad at 1 GHz.",
+        "`Ans×180÷π` → **18.0**° (1 rad = **57.3**° at 3.18 GHz), small but not negligible."
+      ],
+      "note": "Transit-time noise grows with $f$ — the opposite trend to flicker; $\\theta$ comes out in radians unless the display is Deg."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+    "problem": 3,
+    "expect": "An amplifier has a noise figure of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(3÷10)` → **1.9952** = $F$; 3 dB is a rounded 3.0103 dB, so the note's $F$ = **2** is the exact-3.01 dB value.",
+        "`290×(2-1)` → $T_e$ = **290** K for that $F$ = 2; with $F$ = 1.9952 it is **288.6** K."
+      ],
+      "note": "Convert NF to a ratio before subtracting 1: $T_e$ = 290 × 3 = 870 K is the trap, and $T_0$ is 290 K, not 300 K."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+    "problem": 4,
+    "expect": "An amplifier with 20 dB gain and 6 dB noise figure has a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(20÷10) : 10^(6÷10)` → **100** ($G$) → **3.981** ($F$).",
+        "`k×290×1E5×3.981×100` with $k$ = `SHIFT` `CVALUE` `25` → **1.594E-13** W = $F G k T_0 B$.",
+        "`-174+10log(1E5)+20+6` → **-98.0** dBm; the direct check `10log(1.594E-13÷1E-3)` → **-97.98** dBm."
+      ],
+      "note": "The dB budget -174 + 10log B + G + NF shows a dropped bandwidth or noise-figure term immediately."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+    "problem": 6,
+    "expect": "Two stages are cascaded: stage 1 has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2+(4-1)÷100` → $F$ = **2.03** overall (the 20 dB gain enters as the ratio 100).",
+        "`10log(2.03)` → **3.075** dB ≈ **3.07** dB, against **3.01** dB for stage 1 alone."
+      ],
+      "note": "Stage 2 adds only 0.03 to $F$ because $G_1$ = 100 divides its excess noise; 3.01 + 6.02 = 9.03 dB is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+    "problem": 7,
+    "expect": "lossy feedline sits between an antenna and a receiver",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(1.5÷10) : 10^(3÷10)` → **1.4125** ($F_{\\mathrm{LNA}}$) → **1.9953** (the 3 dB pad, $F = L = 2$).",
+        "`2+(1.4125-1)÷0.5` → **2.825**; `10log(Ans)` → **4.51** dB with the line first.",
+        "`1.4125+(2-1)÷100` → **1.4225**; `10log(Ans)` → **1.53** dB with the LNA first — a **2.98** dB recovery."
+      ],
+      "note": "Below 1 the line's $G$ = 0.5 doubles the LNA's excess noise; ahead of the LNA the same pad divides it by 100 instead."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+    "problem": 8,
+    "expect": "A receiver front end has an equivalent noise temperature of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1+435÷290` → **2.5** = $F$; the leading 1 is the source noise always present at the input.",
+        "`10log(2.5)` → **3.979** dB ≈ **3.98** dB."
+      ],
+      "note": "Dropping the +1 answers $F$ = 1.5, i.e. 1.76 dB instead of 2.5 and 3.98 dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/06_Equivalent_Noise_Temperature.json",
+    "problem": 1,
+    "expect": "An amplifier has a noise figure of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(2÷10)` → **1.5849** = $F$.",
+        "`290×(Ans-1)` → $T_e$ = **169.6** K ≈ **170** K.",
+        "`10log(1+169.6÷290)` → **2.000** dB, the inverse check back to the stated NF."
+      ],
+      "note": "$T_0$ = 290 K is the IEEE reference, not 300 K; 300 K would give 175.5 K for the same 2 dB figure."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/06_Equivalent_Noise_Temperature.json",
+    "problem": 2,
+    "expect": "A two-stage receiver has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(20÷10)` → **100** = $G_1$ as a ratio (never divide by the 20 dB figure).",
+        "`100+500÷100` → $T_e$ = **105** K.",
+        "`10log(1+105÷290)` → **1.342** dB ≈ **1.34** dB."
+      ],
+      "note": "Dividing by 20 instead of 100 gives 125 K and 1.60 dB — the trap the note calls out."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/06_Equivalent_Noise_Temperature.json",
+    "problem": 3,
+    "expect": "lossy feedline at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`290×(1-1÷2)` → $T_{e,\\mathrm{line}}$ = **145** K (loss $L$ = 2).",
+        "`145+60÷0.5` → **265** K with the line first; `10log(1+Ans÷290)` → **2.82** dB.",
+        "`60+145÷100` → **61.45** K with the LNA first; `10log(1+Ans÷290)` → **0.83** dB."
+      ],
+      "note": "With $G$ = 0.5 the line doubles the LNA's downstream contribution to 120 K, so 145 + 60 = 205 K is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/06_Equivalent_Noise_Temperature.json",
+    "problem": 4,
+    "expect": "of noise to a matched load when its input is terminated",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(30÷10) : 10^(-81÷10)` → **1000** ($G$) → **7.943E-9** mW = **7.943E-12** W ($N_o$).",
+        "`7.943E-12÷(1000×k×290×1E6)` with $k$ = `SHIFT` `CVALUE` `25` → $F$ = **1.9839** ≈ **1.98**; `10log(Ans)` → **2.975** dB ≈ **2.98** dB.",
+        "`290×(1.9839-1)` → $T_e$ = **285.3** K."
+      ],
+      "note": "`SHIFT` `CVALUE` 25 is k = 1.380649e-23; the note's rounded 1.38e-23 gives F = 1.9848 and Te = 285.6 K, printed as 286 K."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/06_Equivalent_Noise_Temperature.json",
+    "problem": 5,
+    "expect": "An antenna with a noise temperature of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100+50` → $T_{\\mathrm{sys}}$ = **150** K; `k×150×1E6` → **2.071E-15** W; `10log(Ans÷1E-3)` → **-116.8** dBm.",
+        "`290+50` → **340** K; `k×340×1E6` → **4.694E-15** W = **-113.3** dBm for the ground case.",
+        "`10log(340÷150)` → **3.55** dB penalty."
+      ],
+      "note": "With a 100 K antenna the -174 dBm/Hz constant is invalid because it embeds 290 K; only $k(T_a+T_e)B$ is correct."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/07_Friis_Cascaded_Noise_Formula.json",
+    "problem": 1,
+    "expect": "A receiver front end consists of an LNA with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(0.176) : 10^(1.3) : 10^(0.6)` → **1.500** ($F_1$) → **19.95** ($G_1$) → **3.981** ($F_2$).",
+        "`1.5+(3.981-1)÷19.95` → $F$ = **1.6494**.",
+        "`10log(1.6494)` → **2.173** dB ≈ **2.17** dB."
+      ],
+      "note": "Convert every stage to a ratio first; adding 1.76 + 6 = 7.76 dB is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/07_Friis_Cascaded_Noise_Formula.json",
+    "problem": 2,
+    "expect": "lossy bandpass filter sits between the antenna and an LNA",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(6÷10) : 10^(-6÷10) : 10^(2÷10)` → **3.981** ($F_1 = L$) → **0.2512** ($G_1$) → **1.585** ($F_2$).",
+        "`3.981+(1.585-1)÷0.2512` → $F$ = **6.310**; the shortcut `3.981×1.585` → **6.310** confirms it.",
+        "`10log(6.310)` → **8.00** dB = the 6 dB loss plus the 2 dB LNA figure."
+      ],
+      "note": "A loss is a gain below 1, so it both contributes $F_1$ = 3.98 and magnifies the LNA's excess noise about 4x."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/07_Friis_Cascaded_Noise_Formula.json",
+    "problem": 3,
+    "expect": "Three stages are cascaded: stage 1 has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4÷100 : 9÷1000` → **0.04** → **0.009** (the stage-2 and stage-3 contributions, each over all gain ahead).",
+        "`2+0.04+0.009` → $F$ = **2.049**.",
+        "`10log(2.049)` → **3.115** dB ≈ **3.12** dB."
+      ],
+      "note": "Stage 3 divides by $G_1 G_2$ = 1000, not by $G_2$ = 10 or by $G_1 + G_2$ = 110."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/07_Friis_Cascaded_Noise_Formula.json",
+    "problem": 4,
+    "expect": "A receiver chain is LNA",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(0.2) : 10^(0.8) : 10^(-0.6) : 10^(0.4)` → **1.585** → **6.310** → **0.2512** → **2.512** ($F_1, F_2, G_2, F_3$).",
+        "`(6.310-1)÷100 : (2.512-1)÷(100×0.2512)` → **0.0531** → **0.0602** (terms 2 and 3).",
+        "`1.585+0.0531+0.0602` → $F$ = **1.698**; `10log(Ans)` → **2.300** dB ≈ **2.30** dB."
+      ],
+      "note": "The mixer's 6 dB conversion loss must enter as $G_2$ = 0.2512, not as +6 dB of gain."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/09_Sampling_Types_and_Aperture_Effect.json",
+    "problem": 1,
+    "expect": "flat-top aperture is used to sample a signal up to",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Angle unit **Rad**: `1E5×0.5E-6` → **0.05** = $f\\tau$; `sin(πAns)÷(πAns)` → **0.99589** = $\\mathrm{sinc}(f\\tau)$.",
+        "`20log(0.99589)` → **-0.0357** dB ≈ **-0.036** dB droop at 100 kHz.",
+        "`1÷0.5E-6` → **2E6** Hz = **2 MHz**, the first aperture null."
+      ],
+      "note": "In Deg mode `sin(π×0.05)` is sin(0.157°) = 0.0027 and the droop is nonsense; set Rad before keying the sinc."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/09_Sampling_Types_and_Aperture_Effect.json",
+    "problem": 3,
+    "expect": "A sample-and-hold must keep aperture droop below",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Rad mode; `SHIFT` `SOLVE` on `20log(sin(π×1E5×X)÷(π×1E5×X))=-0.1` (the inner `=` is `ALPHA` `=`), guess 1E-6, `=` → $X$ = **8.342E-7** s.",
+        "So $\\tau_{\\mathrm{max}}$ = **0.834** µs; check `sin(π×1E5×8.342E-7)÷(π×1E5×8.342E-7)` → **0.98858** = **-0.0997** dB."
+      ],
+      "note": "The small-angle form gives the same constant: $1-(\\pi x)^2/6$ with $x$ = 0.0834, i.e. $\\tau$ = 0.083/$f_{max}$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/09_Sampling_Types_and_Aperture_Effect.json",
+    "problem": 4,
+    "expect": "peak amplitude is sampled by a clock",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2π×4E6×1` → **2.513E7** V/s = maximum slope; `×20E-12` → **5.027E-4** V = **0.503** mV rms.",
+        "`-20log(2π×4E6×20E-12)` → **65.97** dB ≈ **66.0** dB jitter-limited SNR."
+      ],
+      "note": "The error is slope times timing error, so it grows with $f$; no number of bits beats this 66 dB ceiling."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/09_Sampling_Types_and_Aperture_Effect.json",
+    "problem": 5,
+    "expect": "A flat-top sampler with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷200E3` → **5E-6** s = **5** µs sampling interval; `2E-6×200E3` → **0.4** duty cycle.",
+        "`2E-6÷2` → **1E-6** s = **1** µs constant time delay, the $e^{-j\\pi f\\tau}$ half-aperture term.",
+        "`360×50E3×1E-6` → **18.0**° phase at 50 kHz — linear in frequency because the delay is constant."
+      ],
+      "note": "Duty cycle 0.4 means the held pulses nearly merge; the delay is constant in time but its phase is not."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/10_Anti-Aliasing_Filters.json",
+    "problem": 1,
+    "expect": "is digitised by a 12-bit converter at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10-4` → $f_{stop}$ = **6** kHz ($f_s-f_p$, not $f_s/2$ = 5 kHz); `6.02×12+1.76` → $A$ = **74.0** dB.",
+        "`20log(6÷4)` → **3.522** dB per order.",
+        "`74÷3.522` → **21.0**, so $n$ = **21**."
+      ],
+      "note": "The stopband edge is the frequency that folds onto $f_p$: $f_s-f_p$ = 6 kHz. Designing to 5 kHz leaves the worst alias intact."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/10_Anti-Aliasing_Filters.json",
+    "problem": 2,
+    "expect": "The converter in the previous problem is replaced by an oversampled 4x scheme",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`40-4` → $f_{stop}$ = **36** kHz; `36÷4` → **9** = transition ratio $r$.",
+        "`20log(9)` → **19.08** dB per order.",
+        "`74÷19.08` → **3.88**, so $n$ = **4** — down from 21."
+      ],
+      "note": "Oversampling widens the transition band and drops the order steeply; it never removes the analog filter."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/10_Anti-Aliasing_Filters.json",
+    "problem": 3,
+    "expect": "A 4th-order Butterworth anti-alias filter has its 3 dB cutoff at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(20÷5)^8` → **65536**; `1÷√(1+Ans)` → **3.906E-3** = $\\lvert H\\rvert$.",
+        "`20log(3.906E-3)` → **-48.16** dB ≈ **-48.2** dB.",
+        "`74-48.16` → **25.8** dB short of what a 12-bit converter needs."
+      ],
+      "note": "Use the exact Butterworth expression, not the 80 dB/decade asymptote — at only 4x $f_c$ the asymptote overstates."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/10_Anti-Aliasing_Filters.json",
+    "problem": 4,
+    "expect": "A digital audio system runs at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`44.1-20` → $f_{stop}$ = **24.1** kHz; `24.1÷20` → **1.205**, the image at $f_s-f_p$ having nowhere to go.",
+        "`20log(1.205)` → **1.620** dB per order.",
+        "`74÷1.620` → **45.7**, so $n$ is at least **46** — which is why CD players oversample."
+      ],
+      "note": "The 4.1 kHz gap from 20 kHz to 24.1 kHz is the whole difficulty; passing 0-20 kHz is not the requirement."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/11_DFT_and_FFT.json",
+    "problem": 1,
+    "expect": "signal is digitised with $N = 1024$ samples",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1E4÷1024` → $\\Delta f$ = **9.766** Hz.",
+        "`1024÷1E4` → **0.1024** s = **102.4** ms (equivalently `1÷9.766`).",
+        "`100×9.766` → bin 100 sits at **976.6** Hz."
+      ],
+      "note": "$N$ = 1024, not $N-1$ = 1023: using 1023 gives 9.775 Hz and 102.3 ms, the trap in the note."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/11_DFT_and_FFT.json",
+    "problem": 2,
+    "expect": "Compare the number of complex multiplications for a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4096²` → **1.678E7** complex multiplications for the direct DFT.",
+        "`(4096÷2)×(log(4096)÷log(2))` → **24576** for the radix-2 FFT; `log(4096)÷log(2)` is $\\log_2 N$ = **12**.",
+        "`1.678E7÷24576` → **682.7**x, matching the convention-free $2N/\\log_2 N$."
+      ],
+      "note": "`log` is base 10, so $\\log_2 N$ must be keyed as `log(N)÷log(2)`; the ratio is the robust comparison."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/11_DFT_and_FFT.json",
+    "problem": 3,
+    "expect": "Where does it fall in the spectrum",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8E3÷512` → $\\Delta f$ = **15.625** Hz.",
+        "`1000÷15.625` → **64.0**, exactly bin 64, so the tone is on-bin at full amplitude.",
+        "Half a bin off, with the angle unit in Rad: `20log(sin(π÷2)÷(π÷2))` → **-3.92** dB scalloping loss."
+      ],
+      "note": "An unnormalised bin reads $\\lvert X[64]\\rvert$ = $AN/2$; scale by $2/N$ before calling it an amplitude."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/11_DFT_and_FFT.json",
+    "problem": 4,
+    "expect": "apart must be resolved by an FFT running at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20E3÷50` → **400** = the minimum $N$ for $\\Delta f$ at most 50 Hz.",
+        "Next power of two: `20E3÷512` → **39.06** Hz for $N$ = **512**.",
+        "`512÷20E3` → **0.0256** s = **25.6** ms of data that must actually be collected."
+      ],
+      "note": "Zero-padding a 400-sample record to 512 adds no resolution — the record itself must be 512 samples long."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/11_DFT_and_FFT.json",
+    "problem": 5,
+    "expect": "A weak tone is buried in white noise",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10log(1024÷2)` → **27.1** dB processing gain.",
+        "`10^(40÷10)×2` → **20000** samples needed for a 40 dB display ($N/2$ = 1e4).",
+        "Round up to $N$ = **32768**: `10log(32768÷2)` → **42.1** dB."
+      ],
+      "note": "The factor 2 is for a real tone; $10\\log_{10}N$ = 30.1 dB and $N$ = 10000 is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/12_FIR_vs_IIR_Filters.json",
+    "problem": 1,
+    "expect": "An FIR lowpass must have a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`200÷8000` → **0.025** = the normalised transition width $\\Delta f/f_s$.",
+        "`60÷(22×0.025)` → **109.1** taps.",
+        "Round up to $N$ = **110** (or **111** for an odd-length symmetric type-I design)."
+      ],
+      "note": "The estimate needs $\\Delta f/f_s$; keying 60/(22×200) = 0.014 taps is the trap in the note."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/12_FIR_vs_IIR_Filters.json",
+    "problem": 2,
+    "expect": "A linear-phase FIR lowpass has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(101-1)÷2` → **50** samples group delay (order $M$ = $N-1$, not $N$).",
+        "`50÷8000` → **6.25E-3** s = **6.25** ms.",
+        "`360×1000×6.25E-3` → **2250**° at 1 kHz, i.e. 6.25 cycles of phase delay."
+      ],
+      "note": "$N/2$ = 50.5 samples is the trap; a symmetric length-$N$ FIR delays by $(N-1)/2$."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/12_FIR_vs_IIR_Filters.json",
+    "problem": 3,
+    "expect": "Three IIR filters have poles at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(0.8²+0.5²)` → **0.9434** = $\\lvert z_p\\rvert$ of the $-0.8\\pm j0.5$ pair (or `SHIFT` `Pol(-0.8, 0.5)` → $r$ = **0.9434**).",
+        "`0.95-1 : 1.05-1 : 0.9434-1` → **-0.05** → **+0.05** → **-0.0566**: only the second pole has a positive margin."
+      ],
+      "note": "The test is whether $\\lvert z_p\\rvert-1$ is negative; the real part -0.8 on its own is not the magnitude."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/12_FIR_vs_IIR_Filters.json",
+    "problem": 4,
+    "expect": "stopband attenuation with a transition ratio",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Butterworth: `log(1E6-1)÷(2×log(1.2))` → **37.89**, so $n$ = **38**.",
+        "FIR rule of thumb: `60÷(22×0.02)` → **136** taps.",
+        "`136÷38` → **3.58**x more coefficients for the FIR (an elliptic IIR would need far fewer)."
+      ],
+      "note": "`log` is base 10 and the numerator is $\\log_{10}(10^6-1)$; 6/(2×0.07918) gives the same 37.9 by hand."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/12_FIR_vs_IIR_Filters.json",
+    "problem": 5,
+    "expect": "An FIR lowpass has coefficients",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.1+0.2+0.4+0.2+0.1` → **1.0** = DC gain ($H$ at $z$ = 1, the sum of the coefficients).",
+        "`(5-1)÷2` → **2** samples group delay; $h[0]$ = $h[4]$ and $h[1]$ = $h[3]$ confirm the symmetry."
+      ],
+      "note": "Using $N/2$ = 2.5 samples, or reading 0.4 as the DC gain, are the two traps in the note."
+    }
+  }
+]

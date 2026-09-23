@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Root Finding — Convergence Race on a Log-Error Axis</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// The board asks "how many iterations", "which method converges fastest", and
+// "what is the order of convergence". Those are three different facts and the only
+// honest way to see them is to run all four methods from the same start on the same
+// function and look at the error on a LOG axis:
+//   bisection  e_{n+1} = e_n / 2          -> a straight line, slope -0.301 per step
+//   regula falsi: geometric but with a ratio equal to the bracketing geometry, so it
+//                 often beats bisection and then stalls (one end never releases)
+//   secant     order p = (1+sqrt5)/2 = 1.618
+//   Newton     order p = 2 (quadratic)
+// A log axis turns "quadratic" into "the line gets twice as steep", which is the
+// intuition the exam wants.
+
+const FUNCS = [
+  {
+    key: 'x^3 - 2x - 5', expr: 'f(x) = x³ − 2x − 5',
+    dstr: '3x² − 2', x0: 2.09,
+    bracket: [1, 3], seedA: 1, seedB: 3,
+    f: (x) => x * x * x - 2 * x - 5,
+    df: (x) => 3 * x * x - 2,
+  },
+  {
+    key: 'cos x - x', expr: 'f(x) = cos x − x',
+    dstr: '−sin x − 1', x0: 0.7,
+    bracket: [0, 1.5], seedA: 0, seedB: 1.5,
+    f: (x) => Math.cos(x) - x,
+    df: (x) => -Math.sin(x) - 1,
+  },
+  {
+    key: 'e^x - 3x', expr: 'f(x) = eˣ − 3x',
+    dstr: 'eˣ − 3', x0: 0.6,
+    bracket: [0, 1], seedA: 0, seedB: 1,
+    f: (x) => Math.exp(x) - 3 * x,
+    df: (x) => Math.exp(x) - 3,
+  },
+  {
+    key: 'x^3 - 2x + 2', expr: 'f(x) = x³ − 2x + 2',
+    dstr: '3x² − 2', x0: -1.7,
+    bracket: [-3, -1], seedA: -3, seedB: -1,
+    f: (x) => x * x * x - 2 * x + 2,
+    df: (x) => 3 * x * x - 2,
+  },
+];
+
+/** Newton refine to machine precision, used to GET the true root for the error axis. */
+function refine(f, df, x) {
+  let a = x;
+  for (let i = 0; i < 200; i++) {
+    const d = df(a);
+    if (!d || !isFinite(d)) break;
+    const b = a - f(a) / d;
+    if (!isFinite(b) || b === a) break;
+    a = b;
+  }
+  return a;
+}
+
+/** Least-squares slope of log e_i vs log e_{i+1}: that slope IS the order p. */
+function orderFrom(es) {
+  const ps = [];
+  for (let i = 1; i + 1 < es.length; i++) {
+    const a = Math.max(es[i - 1], 1e-300), b = Math.max(es[i], 1e-300), c = Math.max(es[i + 1], 1e-300);
+    if (b > 1e-14 && a > 1e-14) {
+      const p = Math.log(c / b) / Math.log(b / a);
+      if (isFinite(p) && p > 0 && p < 5) ps.push(p);
+    }
+  }
+  if (!ps.length) return NaN;
+  ps.sort((u, w) => u - w);
+  return ps[Math.floor(ps.length / 2)];
+}
+
+/** Index of the first iterate within tol of the true root; -1 if never. */
+function itersTo(es, tol) {
+  for (let i = 0; i < es.length; i++) if (es[i] < tol) return i;
+  return -1;
+}
+
+// ---------------------------------------------------------------- methods
+
+function runBisection(f, a, b, xr, N) {
+  const x = [], e = [];
+  let fa = f(a), fb = f(b);
+  e.push(Math.max(Math.abs(a - xr), Math.abs(b - xr)));   // the worst point in the bracket
+  for (let i = 1; i <= N; i++) {
+    const m = (a + b) / 2, fm = f(m);
+    x.push(m); e.push(Math.abs(m - xr));
+    if ((fa < 0) !== (fm < 0)) { b = m; fb = fm; } else { a = m; fa = fm; }
+    if (Math.abs(b - a) === 0) break;
+  }
+  return { name: 'bisection', x, e, color: PALETTE.accent };
+}
+
+function runFalsi(f, a, b, xr, N) {
+  const x = [], e = [];
+  let fa = f(a), fb = f(b);
+  e.push(Math.max(Math.abs(a - xr), Math.abs(b - xr)));
+  for (let i = 1; i <= N; i++) {
+    const den = fb - fa;
+    if (den === 0 || !isFinite(den)) break;
+    const c = (a * fb - b * fa) / den, fc = f(c);
+    x.push(c); e.push(Math.abs(c - xr));
+    if ((fa < 0) !== (fc < 0)) { b = c; fb = fc; } else { a = c; fa = fc; }
+  }
+  return { name: 'regula falsi', x, e, color: PALETTE.accent4 };
+}
+
+function runNewton(f, df, x0, xr, N) {
+  const x = [], e = [];
+  let xc = x0;
+  e.push(Math.abs(xc - xr));
+  for (let i = 1; i <= N; i++) {
+    const d = df(xc);
+    if (!d || !isFinite(d)) break;
+    const xn = xc - f(xc) / d;
+    if (!isFinite(xn)) break;
+    x.push(xn); e.push(Math.abs(xn - xr));
+    if (xn === xc) break;
+    xc = xn;
+  }
+  return { name: 'Newton-Raphson', x, e, color: PALETTE.accent3 };
+}
+
+function runSecant(f, x0, x1, xr, N) {
+  const x = [], e = [];
+  e.push(Math.abs(x0 - xr));
+  let xa = x0, xb = x1, fa = f(x0), fb = f(x1);
+  for (let i = 1; i <= N; i++) {
+    const den = fb - fa;
+    if (den === 0 || !isFinite(den)) break;
+    const xn = xb - (fb * (xb - xa)) / den;
+    if (!isFinite(xn)) break;
+    x.push(xn); e.push(Math.abs(xn - xr));
+    xa = xb; fa = fb; xb = xn; fb = f(xn);
+  }
+  return { name: 'secant', x, e, color: PALETTE.accent5 };
+}
+
+widget({
+  title: 'Root Finding — Convergence Race on a Log-Error Axis',
+  description:
+    'Four methods, one function, one starting point. The error |x_n − x*| is plotted on a logarithmic axis, so a method of order p shows up as a line whose slope steepens by a factor of p each step. Bisection halves the error every step (slope −log10 2 ≈ −0.301); Newton-Raphson squares it (order 2).',
+  height: 560,
+  range: { xMin: 0, xMax: 30, yMin: -16, yMax: 2 },
+  controls: [
+    { id: 'fn', label: 'function', type: 'select',
+      options: FUNCS.map((o) => ({ value: o.key, label: o.key })), value: FUNCS[0].key },
+    { id: 'a', label: 'bracket left / secant seed A', min: -3, max: 5, step: 0.01, value: 1 },
+    { id: 'b', label: 'bracket right / secant seed B', min: -3, max: 5, step: 0.01, value: 3 },
+    { id: 'tol', label: 'tolerance', type: 'select',
+      options: [{ value: '1e-3', label: '1×10⁻³' }, { value: '1e-4', label: '1×10⁻⁴' },
+                { value: '1e-6', label: '1×10⁻⁶ (default)' }, { value: '1e-8', label: '1×10⁻⁸' }],
+      value: '1e-6' },
+    { id: 'iters', label: 'iterations shown', min: 8, max: 40, step: 1, value: 24 },
+  ],
+
+  compute: (v) => {
+    const fdef = FUNCS.find((o) => o.key === v.fn) ?? FUNCS[0];
+    const f = fdef.f, df = fdef.df;
+    const a = Math.min(v.a, v.b), b = Math.max(v.a, v.b);
+    const tol = parseFloat(v.tol);
+    const N = Math.round(v.iters);
+
+    const root = refine(f, df, fdef.x0);
+    const fa = f(a), fb = f(b);
+    const brackets = a !== b && isFinite(fa) && isFinite(fb) && ((fa < 0) !== (fb < 0));
+
+    const trace = [runBisection(f, a, b, root, N), runFalsi(f, a, b, root, N),
+                   runNewton(f, df, v.a, root, N), runSecant(f, v.a, v.b, root, N)];
+    for (const t of trace) {
+      t.iters = brackets || t.name === 'Newton-Raphson' || t.name === 'secant' ? itersTo(t.e, tol) : -1;
+      t.order = orderFrom(t.e);
+      t.final = t.e[t.e.length - 1];
+    }
+
+    const newt = trace[2], sec = trace[3];
+    // how close together are the two seeds? the secant method dies when they coincide
+    const secantDead = Math.abs(v.b - v.a) < 1e-9;
+
+    return { fdef, f, df, a, b, tol, N, root, fa, fb, brackets, trace, newt, sec, secantDead,
+             xMin: Math.min(a, root) - 0.4, xMax: Math.max(b, root) + 0.4 };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+
+    const top = 62, bot = plot.h - 34;
+    const A = { x0: 38, x1: 372, y0: top, y1: bot };   // log-error race
+    const B = { x0: 404, x1: 606, y0: top, y1: bot };  // f(x) and the start points
+    const C = { x0: 630, x1: plot.w - 14, y0: top, y1: bot }; // iteration table + verdict
+
+    // ---------------------------------------------------------- header formulas
+    plot.text('f(x) = ' + out.fdef.key + '      f′ = ' + out.fdef.dstr,
+      14, 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('true root x* = ' + fmt(out.root, 10) + '   (found by Newton refine)      tolerance = ' + fmt(out.tol, 2) +
+      '      start  a = ' + fmt(v.a, 4) + ' , b = ' + fmt(v.b, 4),
+      14, 38, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('bisection/regula falsi need a SIGN CHANGE on [a,b] — Newton uses only a, secant uses a and b',
+      14, 54, { color: out.brackets ? PALETTE.dim : PALETTE.accent2, font: '11px ui-monospace, monospace' });
+
+    // =============================================================== A: log error
+    const iMax = Math.max(out.N, 2);
+    const XA = (i) => A.x0 + ((i - 0) / iMax) * (A.x1 - A.x0);
+    const YA = (e) => A.y1 - ((Math.log10(Math.max(e, 1e-17)) + 17) / 19) * (A.y1 - A.y0);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(A.x0 - 6, A.y0 - 16, A.x1 - A.x0 + 12, A.y1 - A.y0 + 22);
+    ctx.restore();
+
+    // log decades
+    ctx.save();
+    ctx.font = '10px ui-monospace, monospace';
+    for (let k = 2; k >= -16; k--) {
+      const y = YA(Math.pow(10, k));
+      ctx.strokeStyle = k % 4 === 0 ? PALETTE.grid : 'rgba(58,58,82,0.45)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(A.x0, y); ctx.lineTo(A.x1, y); ctx.stroke();
+      if (k % 2 === 0) {
+        ctx.fillStyle = PALETTE.dim;
+        ctx.textAlign = 'right';
+        ctx.fillText('1e' + k, A.x0 - 4, y + 3);
+        ctx.textAlign = 'left';
+      }
+    }
+    // iteration grid
+    for (let i = 0; i <= iMax; i += 5) {
+      const x = XA(i);
+      ctx.strokeStyle = 'rgba(58,58,82,0.7)';
+      ctx.beginPath(); ctx.moveTo(x, A.y0); ctx.lineTo(x, A.y1); ctx.stroke();
+      ctx.fillStyle = PALETTE.dim;
+      ctx.textAlign = 'center';
+      ctx.fillText(String(i), x, A.y1 + 14);
+      ctx.textAlign = 'left';
+    }
+    ctx.restore();
+    plot.text('n', (A.x0 + A.x1) / 2, A.y1 + 28, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'center' });
+    plot.text('absolute error  |x_n − x*|  (log scale)', A.x0 - 6, A.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('error', A.x0 - 34, A.y0 + Math.round((A.y1 - A.y0) / 2), { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // tolerance line
+    plot.segment(A.x0, YA(out.tol), A.x1, YA(out.tol), { color: PALETTE.warn, width: 1.4, dash: [5, 4] });
+    plot.text('tol = ' + fmt(out.tol, 2), A.x1 - 2, YA(out.tol) - 4,
+      { color: PALETTE.warn, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // bisection reference slope: exactly one bit per step, so error ~ e0 * 2^-n
+    ctx.save();
+    ctx.strokeStyle = 'rgba(160,160,190,0.55)';
+    ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    const e0 = out.trace[0].e[0];
+    for (let i = 0; i <= iMax; i++) {
+      const y = YA(e0 * Math.pow(2, -i));
+      i === 0 ? ctx.moveTo(XA(i), y) : ctx.lineTo(XA(i), y);
+    }
+    ctx.stroke(); ctx.restore();
+    plot.label('e0·2^−n  (bisection theory)', iMax * 0.35, e0 * Math.pow(2, -iMax * 0.35) * 0.6,
+      { color: 'rgba(200,200,220,0.8)', font: '10px ui-monospace, monospace' });
+
+    // the four traces
+    for (const t of out.trace) {
+      if (t.name === 'bisection' && !out.brackets) continue;
+      if (t.name === 'regula falsi' && !out.brackets) continue;
+      ctx.save();
+      ctx.strokeStyle = t.color; ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      let started = false;
+      for (let i = 0; i < t.e.length; i++) {
+        const e = t.e[i];
+        if (!isFinite(e)) { started = false; continue; }
+        const px = XA(i), py = YA(e);
+        if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke(); ctx.restore();
+      // marker at the iteration that reaches tolerance
+      if (t.iters >= 0) plot.dot(t.iters, t.e[t.iters], { color: t.color, r: 3.4 });
+    }
+
+    // legend
+    let ly = A.y0 + 8;
+    for (const t of out.trace) {
+      ctx.save();
+      ctx.strokeStyle = t.color; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(A.x0 + 8, ly - 4); ctx.lineTo(A.x0 + 26, ly - 4); ctx.stroke();
+      ctx.restore();
+      plot.text(t.name, A.x0 + 32, ly, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+      ly += 14;
+    }
+
+    if (!out.brackets) {
+      plot.text('no sign change on [a,b]:', A.x0 + 6, A.y0 + 78, { color: PALETTE.accent2, font: 'bold 10px ui-monospace, monospace' });
+      plot.text('bisection and regula falsi', A.x0 + 6, A.y0 + 92, { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+      plot.text('are skipped (f(a) and f(b)', A.x0 + 6, A.y0 + 106, { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+      plot.text('have the same sign).', A.x0 + 6, A.y0 + 120, { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    }
+
+    // =============================================================== B: f(x)
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(B.x0 - 6, B.y0 - 16, B.x1 - B.x0 + 12, B.y1 - B.y0 + 22);
+    ctx.restore();
+    plot.text('the function and the start', B.x0 - 6, B.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    let yLo = Infinity, yHi = -Infinity;
+    const xs = [];
+    for (let i = 0; i <= 240; i++) {
+      const x = out.xMin + ((out.xMax - out.xMin) * i) / 240;
+      const y = out.f(x);
+      if (Number.isFinite(y)) { yLo = Math.min(yLo, y); yHi = Math.max(yHi, y); }
+      xs.push([x, y]);
+    }
+    if (!isFinite(yLo) || !isFinite(yHi)) { yLo = -1; yHi = 1; }
+    const span = Math.max(yHi - yLo, 1e-6);
+    yLo -= span * 0.12; yHi += span * 0.12;
+    if (yLo > 0) yLo = -span * 0.15;
+    if (yHi < 0) yHi = span * 0.15;
+
+    const XB = (x) => B.x0 + ((x - out.xMin) / (out.xMax - out.xMin)) * (B.x1 - B.x0);
+    const YB = (y) => B.y1 - ((y - yLo) / (yHi - yLo)) * (B.y1 - B.y0);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(B.x0, YB(0)); ctx.lineTo(B.x1, YB(0)); ctx.stroke();
+    ctx.strokeStyle = PALETTE.axis;
+    ctx.beginPath(); ctx.moveTo(XB(0), B.y0); ctx.lineTo(XB(0), B.y1); ctx.stroke();
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2;
+    ctx.beginPath();
+    let st = false;
+    for (const [x, y] of xs) {
+      if (!Number.isFinite(y)) { st = false; continue; }
+      const px = XB(x), py = YB(Math.max(yLo, Math.min(yHi, y)));
+      if (!st) { ctx.moveTo(px, py); st = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // start points and the root
+    plot.dot(out.root, 0, { color: PALETTE.warn, r: 4 });
+    plot.text('x*', XB(out.root) + 5, YB(0) - 7, { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    for (const [lab, xx, col] of [['a', v.a, PALETTE.accent3], ['b', v.b, PALETTE.accent5]]) {
+      plot.segment(XB(xx), YB(Math.max(yLo, Math.min(yHi, out.f(xx)))), XB(xx), YB(0), { color: col, width: 1.2, dash: [3, 3] });
+      plot.dot(xx, Math.max(yLo, Math.min(yHi, out.f(xx))), { color: col, r: 3.4 });
+      plot.text(lab + ' = ' + fmt(xx, 4), XB(xx) + 5, YB(0) + 13, { color: col, font: '10px ui-monospace, monospace' });
+    }
+    plot.text('f(a) = ' + fmt(out.fa, 4) + '   f(b) = ' + fmt(out.fb, 4),
+      B.x0, B.y1 + 14, { color: out.brackets ? PALETTE.accent3 : PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    plot.text(out.brackets ? 'opposite signs → valid bracket' : 'same sign → NOT a bracket',
+      B.x0, B.y1 + 30, { color: out.brackets ? PALETTE.accent3 : PALETTE.accent2, font: '11px ui-monospace, monospace' });
+
+    // =============================================================== C: table
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(C.x0 - 6, C.y0 - 16, C.x1 - C.x0 + 12, C.y1 - C.y0 + 22);
+    ctx.restore();
+    plot.text('iterations to |error| < ' + fmt(out.tol, 2), C.x0 - 6, C.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('order  =  lim log(e_n₊₁/e_n) / log(e_n/e_n₋₁)', C.x0, C.y0 + 2,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    let ty = C.y0 + 24;
+    for (const t of out.trace) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(30,30,46,0.55)';
+      ctx.fillRect(C.x0, ty - 11, C.x1 - C.x0, 30);
+      ctx.restore();
+      plot.text(t.name, C.x0 + 4, ty, { color: t.color, font: 'bold 11px ui-monospace, monospace' });
+      const it = t.iters < 0 ? 'not within ' + out.N + ' iters' : String(t.iters) + ' iters';
+      plot.text(it, C.x0 + 4, ty + 13, { color: t.iters < 0 ? PALETTE.accent2 : PALETTE.text, font: '11px ui-monospace, monospace' });
+      plot.text('order ' + (isFinite(t.order) ? fmt(t.order, 3) : '—') +
+        '   final ' + (isFinite(t.final) ? t.final.toExponential(1) : '—'),
+        C.x0 + 4, ty + 26, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+      ty += 38;
+    }
+
+    // the theoretical comparison
+    ty += 4;
+    const bisTheo = out.brackets ? Math.max(0, Math.ceil(Math.log2((out.b - out.a) / out.tol))) : Infinity;
+    plot.text('theory:', C.x0 + 4, ty, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('bisection n ≥ log2((b−a)/tol)', C.x0 + 4, ty + 15, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    plot.text('= log2(' + fmt(out.b - out.a, 3) + '/' + fmt(out.tol, 2) + ') = ' + fmt(bisTheo, 3),
+      C.x0 + 4, ty + 29, { color: PALETTE.accent, font: '10px ui-monospace, monospace' });
+    plot.text('Newton: e_n₊₁ ≈ (f″/2f′)·e_n²  → order 2', C.x0 + 4, ty + 45, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    plot.text('secant: order (1+√5)/2 = 1.618 each step', C.x0 + 4, ty + 59, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // verdict strip
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.9)';
+    ctx.fillRect(10, plot.h - 26, plot.w - 20, 22);
+    ctx.restore();
+    let verdict;
+    if (out.secantDead) {
+      verdict = 'The secant seeds a and b are the SAME point — the secant denominator f(b) − f(a) is zero and the method is undefined. Give it two distinct seeds.';
+    } else if (!out.brackets) {
+      verdict = 'f(a) and f(b) share a sign, so no root is bracketed: bisection and regula falsi cannot start at all. Newton (needs one point and f′) reports order ' +
+        (isFinite(out.newt.order) ? fmt(out.newt.order, 3) : '—') + '.';
+    } else {
+      const bis = out.trace[0].iters, fal = out.trace[1].iters, nt = out.trace[2].iters, sc = out.trace[3].iters;
+      verdict = 'Newton reaches ' + fmt(out.tol, 2) + ' in ' + (nt < 0 ? '>' + out.N : nt) + ' iterations, secant in ' +
+        (sc < 0 ? '>' + out.N : sc) + ', regula falsi in ' + (fal < 0 ? '>' + out.N : fal) + ', bisection in ' +
+        (bis < 0 ? '>' + out.N : bis) + '. Observed order — Newton ' + fmt(out.newt.order, 3) +
+        ', secant ' + fmt(out.sec.order, 3) + '.';
+    }
+    plot.text(verdict, 16, plot.h - 11, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const g = (i) => out.trace[i];
+    const it = (t) => (t.iters < 0 ? 'not reached in ' + out.N : String(t.iters) + ' iters');
+    return {
+      'root x*': fmt(out.root, 10),
+      'f(x*) residual': fmt(out.f(out.root), 3),
+      'bracket valid?': out.brackets ? 'YES — f(a)·f(b) < 0' : 'NO — f(a) and f(b) same sign',
+      'bisection': it(g(0)) + '   (order 1, error halves)',
+      'regula falsi': it(g(1)) + '   (order ≈ 1, no longer bracketed-fast)',
+      'Newton-Raphson': it(g(2)) + '   (order ' + fmt(g(2).order, 3) + ')',
+      'secant': it(g(3)) + '   (order ' + fmt(g(3).order, 3) + ', theory 1.618)',
+      'bisection theory': out.brackets
+        ? 'n ≥ log2((b−a)/tol) = ' + fmt(Math.ceil(Math.log2((out.b - out.a) / out.tol)), 3) + ' iterations'
+        : 'undefined without a bracket',
+      'Newton error model': 'e_n₊₁ ≈ |f″(x*)/(2f′(x*))| · e_n²  → doubles correct digits each step',
+      'cheapest per iteration': 'bisection (one f evaluation, no derivative)',
+      'fewest iterations': 'Newton-Raphson (but it needs f′ and a good seed)',
+    };
+  },
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Speed is not the same as safety, and the exam tests both.</strong> ' +
+  'Bisection is guaranteed to converge but only halves the error each step, so reaching a tolerance tol from a bracket of width w costs ' +
+  '<code>n ≥ log2(w/tol)</code> iterations — a fixed number that does not care how steep the function is. ' +
+  'Newton-Raphson is the opposite: it squares the error each step, so the number of correct digits doubles and it finishes in a handful of iterations, ' +
+  'but it needs f\u2032(x) and it can fail outright. Set the seed on the wrong side of a local extremum and it diverges or enters a 2-cycle and never settles at all — ' +
+  'try x\u00B3 \u2212 2x + 2 with a = b = 1 and watch Newton bounce between 1 and 0 forever while bisection walks steadily into the root. ' +
+  'The secant method is the practical compromise: order 1.618, only function evaluations, no derivative. ' +
+  'Two traps cost marks. First, <em>regula falsi is not bisection</em> \u2014 it looks faster early because it uses the function values to place its guess, ' +
+  'but when the curve is strongly convex on one side of the root one endpoint never releases and the convergence collapses to a crawl, which is exactly what the ' +
+  'cubic case shows. Second, <em>a valid bracket is a precondition, not a formality</em>: f(a) and f(b) must have opposite signs, otherwise bisection and ' +
+  'regula falsi cannot even begin, and the answer \u201Cthe method converges to the root\u201D is simply wrong. ' +
+  'Always report the iteration count together with the initial bracket width and the tolerance, because an iteration count without those two numbers means nothing.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

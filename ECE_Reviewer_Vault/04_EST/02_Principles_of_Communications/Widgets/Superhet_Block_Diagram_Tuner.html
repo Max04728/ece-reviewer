@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Superheterodyne Receiver — Image Frequency and Preselector Q</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, clamp } from '../../../Assets/vault.js';
+
+// The superhet converts every station to one fixed IF, which is why one set of filters works
+// for the whole band. The bill comes due at the IMAGE frequency: a second RF that also lands
+// on the IF. The IF filter cannot remove it - the image is already at the IF by the time the
+// IF filter sees it. Only a preselector ahead of the mixer can, and how well it does is a Q
+// problem: Q = f_RF / (delta_f sqrt(IRR)).
+
+const db = (x) => 10 * Math.log10(Math.max(x, 1e-12));
+const fromDb = (d) => Math.pow(10, Number(d) / 10);
+
+widget({
+  title: 'Superheterodyne Receiver — Image Frequency, Image Rejection and Preselector Q',
+  description:
+    'High-side injection: the local oscillator runs f_IF above the wanted RF, so the mixer always produces the same IF. Two RFs do that - the wanted one and the image at f_RF + 2 f_IF. The IF filter passes both, so only the preselector in front of the mixer can reject the image, and its Q is set by the image-rejection ratio you demand.',
+  height: 620,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'frf', label: 'received RF frequency f_RF (MHz)', min: 0.5, max: 120, step: 0.1, value: 100 },
+    { id: 'fif', label: 'intermediate frequency f_IF (MHz)', min: 0.1, max: 60, step: 0.05, value: 10.7 },
+    { id: 'side', label: 'local oscillator injection', type: 'select', value: 'high',
+      options: [
+        { value: 'high', label: 'high-side: f_LO = f_RF + f_IF' },
+        { value: 'low', label: 'low-side: f_LO = f_RF - f_IF' },
+      ] },
+    { id: 'irr', label: 'image rejection ratio required (dB)', min: 20, max: 90, step: 1, value: 60 },
+    { id: 'bw', label: 'preselector -3 dB bandwidth (MHz)', min: 0.05, max: 20, step: 0.05, value: 2 },
+    { id: 'grf', label: 'RF amplifier gain (dB)', min: 0, max: 40, step: 1, value: 20 },
+    { id: 'gif', label: 'IF amplifier gain (dB)', min: 20, max: 100, step: 1, value: 60 },
+  ],
+
+  compute: (v) => {
+    const frf = v.frf;                     // MHz
+    const fif = v.fif;                     // MHz
+    const high = v.side === 'high';
+    const flo = high ? frf + fif : frf - fif;
+    const fimg = high ? frf + 2 * fif : frf - 2 * fif;   // the other RF that hits the same IF
+    const fimgAlt = flo + fif;                            // f_LO + f_IF, the fixed-LO form
+    const sep = Math.abs(fimg - frf);                     // 2 f_IF
+    const ratio = frf > 0 ? fimg / frf : 1;
+
+    // Preselector: single-tuned bandpass, normalised response H(f) = 1/sqrt(1 + Q^2 (f/f0 - f0/f)^2)
+    const Qp = v.bw > 0 ? frf / v.bw : Infinity;
+    const H = (f) => {
+      if (!isFinite(Qp) || f <= 0) return 1;
+      const u = f / frf - frf / f;
+      return 1 / Math.sqrt(1 + Qp * Qp * u * u);
+    };
+    const Himg = H(fimg);
+    const attenuationDb = -20 * Math.log10(Math.max(Himg, 1e-12));
+    const irrMw = Himg > 0 ? 1 / (Himg * Himg) : Infinity;      // power rejection ratio
+    const irrMwDb = db(irrMw);
+
+    // Q needed for the demanded rejection: Q = f_RF / (delta_f sqrt(IRR))
+    const irrReq = fromDb(v.irr);
+    const qReq = sep > 0 ? frf / (sep * Math.sqrt(irrReq)) : Infinity;
+    const bwReq = isFinite(qReq) && qReq > 0 ? frf / qReq : 0;
+
+    // Two-signal (measured) image rejection including the actual preselector
+    const irrActualDb = irrMwDb;
+
+    // --- receiver cascade ---------------------------------------------------
+    const gRf = fromDb(v.grf), gMix = fromDb(-6), gIf = fromDb(v.gif);
+    const gTotal = gRf * gMix * gIf;
+    const gTotalDb = db(gTotal);
+
+    // --- frequency line limits ---------------------------------------------
+    const lo = Math.max(0.05, Math.min(frf, fimg, fif) * 0.72);
+    const hi = Math.max(frf, fimg, fif, flo) * 1.42;
+
+    return {
+      frf, fif, flo, fimg, fimgAlt, sep, ratio, high, Qp, Himg, attenuationDb, irrMwDb, irrReq,
+      qReq, bwReq, irrActualDb, gTotalDb, gRf, gMix, gIf, lo, hi, bw: v.bw,
+      irrTargetDb: v.irr, meets: irrMwDb >= v.irr,
+      valid: fimg > 0,
+      fimgNegative: fimg <= 0,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    plot.text('f_IF = ' + fmt(out.fif, 4) + ' MHz     f_LO = ' + fmt(out.flo, 5) + ' MHz' +
+      (out.high ? '   (high-side: f_LO = f_RF + f_IF)' : '   (low-side: f_LO = f_RF \u2212 f_IF)'),
+      16, 18, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('f_img = ' + (out.high ? 'f_RF + 2 f_IF' : 'f_RF \u2212 2 f_IF') + ' = ' + fmt(out.frf, 4) + ' ' +
+      (out.high ? '+' : '\u2212') + ' 2(' + fmt(out.fif, 4) + ') = ' + fmt(out.fimg, 5) +
+      ' MHz        |f_img \u2212 f_RF| = 2 f_IF = ' + fmt(out.sep, 5) + ' MHz        f_img/f_RF = ' +
+      fmt(out.ratio, 5),
+      16, 35, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+
+    // ================================================== block diagram
+    const bx0 = 20, by = 74, bh = 54, gap = 26;
+    const bw = 116;
+    const stages = [
+      { n: 'RF AMP', s: 'preselector\nQ = ' + fmt(out.Qp, 4), c: PALETTE.accent, f: 'f_RF' },
+      { n: 'MIXER', s: 'f_LO \u00B1 f_RF \u2192 f_IF', c: PALETTE.accent5, f: 'f_RF, f_img' },
+      { n: 'IF AMP', s: 'fixed at f_IF\nB = 2(\u2026)', c: PALETTE.accent3, f: 'f_IF only' },
+      { n: 'DETECTOR', s: 'envelope / FM disc', c: PALETTE.accent4, f: 'baseband' },
+      { n: 'AGC', s: 'feedback to RF + IF', c: PALETTE.warn, f: 'dc control' },
+    ];
+    const xs = [];
+    for (let i = 0; i < stages.length; i++) xs.push(bx0 + i * (bw + gap));
+
+    const box = (x, y, w, h, title, sub, color) => {
+      ctx.save();
+      ctx.fillStyle = 'rgba(39,39,58,0.92)';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      plot.text(title, x + w / 2, y + 20, { color, font: 'bold 11px ui-monospace, monospace', align: 'center' });
+      const lines = String(sub).split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        plot.text(lines[i], x + w / 2, y + 35 + i * 12,
+          { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      }
+    };
+
+    for (let i = 0; i < stages.length; i++) {
+      box(xs[i], by, bw, bh, stages[i].n, stages[i].s, stages[i].c);
+      if (i > 0) {
+        ctx.save();
+        ctx.strokeStyle = PALETTE.axis;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(xs[i] - gap, by + bh / 2);
+        ctx.lineTo(xs[i] - 4, by + bh / 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(xs[i] - 4, by + bh / 2);
+        ctx.lineTo(xs[i] - 11, by + bh / 2 - 4);
+        ctx.lineTo(xs[i] - 11, by + bh / 2 + 4);
+        ctx.closePath();
+        ctx.fillStyle = PALETTE.axis;
+        ctx.fill();
+        ctx.restore();
+      }
+      plot.text(stages[i].f, xs[i] + bw / 2, by + bh + 14,
+        { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+    }
+    // local oscillator box under the mixer
+    const lox = xs[1] + bw / 2 - 52;
+    box(lox, by + bh + 30, 104, 42, 'LOCAL OSC', 'f_LO = ' + fmt(out.flo, 5) + ' MHz', PALETTE.accent2);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(lox + 52, by + bh + 30);
+    ctx.lineTo(lox + 52, by + bh + 12);
+    ctx.stroke();
+    ctx.restore();
+    // AGC feedback
+    ctx.save();
+    ctx.strokeStyle = 'rgba(249,226,175,0.75)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xs[4] + 6, by);
+    ctx.lineTo(xs[4] + 6, by - 20);
+    ctx.lineTo(xs[0] + bw / 2, by - 20);
+    ctx.lineTo(xs[0] + bw / 2, by);
+    ctx.stroke();
+    ctx.restore();
+    plot.text('AGC', (xs[0] + bw / 2 + xs[4] + 6) / 2, by - 24,
+      { color: PALETTE.warn, font: '10px ui-monospace, monospace', align: 'center' });
+    plot.text('cascade: ' + fmt(v.grf, 4) + ' dB (RF) \u2212 6 dB (mixer conversion) + ' + fmt(v.gif, 4) +
+      ' dB (IF) = ' + fmt(out.gTotalDb, 5) + ' dB overall gain',
+      16, by + bh + 88, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+
+    // ================================================== frequency line diagram
+    const ly = by + bh + 128;
+    const lh = 96;
+    const A = 62, Bb = W - 40;
+    const lx = (f) => A + ((Math.log10(Math.max(f, 1e-3)) - Math.log10(out.lo)) /
+      (Math.log10(out.hi) - Math.log10(out.lo))) * (Bb - A);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(A, ly, Bb - A, lh);
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    for (let d = 0.1; d <= 1000; d *= 10) {
+      for (let m = 1; m < 10; m++) {
+        const f = d * m;
+        if (f < out.lo || f > out.hi) continue;
+        ctx.beginPath(); ctx.moveTo(lx(f), ly); ctx.lineTo(lx(f), ly + lh); ctx.stroke();
+      }
+    }
+    ctx.restore();
+    plot.text('frequency line (log scale, MHz)', A, ly - 6,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    for (let d = 0.1; d <= 1000; d *= 10) {
+      for (const m of [1, 10]) {
+        const f = d * m;
+        if (f < out.lo || f > out.hi) continue;
+        plot.text(fmt(f, 4), lx(f), ly + lh + 14,
+          { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      }
+    }
+
+    // IF passband: the two RFs that both land in it
+    const ifBandLo = A + ((Math.log10(Math.max(out.fif * 0.97, 1e-3)) - Math.log10(out.lo)) /
+      (Math.log10(out.hi) - Math.log10(out.lo))) * (Bb - A);
+    const ifBandHi = A + ((Math.log10(out.fif * 1.03) - Math.log10(out.lo)) /
+      (Math.log10(out.hi) - Math.log10(out.lo))) * (Bb - A);
+    ctx.save();
+    ctx.fillStyle = 'rgba(166,227,161,0.22)';
+    ctx.fillRect(ifBandLo, ly + 4, Math.max(6, ifBandHi - ifBandLo), lh - 34);
+    ctx.restore();
+    plot.text('IF passband ' + fmt(out.fif, 4) + ' MHz', (ifBandLo + ifBandHi) / 2, ly + lh - 20,
+      { color: PALETTE.accent3, font: '9px ui-monospace, monospace', align: 'center' });
+
+    // markers
+    const mark = (f, color, text, dy) => {
+      const x = lx(f);
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(x, ly + 4); ctx.lineTo(x, ly + lh - 30); ctx.stroke();
+      ctx.restore();
+      plot.text(text, x, ly + 16 + (dy || 0), { color, font: 'bold 10px ui-monospace, monospace', align: 'center' });
+    };
+    mark(out.frf, PALETTE.accent, 'f_RF ' + fmt(out.frf, 4), 0);
+    mark(out.flo, PALETTE.accent2, 'f_LO ' + fmt(out.flo, 4), 12);
+    if (out.fimg > 0) mark(out.fimg, PALETTE.warn, 'IMAGE ' + fmt(out.fimg, 4), 24);
+
+    // the mixing arrows: each RF is f_IF away from f_LO
+    ctx.save();
+    ctx.strokeStyle = 'rgba(137,180,250,0.6)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(lx(out.frf), ly + lh - 34);
+    ctx.lineTo(lx(out.flo), ly + lh - 34);
+    ctx.moveTo(lx(out.flo), ly + lh - 28);
+    ctx.lineTo(lx(Math.max(out.fimg, 1e-3)), ly + lh - 28);
+    ctx.stroke();
+    ctx.restore();
+    plot.text('both are exactly f_IF = ' + fmt(out.fif, 4) + ' MHz from f_LO, so the mixer folds BOTH into the IF',
+      A, ly + lh + 30, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    plot.text('the IF filter sits AFTER the mixer \u2014 by the time the image reaches it, the image is already at f_IF',
+      A, ly + lh + 46, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+
+    // ================================================== verdict strip
+    const vx = W - 300, vy = ly + lh + 62;
+    plot.text('image rejection at this Q: ' + fmt(out.irrMwDb, 5) + ' dB   (target ' + fmt(out.irrTargetDb, 3) + ' dB)',
+      A, vy + 12, { color: out.meets ? PALETTE.accent3 : PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('Q required for the target = f_RF / [(f_img \u2212 f_RF) sqrt(IRR)] = ' + fmt(out.frf, 4) + ' / [' +
+      fmt(out.sep, 4) + ' x ' + fmt(Math.sqrt(out.irrReq), 5) + '] = ' + fmt(out.qReq, 5) +
+      '   (\u2192 preselector bandwidth ' + fmt(out.bwReq, 5) + ' MHz)',
+      A, vy + 30, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+    void vx;
+  },
+
+  readout: (out) => ({
+    'RF frequency f_RF': fmt(out.frf, 5) + ' MHz',
+    'local oscillator f_LO': fmt(out.flo, 5) + ' MHz',
+    'injection': out.high ? 'high-side (f_LO = f_RF + f_IF)' : 'low-side (f_LO = f_RF \u2212 f_IF)',
+    'IF frequency f_IF': fmt(out.fif, 5) + ' MHz',
+    'image frequency f_img': out.fimg > 0 ? fmt(out.fimg, 5) + ' MHz' : 'below dc \u2014 no image for this side',
+    'image via f_LO + f_IF': fmt(out.fimgAlt, 5) + ' MHz  (fixed-LO form)',
+    'separation f_img \u2212 f_RF': fmt(out.sep, 5) + ' MHz   (= 2 f_IF)',
+    'image/RF ratio': fmt(out.ratio, 5),
+    'preselector Q': isFinite(out.Qp) ? fmt(out.Qp, 5) : '\u221E (no bandwidth given)',
+    'preselector response at f_img': fmt(out.Himg, 5) + '  (' + fmt(-out.attenuationDb, 5) + ' dB)',
+    'image rejection achieved': fmt(out.irrMwDb, 5) + ' dB   target ' + fmt(out.irrTargetDb, 4) + ' dB',
+    'meets the target?': out.meets ? 'YES' : 'NO \u2014 raise Q (narrow the preselector)',
+    'Q needed for the target': isFinite(out.qReq) ? fmt(out.qReq, 5) : 'not achievable (f_img = f_RF)',
+    'preselector bandwidth needed': fmt(out.bwReq, 5) + ' MHz  (have ' + fmt(out.bw, 4) + ' MHz)',
+    'overall cascade gain': fmt(out.gTotalDb, 5) + ' dB',
+    'why the IF filter cannot help': 'the image is already at f_IF after mixing',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The image is not a filter problem at the IF - it is a filter problem at the RF.</strong> ' +
+  'The mixer produces f_IF from <em>every</em> input that sits f_IF away from f_LO. High-side injection ' +
+  '(f_LO = f_RF + f_IF) gives the wanted difference f_LO - f_RF = f_IF, but it also accepts the station at ' +
+  '<code>f_img = f_LO + f_IF = f_RF + 2 f_IF</code>. After mixing, both appear at f_IF, so the IF amplifier ' +
+  'cannot tell them apart - its passband is exactly where they both land. The only defence is the preselector ' +
+  '(the tuned RF stage) in front of the mixer.<br>' +
+  '<strong>Memorise the two expressions, they are both examinable.</strong> ' +
+  '<code>f_img = f_RF + 2 f_IF</code> for high-side injection (the usual case) and ' +
+  '<code>f_img = f_RF \u2212 2 f_IF</code> for low-side, where f_LO = f_RF \u2212 f_IF. The gap is always ' +
+  '<em>2 f_IF</em>, never f_IF - quoting one f_IF is the single most common error on this topic.<br>' +
+  '<strong>Why a high IF helps and hurts at once.</strong> Doubling the IF doubles the image separation, which ' +
+  'makes the image far easier to filter; that is why FM broadcast uses 10.7 MHz and radar receivers use 30-60 MHz. ' +
+  'But a high IF also means a wide IF passband, so selectivity suffers. Real receivers split the difference with ' +
+  'double conversion: a high first IF for image rejection, then a low second IF for selectivity.<br>' +
+  '<strong>The Q arithmetic is a square root, and students forget it.</strong> ' +
+  '<code>Q = f_RF / [(f_img \u2212 f_RF) sqrt(IRR)]</code>. The sqrt appears because the selectivity curve is ' +
+  'written as a voltage ratio while IRR is a power ratio - drop it and you get a Q that misses the target by a ' +
+  'factor of 2 in dB. Slide the rejection target from 20 to 60 dB at f_RF = 100 MHz, f_IF = 10.7 MHz: the ' +
+  'required Q climbs tenfold, and at some point no practical tuned circuit can deliver it - which is exactly ' +
+  'why the answer to "how do you improve image rejection?" is a higher IF or a double-conversion front end, not ' +
+  '"a better IF filter".';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

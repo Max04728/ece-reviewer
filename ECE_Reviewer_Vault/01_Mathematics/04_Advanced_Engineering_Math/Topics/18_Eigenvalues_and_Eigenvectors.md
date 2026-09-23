@@ -1,0 +1,180 @@
+---
+id: MATH-04-18
+title: "Eigenvalues and Eigenvectors"
+part: "01_Mathematics"
+area: "04_Advanced_Engineering_Math"
+topic: 18
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[16_Matrices,_Determinants,_Rank_and_Inversion]]", "[[17_Cramer’s_Rule_and_Linear_Systems]]"]
+tags: ["ece", "mathematics", "advanced_engineering_math"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 18 — Eigenvalues and Eigenvectors
+
+> [!abstract] Scope
+> Find eigenvalues from the characteristic equation, build eigenvectors as null-space vectors, diagonalise a matrix when it has enough independent eigenvectors, and raise it to a power through the diagonal form.
+
+## Core Concept
+
+> [!tip] Intuition
+> An eigenvector is a direction the matrix does not turn — it only stretches it, and the stretch factor is the eigenvalue. The characteristic equation finds those factors first, and the eigenvectors are then just null-space vectors of $A - \lambda I$.
+
+**The characteristic equation and the two free checks.** An eigenpair satisfies $A\mathbf{v} = \lambda\mathbf{v}$ with $\mathbf{v}\neq\mathbf{0}$, which rearranges to $(A - \lambda I)\mathbf{v} = \mathbf{0}$. That homogeneous system has a non-zero solution exactly when its coefficient matrix is singular, so the eigenvalues are the roots of the characteristic equation $\det(A - \lambda I) = 0$. For an $n\times n$ matrix this is a degree-$n$ polynomial in $\lambda$. Two coefficients are known before you expand anything, and they are the fastest way to catch an algebra slip: the coefficient of $\lambda^{n-1}$ gives $\mathrm{tr}(A) = \sum_i\lambda_i$ (the trace equals the sum of the eigenvalues) and the constant term gives $\det A = \prod_i\lambda_i$ (the determinant equals their product). If your eigenvalues do not add to the trace and multiply to the determinant, at least one is wrong even if the expansion looks tidy. For a triangular or diagonal matrix every root is immediate — the eigenvalues are the diagonal entries — because $A - \lambda I$ is still triangular and a triangular determinant is the product of its diagonal entries.
+
+**Eigenvectors are null-space vectors, and the sign is free.** Once $\lambda$ is known, solve $(A - \lambda I)\mathbf{v} = \mathbf{0}$ by row reduction: the eigenvector is any non-zero vector in that null space, and it is only defined up to a non-zero scalar multiple, so $(1,1)$ and $(-2,-2)$ are the same eigenvector. Normalising or negating an eigenvector is never wrong; failing to row-reduce first and instead guessing is. Expect the null space of $A - \lambda I$ to have dimension at least 1 by construction. It may have dimension greater than 1 when $\lambda$ is a repeated root, which is exactly the situation that decides whether the matrix can be diagonalised. Verify each pair by multiplying: $A\mathbf{v}$ must come out as $\lambda\mathbf{v}$, and that multiplication is cheap enough to be mandatory in an exam.
+
+**Diagonalisation and powers.** If $A$ has $n$ linearly independent eigenvectors, stack them as the columns of $P$ and put the matching eigenvalues on the diagonal of $D$; then $A = PDP^{-1}$ and, crucially, $A^{k} = PD^{k}P^{-1}$, so powers of $A$ reduce to powers of the numbers on the diagonal. This is the entire point of diagonalisation: $A^{k}$ for large $k$ or for a matrix power in a recurrence question is otherwise an unreasonable amount of multiplication. The order of the columns of $P$ must match the order of the diagonal entries of $D$ — an inconsistent pairing produces a matrix that is not $A$. Not every matrix is diagonalisable. A matrix is diagonalisable exactly when it has $n$ independent eigenvectors, which fails when an eigenvalue of algebraic multiplicity $m$ supplies fewer than $m$ independent eigenvectors; the standard counter-example is $\begin{pmatrix}1&1\\0&1\end{pmatrix}$, whose only eigenvalue is 1 with a single independent eigenvector $(1,0)$. Symmetric matrices never fail this way: a real symmetric matrix has real eigenvalues and eigenvectors that can be chosen mutually orthogonal, so it is always orthogonally diagonalisable with $P^{-1} = P^{T}$.
+
+**Cayley-Hamilton and similarity.** Cayley-Hamilton says a matrix satisfies its own characteristic polynomial: if $p(\lambda) = \det(\lambda I - A)$, then $p(A) = 0$ as a matrix equation. This is a genuine computational shortcut — it expresses $A^{n}$ as a combination of lower powers, so $A^{3} = A^{2} + 2A - 4I$ style reductions follow from the characteristic polynomial alone, with no eigenvectors needed. It also gives an inverse when one is wanted: for a $2\times2$ matrix the characteristic equation is:
+$$\lambda^{2} - (\mathrm{tr}A)\lambda + \det A = 0$$
+so $A^{2} - (\mathrm{tr}A)A + (\det A)I = 0$. Multiplying by $A^{-1}$ gives the inverse:
+$$A^{-1} = \big((\mathrm{tr}A)I - A\big)/\det A$$
+which is the $2\times2$ adjugate formula in disguise. Similar matrices — those related by $B = M^{-1}AM$ — share the same eigenvalues, because the characteristic determinants agree:
+$$\det(B - \lambda I) = \det\big(M^{-1}(A - \lambda I)M\big) = \det(A - \lambda I)$$
+This is why diagonalisation preserves the spectrum, and why the trace and determinant are similarity invariants.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Eigenvalue equation | $A\mathbf{v}=\lambda\mathbf{v},\qquad \mathbf{v}\neq\mathbf{0}$ | By definition the zero vector is excluded; otherwise every number would be an eigenvalue. |
+| Characteristic equation | $\det(A-\lambda I)=0$ | Degree n in lambda. Writing det(lambda I - A) instead flips the sign of the polynomial but has the same roots. |
+| Trace check | $\mathrm{tr}(A)=\sum_{i=1}^{n}\lambda_i=a_{11}+a_{22}+\cdots+a_{nn}$ | Use it to reject wrong roots in seconds. For a 2x2, lambda1 + lambda2 = trace. |
+| Determinant check | $\det A=\prod_{i=1}^{n}\lambda_i$ | For a 3x3 with roots -1, 2 and 3, det A must be -6. A zero eigenvalue means det A = 0, i.e. A is singular. |
+| Eigenvectors as a null space | $(A-\lambda I)\mathbf{v}=\mathbf{0}\Rightarrow \mathbf{v}\in\mathrm{null}(A-\lambda I)$ | Row-reduce then read off. The eigenvector is fixed only up to a scalar multiple; its sign is arbitrary. |
+| Diagonalisation | $A=PDP^{-1},\qquad D=\mathrm{diag}(\lambda_1,\ldots,\lambda_n)$ | P columns are the eigenvectors, in the same order as the diagonal entries of D. Requires n independent eigenvectors. |
+| Power through the diagonal form | $A^{k}=PD^{k}P^{-1},\qquad D^{k}=\mathrm{diag}(\lambda_1^{k},\ldots,\lambda_n^{k})$ | The reason diagonalisation exists. P^{-1} appears once on each side; A^k is not P D^k. |
+| Triangular matrix | $\lambda_i=a_{ii}\ \mathrm{for\ triangular\ or\ diagonal}\ A$ | Read straight off the diagonal. No characteristic equation needed, and repeated diagonal entries are repeated eigenvalues. |
+| Cayley-Hamilton | $p(\lambda)=\det(\lambda I-A)\Rightarrow p(A)=0$ | Reduces high powers of A to lower ones. Also gives A^-1 for 2x2 via A^2 - (tr A)A + (det A)I = 0. |
+| 2x2 inverse from Cayley-Hamilton | $A^{-1}=\frac{(\mathrm{tr}A)I-A}{\det A}$ | 2x2 only. Identical to the adjugate formula: the numerator is adj(A). |
+| Real symmetric matrices | $A=A^{T}\Rightarrow \lambda_i\in\mathbb{R},\ \mathbf{v}_i\cdot\mathbf{v}_j=0\ (i\neq j)$ | Always diagonalisable, with an orthogonal eigenvector set; then P^-1 = P^T. |
+| Similar matrices | $B=M^{-1}AM\Rightarrow \det(B-\lambda I)=\det(A-\lambda I)$ | Same eigenvalues, generally different eigenvectors. Trace and determinant are preserved. |
+
+## Worked Problems
+
+### P1. Find the eigenvalues and a corresponding eigenvector for each of $A=\begin{pmatrix} 1 & -4 \\ 2 & -5 \end{pmatrix}$, and verify with the trace and determinant.
+
+**Given:** A is 2x2: rows (1,-4) and (2,-5)
+
+**Solution:**
+
+1. Characteristic equation: det(A - lambda I) = (1 - lambda)(-5 - lambda) - (-4)(2) = 0
+2. Expand: lambda^2 + 4 lambda - 5 + 8 = lambda^2 + 4 lambda + 3 = 0
+3. Factor: (lambda + 1)(lambda + 3) = 0, so lambda1 = -1 and lambda2 = -3
+4. Checks: tr A = 1 - 5 = -4 = (-1) + (-3); det A = (1)(-5) - (-4)(2) = 3 = (-1)(-3)
+5. For lambda = -1: A - lambda I = ((2,-4),(2,-4)); 2x - 4y = 0 gives v1 = (2,1)
+6. For lambda = -3: A + 3I = ((4,-4),(2,-2)); x - y = 0 gives v2 = (1,1)
+7. Verify: A(2,1) = (2 - 4, 4 - 5) = (-2,-1) = -1(2,1); A(1,1) = (-3,-3) = -3(1,1)
+
+> [!success]- Answer
+> **$\lambda_1=-1$ with $\mathbf{v}_1=(2,1)$; $\lambda_2=-3$ with $\mathbf{v}_2=(1,1)$**
+
+> [!warning] Trap
+> Expanding $\det(\lambda I - A)$ and then dropping the leading minus sign. The correct polynomial here is $\lambda^{2}+4\lambda+3$; flipping it gives $\lambda^{2}-4\lambda+3$, whose roots are $1$ and $3$ instead of $-1$ and $-3$. The trace check $\lambda_1+\lambda_2=\mathrm{tr}\,A=-4$ rejects that pair instantly.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — EQN
+> 1. `MODE` `5` page 2 `1` (quadratic) with `1`, `4`, `3` → $\lambda$ = **-1, -3**, from $\lambda^2+4\lambda+3$.
+> 2. `MODE` `7`: `Apps` `Det` `MatA` → **3** = $(-1)(-3)$, and `1-5` → **-4** = $(-1)+(-3)$.
+> 3. Eigenpair check: define `MatB` = [[2],[1]], then `MatA × MatB` → [[-2],[-1]] = $-1\times(2,1)$.
+>
+> The $\det(\lambda I-A)$ sign flip gives $\lambda^2-4\lambda+3$; its roots 1 and 3 fail the trace check instantly.
+
+### P2. Find all eigenvalues of $T=\begin{pmatrix} 1 & 4 & 2 \\ 0 & 3 & 1 \\ 0 & 0 & 5 \end{pmatrix}$ and verify the trace and determinant checks.
+
+**Given:** T is upper triangular 3x3
+
+**Solution:**
+
+1. T - lambda I is still upper triangular, so det(T - lambda I) is the product of its diagonal entries
+2. det(T - lambda I) = (1 - lambda)(3 - lambda)(5 - lambda) = 0
+3. So lambda = 1, 3 and 5, all distinct
+4. Trace check: tr T = 1 + 3 + 5 = 9 = 1 + 3 + 5
+5. Determinant check: det T = 1*3*5 = 15 = (1)(3)(5)
+6. Distinct eigenvalues, so the three eigenvectors are automatically independent and T is diagonalisable
+
+> [!success]- Answer
+> **$\lambda=1,\ 3,\ 5$; $\det T=15$ and $\mathrm{tr}\,T=9$**
+
+> [!warning] Trap
+> Expanding the full cubic when the matrix is triangular. Worse, assuming the diagonal entries of a *non*-triangular matrix are its eigenvalues: for $\begin{pmatrix}1&4\\2&3\end{pmatrix}$ the diagonal reads 1 and 3 but the true eigenvalues are 5 and $-1$.
+
+### P3. Diagonalise $A=\begin{pmatrix} 3 & 1 & 0 \\ 1 & 3 & 0 \\ 0 & 0 & 2 \end{pmatrix}$ and use the result to compute $A^{4}$.
+
+**Given:** A is real symmetric 3x3; target power k = 4
+
+**Solution:**
+
+1. Char. polynomial: det(A - lambda I) = (2 - lambda)[(3 - lambda)^2 - 1] = (2 - lambda)(lambda^2 - 6 lambda + 8) = (2 - lambda)(lambda - 2)(lambda - 4)
+2. So the eigenvalues are 4, and 2 twice: lambda = 4, 2, 2
+3. Checks: tr A = 8 = 4 + 2 + 2; det A = 3(6) - 1(2) = 16 = 4(2)(2)
+4. lambda = 4: (A - 4I)v = 0 gives (-1,1,0) up to scale; take v1 = (1,1,0)
+5. lambda = 2: (A - 2I)v = 0 gives (1,-1,0) and (0,0,1) as two independent eigenvectors
+6. A is symmetric, so it has 3 independent eigenvectors and is diagonalisable; take P = ((1,1,0),(1,-1,0),(0,0,1)) and D = diag(4,2,2)
+7. det P = -2 and P^-1 = (1/2)((1,1,0),(1,-1,0),(0,0,2))
+8. A^4 = P D^4 P^-1 with D^4 = diag(256,16,16)
+9. P D^4 = ((256,16,0),(256,-16,0),(0,0,16)); multiply by P^-1 to get A^4 = ((136,120,0),(120,136,0),(0,0,16))
+10. Check by direct multiplication: A^2 = ((10,6,0),(6,10,0),(0,0,4)) and A^4 = (A^2)^2 = ((136,120,0),(120,136,0),(0,0,16))
+
+> [!success]- Answer
+> **$A^{4}=\begin{pmatrix} 136 & 120 & 0 \\ 120 & 136 & 0 \\ 0 & 0 & 16 \end{pmatrix}$**
+
+> [!warning] Trap
+> Writing $A^{k}=PD^{k}$. The $P^{-1}$ on the right is not optional: $PD^{4}$ alone is $\begin{pmatrix}256&16&0\\256&-16&0\\0&0&16\end{pmatrix}$, which is not even symmetric and clearly not $A^{4}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — EQN
+> 1. Characteristic polynomial $\lambda^3-8\lambda^2+20\lambda-16$: `MODE` `5` page 2 `2` with `1`, `-8`, `20`, `-16` → $\lambda$ = **4, 2, 2**.
+> 2. `MODE` `7`, define `MatA`, then `MatA × MatA` `SHIFT` `STO` `MatB` → [[10,6,0],[6,10,0],[0,0,4]].
+> 3. `MatB × MatB` → [[136,120,0],[120,136,0],[0,0,16]] = $A^4$, in two squarings instead of $P$, $P^{-1}$ and two products.
+>
+> Trace 8 and determinant 16 confirm the roots before any matrix is keyed: $4+2+2$ and $4\cdot 2\cdot 2$.
+
+### P4. Use the trace and determinant of $B=\begin{pmatrix} 2 & 1 \\ 3 & 4 \end{pmatrix}$ to find its eigenvalues and confirm them from the characteristic equation.
+
+**Given:** B is 2x2: rows (2,1) and (3,4)
+
+**Solution:**
+
+1. tr B = 2 + 4 = 6, so lambda1 + lambda2 = 6
+2. det B = (2)(4) - (1)(3) = 5, so lambda1 lambda2 = 5
+3. Solve t^2 - 6t + 5 = 0 by inspection: (t - 1)(t - 5) = 0
+4. lambda = 1 and 5
+5. Confirm from the full characteristic equation: det(B - lambda I) = (2 - lambda)(4 - lambda) - 3 = lambda^2 - 6 lambda + 5
+6. Eigenvectors: lambda = 5 gives (B - 5I) = ((-3,1),(3,-1)) so v = (1,3); lambda = 1 gives ((1,1),(3,3)) so v = (1,-1)
+7. Verify: B(1,3) = (5,15) = 5(1,3); B(1,-1) = (1,-1) = 1(1,-1)
+
+> [!success]- Answer
+> **$\lambda=1$ and $\lambda=5$, with eigenvectors $(1,-1)$ and $(1,3)$**
+
+> [!warning] Trap
+> Reading the eigenvalues off the diagonal as 2 and 4. Their sum is right (6) but their product is 8, not $\det B=5$; the determinant check is what exposes it. Only a triangular matrix has its eigenvalues on the diagonal.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — EQN
+> 1. `MODE` `5` page 2 `1` with `1`, `-6`, `5` (from $t^2-(\mathrm{tr}B)t+\det B$) → $\lambda$ = **5, 1**.
+> 2. `MODE` `7`: `Apps` `Det` `MatB` → **5** = $1\times 5$, and `2+4` → **6** = $1+5$.
+> 3. Eigenvector check: define `MatC` = [[1],[3]], then `MatB × MatC` → [[5],[15]] = $5\times(1,3)$.
+>
+> Reading the diagonal as 2 and 4 passes the sum 6 but fails the product 8 against $\det B = 5$.
+
+## Traps & Exam Notes
+
+- **Expanding $\det(\lambda I - A)$ and then dropping the leading minus sign.** $\det(\lambda I - A)$ and $\det(A - \lambda I)$ differ by the factor $(-1)^{n}$ but share the same roots, so either is a legitimate start. Neglecting that factor changes the polynomial: for $A$ with $\det(A-\lambda I)=\lambda^{2}+4\lambda+3$ the sign-flipped version $\lambda^{2}-4\lambda+3$ has roots $1$ and $3$ instead of $-1$ and $-3$. The trace check catches it in one line.
+- **Assuming every matrix is diagonalisable.** $\begin{pmatrix}1&1\\0&1\end{pmatrix}$ has the single eigenvalue 1 repeated twice but only one independent eigenvector $(1,0)$, so no invertible $P$ exists and $A \neq PDP^{-1}$. Count independent eigenvectors, not distinct eigenvalues.
+- **Pairing the columns of $P$ with the wrong diagonal entries of $D$.** The $i$-th column of $P$ must belong to $D_{ii}$. A mismatched pairing still produces an invertible $P$ and a diagonal $D$, but $PDP^{-1}$ is then a different matrix.
+- **Writing $A^{k}=PD^{k}$ without $P^{-1}$.** The inverse factor is required on the right for every $k$, including $k=1$; dropping it turns a correct method into a wrong number.
+- **Taking the diagonal entries as eigenvalues for a non-triangular matrix.** $\begin{pmatrix}1&4\\2&3\end{pmatrix}$ has diagonal 1 and 3 but eigenvalues 5 and $-1$. The diagonal shortcut is valid only for triangular and diagonal matrices.
+- **Reporting only one eigenvector for a repeated eigenvalue.** A double root may supply one or two independent eigenvectors; the number is what decides diagonalisability. Solving the null space properly — not stopping at the first vector — is the only way to know.
+- **Forgetting that an eigenvector is defined up to scale.** $(2,1)$, $(4,2)$ and $(-2,-1)$ are all correct eigenvectors for the same eigenvalue. Grading and self-checking should compare directions, not entries.
+
+## See Also
+
+- [[16_Matrices,_Determinants,_Rank_and_Inversion]]
+- [[17_Cramer’s_Rule_and_Linear_Systems]]
+
+---
+
+[[17_Cramer’s_Rule_and_Linear_Systems|⬅ 17]] · [[_MOC_Advanced_Engineering_Math|MOC]] · [[00_Dashboard|Dashboard]] · *end* ➡

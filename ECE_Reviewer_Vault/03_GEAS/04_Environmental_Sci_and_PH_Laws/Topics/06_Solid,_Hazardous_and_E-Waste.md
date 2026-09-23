@@ -1,0 +1,168 @@
+---
+id: GEAS-04-06
+title: "Solid, Hazardous and E-Waste"
+part: "03_GEAS"
+area: "04_Environmental_Sci_and_PH_Laws"
+topic: 6
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[01_Ecosystems_and_Energy_Flow]]"]
+tags: ["ece", "geas", "environmental_sci_and_ph_laws"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 06 — Solid, Hazardous and E-Waste
+
+> [!abstract] Scope
+> Apply the RA 9003 waste hierarchy and diversion arithmetic, size a sanitary landfill and its leachate load, and place hazardous, special and electronic waste into the right Philippine category and treatment route.
+
+## Core Concept
+
+> [!tip] Intuition
+> Solid waste is a materials-flow problem, not a disposal problem: whatever is not reduced, reused, recycled or composted has to be buried, and the buried fraction sets how big the landfill is, how much leachate it makes and how much methane it leaks.
+
+**The waste hierarchy and the law that mandates it.** RA 9003, the Ecological Solid Waste Management Act of 2000 (signed 26 January 2001), orders the options as **source reduction, re-use, recycling, recovery (including composting and energy recovery) and finally disposal** — the last resort. Segregation is mandatory **at source** and into the statutory categories: compostable, non-recyclable, recyclable, and special waste (§22). Collection and transport must be segregated, and no waste may sit in a transfer station for more than 24 hours. The Act creates the **National Solid Waste Management Commission (NSWMC)**, attached to the Office of the President and chaired by the DENR Secretary, with 14 government and 3 private-sector members; the DENR-EMB provides the secretariat. The **National Ecology Center** provides technical support, and each LGU must submit a **10-year solid waste management plan**. The numeric commitments to recall: at least **25% waste diversion within five years** of effectivity, rising every three years thereafter (§20); **open dumps prohibited**, with every LGU required to convert to controlled dumps within **three years** and no controlled dumps allowed **five years** after effectivity (§37); and a **materials recovery facility (MRF) in every barangay or cluster of barangays** (§32). New or expanded solid waste management facilities require an **ECC under PD 1586** (§38).
+
+**Disposal facilities compared.** An **open dumpsite** is indiscriminate disposal with no engineering controls — vectors, open burning, uncontrolled leachate and no cover — and it is prohibited. A **controlled dump** adds regular inert cover, drainage, restricted working face, fencing, record-keeping and access control. A **sanitary landfill** is the engineered option: a compacted clay or geomembrane **liner** and leachate collection system, daily cover, **leachate** treatment, **landfill gas** (roughly 50-60% $\mathrm{CH_4}$ and 40-50% $\mathrm{CO_2}$) collection or flaring, groundwater monitoring wells, a final cap, and a post-closure care period. Leachate is the contaminated liquid produced when water percolates through decomposing waste; it carries high BOD, COD, ammonia, heavy metals and salts, and is the single greatest threat to groundwater. Siting minimums under RA 9003 §40-41 include distance from aquifers, water bodies, faults and flood-prone areas, and a buffer from settlements.
+
+**Hazardous, special and electronic waste.** Solid waste law does **not** cover hazardous waste: RA 9003 §3(kk) expressly excludes hazardous waste, infectious hospital waste and mining waste, which fall under **RA 6969** instead. RA 9003 itself defines **special wastes** as household hazardous wastes — paints, thinners, batteries, spray canisters, bulky wastes, consumer electronics, white goods and tires — handled separately from ordinary municipal waste. Under DENR **DAO 2013-22** (which replaced DAO 2004-36), hazardous wastes are grouped into **four categories: (1) wastes with cyanide, (2) wastes with acids, (3) wastes with heavy metals, and (4) wastes with toxic organics** — each waste stream receiving an alphanumeric waste-number code that the generator declares in its registration, with household hazardous wastes in a separate small-quantity grouping. Every generator, transporter and treater of hazardous waste must register with the DENR-EMB, and movement is tracked by manifest. **Electronic waste** (e-waste) is a special/hazardous stream because of lead in CRT glass and solder, mercury in lamps and switches, cadmium in NiCd batteries, hexavalent chromium and brominated flame retardants; it is managed under RA 6969 with reference to the **Basel Convention** and its **prior informed consent** procedure, and RA 9003 §28 requires that separated toxic components of the waste stream not be incinerated or landfilled. Under RA 9003 §48, **open burning of solid waste is prohibited** — the same rule the Clean Air Act §20 applies to incineration of municipal, biomedical and hazardous waste.
+
+**Treatment and disposal methods.** Biological: **composting** (aerobic windrow or in-vessel, for the biodegradable fraction, producing a soil amendment that must meet the DA organic-fertiliser standard) and **anaerobic digestion** (produces biogas, about 60% methane, plus digestate). Thermal: **incineration** — prohibited in the Philippines for municipal, biomedical and hazardous waste under RA 8749 §20 — plus pyrolysis and gasification, which are starved-oxygen conversion processes and remain contentious under the same provision; **waste-to-energy** proposals are examined against that ban. Physical/chemical for hazardous waste: **solidification and stabilisation** (cement or pozzolanic fixation of metals before landfill), **neutralisation** of acids and bases, **chemical oxidation/reduction** (for cyanide and chromate), **solvent recovery and distillation**, **oil-water separation**, and **high-temperature incineration** for organics where permitted. E-waste is best handled by **dismantling and component recovery** rather than shredding, so that batteries, capacitors and CRT glass are separated before the metal fraction is recovered.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Waste diversion rate | $\mathrm{diversion} = \frac{W_{gen} - W_{disposed}}{W_{gen}} \times 100\%$ | RA 9003 target: at least 25% within five years of effectivity (2001), increasing every three years. Diversion counts re-use, recycling, composting and resource recovery — not incineration. |
+| RA 9003 statutory dates | $10\mathrm{-yr\ LGU\ plan};\ 25\%\ \mathrm{in}\ 5\ \mathrm{yr};\ \mathrm{open\ dumps}\to\mathrm{controlled}\ 3\ \mathrm{yr};\ \mathrm{controlled\ banned}\ 5\ \mathrm{yr}$ | Sections 16, 20 and 37. Also: transfer-station storage limited to 24 hours; MRF in every barangay or cluster of barangays. |
+| NSWMC composition | $14\ \mathrm{government} + 3\ \mathrm{private-sector\ members}$ | Attached to the Office of the President, chaired by the DENR Secretary, vice-chaired by a private-sector representative; DENR-EMB is the secretariat. Not the same body as the Pollution Adjudication Board. |
+| Landfill volume required | $V = \frac{W_{total}}{\rho_{compacted}}$ | W in tonnes, density in t/m3 (typically 0.6-0.9 t/m3 for compacted municipal waste). Volume in m3 follows; never mix tonnes with kg. |
+| Landfill lifespan | $\mathrm{life\ (yr)} = \frac{\mathrm{capacity\ (m}^3) \times \rho}{\mathrm{waste\ rate\ (t/yr)}}$ | Use the *disposed* rate after diversion, not the generated rate. Forgetting diversion overstates remaining life by the diversion percentage. |
+| Leachate generation (water balance) | $L = P - E - \Delta S$ | L, P and E as depths (mm/yr or m/yr) over the landfill footprint. Add infiltration through cover, subtract evaporation/evapotranspiration; runoff is excluded by the cover design. |
+| Leachate volume | $V_{leachate} = L \times A$ | A in m2 when L is in m/yr, giving m3/yr; divide by the treatment plant's daily capacity for the design flow. This is the sizing basis for the leachate plant. |
+| Landfill gas potential (methane) | $\mathrm{CH_4} \approx 0.5\ \frac{\mathrm{Nm^3}}{\mathrm{kg\ VS}}\ \mathrm{from\ degradable\ volatile\ solids}$ | Order-of-magnitude rule for the degradable fraction, not the whole waste mass. Landfill gas is roughly 50-60% CH4, 40-50% CO2, with GWP 25 per kg CH4. |
+| Cover requirement | $daily\ inert\ cover\ (\mathrm{controlled\ dump\ and\ sanitary\ landfill})$ | Missing daily cover is the defining defect of an open dumpsite and the usual finding in closure orders. |
+| ECC for waste facilities | $RA\ 9003\ \S 38:\ \mathrm{ECC\ required\ before\ construction\ or\ expansion}$ | Issued by DENR-EMB under PD 1586. Applies to new sanitary landfills and expansions, not only to the originally listed ECPs. |
+| Hazardous waste definition test | $RA\ 9003\ \S 3(kk):\ \mathrm{hazardous,\ infectious\ and\ mining\ wastes\ are\ excluded}$ | Those streams are governed by RA 6969, not RA 9003. A landfill receiving them without the RA 6969 registration is in violation of both laws. |
+| DAO 2013-22 hazardous waste categories | $(1)\ \mathrm{cyanide};\ (2)\ \mathrm{acids};\ (3)\ \mathrm{heavy\ metals};\ (4)\ \mathrm{toxic\ organics}$ | Replaced DAO 2004-36. Each stream carries an alphanumeric waste-number code declared in the generator's registration; generator, transporter and treater must all be DENR-EMB registered. |
+| RA 6969 import prohibition | $\mathrm{entry\ even\ in\ transit\ of\ hazardous\ and\ nuclear\ wastes\ prohibited}$ | Section 13(d). Penalty under Section 14(b): 12 years and 1 day to 20 years imprisonment, with exemplary damages of at least P500,000 for a juridical offender; Section 15 administrative fines are only P10,000 to P50,000. |
+| Basil Convention / e-waste | $prior\ informed\ consent\ (PIC)\ \mathrm{for\ transboundary\ movement}$ | Philippines is a party; RA 6969 is the domestic implementing statute. Export of hazardous waste requires EMB notification and consent of the importing state. |
+| Incineration and open burning | $RA\ 8749\ \S 20\ \mathrm{bans\ municipal/hazardous\ waste\ incineration};\ RA\ 9003\ \S 48\ \mathrm{bans\ open\ burning}$ | Two different bans in two different statutes; the incineration ban is the Clean Air Act, and the open-burning ban is the solid waste law. |
+| Special wastes | $household\ hazardous\ wastes,\ bulky\ wastes,\ consumer\ electronics,\ white\ goods,\ tires$ | RA 9003 §3(pp). Handled separately from municipal waste; must not be landfilled or burned with the ordinary stream. |
+| Solidification/stabilisation | $\mathrm{cement\ or\ pozzolanic\ fixation\ of\ metals\ before\ landfill}$ | Pre-treatment for inorganic hazardous waste; it immobilises but does not destroy the contaminant, so the monofill still needs leachate control. |
+
+## Worked Problems
+
+### P1. A city generates $800\ \mathrm{t/day}$ of solid waste. It composts $96\ \mathrm{t/day}$ and recycles $152\ \mathrm{t/day}$. Find the diversion rate and state whether the RA 9003 minimum of 25% is met.
+
+**Given:** generation = 800 t/day; composted = 96 t/day; recycled = 152 t/day; RA 9003 minimum diversion = 25%
+
+**Solution:**
+
+1. Total diverted = 96 + 152 = 248 t/day
+2. Diversion rate = 248 / 800 = 0.310
+3. As a percentage: 31.0%
+4. Compare with the target: 31.0% > 25%, so the minimum is met
+5. Disposed fraction = (800 - 248) / 800 = 69.0%, i.e. 552 t/day to the landfill
+
+> [!success]- Answer
+> **Diversion $= 31.0\%$, which exceeds the 25% RA 9003 minimum; 552 t/day still goes to disposal.**
+
+> [!warning] Trap
+> Counting energy recovery from the residual stream as diversion, which the law does not allow, or dividing the diverted mass by the disposed mass instead of by the generated mass (248/552 = 44.9%).
+
+### P2. A sanitary landfill has a permitted capacity of $3.0\times10^{6}\ \mathrm{m^3}$. Waste is placed at a compacted density of $0.75\ \mathrm{t/m^3}$ and the city disposes of $500\ \mathrm{t/day}$. Find the tonnage capacity, the annual disposal rate and the site life.
+
+**Given:** V = 3.0e6 m3; density = 0.75 t/m3; disposal rate = 500 t/day
+
+**Solution:**
+
+1. Tonnage capacity = 3.0e6 m3 x 0.75 t/m3 = 2.25e6 t
+2. Annual disposal = 500 t/day x 365 = 182,500 t/yr
+3. Life = 2.25e6 / 182,500 = 12.33 years
+4. Convert to years and months: 0.33 x 12 = 4 months, so about 12 years 4 months
+
+> [!success]- Answer
+> **About 12.3 years (12 years 4 months), representing $2.25\times10^{6}$ tonnes of capacity.**
+
+> [!warning] Trap
+> Using the *generated* waste rate instead of the *disposed* rate. If the city generates 800 t/day and diverts 31%, the landfill gets 552 t/day, and using 800 would shorten the life to 7.7 years.
+
+### P3. A landfill covers $4.0\ \mathrm{ha}$. Annual rainfall is $2000\ \mathrm{mm}$, evapotranspiration is $1100\ \mathrm{mm}$, and the cover is designed so that runoff is 20% of the remaining water. Estimate the annual leachate volume.
+
+**Given:** area = 4.0 ha; rainfall = 2000 mm/yr; ET = 1100 mm/yr; runoff = 20% of the water balance
+
+**Solution:**
+
+1. Water balance depth before runoff = 2000 - 1100 = 900 mm/yr
+2. Subtract 20% runoff: 900 x 0.80 = 720 mm/yr of infiltration
+3. Convert to metres: 720 mm = 0.72 m/yr
+4. Area in m2: 4.0 ha x 10,000 = 40,000 m2
+5. Volume = 0.72 m/yr x 40,000 m2 = 28,800 m3/yr
+6. As a daily design flow: 28,800 / 365 = 78.9 m3/day
+
+> [!success]- Answer
+> **About $2.88\times10^{4}\ \mathrm{m^3}$ of leachate per year, or about $79\ \mathrm{m^3/day}$.**
+
+> [!warning] Trap
+> Using rainfall alone (2000 mm x 40,000 m2 = 80,000 m3/yr) and oversizing the leachate plant by a factor of nearly three. Evapotranspiration and runoff leave the site; only infiltration becomes leachate.
+
+### P4. A landfill accepts $200\ \mathrm{t/day}$ of municipal waste. Assume 55% of the mass is degradable volatile solids and a methane yield of $0.5\ \mathrm{Nm^3}$ of $\mathrm{CH_4}$ per kg of volatile solids. Estimate the annual methane generation.
+
+**Given:** waste = 200 t/day; degradable VS = 55% of mass; yield = 0.5 Nm3 CH4/kg VS
+
+**Solution:**
+
+1. Annual waste = 200 t/day x 365 = 73,000 t/yr
+2. Degradable VS = 0.55 x 73,000 = 40,150 t/yr = 4.015e7 kg/yr
+3. Methane volume = 4.015e7 kg x 0.5 Nm3/kg = 2.008e7 Nm3/yr
+4. State the basis: this is a generation potential at standard conditions, and actual capture is far lower
+
+> [!success]- Answer
+> **About $2.0\times10^{7}\ \mathrm{Nm^3}$ of methane per year (a theoretical potential).**
+
+> [!warning] Trap
+> Applying the yield to the whole waste mass rather than to the degradable volatile-solids fraction, or applying the fraction twice. Also note that this is a potential: uncollected landfill gas is a greenhouse emission of about 25 kg CO2e per kg CH4.
+
+### P5. A generator produces $3.5\ \mathrm{t/month}$ of spent pickling liquor (acidic). A hazardous-waste treater can solidify it at a 30% waste-to-feed ratio, so that the resulting monolithic blocks are 30% waste by mass. What mass of solidified product must be landfilled per month, and what mass of cementitious feed is added?
+
+**Given:** waste = 3.5 t/month; waste fraction of product = 30% by mass
+
+**Solution:**
+
+1. Let the product mass be M. Waste is 30% of it: 0.30 M = 3.5 t
+2. Solve: M = 3.5 / 0.30 = 11.67 t of solidified product per month
+3. Feed added = M - 3.5 = 11.67 - 3.5 = 8.17 t/month
+4. Check: 3.5 / 11.67 = 0.30, so the waste fraction is correct
+
+> [!success]- Answer
+> **About $11.7\ \mathrm{t/month}$ of solidified product, made up with about $8.2\ \mathrm{t/month}$ of cementitious feed.**
+
+> [!warning] Trap
+> Reading the 30% as an additive fraction and reporting 3.5 x 0.30 = 1.05 t of product (which is smaller than the waste — physically impossible). Solidification increases mass, so the product must exceed the waste mass.
+
+## Traps & Exam Notes
+
+- Quoting the Solid Waste Management Act as RA 9003 of 1999. RA 9003 is the Ecological Solid Waste Management Act of **2000**, signed 26 January 2001; RA 8749 is the Clean Air Act of 1999.
+- Sending hazardous, infectious or mining waste to a municipal sanitary landfill. RA 9003 §3(kk) excludes all three streams; they belong to RA 6969, and a landfill taking them without registration violates both statutes.
+- Confusing the open-dump timelines: **three years** to convert open dumps to controlled dumps, and controlled dumps banned **five years** after effectivity. Swapping them is the standard error.
+- Assigning the MRF requirement to the municipality. RA 9003 §32 requires an MRF in **every barangay or cluster of barangays**; the 10-year plan belongs to the city or municipality.
+- Calling the NSWMC a DENR bureau. It is a commission attached to the **Office of the President**, chaired by the DENR Secretary with DENR-EMB as secretariat.
+- Treating diversion as incineration with energy recovery. The RA 9003 hierarchy counts re-use, recycling, composting and resource recovery — and separately prohibits incineration of municipal, biomedical and hazardous waste under RA 8749 §20.
+- Using the generated waste rate for landfill sizing and lifespan. Only the *disposed* fraction after diversion occupies volume, so the remaining life is longer than a raw generated-rate calculation suggests.
+- Assuming landfill gas is mostly CO2 because decomposition produces both. Fresh landfill gas is roughly 50-60% **methane**, 40-50% CO2 — a flammable mixture and, at GWP 25, a significant greenhouse source when not captured.
+- Forgetting the waste-number code and manifest. Under DAO 2013-22 the category alone is not compliance: the generator must register, declare the waste-number code, and move the waste under a manifest to a registered transporter and treater.
+
+## See Also
+
+- [[10_RA_9003_Solid_Waste_Management]]
+- [[11_RA_6969_Toxic_Substances]]
+- [[09_RA_9275_Clean_Water_Act]]
+- [[07_PD_1586,_EIS_and_ECC]]
+
+---
+
+[[05_Water_Quality_BOD,_COD,_DO,_TDS|⬅ 05]] · [[_MOC_Environmental_Sci_and_PH_Laws|MOC]] · [[00_Dashboard|Dashboard]] · [[07_PD_1586,_EIS_and_ECC|07 ➡]]

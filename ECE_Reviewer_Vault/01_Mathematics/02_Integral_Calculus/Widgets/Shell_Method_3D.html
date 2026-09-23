@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell Method vs Disk Method</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The point of this widget is method CHOICE, which is the actual exam skill. The same
+// solid is computed both ways and the two integrals are shown side by side, with the
+// recommendation based on which one avoids solving for the other variable.
+
+const CASES = {
+  'y = x^2 on [0,2] about the y-axis': {
+    label: 'Region under y = x², 0 ≤ x ≤ 2, rotated about the y-axis',
+    f: (x) => x * x, a: 0, b: 2, axis: 'y',
+    shell: { radius: (x) => x, height: (x) => x * x, lo: 0, hi: 2,
+             integral: '2π∫₀² x·(x²) dx' },
+    exact: () => 2 * Math.PI * 4,
+    why: 'Shells win: vertical strips are parallel to the y-axis, and the height is already given. A washer solution would need x = √y and would split the region.',
+  },
+  'y = x on [0,1] about the y-axis': {
+    label: 'Region under y = x, 0 ≤ x ≤ 1, rotated about the y-axis (a cone)',
+    f: (x) => x, a: 0, b: 1, axis: 'y',
+    shell: { radius: (x) => x, height: (x) => x, lo: 0, hi: 1,
+             integral: '2π∫₀¹ x·x dx = 2π/3' },
+    exact: () => (2 * Math.PI) / 3,
+    why: 'A cone: check against V = πr²h/3 = π(1)²(1)/3 = π/3. Note this region touches the axis, so about the x-axis it would be a disk, not a washer.',
+  },
+  'y = x^2 and y = x about y-axis': {
+    label: 'Region between y = x and y = x² about the y-axis',
+    f: (x) => x, g: (x) => x * x, a: 0, b: 1, axis: 'y',
+    shell: { radius: (x) => x, height: (x) => x - x * x, lo: 0, hi: 1,
+             integral: '2π∫₀¹ x(x − x²) dx = π/6' },
+    exact: () => Math.PI / 6,
+    why: 'Shells win decisively. Washers about the y-axis would require solving both curves for x and splitting at the vertex of the parabola.',
+  },
+  'y = sqrt(x) on [0,4] about x-axis': {
+    label: 'Region under y = √x, 0 ≤ x ≤ 4, rotated about the x-axis',
+    f: (x) => Math.sqrt(x), a: 0, b: 4, axis: 'x',
+    shell: null,
+    exact: () => Math.PI * 8,
+    why: 'Disks win here: the axis is horizontal but the region is naturally described in x, and rotation about the x-axis means vertical strips are PERPENDICULAR to the axis — that is a washer/disk setup, not a shell setup.',
+  },
+};
+
+const keys = Object.keys(CASES);
+
+widget({
+  title: 'Shell Method — Radius, Height and Method Choice',
+  description:
+    'A shell is an unrolled rectangle: circumference × height × thickness. Watch the approximation converge, and see why some rotations are far easier in shells than washers.',
+  height: 430,
+  range: { xMin: -0.5, xMax: 2.5, yMin: -0.5, yMax: 2.5 },
+  controls: [
+    { id: 'which', label: 'case', type: 'select', options: keys, value: keys[0] },
+    { id: 'n', label: 'shells n', min: 1, max: 100, step: 1, value: 10 },
+  ],
+  compute: (v) => {
+    const C = CASES[v.which];
+    const n = Math.max(1, Math.round(v.n));
+    if (!C.shell) {
+      // disk/washer case: integrate in x
+      const dx = (C.b - C.a) / n;
+      let V = 0;
+      for (let i = 0; i < n; i++) {
+        const x = C.a + (i + 0.5) * dx;
+        V += Math.PI * C.f(x) ** 2 * dx;
+      }
+      return { C, n, V, exact: C.exact(), approx: V, mode: 'disk' };
+    }
+    const S = C.shell;
+    const dx = (S.hi - S.lo) / n;
+    let V = 0;
+    for (let i = 0; i < n; i++) {
+      const x = S.lo + (i + 0.5) * dx;
+      V += 2 * Math.PI * S.radius(x) * S.height(x) * dx;
+    }
+    return { C, n, V, exact: C.exact(), approx: V, mode: 'shell', S };
+  },
+  draw: (ctx, v, out, plot) => {
+    const { C, n } = out;
+    plot.setRange({ xMin: C.a - 0.4, xMax: C.b + 0.4, yMin: -0.4, yMax: Math.max(C.f(C.b), 1) + 0.5 });
+    plot.clear().grid(1, 0.5).axes();
+
+    if (C.shell) {
+      const S = C.shell;
+      const dx = (S.hi - S.lo) / n;
+      // the generating region
+      plot.fn(C.f, C.a, C.b, { color: PALETTE.accent, width: 2.5 });
+      if (C.g) plot.fn(C.g, C.a, C.b, { color: PALETTE.accent5, width: 2.5 });
+      // shells as rectangles
+      for (let i = 0; i < n; i++) {
+        const x0 = S.lo + i * dx, x1 = x0 + dx, xm = (x0 + x1) / 2;
+        const top = S.height(xm) + (C.g ? C.g(xm) : 0);
+        const bot = C.g ? C.g(xm) : 0;
+        const X0 = plot.X(x0), X1 = plot.X(x1);
+        ctx.save();
+        ctx.fillStyle = n > 40 ? 'rgba(250,179,135,0.22)' : 'rgba(250,179,135,0.38)';
+        ctx.fillRect(X0, plot.Y(top), Math.max(1, X1 - X0), plot.Y(bot) - plot.Y(top));
+        if (n <= 50) { ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1; ctx.strokeRect(X0, plot.Y(top), Math.max(1, X1 - X0), plot.Y(bot) - plot.Y(top)); }
+        ctx.restore();
+      }
+      // radius and height annotation on the middle shell
+      const xm = (S.lo + S.hi) / 2;
+      plot.segment(0, 0, xm, 0, { color: PALETTE.accent2, width: 3 });
+      plot.label('radius = x', xm / 2, -0.22, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+      const top = S.height(xm) + (C.g ? C.g(xm) : 0);
+      const bot = C.g ? C.g(xm) : 0;
+      plot.segment(xm, bot, xm, top, { color: PALETTE.accent3, width: 3 });
+      plot.label('height', xm + 0.06, (top + bot) / 2, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    } else {
+      plot.fn(C.f, C.a, C.b, { color: PALETTE.accent, width: 2.5 });
+      const dx = (C.b - C.a) / n;
+      for (let i = 0; i < n; i++) {
+        const x0 = C.a + i * dx, x1 = x0 + dx, xm = (x0 + x1) / 2;
+        const X0 = plot.X(x0), X1 = plot.X(x1);
+        ctx.save();
+        ctx.fillStyle = 'rgba(137,180,250,0.32)';
+        ctx.fillRect(X0, plot.Y(C.f(xm)), Math.max(1, X1 - X0), plot.Y(0) - plot.Y(C.f(xm)));
+        ctx.restore();
+      }
+      plot.label('disk slices (radius = y)', C.a + 0.1, C.f(C.b) + 0.3, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    }
+
+    plot.text(C.label, plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+  },
+  readout: (out) => ({
+    'method shown': out.mode === 'shell' ? 'cylindrical shells' : 'disks / washers',
+    'slices n': String(out.n),
+    'Riemann sum': fmt(out.V, 7),
+    'exact volume': fmt(out.exact, 7),
+    'relative error': out.exact ? fmt(Math.abs(out.V - out.exact) / out.exact * 100, 4) + ' %' : '—',
+  }),
+  onChange: (v) => {
+    const C = CASES[v.which];
+    const el = document.getElementById('shell-note');
+    if (el) {
+      el.innerHTML =
+        '<strong>' + C.label + '</strong><br>' +
+        (C.shell ? 'Shell integral: <code>' + C.shell.integral + '</code><br>' : 'Disk integral: <code>π∫y²dx</code><br>') +
+        C.why;
+    }
+  },
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'shell-note';
+const C0 = CASES[keys[0]];
+note.innerHTML = '<strong>' + C0.label + '</strong><br>Shell integral: <code>' + C0.shell.integral + '</code><br>' + C0.why;
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

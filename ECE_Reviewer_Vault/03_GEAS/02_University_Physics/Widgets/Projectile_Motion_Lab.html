@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projectile Motion Lab — Range, Apex and the Optimum Angle</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Every number here comes from the two kinematic equations, and the optimum-angle
+// panel is a real search over the same range function the trajectory uses -- so
+// "45 degrees for a level launch" is demonstrated, not asserted.
+
+const G = 9.81;
+
+// the trajectory mapping is recorded during draw so the pointer handler can use it
+let dragPts = null;
+
+const W = widget({
+  title: 'Projectile Motion Lab — Range, Apex and the Optimum Angle',
+  description:
+    'Set the launch speed, angle and launch height, then drag the point along the trajectory to read the speed and direction there. The right-hand panel plots range against launch angle for the same height, so the shift of the optimum away from 45 degrees is visible rather than remembered.',
+  height: 580,
+  controls: [
+    { id: 'v0', label: 'launch speed v0 (m/s)', min: 5, max: 60, step: 0.5, value: 20 },
+    { id: 'ang', label: 'launch angle (degrees)', min: 5, max: 85, step: 0.1, value: 30 },
+    { id: 'h0', label: 'launch height h0 (m)', min: 0, max: 50, step: 0.5, value: 0 },
+    { id: 'frac', label: 'drag point along the flight (fraction of t_flight)', min: 0, max: 1, step: 0.001, value: 0.35 },
+    { id: 'showOpt', label: 'show the optimum-angle trajectory', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const th = (v.ang * Math.PI) / 180;
+    const vx = v.v0 * Math.cos(th), vy0 = v.v0 * Math.sin(th);
+    const h0 = v.h0;
+
+    // the one exact range function, used by the trajectory, the optimum search
+    // and the right-hand panel, so the three can never disagree
+    const flight = (angDeg) => {
+      const t2 = (angDeg * Math.PI) / 180;
+      const vy = v.v0 * Math.sin(t2), vxx = v.v0 * Math.cos(t2);
+      const tf = (vy + Math.sqrt(vy * vy + 2 * G * h0)) / G;
+      return { tf, R: vxx * tf, vxx, vy };
+    };
+    const main = flight(v.ang);
+    const tf = main.tf, R = main.R;
+    const H = h0 + (vy0 * vy0) / (2 * G);
+    const tApex = vy0 / G;
+
+    // optimum launch angle for this height: brute force on the same function
+    let bestA = 45, bestR = -1;
+    for (let a = 0.5; a <= 89.5; a += 0.01) {
+      const r = flight(a).R;
+      if (r > bestR) { bestR = r; bestA = a; }
+    }
+    const at45 = flight(45).R;
+
+    // state at the dragged point
+    const frac = Math.min(1, Math.max(0, v.frac));
+    const t = frac * tf;
+    const xt = vx * t;
+    const yt = h0 + vy0 * t - 0.5 * G * t * t;
+    const vxt = vx, vyt = vy0 - G * t;
+    const speed = Math.hypot(vxt, vyt);
+    const dir = (Math.atan2(vyt, vxt) * 180) / Math.PI;
+
+    const vyImp = vy0 - G * tf;
+    const vImp = Math.hypot(vx, vyImp);
+    const angImp = (Math.atan2(-vyImp, vx) * 180) / Math.PI;
+
+    // sampled path, used for the drawing and for the drag hit test
+    const N = 240;
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const tt = (i / N) * tf;
+      pts.push([vx * tt, h0 + vy0 * tt - 0.5 * G * tt * tt]);
+    }
+    const opt = flight(bestA);
+    const optPts = [];
+    for (let i = 0; i <= N; i++) {
+      const tt = (i / N) * opt.tf;
+      optPts.push([opt.vxx * tt, h0 + opt.vy * tt - 0.5 * G * tt * tt]);
+    }
+
+    return { v0: v.v0, ang: v.ang, h0, vx, vy0, tf, R, H, tApex, bestA, bestR, at45,
+             frac, t, xt, yt, speed, dir, vImp, angImp, vyImp, pts, optPts,
+             showOpt: !!v.showOpt, flat: (v0) => (v0 * v0 * Math.sin(2 * th)) / G,
+             yMax: Math.max(H, h0, 1e-6), xMax: Math.max(R, bestR, 1e-6) };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W2 = plot.w, H2 = plot.h;
+    const txt = (s, x, y, col, al, fnt) => plot.text(s, x, y,
+      { color: col || PALETTE.dim, font: fnt || '11px ui-monospace, monospace', align: al || 'left' });
+
+    // --------------------------------------------------------- formula block
+    txt('x = v0 cos(theta) t = ' + fmt(out.vx, 5) + ' t        y = h0 + v0 sin(theta) t - g t^2/2 = ' +
+      fmt(out.h0, 4) + ' + ' + fmt(out.vy0, 5) + ' t - 4.905 t^2',
+      14, 20, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    txt('t_flight = (v0 sin(theta) + sqrt((v0 sin(theta))^2 + 2 g h0))/g = ' + fmt(out.tf, 5) +
+      ' s     R = v0 cos(theta) t_flight = ' + fmt(out.R, 5) + ' m     H = h0 + (v0 sin(theta))^2/(2g) = ' +
+      fmt(out.H, 5) + ' m',
+      14, 38, PALETTE.accent, 'left', '12px ui-monospace, monospace');
+
+    // -------------------------------------------------------- trajectory panel
+    const P = { x0: 62, y0: 74, x1: 596, y1: 432 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.45)';
+    ctx.fillRect(P.x0, P.y0, P.x1 - P.x0, P.y1 - P.y0);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(P.x0, P.y0, P.x1 - P.x0, P.y1 - P.y0);
+    ctx.restore();
+
+    const xSpan = out.xMax * 1.10 + 1e-6;
+    const ySpan = out.yMax * 1.18 + 1e-6;
+    const X = (x) => P.x0 + 8 + (x / xSpan) * (P.x1 - P.x0 - 16);
+    const Y = (y) => P.y1 - 26 - (y / ySpan) * (P.y1 - P.y0 - 40);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    const stepX = xSpan / 5 > 20 ? 20 : xSpan / 5 > 10 ? 10 : xSpan / 5 > 5 ? 5 : xSpan / 5 > 2 ? 2 : 1;
+    for (let x = stepX; x <= xSpan; x += stepX) {
+      ctx.beginPath(); ctx.moveTo(X(x), P.y0 + 6); ctx.lineTo(X(x), Y(0)); ctx.stroke();
+      txt(fmt(x, 3), X(x), Y(0) + 14, PALETTE.dim, 'center');
+    }
+    const stepY = ySpan / 5 > 20 ? 20 : ySpan / 5 > 10 ? 10 : ySpan / 5 > 5 ? 5 : ySpan / 5 > 2 ? 2 : 1;
+    for (let y = stepY; y <= ySpan; y += stepY) {
+      ctx.beginPath(); ctx.moveTo(P.x0 + 8, Y(y)); ctx.lineTo(P.x1 - 8, Y(y)); ctx.stroke();
+      txt(fmt(y, 3), P.x0 + 4, Y(y) + 4, PALETTE.dim, 'right');
+    }
+    ctx.restore();
+
+    // ground, and the launch ledge when h0 > 0
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(P.x0 + 8, Y(0)); ctx.lineTo(P.x1 - 8, Y(0)); ctx.stroke();
+    ctx.fillStyle = 'rgba(160,160,190,0.16)';
+    ctx.fillRect(P.x0 + 8, Y(0), P.x1 - P.x0 - 16, P.y1 - 26 - Y(0));
+    ctx.restore();
+    if (out.h0 > 0) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent4; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(0), Y(out.h0)); ctx.stroke();
+      ctx.restore();
+      txt('launch height ' + fmt(out.h0, 4) + ' m', X(0) + 6, Y(out.h0) - 8, PALETTE.accent4);
+    }
+    txt('x (m)', P.x1 - 8, Y(0) - 8, PALETTE.dim, 'right');
+    txt('y (m)', P.x0 + 6, P.y0 + 14, PALETTE.dim, 'left');
+
+    // the optimum-angle path, drawn behind
+    if (out.showOpt) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(166,227,161,0.5)'; ctx.lineWidth = 1.8; ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      for (let i = 0; i < out.optPts.length; i++) {
+        const p = out.optPts[i];
+        i === 0 ? ctx.moveTo(X(p[0]), Y(p[1])) : ctx.lineTo(X(p[0]), Y(p[1]));
+      }
+      ctx.stroke();
+      ctx.restore();
+      txt('path at the optimum angle ' + fmt(out.bestA, 4) + ' deg, range ' + fmt(out.bestR, 5) + ' m',
+        P.x0 + 10, P.y0 + 30, PALETTE.accent3);
+    }
+
+    // the trajectory
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    for (let i = 0; i < out.pts.length; i++) {
+      const p = out.pts[i];
+      i === 0 ? ctx.moveTo(X(p[0]), Y(p[1])) : ctx.lineTo(X(p[0]), Y(p[1]));
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // apex
+    ctx.save();
+    ctx.fillStyle = PALETTE.accent5;
+    ctx.beginPath(); ctx.arc(X(out.vx * out.tApex), Y(out.H), 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    txt('apex ' + fmt(out.H, 5) + ' m at t = ' + fmt(out.tApex, 4) + ' s',
+      X(out.vx * out.tApex), Y(out.H) - 10, PALETTE.accent5, 'center');
+
+    // range marker
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(X(out.R), Y(0)); ctx.lineTo(X(out.R), Y(0) - 24); ctx.stroke();
+    ctx.restore();
+    txt('R = ' + fmt(out.R, 5) + ' m', X(out.R), Y(0) - 30, PALETTE.accent2, 'center');
+    txt('lands at ' + fmt(out.vImp, 5) + ' m/s, ' + fmt(out.angImp, 4) + ' deg below horizontal',
+      X(out.R), Y(0) + 32, PALETTE.accent2, 'center');
+
+    // velocity vector at the dragged point
+    const ax = X(out.xt), ay = Y(out.yt);
+    const scale = (0.16 * xSpan) / Math.max(out.v0, 1e-6);
+    const vxp = X(out.xt + out.vx * scale), vyp = Y(out.yt + (out.vy0 - G * out.t) * scale);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(249,226,175,0.45)'; ctx.lineWidth = 1.4; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(vxp, ay); ctx.lineTo(vxp, vyp); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax, vyp); ctx.lineTo(vxp, vyp); ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(vxp, vyp); ctx.stroke();
+    const ang = Math.atan2(vyp - ay, vxp - ax);
+    ctx.fillStyle = PALETTE.warn;
+    ctx.beginPath();
+    ctx.moveTo(vxp, vyp);
+    ctx.lineTo(vxp - 10 * Math.cos(ang - 0.4), vyp - 10 * Math.sin(ang - 0.4));
+    ctx.lineTo(vxp - 10 * Math.cos(ang + 0.4), vyp - 10 * Math.sin(ang + 0.4));
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(ax, ay, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    txt('vx = ' + fmt(out.vx, 4) + ' m/s', (ax + vxp) / 2, ay + 14, PALETTE.accent2, 'center');
+    txt('vy = ' + fmt(out.vy0 - G * out.t, 4) + ' m/s', vxp + 6, (ay + vyp) / 2, PALETTE.accent4);
+    txt('v = ' + fmt(out.speed, 5) + ' m/s at ' + fmt(out.dir, 4) + ' deg, t = ' + fmt(out.t, 4) + ' s',
+      ax + 10, ay - 14, PALETTE.warn);
+    txt('drag this dot', ax + 10, ay + 4, PALETTE.warn);
+
+    // remember the path in canvas pixels for the drag hit test
+    dragPts = out.pts.map((p) => [X(p[0]), Y(p[1])]);
+
+    // ------------------------------------------------ range versus angle panel
+    const Q = { x0: 614, y0: 74, x1: W2 - 14, y1: 432 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.45)';
+    ctx.fillRect(Q.x0, Q.y0, Q.x1 - Q.x0, Q.y1 - Q.y0);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(Q.x0, Q.y0, Q.x1 - Q.x0, Q.y1 - Q.y0);
+    ctx.restore();
+    txt('range versus launch angle', Q.x0 + 8, Q.y0 + 16, PALETTE.text, 'left', 'bold 11px ui-monospace, monospace');
+
+    const QX = (a) => Q.x0 + 34 + (a / 90) * (Q.x1 - Q.x0 - 46);
+    const QY = (r) => Q.y1 - 34 - (r / (out.bestR * 1.10 + 1e-9)) * (Q.y1 - Q.y0 - 62);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(QX(0), QY(0)); ctx.lineTo(QX(90), QY(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(QX(0), QY(0)); ctx.lineTo(QX(0), Q.y0 + 30); ctx.stroke();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    for (const a of [15, 30, 45, 60, 75]) {
+      ctx.beginPath(); ctx.moveTo(QX(a), QY(0)); ctx.lineTo(QX(a), Q.y0 + 30); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+    for (const a of [0, 15, 30, 45, 60, 75, 90]) {
+      txt(String(a), QX(a), QY(0) + 14, a === 45 ? PALETTE.accent4 : PALETTE.dim, 'center');
+    }
+    txt('launch angle (deg)', (QX(0) + QX(90)) / 2, QY(0) + 30, PALETTE.dim, 'center');
+
+    const rangeAt = (aDeg) => {
+      const t2 = (aDeg * Math.PI) / 180;
+      const vy = v.v0 * Math.sin(t2), vxx = v.v0 * Math.cos(t2);
+      const tfl = (vy + Math.sqrt(vy * vy + 2 * G * out.h0)) / G;
+      return vxx * tfl;
+    };
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3; ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i = 0; i <= 180; i++) {
+      const a = (i / 180) * 89.9;
+      const px = QX(a), py = QY(rangeAt(a));
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(QX(out.ang), QY(0)); ctx.lineTo(QX(out.ang), QY(out.R)); ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = PALETTE.accent;
+    ctx.beginPath(); ctx.arc(QX(out.ang), QY(out.R), 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = PALETTE.accent5;
+    ctx.beginPath(); ctx.arc(QX(out.bestA), QY(out.bestR), 5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    txt('optimum ' + fmt(out.bestA, 4) + ' deg', QX(out.bestA), QY(out.bestR) - 12, PALETTE.accent5,
+      out.bestA > 60 ? 'right' : 'left');
+    txt('now ' + fmt(out.ang, 4) + ' deg', QX(out.ang), QY(out.R) + 20, PALETTE.accent,
+      out.ang > 60 ? 'right' : 'left');
+    txt('45 deg gives ' + fmt(out.at45, 5) + ' m', QX(45), Q.y0 + 44, PALETTE.accent4, 'center');
+
+    // --------------------------------------------------------- bottom summary
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(12, H2 - 132, W2 - 24, 120);
+    ctx.restore();
+    const verdict = out.h0 === 0
+      ? 'LEVEL LAUNCH (h0 = 0): R = v0^2 sin(2 theta)/g peaks at exactly 45 deg, and complementary angles tie - 30 deg and 60 deg both give ' +
+        fmt(rangeAt(30), 5) + ' m here. The optimum marker sits on 45.'
+      : 'RAISED LAUNCH (h0 = ' + fmt(out.h0, 4) + ' m): the extra hang time is worth more to a flatter shot, so the optimum drops to ' +
+        fmt(out.bestA, 4) + ' deg, strictly below 45. At 45 deg the range is only ' + fmt(out.at45, 5) +
+        ' m against the best ' + fmt(out.bestR, 5) + ' m.';
+    txt(verdict, 24, H2 - 110, out.h0 === 0 ? PALETTE.accent3 : PALETTE.warn, 'left', '11px ui-monospace, monospace');
+    txt('Check against the flat-ground formula: v0^2 sin(2 theta)/g = ' + fmt(out.v0, 4) + '^2 sin(' +
+      fmt(2 * out.ang, 4) + ' deg)/9.81 = ' + fmt(out.flat(out.v0), 5) + ' m, while the trajectory range is ' +
+      fmt(out.R, 5) + ' m' + (out.h0 === 0 ? ' - they must agree exactly.' : ' - they agree only when h0 = 0.'),
+      24, H2 - 88, PALETTE.dim, 'left');
+    txt('Impact speed ' + fmt(out.vImp, 5) + ' m/s, or ' + fmt(out.vImp * 3.6, 4) + ' km/h. Energy check: v0^2/2 + g h0 = ' +
+      fmt(out.v0 * out.v0 / 2 + G * out.h0, 5) + ' = v_impact^2/2 = ' + fmt(out.vImp * out.vImp / 2, 5) + ' J/kg.',
+      24, H2 - 66, PALETTE.dim, 'left');
+    txt('vy = 0 at the apex, and vx never changes: only the vertical component is touched by gravity.',
+      24, H2 - 44, PALETTE.dim, 'left');
+    txt('Drag the dot along the path (or move the slider) to read the velocity vector at any instant. The axes are not to equal scale.',
+      24, H2 - 22, PALETTE.warn, 'left');
+  },
+
+  readout: (out) => ({
+    'range R': fmt(out.R, 5) + ' m',
+    'maximum height H': fmt(out.H, 5) + ' m',
+    'time of flight': fmt(out.tf, 5) + ' s',
+    'time to apex': fmt(out.tApex, 5) + ' s',
+    'speed at impact': fmt(out.vImp, 5) + ' m/s',
+    'impact angle below horizontal': fmt(out.angImp, 5) + ' deg',
+    'vx (constant all flight)': fmt(out.vx, 5) + ' m/s',
+    'vy at launch': fmt(out.vy0, 5) + ' m/s',
+    'state at the dragged point': 't = ' + fmt(out.t, 4) + ' s, x = ' + fmt(out.xt, 4) + ' m, y = ' + fmt(out.yt, 4) +
+      ' m, v = ' + fmt(out.speed, 4) + ' m/s at ' + fmt(out.dir, 4) + ' deg',
+    'angle for maximum range': fmt(out.bestA, 4) + ' deg' + (out.h0 === 0 ? '  (= 45 for h0 = 0)' : '  (below 45 because h0 > 0)'),
+    'best range': fmt(out.bestR, 5) + ' m',
+    'range at 45 deg': fmt(out.at45, 5) + ' m',
+    'cost of choosing 45 deg here': fmt(out.bestR - out.at45, 5) + ' m',
+  }),
+});
+
+// --------------------------------------------------------------- drag support
+// widget() hands back the canvas and the live control map, so the readout point
+// can be dragged along the drawn trajectory.
+if (W && W.canvas && W.controls && W.controls.frac && typeof window !== 'undefined') {
+  let dragging = false;
+  const pick = (ev) => {
+    if (!dragPts || !dragPts.length) return;
+    const r = W.canvas.getBoundingClientRect();
+    const px = (ev.clientX - r.left) * (W.canvas.width / r.width);
+    const py = (ev.clientY - r.top) * (W.canvas.height / r.height);
+    let best = 0, bd = Infinity;
+    for (let i = 0; i < dragPts.length; i++) {
+      const dx = dragPts[i][0] - px, dy = dragPts[i][1] - py;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < bd) { bd = d2; best = i; }
+    }
+    const frac = best / (dragPts.length - 1);
+    W.state.values.frac = frac;
+    if (W.controls.frac.input) W.controls.frac.input.value = String(frac);
+    W.controls.frac.show();
+    W.render();
+  };
+  W.canvas.style.touchAction = 'none';
+  W.canvas.style.cursor = 'crosshair';
+  W.canvas.addEventListener('pointerdown', (ev) => {
+    dragging = true;
+    if (W.canvas.setPointerCapture) W.canvas.setPointerCapture(ev.pointerId);
+    pick(ev);
+  });
+  W.canvas.addEventListener('pointermove', (ev) => { if (dragging) pick(ev); });
+  W.canvas.addEventListener('pointerup', () => { dragging = false; });
+  W.canvas.addEventListener('pointercancel', () => { dragging = false; });
+}
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'projectile-note';
+document.getElementById('app').appendChild(note);
+note.innerHTML =
+  '<strong>45 degrees is the answer to one specific question, not to every projectile question.</strong> ' +
+  'It maximises range only when the launch and landing heights are equal, where the range collapses to ' +
+  '<code>R = v0^2 sin(2 theta)/g</code>. That form also gives the other free mark: complementary angles tie, ' +
+  'because <code>sin(2 theta) = sin(180 - 2 theta)</code>, so 30 degrees and 60 degrees land in the same ' +
+  'place. Drag h0 off zero and both facts evaporate - the range-maximising angle drops below 45 degrees and ' +
+  'the complementary pairs stop matching.<br>' +
+  '<strong>Why raising the launch point favours a flatter shot:</strong> the height buys extra hang time for ' +
+  'free, so the shot no longer needs to trade horizontal speed for air time. At h0 = 10 m with v0 = 20 m/s ' +
+  'the optimum is about 39.3 degrees and the range grows from 48.0 m to 49.8 m; at h0 = 50 m it is down to ' +
+  'about 28.3 degrees. Any multiple-choice answer that says 45 degrees for a launch from a cliff is wrong ' +
+  'before the arithmetic starts.<br>' +
+  '<strong>Run these three checks on any projectile answer.</strong> First, the horizontal velocity never ' +
+  'changes, so <code>vx = v0 cos(theta)</code> at every instant and the impact speed follows from ' +
+  '<code>v^2 = vx^2 + vy^2</code>; it equals the launch speed only when the landing height equals the launch ' +
+  'height. Second, <code>vy = 0</code> at the apex, which is where the time-to-apex formula ' +
+  '<code>t = v0 sin(theta)/g</code> comes from - and the apex height never depends on the launch height, only ' +
+  'on the vertical velocity. Third, energy is a free check on the impact speed: ' +
+  '<code>v_impact^2 = v0^2 + 2 g h0</code>. If your impact speed does not satisfy that, one of the other ' +
+  'numbers is wrong. Keep g = 9.81 m/s^2 unless the problem says 9.8 or 10, and convert km/h to m/s with ' +
+  '<code>divide by 3.6</code> before substituting - those two slips cause more lost marks here than the ' +
+  'physics does.';
+</script>
+</body>
+</html>

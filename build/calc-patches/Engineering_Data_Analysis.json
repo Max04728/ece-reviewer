@@ -1,0 +1,874 @@
+[
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/01_Central_Tendency.json",
+    "problem": 1,
+    "expect": "find the mean, median and mode.",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` `1:SD`, key the ten values; `Apps` → `S-VAR`: n = **10**, $\\bar x$ = **20.0** → `Apps` → `S-PTS`: Med = **20.5**, minX = 12, maxX = 32.",
+        "The mode is the one statistic SD mode does not return — read it off the entered list: 21 appears **three** times, more than any other value.",
+        "Skew check: $\\bar x$ = 20.0 < Med = 20.5 < mode = 21, so the set is slightly **left**-skewed."
+      ],
+      "note": "`S-PTS` sorts for you, which is the whole point of a ten-value median; only the mode still needs the eye."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/01_Central_Tendency.json",
+    "problem": 2,
+    "expect": "become eleven when a 95 is added",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "The ten values are still entered in `MODE` `3` `1:SD` — add `95`, press `=` once, then `Apps` → `S-VAR`: n = **11**, $\\bar x$ = **26.8182**.",
+        "`Apps` → `S-PTS`: Med = **21** — the 6th of the eleven sorted values, exactly what the odd-$n$ rule demands.",
+        "So the outlier moved $\\bar x$ from 20.0 to 26.8 (+34%) and the median only from 20.5 to 21.0 (+2.4%)."
+      ],
+      "note": "Add to the existing list rather than re-keying it: one `=` and the machine re-sorts all eleven values for the new median."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/01_Central_Tendency.json",
+    "problem": 3,
+    "expect": "A student's grades are 88 in a 5-unit course",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line in COMP: `(5×88+4×76+3×92+2×70)÷(5+4+3+2)` → **82.8571**, the weighted mean **82.86**.",
+        "Unweighted mean for contrast: `(88+76+92+70)÷4` → **81.5** — the weights gain 1.36 grade points because the best mark carries the largest unit load."
+      ],
+      "note": "The denominator is the total units (14), not the number of courses (4); using 4 is the equal-weighting trap."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/01_Central_Tendency.json",
+    "problem": 4,
+    "expect": "Grouped data: class",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Midpoints 15, 25, 35, 45 with frequencies 4, 8, 12, 6 — one line: `(4×15+8×25+12×35+6×45)÷(4+8+12+6)` → **31.6667**, so $\\bar x$ = **31.67**.",
+        "Assumed-mean check with A = 35: `35+(4×(15−35)+8×(25−35)+12×0+6×10)÷30` → the same **31.6667**.",
+        "The trap route, lower limits instead of midpoints: `(4×10+8×20+12×30+6×40)÷30` → **25.0**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/01_Central_Tendency.json",
+    "problem": 5,
+    "expect": "estimate the median and the mode.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Median by interpolation, one line: `30+(15−12)÷12×10` → **32.5** (L = 30, F = 12, f_m = 12, c = 10).",
+        "Mode, chained with `ALPHA` `:` — `30+(12−8)÷((12−8)+(12−6))×10` → **34.0**.",
+        "Ordering check: mean 31.67 < median 32.5 < mode 34.0, the left-skew signature."
+      ],
+      "note": "F is the cumulative frequency *below* the class (4 + 8 = 12); it equals f_m = 12 here only by coincidence of these numbers."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/02_Dispersion,_Variance,_SD,_IQR_and_CV.json",
+    "problem": 1,
+    "expect": "compute the range, the sample variance",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` `1:SD`, enter the seven values; `Apps` → `S-VAR`: n = **7**, $\\bar x$ = **23.4286**, xσn-1 = **11.1931**, so $s^2$ = **125.29**.",
+        "`Apps` → `S-PTS`: Q1 = **15**, Q3 = **30**, minX = 12, maxX = 45 → $R$ = 45 − 12 = **33** and IQR = 30 − 15 = **15**.",
+        "CV = `11.1931÷23.4286×100` → **47.78%**."
+      ],
+      "note": "xσn-1 is the sample s (n − 1); xσn = 10.3628 gives s² = 107.39, the population answer the question did not ask for. `S-PTS` excludes the median from both halves, as the note's trap requires."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/02_Dispersion,_Variance,_SD,_IQR_and_CV.json",
+    "problem": 2,
+    "expect": "Two instruments measure a",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Method A: `MODE` `3` `1:SD`, enter 100.2, 98.5, 101.3, 99.4, 100.6 → `S-VAR`: $\\bar x$ = **100.0**, xσn-1 = **1.0840** → CV = `Ans÷100×100` = **1.08%**.",
+        "Method B: re-enter 25.1, 24.2, 26.3, 24.7, 24.8 → $\\bar x$ = **25.02**, xσn-1 = **0.7855** → CV = **3.14%**.",
+        "B has the smaller s (0.785 vs 1.084) yet three times the relative spread, so A is the relatively more precise method."
+      ],
+      "note": "Divide each s by its own mean before comparing — the two s values alone name the wrong winner."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/02_Dispersion,_Variance,_SD,_IQR_and_CV.json",
+    "problem": 3,
+    "expect": "find the mean, sample standard deviation",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` `1:SD`, enter the six values; `Apps` → `S-VAR`: $\\bar x$ = **77.5**, xσn-1 = **7.3417**.",
+        "Apply the shift rule instead of re-keying: $\\bar x$ → 77.5 + 5 = **82.5** while xσn-1 stays **7.3417**.",
+        "Confirm on the machine by entering 73, 77, 80, 84, 88, 93 into a fresh SD set: $\\bar x$ = **82.5**, xσn-1 still **7.3417**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/02_Dispersion,_Variance,_SD,_IQR_and_CV.json",
+    "problem": 4,
+    "expect": "Using the 1.5-IQR rule, test whether any value",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` `1:SD`, enter all twelve values; `Apps` → `S-PTS`: Q1 = **51**, Q3 = **66.5**, minX = 45, maxX = 95 → IQR = **15.5**.",
+        "Fences chained with `ALPHA` `:` — `51−1.5×15.5` → **27.75** and `66.5+1.5×15.5` → **89.75**.",
+        "Only 95 lies outside [27.75, 89.75], so **95 is the outlier**; the minimum 45 sits inside the lower fence."
+      ],
+      "note": "The machine sorts twelve values for you and excludes the median from both halves, which is why Q1 = 51 and not 50."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/03_Permutations_and_Combinations.json",
+    "problem": 1,
+    "expect": "president, vice-president and secretary",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8 nPr 3` → **336** ways.",
+        "Multiplication-principle check: `8×7×6` → the same **336**, confirming the offices are ordered.",
+        "The distractor: `8 nCr 3` = **56**, which is what 'choosing people' wrongly suggests."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/03_Permutations_and_Combinations.json",
+    "problem": 2,
+    "expect": "a committee of 3 be selected from 10 people",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10 nCr 3` → **120** committees with no restriction.",
+        "Restricted case: the named person takes one seat, leaving two to fill — `9 nCr 2` → **36**.",
+        "Complement check: `9 nCr 3` = **84** committees exclude that person, and 120 − 84 = **36**."
+      ],
+      "note": "Fixing the required member leaves r − 1 = 2 seats from the remaining 9; `9 nCr 3` = 84 is the trap."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/03_Permutations_and_Combinations.json",
+    "problem": 3,
+    "expect": "A 4-digit PIN is formed from the digits 0-9",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "First digit, then the rest, on one line: `9×9×8×7` → **4536** PINs.",
+        "Unrestricted count `10 nPr 4` = **5040**; the leading-zero PINs are `9 nPr 3` = **504**.",
+        "5040 − 504 = **4536**, so both routes agree."
+      ],
+      "note": "Zero is barred only from position 1 and returns to the pool for positions 2-4, so the second factor is 9, not 8."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/03_Permutations_and_Combinations.json",
+    "problem": 4,
+    "expect": "letters of the word STATISTICS",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line: `10!÷(3!×3!×2!)` → **50400** distinct arrangements.",
+        "Pieces: `10!` = **3628800** and the divisor `3!×3!×2!` = **72**.",
+        "Ignoring the repeats would give **3628800**, 72 times too many."
+      ],
+      "note": "Only letters with count above 1 contribute a factorial to the denominator — 3! for S, 3! for T, 2! for I."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/03_Permutations_and_Combinations.json",
+    "problem": 5,
+    "expect": "From 6 men and 4 women",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Exactly 3 men and 2 women: `6 nCr 3×4 nCr 2` → **120** committees.",
+        "At least one woman by complement: `10 nCr 5` = **252** and `6 nCr 5` = **6** all-male, so `252−6` = **246**.",
+        "Case-sum check: `4 nCr 1×6 nCr 4+4 nCr 2×6 nCr 3+4 nCr 3×6 nCr 2+4 nCr 4×6 nCr 1` → **246**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/03_Permutations_and_Combinations.json",
+    "problem": 6,
+    "expect": "8 people be seated (a) in a row",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "(a) In a row: `8!` → **40320**.",
+        "(b) Around a table, fix one person and arrange the other seven: `7!` → **5040**.",
+        "Ratio check: `40320÷5040` = **8**, exactly the rotations that were identified."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/04_Probability_Rules_and_Bayes.json",
+    "problem": 1,
+    "expect": "Two cards are drawn without replacement",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Complement route in one line: `1−48 nCr 2÷52 nCr 2` → **0.149321**.",
+        "The counts behind it: `48 nCr 2` = **1128** ace-free hands out of `52 nCr 2` = **1326**, so P(no ace) = **0.850679**.",
+        "Addition-rule check: `4÷52+4÷52−(4÷52)×(3÷51)` → **0.149321**, matching the complement."
+      ],
+      "note": "The draws are not independent — the overlap uses (4/52)(3/51) and must be subtracted."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/04_Probability_Rules_and_Bayes.json",
+    "problem": 4,
+    "expect": "Machine A produces",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Bayes in one line, no intermediate rounding: `0.6×0.02÷(0.6×0.02+0.4×0.05)` → **0.375** for $P(A\\mid D)$.",
+        "Evidence and the other branch: `0.6×0.02+0.4×0.05` → **0.032**, and `0.4×0.05÷0.032` → **0.625** for $P(B\\mid D)$.",
+        "Free check: 0.375 + 0.625 = **1.000**, as two posteriors over an exhaustive partition must."
+      ],
+      "note": "Divide by the total probability of the evidence, 0.032 — never by P(A) = 0.6."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/04_Probability_Rules_and_Bayes.json",
+    "problem": 5,
+    "expect": "A test for a disease has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "True and false positives first: `0.01×0.95` → **0.0095** and `0.99×0.05` → **0.0495**.",
+        "Bayes in one line: `0.0095÷(0.0095+0.0495)` → **0.161017**, about **16.1%**.",
+        "Evidence total **0.0590**, so false positives outnumber true positives by 5.2 to 1."
+      ],
+      "note": "0.95 is the likelihood P(+ given D), not the answer; the question asks the reverse conditional."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/04_Probability_Rules_and_Bayes.json",
+    "problem": 6,
+    "expect": "A box has 5 red and 4 blue balls",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Different colours, both orders counted by the combination: `5×4÷9 nCr 2` → **0.555556**.",
+        "Order-by-order check: `5÷9×4÷8×2` → **0.555556**.",
+        "Same-colour complement: `(5 nCr 2+4 nCr 2)÷9 nCr 2` → **0.444444**, and 0.5556 + 0.4444 = **1**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/05_Binomial_and_Geometric_Distributions.json",
+    "problem": 1,
+    "expect": "A relay has a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10 nCr 2×0.1²×0.9⁸` → **0.193710** = P(X = 2); both exponents, 2 and 8, must be there.",
+        "Mean and spread: `10×0.1` → **1.0** failure and `√(10×0.1×0.9)` → **0.9487**.",
+        "Complement check: `1−0.9^10` → **0.651322** = P(X ≥ 1)."
+      ],
+      "note": "The coefficient alone is 45, and dropping the 0.9⁸ leaves 0.45 — the trap answer this problem plants."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/05_Binomial_and_Geometric_Distributions.json",
+    "problem": 2,
+    "expect": "A production line produces",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1−0.95^20−20 nCr 1×0.05×0.95^19` → **0.264160** = P(X ≥ 2) on one line.",
+        "The two removed terms: P(0) = `0.95^20` = **0.358486** and P(1) = **0.377354**.",
+        "Mean and sd of the sample count: `20×0.05` → **1.0** and `√(20×0.05×0.95)` → **0.9747**."
+      ],
+      "note": "'At least 2' removes both the zero and the one term; subtracting P(0) alone answers 0.6415."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/05_Binomial_and_Geometric_Distributions.json",
+    "problem": 3,
+    "expect": "A data packet is transmitted through 6 independent links",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Complement the upper tail, two terms instead of five: `1−6 nCr 5×0.9^5×0.1−0.9^6` → **0.114265** = P(X ≤ 4).",
+        "The upper terms: P(5) = `6 nCr 5×0.9^5×0.1` → **0.354294** and P(6) = `0.9^6` → **0.531441**.",
+        "Summing the lower tail k = 0 to 4 instead returns the same **0.114265**, so the complement is the shorter route."
+      ],
+      "note": "'At most 4' is the lower tail; complement P(5) + P(6), never P(X ≤ 4) itself."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/05_Binomial_and_Geometric_Distributions.json",
+    "problem": 4,
+    "expect": "A test has a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5 nCr 2×0.98²×0.02³` → **7.6832×10⁻⁵** = P(X = 2) on the pass scale.",
+        "Condition: `1−0.02^5` → **0.9999999968**, so the quotient differs only in the ninth decimal.",
+        "The conditional probability is therefore numerically **7.6832×10⁻⁵**, the same as the unconditional one here."
+      ],
+      "note": "Fix which outcome is 'success' first: with p = 0.98 a pass, k = 2 passes leaves 5 − 2 = 3 failures."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/05_Binomial_and_Geometric_Distributions.json",
+    "problem": 5,
+    "expect": "probability of failing each stress cycle",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "(a) `0.95²×0.05` → **0.045125**; the exponent is k − 1 = 2, which is the whole trap.",
+        "(b) `1−0.95³` → **0.142625** = P(X ≤ 3); (c) `1÷0.05` → **20** cycles and `√(0.95÷0.05²)` → **19.49** cycles sd.",
+        "Term check: `0.05+0.95×0.05+0.95²×0.05` → **0.142625**, matching (b)."
+      ],
+      "note": "The geometric pmf is q^(k-1)p for the trial count; using k = 3 gives 0.0429."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/05_Binomial_and_Geometric_Distributions.json",
+    "problem": 6,
+    "expect": "For a geometric process with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Memoryless: the ten failures are irrelevant, so `1−0.98³` → **0.058808** in one line.",
+        "Long route as a check: `(0.98^10−0.98^13)÷0.98^10` → **0.058808**, identical.",
+        "So the answer depends only on the three future trials, not on the ten already observed."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/06_Poisson_and_Hypergeometric_Distributions.json",
+    "problem": 1,
+    "expect": "A call centre receives an average of 3 calls per hour",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "(a) `e^(−3)×3²÷2!` → **0.224042**; (b) `1−e^(−3)` → **0.950213**.",
+        "(c) Scale the rate with the interval first: λ = `3×2` = **6**, then `e^(−6)×6⁴÷4!` → **0.133853**.",
+        "Keeping λ = 3 for the two-hour window instead gives **0.1680** — a 25% error."
+      ],
+      "note": "λ = rt must be recomputed for every window; the pmf divides by k!, not by (n − k)!."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/06_Poisson_and_Hypergeometric_Distributions.json",
+    "problem": 2,
+    "expect": "A fibre-optic cable has an average of 2 faults",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "1 km: `1−e^(−2)−2×e^(−2)` → **0.593994** = P(X ≥ 2), both the 0 and 1 terms removed.",
+        "500 m: λ = `2×0.5` = **1**, so `e^(−1)` → **0.367879** = P(X = 0).",
+        "For the 1 km section the mean and the variance are both λ = **2**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/06_Poisson_and_Hypergeometric_Distributions.json",
+    "problem": 3,
+    "expect": "A chip has a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "λ = `400×0.005` = **2**; `e^(−2)` → **0.135335** = P(X = 0).",
+        "`1−e^(−2)−2×e^(−2)` → **0.593994** = P(X ≥ 2).",
+        "Exact binomial for comparison: `0.995^400` → **0.134658**, agreeing with the Poisson value to 0.0007."
+      ],
+      "note": "The note's cross-check quotes `0.995^400` = **0.134658**, matching this chain; the Poisson value is **0.0007** high."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/06_Poisson_and_Hypergeometric_Distributions.json",
+    "problem": 4,
+    "expect": "A shipment of 20 components contains 4 defectives",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Hypergeometric in one line: `4 nCr 1×16 nCr 4÷20 nCr 5` → **0.469556** = P(X = 1).",
+        "Mean `5×4÷20` → **1.0**; variance `5×0.2×0.8×15÷19` → **0.631579**, sd **0.7947**.",
+        "Binomial approximation for comparison: `5 nCr 1×0.2×0.8⁴` → **0.4096**, roughly 0.06 too low at a 25% sampling fraction."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/06_Poisson_and_Hypergeometric_Distributions.json",
+    "problem": 5,
+    "expect": "A factory produces items with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "λ = `50×0.02` = **1**; `e^(−1)` → **0.367879**, which is P(X = 1) here (and P(X = 0) too, since λ = 1).",
+        "`1−2×e^(−1)` → **0.264241** = P(X ≥ 2).",
+        "Exact binomial: `0.98^50` → **0.364170** and `50×0.02×0.98^49` → **0.371602**, so P(X ≥ 2) = **0.264229**, agreeing to 4 decimals."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/06_Poisson_and_Hypergeometric_Distributions.json",
+    "problem": 6,
+    "expect": "A Geiger counter registers an average of 1.5 counts",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Standardise with the continuity correction: `(3.5−1.5)÷√1.5` → **1.6330**.",
+        "`MODE` `3` STAT, `Apps` → `Distr` → `R(` `1.6330` → **0.0512**, the upper tail with no table.",
+        "Exact Poisson: `1−e^(−1.5)×(1+1.5+1.5²÷2+1.5³÷6)` → **0.065642** — the approximation is poor at λ = 1.5."
+      ],
+      "note": "Apply the −0.5 correction before standardising; without it z = 2.0412 and the estimate halves to 0.0206."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/07_Uniform_and_Exponential_Distributions.json",
+    "problem": 1,
+    "expect": "uniformly distributed between 10 V and 20 V",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Length over length: `(20−16)÷10` → **0.40** and `(17−12)÷10` → **0.50**.",
+        "Mean and variance: `(10+20)÷2` → **15** V and `(20−10)²÷12` → **8.3333**, sd `√Ans` → **2.887** V.",
+        "35th percentile, the linear inverse CDF: `10+0.35×10` → **13.5** V."
+      ],
+      "note": "The uniform variance divisor is 12 — (b−a)²/2 = 50 and (b−a)²/4 = 25 are the distractors."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/07_Uniform_and_Exponential_Distributions.json",
+    "problem": 2,
+    "expect": "is exponential with a mean of 1000 hours",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`e^(−500÷1000)` → **0.606531** = P(X > 500); the bare exponential is the survival probability.",
+        "`1−e^(−1500÷1000)` → **0.776870** = P(X ≤ 1500); 'fails within' needs the complement.",
+        "Median `−1000×ln(0.5)` → **693.15** hours; variance `1000²` → **1E6**, sd **1000** = the mean."
+      ],
+      "note": "Swap the two forms and you answer 0.393 where 0.777 was wanted — read 'more than' versus 'within' first."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/07_Uniform_and_Exponential_Distributions.json",
+    "problem": 3,
+    "expect": "what is the probability that it fails between 500 and 1500 hours",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Survival at each end: `e^(−0.5)` → **0.606531** and `e^(−1.5)` → **0.223130**.",
+        "One line: `e^(−0.5)−e^(−1.5)` → **0.383401** = P(500 < X < 1500).",
+        "CDF route as a check: `(1−e^(−1.5))−(1−e^(−0.5))` → the same **0.383401**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/07_Uniform_and_Exponential_Distributions.json",
+    "problem": 4,
+    "expect": "A repair time is exponential with a mean of 8 minutes",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Memoryless: the 4 minutes already waited drop out, so `1−e^(−8÷8)` → **0.632121** for $P(X<12 \\mid X>4)$.",
+        "Direct conditional check: `(e^(−0.5)−e^(−1.5))÷e^(−0.5)` → **0.632121**, the same number.",
+        "90th percentile: `−8×ln(0.10)` → **18.42** minutes."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/07_Uniform_and_Exponential_Distributions.json",
+    "problem": 5,
+    "expect": "Failures in a fibre occur as a Poisson process at 0.25",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "The waiting distance is exponential: `e^(−0.25×6)` → **0.223130** = P(X > 6 km).",
+        "Same number from the Poisson side — 'no fault in 6 km' is `e^(−1.5)` → **0.223130**.",
+        "Mean spacing `1÷0.25` → **4** km; variance **16** and sd **4** km."
+      ],
+      "note": "0.25 is the rate, not the mean: the mean spacing is 1/0.25 = 4 km, and both routes must give e^(−1.5)."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 1,
+    "expect": "Resistors have a mean of",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` STAT, then `Apps` → `Distr` → `R(` — no z-table: `R(1.5)` → **0.066807** = P(X > 103).",
+        "Interval from the same key: `R(−1)−R(1.5)` → **0.774538** = P(98 < X < 103).",
+        "The two table entries explicitly: Φ(−1) = `1−R(−1)` = **0.158655** and Φ(1.5) = **0.933193**."
+      ],
+      "note": "`R(` is the machine's upper tail, so P(a < X < b) = R(za) − R(zb); here z = (x − 100)/2."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 2,
+    "expect": "Bolt diameters are normal with",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "z for the lower limit: `(2.48−2.50)÷0.01` → **−2.00**, and for the upper limit **+2.00**.",
+        "`Apps` → `Distr` → `R(`: `R(−2)−R(2)` → **0.954500**, so **95.45%** of bolts are acceptable.",
+        "Rejection = 1 − 0.9545 = **0.0455**, split into 2.275% undersized and 2.275% oversized."
+      ],
+      "note": "Both tails count; one tail alone (2.28%) is the trap answer."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 3,
+    "expect": "A machine fills packages with a mean of",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "z(480) = `(480−500)÷10` → **−2.00**, so underfilled = `1−R(−2)` → **0.022750**, i.e. **2.28%**.",
+        "The central 95% leaves 2.5% in each tail, so the multiplier is z = **1.960** (there is no inverse-normal key).",
+        "Limits: `500−1.96×10` → **480.4** g to `500+1.96×10` → **519.6** g."
+      ],
+      "note": "A two-sided 95% interval uses 1.96; 1.645 is the one-sided 95% value with 5% in a single tail."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 4,
+    "expect": "Find the score that separates the top",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Top 10% means 0.90 of the area to the left, so the multiplier is the memorised z = **1.282**.",
+        "Cut-off: `70+1.282×8` → **80.256**, about **80.3**.",
+        "Below 64 from `Distr`: `1−R(−0.75)` → **0.226627**, so about **22.7%** of scores fall below 64."
+      ],
+      "note": "The table's z always carries area to its left, so a top-10% cut reads 0.90 — reading 0.10 puts the cut below the mean."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 5,
+    "expect": "The lifetime of a device is normal with a mean of 5 years",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "z(4) = `(4−5)÷0.5` → **−2.00**, so returned = `1−R(−2)` → **0.022750**, i.e. **2.28%**.",
+        "For 2.5% in the lower tail the multiplier is z = **−1.960**.",
+        "Warranty: `5−1.96×0.5` → **4.02** years."
+      ],
+      "note": "A warranty loss is a *low* lifetime, so z is negative; dropping the sign puts the warranty above the mean life."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 6,
+    "expect": "Two independent components have lifetimes",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Variances add: `10²+15²` → **325**, so σ = `√325` → **18.0278** h against a mean of `100+150` = **250** h.",
+        "z = `(280−250)÷18.0278` → **1.6641**.",
+        "`Apps` → `Distr` → `R(1.6641)` → **0.0480**; the note's 0.0481 is a 4-digit table interpolation."
+      ],
+      "note": "Adding the standard deviations gives 25 h and z = 1.2, a tail of 0.115 — more than double the correct probability."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 7,
+    "expect": "A process produces shafts with diameters normal",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Standardise both limits: `(24.90−25.00)÷0.04` → **−2.50** and `(25.10−25.00)÷0.04` → **+2.50**.",
+        "`Apps` → `Distr` → `R(`: `R(−2.5)−R(2.5)` → **0.987581**, so about **98.76%** conform.",
+        "Scrap = 1 − 0.987581 = **0.012419**, splitting into 0.62% oversize and 0.62% undersize."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 8,
+    "expect": "Incomes in a region are approximately normal",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "'Exceeded by only 5%' is a right-tail area of 0.05, so the left area is 0.95 and z = **1.645**.",
+        "Invert the standardisation: `30000+1.645×6000` → **39870**."
+      ],
+      "note": "Φ(z) = 0.05 would give z = −1.645 and a cut-off below the mean — the tail must match the wording."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/08_Normal_Distribution_and_Z_Scores.json",
+    "problem": 10,
+    "expect": "Two normal populations:",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Population A: z = `(70−50)÷5` → **4.00**, and `Distr` `R(4)` → **3.1686×10⁻⁵**.",
+        "Population B: z = `(70−60)÷10` → **1.00**, and `R(1)` → **0.158655**.",
+        "Ratio: `0.158655÷(3.1686×10⁻⁵)` → **5007**, so B is about 5000 times as likely to exceed 70."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/10_Central_Limit_Theorem.json",
+    "problem": 1,
+    "expect": "A voltage is uniformly distributed on",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Uniform spread first: `√((10−0)²÷12)` → **2.886751** V, so the population mean is `(0+10)÷2` = **5** V.",
+        "Standard error: `Ans÷√40` → **0.456435** V.",
+        "z = `(5.5−5)÷0.456435` → **1.0954**, then `Distr` `R(1.0954)` → **0.136661**."
+      ],
+      "note": "Divide by the standard error 0.4564, not by σ = 2.8868 — the latter answers for one reading (0.431)."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/10_Central_Limit_Theorem.json",
+    "problem": 2,
+    "expect": "A process produces shafts with",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "SE = `15÷√100` → **1.5** mm; z = `(82.5−80)÷1.5` → **1.6667**, then `Distr` `R(1.6667)` → **0.0478**.",
+        "Sample size for SE = 3 mm: `(15÷3)²` → **25**.",
+        "Check: with n = 25, `15÷√25` → **3.0** mm exactly as specified."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/10_Central_Limit_Theorem.json",
+    "problem": 3,
+    "expect": "A population has",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "n = 16: SE = `20÷√16` → **5.0**, z = `10÷5` → **2.00**, probability `R(−2)−R(2)` → **0.954500**.",
+        "n = 64: SE = `20÷√64` → **2.5**, z = `10÷2.5` → **4.00**, probability `R(−4)−R(4)` → **0.999937**.",
+        "Quadrupling n halved the SE from 5.0 to 2.5 and moved the same ±10 window from 2σ to 4σ."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/10_Central_Limit_Theorem.json",
+    "problem": 4,
+    "expect": "A process is known to be",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "SE from the *known* p = 0.05: `√(0.05×0.95÷200)` → **0.015411**.",
+        "Either side of the mean: `0.01÷0.015411` → **0.6489**.",
+        "`Distr` `R(−0.6489)−R(0.6489)` → **0.4836**, so about 48% of samples of 200 land between 4% and 6%."
+      ],
+      "note": "The sampling distribution is centred on p = 0.05, so an observed p-hat must not be substituted into the SE."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/10_Central_Limit_Theorem.json",
+    "problem": 5,
+    "expect": "Boxes of components have a mean weight",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "Convert the total to a per-component mean: `32320÷64` → **505** g.",
+        "SE = `20÷√64` → **2.5** g; z = `(505−500)÷2.5` → **2.000**; `Distr` `R(2)` → **0.022750**.",
+        "Total route agrees: S ~ N(64×500, 64×400), sd `√25600` → **160** g, z = `(32320−32000)÷160` = **2.000**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/11_Confidence_Intervals.json",
+    "problem": 1,
+    "expect": "A sample of 36 measurements has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "SE = `12÷√36` → **2.0**; 95% margin = `1.96×2` → **3.92**.",
+        "95% interval: `50−3.92` → **46.08** to `50+3.92` → **53.92**.",
+        "99%: `50−2.576×2` → **44.848** to `50+2.576×2` → **55.152**, roughly 31% wider."
+      ],
+      "note": "The 95% multiplier is 1.96; 1.645 is the 90% two-sided value and makes the interval about 16% too narrow."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/11_Confidence_Intervals.json",
+    "problem": 2,
+    "expect": "Nine tensile-strength measurements give",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "ν = n − 1 = **8**, so the multiplier is the memorised t(0.025, 8) = **2.306**.",
+        "SE = `3÷√9` → **1.0**, so the margin is `2.306×1.0` → **2.306**.",
+        "Interval: `25−2.306` → **22.694** to `25+2.306` → **27.306**; the z = 1.96 version (23.04, 26.96) is 18% too narrow."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/11_Confidence_Intervals.json",
+    "problem": 3,
+    "expect": "In a sample of 400 items, 120 are defective",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Point estimate `120÷400` → **0.30**; SE = `√(0.30×0.70÷400)` → **0.022913**.",
+        "Margin = `1.96×0.022913` → **0.044909**.",
+        "Interval: `0.30−0.044909` → **0.2551** to `0.30+0.044909` → **0.3449**, that is 25.5% to 34.5%."
+      ],
+      "note": "The interval uses the data-based p-hat = 0.30; p = 0.5 belongs only in sample-size planning."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/11_Confidence_Intervals.json",
+    "problem": 4,
+    "expect": "A manufacturer wants to estimate the mean fill volume",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(1.96×15÷3)²` → **96.04**, which must be rounded **up** to **97**.",
+        "For E = 1 mL: `(1.96×15÷1)²` → **864.36**, so n = **865**.",
+        "Tightening the tolerance threefold costs nine times the sample — the square in the formula does that."
+      ],
+      "note": "Rounding 96.04 down to 96 misses the stated margin; the formula produces a guarantee, not an estimate."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/11_Confidence_Intervals.json",
+    "problem": 5,
+    "expect": "A sample of 15 measurements from a normal population",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "ν = **14**, so t(0.05, 14) = **1.761** with 5% in each tail.",
+        "SE = `2÷√15` → **0.516398**; margin = `1.761×0.516398` → **0.9094**.",
+        "Interval: `12−0.9094` → **11.09** to `12+0.9094` → **12.91**; 13 lies above 12.91, so it is outside."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/11_Confidence_Intervals.json",
+    "problem": 6,
+    "expect": "An engineer reports a 95% confidence interval",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "SE = `5÷√30` → **0.912871**; with t(0.025, 29) = **2.045** the margin is `2.045×0.912871` → **1.8668**.",
+        "So the correct interval is `12.4−1.8668` = **10.53** to `12.4+1.8668` = **14.27**, not the quoted (10.85, 13.95).",
+        "Even z = 1.96 gives `1.96×0.912871` → **1.7892** → (10.61, 14.19); at 99%, `2.756×0.912871` → **2.5159** → (9.88, 14.92)."
+      ],
+      "note": "Any quoted interval can be checked in seconds: half-width must equal critical value × standard error."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/12_Hypothesis_Testing,_Z,_t_and_p_Errors.json",
+    "problem": 1,
+    "expect": "A manufacturer claims resistors average",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "SE = `15÷√36` → **2.5**; z = `(102−100)÷2.5` → **0.800**.",
+        "Two-tailed p from `Distr`: `2×R(0.8)` → **0.4237** (each tail is `R(0.8)` = **0.2119**).",
+        "The critical value 1.960 exceeds 0.800, so fail to reject H0 — the data are consistent with 100 Ω."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/12_Hypothesis_Testing,_Z,_t_and_p_Errors.json",
+    "problem": 2,
+    "expect": "Nine measurements of a dimension give",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "SE = `2.5÷√9` → **0.833333**; t = `(9.2−10)÷0.833333` → **−0.960**.",
+        "ν = **8**, so the memorised critical value is t(0.025, 8) = **2.306**; 0.960 is well inside it, so fail to reject.",
+        "CI cross-check: `2.306×0.833333` → **1.9217**, so `9.2−1.9217` = **7.278** to `9.2+1.9217` = **11.122**, which contains 10."
+      ],
+      "note": "The t critical values come from the printed table — the machine's `Distr` menu covers the normal only."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/12_Hypothesis_Testing,_Z,_t_and_p_Errors.json",
+    "problem": 3,
+    "expect": "In a sample of 400 parts, 212 are defective",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "The test SE uses the hypothesised value: `√(0.5×0.5÷400)` → **0.025**.",
+        "z = `(0.53−0.50)÷0.025` → **1.200**; two-tailed p = `2×R(1.2)` → **0.2301**.",
+        "Fail to reject; the interval route instead uses p-hat = 0.53, so `1.96×√(0.53×0.47÷400)` → **0.024956**."
+      ],
+      "note": "Tests standardise with p0 = 0.50; confidence intervals use p-hat — mixing them is the usual error."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/12_Hypothesis_Testing,_Z,_t_and_p_Errors.json",
+    "problem": 4,
+    "expect": "A supplier claims a mean strength",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "SE = `1.2÷√25` → **0.24**; t = `(3.4−3.0)÷0.24` → **1.6667**.",
+        "One-tailed critical value t(0.05, 24) = **1.711**; since 1.6667 < 1.711, fail to reject at α = 0.05.",
+        "The p-value ≈ **0.054** must come from a t-table, so the critical-value comparison is the calculator route here."
+      ],
+      "note": "Compare with the one-tailed 1.711, not the two-tailed 2.064 — all 5% sits in the upper tail."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/12_Hypothesis_Testing,_Z,_t_and_p_Errors.json",
+    "problem": 5,
+    "expect": "the engineer plans to repeat the study",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Both multipliers are needed: z(α/2) = **1.960** for 5% two-sided and z(β) = **1.282** for 90% power.",
+        "`(1.96+1.282)²×1.2²÷0.4²` → **94.60**, so **95** measurements.",
+        "Dropping the power term gives `(1.96²×1.44)÷0.16` → **34.6** → 35, far short of 90% power."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/13_Linear_Regression_and_Pearson_r.json",
+    "problem": 1,
+    "expect": "Fit a least-squares line to",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` `2:Lin`, enter (1,2), (2,4), (3,5), (4,8); `Apps` → `Reg`: B = **1.9**, A = **0.000**, r = **0.9812**.",
+        "Prediction at x = 5 straight from the fitted line: `1.9×5` → **9.5**.",
+        "Centroid check is free: A = 0 with B = 1.9 puts $\\bar x$ = 2.5 and $\\bar y$ = 4.75 exactly on the line."
+      ],
+      "note": "B = 1.9 is the slope; r = 0.9812 is the correlation. Reporting 1.9 as r is the trap this problem sets."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/13_Linear_Regression_and_Pearson_r.json",
+    "problem": 2,
+    "expect": "compute Pearson's",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "The four pairs are still in `MODE` `3` `2:Lin`, so `Apps` → `Reg` returns r = **0.981156** with no sums at all.",
+        "$r^2$ = `0.981156²` → **0.962667**, so about **96.3%** of the variation in y is explained.",
+        "Hand-route check: `38÷√(20×75)` → **0.981156**, i.e. 38/√1500."
+      ],
+      "note": "`Reg` gives r directly; the two brackets nΣx² − (Σx)² = 20 and nΣy² − (Σy)² = 75 matter only for the hand route."
+    }
+  },
+  {
+    "file": "build/payload/01_Mathematics/09_Engineering_Data_Analysis/13_Linear_Regression_and_Pearson_r.json",
+    "problem": 3,
+    "expect": "A study records hours studied",
+    "calc": {
+      "mode": "STAT",
+      "steps": [
+        "`MODE` `3` `2:Lin`, enter the five pairs; `Apps` → `Reg`: B = **0.9**, A = **1.3**, r = **0.9**.",
+        "Line $\\hat y$ = **1.3 + 0.9x**; at x = 6, `1.3+0.9×6` → **6.7**, a mild extrapolation past x = 1 to 5.",
+        "$r^2$ = `0.9²` → **0.81**, so 81% of the score variation is explained and 19% is not."
+      ]
+    }
+  }
+]

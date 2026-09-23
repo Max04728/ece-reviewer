@@ -1,0 +1,107 @@
+{
+  "scope": "Convert between photon wavelength and bandgap energy, design LED drive resistors, compute photodiode responsivity and photocurrent, and evaluate solar-cell fill factor, efficiency and irradiance dependence.",
+  "intuition": "A photon can only create or annihilate an electron-hole pair if its energy matches the bandgap. That single rule sets the colour of every LED, the cut-off wavelength of every detector, and the reason silicon makes an excellent photodiode but a hopeless light bulb.",
+  "concept": [
+    "**Photon energy is the bridge between optics and band structure.** A photon carries $E=\\frac{hc}{\\lambda}$, and in engineering units $E(\\mathrm{eV})=\\frac{1240}{\\lambda(\\mathrm{nm})}$, because $hc=1240\\ \\mathrm{eV\\cdot nm}$. The visible band from 400 to 700 nm therefore spans 3.1 eV down to 1.77 eV, which is why light-emitting materials must have bandgaps in that range. For **absorption**, any photon with $E>E_g$ can lift an electron from the valence band to the conduction band, creating an electron-hole pair; photons with $E<E_g$ pass straight through, so the material is transparent to them. The threshold wavelength is $\\lambda_c=\\frac{1240}{E_g(\\mathrm{eV})}$ nm — about 1107 nm for silicon ($E_g=1.12\\ \\mathrm{eV}$), 873 nm for GaAs ($1.42\\ \\mathrm{eV}$) and 549 nm for GaP ($2.26\\ \\mathrm{eV}$). For **emission** the extra requirement is that the transition be *direct* in k-space. GaAs, GaP, GaN and InGaN are direct-bandgap or engineered to be so, which is why they make efficient LEDs and laser diodes; silicon and germanium are indirect, so a forward-biased silicon junction emits essentially no light — the energy goes into heat and lattice vibrations instead. Silicon's indirect gap is also why it is a mediocre solar material in theory yet dominates in practice: it absorbs adequately once it is thick enough and it is cheap and abundant.",
+    "**LEDs are current-driven diodes, so they always need a series resistor.** An LED is a forward-biased $pn$ junction in which injected carriers recombine radiatively, so light output is approximately proportional to forward current. Because $I_F$ rises exponentially with $V_F$, driving an LED from a fixed voltage source is unstable: a small temperature rise lowers $V_F$ by about $-2\\ \\mathrm{mV/^\\circ C}$, which increases the current, which raises the temperature again — thermal runaway and a dead LED. The fix is a series resistor that sets the current, $R_S=\\frac{V_S-V_F}{I_F}$, whose power dissipation $(V_S-V_F)I_F$ must be checked against its rating. Forward drops run from about $1.8\\ \\mathrm{V}$ (red) to $3.4\\ \\mathrm{V}$ (blue or white, which use a GaN die plus phosphor), so the same 20 mA design needs a very different resistor on a 5 V rail and a 12 V rail. Related devices follow the same theme: the laser diode adds an optical cavity and needs stimulated emission above a threshold current, the seven-segment display is an array of LEDs, and the optocoupler pairs an LED with a phototransistor so that a current-transfer ratio $\\mathrm{CTR}=I_C/I_F$ (typically 50 to 600 percent) links an input current to an isolated output current.",
+    "**Photodetectors turn the same physics around.** A photodiode is operated with its junction reverse biased (photoconductive mode) or unbiased (photovoltaic mode). Photons absorbed inside the depletion region generate electron-hole pairs that the built-in field separates, producing a photocurrent that is very nearly **proportional to irradiance** over several decades. Responsivity converts optical power to current: $R_\\lambda=\\frac{\\eta q\\lambda}{hc}=\\frac{\\eta\\lambda(\\mu\\mathrm{m})}{1.24}\\ \\mathrm{A/W}$, where $\\eta$ is the internal quantum efficiency; at 850 nm with $\\eta=0.8$ this gives $0.55\\ \\mathrm{A/W}$. Photoconductive mode is fast (nanoseconds, because the reverse bias widens the depletion region and lowers the junction capacitance) and linear, but it adds dark current and noise. Photovoltaic mode has no dark current and the lowest noise, but the diode's own log-shaped forward characteristic makes the output nonlinear at high optical power and slow because of the large unbiased junction capacitance. The same photocurrent principle drives the phototransistor (with built-in current gain), the light-dependent resistor (a photoconductor whose resistance falls with illumination as roughly $E^{-\\gamma}$) and the solar cell, which is simply a very large-area photodiode intended to deliver power rather than signal.",
+    "**Solar cells are characterized by three numbers on one curve.** The illuminated I-V curve runs from short-circuit current $I_{SC}$ (the current with the terminals shorted) to open-circuit voltage $V_{OC}$ (the voltage with the terminals open), and the maximum power point $(V_{mp},I_{mp})$ is the knee of that curve. The **fill factor** $FF=\\frac{P_{max}}{V_{OC}I_{SC}}$ measures how square the curve is: 0.7 to 0.85 for a good cell, always less than 1, and degraded by series resistance and shunt leakage. The **conversion efficiency** is $\\eta=\\frac{P_{max}}{GA}$ with $G$ the irradiance ($1000\\ \\mathrm{W/m^{2}}$ is one sun, also written $100\\ \\mathrm{mW/cm^{2}}$) and $A$ the cell area in square metres. The two endpoints behave very differently with illumination: $I_{SC}$ is **linear** in irradiance because it is just the photocurrent, while $V_{OC}$ is **logarithmic**, rising by only $\\frac{nkT}{q}\\ln\\frac{G_2}{G_1}$ when irradiance changes — about $42\\ \\mathrm{mV}$ for a factor of five at room temperature. Temperature moves the curve in opposite directions too: $I_{SC}$ rises very slightly while $V_{OC}$ falls by about $2.2\\ \\mathrm{mV}$ per degree C, so a hot panel delivers noticeably less power even at the same irradiance."
+  ],
+  "formulas": [
+    { "q": "Photon energy", "e": "E = \\frac{hc}{\\lambda} = \\frac{1240}{\\lambda(\\mathrm{nm})}\\ \\mathrm{eV}", "n": "Wavelength must be in NANOMETRES for the 1240 constant. Use 1240/400 = 3.1 eV for violet and 1240/700 = 1.77 eV for deep red." },
+    { "q": "Bandgap to wavelength", "e": "\\lambda(\\mathrm{nm}) = \\frac{1240}{E_g(\\mathrm{eV})}", "n": "Gives the emission peak of a direct-bandgap LED and the absorption cut-off of a detector. Si 1.12 eV gives 1107 nm, GaAs 1.42 eV gives 873 nm, GaP 2.26 eV gives 549 nm." },
+    { "q": "LED series resistor", "e": "R_S = \\frac{V_S - V_F}{I_F}", "n": "V_F is the LED forward drop (1.8 V red to 3.4 V blue/white), not zero and not the supply. The resistor is mandatory: an LED across a fixed supply destroys itself." },
+    { "q": "Resistor power in the LED drive", "e": "P_R = \\left(V_S - V_F\\right) I_F = I_F^{2} R_S", "n": "Must be below the resistor rating with margin; on a 12 V rail driving a 3.4 V LED at 20 mA this is 172 mW, so a 1/8 W part is not enough." },
+    { "q": "Photodiode responsivity", "e": "R_\\lambda = \\frac{\\eta q \\lambda}{hc} = \\frac{\\eta\\,\\lambda(\\mu\\mathrm{m})}{1.24}\\ \\mathrm{A/W}", "n": "The idealized upper bound is 1 A/W at about 1240 nm. At 850 nm with quantum efficiency 0.8, R = 0.55 A/W." },
+    { "q": "Photocurrent", "e": "I_{ph} = R_\\lambda P_{opt}", "n": "Linear in incident optical power up to saturation. Distinguish optical power in watts from irradiance in W/m^2; multiply irradiance by area first." },
+    { "q": "Photoconductive output voltage", "e": "V_{out} = I_{ph} R_L", "n": "Valid only while V_out stays below the reverse bias, otherwise the diode becomes forward biased, the mode changes to photovoltaic and the response goes logarithmic." },
+    { "q": "Optocoupler current transfer ratio", "e": "\\mathrm{CTR} = \\frac{I_C}{I_F}\\times 100\\%", "n": "A current ratio, not a voltage gain, and it varies with I_F and temperature; designs use the minimum CTR from the data sheet." },
+    { "q": "Solar-cell fill factor", "e": "FF = \\frac{P_{max}}{V_{OC}I_{SC}} = \\frac{V_{mp}I_{mp}}{V_{OC}I_{SC}}", "n": "Always between 0 and 1; 0.7-0.85 is a good cell. A result above 1 means V_mp/I_mp were taken at the wrong point or the irradiance was misread." },
+    { "q": "Conversion efficiency", "e": "\\eta = \\frac{P_{max}}{G A} = \\frac{FF\\,V_{OC}I_{SC}}{G A}", "n": "A is the cell area in m^2 and G in W/m^2; one sun = 1000 W/m^2 = 100 mW/cm^2. Mixing cm^2 with W/m^2 is a 10^4 error." },
+    { "q": "Open-circuit voltage shift with irradiance", "e": "\\Delta V_{OC} = \\frac{nkT}{q}\\ln\\left(\\frac{G_2}{G_1}\\right) \\approx 26\\ \\mathrm{mV}\\times\\ln\\left(\\frac{G_2}{G_1}\\right)", "n": "Logarithmic, not linear: dropping to 20 percent of one sun lowers V_OC by only about 42 mV while I_SC falls to 20 percent. Use n = 1 for an ideal cell." },
+    { "q": "Temperature coefficient of V_OC", "e": "\\frac{dV_{OC}}{dT} \\approx -2.2\\ \\mathrm{mV/^\\circ C}", "n": "Silicon cells lose about 0.4 percent of power per degree C, so a 25 C rise costs roughly 10 percent of the output. I_SC rises slightly, but not enough to compensate." }
+  ],
+  "problems": [
+    {
+      "prompt": "Find the emission wavelength of a GaAs LED ($E_g=1.42\\ \\mathrm{eV}$) and of a GaP green LED ($E_g=2.26\\ \\mathrm{eV}$). Also find the photon energy of a 650 nm red LED.",
+      "give": ["GaAs: E_g = 1.42 eV", "GaP: E_g = 2.26 eV", "Red source: lambda = 650 nm"],
+      "steps": [
+        "GaAs: lambda = 1240/1.42 = 873 nm, in the near infrared just beyond visible red",
+        "GaP: lambda = 1240/2.26 = 549 nm, in the green",
+        "Red source: E = 1240/650 = 1.91 eV",
+        "For comparison, silicon with E_g = 1.12 eV has a cut-off at 1240/1.12 = 1107 nm, which is why silicon detectors work well at 850 nm but silicon cannot emit visible light efficiently (indirect bandgap)"
+      ],
+      "ans": "GaAs emits at 873 nm (infrared), GaP at 549 nm (green), and a 650 nm photon carries 1.91 eV.",
+      "trap": "Using the wavelength in metres: E = hc/lambda with lambda = 650 m gives an absurd energy. The 1240 constant is defined for nanometres, and a 10^9 unit error is the most common mistake in this topic.", "calc": {"mode":"COMP","steps":["One `ALPHA` `:` chain — `1240÷1.42 : 1240÷2.26 : 1240÷650` → **873** nm → **549** nm → **1.908** eV.","Silicon cut-off for comparison: `1240÷1.12` → **1107** nm, which is why 850 nm detection works."],"note":"The 1240 constant is in eV·nm: enter 650, never $650\\times10^{-9}$."}
+    },
+    {
+      "prompt": "Design the series resistor for (a) a red LED with $V_F=2.0\\ \\mathrm{V}$ at $I_F=20\\ \\mathrm{mA}$ on a $5\\ \\mathrm{V}$ rail, and (b) a blue LED with $V_F=3.4\\ \\mathrm{V}$ at $I_F=20\\ \\mathrm{mA}$ on a $12\\ \\mathrm{V}$ rail. Give the resistor power in each case.",
+      "give": ["Red: V_F = 2.0 V, I_F = 20 mA, V_S = 5 V", "Blue: V_F = 3.4 V, I_F = 20 mA, V_S = 12 V"],
+      "steps": [
+        "Red on 5 V: R_S = (5 - 2.0)/0.020 = 3.0/0.020 = 150 ohm; use the standard 150 ohm value",
+        "Red resistor power: P = (V_S - V_F)*I_F = (3.0)(0.020) = 0.060 W, comfortably inside a 1/8 W part",
+        "Blue on 12 V: R_S = (12 - 3.4)/0.020 = 8.6/0.020 = 430 ohm; use 430 ohm",
+        "Blue resistor power: P = (8.6)(0.020) = 0.172 W, so a 1/8 W resistor (0.125 W) is NOT adequate; use 1/4 W or 1/2 W",
+        "Check LED power: red 2.0 V * 20 mA = 40 mW; blue 3.4 V * 20 mA = 68 mW"
+      ],
+      "ans": "a) R_S = 150 ohm dissipating 60 mW; b) R_S = 430 ohm dissipating 172 mW, so a 1/4 W resistor is the minimum.",
+      "trap": "Sizing the resistor as V_S/I_F, which gives 250 ohm and 600 ohm and under-drives both LEDs, and then rating the resistor at I_F^2 R_S but forgetting that the LED itself also dissipates power. On the 12 V rail the resistor burns 2.5 times as much power as the LED does.", "calc": {"mode":"COMP","steps":["Red: `(5−2)÷20E-3` → **150** $\\Omega$; `3×20E-3` → **0.060** W in the resistor.","Blue: `(12−3.4)÷20E-3` → **430** $\\Omega$; `8.6×20E-3` → **0.172** W, so a 1/4 W part."],"note":"Rating the resistor at $I_F^2R$ alone forgets the LED itself: 40 mW red, 68 mW blue."}
+    },
+    {
+      "prompt": "A silicon photodiode has quantum efficiency $\\eta=0.8$ at $\\lambda=850\\ \\mathrm{nm}$ and receives $100\\ \\mu\\mathrm{W}$ of optical power. Find its responsivity, the photocurrent, and the output voltage across a $10\\ \\mathrm{k\\Omega}$ load in photoconductive mode.",
+      "give": ["eta = 0.8", "lambda = 850 nm = 0.85 um", "P_opt = 100 uW", "R_L = 10 kohm", "Reverse bias = 5 V"],
+      "steps": [
+        "R_lambda = eta*lambda(um)/1.24 = 0.8*0.85/1.24 = 0.68/1.24 = 0.548 A/W",
+        "I_ph = R_lambda*P_opt = 0.548 A/W * 100e-6 W = 54.8e-6 A = 54.8 uA",
+        "V_out = I_ph*R_L = (54.8 uA)(10 kohm) = 0.548 V",
+        "Mode check: V_out = 0.548 V is far below the 5 V reverse bias, so the diode stays reverse biased and the photocurrent remains linear in irradiance",
+        "If the load were 100 kohm instead, V_out = 5.48 V would exceed the bias, the diode would forward conduct and the response would become logarithmic"
+      ],
+      "ans": "R_lambda = 0.548 A/W, I_ph = 54.8 uA, and V_out = 0.548 V across 10 kohm.",
+      "trap": "Using R_lambda = eta*q*lambda/(hc) with lambda in metres and hc in J*m without matching units, or sizing the load resistor so large that the diode leaves reverse bias. In photovoltaic (unbiased) mode the same diode gives no dark current but a much slower, logarithmic response.", "calc": {"mode":"COMP","steps":["`0.8×0.85÷1.24` → **0.5484** A/W = $R_\\lambda$.","`×100E-6` → **54.8** µA = $I_{ph}$.","`×10E3` → **0.548** V across the 10 k$\\Omega$ load."],"note":"0.548 V is far below the 5 V reverse bias, so the mode stays photoconductive and linear."}
+    },
+    {
+      "prompt": "A silicon solar cell of area $100\\ \\mathrm{cm^{2}}$ under $1000\\ \\mathrm{W/m^{2}}$ has $V_{OC}=0.62\\ \\mathrm{V}$, $I_{SC}=2.5\\ \\mathrm{A}$, $V_{mp}=0.553\\ \\mathrm{V}$ and $I_{mp}=2.35\\ \\mathrm{A}$. Find $P_{max}$, the fill factor and the conversion efficiency.",
+      "give": ["Area = 100 cm^2", "G = 1000 W/m^2", "V_OC = 0.62 V", "I_SC = 2.5 A", "V_mp = 0.553 V", "I_mp = 2.35 A"],
+      "steps": [
+        "P_max = V_mp*I_mp = (0.553)(2.35) = 1.300 W",
+        "FF = P_max/(V_OC*I_SC) = 1.300/((0.62)(2.5)) = 1.300/1.550 = 0.839",
+        "Convert area: 100 cm^2 = 100e-4 m^2 = 0.0100 m^2",
+        "Incident power: P_in = G*A = (1000)(0.0100) = 10.0 W",
+        "Efficiency: eta = P_max/P_in = 1.300/10.0 = 0.130 = 13.0 percent"
+      ],
+      "ans": "P_max = 1.30 W, FF = 0.839 (83.9 percent), efficiency = 13.0 percent.",
+      "trap": "Leaving the area in cm^2 and dividing by (1000)(100) = 100 kW, which gives an efficiency of 0.0013 percent. One sun is 1000 W/m^2 = 100 mW/cm^2, so either convert the area to m^2 or convert the irradiance to mW/cm^2 — but never mix them.", "calc": {"mode":"COMP","steps":["`0.553×2.35` → **1.300** W = $P_{max}$.","`÷(0.62×2.5)` → **0.8384** = the fill factor.","Area 100 cm² = 0.01 m², so `1.300÷(1000×0.01)` → **0.1300** = **13.0** % efficiency."],"note":"One sun is 1000 W/m² or 100 mW/cm²; mixing them is a $10^4$ error."}
+    },
+    {
+      "prompt": "The same cell has $V_{OC}=0.62\\ \\mathrm{V}$ at one sun. Find $V_{OC}$ and the maximum power at $200\\ \\mathrm{W/m^{2}}$ (0.2 sun) for an ideality factor $n=1$ at $300\\ \\mathrm{K}$, and state the effect of a $25\\ \\mathrm{^\\circ C}$ temperature rise.",
+      "give": ["V_OC = 0.62 V at G1 = 1000 W/m^2", "G2 = 200 W/m^2", "I_SC = 2.5 A at one sun", "n = 1, kT/q = 26 mV", "FF = 0.839", "Temperature rise = 25 C"],
+      "steps": [
+        "I_SC scales linearly with irradiance: I_SC2 = 2.5 A * (200/1000) = 0.50 A",
+        "V_OC shifts logarithmically: delta_V_OC = (nkT/q)*ln(G2/G1) = 0.026*ln(0.2) = 0.026*(-1.609) = -0.0418 V",
+        "So V_OC2 = 0.620 - 0.042 = 0.578 V, a drop of only 6.7 percent while the current fell 80 percent",
+        "P_max at 0.2 sun is approximately FF*V_OC2*I_SC2 = 0.839*0.578*0.50 = 0.243 W, about 19 percent of the one-sun 1.30 W",
+        "Temperature: 25 C * (-2.2 mV/C) = -55 mV, so a hot cell at 0.2 sun would show about 0.523 V and roughly 0.22 W"
+      ],
+      "ans": "At 0.2 sun: I_SC = 0.50 A, V_OC = 0.578 V, P_max = 0.243 W; a further 25 C rise costs another 55 mV of V_OC and about 10 percent of the power.",
+      "trap": "Scaling V_OC linearly with irradiance and predicting 0.124 V at 0.2 sun. V_OC is logarithmic because it is the diode forward voltage needed to pass the photocurrent, so it barely moves; the current is the quantity that scales linearly.", "calc": {"mode":"COMP","steps":["`2.5×0.2` → **0.500** A = $I_{SC}$ at 0.2 sun, linear in irradiance.","`0.026×ln(0.2)` → **−0.0418** V, so $V_{OC}$ = **0.578** V, only 6.7 % down.","`0.839×0.578×0.5` → **0.242** W; temperature `25×(−2.2E-3)` → **−55** mV."],"note":"Scale $I_{SC}$ linearly but $V_{OC}$ logarithmically; a linear $V_{OC}$ predicts 0.124 V."}
+    }
+  ],
+  "traps": [
+    "**Using metres in $E=1240/\\lambda$.** The 1240 constant is in $\\mathrm{eV\\cdot nm}$, so a wavelength given as $650\\ \\mathrm{nm}$ enters as 650, not $650\\times10^{-9}$. The unit error is a factor of $10^{9}$ and produces a nonsense bandgap.",
+    "**Driving an LED from a fixed voltage with no series resistor.** $V_F$ has a negative temperature coefficient (about $-2\\ \\mathrm{mV/^\\circ C}$), so a fixed voltage drive increases the current as the junction heats, which heats it further: thermal runaway. The resistor both sets the current and absorbs the difference.",
+    "**Expecting every forward-biased $pn$ junction to emit light.** Silicon and germanium are indirect-bandgap materials, so recombination produces heat rather than photons. LEDs and laser diodes need direct-bandgap compounds such as GaAs, GaP and GaN.",
+    "**Assuming $V_{OC}$ scales with irradiance.** $I_{SC}$ is linear in irradiance but $V_{OC}$ is logarithmic, rising only $26\\ \\mathrm{mV}\\times\\ln(G_2/G_1)$ per decade-scale change. Predicting a linear $V_{OC}$ makes low-light performance look far worse than it is.",
+    "**Mixing area units in the efficiency calculation.** One sun is $1000\\ \\mathrm{W/m^{2}}$ or $100\\ \\mathrm{mW/cm^{2}}$; dividing a watt by (1000 W/m$^2$)(100 cm$^2$) is a $10^{4}$ error. Also check that the area used is the cell area, not the module area with its packing gaps.",
+    "**Confusing photovoltaic and photoconductive operation.** Photovoltaic (unbiased) mode has no dark current and the lowest noise but is slow and logarithmic at high power. Photoconductive (reverse-biased) mode is fast and linear but adds dark current, and a load resistor large enough to drop the full bias pushes the diode back into the photovoltaic regime mid-measurement.",
+    "**Reporting a fill factor above 1.** $FF=V_{mp}I_{mp}/(V_{OC}I_{SC})$ can never exceed 1 because the maximum-power point lies inside the $I_{SC}$ to $V_{OC}$ rectangle. A value above 1 means the wrong $V_{mp}$ or $I_{mp}$ was used, or $V_{OC}$ and $I_{SC}$ were read at a different irradiance."
+  ],
+  "refs": [
+    "[[15_Special_Diodes_Varactor,_Schottky,_Tunnel]]",
+    "[[03_Diode_Characteristics_and_Shockley]]",
+    "[[01_Intrinsic,_Extrinsic_and_Carrier_Transport]]"
+  ],
+  "prereqs": [
+    "[[02_PN_Junction_and_Depletion_Region]]"
+  ]
+}

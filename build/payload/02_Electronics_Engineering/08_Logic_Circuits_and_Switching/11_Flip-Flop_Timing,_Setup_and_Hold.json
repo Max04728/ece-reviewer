@@ -1,0 +1,100 @@
+{
+  "scope": "Compute maximum clock frequency from setup, hold and propagation delays, and check hold-time and skew margins.",
+  "intuition": "Data leaves one flip-flop, travels through combinational logic, and must arrive at the next flip-flop neither too late (setup) nor too early (hold). The clock period is bought and spent by those two constraints.",
+  "concept": [
+    "**The three numbers that define a flip-flop.** Setup time $t_{su}$ is how long the data input must be stable **before** the clock edge; hold time $t_h$ is how long it must stay stable **after** the edge; propagation delay $t_{pd}$ (also called clock-to-Q) is how long the output takes to respond to the edge afterwards. A real device also has a contamination delay $t_{cd}$, the *minimum* time before the output can possibly change, which is what the hold check uses. Datasheets give $t_{pd}$ as the average of the high-to-low and low-to-high delays, and often list minimum (contamination) and maximum values separately.",
+    "**The setup constraint sets the maximum frequency.** In a single-clock synchronous system, one clock period must accommodate the launching flip-flop's clock-to-Q delay, the slowest path through the combinational logic, and the receiving flip-flop's setup time: $T_{clk} \\ge t_{pd,FF} + t_{pd,comb,max} + t_{su}$. The maximum frequency is therefore: $f_{max} = 1/(t_{pd,FF} + t_{pd,comb} + t_{su})$. The value of $t_{pd,comb}$ is the **maximum** path delay, because the critical path is what fails first. With 8 ns clock-to-Q, 12 ns of logic and 4 ns setup, the period is 24 ns and $f_{max}$ is about 41.7 MHz.",
+    "**The hold constraint is a minimum-time check.** Data launched by one edge must not arrive at the next flip-flop so fast that it destroys the value that flip-flop is trying to hold at the *same* edge: $t_{cd,FF} + t_{cd,comb,min} \\ge t_h$. This check uses contamination (minimum) delays, not maximum ones, which is why reaching for the worst-case $t_{pd}$ here gives the wrong answer. Hold violations cannot be fixed by slowing the clock — the race is edge-relative — so the fix is to add delay to the offending short path or to increase $t_{cd}$.",
+    "**Clock skew eats into the budget.** Skew is the difference in arrival time of the same clock edge at two flip-flops. If the receiving clock arrives late (positive skew relative to the launcher) the data has less time, and the setup equation becomes $T_{clk} \\ge t_{pd,FF} + t_{pd,comb} + t_{su} + t_{skew}$; $f_{max}$ drops accordingly. Skew in the other direction helps setup but tightens hold. Clock trees, buffer matching and low-skew routing exist precisely to keep this number small, and the two constraints must always be evaluated together.",
+    "**Metastability, duty cycle and pulse width.** If setup or hold is violated, the flip-flop's internal latch can hang between the two logic levels for an unbounded time — metastability — producing a slow, undefined output and possibly an inconsistent result downstream. The standard cure is a synchroniser (two flip-flops in series) plus enough resolution time for the MTBF to be acceptable. Separately, a clock has a duty cycle $t_{high}/T$ and a minimum pulse width; a flip-flop that needs a 6 ns high pulse fails on a 35% duty 20 ns clock whose high time is only 7 ns, even though the period is comfortable."
+  ],
+  "formulas": [
+    { "q": "Maximum clock frequency", "e": "f_{max} = \\frac{1}{t_{pd,FF} + t_{pd,comb} + t_{su}}", "n": "Single-clock system, no skew. Use the maximum combinational path delay." },
+    { "q": "Setup condition", "e": "T_{clk} \\ge t_{pd,FF} + t_{pd,comb,max} + t_{su}", "n": "Must hold for the slowest path. Violation means the data arrives after the edge." },
+    { "q": "Setup condition with skew", "e": "T_{clk} \\ge t_{pd,FF} + t_{pd,comb,max} + t_{su} + t_{skew}", "n": "Positive skew is the receiving clock arriving later than the launching clock." },
+    { "q": "Hold condition", "e": "t_{cd,FF} + t_{cd,comb,min} \\ge t_h", "n": "Uses minimum (contamination) delays. Violation means the data changes too soon after the edge." },
+    { "q": "Propagation delay from rise and fall", "e": "t_{pd} = \\frac{t_{PHL} + t_{PLH}}{2}", "n": "Datasheets quote both edges; the maximum is the one that matters for setup." },
+    { "q": "Maximum combinational delay for a target frequency", "e": "t_{pd,comb} \\le T_{clk} - t_{pd,FF} - t_{su} (- t_{skew})", "n": "The budget left for logic after the flip-flops take their share." },
+    { "q": "Duty cycle", "e": "\\mathrm{duty} = \\frac{t_{high}}{T}\\times 100\\%", "n": "A minimum pulse width may fail even when the period is long enough." },
+    { "q": "Metastability MTBF", "e": "\\mathrm{MTBF} \\propto \\frac{e^{t_r/\\tau}}{f_{clk}\\,f_{data}}", "n": "Grows exponentially with the resolution time t_r. Always quoted per synchroniser, not per flip-flop." },
+    { "q": "Clock period from frequency", "e": "T = \\frac{1}{f}", "n": "50 MHz gives 20 ns. Convert before adding delays in nanoseconds." }
+  ],
+  "problems": [
+    {
+      "prompt": "A flip-flop has $t_{pd,FF}=8$ ns, the combinational logic between flip-flops has a maximum delay of 12 ns, and the receiving flip-flop has $t_{su}=4$ ns. Find the maximum clock frequency.",
+      "give": ["t_pd,FF = 8 ns", "t_pd,comb = 12 ns", "t_su = 4 ns"],
+      "steps": [
+        "Minimum period = t_pd,FF + t_pd,comb + t_su",
+        "= 8 ns + 12 ns + 4 ns = 24 ns",
+        "f_max = 1 / 24 ns = 1 / (24e-9) Hz",
+        "= 41.67 MHz"
+      ],
+      "ans": "$f_{max} = 41.67$ MHz",
+      "trap": "Omitting the setup time or the clock-to-Q delay and using only the logic delay, which inflates the answer to 83 MHz. Every term in the loop must be counted."
+    },
+    {
+      "prompt": "For the same circuit, the receiving flip-flop's clock arrives 2 ns later than the launching flip-flop's clock. Recompute $f_{max}$.",
+      "give": ["t_pd,FF = 8 ns", "t_pd,comb = 12 ns", "t_su = 4 ns", "skew = +2 ns"],
+      "steps": [
+        "Positive skew reduces the time available for data",
+        "Minimum period = 8 + 12 + 4 + 2 = 26 ns",
+        "f_max = 1 / 26 ns = 38.46 MHz"
+      ],
+      "ans": "$f_{max} = 38.46$ MHz, down from 41.67 MHz",
+      "trap": "Subtracting the skew because 'the clock arrives later, so there is more time'. Late at the capture flip-flop means less time for the data to arrive, so skew is added to the period."
+    },
+    {
+      "prompt": "Check the hold condition for a path with $t_{cd,FF}=2$ ns, $t_{cd,comb}=1.5$ ns and $t_h=3$ ns. What if the receiving flip-flop instead has $t_h=4$ ns?",
+      "give": ["t_cd,FF = 2 ns", "t_cd,comb = 1.5 ns", "t_h = 3 ns, then 4 ns"],
+      "steps": [
+        "Minimum data arrival = t_cd,FF + t_cd,comb = 2 + 1.5 = 3.5 ns after the edge",
+        "Requirement: this must be at least t_h",
+        "3.5 ns >= 3 ns, so the hold margin is 0.5 ns and the path is legal",
+        "With t_h = 4 ns: 3.5 ns < 4 ns, so the path violates hold by 0.5 ns",
+        "Fix: add at least 0.5 ns of minimum delay (buffer or routing) to the short path"
+      ],
+      "ans": "Legal with $t_h=3$ ns (margin $+0.5$ ns); violates by 0.5 ns with $t_h=4$ ns",
+      "trap": "Using the maximum propagation delay for the hold check. Hold is a race between the shortest data path and the same clock edge, so the contamination (minimum) delays are the correct numbers."
+    },
+    {
+      "prompt": "A 50 MHz clock has a high time of 7 ns. Find the duty cycle and decide whether a flip-flop with a minimum high pulse width of 6 ns is satisfied.",
+      "give": ["f = 50 MHz", "t_high = 7 ns", "min pulse width = 6 ns"],
+      "steps": [
+        "Period T = 1 / 50 MHz = 20 ns",
+        "Duty cycle = 7 ns / 20 ns = 0.35 = 35%",
+        "The high pulse lasts 7 ns, which is greater than the 6 ns minimum",
+        "So the device is within its pulse-width specification despite the 35% duty cycle"
+      ],
+      "ans": "Duty cycle 35%; the 7 ns pulse satisfies the 6 ns minimum",
+      "trap": "Judging a clock by its frequency alone. A 50 MHz clock sounds comfortable, but a skewed duty cycle reduces the high time, and pulse-width limits are absolute time limits, not fractions of the period."
+    },
+    {
+      "prompt": "A design must run at 100 MHz. The flip-flops have $t_{pd,FF}=3$ ns and $t_{su}=2$ ns. What is the largest combinational delay allowed?",
+      "give": ["target f = 100 MHz", "t_pd,FF = 3 ns", "t_su = 2 ns"],
+      "steps": [
+        "Available period T = 1 / 100 MHz = 10 ns",
+        "Setup budget: t_pd,comb <= T - t_pd,FF - t_su",
+        "= 10 - 3 - 2 = 5 ns",
+        "So the critical path must be no longer than 5 ns"
+      ],
+      "ans": "$t_{pd,comb} \\le 5$ ns",
+      "trap": "Allowing the full 10 ns period for logic. Clock-to-Q and setup time consume half of the budget here, which is typical at high frequencies."
+    }
+  ],
+  "traps": [
+    "**Using maximum delays for the hold check.** Hold is checked with contamination (minimum) delays; setup is checked with maximum delays. Swapping them produces answers that are wrong in the optimistic direction.",
+    "**Trying to cure a hold violation by lowering the clock frequency.** The race is measured from the same clock edge, so the period does not enter the hold equation at all. Only added delay or a different flip-flop fixes it.",
+    "**Adding skew with the wrong sign.** Skew that delays the capture clock reduces the setup margin (add it to the period); skew that advances the capture clock helps setup but hurts hold.",
+    "**Forgetting $t_{su}$ inside $f_{max}$.** The equation has three terms. Quoting $1/(t_{pd,FF}+t_{pd,comb})$ overstates the maximum frequency.",
+    "**Mixing units.** Flip-flop delays are quoted in nanoseconds and frequency in megahertz. Convert to a common unit before dividing: 1/24 ns is 41.67 MHz, not 41.67 GHz.",
+    "**Assuming a legal period guarantees correct capture.** Duty cycle and minimum pulse width are separate specifications; a 20 ns period with a 7 ns high time can still violate a 6 ns or 8 ns pulse-width requirement.",
+    "**Ignoring metastability because setup and hold are 'nearly' met.** Any violation, however brief, can leave the latch balanced between levels. Use a two-flip-flop synchroniser and budget resolution time for asynchronous inputs."
+  ],
+  "refs": [
+    "[[10_Latches_and_Flip-Flops]]",
+    "[[13_Asynchronous_and_Synchronous_Counters]]",
+    "[[14_Finite_State_Machines]]",
+    "[[16_Logic_Families_TTL_vs_CMOS_and_Interfacing]]"
+  ],
+  "prereqs": ["[[10_Latches_and_Flip-Flops]]"]
+}

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>State-Space Pole Map — Eigenvalues, Damping and Settling Time</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The state-space route to stability is: eigenvalues of A -> characteristic polynomial
+// det(sI - A) = 0 -> poles -> zeta and wn -> settling time. This widget keeps every step
+// on screen at once so the student can see that "stable" is a statement about the REAL
+// PART of the eigenvalues, and that the settling time is set by the SLOWEST pole, not by
+// the fastest.
+
+function cAdd(a, b) { return { re: a.re + b.re, im: a.im + b.im }; }
+function cSub(a, b) { return { re: a.re - b.re, im: a.im - b.im }; }
+function cMul(a, b) { return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }; }
+function cDiv(a, b) {
+  const d = b.re * b.re + b.im * b.im;
+  if (d < 1e-300) return { re: NaN, im: NaN };
+  return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d };
+}
+function cAbs(a) { return Math.hypot(a.re, a.im); }
+
+/** Roots of a real polynomial (highest degree first). */
+function polyRoots(coefIn) {
+  const c = coefIn.slice();
+  while (c.length > 1 && Math.abs(c[0]) < 1e-12) c.shift();
+  const n = c.length - 1;
+  if (n < 1) return [];
+  if (n === 1) return [{ re: -c[1] / c[0], im: 0 }];
+  if (n === 2) {
+    const a = c[0], b = c[1], e = c[2];
+    const disc = b * b - 4 * a * e;
+    if (disc >= 0) {
+      const s = Math.sqrt(Math.abs(disc));
+      const r1 = (-b + s) / (2 * a), r2 = (-b - s) / (2 * a);
+      return [{ re: Math.max(r1, r2), im: 0 }, { re: Math.min(r1, r2), im: 0 }];
+    }
+    const s = Math.sqrt(-disc);
+    return [{ re: -b / (2 * a), im: s / (2 * a) }, { re: -b / (2 * a), im: -s / (2 * a) }];
+  }
+  const lead = c[0];
+  const a = c.map((x) => x / lead);
+  let z = [];
+  let cur = { re: 1, im: 0 };
+  const seed = { re: 0.4, im: 0.9 };
+  for (let k = 0; k < n; k++) { cur = cMul(cur, seed); z.push({ re: cur.re, im: cur.im }); }
+  for (let it = 0; it < 500; it++) {
+    let worst = 0;
+    const next = [];
+    for (let i = 0; i < n; i++) {
+      let num = { re: a[0], im: 0 };
+      for (let k = 1; k <= n; k++) num = cAdd(cMul(num, z[i]), { re: a[k], im: 0 });
+      let den = { re: 1, im: 0 };
+      for (let j = 0; j < n; j++) if (j !== i) den = cMul(den, cSub(z[i], z[j]));
+      const q = cDiv(num, den);
+      next.push(cSub(z[i], q));
+      worst = Math.max(worst, cAbs(q));
+    }
+    z = next;
+    if (!Number.isFinite(worst) || worst < 1e-14) break;
+  }
+  return z.map((r) => {
+    const mag = Math.max(1, cAbs(r));
+    return { re: r.re, im: Math.abs(r.im) < mag * 1e-6 ? 0 : r.im };
+  });
+}
+
+function polyName(cs) {
+  const parts = [];
+  const deg = cs.length - 1;
+  for (let i = 0; i < cs.length; i++) {
+    const p = deg - i;
+    const c = cs[i];
+    if (Math.abs(c) < 1e-12) continue;
+    const mag = fmt(Math.abs(c), 5);
+    const coef = (Math.abs(Math.abs(c) - 1) < 1e-12 && p > 0) ? '' : mag + ' ';
+    const v = p === 0 ? '' : (p === 1 ? 's' : 's^' + p);
+    const term = coef + v;
+    if (!parts.length) parts.push((c < 0 ? '-' : '') + term);
+    else parts.push((c < 0 ? ' - ' : ' + ') + term);
+  }
+  return parts.length ? parts.join('') : '0';
+}
+
+function eigenLine(list) {
+  if (!list.length) return 'none';
+  const parts = [];
+  for (let i = 0; i < list.length; i++) {
+    const p = list[i];
+    const im = Math.abs(p.im);
+    if (im < 1e-7) parts.push('l' + (i + 1) + ' = ' + fmt(p.re, 5));
+    else parts.push('l' + (i + 1) + ' = ' + fmt(p.re, 5) + (p.im > 0 ? ' + j' : ' - j') + fmt(im, 5));
+  }
+  return parts.join('   ,   ');
+}
+
+const PRESETS = {
+  focus: { label: 'stable focus (complex pair in the LHP)', A: [[-1, 1], [-1, -1]] },
+  stable: { label: 'stable node (two real LHP poles)', A: [[-1, 0], [0, -3]] },
+  unstable: { label: 'unstable node (two real RHP poles)', A: [[1, 0], [0, 2]] },
+  saddle: { label: 'saddle (one pole each side of the jw axis)', A: [[1, 0], [0, -2]] },
+  marginal: { label: 'marginally stable pair (poles on the jw axis)', A: [[0, 1], [-4, 0]] },
+  cubic: { label: 'third order: poles at -1, -2, -3', A: [[0, 1, 0], [0, 0, 1], [-6, -11, -6]] },
+  custom: { label: 'custom A from the sliders', A: null },
+};
+
+widget({
+  title: 'State-Space Pole Map — Eigenvalues, Damping and Settling Time',
+  description:
+    'Enter the A matrix of x-dot = A x + B u (2x2 or 3x3) or pick a preset. The widget forms the characteristic polynomial det(sI - A), finds its roots, and plots them. Damping ratio and natural frequency come from each pole position, and the settling time is set by the pole closest to the jw axis.',
+  height: 500,
+  range: { xMin: -5, xMax: 2, yMin: -3, yMax: 3 },
+  controls: [
+    { id: 'preset', label: 'system preset', type: 'select', options: [
+      { value: 'focus', label: 'stable focus — complex pair in the LHP' },
+      { value: 'stable', label: 'stable node — two real LHP poles' },
+      { value: 'unstable', label: 'unstable node — two real RHP poles' },
+      { value: 'saddle', label: 'saddle — one pole each side' },
+      { value: 'marginal', label: 'marginally stable pair on the jw axis' },
+      { value: 'cubic', label: 'third order — poles at -1, -2, -3' },
+      { value: 'custom', label: 'custom A from the sliders below' },
+    ], value: 'focus' },
+    { id: 'order', label: 'order of A used for CUSTOM', type: 'select', options: [
+      { value: '2', label: '2 x 2' },
+      { value: '3', label: '3 x 3' },
+    ], value: '2' },
+    { id: 'a11', label: 'a11', min: -4, max: 4, step: 0.25, value: -1 },
+    { id: 'a12', label: 'a12', min: -4, max: 4, step: 0.25, value: 1 },
+    { id: 'a13', label: 'a13  (3x3 only)', min: -4, max: 4, step: 0.25, value: 0 },
+    { id: 'a21', label: 'a21', min: -4, max: 4, step: 0.25, value: -1 },
+    { id: 'a22', label: 'a22', min: -4, max: 4, step: 0.25, value: -1 },
+    { id: 'a23', label: 'a23  (3x3 only)', min: -4, max: 4, step: 0.25, value: 0 },
+    { id: 'a31', label: 'a31  (3x3 only)', min: -4, max: 4, step: 0.25, value: 0 },
+    { id: 'a32', label: 'a32  (3x3 only)', min: -4, max: 4, step: 0.25, value: 0 },
+    { id: 'a33', label: 'a33  (3x3 only)', min: -4, max: 4, step: 0.25, value: -3 },
+  ],
+
+  compute: (v) => {
+    const order = (v.preset === 'cubic') ? 3 : (v.preset === 'custom' ? (v.order === '3' ? 3 : 2) : 2);
+    let A;
+    const pre = PRESETS[v.preset] || PRESETS.focus;
+    if (pre.A) {
+      A = pre.A.map((r) => r.slice());
+      while (A.length < order) A.push(new Array(order).fill(0));
+      for (const r of A) while (r.length < order) r.push(0);
+    } else {
+      const s = [v.a11, v.a12, v.a13, v.a21, v.a22, v.a23, v.a31, v.a32, v.a33];
+      A = [];
+      for (let i = 0; i < order; i++) {
+        const row = [];
+        for (let j = 0; j < order; j++) row.push(s[i * 3 + j]);
+        A.push(row);
+      }
+    }
+
+    // ------------------------------------------------- characteristic polynomial
+    let cs;
+    if (order === 2) {
+      const tr = A[0][0] + A[1][1];
+      const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+      cs = [1, -tr, det];
+    } else {
+      const tr = A[0][0] + A[1][1] + A[2][2];
+      const m1 = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+      const m2 = A[0][0] * A[2][2] - A[0][2] * A[2][0];
+      const m3 = A[1][1] * A[2][2] - A[1][2] * A[2][1];
+      const M = m1 + m2 + m3;
+      const det = A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1])
+                - A[0][1] * (A[1][0] * A[2][2] - A[1][2] * A[2][0])
+                + A[0][2] * (A[1][0] * A[2][1] - A[1][1] * A[2][0]);
+      cs = [1, -tr, M, -det];
+    }
+
+    const poles = polyRoots(cs);
+
+    // ----------------------------------------------------- damping and wn per pole
+    const info = poles.map((p) => {
+      const wn = cAbs(p);
+      let zeta;
+      if (Math.abs(p.im) > 1e-7 && wn > 1e-12) zeta = -p.re / wn;
+      else if (p.re < -1e-12) zeta = 1;
+      else if (p.re > 1e-12) zeta = -1;
+      else zeta = 0;
+      return { p, wn, zeta };
+    });
+
+    const reals = poles.map((p) => p.re);
+    const maxRe = reals.length ? Math.max.apply(null, reals) : -Infinity;
+    const TOL = 1e-9;
+    let verdict, stable;
+    if (maxRe > TOL) { verdict = 'UNSTABLE — the eigenvalue with the largest real part lies in the right half-plane.'; stable = 'NO — right half-plane eigenvalue'; }
+    else if (maxRe > -TOL) { verdict = 'MARGINALLY STABLE — an eigenvalue sits on the jw axis, so the response neither decays nor grows.'; stable = 'NO (marginal) — eigenvalue on the jw axis'; }
+    else { verdict = 'STABLE — every eigenvalue has a strictly negative real part (left half-plane).'; stable = 'YES — all eigenvalues in the left half-plane'; }
+
+    // dominant (slowest) stable pole sets the settling time
+    let dom = null;
+    for (const e of info) {
+      if (e.p.re < -TOL) {
+        if (!dom || Math.abs(e.p.re) < Math.abs(dom.p.re)) dom = e;
+      }
+    }
+    const ts = dom ? 4 / Math.abs(dom.p.re) : Infinity;
+    const tau = dom ? 1 / Math.abs(dom.p.re) : Infinity;
+
+    const perPole = info.map((e, i) =>
+      'l' + (i + 1) + ': wn = ' + fmt(e.wn, 4) + ', zeta = ' + fmt(e.zeta, 4)).join('   |   ');
+
+    const trace = order === 2 ? A[0][0] + A[1][1] : A[0][0] + A[1][1] + A[2][2];
+    // product of the roots of a monic polynomial is (-1)^n times the constant term,
+    // which for det(sI - A) always works out to det(A) — a free hand-check.
+    const detA = (order % 2 === 0 ? 1 : -1) * cs[cs.length - 1];
+
+    return { A, order, cs, poles, info, maxRe, verdict, stable, dom, ts, tau, perPole,
+             polyStr: 'det(sI - A) = ' + polyName(cs),
+             eigStr: eigenLine(poles),
+             trace, detA, presetKey: v.preset };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const poles = out.poles || [];
+    plot.clear();
+    const pad = plot.pad;
+
+    // ---------------------------------------------------------------- s-plane panel
+    let R = 1;
+    for (const p of poles) R = Math.max(R, Math.abs(p.re), Math.abs(p.im));
+    R = R * 1.2;
+    const L = pad + 46, RP = 452, T = 96, B = plot.h - pad - 34;
+    const reMin = -1.35 * R, reMax = 0.65 * R, imMax = 1.1 * R;
+    const X = (re) => L + ((re - reMin) / (reMax - reMin)) * (RP - L);
+    const Y = (im) => (T + B) / 2 - (im / imMax) * ((B - T) / 2);
+
+    const seg = (x1, y1, x2, y2, o) => {
+      ctx.save();
+      ctx.strokeStyle = o.color || PALETTE.axis;
+      ctx.lineWidth = o.width || 1.5;
+      if (o.dash) ctx.setLineDash(o.dash);
+      ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke();
+      ctx.restore();
+    };
+
+    // right half-plane warning wash
+    ctx.save();
+    ctx.fillStyle = 'rgba(243,139,168,0.13)';
+    ctx.fillRect(X(0), T, Math.max(0, RP - X(0)), B - T);
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let re = Math.ceil(reMin); re <= reMax; re++) {
+      ctx.beginPath(); ctx.moveTo(X(re), T); ctx.lineTo(X(re), B); ctx.stroke();
+    }
+    for (let im = Math.ceil(-imMax); im <= imMax; im++) {
+      ctx.beginPath(); ctx.moveTo(L, Y(im)); ctx.lineTo(RP, Y(im)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.strokeRect(L, T, RP - L, B - T);
+    ctx.restore();
+
+    seg(reMin, 0, reMax, 0, { color: PALETTE.axis, width: 1.5 });
+    seg(0, -imMax, 0, imMax, { color: PALETTE.warn, width: 2.2, dash: [6, 4] });
+    plot.text('jw axis = stability boundary', X(0) + 6, T + 14, { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    plot.text('sigma', RP - 4, Y(0) + 15, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    plot.text('jw', X(0) + 5, T + 30, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // the wn circle through the dominant pole and the constant-zeta ray
+    if (out.dom && out.dom.wn > 0 && out.dom.wn < 4 * R) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(166,227,161,0.45)';
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      const rw = Math.abs(X(out.dom.wn) - X(0));
+      const rh = Math.abs(Y(0) - Y(out.dom.wn));
+      ctx.ellipse(X(0), Y(0), rw, rh, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      plot.text('|s| = wn = ' + fmt(out.dom.wn, 4), X(0) - 5, Y(out.dom.wn) - 4,
+        { color: PALETTE.accent3, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+
+    // poles
+    for (let i = 0; i < poles.length; i++) {
+      const p = poles[i];
+      const px = X(p.re), py = Y(p.im), s = 7;
+      if (Math.abs(p.im) > 1e-7) {
+        seg(0, 0, p.re, p.im, { color: 'rgba(137,180,250,0.55)', width: 1.3, dash: [4, 3] });
+        plot.text('wn', X(p.re / 2) + 3, Y(p.im / 2) - 4, { color: PALETTE.accent, font: '10px ui-monospace, monospace' });
+        plot.text('zeta = ' + fmt(out.info[i] ? out.info[i].zeta : 0, 4), X(p.re) + 10, Y(p.im) + 14,
+          { color: PALETTE.accent3, font: '10px ui-monospace, monospace' });
+      }
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.moveTo(px - s, py - s); ctx.lineTo(px + s, py + s);
+      ctx.moveTo(px + s, py - s); ctx.lineTo(px - s, py + s);
+      ctx.stroke();
+      ctx.restore();
+      plot.text('l' + (i + 1), px + 9, py - 9, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    }
+
+    // ----------------------------------------------------------------- right column
+    const TX = 472;
+    plot.text('A =', TX, pad + 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    for (let i = 0; i < out.A.length; i++) {
+      const row = '   [ ' + out.A[i].map((x) => (x >= 0 ? ' ' : '') + fmt(x, 5)).join('   ') + ' ]';
+      plot.text(row, TX + 24, pad + 38 + i * 16, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    }
+    const y0 = pad + 38 + out.A.length * 16 + 12;
+    plot.text('x-dot = A x + B u   (' + out.order + ' x ' + out.order + ')', TX, y0,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text(out.polyStr, TX, y0 + 18, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+    plot.text('trace(A) = ' + fmt(out.trace, 5) + '     sum of poles = trace = ' + fmt(out.trace, 5),
+      TX, y0 + 36, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('eigenvalues:', TX, y0 + 58, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+    for (let i = 0; i < poles.length && i < 3; i++) {
+      const p = poles[i], e = out.info[i] || { wn: 0, zeta: 0 };
+      const imPart = Math.abs(p.im) < 1e-7 ? '' : (p.im > 0 ? ' + j' + fmt(Math.abs(p.im), 5) : ' - j' + fmt(Math.abs(p.im), 5));
+      plot.text('l' + (i + 1) + ' = ' + fmt(p.re, 5) + imPart + '     wn = ' + fmt(e.wn, 5) +
+        ' rad/s,  zeta = ' + fmt(e.zeta, 5),
+        TX + 8, y0 + 76 + i * 17, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    }
+    plot.text('settling time (2% band) ts = 4/|sigma_dom| = ' + (Number.isFinite(out.ts) ? fmt(out.ts, 5) + ' s' : 'infinite (no decaying pole)'),
+      TX, y0 + 76 + 3 * 17 + 6, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    plot.text('dominant pole = ' + (out.dom ? fmt(out.dom.p.re, 5) + (Math.abs(out.dom.p.im) < 1e-7 ? '' : ' +/- j' + fmt(Math.abs(out.dom.p.im), 5)) : 'none'),
+      TX, y0 + 76 + 3 * 17 + 23, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+
+    // ---------------------------------------------------------------- header + verdict
+    plot.text('characteristic polynomial  det(sI - A) = 0   ->   ' + polyName(out.cs) + ' = 0',
+      pad + 8, pad + 16, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('eigenvalues are the poles of every transfer function of the system; their real parts decide stability and their distances from the origin decide wn.',
+      pad + 8, pad + 34, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text('poles are the roots of ' + polyName(out.cs) + ' = 0     trace(A) = ' + fmt(out.trace, 5) +
+      '     det(A) = ' + fmt(out.detA, 5) + '     sum of poles = ' + fmt(out.trace, 5) +
+      '     product of poles = ' + fmt(out.detA, 5),
+      pad + 8, pad + 52, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(pad + 4, plot.h - pad - 30, plot.iw, 30);
+    ctx.restore();
+    plot.text(out.verdict || '', pad + 14, plot.h - pad - 10,
+      { color: out.stable === 'YES — all eigenvalues in the left half-plane' ? PALETTE.accent3 : PALETTE.accent2,
+        font: 'bold 12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'preset': (PRESETS[out.presetKey] ? PRESETS[out.presetKey].label : 'custom'),
+    'order of A': out.order + ' x ' + out.order,
+    'characteristic polynomial': out.polyStr || '—',
+    'eigenvalues (poles)': out.eigStr || 'none',
+    'stability': out.stable || '—',
+    'trace(A) = sum of poles': fmt(out.trace, 5),
+    'det(A) = product of poles': fmt(out.detA, 5),
+    'wn and zeta per pole': out.perPole || '—',
+    'dominant pole': out.dom ? fmt(out.dom.p.re, 5) + (Math.abs(out.dom.p.im) < 1e-7 ? '' : ' +/- j' + fmt(Math.abs(out.dom.p.im), 5)) + '   (closest to the jw axis)' : 'none',
+    'settling time ts = 4/|sigma_dom|': Number.isFinite(out.ts) ? fmt(out.ts, 5) + ' s' : 'infinite — the response never settles',
+    'time constant tau = 1/|sigma_dom|': Number.isFinite(out.tau) ? fmt(out.tau, 5) + ' s' : 'infinite',
+    'fastest pole (largest |Re|)': (function () {
+      const info = out.info || [];
+      let best = null;
+      for (const e of info) if (e.p.re < 0 && (!best || Math.abs(e.p.re) > Math.abs(best.p.re))) best = e;
+      return best ? fmt(best.p.re, 5) + '   (decays first, contributes nothing after a few tau)' : 'none';
+    })(),
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Eigenvalues of A are the poles.</strong> The chain is det(sI &minus; A) = 0 &rarr; characteristic ' +
+  'polynomial &rarr; eigenvalues &rarr; poles &rarr; stability. Two free checks fall out of the polynomial: ' +
+  'for a 2&times;2, the sum of the poles equals trace(A) and the product equals det(A); for a 3&times;3 the ' +
+  'coefficient of s&sup2; is &minus;trace(A) and the constant term is &minus;det(A). Those two identities catch ' +
+  'almost every hand-calculation slip. ' +
+  '<br><br><strong>Read &zeta; and &omega;n straight off the pole.</strong> For a complex pole ' +
+  's = &sigma; &plusmn; j&omega;d, &omega;n = |s| = &radic;(&sigma;&sup2; + &omega;d&sup2;) and ' +
+  '&zeta; = &minus;&sigma;/&omega;n, so the angle between the pole vector and the negative real axis has ' +
+  'cos&nbsp;&theta; = &zeta;. The locus of constant &zeta; is a ray from the origin and the locus of constant ' +
+  '&omega;n is a circle &mdash; which is why the plotted circle through the pole is labelled &omega;n. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> computing the settling time from the <em>fastest</em> pole. ' +
+  't_s &asymp; 4/|&sigma;| belongs to the pole closest to the jw axis (the dominant pole), because that is the ' +
+  'slowest decaying term. A second slip: calling a system with a pole exactly at the origin, or an imaginary ' +
+  'pair at &plusmn;j&omega;, "stable" because the response does not blow up &mdash; those are <em>marginally</em> ' +
+  'stable and never settle, so t_s is infinite. Note also that the position of B never enters this picture: ' +
+  'stability is a property of A alone, while B only decides which poles are visible in a given transfer function.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

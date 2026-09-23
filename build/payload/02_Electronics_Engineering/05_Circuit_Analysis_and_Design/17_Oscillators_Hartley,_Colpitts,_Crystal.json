@@ -1,0 +1,115 @@
+{
+  "scope": "Find the frequency and the minimum amplifier gain of LC oscillators whose feedback comes from a tapped reactive divider, and compute the series and parallel resonances and the Q of a piezoelectric crystal.",
+  "intuition": "An LC oscillator is a resonant tank that is made to ring forever by an amplifier: the tank selects the frequency by presenting zero phase shift at resonance, and a tap on the inductor or a capacitive divider returns a fraction of the output to the input to replace the energy the tank loses each cycle. A quartz crystal is the same idea with a mechanical resonance of extraordinary sharpness, which is why it holds its frequency to a few parts per million while an LC tank drifts.",
+  "concept": [
+    "**One resonant tank, two ways to tap it.** Every LC oscillator works on the same principle: a resonant circuit presents $0^\\circ$ (or $360^\\circ$) of loop phase at exactly one frequency, and a reactive divider across the tank returns a fraction $\\beta$ of the output to the input. The general frequency is $f_0 = 1/(2\\pi\\sqrt{L_{eq}C_{eq}})$, with $L_{eq}$ and $C_{eq}$ the equivalent inductance and capacitance seen across the tank. The feedback fraction must satisfy $|A_v|\\beta \\ge 1$, so the required amplifier gain is $|A_v| \\ge 1/\\beta$: the stronger the feedback (the larger the tapped fraction), the less gain the amplifier must supply. Two dividers are practical, and they give the two classic circuits. The *Hartley* uses a tapped inductor, so the two windings add and the tank capacitance sees $L_1 + L_2$. The *Colpitts* uses a capacitive divider, so the two capacitors combine in series and the tank inductor sees $C_1C_2/(C_1 + C_2)$. The subscripts in the feedback formulas depend on which element the feedback is taken across - always identify the output-side element and the feedback-side element before quoting a ratio, because the invariant is only $|A_v|\\beta \\ge 1$.",
+    "**Hartley: the tapped inductor.** Two inductors in series ($L_1 + L_2$, or one inductor with a tap) across a capacitor $C$ form the tank, so $f_0 = 1/(2\\pi\\sqrt{(L_1 + L_2)C})$. The inductors participate in the resonance, which is the single most important fact about the circuit and the most common source of error: the total inductance is the SUM, never the parallel combination. With the feedback developed across the winding $L_1$ and the output taken across $L_2$, the feedback fraction is $\\beta = L_1/L_2$, so the amplifier must supply $|A_v| \\ge L_2/L_1$. Because the tap also transforms impedance by the square of the turns ratio, the tapping point controls how heavily the tank is loaded: a tap placed to match the transistor's impedance lowers the loaded Q and therefore the stability. Mutual coupling between the two windings, when present, adds $\\pm2M$ to the sum and shifts the frequency, which is why a ganged tapped coil is preferred to two separate inductors.",
+    "**Colpitts: the capacitive divider.** A single inductor $L$ in parallel with the series combination $C_{eq} = C_1C_2/(C_1 + C_2)$ sets the resonant frequency: $f_0 = 1/[2\\pi\\sqrt{LC_1C_2/(C_1 + C_2)}]$. Labelling $C_1$ as the collector-side (output) capacitor and $C_2$ as the capacitor from the tap to the base, the divider ratio is $\\beta = C_1/C_2$ and the gain requirement is the reciprocal, $|A_v| \\ge C_2/C_1$ - the standard Colpitts result. For example $C_1 = 470\\ \\mathrm{pF}$ and $C_2 = 2.2\\ \\mathrm{nF}$ give $\\beta = 0.2139$ and require $|A_v| \\ge 4.68$. The Colpitts dominates at high frequency because the divider is made of small capacitors that can absorb the transistor's own $C_{\\pi}$ and $C_{\\mu}$ without upsetting the design, and because the capacitive tap presents a low impedance that is easy to drive. The *Clapp* variant adds a small capacitor in series with the inductor: the series combination is then dominated by that small capacitor, so the transistor's capacitances matter less, the Q stays high, and the frequency can be tuned over a narrow range with a variable capacitor without wrecking the feedback ratio.",
+    "**The crystal: an electromechanical resonance.** A quartz plate is piezoelectric: an applied voltage strains it, and the strain generates a voltage back, so electrically it behaves as a series RLC branch (the motional arm $L$, $C$, $R$) in parallel with the electrode capacitance $C_m$. The motional inductance is huge (henries) and the motional capacitance tiny (fractions of a picofarad), which is exactly what a high-Q resonator looks like. Two resonances follow: the series resonance $f_s = 1/(2\\pi\\sqrt{LC})$ where the motional arm is a low impedance, and the parallel (anti-)resonance $f_p = f_s\\sqrt{1 + C/C_m}$ where the crystal is a high impedance. The gap is tiny - $L = 2\\ \\mathrm{H}$, $C = 0.01\\ \\mathrm{pF}$ and $C_m = 5\\ \\mathrm{pF}$ give $f_s = 1.1254\\ \\mathrm{MHz}$, $f_p = 1.1265\\ \\mathrm{MHz}$, a spacing of only $1.13\\ \\mathrm{kHz}$ or 0.1%. In that narrow band the crystal looks inductive and is used as the inductor of a Colpitts or Hartley; outside it the crystal is either a short or an open. The Q is $\\omega_sL/R$, which with $R = 100\\ \\Omega$ is about $1.4\\times10^{5}$ - some two thousand times the Q of a comparable LC tank at the same frequency ($\\omega L/R = 70.7$ for $L = 100\\ \\mu\\mathrm{H}$ and $R = 10\\ \\Omega$). That Q, plus the near-zero temperature coefficient of an AT-cut plate, is why crystal oscillators are the most stable and are used whenever the frequency must be accurate rather than merely present.",
+    "**Where the design degrades.** The formulas assume the tank is isolated, but the transistor's input and output capacitances appear across the divider: $20\\ \\mathrm{pF}$ of stray capacitance added to a $100\\ \\mathrm{pF}$ Colpitts capacitor took the design above from $5.0\\ \\mathrm{MHz}$ to $4.64\\ \\mathrm{MHz}$, a $7\\%$ error, because the stray changed $C_{eq}$ from $82.5\\ \\mathrm{pF}$ to $95.6\\ \\mathrm{pF}$. Output resistance, load resistance and the bias network all shunt the tank and lower its Q. The amplitude must also be limited: if the transistor is driven into saturation or cutoff the tank is loaded hard, Q collapses and the frequency shifts, so practical circuits use AGC, a limited bias, or a small emitter resistor to keep the device in its linear region. Finally, $|A_v|$ must exceed $1/\\beta$ for start-up, and the excess gain is what the limiter has to absorb; a Colpitts with $|A_v|$ only marginally above $1/\\beta$ may refuse to start when the tank Q is lower than assumed."
+  ],
+  "formulas": [
+    { "q": "General LC oscillator frequency", "e": "f_0 = \\frac{1}{2\\pi\\sqrt{L_{eq}C_{eq}}}", "n": "L_eq and C_eq are the equivalents seen across the tank. Tuning is square-root sensitive: doubling L or C lowers f_0 by 1.414, not by 2." },
+    { "q": "Hartley frequency", "e": "f_0 = \\frac{1}{2\\pi\\sqrt{(L_1 + L_2)C}}", "n": "The two inductors of the tapped coil are in SERIES and add. L_1 = 100 micro-H, L_2 = 400 micro-H with C = 100 pF gives 711.8 kHz. Using the parallel value 80 micro-H gives 1.78 MHz, a 2.5x error." },
+    { "q": "Hartley feedback fraction and gain", "e": "\\beta = \\frac{L_1}{L_2}, \\qquad \\lvert A_v \\rvert \\ge \\frac{L_2}{L_1} = \\frac{1}{\\beta}", "n": "L_1 is the winding that develops the feedback and L_2 the output-side winding. The invariant is |A_v|*beta >= 1; some texts swap the subscripts, so identify the elements before quoting a ratio." },
+    { "q": "Colpitts equivalent capacitance", "e": "C_{eq} = \\frac{C_1C_2}{C_1 + C_2}", "n": "The divider capacitors are in series across the inductor. With 470 pF and 2.2 nF, C_eq = 387.3 pF; the intuitive but wrong sum would be 2.67 nF, moving the frequency from 571.9 kHz to 217.8 kHz." },
+    { "q": "Colpitts frequency", "e": "f_0 = \\frac{1}{2\\pi\\sqrt{L\\,C_1C_2/(C_1 + C_2)}}", "n": "L = 200 micro-H with 470 pF and 2.2 nF gives 571.9 kHz. Note that f_0 lies BETWEEN the two limiting frequencies set by C_1 and C_2 alone." },
+    { "q": "Colpitts gain requirement", "e": "\\lvert A_v \\rvert \\ge \\frac{C_2}{C_1} = \\frac{1}{\\beta}", "n": "With C_1 the collector-side capacitor and C_2 the feedback capacitor to the base, beta = C_1/C_2, so the amplifier must supply at least C_2/C_1 - for 470 pF and 2.2 nF that is 4.68." },
+    { "q": "Crystal series resonance", "e": "f_s = \\frac{1}{2\\pi\\sqrt{LC}}", "n": "L and C are the MOTIONAL elements, not the electrode capacitance. L = 2 H with C = 0.01 pF gives f_s = 1.1254 MHz. At f_s the crystal presents its minimum impedance R." },
+    { "q": "Crystal parallel resonance", "e": "f_p = f_s\\sqrt{1 + \\frac{C}{C_m}}", "n": "C_m is the electrode capacitance in parallel with the motional arm. The square root is essential: f_s(1 + C/C_m) doubles the spacing, giving 2251 Hz instead of the correct 1125 Hz." }
+  ],
+  "problems": [
+    {
+      "prompt": "A Hartley oscillator uses a tapped coil with $L_1 = 100\\ \\mu\\mathrm{H}$ (feedback winding) and $L_2 = 400\\ \\mu\\mathrm{H}$ across $C = 100\\ \\mathrm{pF}$. Find the oscillation frequency, the feedback fraction, and the minimum amplifier gain.",
+      "give": ["$L_1 = 100\\ \\mu\\mathrm{H}$", "$L_2 = 400\\ \\mu\\mathrm{H}$", "$C = 100\\ \\mathrm{pF}$", "tapped-inductor Hartley"],
+      "steps": [
+        "The two windings are in series across the capacitor, so the tank inductance is $L_{eq} = L_1 + L_2 = 100 + 400 = 500\\ \\mu\\mathrm{H}$.",
+        "Product: $L_{eq}C = (500\\times10^{-6})(100\\times10^{-12}) = 5\\times10^{-14}\\ \\mathrm{s^{2}}$.",
+        "$\\sqrt{L_{eq}C} = 2.236\\times10^{-7}\\ \\mathrm{s}$, so $f_0 = \\dfrac{1}{2\\pi(2.236\\times10^{-7})} = \\dfrac{1}{1.405\\times10^{-6}} = 711.8\\ \\mathrm{kHz}$.",
+        "Feedback fraction: $\\beta = L_1/L_2 = 100/400 = 0.25$.",
+        "Minimum gain: $|A_v| \\ge 1/\\beta = L_2/L_1 = 400/100 = 4$.",
+        "Sanity check: a larger tap fraction means stronger feedback, so a lower gain suffices; $\\beta = 0.25$ with $|A_v| = 4$ gives $|A_v|\\beta = 1$ exactly, the Barkhausen magnitude condition."
+      ],
+      "ans": "$f_0 = 711.8\\ \\mathrm{kHz}$, $\\beta = 0.25$ and $|A_v| \\ge 4$",
+      "trap": "Treating the two windings as a parallel combination. The series-aiding tapped coil gives $L_{eq} = 500\\ \\mu\\mathrm{H}$ and 711.8 kHz; the parallel value $100\\ \\mu\\mathrm{H}\\parallel400\\ \\mu\\mathrm{H} = 80\\ \\mu\\mathrm{H}$ gives $f_0 = 1.78\\ \\mathrm{MHz}$, a factor of 2.5 too high.", "calc": {"mode":"COMP","steps":["`100 + 400` → $L_{eq}$ = **500** $\\mu$H; `1 ÷ (2π × √(500E-6 × 100E-12))` → $f_0$ = **711.8** kHz.","`100 ÷ 400` → $\\beta$ = **0.25**.","`400 ÷ 100` → $\\lvert A_v \\rvert \\ge$ **4**; `4 × 0.25` → **1.000**, the Barkhausen magnitude."]}
+    },
+    {
+      "prompt": "A Colpitts oscillator uses $L = 200\\ \\mu\\mathrm{H}$ with a capacitive divider of $C_1 = 470\\ \\mathrm{pF}$ (collector side) and $C_2 = 2.2\\ \\mathrm{nF}$ (feedback side). Find the equivalent capacitance, the oscillation frequency and the minimum amplifier gain.",
+      "give": ["$L = 200\\ \\mu\\mathrm{H}$", "$C_1 = 470\\ \\mathrm{pF}$", "$C_2 = 2.2\\ \\mathrm{nF}$"],
+      "steps": [
+        "Series combination of the divider: $C_{eq} = \\dfrac{C_1C_2}{C_1 + C_2} = \\dfrac{(470\\times10^{-12})(2.2\\times10^{-9})}{470\\times10^{-12} + 2.2\\times10^{-9}}$.",
+        "Numerator: $1.034\\times10^{-18}$; denominator: $2.67\\times10^{-9}$; so $C_{eq} = 3.873\\times10^{-10}\\ \\mathrm{F} = 387.3\\ \\mathrm{pF}$.",
+        "Note that $C_{eq}$ (387.3 pF) is smaller than either capacitor and far below their sum (2.67 nF) - the hallmark of a series combination.",
+        "Product with the inductor: $LC_{eq} = (200\\times10^{-6})(3.873\\times10^{-10}) = 7.745\\times10^{-14}\\ \\mathrm{s^{2}}$, so $\\sqrt{LC_{eq}} = 2.783\\times10^{-7}\\ \\mathrm{s}$.",
+        "Frequency: $f_0 = \\dfrac{1}{2\\pi(2.783\\times10^{-7})} = \\dfrac{1}{1.749\\times10^{-6}} = 571.9\\ \\mathrm{kHz}$.",
+        "Feedback fraction $\\beta = C_1/C_2 = 470/2200 = 0.2136$, so the amplifier needs $|A_v| \\ge C_2/C_1 = 2200/470 = 4.68$.",
+        "Check the extreme readings: with only $C_1$ the frequency would be $1/(2\\pi\\sqrt{LC_1}) = 519\\ \\mathrm{kHz}$ and with only $C_2$ it would be $240\\ \\mathrm{kHz}$ - both wrong, confirming that the SERIES value is what resonates."
+      ],
+      "ans": "$C_{eq} = 387.3\\ \\mathrm{pF}$, $f_0 = 571.9\\ \\mathrm{kHz}$ and $|A_v| \\ge 4.68$",
+      "trap": "Adding the divider capacitors instead of combining them in series. Using $C_1 + C_2 = 2.67\\ \\mathrm{nF}$ gives $\\sqrt{LC} = 7.308\\times10^{-7}\\ \\mathrm{s}$ and $f_0 = 217.8\\ \\mathrm{kHz}$ - 2.6 times too low. Capacitors that share the same current (as divider capacitors across a tank do) combine in series, exactly opposite to the parallel rule for capacitors that share the same voltage.", "calc": {"mode":"COMP","steps":["`470 × 2200 ÷ (470 + 2200)` → $C_{eq}$ = **387.3** pF, smaller than either capacitor.","`1 ÷ (2π × √(200E-6 × 387.3E-12))` → $f_0$ = **571.9** kHz.","`2200 ÷ 470` → $\\lvert A_v \\rvert \\ge$ **4.68**, that is $1/\\beta$ with $\\beta = C_1/C_2$ = **0.2136**."]}
+    },
+    {
+      "prompt": "A quartz crystal has motional elements $L = 2\\ \\mathrm{H}$ and $C = 0.01\\ \\mathrm{pF}$, a motional resistance $R = 100\\ \\Omega$, and an electrode capacitance $C_m = 5\\ \\mathrm{pF}$. Find the series and parallel resonant frequencies, their spacing, and the crystal Q. Compare with an LC tank of $L = 100\\ \\mu\\mathrm{H}$ and $R = 10\\ \\Omega$ at the same frequency.",
+      "give": ["$L = 2\\ \\mathrm{H}$", "$C = 0.01\\ \\mathrm{pF}$", "$R = 100\\ \\Omega$", "$C_m = 5\\ \\mathrm{pF}$"],
+      "steps": [
+        "Motional product: $LC = (2)(0.01\\times10^{-12}) = 2\\times10^{-14}\\ \\mathrm{s^{2}}$, so $\\sqrt{LC} = 1.4142\\times10^{-7}\\ \\mathrm{s}$.",
+        "Series resonance: $f_s = \\dfrac{1}{2\\pi(1.4142\\times10^{-7})} = \\dfrac{1}{8.8858\\times10^{-7}} = 1.1254\\ \\mathrm{MHz}$.",
+        "Capacitance ratio: $C/C_m = 0.01/5 = 0.002$, so $\\sqrt{1 + C/C_m} = \\sqrt{1.002} = 1.0009995$.",
+        "Parallel resonance: $f_p = f_s\\sqrt{1 + C/C_m} = 1.1254\\ \\mathrm{MHz}\\times1.0009995 = 1.1265\\ \\mathrm{MHz}$.",
+        "Spacing: $f_p - f_s = 1.1265 - 1.1254 = 0.0011\\ \\mathrm{MHz} = 1.13\\ \\mathrm{kHz}$, which is only $0.1\\%$ of $f_s$.",
+        "Crystal Q: $Q = \\dfrac{\\omega_sL}{R} = \\dfrac{2\\pi(1.1254\\times10^{6})(2)}{100} = \\dfrac{1.4142\\times10^{7}}{100} = 1.41\\times10^{5}$.",
+        "LC tank for comparison: $Q = \\dfrac{\\omega_sL}{R} = \\dfrac{(7.0710\\times10^{6})(100\\times10^{-6})}{10} = 70.7$, so the crystal's Q is about 2000 times higher."
+      ],
+      "ans": "$f_s = 1.1254\\ \\mathrm{MHz}$, $f_p = 1.1265\\ \\mathrm{MHz}$ (spacing 1.13 kHz), crystal $Q = 1.4\\times10^{5}$ against 70.7 for the LC tank",
+      "trap": "Dropping the square root in $f_p = f_s\\sqrt{1 + C/C_m}$. Writing $f_p = f_s(1 + C/C_m) = 1.1276\\ \\mathrm{MHz}$ doubles the series-to-parallel spacing to 2251 Hz. This matters because the usable inductive band of the crystal is exactly that spacing; doubling it moves the oscillator's operating point outside the region where the crystal behaves inductively.", "calc": {"mode":"COMP","steps":["`1 ÷ (2π × √(2 × 0.01E-12))` → $f_s$ = **1.1254e6** Hz.","`1.1254E6 × √(1 + 0.01 ÷ 5)` → $f_p$ = **1.1265e6** Hz, a spacing of **1.13** kHz (0.1 %).","`2π × 1.1254E6 × 2 ÷ 100` → crystal $Q$ = **1.41e5**; `2π × 1.1254E6 × 100E-6 ÷ 10` → the LC tank's **70.7**."]}
+    },
+    {
+      "prompt": "Design a Hartley oscillator for $f_0 = 1\\ \\mathrm{MHz}$ using a tapped coil whose total inductance is $L_1 + L_2 = 200\\ \\mu\\mathrm{H}$. Find the required tank capacitance. Then, for a tap that puts $L_1 = 20\\ \\mu\\mathrm{H}$ on the feedback side, find the feedback fraction and the minimum gain.",
+      "give": ["$f_0 = 1\\ \\mathrm{MHz}$", "$L_1 + L_2 = 200\\ \\mu\\mathrm{H}$", "$L_1 = 20\\ \\mu\\mathrm{H}$"],
+      "steps": [
+        "Required product from the resonance relation: $L_{eq}C = \\dfrac{1}{(2\\pi f_0)^{2}} = \\dfrac{1}{(2\\pi\\times10^{6})^{2}} = \\dfrac{1}{3.9478\\times10^{13}} = 2.5330\\times10^{-14}\\ \\mathrm{s^{2}}$.",
+        "Capacitance: $C = \\dfrac{2.5330\\times10^{-14}}{200\\times10^{-6}} = 1.2665\\times10^{-10}\\ \\mathrm{F} = 126.7\\ \\mathrm{pF}$.",
+        "Feedback fraction: $\\beta = L_1/L_2 = 20/(200 - 20) = 20/180 = 0.1111$.",
+        "Minimum gain: $|A_v| \\ge 1/\\beta = 180/20 = 9$.",
+        "Check: with a small feedback winding the fraction is small, so a large gain (9) is required; moving the tap to $L_1 = 50\\ \\mu\\mathrm{H}$ would give $\\beta = 50/150 = 0.333$ and reduce the requirement to $|A_v| \\ge 3$, at the cost of loading the tank more heavily.",
+        "Verification of the frequency: $f_0 = \\dfrac{1}{2\\pi\\sqrt{(200\\times10^{-6})(126.7\\times10^{-12})}} = \\dfrac{1}{2\\pi(1.5915\\times10^{-7})} = 1.000\\ \\mathrm{MHz}$, as required."
+      ],
+      "ans": "$C = 126.7\\ \\mathrm{pF}$, with the $20\\ \\mu\\mathrm{H}$ tap giving $\\beta = 0.111$ and $|A_v| \\ge 9$",
+      "trap": "Forgetting that the tap position trades gain requirement against loaded Q. A smaller feedback winding lowers $\\beta$ and demands more amplifier gain, while a larger one lowers the gain requirement but couples more of the transistor's impedance into the tank, lowering Q and degrading stability. Also note the resonance calculation uses the SUM $L_1 + L_2 = 200\\ \\mu\\mathrm{H}$, while the feedback calculation uses the RATIO $L_1/L_2$ - two different uses of the same two numbers.", "calc": {"mode":"COMP","steps":["`(1 ÷ (2π × 1E6))²` → $L_{eq}C$ = **2.533e-14** s².","`Ans ÷ 200E-6` → $C$ = **126.7** pF.","`20 ÷ 180` → $\\beta$ = **0.1111**, so `180 ÷ 20` → $\\lvert A_v \\rvert \\ge$ **9**; the check `1 ÷ (2π × √(200E-6 × 126.7E-12))` → **1.000** MHz."]}
+    },
+    {
+      "prompt": "A Colpitts oscillator is designed for $5\\ \\mathrm{MHz}$ with $C_1 = 100\\ \\mathrm{pF}$ and $C_2 = 470\\ \\mathrm{pF}$. Find the equivalent capacitance, the required inductance and the minimum gain. Then find the frequency if $20\\ \\mathrm{pF}$ of stray capacitance appears in parallel with $C_1$.",
+      "give": ["$f_0 = 5\\ \\mathrm{MHz}$", "$C_1 = 100\\ \\mathrm{pF}$", "$C_2 = 470\\ \\mathrm{pF}$", "stray $= 20\\ \\mathrm{pF}$ across $C_1$"],
+      "steps": [
+        "Divider equivalent: $C_{eq} = \\dfrac{C_1C_2}{C_1 + C_2} = \\dfrac{(100)(470)}{570} = 82.46\\ \\mathrm{pF}$.",
+        "Required product: $LC_{eq} = \\dfrac{1}{(2\\pi\\times5\\times10^{6})^{2}} = \\dfrac{1}{9.8696\\times10^{14}} = 1.0132\\times10^{-15}\\ \\mathrm{s^{2}}$.",
+        "Inductance: $L = \\dfrac{1.0132\\times10^{-15}}{82.46\\times10^{-12}} = 1.2288\\times10^{-5}\\ \\mathrm{H} = 12.29\\ \\mu\\mathrm{H}$.",
+        "Gain requirement: $|A_v| \\ge C_2/C_1 = 470/100 = 4.7$ (the feedback fraction is $\\beta = C_1/C_2 = 0.213$).",
+        "Now add the $20\\ \\mathrm{pF}$ stray: $C_1' = 100 + 20 = 120\\ \\mathrm{pF}$, so $C_{eq}' = \\dfrac{(120)(470)}{590} = 95.59\\ \\mathrm{pF}$.",
+        "New frequency with the same inductor: $LC_{eq}' = (1.2288\\times10^{-5})(9.559\\times10^{-11}) = 1.1746\\times10^{-15}$, so $\\sqrt{LC_{eq}'} = 3.4272\\times10^{-8}$ and $f_0' = \\dfrac{1}{2\\pi(3.4272\\times10^{-8})} = 4.644\\ \\mathrm{MHz}$.",
+        "Error: $4.644/5.000 = 0.929$, a $7.1\\%$ downward shift from only 20 pF of stray capacitance on a 100 pF element."
+      ],
+      "ans": "$C_{eq} = 82.46\\ \\mathrm{pF}$, $L = 12.29\\ \\mu\\mathrm{H}$, $|A_v| \\ge 4.7$; with 20 pF of stray across $C_1$ the frequency falls to $4.644\\ \\mathrm{MHz}$ ($-7.1\\%$)",
+      "trap": "Ignoring stray and transistor capacitance when choosing the divider. A 20 pF stray is a 20% change in a 100 pF element and moves the frequency 7% - far more than the tolerance of the inductor and capacitor combined. This sensitivity is precisely why the Clapp variant (which makes a small series capacitor dominate the equivalent capacitance) and quartz crystals are used whenever the frequency must be accurate.", "calc": {"mode":"COMP","steps":["`100 × 470 ÷ 570` → $C_{eq}$ = **82.46** pF.","`(1 ÷ (2π × 5E6))² ÷ 82.46E-12` → $L$ = **1.229e-5** H; `470 ÷ 100` → $\\lvert A_v \\rvert \\ge$ **4.7**.","With the 20 pF stray: `120 × 470 ÷ 590` → $C_{eq}'$ = **95.59** pF, and `1 ÷ (2π × √(12.29E-6 × 95.59E-12))` → **4.644** MHz, **−7.1** %."]}
+    }
+  ],
+  "traps": [
+    "**Adding the Hartley inductors in parallel.** The tapped coil's windings carry the same current and therefore add: $L_1 + L_2 = 500\\ \\mu\\mathrm{H}$ gives 711.8 kHz. Using $L_1\\parallel L_2 = 80\\ \\mu\\mathrm{H}$ gives 1.78 MHz, a 2.5x error.",
+    "**Adding the Colpitts capacitors.** The divider capacitors share the same current, so they combine in series: 470 pF with 2.2 nF is 387.3 pF, not 2.67 nF. The sum gives 217.8 kHz instead of the correct 571.9 kHz.",
+    "**Confusing the feedback fraction with the required gain.** For the Colpitts with $C_1 = 470\\ \\mathrm{pF}$ and $C_2 = 2.2\\ \\mathrm{nF}$ the fraction is $\\beta = C_1/C_2 = 0.2139$, so the amplifier must supply $|A_v| \\ge 1/\\beta = C_2/C_1 = 4.68$. Specifying a gain of 0.214 (that is, using beta itself as the gain requirement) builds a circuit that cannot sustain oscillation.",
+    "**Dropping the square root in the crystal parallel resonance.** $f_p = f_s\\sqrt{1 + C/C_m}$ gives 1.1265 MHz; the linear form $f_s(1 + C/C_m)$ gives 1.1276 MHz and doubles the series-parallel spacing from 1125 Hz to 2251 Hz. Since the crystal's usable inductive band is exactly that spacing, the error moves the operating point out of the inductive region.",
+    "**Confusing series and parallel crystal resonance.** At $f_s$ the motional arm is a low resistance (a few tens of ohms) and at $f_p$ the crystal is a high impedance; the crystal behaves INDUCTIVELY only in the narrow band between them - here 1.13 kHz wide, or 0.1% of $f_s$. An oscillator biased exactly at $f_s$ or above $f_p$ fails the loop phase condition and will not run.",
+    "**Ignoring stray and device capacitance across the divider.** 20 pF of stray in parallel with a 100 pF Colpitts capacitor changed the equivalent capacitance from 82.46 pF to 95.59 pF and pulled a 5 MHz design to 4.644 MHz, a 7.1% error - far larger than the component tolerances. The transistor's own $C_{\\pi}$ and $C_{\\mu}$ and the load resistance do the same thing, which is why the tank must be trimmed in circuit and why Clapp and crystal designs are preferred for stability."
+  ],
+  "refs": [
+    "[[16_Oscillators_RC_Phase_Shift_and_Wien_Bridge]]",
+    "[[14_Feedback_Amplifier_Topologies]]",
+    "[[07_Series_Resonance]]",
+    "[[08_Parallel_Resonance_and_Anti-Resonance]]",
+    "[[09_BJT_Structure_and_Operating_Regions]]"
+  ],
+  "prereqs": [
+    "[[07_Series_Resonance]]",
+    "[[14_Feedback_Amplifier_Topologies]]"
+  ]
+}

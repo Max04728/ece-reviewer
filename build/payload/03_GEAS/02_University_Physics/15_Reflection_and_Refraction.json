@@ -1,0 +1,101 @@
+{
+  "scope": "Trace a light ray across an interface: the angle it leaves at, the angle at which it stops leaving at all, and what the eye reports about where the light came from.",
+  "intuition": "Light bends because it changes speed. Nothing about the ray's identity changes at the boundary — only how fast it travels — so a ray entering a slower medium must turn toward the normal to keep the wavefronts continuous. Below a certain angle the ray cannot escape the denser medium at all, which is total internal reflection.",
+  "concept": [
+    "**Reflection is specular or diffuse, and the law is the same either way.** $\\theta_i = \\theta_r$, both measured from the **normal**, not from the surface. A rough surface is just many tiny surfaces at different orientations, so the law still holds locally and the rays scatter — which is exactly why a wall is visible from every seat while a mirror is not.",
+    "**Refraction is a speed change, quantified by the index.** $n = c/v$, so $n_{air}\\approx1.00$, $n_{water} = 1.33$, and ordinary crown glass is $1.50$ to $1.52$. Light slows by the factor $n$, so a *larger* $n$ means a *slower* wave and a ray that bends *toward* the normal. Snell's law follows: $n_1\\sin\\theta_1 = n_2\\sin\\theta_2$.",
+    "**The invariant is $f$; the variable is $\\lambda$.** $v = f\\lambda$, and since $f$ is fixed by the source, $\\lambda$ shrinks by exactly the factor $n$ inside a medium: $\\lambda_n = \\lambda_0/n$. This is the fact that separates refraction from Doppler and from scattering, and it is why a red laser stays red underwater even though its wavelength changes by $33\\%$.",
+    "**Total internal reflection has two preconditions.** The ray must run from the denser medium to the less dense one ($n_1 > n_2$), and the incidence angle must exceed the critical angle $\\theta_c = \\sin^{-1}(n_2/n_1)$. At $\\theta_c$ the refracted ray grazes along the interface at $90^\\circ$; beyond it there is no transmitted ray at all, so the energy is entirely reflected. Water-to-air gives $\\theta_c = 48.8^\\circ$, glass-to-air about $41.8^\\circ$. Reversed direction — air into glass — never gives total internal reflection, no matter how grazing the incidence, which is the single check the board tests.",
+    "**Apparent position is a construction problem, and the simple formula has an assumption.** For an object seen from **directly above** a plane interface, the apparent depth is $h' = h(n_2/n_1)$ with $n_2$ the medium of the **observer**. For an observer in air looking down into water, $h' = h/n_{water}$, so a $3.00\\ \\mathrm{m}$ pool looks $2.26\\ \\mathrm{m}$ deep. Off-axis viewing needs Snell's law twice and gives a different (and angle-dependent) result, so the shortcut only applies near the normal.",
+    "**A ray through a parallel slab comes out parallel but displaced.** The two refractions at a glass plate cancel in direction, not in position: the emerging ray is shifted sideways by the displacement: $d = t\\sin(\\theta_1-\\theta_2)/\\cos\\theta_2$, where $t$ is the thickness. This is why a thick window pane shifts what you see but does not distort it, and it is the geometric root of the apparent-depth result above."
+  ],
+  "formulas": [
+    { "q": "Law of reflection", "e": "\\theta_i = \\theta_r", "n": "Both angles from the normal to the surface, not from the surface itself. Holds for every surface, rough or smooth." },
+    { "q": "Index of refraction", "e": "n = \\frac{c}{v}", "n": "c = 3.00e8 m/s. n >= 1 always; a value below 1 means v exceeded c and the arithmetic was inverted." },
+    { "q": "Snell's law", "e": "n_1\\sin\\theta_1 = n_2\\sin\\theta_2", "n": "n goes with the angle in its own medium. Swapping the pairing bends the ray the wrong way." },
+    { "q": "Wavelength inside a medium", "e": "\\lambda_n = \\frac{\\lambda_0}{n},\\quad f \\mathrm{\\ unchanged}", "n": "Frequency is set by the source. Colour does not change on refraction, but wavelength does." },
+    { "q": "Critical angle", "e": "\\theta_c = \\sin^{-1}\\!\\left(\\frac{n_2}{n_1}\\right)", "n": "Requires n1 > n2, i.e. dense to less dense. n2/n1 > 1 makes the arcsine undefined, which is the signal that TIR is impossible." },
+    { "q": "Apparent depth (normal viewing)", "e": "h' = h\\,\\frac{n_{observer}}{n_{object}}", "n": "Observer in air over water: h' = h/1.33. Valid only close to the normal; off-axis needs Snell's law twice." },
+    { "q": "Lateral displacement by a slab", "e": "d = \\frac{t\\sin(\\theta_1-\\theta_2)}{\\cos\\theta_2}", "n": "t is the slab thickness. A parallel slab shifts the ray but never changes its direction." },
+    { "q": "Brewster angle", "e": "\\tan\\theta_B = \\frac{n_2}{n_1}", "n": "Incidence angle at which the reflected ray is fully polarised. Air to glass gives 56.3 degrees." },
+    { "q": "Index values for exam use", "e": "n_{air} = 1.00,\\ n_{water} = 1.33,\\ n_{glass} = 1.50,\\ n_{diamond} = 2.42", "n": "Rounded board values. Use 1.33 for water unless the stem is more precise." }
+  ],
+  "problems": [
+    {
+      "prompt": "Light in air strikes a flat glass surface ($n = 1.50$) at an angle of incidence of $60.0^\\circ$. Find the angle of refraction and the angle of reflection.",
+      "give": ["$n_1 = 1.00$, $n_2 = 1.50$", "$\\theta_1 = 60.0^\\circ$"],
+      "steps": [
+        "Reflection is immediate: $\\theta_r = \\theta_i = 60.0^\\circ$ from the normal",
+        "Snell: $\\sin\\theta_2 = (n_1/n_2)\\sin\\theta_1 = (1.00/1.50)\\sin 60.0^\\circ$",
+        "$\\sin 60.0^\\circ = 0.8660$, so $\\sin\\theta_2 = 0.5774$",
+        "$\\theta_2 = \\sin^{-1}(0.5774) = 35.3^\\circ$"
+      ],
+      "ans": "$\\theta_2 = 35.3^\\circ$ into the glass, $\\theta_r = 60.0^\\circ$ for the reflected ray.",
+      "trap": "Measuring both angles from the surface instead of the normal, so that $60^\\circ$ becomes $30^\\circ$ and the answer changes completely. Also wrong: predicting the refracted ray bends *away* from the normal on entering a denser medium.", "calc": {"mode":"COMP","steps":["`SHIFT` `sin` `(1.00÷1.50×sin(60.0))` → $\\theta_2$ = **35.3**° into the glass.","The reflected ray needs no arithmetic at all: it leaves at **60.0**° from the normal, the same angle it arrived at."]}
+    },
+    {
+      "prompt": "Find the speed of light and the wavelength in water ($n = 1.33$) for a laser whose vacuum wavelength is $633\\ \\mathrm{nm}$. Take $c = 3.00\\times10^{8}\\ \\mathrm{m/s}$.",
+      "give": ["$n = 1.33$", "$\\lambda_0 = 633\\ \\mathrm{nm}$", "$c = 3.00\\times10^{8}\\ \\mathrm{m/s}$"],
+      "steps": [
+        "$v = c/n = (3.00\\times10^{8})/1.33 = 2.26\\times10^{8}\\ \\mathrm{m/s}$",
+        "$f = c/\\lambda_0 = (3.00\\times10^{8})/(633\\times10^{-9}) = 4.74\\times10^{14}\\ \\mathrm{Hz}$",
+        "$\\lambda_n = \\lambda_0/n = 633/1.33 = 476\\ \\mathrm{nm}$",
+        "Check with $v = f\\lambda_n = (4.74\\times10^{14})(476\\times10^{-9}) = 2.26\\times10^{8}\\ \\mathrm{m/s}$"
+      ],
+      "ans": "$v = 2.26\\times10^{8}\\ \\mathrm{m/s}$ and $\\lambda_{water} = 476\\ \\mathrm{nm}$; the frequency stays $4.74\\times10^{14}\\ \\mathrm{Hz}$.",
+      "trap": "Dividing the frequency by $n$ and keeping the wavelength fixed. The frequency is source-determined and cannot change; it is the wavelength that shortens, and a red $633\\ \\mathrm{nm}$ beam is still red in water.", "calc": {"mode":"COMP","steps":["`3.00E8÷1.33` → $v$ = **2.26E8** m/s, typing $c$ = 3.00E8 as the stem gives it.","`633÷1.33` → $\\lambda$ = **476** nm; the frequency is untouched: `3.00E8÷633E-9` → **4.74E14** Hz."]}
+    },
+    {
+      "prompt": "Light travels in water ($n_1 = 1.33$) and strikes the water-air boundary. Find the critical angle, and state what happens at $50.0^\\circ$ and at $40.0^\\circ$.",
+      "give": ["$n_1 = 1.33$, $n_2 = 1.00$", "test angles $40.0^\\circ$ and $50.0^\\circ$"],
+      "steps": [
+        "$\\theta_c = \\sin^{-1}(n_2/n_1) = \\sin^{-1}(1.00/1.33) = \\sin^{-1}(0.7519)$",
+        "$\\theta_c = 48.8^\\circ$",
+        "At $40.0^\\circ < \\theta_c$: the ray refracts into the air, with $\\sin\\theta_2 = 1.33\\sin 40.0^\\circ = 0.855$, giving $\\theta_2 = 58.8^\\circ$",
+        "At $50.0^\\circ > \\theta_c$: no transmitted ray; the light is totally internally reflected back into the water"
+      ],
+      "ans": "$\\theta_c = 48.8^\\circ$; partial refraction at $40.0^\\circ$ (emerging at $58.8^\\circ$), total internal reflection at $50.0^\\circ$.",
+      "trap": "Applying the critical-angle formula in the air-to-water direction. With $n_1 = 1.00$ and $n_2 = 1.33$ the ratio exceeds 1 and no critical angle exists — light going from air into water always gets in, however grazing the incidence.", "calc": {"mode":"COMP","steps":["`SHIFT` `sin` `(1.00÷1.33)` → $\\theta_c$ = **48.8**°.","At 40.0°: `SHIFT` `sin` `(1.33×sin(40.0))` → **58.8**°, so it refracts out; at 50.0° > $\\theta_c$ nothing is transmitted."]}
+    },
+    {
+      "prompt": "A coin lies at the bottom of a pool $3.00\\ \\mathrm{m}$ deep. How deep does it appear to an observer looking straight down from the air above? Use $n_{water} = 1.33$.",
+      "give": ["$h = 3.00\\ \\mathrm{m}$", "$n_{water} = 1.33$, observer in air"],
+      "steps": [
+        "Normal viewing means the apparent-depth relation applies: $h' = h(n_{observer}/n_{object}) = h(n_{air}/n_{water})$",
+        "$h' = 3.00(1.00/1.33) = 3.00(0.7519)$",
+        "$h' = 2.26\\ \\mathrm{m}$"
+      ],
+      "ans": "$h' \\approx 2.26\\ \\mathrm{m}$ — the pool looks about $0.74\\ \\mathrm{m}$ shallower than it is.",
+      "trap": "Multiplying by $1.33$ instead of dividing. Inverting the ratio makes the pool look $3.99\\ \\mathrm{m}$ deep, i.e. deeper than it physically is, which contradicts the everyday experience that water magnifies and shallows.", "calc": {"mode":"COMP","steps":["`3.00×1.00÷1.33` → $h'$ = **2.26** m — the observer's index over the object's.","Inverted, `3.00×1.33` = **3.99** m makes the pool look deeper than it is, which is the giveaway."]}
+    },
+    {
+      "prompt": "Light passes from glass ($n_1 = 1.52$) into water ($n_2 = 1.33$). Find the critical angle, and check whether a ray at $65.0^\\circ$ is totally internally reflected.",
+      "give": ["$n_1 = 1.52$, $n_2 = 1.33$", "test angle $65.0^\\circ$"],
+      "steps": [
+        "$\\theta_c = \\sin^{-1}(n_2/n_1) = \\sin^{-1}(1.33/1.52) = \\sin^{-1}(0.8750)$",
+        "$\\theta_c = 61.0^\\circ$",
+        "The test angle $65.0^\\circ$ exceeds $61.0^\\circ$, so total internal reflection occurs",
+        "Cross-check at $60.0^\\circ$: $\\sin\\theta_2 = (1.52/1.33)\\sin 60.0^\\circ = 0.9898$, giving $\\theta_2 = 81.8^\\circ$ — still transmitted, but only just"
+      ],
+      "ans": "$\\theta_c = 61.0^\\circ$, so the $65.0^\\circ$ ray is totally internally reflected back into the glass.",
+      "trap": "Declaring total internal reflection impossible because both media are 'dense'. The requirement is only that $n_1 > n_2$ and $\\theta_1 > \\theta_c$; glass to water satisfies both, and the critical angle is close enough to grazing that a rough estimate will misclassify the ray.", "calc": {"mode":"COMP","steps":["`SHIFT` `sin` `(1.33÷1.52)` → $\\theta_c$ = **61.0**°.","65.0° > 61.0° means total internal reflection; at 60.0° `SHIFT` `sin` `(1.52÷1.33×sin(60.0))` → **81.8**°, transmitted only just."]}
+    }
+  ],
+  "traps": [
+    "**Measuring angles from the surface instead of the normal.** Every reflection and refraction formula uses the normal; a $60^\\circ$ surface angle is a $30^\\circ$ incidence angle, and the whole solution shifts.",
+    "**Bending the ray away from the normal on entering a denser medium.** Larger $n$ means slower light and a ray pulled *toward* the normal. Reversing this produces an answer with $\\sin\\theta_2 > \\sin\\theta_1$ from air into glass, which is impossible.",
+    "**Applying total internal reflection air-to-water.** It requires $n_1 > n_2$. Inserting $1.00$ and $1.33$ makes the arcsine argument $1.33$, which has no real solution — a clear sign the direction of travel was reversed.",
+    "**Changing the frequency on refraction.** $f$ is fixed by the source. Only $v$ and $\\lambda$ change, and they change by the same factor $1/n$.",
+    "**Using $\\theta_c = \\sin^{-1}(n_1/n_2)$.** The ratio is $n_2/n_1$, the less dense over the denser. Inverted, the arcsine argument exceeds 1 and the calculator errors out.",
+    "**Inverting the apparent-depth ratio.** A pool looks *shallower*, not deeper. $h' = h/n$ for an observer in air; multiplying instead of dividing gives a depth larger than the physical one.",
+    "**Treating $\\theta_2$ at the critical angle as $0^\\circ$.** At $\\theta_c$ the refracted ray grazes the interface at $90^\\circ$; the transmitted intensity is not zero until the angle exceeds the critical value.",
+    "**Assuming the index of a medium depends on wavelength-free arithmetic.** Dispersion is real — $n$ is larger for violet than for red in glass — which is why a prism spreads white light and why 'the' index of glass is only a nominal value near the middle of the spectrum."
+  ],
+  "refs": [
+    "[[16_Lenses_and_Mirrors]]",
+    "[[13_SHM_and_Waves]]",
+    "[[14_Sound_and_Doppler]]",
+    "[[_MOC_University_Physics]]"
+  ],
+  "prereqs": ["[[13_SHM_and_Waves]]"]
+}

@@ -1,0 +1,102 @@
+{
+  "scope": "Decide whether a signal carries finite energy or finite average power, and split any signal into its even and odd parts.",
+  "intuition": "Energy asks 'how much total stuff is there'; power asks 'how much stuff per unit time, forever'. A pulse has finite energy and zero average power; a sinusoid has infinite energy but finite average power; a ramp has neither.",
+  "concept": [
+    "**The two definitions.** Energy is: $E=\\displaystyle\\int_{-\\infty}^{\\infty}\\lvert x(t)\\rvert^2dt$ (CT) or $\\sum_n\\lvert x[n]\\rvert^2$ (DT). Average power is: $P=\\lim_{T\\to\\infty}\\dfrac{1}{2T}\\displaystyle\\int_{-T}^{T}\\lvert x\\rvert^2dt$ (CT); in discrete time: $\\lim_{N\\to\\infty}\\dfrac{1}{2N+1}\\sum_{-N}^{N}\\lvert x[n]\\rvert^2$ (DT). **Energy signals** have $0<E<\\infty$ (and then $P=0$); **power signals** have $0<P<\\infty$ (and then $E=\\infty$). A signal cannot be both unless it is identically zero, and a signal such as $tu(t)$ or $e^{t}u(t)$ is neither.",
+    "**Why the classification matters.** Every transform tool has a domain. Finite-energy signals have Fourier transforms in the ordinary sense; periodic signals need the power-based Fourier *series* (or impulses in the transform); growing signals need Laplace or $z$ with an explicit region of convergence. Choosing the wrong class is choosing the wrong tool.",
+    "**Average power of a sinusoid.** For $x(t)=A\\cos(\\omega_0t+\\theta)$, $P=\\dfrac{A^2}{2}$ regardless of frequency and phase, because the mean of $\\cos^2$ is $1/2$. For a sum of sinusoids at distinct nonzero frequencies the cross terms average to zero, so the powers add: $P=\\sum A_i^2/2$. The same holds in DT for distinct frequencies, with the caveat that distinct DT frequencies must not be aliases of one another.",
+    "**Even and odd parts.** Every signal splits uniquely: $x_e(t)=\\dfrac{x(t)+x(-t)}{2}$ and $x_o(t)=\\dfrac{x(t)-x(-t)}{2}$, with $x=x_e+x_o$. The decomposition is only meaningful over a symmetric domain, so for a causal signal you must write the mirrored half explicitly: $x(t)=e^{-t}u(t)$ has mirror $e^{t}u(-t)$. Products follow sign rules: even$\\times$even and odd$\\times$odd are even, even$\\times$odd is odd. The practical payoff is that the integral of an odd function over symmetric limits is exactly zero, which kills half the terms in Fourier and convolution problems.",
+    "**Useful standard results.** $e^{-at}u(t)$ has $E=1/(2a)$ for $a>0$. $a^{n}u[n]$ has $E=1/(1-\\lvert a\\rvert^2)$ for $\\lvert a\\rvert<1$. The unit step is a power signal with $P=1/2$ and $E=\\infty$. A rectangular pulse of height $A$ and width $W$ has $E=A^2W$ and $P=0$. A constant $A$ over all time has $P=A^2$."
+  ],
+  "formulas": [
+    { "q": "Energy (CT)", "e": "E = \\int_{-\\infty}^{\\infty} \\lvert x(t) \\rvert^2 dt", "n": "Use the magnitude for complex signals: |x|^2 = x x*." },
+    { "q": "Power (CT)", "e": "P = \\lim_{T\\to\\infty} \\frac{1}{2T}\\int_{-T}^{T} \\lvert x(t) \\rvert^2 dt", "n": "Averaged over the symmetric window from -T to T." },
+    { "q": "Energy (DT)", "e": "E = \\sum_{n=-\\infty}^{\\infty} \\lvert x[n] \\rvert^2", "n": "Absolute square, summed over all integers." },
+    { "q": "Power (DT)", "e": "P = \\lim_{N\\to\\infty} \\frac{1}{2N+1}\\sum_{n=-N}^{N} \\lvert x[n] \\rvert^2", "n": "The normalisation is 2N+1 samples, not N." },
+    { "q": "Even part", "e": "x_e(t) = \\frac{x(t)+x(-t)}{2}", "n": "For a causal signal write the mirrored half with u(-t) explicitly." },
+    { "q": "Odd part", "e": "x_o(t) = \\frac{x(t)-x(-t)}{2}", "n": "x = xe + xo, and the split is unique." },
+    { "q": "Parity of products", "e": "\\mathrm{even}\\times\\mathrm{odd} = \\mathrm{odd},\\ \\mathrm{odd}\\times\\mathrm{odd} = \\mathrm{even}", "n": "An odd integrand over symmetric limits integrates to zero." },
+    { "q": "Sinusoid power", "e": "P = \\frac{A^2}{2}", "n": "Independent of frequency and phase; the mean of cos^2 is 1/2." },
+    { "q": "Exponential energy", "e": "E = \\frac{1}{2a}\\ \\mathrm{for}\\ e^{-at}u(t),\\ a>0", "n": "Because the integrand is e^{-2at}." },
+    { "q": "Geometric energy", "e": "E = \\frac{1}{1-\\lvert a \\rvert^2}\\ \\mathrm{for}\\ a^n u[n]", "n": "Converges only when |a| < 1; otherwise E = infinity." },
+    { "q": "Unit step", "e": "P = \\frac{1}{2},\\ E = \\infty", "n": "A power signal, not an energy signal, despite being bounded." }
+  ],
+  "problems": [
+    {
+      "prompt": "Classify $x(t)=5\\cos(10t)$ as an energy or power signal and compute the relevant quantity.",
+      "give": ["x(t) = 5 cos(10t)"],
+      "steps": [
+        "This is a sinusoid of amplitude $A=5$, so it never decays",
+        "Average power: $P = A^2/2 = 25/2 = 12.5\\ \\mathrm{W}$",
+        "Energy: $\\int_{-\\infty}^{\\infty}25\\cos^2(10t)\\,dt$ diverges, so $E=\\infty$",
+        "A finite, non-zero $P$ with infinite $E$ means it is a power signal"
+      ],
+      "ans": "Power signal with $P = 12.5\\ \\mathrm{W}$ (energy is infinite).",
+      "trap": "Computing $E$ over one period and reporting that as the total energy. A periodic signal's energy over one period is finite, but the total energy over all time diverges — that is exactly why power is the right measure."
+    },
+    {
+      "prompt": "Find the total energy and average power of $x(t)=e^{-2t}u(t)$.",
+      "give": ["x(t) = e^{-2t}u(t)"],
+      "steps": [
+        "$E = \\int_0^{\\infty}e^{-4t}dt$ (the square doubles the exponent)",
+        "$E = \\left[-\\dfrac{e^{-4t}}{4}\\right]_0^{\\infty} = 0 + \\dfrac{1}{4} = 0.25$",
+        "Energy is finite, so $P = 0$",
+        "Cross-check with $E = 1/(2a)$ with $a=2$: $1/4$ ✓"
+      ],
+      "ans": "$E = 0.25\\ \\mathrm{J}$, $P = 0$ — an energy signal.",
+      "trap": "Integrating $e^{-2t}$ instead of $e^{-4t}$ and reporting $E = 1/2$. The energy integrand is $\\lvert x\\rvert^2$, so the decay rate doubles."
+    },
+    {
+      "prompt": "Find the total energy of $x[n]=\\left(\\dfrac{1}{2}\\right)^n u[n]$.",
+      "give": ["x[n] = (1/2)^n u[n]"],
+      "steps": [
+        "$E = \\sum_{n=0}^{\\infty}\\left(\\dfrac{1}{4}\\right)^n$",
+        "Geometric series with ratio $1/4 < 1$",
+        "$E = \\dfrac{1}{1-1/4} = \\dfrac{4}{3}$",
+        "$E \\approx 1.333$; finite, so $P = 0$"
+      ],
+      "ans": "$E = 4/3 \\approx 1.333$; it is an energy signal.",
+      "trap": "Using the ratio $1/2$ instead of $1/4$ and getting $E=2$. Squaring the signal squares the ratio; the energy sum uses $\\lvert a\\rvert^2$."
+    },
+    {
+      "prompt": "Split $x(t)=e^{-t}u(t)$ into its even and odd parts.",
+      "give": ["x(t) = e^{-t}u(t)"],
+      "steps": [
+        "The mirror is $x(-t) = e^{t}u(-t)$ (valid for $t<0$)",
+        "$x_e(t) = \\dfrac{e^{-t}u(t)+e^{t}u(-t)}{2}$",
+        "For $t>0$: $x_e = \\tfrac12 e^{-t}$; for $t<0$: $x_e = \\tfrac12 e^{t}$; so $x_e(t) = \\tfrac12 e^{-\\lvert t\\rvert}$",
+        "$x_o(t) = \\dfrac{e^{-t}u(t)-e^{t}u(-t)}{2} = \\tfrac12\\mathrm{sgn}(t)e^{-\\lvert t\\rvert}$",
+        "Check: $x_e+x_o = e^{-\\lvert t\\rvert}$ for $t>0$, which equals $e^{-t}$ ✓"
+      ],
+      "ans": "$x_e(t)=\\tfrac12 e^{-\\lvert t\\rvert}$ and $x_o(t)=\\tfrac12\\mathrm{sgn}(t)e^{-\\lvert t\\rvert}$.",
+      "trap": "Writing $x(-t)=e^{t}$ for all $t$ and losing the $u(-t)$. The mirrored signal is only nonzero for negative time; dropping the step builds a divergent even part."
+    },
+    {
+      "prompt": "Classify the unit step $x(t)=u(t)$: find its energy and its average power.",
+      "give": ["x(t) = u(t)"],
+      "steps": [
+        "$E = \\int_0^{\\infty}1\\,dt = \\infty$",
+        "$P = \\lim_{T\\to\\infty}\\dfrac{1}{2T}\\displaystyle\\int_{-T}^{T}u(t)\\,dt = \\lim_{T\\to\\infty}\\dfrac{1}{2T}(T) = \\dfrac12$",
+        "Finite non-zero power with infinite energy: a power signal"
+      ],
+      "ans": "$E = \\infty$, $P = 1/2$ — a power signal.",
+      "trap": "Calling $u(t)$ an energy signal because it is bounded (and eventually constant, so its 'energy' looks small). Boundedness does not imply finite energy; a constant has infinite energy and finite power."
+    }
+  ],
+  "traps": [
+    "**Squaring only the amplitude, not the signal.** Energy uses $\\lvert x\\rvert^2$; every exponential decay rate and geometric ratio doubles under squaring.",
+    "**Computing energy over one period for a periodic signal.** That number is finite and meaningless as a total; use average power instead.",
+    "**Calling a bounded signal an energy signal.** $u(t)$ has $E=\\infty$ and $P=1/2$.",
+    "**Normalising the DT power by $N$ instead of $2N+1$.** The average is over the full window of $2N+1$ samples.",
+    "**Forgetting the step in the mirrored signal.** The even/odd split of a causal signal needs $x(-t)=e^{t}u(-t)$, not $e^{t}$.",
+    "**Assuming a signal must be either an energy or a power signal.** $tu(t)$ and $e^{t}u(t)$ are neither; the two categories do not exhaust the possibilities.",
+    "**Using $\\lvert x\\rvert^2=x^2$ for a complex signal.** Use $x x^{*}$; for $e^{j\\omega t}$ this gives 1, hence $P=1$.",
+    "**Adding powers of correlated components.** $P=\\sum A_i^2/2$ requires distinct frequencies so the cross terms average to zero; two identical sinusoids add coherently, giving $(2A)^2/2 = 2A^2$, not $A^2$."
+  ],
+  "refs": [
+    "[[01_Signal_Classification_and_Operations]]",
+    "[[03_System_Properties_and_LTI]]",
+    "[[11_CT_Fourier_and_Laplace_as_System_Tools]]"
+  ],
+  "prereqs": ["[[01_Signal_Classification_and_Operations]]"]
+}

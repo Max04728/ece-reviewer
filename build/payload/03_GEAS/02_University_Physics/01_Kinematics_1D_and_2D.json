@@ -1,0 +1,102 @@
+{
+  "scope": "Pick the right constant-acceleration or projectile relation, fix one sign convention, and get positions, velocities and flight times with correct units.",
+  "intuition": "Every kinematics problem is the same story told twice: the same clock drives a horizontal motion and a vertical motion, but only the vertical one feels gravity. Separate the axes, share the time, and the algebra collapses to one line.",
+  "concept": [
+    "**The four-equation toolkit and when each applies.** For constant acceleration only, $v = v_0 + at$, $x = x_0 + v_0 t + \\frac{1}{2}at^2$, $v^2 = v_0^2 + 2a\\Delta x$, and $v_{avg} = \\frac{v_0 + v}{2}$. The second form of the average-velocity relation is valid *only* for constant acceleration — using it on a two-stage trip (accelerate, then cruise) silently averages the wrong thing. The standard method is: list the five variables $(x, v_0, v, a, t)$, mark the one you want and the one you were not given, and select the equation missing that variable.",
+    "**Signs are a convention you choose once.** Board problems are written so that an inconsistent sign gives a plausible wrong number, not nonsense. Fix upward as positive, then $a = -g = -9.81\\ \\mathrm{m/s^2}$ for the entire flight, including the trip down. Rounding $g$ to $10\\ \\mathrm{m/s^2}$ is only safe when the problem says so; use $g = 9.81\\ \\mathrm{m/s^2}$ unless stated, and keep three significant figures in the answer.",
+    "**Projectiles: the axes are independent, the time is not.** With no air resistance, $a_x = 0$ and $a_y = -g$. The horizontal motion is pure constant velocity, $x = (v_0\\cos\\theta)t$; the vertical motion is constant acceleration, $y = (v_0\\sin\\theta)t - \\frac{1}{2}gt^2$. At the apex $v_y = 0$ but $v_x$ is unchanged and nonzero — the speed at the top is $v_0\\cos\\theta$, not zero. Symmetric-launch results ($T = \\frac{2v_0\\sin\\theta}{g}$, $H = \\frac{v_0^2\\sin^2\\theta}{2g}$, $R = \\frac{v_0^2\\sin 2\\theta}{g}$) all assume launch and landing at the *same height*; on a cliff, start from the component equations instead.",
+    "**How to attack a 2D projectile in under a minute.** Split $v_0$ into $v_{0x} = v_0\\cos\\theta$ and $v_{0y} = v_0\\sin\\theta$. Decide what the flight *ends* on: level ground ($y = 0$), a lower cliff ($y = -h$), or a target at height $h$ ($y = +h$). The vertical equation then gives $t$, and that same $t$ substituted into the horizontal equation gives the horizontal distance. Range is maximized at $45^\\circ$ only for level ground; when the landing point is above or below the launch point the optimum shifts.",
+    "**Relative velocity is vector subtraction, not addition of speeds.** For a boat crossing a river the sum is: $\\vec{v}_{boat/ground} = \\vec{v}_{boat/water} + \\vec{v}_{water/ground}$. Heading straight across, the crossing time is set by the component *perpendicular* to the current alone, $t = \\frac{w}{v_{boat/water}}$, while the current carries the boat downstream by $v_{current}\\,t$. The two contributions are perpendicular, so the ground speed is the Pythagorean sum, never the arithmetic sum."
+  ],
+  "formulas": [
+    { "q": "Velocity from time", "e": "v = v_0 + at", "n": "Constant a only. a and v must carry the same sign convention; a car braking downhill has a negative v_0 if downhill is negative." },
+    { "q": "Displacement from time", "e": "x = x_0 + v_0 t + \\frac{1}{2}at^2", "n": "The workhorse. Gives displacement, not distance travelled; for a projectile that goes up and comes back, x can be zero while the path length is not." },
+    { "q": "Time-independent relation", "e": "v^2 = v_0^2 + 2a\\Delta x", "n": "Use when t is neither given nor asked. Taking the square root gives two signs; choose the one matching the direction of travel." },
+    { "q": "Average velocity", "e": "v_{avg} = \\frac{v_0+v}{2} = \\frac{\\Delta x}{\\Delta t}", "n": "The first equality requires constant a. The second is always true. Mixing them on a two-stage trip is a standard error." },
+    { "q": "Free-fall drop", "e": "h = \\frac{1}{2}gt^2, \\quad v = gt", "n": "From rest, downward positive. g = 9.81 m/s^2 unless the problem specifies 10." },
+    { "q": "Projectile components", "e": "v_{0x} = v_0\\cos\\theta, \\quad v_{0y} = v_0\\sin\\theta", "n": "theta measured from the horizontal. Feeding a bearing or an angle from the vertical swaps sine and cosine." },
+    { "q": "Projectile position", "e": "x = (v_0\\cos\\theta)t, \\quad y = (v_0\\sin\\theta)t - \\frac{1}{2}gt^2", "n": "Air resistance neglected. y is height relative to the launch point, so a cliff launch enters as a negative final y." },
+    { "q": "Time of flight (level ground)", "e": "T = \\frac{2v_0\\sin\\theta}{g}", "n": "Valid only when launch and landing are at the same height." },
+    { "q": "Maximum height", "e": "H = \\frac{v_0^2\\sin^2\\theta}{2g}", "n": "Height above the launch point. At the apex v_y = 0 but v_x = v_0 cos(theta) is unchanged." },
+    { "q": "Range (level ground)", "e": "R = \\frac{v_0^2\\sin 2\\theta}{g}", "n": "Level ground and no air drag only. Complementary angles (30 and 60 degrees) give equal range." },
+    { "q": "Relative velocity", "e": "\\vec{v}_{A/G} = \\vec{v}_{A/B} + \\vec{v}_{B/G}", "n": "Vector sum. Perpendicular components combine by Pythagoras, never by adding speeds." }
+  ],
+  "problems": [
+    {
+      "prompt": "A car starts from rest and accelerates uniformly at $2.5\\ \\mathrm{m/s^2}$ for $8.0\\ \\mathrm{s}$, then travels at the speed reached for another $12\\ \\mathrm{s}$. Find the total distance travelled.",
+      "give": ["v_0 = 0", "a = 2.5 m/s^2", "t_1 = 8.0 s", "t_2 = 12 s"],
+      "steps": [
+        "Two stages, so handle each separately; the end speed of stage 1 is the input to stage 2.",
+        "Stage 1 speed: $v = v_0 + at = 0 + (2.5)(8.0) = 20\\ \\mathrm{m/s}$",
+        "Stage 1 distance: $x_1 = v_0t + \\frac{1}{2}at^2 = 0 + \\frac{1}{2}(2.5)(8.0)^2 = 80\\ \\mathrm{m}$",
+        "Stage 2 is constant velocity: $x_2 = vt = (20)(12) = 240\\ \\mathrm{m}$",
+        "Total: $x = 80 + 240 = 320\\ \\mathrm{m}$"
+      ],
+      "ans": "$320\\ \\mathrm{m}$",
+      "trap": "Applying the constant-acceleration average-velocity formula to the whole 20 s. Blending the stages gives $v_{avg} = \\frac{0+20}{2} = 10\\ \\mathrm{m/s}$ over 20 s = 200 m, which understates the true 320 m because the car is already at full speed for 12 s.", "calc": {"mode":"COMP","steps":["`2.5×8` → $v$ = **20** m/s; then `ALPHA` `:` and `0.5×2.5×8²+Ans×12` → **320** m.","Stage check: `0.5×2.5×8²` → $x_1$ = **80** m and `20×12` → $x_2$ = **240** m. Blending the stages as `(0+20)÷2×20` gives **200** m — the trap."],"note":"The constant-$a$ average-velocity form holds inside one stage only; the end speed of stage 1 is the input to stage 2."}
+    },
+    {
+      "prompt": "A stone is released from rest from a bridge and strikes the water $3.0\\ \\mathrm{s}$ later. Find the height of the bridge and the impact speed. Take $g = 9.81\\ \\mathrm{m/s^2}$.",
+      "give": ["v_0 = 0", "t = 3.0 s", "g = 9.81 m/s^2"],
+      "steps": [
+        "Take downward as positive so both $g$ and the fall distance are positive.",
+        "Height: $h = \\frac{1}{2}gt^2 = \\frac{1}{2}(9.81)(3.0)^2 = \\frac{1}{2}(9.81)(9.0) = 44.145\\ \\mathrm{m}$",
+        "Impact speed: $v = gt = (9.81)(3.0) = 29.43\\ \\mathrm{m/s}$",
+        "To three significant figures: $h \\approx 44.1\\ \\mathrm{m}$, $v \\approx 29.4\\ \\mathrm{m/s}$"
+      ],
+      "ans": "$h \\approx 44.1\\ \\mathrm{m}$ and $v \\approx 29.4\\ \\mathrm{m/s}$ downward.",
+      "trap": "Forgetting the $\\frac{1}{2}$ and reporting $h = gt^2 = 88.3\\ \\mathrm{m}$ — exactly double. A useful sanity check: the distance fallen in 3 s is about $4.9t^2 = 44$ m.", "calc": {"mode":"COMP","steps":["`0.5×` `SHIFT` `CVALUE` 35 `×3²` → $h$ = **44.13** m (code 35 is $g$ = 9.80665 m/s²).","`ALPHA` `:` `CVALUE 35×3` → $v$ = **29.42** m/s, i.e. **44.1** m and **29.4** m/s to three figures."],"note":"With the stem's $g$ = 9.81 the same keys give 44.145 m and 29.43 m/s — the three-figure answer is identical."}
+    },
+    {
+      "prompt": "A projectile is launched from level ground at $40\\ \\mathrm{m/s}$ at $35^\\circ$ above the horizontal. Find its time of flight, maximum height, and horizontal range. Use $g = 9.81\\ \\mathrm{m/s^2}$.",
+      "give": ["v_0 = 40 m/s", "theta = 35 deg", "g = 9.81 m/s^2"],
+      "steps": [
+        "Split the launch velocity: $v_{0y} = 40\\sin 35^\\circ = 40(0.5736) = 22.94\\ \\mathrm{m/s}$; $v_{0x} = 40\\cos 35^\\circ = 40(0.8192) = 32.77\\ \\mathrm{m/s}$",
+        "Time of flight: $T = \\frac{2v_{0y}}{g} = \\frac{2(22.94)}{9.81} = \\frac{45.89}{9.81} = 4.68\\ \\mathrm{s}$",
+        "Maximum height: $H = \\frac{v_{0y}^2}{2g} = \\frac{(22.94)^2}{2(9.81)} = \\frac{526.4}{19.62} = 26.8\\ \\mathrm{m}$",
+        "Range: $R = v_{0x}T = (32.77)(4.68) = 153\\ \\mathrm{m}$",
+        "Check against the closed form: $R = \\frac{v_0^2\\sin 2\\theta}{g} = \\frac{1600\\sin 70^\\circ}{9.81} = \\frac{1503.5}{9.81} = 153.3\\ \\mathrm{m}$ — consistent."
+      ],
+      "ans": "$T = 4.68\\ \\mathrm{s}$, $H = 26.8\\ \\mathrm{m}$, $R = 153\\ \\mathrm{m}$.",
+      "trap": "Using $\\theta$ instead of $2\\theta$ in the range formula: $\\frac{1600\\sin 35^\\circ}{9.81} = 93.5\\ \\mathrm{m}$ instead of 153 m. Also note that $45^\\circ$ maximizes range only on level ground.", "calc": {"mode":"COMP","steps":["`40×sin(35)` → $v_{0y}$ = **22.94** m/s; `40×cos(35)` → $v_{0x}$ = **32.77** m/s.","`2×40×sin(35)÷9.81` → $T$ = **4.68** s; `(40×sin(35))²÷(2×9.81)` → $H$ = **26.8** m.","`40²×sin(70)÷9.81` → $R$ = **153** m, matching `32.77×4.68` = **153** m."]}
+    },
+    {
+      "prompt": "A boat whose speed in still water is $4.0\\ \\mathrm{m/s}$ heads straight across a river $200\\ \\mathrm{m}$ wide. The current flows at $3.0\\ \\mathrm{m/s}$ parallel to the banks. Find the crossing time, the downstream drift, and the boat's speed relative to the ground.",
+      "give": ["width w = 200 m", "v_boat/water = 4.0 m/s", "v_current = 3.0 m/s"],
+      "steps": [
+        "The crossing time is set only by the velocity component perpendicular to the banks (the current has no component across the river).",
+        "$t = \\frac{w}{v_{boat/water}} = \\frac{200}{4.0} = 50\\ \\mathrm{s}$",
+        "Downstream drift is set by the current acting over that same 50 s: $d = (3.0)(50) = 150\\ \\mathrm{m}$",
+        "Ground speed is the vector sum of two perpendicular velocities: $v = \\sqrt{4.0^2 + 3.0^2} = 5.0\\ \\mathrm{m/s}$"
+      ],
+      "ans": "$t = 50\\ \\mathrm{s}$, drift $= 150\\ \\mathrm{m}$ downstream, ground speed $= 5.0\\ \\mathrm{m/s}$.",
+      "trap": "Adding the speeds arithmetically, $4.0 + 3.0 = 7.0\\ \\mathrm{m/s}$, and then dividing the width by it to get $28.6\\ \\mathrm{s}$. The two velocities are perpendicular; combining them as a scalar shortens the crossing time by 43%.", "calc": {"mode":"COMP","steps":["`200÷4` → $t$ = **50** s; `ALPHA` `:` `3×50` → drift = **150** m.","Ground speed is the hypotenuse of two perpendicular velocities: `√(4²+3²)` → **5.0** m/s, whereas `4+3` = **7.0** m/s is the scalar-sum trap."]}
+    },
+    {
+      "prompt": "A car travelling at $25\\ \\mathrm{m/s}$ brakes uniformly to a stop in $5.0\\ \\mathrm{s}$. Find the deceleration and the stopping distance.",
+      "give": ["v_0 = 25 m/s", "v = 0", "t = 5.0 s"],
+      "steps": [
+        "Acceleration: $a = \\frac{v - v_0}{t} = \\frac{0 - 25}{5.0} = -5.0\\ \\mathrm{m/s^2}$ (a deceleration of $5.0\\ \\mathrm{m/s^2}$)",
+        "Stopping distance from the time-independent relation: $\\Delta x = \\frac{v^2 - v_0^2}{2a} = \\frac{0 - 625}{2(-5.0)} = \\frac{-625}{-10} = 62.5\\ \\mathrm{m}$",
+        "Check with average velocity: $v_{avg} = \\frac{25 + 0}{2} = 12.5\\ \\mathrm{m/s}$, and $(12.5)(5.0) = 62.5\\ \\mathrm{m}$."
+      ],
+      "ans": "$a = -5.0\\ \\mathrm{m/s^2}$; stopping distance $= 62.5\\ \\mathrm{m}$.",
+      "trap": "Dropping the sign on $a$ in $\\Delta x = \\frac{v^2 - v_0^2}{2a}$ gives $-62.5\\ \\mathrm{m}$, a car that stops behind where it started. Keep the deceleration negative in the formula."
+    }
+  ],
+  "traps": [
+    "**Mixing $g = 9.81$ and $g = 10$ within one problem.** Using 9.81 for the apex height and 10 for the flight time gives answers that disagree by about 2% and do not cross-check. Choose one value at the start and cite it in the answer.",
+    "**Sign sloppiness on the vertical axis.** Taking $g$ positive on the way up makes the apex time negative. Fix up-positive with $a = -9.81\\ \\mathrm{m/s^2}$ for the whole flight and hold it through the descent.",
+    "**Using $\\theta$ where $2\\theta$ belongs.** $R = \\frac{v_0^2\\sin 2\\theta}{g}$ at $v_0 = 40$, $\\theta = 35^\\circ$ gives 153 m; typing $\\sin 35^\\circ$ gives 93.5 m, a 39% error that still looks like a plausible range.",
+    "**Zero speed at the apex.** At the top of a projectile's path $v_y = 0$ but the speed is $v_0\\cos\\theta$, which is generally not zero. Setting $v = 0$ at the apex makes the horizontal range come out as zero.",
+    "**Applying level-ground range formulas from a cliff.** $T = \\frac{2v_0\\sin\\theta}{g}$ assumes the landing height equals the launch height. From a 50 m cliff the real flight is longer, and including $g$ twice in a patched formula compounds the error.",
+    "**Scalar addition of perpendicular velocities.** A 4 m/s boat in a 3 m/s current moves at 5 m/s over the ground, not 7 m/s. Adding speeds changes the crossing time from 50 s to 28.6 s.",
+    "**Assuming non-zero initial velocity at the start of a phase.** After a two-stage trip, the second stage starts at the *first stage's final speed*, not at zero. Restarting from rest halves the distance."
+  ],
+  "refs": [
+    "[[02_Newton’s_Laws,_Friction_and_Circular_Motion]]",
+    "[[03_Work,_Energy_and_Conservation]]",
+    "[[05_Rotational_Kinematics_and_Torque]]"
+  ],
+  "prereqs": []
+}

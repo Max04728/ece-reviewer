@@ -1,0 +1,127 @@
+{
+  "scope": "Model rare-event counts with the Poisson distribution and sampling-without-replacement counts with the hypergeometric, and know when the Poisson approximates the binomial.",
+  "intuition": "The Poisson counts how many events land in a fixed interval when the events are independent and the rate is constant — defects per metre, calls per hour, particles per second. The hypergeometric counts successes in a sample drawn from a *finite* lot without replacement.",
+  "concept": [
+    "**The Poisson pmf and its single parameter.** For a rate $\\lambda$ the pmf is: $P(X=k)=\\frac{e^{-\\lambda}\\lambda^{k}}{k!}$. It applies for $k=0,1,2,\\dots$, with $\\mu=\\sigma^{2}=\\lambda$. That mean equals variance property is the distribution's signature, and it is why over-dispersion (variance greater than the mean in observed count data) indicates the Poisson model is wrong. The parameter $\\lambda$ must be scaled with the interval: 3 calls per hour is $\\lambda=6$ over two hours.",
+    "**What makes a Poisson process.** Events occur independently; the rate is constant in time or space; two events cannot occur at exactly the same instant (no clumping); and the probability of an event in a short interval is proportional to its length. Under those conditions the count in any interval of length $t$ is Poisson with $\\lambda=rt$, where $r$ is the rate per unit.",
+    "**Cumulative work is by complement.** There is no closed-form CDF, so the tail is computed by complement: $P(X\\ge k)=1-\\sum_{j=0}^{k-1}\\frac{e^{-\\lambda}\\lambda^{j}}{j!}$. For 'at least one', $P(X\\ge1)=1-e^{-\\lambda}$, which is the fastest form and appears constantly in reliability questions.",
+    "**Poisson as the limit of the binomial.** When $n$ is large and $p$ is small with $np=\\lambda$ moderate, the binomial pmf converges to: $\\binom{n}{k}p^{k}q^{n-k}\\to\\frac{e^{-\\lambda}\\lambda^{k}}{k!}$. The usual rule of thumb is $n\\ge20$ and $p\\le0.05$ (some texts say $n\\ge100$, $np\\le10$). The approximation is excellent for small $k$ and is the standard exam shortcut when $\\binom{n}{k}$ becomes unwieldy.",
+    "**Hypergeometric — sampling without replacement.** With $N$ items, $K$ successes (defectives), and a sample of $n$, the pmf is: $P(X=k)=\\frac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}$. The mean is $n\\frac{K}{N}$ and the variance is: $n\\frac{K}{N}\\left(1-\\frac{K}{N}\\right)\\frac{N-n}{N-1}$. The last factor $\\frac{N-n}{N-1}$ is the *finite population correction*: it is what makes the hypergeometric variance smaller than the binomial variance with $p=K/N$.",
+    "**Choosing between them.** If the sample is drawn without replacement from a finite lot, the hypergeometric is exact — the trials are dependent. The binomial is an approximation that becomes accurate when the sample is a small fraction of the lot (the common $n\\le0.05N$ rule). On the exam, phrases like 'from a box of 20, five are drawn' signal hypergeometric; 'each item is independently defective with probability 0.05' signals binomial."
+  ],
+  "formulas": [
+    { "q": "Poisson pmf", "e": "P(X=k) = \\frac{e^{-\\lambda}\\lambda^{k}}{k!}", "n": "lambda = mean count in the interval. k = 0, 1, 2, ..." },
+    { "q": "Poisson mean and variance", "e": "\\mu = \\sigma^{2} = \\lambda", "n": "Equality of mean and variance is the model's signature." },
+    { "q": "Rate scaling", "e": "\\lambda = r\\,t", "n": "r = rate per unit; t = interval length. Scale before substituting." },
+    { "q": "Poisson 'at least one'", "e": "P(X\\ge 1) = 1-e^{-\\lambda}", "n": "Complement of zero events." },
+    { "q": "Poisson cumulative (upper tail)", "e": "P(X\\ge k) = 1-\\sum_{j=0}^{k-1}\\frac{e^{-\\lambda}\\lambda^{j}}{j!}", "n": "No closed form; sum the terms below k." },
+    { "q": "Poisson approximation to binomial", "e": "\\binom{n}{k}p^{k}q^{n-k} \\approx \\frac{e^{-np}(np)^{k}}{k!}", "n": "Valid for large n and small p (say n >= 20, p <= 0.05)." },
+    { "q": "Hypergeometric pmf", "e": "P(X=k) = \\frac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}", "n": "Sampling without replacement. k ranges over max(0, n-(N-K)) to min(n, K)." },
+    { "q": "Hypergeometric mean", "e": "\\mu = n\\frac{K}{N}", "n": "Same as the binomial mean with p = K/N." },
+    { "q": "Hypergeometric variance", "e": "\\sigma^{2} = n\\frac{K}{N}\\left(1-\\frac{K}{N}\\right)\\frac{N-n}{N-1}", "n": "Finite population correction (N-n)/(N-1) makes it smaller than the binomial variance." },
+    { "q": "Binomial approximation to hypergeometric", "e": "\\mathrm{use\\ binomial\\ with\\ } p=\\frac{K}{N} \\mathrm{\\ when\\ } n \\le 0.05N", "n": "Otherwise use the exact hypergeometric formula." }
+  ],
+  "problems": [
+    {
+      "prompt": "A call centre receives an average of 3 calls per hour, Poisson distributed. Find the probability of (a) exactly 2 calls in an hour, (b) at least one call in an hour, (c) exactly 4 calls in a two-hour period.",
+      "give": ["rate r = 3 per hour"],
+      "steps": [
+        "(a) lambda = 3: P(X=2) = e^{-3}(3^2)/2! = 0.0497871 x 9/2 = 0.0497871 x 4.5",
+        "= 0.224042",
+        "(b) P(X >= 1) = 1 - P(X=0) = 1 - e^{-3} = 1 - 0.0497871",
+        "= 0.950213",
+        "(c) Two hours means lambda = r t = 3 x 2 = 6",
+        "P(X=4) = e^{-6}(6^4)/4! = 0.00247875 x 1296/24 = 0.00247875 x 54",
+        "= 0.133853"
+      ],
+      "ans": "(a) $0.2240$; (b) $0.9502$; (c) $0.1339$.",
+      "trap": "Using $\\lambda=3$ for the two-hour window in part (c). The Poisson parameter scales with the interval: $\\lambda=rt$. Substituting 3 gives $e^{-3}3^{4}/24=0.1680$, a 25% error.", "calc": {"mode":"COMP","steps":["(a) `e^(−3)×3²÷2!` → **0.224042**; (b) `1−e^(−3)` → **0.950213**.","(c) Scale the rate with the interval first: λ = `3×2` = **6**, then `e^(−6)×6⁴÷4!` → **0.133853**.","Keeping λ = 3 for the two-hour window instead gives **0.1680** — a 25% error."],"note":"λ = rt must be recomputed for every window; the pmf divides by k!, not by (n − k)!."}
+    },
+    {
+      "prompt": "A fibre-optic cable has an average of 2 faults per kilometre, Poisson distributed. Find the probability that a 1 km section has at least 2 faults, and the probability that a 500 m section has none.",
+      "give": ["r = 2 per km"],
+      "steps": [
+        "For 1 km: lambda = 2. P(X >= 2) = 1 - P(X=0) - P(X=1)",
+        "P(X=0) = e^{-2} = 0.135335",
+        "P(X=1) = e^{-2}(2)/1! = 0.270671",
+        "P(X >= 2) = 1 - 0.135335 - 0.270671 = 0.593994",
+        "For 500 m: lambda = 2(0.5) = 1; P(X=0) = e^{-1} = 0.367879",
+        "Mean and variance for the 1 km section are both 2"
+      ],
+      "ans": "$P(X\\ge2) = 0.5940$ per km; $P(X=0) = 0.3679$ per 500 m.",
+      "trap": "Halving the wrong quantity. For 500 m the rate must be halved too ($\\lambda=1$), not kept at 2. Alternatively, treating 'at least 2' as $1-e^{-2}$ (which is 'at least 1') — the complement must include both the zero and one terms.", "calc": {"mode":"COMP","steps":["1 km: `1−e^(−2)−2×e^(−2)` → **0.593994** = P(X ≥ 2), both the 0 and 1 terms removed.","500 m: λ = `2×0.5` = **1**, so `e^(−1)` → **0.367879** = P(X = 0).","For the 1 km section the mean and the variance are both λ = **2**."]}
+    },
+    {
+      "prompt": "A chip has a $0.5\\%$ chance of being defective, independently. In a lot of 400, use the Poisson approximation to find the probability that none is defective and that at least two are defective.",
+      "give": ["n = 400", "p = 0.005", "lambda = np = 2"],
+      "steps": [
+        "Poisson parameter: lambda = np = 400(0.005) = 2",
+        "P(X=0) = e^{-2} = 0.135335",
+        "P(X=1) = e^{-2}(2) = 0.270671",
+        "P(X >= 2) = 1 - 0.135335 - 0.270671 = 0.593994",
+        "Exact binomial for comparison: P(X=0) = (0.995)^400 = 0.134658, so the approximation is good to about 0.0007",
+        "The conditions n >= 20 and p <= 0.05 are satisfied"
+      ],
+      "ans": "$P(X=0) = 0.1353$; $P(X\\ge2) = 0.5940$.",
+      "trap": "Using $\\lambda = np$ but then computing $P(X=0)$ as $1-\\lambda$ or as $e^{-np}$ with the wrong sign. Also common: forgetting to check that $P(X\\ge2)$ must subtract both the 0 and 1 terms, not just the zero term.", "calc": {"mode":"COMP","steps":["λ = `400×0.005` = **2**; `e^(−2)` → **0.135335** = P(X = 0).","`1−e^(−2)−2×e^(−2)` → **0.593994** = P(X ≥ 2).","Exact binomial for comparison: `0.995^400` → **0.134658**, agreeing with the Poisson value to 0.0007."],"note":"The note's cross-check quotes `0.995^400` = **0.134658**, matching this chain; the Poisson value is **0.0007** high."}
+    },
+    {
+      "prompt": "A shipment of 20 components contains 4 defectives. Five are drawn at random without replacement. Find the probability that exactly 1 is defective, and compare with the binomial approximation.",
+      "give": ["N = 20, K = 4, n = 5"],
+      "steps": [
+        "Hypergeometric: P(X=1) = C(4,1)C(16,4)/C(20,5)",
+        "C(4,1) = 4; C(16,4) = 1820; C(20,5) = 15504",
+        "P(X=1) = (4 x 1820)/15504 = 7280/15504 = 0.469556",
+        "Mean: nK/N = 5(4/20) = 1.0 defective",
+        "Variance: 5(0.2)(0.8)(20-5)/(20-1) = 0.8 x 0.789474 = 0.631579, sd = 0.7947",
+        "Binomial approximation with p = 0.2: C(5,1)(0.2)(0.8)^4 = 0.409600 — about 0.06 too low, because n/N = 25% exceeds the 5% guideline"
+      ],
+      "ans": "$P(X=1) = 0.4696$ (hypergeometric); the binomial approximation gives $0.4096$.",
+      "trap": "Using the binomial on a 25%-of-the-lot sample. Without-replacement dependence matters at this sampling fraction; the binomial understates the probability of small defect counts and the error is large enough to matter.", "calc": {"mode":"COMP","steps":["Hypergeometric in one line: `4 nCr 1×16 nCr 4÷20 nCr 5` → **0.469556** = P(X = 1).","Mean `5×4÷20` → **1.0**; variance `5×0.2×0.8×15÷19` → **0.631579**, sd **0.7947**.","Binomial approximation for comparison: `5 nCr 1×0.2×0.8⁴` → **0.4096**, roughly 0.06 too low at a 25% sampling fraction."]}
+    },
+    {
+      "prompt": "A factory produces items with a $2\\%$ defect rate. Fifty items are inspected. Use the Poisson approximation to the binomial to find the probability of exactly 1 defective and of at least 2 defectives.",
+      "give": ["n = 50", "p = 0.02", "lambda = 1"],
+      "steps": [
+        "lambda = np = 50(0.02) = 1",
+        "P(X=1) = e^{-1}(1)/1! = 0.367879",
+        "P(X=0) = e^{-1} = 0.367879",
+        "P(X >= 2) = 1 - 0.367879 - 0.367879 = 0.264241",
+        "Exact binomial: P(X=0) = (0.98)^50 = 0.364170; P(X=1) = 50(0.02)(0.98)^49 = 0.371602; P(X>=2) = 1 - 0.364170 - 0.371602 = 0.264229",
+        "Agreement to 4 decimals — the approximation is excellent here"
+      ],
+      "ans": "$P(X=1) = 0.3679$ (exact binomial $0.3716$); $P(X\\ge2) = 0.2642$ (exact $0.2642$).",
+      "trap": "Using the Poisson approximation when the binomial can be evaluated directly — always back it up with the exact value when $n$ is only 50 and a calculator is available. Also: $\\lambda=1$ makes $P(X=0)=P(X=1)$, which is a coincidence of this problem and not a general rule.", "calc": {"mode":"COMP","steps":["λ = `50×0.02` = **1**; `e^(−1)` → **0.367879**, which is P(X = 1) here (and P(X = 0) too, since λ = 1).","`1−2×e^(−1)` → **0.264241** = P(X ≥ 2).","Exact binomial: `0.98^50` → **0.364170** and `50×0.02×0.98^49` → **0.371602**, so P(X ≥ 2) = **0.264229**, agreeing to 4 decimals."]}
+    },
+    {
+      "prompt": "A Geiger counter registers an average of 1.5 counts per second, Poisson distributed. Estimate the probability of 4 or more counts in a second using the normal approximation with a continuity correction.",
+      "give": ["lambda = 1.5", "mu = 1.5, sigma = sqrt(1.5) = 1.2247"],
+      "steps": [
+        "P(X >= 4) with the continuity correction starts at 3.5",
+        "z = (3.5 - 1.5)/1.2247 = 2/1.2247 = 1.6330",
+        "P(z > 1.6330) = 0.0512",
+        "Without the continuity correction: z = (4 - 1.5)/1.2247 = 2.0412, giving P = 0.0206",
+        "Exact Poisson: P(X >= 4) = 1 - [P(0)+P(1)+P(2)+P(3)] = 1 - 0.934358 = 0.065642",
+        "The continuity-corrected value (0.0512) is closer to the exact value than the uncorrected one (0.0206), but the normal approximation is still poor because lambda = 1.5 is small"
+      ],
+      "ans": "Continuity-corrected estimate $0.051$; exact Poisson $0.0656$. Use the normal approximation only for $\\lambda\\ge5$.",
+      "trap": "Omitting the continuity correction ($-0.5$ in the numerator). Here it changes the answer by a factor of 2.5 — the correction matters most exactly when the Poisson approximation to the normal is weakest.", "calc": {"mode":"STAT","steps":["Standardise with the continuity correction: `(3.5−1.5)÷√1.5` → **1.6330**.","`MODE` `3` STAT, `Apps` → `Distr` → `R(` `1.6330` → **0.0512**, the upper tail with no table.","Exact Poisson: `1−e^(−1.5)×(1+1.5+1.5²÷2+1.5³÷6)` → **0.065642** — the approximation is poor at λ = 1.5."],"note":"Apply the −0.5 correction before standardising; without it z = 2.0412 and the estimate halves to 0.0206."}
+    }
+  ],
+  "traps": [
+    "**Forgetting to scale $\\lambda$ with the interval.** The rate is per unit time or distance; the parameter is the rate times the interval. A two-hour window with a 3-per-hour rate needs $\\lambda=6$.",
+    "**Using the binomial on a without-replacement sample.** Dependence is real whenever the sample is a sizeable fraction of the lot. The hypergeometric is exact; the binomial is an approximation valid only for small sampling fractions.",
+    "**Omitting the finite population correction in the hypergeometric variance.** The factor $\\frac{N-n}{N-1}$ is what makes the hypergeometric variance smaller than $npq$; leaving it out overstates the spread.",
+    "**Confusing the mean and variance of the Poisson.** They are both $\\lambda$. If a problem gives a variance and asks for the mean, no computation is needed — and if observed data show variance much greater than the mean, the Poisson model does not fit.",
+    "**Applying the Poisson when the rate is not constant.** Clustering, wear-out, or rush-hour variation violates the constant-rate assumption. A variance far above the mean in the data is the diagnostic.",
+    "**Dropping the $k!$ in the denominator or using $n!$.** The Poisson pmf divides by $k!$, not by $(n-k)!$. For $\\lambda=3$ and $k=2$ the denominator is 2, so the answer is $4.5e^{-3}$, not $9e^{-3}$.",
+    "**Adding the continuity correction in the wrong direction.** For $P(X\\ge k)$ use $k-0.5$; for $P(X\\le k)$ use $k+0.5$. Reversing them moves the estimate further from the exact value, not closer."
+  ],
+  "refs": [
+    "[[05_Binomial_and_Geometric_Distributions]]",
+    "[[07_Uniform_and_Exponential_Distributions]]",
+    "[[08_Normal_Distribution_and_Z_Scores]]",
+    "[[04_Probability_Rules_and_Bayes]]"
+  ],
+  "prereqs": ["[[05_Binomial_and_Geometric_Distributions]]"]
+}

@@ -1,0 +1,717 @@
+[
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 2,
+    "expect": "The envelope of an AM wave reaches a maximum of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line with `ALPHA` `:` — `(15−5)÷(15+5) : (15+5)÷2 : Ans×0.5`",
+        "`=` down the chain: $m$ = **0.5** → $A_c$ = **10** V → $A_m$ = **5** V. The third statement reads `Ans` = 10 from the second."
+      ],
+      "note": "The denominator is the SUM $E_{max}+E_{min}=2A_c$, never $E_{max}$ alone: `(15−5)÷15` = **0.667** is the trap answer."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 3,
+    "expect": "carrier is amplitude-modulated to a depth of 60 percent",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100(1+0.6^2÷2) : Ans−100 : 100×0.6^2÷4 : 18÷118`",
+        "`=` down the chain: $P_t$ = **118** W → sidebands **18** W → each sideband **9** W → $\\eta$ = **0.1525** = **15.25** % (the note rounds to 15.3 %)."
+      ],
+      "note": "The sideband term is $m^2/2$: `100×(1+0.6^2)` = **136** W and `100×0.6^2÷2` = **18** W read as ONE sideband are the two standard traps."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 4,
+    "expect": "Compare the modulation efficiency of an AM transmitter",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷3 : 0.25÷2.25` → $\\eta$ = **0.3333** → **0.1111**, i.e. **33.3** % against **11.1** %.",
+        "`(1÷3)÷(0.25÷2.25)` → ratio **3**; `10log(Ans)` → **4.77** dB."
+      ],
+      "note": "Efficiencies are POWER ratios, so the dB form is `10log`, not `20log` — `20log(3)` = **9.54** dB overstates the gain."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 5,
+    "expect": "draws an antenna current of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(2((5.74÷5)^2−1)) : Ans×100`",
+        "`=` down the chain: $m$ = **0.7974** → **79.74** %, i.e. the note's 0.8 (80 %)."
+      ],
+      "note": "The current ratio must be SQUARED first: $I_t/I_c$ = **1.148** is not the index — that is the trap answer."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 6,
+    "expect": "An AM transmitter delivers",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(2(60−50)÷50) : 10÷60`",
+        "`=` down the chain: $m$ = **0.6325** = **63.25** % → $\\eta$ = **0.1667** = **16.67** %."
+      ],
+      "note": "The sideband power is the DIFFERENCE $P_t-P_c$ = **10** kW and the index is its square root; the bare power ratio `10÷50` = **0.2** is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 7,
+    "expect": "Two independent tones modulate a carrier",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(0.4^2+0.3^2) : Ans^2÷(2+Ans^2) : 0.4+0.3`",
+        "`=` down the chain: $m_{tot}$ = **0.5** → $\\eta$ = **0.1111** = **11.11** % → peak sum = **0.7** $\\le$ 1, so the envelope stays non-negative."
+      ],
+      "note": "Power indices combine in QUADRATURE (**0.5**); the arithmetic sum **0.7** governs only the peak-envelope check and is not the power index."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 8,
+    "expect": "A transmitter is accidentally overmodulated",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10(1+1.2) : 10(1−1.2) : (22−2)÷(22+2)`",
+        "`=` down the chain: $E_{max}$ = **22** V → $E_{min}$ = **−2** V → apparent index **0.8333** once the diode folds the −2 V to **2** V."
+      ],
+      "note": "The scope formula returns **0.833** for a true index of **1.2** — it cannot detect overmodulation, which is exactly the point."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/01_AM_Fundamentals_and_Modulation_Index.json",
+    "problem": 9,
+    "expect": "By what percentage does the antenna current increase",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√1.5 : (Ans−1)×100 : 1000×1.5`",
+        "`=` down the chain: $I_t/I_c$ = **1.2247** → current rise **22.47** % → $P_t$ = **1500** W, so **500** W in the sidebands and **250** W each."
+      ],
+      "note": "Power rises **50** % but current only **22.5** % ($\\sqrt{1.5}$): expecting the current to double at $m=1$ is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/02_AM_Spectrum,_Bandwidth_and_Power.json",
+    "problem": 2,
+    "expect": "has a carrier amplitude of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20^2÷(2×50) : Ans×1.08 : 20^2÷(2×50)×0.4^2÷4`",
+        "`=` down the chain: $P_c$ = **4** W → $P_t$ = **4.32** W → each sideband **0.16** W, so `4+0.16+0.16` = **4.32** W as the note checks."
+      ],
+      "note": "The `2` in $A_c^2/(2R)$ is the peak-to-rms conversion: `20^2÷50` = **8** W for $P_c$ is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/02_AM_Spectrum,_Bandwidth_and_Power.json",
+    "problem": 3,
+    "expect": "A voice channel occupies",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×3.4 : Ans×1.2`",
+        "`=` down the chain: $BW$ = **6.8** kHz → spacing **8.16** kHz, which rounds up to the standard **10** kHz channel."
+      ],
+      "note": "Twice the HIGHEST frequency, $2×3400$ = **6.8** kHz; $2(3400−300)$ = **6.2** kHz from the band WIDTH is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/02_AM_Spectrum,_Bandwidth_and_Power.json",
+    "problem": 4,
+    "expect": "An AM signal is modulated to 80 percent",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.8^2÷(2+0.8^2) : Ans÷2`",
+        "`=` down the chain: **0.2424** = **24.24** % in both sidebands → **12.12** % in the USB alone."
+      ],
+      "note": "The denominator is the TOTAL power budget, $2+m^2$: `0.8^2÷2` = **32** % divides by the carrier and is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/02_AM_Spectrum,_Bandwidth_and_Power.json",
+    "problem": 5,
+    "expect": "Two tones,",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(0.3^2+0.4^2) : 200×Ans^2÷2 : 200×0.3^2÷2 : 200×0.4^2÷2 : 2×5`",
+        "`=` down the chain: $m_{tot}$ = **0.5** → sideband power **25** W → the 1 kHz pair **9** W → the 5 kHz pair **16** W → $BW$ = **10** kHz."
+      ],
+      "note": "The two tones' powers ADD (`9+16` = **25** W); the peak sum `0.3+0.4` = **0.7** belongs to the envelope check only."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/03_DSB-SC_and_SSB-SC.json",
+    "problem": 1,
+    "expect": "is to be replaced by",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000×1.5 : 1000÷2 : 1000÷4 : (1500−500)÷1500 : (1500−250)÷1500`",
+        "`=` down the chain: AM **1500** W → DSB-SC **500** W → SSB-SC **250** W → saving **66.7** % → **83.3** %.",
+        "Both savings are POWER ratios, so `10log(1500÷500)` → **4.77** dB and `10log(1500÷250)` → **7.78** dB."
+      ],
+      "note": "The baseline is the AM TOTAL **1500** W, not the 1000 W carrier — against the carrier the SSB saving reads **75** %, the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/03_DSB-SC_and_SSB-SC.json",
+    "problem": 2,
+    "expect": "An audio channel carries",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×3000 : Ans÷2`",
+        "`=` down the chain: AM and DSB-SC = **6000** Hz → SSB-SC = **3000** Hz, so `6000÷3000` = **2** SSB channels per AM channel."
+      ],
+      "note": "Twice the HIGHEST frequency, `2×3000` = **6** kHz; the band width gives `2×2700` = **5.4** kHz, the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/03_DSB-SC_and_SSB-SC.json",
+    "problem": 3,
+    "expect": "A balanced modulator specified for",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100÷10^(40÷10) : Ans×1000`",
+        "`=` down the chain: residual carrier **0.01** W → **10** mW. As an absolute level `10log(0.01)` = **−20** dBW, i.e. **40** dB below the 100 W carrier."
+      ],
+      "note": "40 dB is a power ratio of `10^(40÷10)` = **10^4**; `100÷40` = **2.5** W treats dB as a plain divisor — the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/03_DSB-SC_and_SSB-SC.json",
+    "problem": 5,
+    "expect": "An SSB generator uses the filter method",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×300 : 1E6÷Ans`",
+        "`=` down the chain: sideband separation **600** Hz → filter $Q$ = **1667**, about 1700."
+      ],
+      "note": "The gap uses the LOWEST audio frequency; `1E6÷3000` = **333** comes from the highest and is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 2,
+    "expect": "peak deviation of $20",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20÷5 : 2×20`",
+        "`=` down the chain: $f_m$ = **4** kHz → carrier swing **40** kHz, running $f_c-20$ to $f_c+20$ kHz."
+      ],
+      "note": "The swing is TWICE the deviation (`2×20` = **40** kHz), and $f_m = \\Delta f/\\beta$, not $\\beta/\\Delta f$ — both traps sit here."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 3,
+    "expect": "phase modulator is driven by",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×1.5 : Ans×2 : Ans×2`",
+        "`=` down the chain: $m_p$ = **3** rad → $\\Delta f$ = **6** kHz → swing = **12** kHz."
+      ],
+      "note": "$k_p$ is rad/V, so `2×1.5` = **3** rad is a PHASE; the deviation needs the extra `×f_m` — `3×2` = **6** kHz."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 4,
+    "expect": "The same FM transmitter is limited to",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100×60÷75 : 75÷5`",
+        "`=` down the chain: percent modulation **80** % → $f_{m(max)}$ = **15** kHz, at which $\\beta$ = `75÷15` = **5**."
+      ],
+      "note": "Percent modulation compares DEVIATIONS (`60÷75`), not indices; and $f_{m(max)}$ comes from $\\Delta f_{max}/D$ — **15** kHz."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 5,
+    "expect": "An FM broadcast transmitter runs the standard",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`75÷15 : 2×75`",
+        "`=` down the chain: $\\beta$ = **5** → carrier swing **150** kHz, which is the maximum deviation ratio for FM broadcast."
+      ],
+      "note": "$\\beta$ takes the HIGHEST audio frequency for the worst case, and the swing is `2×75` = **150** kHz, not 75 kHz."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 6,
+    "expect": "Compare FM and PM for a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2÷1 : 2÷5 : 2×1 : 2×5` — with FM $\\Delta f$ = `2×1` = **2** kHz throughout and PM $m_p$ = `2×1` = **2** rad throughout.",
+        "`=` down the chain: FM $\\beta$ = **2** at 1 kHz → **0.4** at 5 kHz → PM $\\Delta f$ = **2** kHz at 1 kHz → **10** kHz at 5 kHz."
+      ],
+      "note": "FM holds $\\Delta f$ and loses index; PM holds the index and gains deviation — `2÷5` = **0.4** against `2×5` = **10** kHz is the whole difference."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 7,
+    "expect": "A PM signal has a phase deviation of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.5×4 : 2×(Ans+4) : 2×4×(1+2.5)`",
+        "`=` down the chain: $\\Delta f$ = **10** kHz → $BW$ = **28** kHz by Carson → **28** kHz again as $2f_m(1+m_p)$."
+      ],
+      "note": "For PM the deviation is $m_pf_m$ = **10** kHz, not the 2.5 rad figure; Carson then adds the $f_m$ back through `2×(10+4)`."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 8,
+    "expect": "Two tones of equal amplitude",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10×2 : 2×(Ans+10) : Ans÷10`",
+        "`=` down the chain: $\\Delta f$ = **20** kHz → $BW$ = **60** kHz using the 10 kHz tone → $\\beta$ = **2** there, against `20÷1` = **20** for the 1 kHz tone."
+      ],
+      "note": "Deviation follows the PEAK amplitude (`10×2` = **20** kHz); bandwidth follows the HIGHEST tone, `2×(20+10)` = **60** kHz."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/05_FM_and_PM_Fundamentals.json",
+    "problem": 9,
+    "expect": "is observed to sweep between",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(99.925+100.075)÷2 : (100.075−99.925)×1000 : Ans÷2 : 100×Ans÷75`",
+        "`=` down the chain: $f_c$ = **100.000** MHz → swing **150** kHz → $\\Delta f$ = **75** kHz → **100** % modulation."
+      ],
+      "note": "The observed range is the SWING: `÷2` gives $\\Delta f$ = **75** kHz, and a 150 kHz sweep is not 200 % modulation."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/06_FM_Sidebands_and_Bessel_Functions.json",
+    "problem": 1,
+    "expect": "and a carrier amplitude of $10",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10×0.2239 : 10×0.5767 : 0.2239^2 : 10^2÷(2×50)`",
+        "`=` down the chain: carrier $A_cJ_0$ = **2.24** V → each first-order sideband $A_cJ_1$ = **5.77** V → carrier fraction $J_0^2$ = **0.0501** = **5.0** % → total power **1** W, so the carrier holds **0.050** W."
+      ],
+      "note": "The machine has no Bessel key: key $J_0$ = **0.2239** and $J_1$ = **0.5767** from the table above and let it do the squaring."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/06_FM_Sidebands_and_Bessel_Functions.json",
+    "problem": 2,
+    "expect": "Using the Bessel table, find the fraction of total power in the carrier",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.7652^2 : 2×0.4401^2 : 2×0.1149^2`",
+        "`=` down the chain: carrier $J_0^2$ = **0.5855** = **58.6** % → first-order pair **0.3874** = **38.7** % → second-order pair **0.0264** = **2.6** %, the sum **0.999** leaving the rest to order 3 and above."
+      ],
+      "note": "Power is $J_n^2$ and every order $n\\ge1$ is a PAIR, hence the leading `2×`. The machine cannot produce $J_n$ itself."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/06_FM_Sidebands_and_Bessel_Functions.json",
+    "problem": 3,
+    "expect": "In a deviation calibration a carrier null is observed",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.405×10 : 5.520×10`",
+        "`=` down the chain: first null $\\Delta f$ = **24.05** kHz → second null $\\Delta f$ = **55.2** kHz."
+      ],
+      "note": "`2.405` is the FIRST zero of $J_0$ only; the second is `5.520` and the third `8.654`, so reusing 2.405 is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/06_FM_Sidebands_and_Bessel_Functions.json",
+    "problem": 4,
+    "expect": "An FM transmitter operates with a modulation index",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5+1 : 2×Ans×15 : 2×(5×15+15)`",
+        "`=` down the chain: $n_{max}$ = **6** per side → $BW$ = **180** kHz by the sideband rule → **180** kHz by Carson, with `5×15` = **75** kHz of deviation."
+      ],
+      "note": "Count $n_{max}$ PER SIDE (`5+1` = **6**), so the band is `2×6×15` = **180** kHz; six sidebands in total would halve it."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/06_FM_Sidebands_and_Bessel_Functions.json",
+    "problem": 5,
+    "expect": "radiated with a carrier amplitude of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20^2÷(2×50) : Ans×0.7652^2`",
+        "`=` down the chain: total power **4** W at every index → carrier at $\\beta=1$ = **2.34** W (**58.6** %). At $\\beta=2.405$, $J_0$ = **0**, so the carrier term is **0** W and the same 4 W sits entirely in the sidebands."
+      ],
+      "note": "Enter the tabulated $J_0(1)$ = **0.7652** and square it — with no Bessel key on the machine, `0.7652` must come from the table."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/07_Carson’s_Rule_and_FM_Bandwidth.json",
+    "problem": 1,
+    "expect": "An FM signal has a peak deviation of $30",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`30÷3 : 2×(30+3) : 2×(10+1)×3`",
+        "`=` down the chain: $\\beta$ = **10** → Carson $BW$ = **66** kHz → **66** kHz again from `2(β+1)fm` = `2×11×3`."
+      ],
+      "note": "Use Carson, not $2\\Delta f$: the $f_m$ term is `2×3` = **6** kHz of the **66** kHz, and dropping it gives the trap answer 60 kHz."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/07_Carson’s_Rule_and_FM_Bandwidth.json",
+    "problem": 2,
+    "expect": "and a modulating frequency of $15",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5×15 : 2×15×(1+5)`",
+        "`=` down the chain: $\\Delta f$ = **75** kHz → $BW$ = **180** kHz; the long form `2×(75+15)` agrees."
+      ],
+      "note": "`2(1+β)fm` keeps the 1: writing `2βf_m` = **150** kHz deletes the message term and is **30** kHz short — the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/07_Carson’s_Rule_and_FM_Bandwidth.json",
+    "problem": 3,
+    "expect": "A narrowband FM transmitter has a peak deviation of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.5÷3 : 2×(0.5+3) : 2×3 : (7−6)÷7`",
+        "`=` down the chain: $\\beta$ = **0.167** → Carson $BW$ = **7** kHz → the $2f_m$ shortcut **6** kHz → short by **14.3** %."
+      ],
+      "note": "NBFM is dominated by $2f_m$: the deviation contributes only `2×0.5` = **1** kHz, and $2\\Delta f$ = **1** kHz is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/07_Carson’s_Rule_and_FM_Bandwidth.json",
+    "problem": 4,
+    "expect": "A land-mobile FM service allows a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×(5+3) : 25−Ans : Ans÷25 : 5÷3`",
+        "`=` down the chain: $BW$ = **16** kHz → guard **9** kHz → **36** % of the channel → $\\beta$ = **1.67** at the highest audio frequency."
+      ],
+      "note": "`2Δf` = **10** kHz is not the occupied bandwidth, and 16 kHz does not fit a 12.5 kHz channel — the guard is part of the allocation."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/07_Carson’s_Rule_and_FM_Bandwidth.json",
+    "problem": 5,
+    "expect": "A phase modulator with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3×2 : 2×(Ans+2) : 3×4 : 2×(Ans+4)`",
+        "`=` down the chain: $\\Delta f$ = **6** kHz → $BW$ = **16** kHz at 2 kHz → at 4 kHz $\\Delta f$ = **12** kHz → $BW$ = **32** kHz, while $m_p$ stays **3** rad."
+      ],
+      "note": "In PM the index is unchanged by $f_m$ but $\\Delta f = m_pf_m$ doubles — so `2×(12+4)` = **32** kHz, not a constant 16 kHz."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/09_FM_Noise_and_Threshold_Effect.json",
+    "problem": 1,
+    "expect": "The noise at an FM discriminator output has a density",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(15÷1)^3 : 10log(Ans)`",
+        "`=` down the chain: noise-power ratio **3375** → **35.3** dB, since the density goes as $f^2$ and the band integral as $f^3$."
+      ],
+      "note": "Density as $f^2$ means band POWER as $f^3$: the ratio is $(15/1)^3$ = **3375**, not the linear 15 or the square 225."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/09_FM_Noise_and_Threshold_Effect.json",
+    "problem": 2,
+    "expect": "and an input carrier-to-noise ratio of $20",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.5×5^2 : 10log(Ans) : 20+Ans`",
+        "`=` down the chain: $I$ = **37.5** → **15.74** dB → output SNR **35.74** dB."
+      ],
+      "note": "`10log` is correct because $1.5\\beta^2$ is a POWER ratio, and the dB improvement is ADDED to the input CNR. Dropping the `1.5` costs **1.76** dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/09_FM_Noise_and_Threshold_Effect.json",
+    "problem": 3,
+    "expect": "deviation is doubled while the modulating frequency is unchanged",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.5×2^2 : 1.5×4^2 : 10log(Ans÷6)`",
+        "`=` down the chain: $I$ = **6** (7.78 dB) → $I$ = **24** (13.80 dB) → SNR gain **6.0** dB, while the Carson bandwidth only goes from $6f_m$ to $10f_m$, a factor of **1.67**."
+      ],
+      "note": "Favourable, not equal: SNR goes as $\\beta^2$, bandwidth as $1+\\beta$, so `10log(10÷6)` = **2.2** dB buys **6.0** dB of SNR. Bandwidth is power-like: `10log`, not `20log`."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/09_FM_Noise_and_Threshold_Effect.json",
+    "problem": 5,
+    "expect": "Two FM broadcast signals arrive at a receiver",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20log(100÷35) : 20log(100÷60)`",
+        "`=` down the chain: **9.12** dB at 35 µV → **4.44** dB at 60 µV, against the **6** dB capture ratio — capture holds, then fails."
+      ],
+      "note": "These are VOLTAGE ratios, so `20log`; through `10log` the pair reads **4.56** and **2.22** dB and even the 35 µV case would look like a failure."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/10_AM_vs_FM_Noise_Comparison.json",
+    "problem": 1,
+    "expect": "An AM receiver and an FM receiver receive the same carrier power",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10log(1.5×5^2) : 20+Ans : 5+1`",
+        "`=` down the chain: FM improvement **15.74** dB → FM output **35.74** dB against AM's **20** dB → bandwidth factor $1+\\beta$ = **6**× AM's."
+      ],
+      "note": "FM's gain is bought with bandwidth: quote the `1+β` = **6**× cost alongside the **15.7** dB, never the dB alone."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/10_AM_vs_FM_Noise_Comparison.json",
+    "problem": 2,
+    "expect": "Compute the FM improvement factor in dB",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10log(1.5×2^2) : 10log(1.5×10^2) : 10log((1+10)÷(1+2))`",
+        "`=` down the chain: **7.78** dB at $\\beta=2$ → **21.76** dB at $\\beta=10$ (a **14** dB gain) for **5.64** dB more bandwidth."
+      ],
+      "note": "Improvement goes as $\\beta^2$ while bandwidth goes as $1+\\beta$: the SNR gain is twice the index's dB rise, and the threshold worsens."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/10_AM_vs_FM_Noise_Comparison.json",
+    "problem": 3,
+    "expect": "A 25 kHz land-mobile channel must carry a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×3 : 2×(5+3) : 5÷3 : 10log(1.5×Ans^2)`",
+        "`=` down the chain: AM $BW$ = **6** kHz → FM $BW$ = **16** kHz → $\\beta$ = **1.667** → FM improvement **6.2** dB inside the same channel."
+      ],
+      "note": "The index that fits a narrow channel is small: `5÷3` = **1.667** gives **6.2** dB, not broadcast FM's **15.7** dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/10_AM_vs_FM_Noise_Comparison.json",
+    "problem": 5,
+    "expect": "A broadcast FM receiver with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10log(1.5×5^2) : 20+Ans : Ans+13 : Ans−20`",
+        "`=` down the chain: improvement **15.74** dB → **35.74** dB unweighted → **48.74** dB with 75 µs de-emphasis → **28.74** dB better than AM."
+      ],
+      "note": "Add the de-emphasis **13** dB ON TOP of the unweighted `10log(1.5β^2)`; the AM baseline is the same 20 dB input CNR."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/11_Pre-Emphasis_and_De-Emphasis.json",
+    "problem": 1,
+    "expect": "Find the corner frequencies of the",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷(2π×75E-6) : 1÷(2π×50E-6) : 1÷(2π×25E-6)`",
+        "`=` down the chain: **2122** Hz → **3183** Hz → **6366** Hz, i.e. **2.12**, **3.18** and **6.37** kHz."
+      ],
+      "note": "The `2π` is the whole conversion: `1÷75E-6` = **13.3** kHz is the trap a missing $2\\pi$ produces."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/11_Pre-Emphasis_and_De-Emphasis.json",
+    "problem": 2,
+    "expect": "de-emphasis network is used with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√((1+(15000÷2122)^2)÷(1+(1000÷2122)^2)) : 20log(Ans)`",
+        "`=` down the chain: voltage ratio **6.458** → **16.2** dB of extra attenuation at 15 kHz."
+      ],
+      "note": "$H$ is a VOLTAGE response, so `20log`; and 1 kHz is below the corner, so the asymptotic `20log(15)` = **23.5** dB is wrong."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/11_Pre-Emphasis_and_De-Emphasis.json",
+    "problem": 3,
+    "expect": "Compute the SNR improvement produced by",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "In `RAD`: `15000^3÷3÷(2122^2×(15000−2122×tan⁻¹(15000÷2122)))`",
+        "`=` → improvement factor **20.88**; `10log(Ans)` → **13.20** dB, which with `10log(1.5×5^2)` = **15.74** dB and the 20 dB input gives **48.9** dB."
+      ],
+      "note": "`tan⁻¹` must be in radians: $\\arctan(f_m/f_c)$ = **1.430** rad, and a degree-mode answer of 81.9° wrecks the integral."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/11_Pre-Emphasis_and_De-Emphasis.json",
+    "problem": 4,
+    "expect": "Pre-emphasis boosts",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(17÷20)` → **7.079**, the AMPLITUDE multiplier at 15 kHz; `10^(17÷10)` = **50.1** is the power ratio and the wrong key here.",
+        "The audio level must therefore come down **17** dB at 15 kHz to hold the 75 kHz deviation limit, so the boost buys no extra deviation headroom."
+      ],
+      "note": "17 dB on a voltage is `10^(17÷20)`; using the `10^` power form overstates the boost by **7.1**×."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/12_Superheterodyne_Receiver.json",
+    "problem": 1,
+    "expect": "An AM broadcast receiver with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000+455 : 1000+2×455`",
+        "`=` down the chain: $f_{LO}$ = **1455** kHz → $f_{image}$ = **1910** kHz; `1910−1455` = **455** kHz confirms both land on the IF."
+      ],
+      "note": "$f_{LO}$ adds ONE IF and the image adds TWO: reporting `1000+455` = **1455** kHz as the image is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/12_Superheterodyne_Receiver.json",
+    "problem": 2,
+    "expect": "An FM receiver with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100+10.7 : 100+2×10.7 : Ans−100`",
+        "`=` down the chain: $f_{LO}$ = **110.7** MHz → $f_{image}$ = **121.4** MHz → **21.4** MHz clear of the 88–108 MHz band, so a fixed preselector removes it."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/12_Superheterodyne_Receiver.json",
+    "problem": 3,
+    "expect": "uses low-side injection to receive a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000−455 : 1000−2×455 : 545−90`",
+        "`=` down the chain: $f_{LO}$ = **545** kHz → $f_{image}$ = **90** kHz, below the band → `545−90` = **455** kHz = the IF, the check that both mix down together."
+      ],
+      "note": "Low-side injection puts the image BELOW the signal: `1000+910` = **1910** kHz from habit is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/12_Superheterodyne_Receiver.json",
+    "problem": 4,
+    "expect": "An AM broadcast receiver tunes",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`540+455 : 1600+455 : Ans÷995`",
+        "`=` down the chain: $f_{LO,min}$ = **995** kHz → $f_{LO,max}$ = **2055** kHz → ratio **2.065**, against the band's own `1600÷540` = **2.96**."
+      ],
+      "note": "The constant IF offset COMPRESSES the ratio; computing `1600÷540` and forgetting the offset is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/13_Image_Frequency_and_IRR.json",
+    "problem": 1,
+    "expect": "An AM receiver has a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000+2×455 : Ans÷1000−1000÷Ans : √(1+50^2×Ans^2) : 20log(Ans)`",
+        "`=` down the chain: $f_{image}$ = **1910** kHz → $\\rho$ = **1.3864** → $IRR$ = **69.33** → **36.8** dB."
+      ],
+      "note": "$IRR$ is a VOLTAGE ratio, so `20log`; `10log(69.33)` = **18.4** dB is exactly half and is the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/13_Image_Frequency_and_IRR.json",
+    "problem": 2,
+    "expect": "For the receiver above, what preselector",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10^(60÷20) : √((Ans^2−1)÷1.9222)`",
+        "`=` down the chain: 60 dB is a voltage ratio of **1000** → $Q$ = **721**, which no single tuned stage provides."
+      ],
+      "note": "`10^(60÷10)` = **100** comes from the power convention and returns $Q$ = **72.1**, a factor of ten low — the trap."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/13_Image_Frequency_and_IRR.json",
+    "problem": 3,
+    "expect": "is doubled to $100",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√(1+100^2×1.9222) : 20log(Ans) : Ans−36.8`",
+        "`=` down the chain: $IRR$ = **138.6** → **42.8** dB → **6.0** dB more than the $Q=50$ case."
+      ],
+      "note": "$IRR$ goes as $Q$ once $Q\\rho \\gg 1$, so doubling $Q$ adds `10log(4)` = **6.0** dB, not 3 dB."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/13_Image_Frequency_and_IRR.json",
+    "problem": 4,
+    "expect": "and a preselector of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100+2×10.7 : Ans÷100−100÷Ans : √(1+50^2×Ans^2) : 20log(Ans)`",
+        "`=` down the chain: $f_{image}$ = **121.4** MHz → $\\rho$ = **0.3903** → $IRR$ = **19.54** → **25.8** dB, about **11** dB worse than the AM case at the same $Q$."
+      ],
+      "note": "$\\rho$ shrinks as the fractional IF separation falls, so the same $Q$ cannot buy the same rejection at 100 MHz."
+    }
+  },
+  {
+    "file": "build/payload/04_EST/02_Principles_of_Communications/13_Image_Frequency_and_IRR.json",
+    "problem": 5,
+    "expect": "A double-conversion receiver uses a first IF of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10.7+0.455 : 10.7+2×0.455 : 910÷10`",
+        "`=` down the chain: $f_{LO2}$ = **11.155** MHz → second image **11.61** MHz → **910** kHz above the first IF, i.e. **91** times the 10 kHz first-IF filter width, so it is long gone before the second mixer."
+      ],
+      "note": "Keep the second IF in MHz as `0.455`; mixing kHz into a MHz chain is the slip this problem invites."
+    }
+  }
+]

@@ -1,0 +1,108 @@
+{
+  "scope": "Quantify FM's noise advantage over AM, the triangular noise spectrum at the discriminator output, and the threshold below which FM collapses.",
+  "intuition": "FM wins because the message hides in the zero crossings, so a limiter can clip off amplitude noise for free. The cost is that the discriminator differentiates noise, weighting it by frequency squared — and below a certain input level the noise captures the receiver entirely and the advantage disappears in a burst of clicks.",
+  "concept": [
+    "**Why FM is quiet: amplitude noise is discarded.** An FM receiver hard-limits the IF signal before the discriminator, so any amplitude variation — thermal noise, ignition noise, fading — is stripped away, and only the phase (equivalently, the zero crossings) survives. AM's information *is* the amplitude, so the same limiter would destroy the message. This is the physical reason FM is chosen for services where impulsive interference is severe and why it is preferred to AM at VHF and above where such interference is common.",
+    "**The noise that does get through is triangular.** The discriminator's output is proportional to the *derivative* of the input phase. For an input of narrowband noise with a flat density, the output noise power spectral density rises as $f^2$ over the baseband — the classic **triangular noise** spectrum (strictly parabolic, since the density goes as $f^2$). Integrating gives a total output noise power proportional to $f_m^3/3$, so the noise is concentrated at the top of the audio band. Two consequences follow directly: the signal-to-noise ratio measured in a narrow band near $f_m$ is much worse than the average across the band, and any technique that attenuates the high frequencies before detection improves the *overall* SNR. That technique is de-emphasis, and it is worth about 13 dB in broadcast FM — see [[11_Pre-Emphasis_and_De-Emphasis]].",
+    "**The FM improvement factor.** Above threshold, the single-tone improvement factor quoted in most texts is this: $\\left(\\dfrac{S}{N}\\right)_o = \\dfrac{3}{2}\\beta^2\\left(\\dfrac{S}{N}\\right)_i$. This is an improvement of $10\\log_{10}(1.5\\beta^2)$ dB over the input carrier-to-noise ratio, which is why doubling the deviation buys 6 dB. Different books normalise the input SNR to different noise bandwidths, so the constant varies between texts; the robust exam-level content is the $\\beta^2$ *scaling* — an FM receiver with $\\beta=5$ offers roughly 16 dB of improvement, and an AM envelope detector offers none at all. Because $\\beta$ and bandwidth trade one for one (Carson's rule), FM is the classic example of exchanging spectrum for signal-to-noise ratio.",
+    "**The threshold effect.** The linear analysis above assumes the input carrier is strong enough that the noise phase perturbation stays small. As the carrier-to-noise ratio falls, the noise vector occasionally swings the resultant phase through more than $\\pi$, and the discriminator reports a full-scale spike: an audible **click**. Each click removes a chunk of signal energy, and the output SNR collapses far faster than the input SNR. The **FM threshold** is the carrier-to-noise ratio at which this starts, typically quoted as about $10\\ \\mathrm{dB}$ (some texts use $13\\ \\mathrm{dB}$ for the 'FM improvement threshold'); above it the $\\beta^2$ law holds, below it the output SNR can fall *below* AM's. Crucially the threshold is *made worse by larger deviation*, so a wideband FM system that looks 16 dB better on paper is also the most fragile one. Threshold extension uses a phase-locked-loop or frequency-modulated-feedback (FMFB) demodulator, which tracks the signal and lowers the threshold by a few dB.",
+    "**Capture effect and quieting.** When two FM signals share a channel, the stronger one suppresses the weaker almost completely once the amplitude ratio exceeds the **capture ratio** — about 6 dB for a typical receiver, and as little as 1–2 dB for a good design. This is why co-channel FM interference sounds like the sudden appearance and disappearance of one station rather than a mixture, and why FM broadcast can reuse channels at relatively short distances. The same nonlinearity explains the **quieting curve**: as a receiver's input signal is increased from the noise floor, the output noise drops steeply over a few dB and then flattens at 'full quieting'. Receiver sensitivity for FM is therefore specified as the input level for a given SINAD (12 dB SINAD is the standard), not as a noise figure alone.",
+    "**Stating an FM advantage honestly.** Three qualifications must accompany any '# dB better than AM' claim. First, the comparison must be at the same input carrier power and the same *message* bandwidth; FM's improvement is purchased with a much wider transmission bandwidth, so an equal-bandwidth comparison narrows the gap dramatically. Second, the advantage exists only above threshold — below it, FM is worse than AM. Third, the unweighted figure improves by roughly 13 dB more once de-emphasis is counted, which is why practical FM broadcast SNR numbers are so much better than a naive $1.5\\beta^2$ estimate."
+  ],
+  "formulas": [
+    { "q": "FM output SNR (above threshold)", "e": "\\left(\\frac{S}{N}\\right)_o = \\frac{3}{2}\\beta^2 \\left(\\frac{S}{N}\\right)_i", "n": "Single tone. Texts differ in the input noise bandwidth used; the beta^2 scaling is the robust part." },
+    { "q": "FM improvement factor in dB", "e": "I = 10\\log_{10}\\!\\left(\\frac{3}{2}\\beta^2\\right)\\ \\mathrm{dB}", "n": "beta = 2 gives 7.8 dB; beta = 5 gives 15.7 dB; beta = 10 gives 21.8 dB." },
+    { "q": "Deviation doubling", "e": "\\beta \\rightarrow 2\\beta \\ \\Rightarrow\\ I \\mathrm{\\ increases\\ by\\ } 6\\ \\mathrm{dB}", "n": "Quadratic in beta, so the exchange rate is 6 dB of SNR per doubling of deviation (and of bandwidth)." },
+    { "q": "Triangular (parabolic) output noise density", "e": "S_{n_o}(f) = K f^{2}, \\qquad 0 \\le f \\le f_m", "n": "Noise power grows with frequency squared because the discriminator differentiates phase." },
+    { "q": "Output noise power without de-emphasis", "e": "N_o = \\int_0^{f_m} K f^2\\, df = \\frac{K f_m^{3}}{3}", "n": "Integrating f^2 over the baseband; the top of the band dominates." },
+    { "q": "Noise power ratio between bands", "e": "\\frac{N(0\\!-\\!f_2)}{N(0\\!-\\!f_1)} = \\left(\\frac{f_2}{f_1}\\right)^{3}", "n": "Cubic, not linear. Two decades of audio carry 1000 times the noise power of one." },
+    { "q": "AM output SNR (envelope detection)", "e": "\\left(\\frac{S}{N}\\right)_o \\approx \\left(\\frac{S}{N}\\right)_i", "n": "No improvement above threshold at m = 1. Coherent DSB detection can add about 3 dB." },
+    { "q": "FM threshold (typical)", "e": "\\left(\\frac{C}{N}\\right)_{in} \\approx 10\\ \\mathrm{dB} \\ (\\mathrm{some\\ texts\\ } 13\\ \\mathrm{dB})", "n": "Below this the beta^2 law fails and clicks dominate. Larger deviation raises the threshold." },
+    { "q": "Capture ratio", "e": "\\frac{P_{wanted}}{P_{unwanted}} \\gtrsim 6\\ \\mathrm{dB}", "n": "Above this the stronger FM signal suppresses the weaker; good receivers achieve 1-2 dB." },
+    { "q": "De-emphasis improvement", "e": "\\approx 13\\ \\mathrm{dB} \\ \\mathrm{for\\ } \\tau = 75\\ \\mu\\mathrm{s},\\ f_{m} = 15\\ \\mathrm{kHz}", "n": "Additional to the flat beta^2 improvement; results from suppressing the triangular high-frequency noise." },
+    { "q": "Quieting / sensitivity spec", "e": "12\\ \\mathrm{dB}\\ \\mathrm{SINAD\\ sensitivity}", "n": "Standard FM receiver sensitivity measure; the quieting curve is steep near this point." }
+  ],
+  "problems": [
+    {
+      "prompt": "The noise at an FM discriminator output has a density rising as $f^2$. Compare the output noise power in the band $0$–$15\\ \\mathrm{kHz}$ with that in $0$–$1\\ \\mathrm{kHz}$.",
+      "give": ["triangular noise, S proportional to f^2", "bands 0-1 kHz and 0-15 kHz"],
+      "steps": [
+        "Noise power in 0 to f is proportional to the integral of f^2, i.e. f^3/3",
+        "Ratio = (15/1)^3 = 3375",
+        "In dB: 10 log10(3375) = 35.3 dB"
+      ],
+      "ans": "The full 15 kHz band carries 3375 times (35.3 dB) more noise power than the first kilohertz.",
+      "trap": "Using a linear ratio (15) or a square (225). The noise *density* goes as f^2, so the *power* in a band goes as f^3 — an easy factor of 15 error.", "calc": {"mode":"COMP","steps":["`(15÷1)^3 : 10log(Ans)`","`=` down the chain: noise-power ratio **3375** → **35.3** dB, since the density goes as $f^2$ and the band integral as $f^3$."],"note":"Density as $f^2$ means band POWER as $f^3$: the ratio is $(15/1)^3$ = **3375**, not the linear 15 or the square 225."}
+    },
+    {
+      "prompt": "An FM receiver operates with $\\beta = 5$ and an input carrier-to-noise ratio of $20\\ \\mathrm{dB}$ in the IF bandwidth. Find the output SNR and the improvement factor in dB.",
+      "give": ["beta = 5", "input CNR = 20 dB"],
+      "steps": [
+        "Improvement I = (3/2) beta^2 = 1.5(25) = 37.5",
+        "In dB: 10 log10(37.5) = 15.74 dB",
+        "Output SNR = 20 + 15.74 = 35.74 dB",
+        "Equivalently: output SNR = 20 + 15.7 = 35.7 dB"
+      ],
+      "ans": "Output SNR = 35.7 dB, an improvement of 15.7 dB.",
+      "trap": "Using I = beta^2 = 25 (13.98 dB) and dropping the 3/2. The factor 3/2 is worth 1.76 dB and is part of the standard single-tone result; its presence or absence is exactly the kind of constant that differs between texts, so state the form you are using.", "calc": {"mode":"COMP","steps":["`1.5×5^2 : 10log(Ans) : 20+Ans`","`=` down the chain: $I$ = **37.5** → **15.74** dB → output SNR **35.74** dB."],"note":"`10log` is correct because $1.5\\beta^2$ is a POWER ratio, and the dB improvement is ADDED to the input CNR. Dropping the `1.5` costs **1.76** dB."}
+    },
+    {
+      "prompt": "An FM transmitter's deviation is doubled while the modulating frequency is unchanged. What happens to the modulation index, the bandwidth and the output SNR?",
+      "give": ["beta: 2 then 4", "fm unchanged"],
+      "steps": [
+        "beta doubles from 2 to 4",
+        "Bandwidth rises, but not by a factor of 2: Carson gives 2fm(1+2)=6fm then 2fm(1+4)=10fm, a ratio of 10/6 = 1.67, i.e. +2.2 dB (10log, since bandwidth behaves like noise power)",
+        "Improvement factor I = 1.5 beta^2: 1.5(4) = 6 (7.8 dB) then 1.5(16) = 24 (13.8 dB)",
+        "SNR gain = 13.8 - 7.8 = 6.0 dB"
+      ],
+      "ans": "Bandwidth rises by about 2.2 dB; output SNR rises by exactly 6 dB.",
+      "trap": "Expecting an equal exchange (6 dB of bandwidth for 6 dB of SNR), or miscounting the bandwidth as doubling along with beta. The exchange is favourable: SNR goes as beta^2 while bandwidth goes roughly as beta, so only 2.2 dB of extra bandwidth buys 6 dB of SNR here — about 3 dB of SNR per dB of bandwidth. Two bookkeeping traps sit inside that: the bandwidth ratio is power-like, so it takes 10log (20log would give 4.4 dB), and the improvement factor is likewise a power ratio. The real price is not bandwidth but the threshold, which worsens as beta rises.", "calc": {"mode":"COMP","steps":["`1.5×2^2 : 1.5×4^2 : 10log(Ans÷6)`","`=` down the chain: $I$ = **6** (7.78 dB) → $I$ = **24** (13.80 dB) → SNR gain **6.0** dB, while the Carson bandwidth only goes from $6f_m$ to $10f_m$, a factor of **1.67**."],"note":"Favourable, not equal: SNR goes as $\\beta^2$, bandwidth as $1+\\beta$, so `10log(10÷6)` = **2.2** dB buys **6.0** dB of SNR. Bandwidth is power-like: `10log`, not `20log`."}
+    },
+    {
+      "prompt": "An FM receiver with $\\beta = 5$ is fed an input carrier-to-noise ratio of $8\\ \\mathrm{dB}$. What does the linear formula predict, and what actually happens?",
+      "give": ["beta = 5", "input CNR = 8 dB", "threshold ~ 10 dB"],
+      "steps": [
+        "Linear prediction: output = 8 + 15.7 = 23.7 dB",
+        "But 8 dB is below the ~10 dB FM threshold",
+        "Below threshold the noise phase can exceed pi, producing clicks and a catastrophic drop in output SNR",
+        "The actual output would be far worse than the prediction - possibly worse than an AM receiver at the same input CNR",
+        "Remedies: reduce the deviation (lower beta lowers the threshold), or use an FMFB / PLL threshold-extension demodulator"
+      ],
+      "ans": "The formula predicts 23.7 dB, but at 8 dB input the receiver is below threshold and the output collapses; FM is unusable until the input rises above about 10 dB.",
+      "trap": "Applying the beta^2 law below threshold. It is a small-signal linearisation valid only above the threshold; using it below gives an optimistic answer for a receiver that is actually clicking violently."
+    },
+    {
+      "prompt": "Two FM broadcast signals arrive at a receiver: a wanted signal of $100\\ \\mu\\mathrm{V}$ and a co-channel interferer of $35\\ \\mu\\mathrm{V}$, with a capture ratio of $6\\ \\mathrm{dB}$. Does capture occur, and what would happen at $60\\ \\mu\\mathrm{V}$ of interference?",
+      "give": ["wanted = 100 uV", "interferer = 35 uV then 60 uV", "capture ratio = 6 dB"],
+      "steps": [
+        "Ratio = 20 log10(100/35) = 20 log10(2.857) = 9.12 dB, above the 6 dB capture ratio",
+        "So the wanted signal captures the receiver and the interferer is suppressed",
+        "At 60 uV: ratio = 20 log10(100/60) = 4.44 dB, below the 6 dB capture ratio",
+        "Capture fails and the receiver output becomes a mix (or switches to the interferer)"
+      ],
+      "ans": "At 35 µV the ratio is 9.1 dB (capture: wanted signal wins); at 60 µV it is 4.4 dB (below the 6 dB ratio, no capture).",
+      "trap": "Comparing the voltages directly (2.86 > 6?) instead of converting to dB, or assuming the wanted signal wins until the interferer is larger. Capture happens at a dB ratio, and the required ratio is around 6 dB, not 0 dB.", "calc": {"mode":"COMP","steps":["`20log(100÷35) : 20log(100÷60)`","`=` down the chain: **9.12** dB at 35 µV → **4.44** dB at 60 µV, against the **6** dB capture ratio — capture holds, then fails."],"note":"These are VOLTAGE ratios, so `20log`; through `10log` the pair reads **4.56** and **2.22** dB and even the 35 µV case would look like a failure."}
+    }
+  ],
+  "traps": [
+    "**Assuming FM is always better than AM.** FM's advantage exists only above the threshold (about 10 dB input CNR). Below it, FM's output SNR collapses and can be worse than AM's — which degrades gracefully and linearly.",
+    "**Treating the folded noise as flat.** The discriminator output noise density rises as $f^2$, so the noise power in a band goes as $f^3$. Comparing the SNR at 15 kHz with the SNR at 1 kHz without this cubic weighting understates the problem by a factor of 3375 (35 dB).",
+    "**Quoting an FM improvement without stating the bandwidth.** The $1.5\\beta^2$ gain is bought with a Carson bandwidth of $2(\\Delta f+f_m)$; an equal-bandwidth comparison removes most of the advantage, and an equal-power comparison must also specify the message bandwidth.",
+    "**Using the $\\beta^2$ law on the wrong side of the threshold.** The linear result is a small-signal approximation. Below threshold the failure is not gradual but catastrophic (clicks), and increasing deviation makes the threshold worse, so a system designed for a large improvement can be the first to fail.",
+    "**Forgetting the extra ~13 dB from de-emphasis.** The flat $1.5\\beta^2$ figure is computed over the full baseband; with 75 µs de-emphasis and 15 kHz audio, broadcast FM gains about 13 dB more. Quoting the flat figure as the receiver's SNR understates a real receiver.",
+    "**Confusing capture with co-channel tolerance.** Capture means the stronger FM signal *suppresses* the weaker, which sounds clean but means an interferer only 6 dB weaker takes over the channel. AM receivers tolerate a lower wanted-to-unwanted ratio — the interference is audible, but the wanted signal does not vanish.",
+    "**Comparing deviations instead of indices.** Two systems with the same $\\Delta f$ but different $f_m$ have different $\\beta$ and therefore different improvement factors and bandwidths. Always convert to $\\beta$ before comparing noise performance.",
+    "**Ignoring that the threshold rises with deviation.** A wideband FM link at 75 kHz deviation will drop out at a higher input level than a narrowband link at 5 kHz, even though its above-threshold SNR is far better — which is exactly the trade studied in [[08_NBFM_vs_WBFM]]."
+  ],
+  "refs": [
+    "[[10_AM_vs_FM_Noise_Comparison]]",
+    "[[11_Pre-Emphasis_and_De-Emphasis]]",
+    "[[05_FM_and_PM_Fundamentals]]",
+    "[[08_NBFM_vs_WBFM]]",
+    "[[05_SNR,_Noise_Factor_and_Noise_Figure]]"
+  ],
+  "prereqs": [
+    "[[05_FM_and_PM_Fundamentals]]",
+    "[[05_SNR,_Noise_Factor_and_Noise_Figure]]"
+  ]
+}

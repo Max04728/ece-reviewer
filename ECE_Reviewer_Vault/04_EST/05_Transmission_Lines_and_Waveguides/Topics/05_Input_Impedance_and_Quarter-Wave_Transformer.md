@@ -1,0 +1,183 @@
+---
+id: EST-05-05
+title: "Input Impedance and Quarter-Wave Transformer"
+part: "04_EST"
+area: "05_Transmission_Lines_and_Waveguides"
+topic: 5
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[02_Secondary_Constants_Z0_and_Gamma]]", "[[04_Reflection_Coefficient_and_VSWR]]"]
+tags: ["ece", "est", "transmission_lines_and_waveguides"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 05 — Input Impedance and Quarter-Wave Transformer
+
+> [!abstract] Scope
+> Find the impedance looking into a line of a given length and load, and design a quarter-wave section that matches a real load to a main line.
+
+## Core Concept
+
+> [!tip] Intuition
+> A line does not change a load, it *rotates* it: on a lossless line the reflection coefficient keeps its magnitude and only shifts in phase, so the input impedance slides around a constant-VSWR circle. The quarter-wave transformer is the one rotation that turns a large resistance into a small one.
+
+**Impedance transformation as a phase rotation.** On a lossless line the reflection coefficient at distance $l$ from the load is:
+$$\Gamma_{\mathrm{in}} = \Gamma_L e^{-2j\beta l}$$
+with $\Gamma_L = (Z_L - Z_0)/(Z_L + Z_0)$ and $\beta l = 2\pi l/\lambda$. The factor 2 appears because the wave travels out to the load and back, doubling the electrical length. Magnitude is preserved, so $|\Gamma_{\mathrm{in}}| = |\Gamma_L|$ and the VSWR is the same everywhere on the line — only the phase, and therefore the impedance, changes. Converting back gives an input impedance of:
+$$Z_{\mathrm{in}} = Z_0(1+\Gamma_{\mathrm{in}})/(1-\Gamma_{\mathrm{in}})$$
+The standard form is equivalent:
+$$Z_{\mathrm{in}} = Z_0\,(Z_L + jZ_0\tan\beta l)/(Z_0 + jZ_L\tan\beta l)$$
+Both routes are exact on a lossless line and give identical answers; $\Gamma$ is faster for cascades, $Z_{\mathrm{in}}$ for a single section.
+
+**The three landmark lengths.** At $l = \lambda/2$, $\tan\beta l = 0$, so $Z_{\mathrm{in}} = Z_L$: a half-wave line is transparent and merely repeats whatever it is terminated in. At $l = \lambda/4$, $\tan\beta l \to \infty$ and the formula collapses to $Z_{\mathrm{in}} = Z_0^{2}/Z_L$: the quarter-wave section *inverts* the load, turning 100 $\Omega$ into 25 $\Omega$ on a 50 $\Omega$ line. At $l = \lambda/8$, $\beta l = 45^{\circ}$ and $\tan\beta l = 1$, a pure $90^{\circ}$ rotation that is neither a repeat nor an inversion. The limiting terminations follow the same pattern: a shorted line looks like $jZ_0\tan\beta l$ and an open line like $-jZ_0\cot\beta l$, so a $\lambda/4$ short is an open circuit at the input and a $\lambda/4$ open is a short — the basis of the RF bias tee and the DC return.
+
+**Designing the transformer.** A quarter-wave section of characteristic impedance $Z_0'$ inserted between a main line $Z_0$ and a real load $Z_L$ presents $Z_{\mathrm{in}} = Z_0'^{2}/Z_L$ to the main line. Matching means $Z_0'^{2}/Z_L = Z_0$, hence $Z_0' = \sqrt{Z_0 Z_L}$ — the **geometric** mean. A 75 $\Omega$ line into a 300 $\Omega$ antenna needs a section impedance of:
+$$Z_0' = \sqrt{22\,500} = 150\ \Omega$$
+The section is $\lambda/4$ long, which is a physical length given by:
+$$l = v/(4f_0) = c/(4f_0\sqrt{\varepsilon_r})$$
+Two restrictions are built into the design: the load must be **real** (a load reactance is inverted along with the resistance, not cancelled, so it must be tuned out first), and the section is exactly a quarter wave only at $f_0$.
+
+**Why it is narrowband, with numbers.** The physical length is fixed, so at any other frequency the section is a different number of wavelengths: at $1.5f_0$ the 150 $\Omega$ section is $0.375\lambda_0$ long, $\tan\beta l = \tan 135^{\circ} = -1$, so the input impedance is:
+$$Z_{\mathrm{in}} = 150(300 - j150)/(150 - j300) = 120 + j90\ \Omega$$
+The main line now sees a reflection coefficient of:
+$$\Gamma = (120+j90-75)/(120+j90+75) = 0.4685\angle 38.7^{\circ}$$
+which is a VSWR of 2.76 — the 'matched' transformer has become a substantial mismatch after a 50% frequency change. The same sensitivity is why stub matches and $\lambda/4$ sections are used only over narrow bands, and why broadband matching needs multiple sections or a tapered line.
+
+**Where the formula stops being valid.** The relation used throughout is:
+$$Z_{\mathrm{in}} = Z_0(Z_L + jZ_0\tan\beta l)/(Z_0 + jZ_L\tan\beta l)$$
+which assumes a lossless line. With loss, $\tan$ must be replaced by $\tanh\gamma l$, which damps the transformation and makes the impedance spiral inward toward $Z_0$ on a long line; a 100 m run at 3.9 dB per 100 m is close enough to lossless for matching work, a 10 km run is not. Watch the direction of measurement too: $l$ is the distance from the **load** back toward the generator, so a mistake in which end is the load inverts the rotation and produces a conjugate-looking but wrong answer.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Input impedance of a loaded line | $Z_{\mathrm{in}} = Z_0\,\frac{Z_L + jZ_0\tan\beta l}{Z_0 + jZ_L\tan\beta l}$ | $\Omega$, measured looking from the generator end toward a load a distance $l$ away. Lossless form. |
+| Electrical length | $\beta l = \frac{2\pi l}{\lambda}$ | The only place $l$ enters; convert a length in metres to wavelengths before using any special case. |
+| Half-wave line | $l = \frac{\lambda}{2} \Rightarrow Z_{\mathrm{in}} = Z_L$ | Transparent: repeats the load. Any multiple of $\lambda/2$ does the same. |
+| Quarter-wave line (impedance inverter) | $l = \frac{\lambda}{4} \Rightarrow Z_{\mathrm{in}} = \frac{Z_0^{2}}{Z_L}$ | Inverts the load. $Z_0$ here is the impedance of *this* section, not of the main line. |
+| Shorted line input impedance | $Z_{\mathrm{in}} = jZ_0\tan\beta l$ | Pure reactance: inductive for $l < \lambda/4$, capacitive in the next quarter wave. |
+| Open line input impedance | $Z_{\mathrm{in}} = -jZ_0\cot\beta l$ | Same reactance curve shifted by $\lambda/4$; open-circuit terminations radiate. |
+| Reflection coefficient at distance $l$ | $\Gamma_{\mathrm{in}} = \Gamma_L\,e^{-2j\beta l}$ | Lossless line: magnitude constant, phase rotated by twice the electrical length. |
+| Load reflection coefficient | $\Gamma_L = \frac{Z_L - Z_0}{Z_L + Z_0}$ | Real load gives a real $\Gamma_L$; complex loads give a complex one whose angle is the rotation offset. |
+| Impedance from the reflection coefficient | $Z_{\mathrm{in}} = Z_0\,\frac{1 + \Gamma_{\mathrm{in}}}{1 - \Gamma_{\mathrm{in}}}$ | Equivalent to the $\tan$ form; the quickest route when several sections are cascaded. |
+| Quarter-wave transformer design | $Z_0' = \sqrt{Z_0\,Z_L}, \qquad l = \frac{\lambda}{4} = \frac{v}{4f_0} = \frac{c}{4f_0\sqrt{\varepsilon_r}}$ | Geometric mean, real loads only, matched only at $f_0$. Use $v$, not $c$, for the physical length. |
+| Lossy input impedance | $Z_{\mathrm{in}} = Z_0\,\frac{Z_L + Z_0\tanh\gamma l}{Z_0 + Z_L\tanh\gamma l}$ | Replaces the $\tan$ form when $\alpha l$ is not negligible; the transformation is damped toward $Z_0$. |
+
+## Worked Problems
+
+### P1. A 75 $\Omega$ main line feeds a 300 $\Omega$ resistive antenna at 300 MHz. Design the quarter-wave transformer: find its characteristic impedance and its physical length in air, and again for a section with velocity factor 0.66.
+
+**Given:** Z_0 = 75 Ω; Z_L = 300 Ω; f_0 = 300 MHz; air section, then VF = 0.66
+
+**Solution:**
+
+1. $Z_0' = \sqrt{Z_0 Z_L} = \sqrt{(75)(300)} = \sqrt{22\,500} = 150\ \Omega$
+2. Check: with the section in place, $Z_{\mathrm{in}} = Z_0'^{2}/Z_L = 150^{2}/300 = 22\,500/300 = 75\ \Omega = Z_0$ ✓
+3. In air $\lambda = c/f_0 = 3\times10^{8}/3\times10^{8} = 1.00\ \mathrm{m}$, so $l = \lambda/4 = 0.25\ \mathrm{m} = 25\ \mathrm{cm}$
+4. With $\mathrm{VF} = 0.66$: $\lambda = 0.66\ \mathrm{m}$ and $l = 0.165\ \mathrm{m} = 16.5\ \mathrm{cm}$
+
+> [!success]- Answer
+> **$Z_0' = 150\ \Omega$; $l = 25\ \mathrm{cm}$ in air, $16.5\ \mathrm{cm}$ with $\mathrm{VF} = 0.66$.**
+
+> [!warning] Trap
+> Using the arithmetic mean $(75+300)/2 = 187.5\ \Omega$. That section presents $187.5^{2}/300 = 117.2\ \Omega$ to the main line, a reflection coefficient of 0.22 and a VSWR of 1.56 — a visible mismatch where 1.00 was promised. Also, $l$ must be built from $v$, not $c$: the same transformer in a $\mathrm{VF} = 0.66$ dielectric is 16.5 cm, not 25 cm.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. One line, statements separated by `ALPHA` `:` — `√(75×300) : 150²÷300 : 3E8÷3E8 : Ans÷4 : Ans×0.66`
+> 2. `=` down the chain: $Z_0'$ = **150** Ω → $Z_{\mathrm{in}} = Z_0'^{2}/Z_L$ = **75** Ω ✓ → $\lambda$ = **1.00** m → $l$ = **0.250** m in air → **0.165** m at VF = 0.66.
+>
+> The section impedance is the geometric mean; the arithmetic mean 187.5 Ω leaves a VSWR of 1.56.
+
+### P2. The 75 $\Omega$/150 $\Omega$/300 $\Omega$ transformer of the previous problem is operated at 450 MHz ($1.5f_0$). Find the impedance seen by the main line and the resulting VSWR.
+
+**Given:** Z_0 = 75 Ω (main line); Z_0' = 150 Ω (section); Z_L = 300 Ω; f = 450 MHz = 1.5 f_0
+
+**Solution:**
+
+1. The physical length is fixed, so the electrical length scales with frequency: $l = 0.375\lambda_0$ at $1.5f_0$
+2. $\beta l = 2\pi(0.375) = 135^{\circ}$, so $\tan\beta l = -1$
+3. $Z_{\mathrm{in}} = 150\,\dfrac{300 + j150(-1)}{150 + j300(-1)} = 150\,\dfrac{300 - j150}{150 - j300} = 150(0.8 + j0.6) = 120 + j90\ \Omega$
+4. $\Gamma = \dfrac{(120+j90) - 75}{(120+j90) + 75} = \dfrac{45 + j90}{195 + j90}$, so $|\Gamma| = \dfrac{100.6}{214.8} = 0.469$
+5. $\mathrm{VSWR} = \dfrac{1 + 0.469}{1 - 0.469} = 2.76$
+
+> [!success]- Answer
+> **$Z_{\mathrm{in}} = 120 + j90\ \Omega$ and $\mathrm{VSWR} = 2.76$ on the main line.**
+
+> [!warning] Trap
+> Assuming the transformer stays matched because it is 'a matched section'. The match is exact only at $f_0$; a 50% frequency shift takes VSWR from 1.00 to 2.76. A related slip is using $\tan 135^{\circ} = +1$: $\tan$ is negative in the second quadrant, and the sign decides whether $Z_{\mathrm{in}}$ is inductive or capacitive.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — CPLX
+> 1. Degree: `tan(135)` → **−1**; then `MODE` `2`: `150×(300+i150×(−1))÷(150+i300×(−1))` → **120 + i90** Ω.
+> 2. `(Ans−75)÷(Ans+75)` → **0.3659 + i0.2927**; `Abs(Ans)` → **0.4685**, i.e. $\Gamma = 0.469\angle 38.7°$.
+> 3. `(1+Ans)÷(1−Ans)` → **2.76**.
+>
+> `i` is the `MODE` `2` imaginary unit (the note writes $j$). $\tan$ is negative in the second quadrant, so 135° injects a capacitive-looking reactance.
+
+### P3. A 50 $\Omega$ lossless line is terminated by a 100 $\Omega$ resistor. Find $Z_{\mathrm{in}}$ for $l = \lambda/4$, for $l = \lambda/2$ and for $l = \lambda/8$.
+
+**Given:** Z_0 = 50 Ω; Z_L = 100 Ω (pure resistance); l = λ/4, λ/2, λ/8
+
+**Solution:**
+
+1. $l = \lambda/4$: $\tan\beta l \to \infty$ so $Z_{\mathrm{in}} = Z_0^{2}/Z_L = 2500/100 = 25\ \Omega$
+2. $l = \lambda/2$: $\beta l = 180^{\circ}$ and $\tan\beta l = 0$, so $Z_{\mathrm{in}} = Z_L = 100\ \Omega$
+3. $l = \lambda/8$: $\beta l = 45^{\circ}$, $\tan\beta l = 1$, so $Z_{\mathrm{in}} = 50\,\dfrac{100 + j50}{50 + j100}$
+4. $\dfrac{100+j50}{50+j100} = \dfrac{(100+j50)(50-j100)}{50^{2}+100^{2}} = \dfrac{10\,000 - j7500}{12\,500} = 0.8 - j0.6$, giving $Z_{\mathrm{in}} = 40 - j30\ \Omega$
+
+> [!success]- Answer
+> **$Z_{\mathrm{in}} = 25\ \Omega$ at $\lambda/4$, $100\ \Omega$ at $\lambda/2$, and $40 - j30\ \Omega$ at $\lambda/8$.**
+
+> [!warning] Trap
+> Applying the inverter rule at $\lambda/2$ and answering 25 $\Omega$ — a half-wave line repeats the load, it does not invert it. Equally common: treating $\lambda/8$ as 'half of a quarter wave' and expecting 50 $\Omega$ or 100 $\Omega$; the true answer $40 - j30\ \Omega$ is capacitive and has a resistance below both $Z_0$ and $Z_L$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — CPLX
+> 1. `MODE` `2`: `50×(100+i50)÷(50+i100)` → **40 − i30** Ω at $l = \lambda/8$ ($\beta l = 45°$, so $\tan\beta l = 1$).
+> 2. The two landmarks: `50²÷100` → **25** Ω at $\lambda/4$; at $\lambda/2$ the line repeats the load, **100** Ω.
+
+### P4. A 50 $\Omega$ line is terminated by $Z_L = 100 + j50\ \Omega$. Use the reflection coefficient to find $Z_{\mathrm{in}}$ at $l = \lambda/8$, and check it against the $\tan$ formula.
+
+**Given:** Z_0 = 50 Ω; Z_L = 100 + j50 Ω; l = λ/8
+
+**Solution:**
+
+1. $\Gamma_L = \dfrac{Z_L - Z_0}{Z_L + Z_0} = \dfrac{50 + j50}{150 + j50} = 0.4 + j0.2$, so $|\Gamma_L| = \sqrt{0.16+0.04} = 0.447$ and $\mathrm{VSWR} = 2.62$
+2. $2\beta l = 2(45^{\circ}) = 90^{\circ}$, so $e^{-2j\beta l} = e^{-j90^{\circ}} = -j$
+3. $\Gamma_{\mathrm{in}} = (0.4 + j0.2)(-j) = 0.2 - j0.4$ (magnitude still 0.447, as a lossless line requires)
+4. $Z_{\mathrm{in}} = 50\,\dfrac{1 + 0.2 - j0.4}{1 - 0.2 + j0.4} = 50\,\dfrac{1.2 - j0.4}{0.8 + j0.4} = 50(1 - j) = 50 - j50\ \Omega$
+5. Check with the $\tan$ form: $Z_{\mathrm{in}} = 50\,\dfrac{100 + j50 + j50}{50 + j(100+j50)} = 50\,\dfrac{100 + j100}{j100} = 50(1-j) = 50 - j50\ \Omega$ ✓
+
+> [!success]- Answer
+> **$\Gamma_{\mathrm{in}} = 0.2 - j0.4$ and $Z_{\mathrm{in}} = 50 - j50\ \Omega$; both methods agree.**
+
+> [!warning] Trap
+> Rotating the wrong way — using $e^{+j2\beta l}$ gives $\Gamma_{\mathrm{in}} = -0.2 + j0.4$ and $Z_{\mathrm{in}} = 25 + j25\ \Omega$ instead of $50 - j50\ \Omega$, even though the magnitude is still 0.447. Dropping the factor 2 (using $e^{-j\beta l}$, a $45^{\circ}$ rotation) gives $\Gamma_{\mathrm{in}} = 0.424 - j0.141$ and $Z_{\mathrm{in}} = 113.8 - j40.2\ \Omega$. The rotation is always $2\beta l$ because the wave traverses the line twice.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — CPLX
+> 1. `MODE` `2`: `(100+i50−50)÷(100+i50+50)` → **0.4000 + i0.2000** ($\lvert\Gamma\rvert = 0.4472$, $\mathrm{VSWR} = 2.62$).
+> 2. `Ans×(−i)` → **0.2000 − i0.4000** — the λ/8 rotation $e^{-j90°}$.
+> 3. `50×(1+Ans)÷(1−Ans)` → **50 − i50** Ω, matching the $\tan$ form.
+>
+> `i` is the `MODE` `2` imaginary unit (the note writes $j$). The exponent is $2\beta l$, never $\beta l$.
+
+## Traps & Exam Notes
+
+- **Averaging the impedances for the transformer.** The quarter-wave section needs the geometric mean $Z_0' = \sqrt{Z_0 Z_L}$: 150 $\Omega$ for 75 $\Omega$ into 300 $\Omega$. The arithmetic mean 187.5 $\Omega$ leaves a VSWR of 1.56, so the 'match' is worse than the 2:1 load it was supposed to fix.
+- **Using the main-line $Z_0$ in $Z_{\mathrm{in}} = Z_0^{2}/Z_L$.** For the 75/150/300 transformer the correct input impedance is $150^{2}/300 = 75\ \Omega$; substituting the main-line 75 $\Omega$ gives $75^{2}/300 = 18.75\ \Omega$ — a 4:1 error that looks numerically plausible.
+- **Expecting the transformer to be broadband.** The section is $\lambda/4$ only at the design frequency. At $1.5f_0$ it is $0.375\lambda_0$ long and the main-line VSWR is 2.76, because $\tan 135^{\circ} = -1$ injects a reactance the match never accounted for.
+- **Designing a transformer for a reactive load.** A load reactance is *inverted*, not cancelled: with $Z_L = 100 + j50\ \Omega$ the $\lambda/4$ section gives $Z_0^{2}/Z_L = 2500/(100+j50) = 20 - j10\ \Omega$, which is still mismatched. Tune the reactance out first (or use a stub), then design for the remaining real part.
+- **Applying the $\lambda/4$ inversion at $\lambda/2$.** A half-wave line repeats the load ($Z_{\mathrm{in}} = Z_L$); the inverter rule holds only at odd multiples of $\lambda/4$. For a 100 $\Omega$ load on a 50 $\Omega$ line the two answers differ by a factor of 4.
+- **Forgetting that the physical length comes from $v$, not $c$.** A 300 MHz quarter wave is 25 cm in air but 16.5 cm with $\mathrm{VF} = 0.66$; building the air length in coax makes the section 1.5 quarter-waves long and the match collapses to a VSWR above 2.7.
+
+## See Also
+
+- [[02_Secondary_Constants_Z0_and_Gamma]]
+- [[04_Reflection_Coefficient_and_VSWR]]
+- [[06_Smith_Chart]]
+- [[07_Stub_Matching]]
+
+---
+
+[[04_Reflection_Coefficient_and_VSWR|⬅ 04]] · [[_MOC_Transmission_Lines_and_Waveguides|MOC]] · [[00_Dashboard|Dashboard]] · [[06_Smith_Chart|06 ➡]]

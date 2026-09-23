@@ -1,0 +1,207 @@
+---
+id: ECE-01-11
+title: "First Order RC and RL Transients"
+part: "02_Electronics_Engineering"
+area: "01_DC_Circuits"
+topic: 11
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[01_Circuit_Variables,_Ohm’s_Law_and_Signs]]", "[[10_Inductors,_Capacitors_and_Energy]]"]
+tags: ["ece", "electronics_engineering", "dc_circuits"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 11 — First Order RC and RL Transients
+
+> [!abstract] Scope
+> Compute the exponential rise or fall of a capacitor voltage or inductor current after a switch, including the time constant, the value at a given time, and the time to reach a stated fraction.
+
+## Core Concept
+
+> [!tip] Intuition
+> After a switch flips, the circuit does not jump to its new steady state — the stored energy in the capacitor's electric field or the inductor's magnetic field can only be added or removed gradually through the resistor, which throttles the flow. The result is always the same exponential chasing curve: the quantity sprints at first, then crawls, covering 63.2% of the remaining gap in each time constant.
+
+**One equation covers every first-order problem.** Any single-energy-storage circuit obeys $x(t) = x(\infty) + \left[x(0^+) - x(\infty)\right]e^{-t/\tau}$, where $x$ is the capacitor voltage $v_C$ for an RC circuit or the inductor current $i_L$ for an RL circuit. Read the equation as three questions: where does it end up ($x(\infty)$, the DC steady state), where does it start ($x(0^+)$, fixed by continuity), and how fast does it get there ($\tau$). If you can answer those three, the algebra is finished — there is no differential equation left to solve. Answering them in that order is also the safest exam procedure, because it forces you to decide the direction of the transient before you plug in numbers.
+
+**Where $\tau$ comes from.** The time constant is the product (or ratio) of the resistance seen by the energy-storage element and that element: $\tau = R_{Th}C$ for a capacitor and $\tau = R_{Th}L/R_{Th} = L/R_{Th}$ for an inductor, where $R_{Th}$ is the resistance looking into the terminals of $C$ or $L$ with all independent sources killed. This is the single most error-prone step, because $R_{Th}$ is usually *not* the resistor in the original diagram. After the switch moves, redraw the circuit with the source set to zero (voltage sources shorted, current sources opened) and find the resistance actually connected across the storage element; in a divider, that is often the parallel combination of two resistors, not either one alone. Note the structural difference between the two element types: adding resistance to an RC circuit *slows* it ($\tau$ grows), while adding resistance to an RL circuit *speeds it up* ($\tau$ shrinks) because the resistor is what dissipates the inductor's energy.
+
+**Initial conditions come from physics, not algebra.** Capacitor voltage cannot change instantaneously because $i_C = C\,dv_C/dt$ would require infinite current, so $v_C(0^+) = v_C(0^-)$; inductor current cannot change instantaneously because $v_L = L\,di_L/dt$ would require infinite voltage, so $i_L(0^+) = i_L(0^-)$. Everything else — resistor currents, capacitor current, inductor voltage — is free to jump. So the pre-switch circuit is analyzed as a DC steady state, where the capacitor is an open circuit and the inductor is a short circuit, and the resulting $v_C$ or $i_L$ is carried across the switching instant unchanged. A capacitor can hold any voltage with zero current, and an inductor can carry any current with zero voltage; those two facts are what make the continuity laws true and what let you compute $x(0^+)$ without knowing anything about the post-switch topology.
+
+**The universal curve and the step response.** Because the exponent is always $-t/\tau$, the fractions are universal: $1\tau$ reaches 63.2%, $2\tau$ 86.5%, $3\tau$ 95.0%, $4\tau$ 98.2%, and $5\tau$ 99.3% of the total change. This is why $5\tau$ is the standard engineering definition of "settled." A DC step response is just the same formula with $x(0^+) = 0$, giving $x(t) = x(\infty)\left(1 - e^{-t/\tau}\right)$; a discharge to zero is the same formula with $x(\infty) = 0$, giving $x(t) = x(0^+)e^{-t/\tau}$. Both are the general expression, not separate formulas to memorize. To invert for time, use $t = \tau\ln\!\left[\dfrac{x(0^+)-x(\infty)}{x(t)-x(\infty)}\right]$, which for a 0-to-100% step reduces to the familiar $t = \tau\ln(1/(1-\mathrm{fraction}))$.
+
+**When the method fails.** The single-exponential formula is valid only for a circuit that reduces to one independent energy-storage element. Two capacitors that cannot be combined (because they are separated by resistors and no switch ever parallels them), or one capacitor plus one inductor together, give a second-order response that needs the characteristic equation, not a time constant. The formula also assumes the source is constant after $t = 0^+$: a sinusoidal or pulse source after the switch requires either the full particular solution or the Laplace transform. Finally, if a switch connects two capacitors directly, charge redistributes instantly through an ideal arc — the voltage-continuity rule cannot hold at that instant, and you must instead conserve total charge $\sum C_iv_i$ across the pair.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Universal first-order response | $x(t) = x(\infty) + \left[x(0^+) - x(\infty)\right]e^{-t/\tau}$ | Any single-storage-element circuit. x is v_C for RC and i_L for RL; t is measured from the switching instant, so a delayed switch at t_0 uses (t - t_0) in the exponent. |
+| RC time constant | $\tau = R_{Th}C$ | R_Th in ohms and C in farads give seconds. With R in k-ohm and C in microfarad the product is already in milliseconds: 10 k-ohm x 10 micro-F = 0.1 s = 100 ms. |
+| RL time constant | $\tau = \frac{L}{R_{Th}}$ | L in henries, R in ohms, seconds out. Series resistance is in the denominator, so more resistance means a faster decay of inductor current, not a slower one. |
+| Charge (step) response of v_C | $v_C(t) = V_s\left(1 - e^{-t/\tau}\right)$ | Capacitor initially uncharged, DC source V_s switched in at t = 0 with the capacitor voltage the output. The initial capacitor current is V_s/R_Th, which then decays to zero. |
+| Discharge response | $v_C(t) = V_0\,e^{-t/\tau}$ | Source removed and the capacitor left to bleed through R_Th. Valid only after t = 0; the polarity of V_0 is whatever the capacitor was charged to. |
+| Time to reach a fraction | $t = \tau\ln\!\left[\frac{x(0^+) - x(\infty)}{x(t) - x(\infty)}\right]$ | Invert the general solution for t. The argument of the log must be greater than 1 for a positive time; a value below 1 means the target lies outside the range of the response. |
+| Percent of final value at n time constants | $\% = 100\left(1 - e^{-n}\right)$ | n = t/tau. Gives 63.2%, 86.5%, 95.0%, 98.2%, 99.3% at n = 1..5; the same numbers describe the fraction of the total change already completed on a decay. |
+| Energy stored and dissipated | $w_C = \tfrac{1}{2}Cv_C^2, \qquad w_L = \tfrac{1}{2}Li_L^2$ | Snapshots of stored energy at any instant, so plug in v_C(t) or i_L(t). During a full RC charge from zero, the capacitor ends with half the energy the source supplied; the other half is burned in R no matter how small R is. |
+| Capacitor current during a step | $i_C(t) = \frac{V_s}{R_{Th}}e^{-t/\tau}$ | RC step response with the capacitor initially uncharged. The current jumps to V_s/R_Th at t = 0+ and then decays with the same tau; it is not zero at the switching instant. |
+
+## Interactive Widget
+
+**RC RL Transient Slider**
+
+![[RC_RL_Transient_Slider.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. A $10\ \mathrm{k}\Omega$ resistor and a $10\ \mu\mathrm{F}$ capacitor are in series with a $12\ \mathrm{V}$ DC source. The capacitor is initially uncharged and the switch closes at $t = 0$. Find $v_C$ and the capacitor current at $t = 0.2\ \mathrm{s}$.
+
+**Given:** $R = 10\ \mathrm{k}\Omega$; $C = 10\ \mu\mathrm{F}$; $V_s = 12\ \mathrm{V}$; $v_C(0^+) = 0$; $t = 0.2\ \mathrm{s}$
+
+**Solution:**
+
+1. Time constant: $\tau = R C = (10\times10^{3})(10\times10^{-6}) = 0.1\ \mathrm{s}$. The k-ohm times microfarad product is in milliseconds ($10\times10 = 100$ ms), so no extra powers of ten are needed.
+2. Final value: with the capacitor open in DC steady state, $v_C(\infty) = 12\ \mathrm{V}$ and $i_C(\infty) = 0$.
+3. With $v_C(0^+) = 0$ the response is the step form $v_C(t) = 12\left(1 - e^{-t/0.1}\right)\ \mathrm{V}$.
+4. At $t = 0.2\ \mathrm{s}$ the exponent is $-0.2/0.1 = -2$, and $e^{-2} = 0.1353$.
+5. $v_C(0.2) = 12(1 - 0.1353) = 12(0.8647) = 10.376\ \mathrm{V}$.
+6. Current: $i_C(t) = \dfrac{V_s}{R}e^{-t/\tau} = \dfrac{12}{10\,000}e^{-2} = (1.2\ \mathrm{mA})(0.1353) = 0.1624\ \mathrm{mA}$.
+7. Check against the general formula with $x(\infty) = 12$ and $x(0^+) = 0$: $v_C = 12 + (0-12)e^{-2} = 12 - 12(0.1353) = 10.376\ \mathrm{V}$, which matches.
+
+> [!success]- Answer
+> **$v_C(0.2\ \mathrm{s}) = 10.38\ \mathrm{V}$ and $i_C(0.2\ \mathrm{s}) = 0.162\ \mathrm{mA}$**
+
+> [!warning] Trap
+> Reading $\tau = R C = 10\ \mathrm{k}\Omega \times 10\ \mu\mathrm{F}$ as $100\ \mathrm{s}$. Kilo-ohms times microfarads give milliseconds, so this is $0.1\ \mathrm{s}$; the wrong $\tau$ turns $t = 0.2\ \mathrm{s}$ into $0.002\tau$ and yields a fraction of a volt instead of $10.38\ \mathrm{V}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. $\tau$ first, then one line with `ALPHA` `:` — `10E3×10E-6 : 0.2÷Ans : 12×(1−e^-Ans) : 12÷10E3×e^-Ans`
+> 2. $\tau$ = **0.1** s → exponent **2** → $v_C$ = **10.376** V → $i_C$ = **1.624E-4** A = **0.162** mA.
+> 3. Cross-check with the general form: `12+(0−12)e^-2` returns the same **10.376** V.
+>
+> kΩ × µF evaluates directly in milliseconds, so 10 × 10 = **100** ms with no powers of ten typed.
+
+### P2. A $4.7\ \mathrm{k}\Omega$ resistor discharges a $2.2\ \mu\mathrm{F}$ capacitor that was charged to $25\ \mathrm{V}$. The switch opens at $t = 0$, leaving only the resistor across the capacitor. Find $v_C$ and the energy remaining at $t = 20\ \mathrm{ms}$, plus the total energy delivered to the resistor from $t = 0$ onward.
+
+**Given:** $R = 4.7\ \mathrm{k}\Omega$; $C = 2.2\ \mu\mathrm{F}$; $v_C(0^+) = 25\ \mathrm{V}$; $t = 20\ \mathrm{ms}$
+
+**Solution:**
+
+1. Time constant: $\tau = (4.7\times10^{3})(2.2\times10^{-6}) = 10.34\ \mathrm{ms}$.
+2. Discharge form with $v_C(\infty) = 0$: $v_C(t) = 25\,e^{-t/\tau}\ \mathrm{V}$.
+3. Exponent at $t = 20\ \mathrm{ms}$: $-20/10.34 = -1.9342$, so $e^{-1.9342} = 0.14453$.
+4. $v_C(20\ \mathrm{ms}) = 25(0.14453) = 3.613\ \mathrm{V}$.
+5. Energy remaining: $w_C = \tfrac{1}{2}Cv_C^2 = \tfrac{1}{2}(2.2\times10^{-6})(3.613)^2 = 14.4\ \mu\mathrm{J}$.
+6. Initial energy: $w_C(0) = \tfrac{1}{2}(2.2\times10^{-6})(25)^2 = 687.5\ \mu\mathrm{J}$.
+7. Energy to the resistor: $687.5 - 14.4 = 673.1\ \mu\mathrm{J}$ (all of the stored energy ends up there as $t\to\infty$).
+
+> [!success]- Answer
+> **$v_C(20\ \mathrm{ms}) = 3.61\ \mathrm{V}$, $w_C = 14.4\ \mu\mathrm{J}$ remaining, with $673\ \mu\mathrm{J}$ dissipated in the resistor**
+
+> [!warning] Trap
+> Solving the discharge with $x(\infty) = 0$ but leaving the initial value out of the exponent, i.e. writing $v_C = 25e^{-t}$ with $t$ in seconds. Because $\tau = 10.34\ \mathrm{ms}$, the correct exponent at 20 ms is about $-1.93$, not $-20$; the error gives $v_C \approx 0$ and hides the fact that about $14.5\%$ of the initial voltage — and of the stored energy, since $w_C \propto v_C^2$ — is still there.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. One line, statements separated by `ALPHA` `:` — `4.7E3×2.2E-6 : 20E-3÷Ans : 25×e^-Ans : 0.5×2.2E-6×Ans²`
+> 2. $\tau$ = **10.34** ms → exponent **1.9342** → $v_C(20\ \mathrm{ms})$ = **3.613** V → $w_C$ = **14.4E-6** J.
+> 3. Energy account: `0.5×2.2E-6×25²` = **687.5** µJ initially, so 687.5 − 14.4 = **673** µJ reaches the resistor.
+
+### P3. In an RL circuit, a $250\ \mathrm{mH}$ inductor is carrying a steady current of $2\ \mathrm{A}$ established by a $100\ \mathrm{V}$ source in series with a $50\ \Omega$ resistor. At $t = 0$ the source is shorted out, leaving the inductor and resistor in a closed loop. Find $i_L$ and the voltage across the resistor at $t = 5\ \mathrm{ms}$.
+
+**Given:** $L = 250\ \mathrm{mH}$; $R = 50\ \Omega$; $i_L(0^+) = 2\ \mathrm{A}$; $t = 5\ \mathrm{ms}$
+
+**Solution:**
+
+1. Time constant: $\tau = L/R = 0.25/50 = 5\ \mathrm{ms}$.
+2. Inductor current cannot jump when the source is shorted, so $i_L(0^+) = 2\ \mathrm{A}$; the current ultimately decays to $i_L(\infty) = 0$ because no source remains.
+3. Decay form: $i_L(t) = 2\,e^{-t/\tau}\ \mathrm{A}$.
+4. At $t = 5\ \mathrm{ms}$ the exponent is $-5/5 = -1$, and $e^{-1} = 0.3679$.
+5. $i_L(5\ \mathrm{ms}) = 2(0.3679) = 0.7358\ \mathrm{A}$.
+6. The resistor is in the same loop, so $v_R = i_L R = (0.7358)(50) = 36.79\ \mathrm{V}$.
+7. The inductor voltage is $v_L = -v_R = -36.79\ \mathrm{V}$ (opposing the decay), confirming that $di_L/dt = v_L/L = -36.79/0.25 = -147\ \mathrm{A/s}$ is negative.
+
+> [!success]- Answer
+> **$i_L(5\ \mathrm{ms}) = 0.736\ \mathrm{A}$ and $v_R = 36.8\ \mathrm{V}$**
+
+> [!warning] Trap
+> Using $\tau = R/L = 50/0.25 = 200\ \mathrm{s}$. The RL time constant is $L/R$, and it is smaller for larger resistance because a bigger resistor drains the inductor's stored energy faster. The inverted value makes the current look unchanged after one time constant.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Chain with `ALPHA` `:` — `0.25÷50 : 5E-3÷Ans : 2×e^-Ans : Ans×50`
+> 2. $\tau$ = **5E-3** s → exponent **1** → $i_L(5\ \mathrm{ms})$ = **0.7358** A → $v_R$ = **36.79** V (so $v_L$ = **−36.79** V).
+
+### P4. A capacitor charges through a $100\ \mathrm{k}\Omega$ resistor toward a $15\ \mathrm{V}$ DC source, starting from $v_C(0^+) = 0$. A stopwatch reading taken at the instant when $v_C$ first reaches $9.480\ \mathrm{V}$ shows $1.5\ \mathrm{ms}$ elapsed since switch closure. Find the time constant and the capacitance, then find how long the capacitor takes to reach $90\%$ of its final value.
+
+**Given:** $V_s = 15\ \mathrm{V}$; $v_C = 9.480\ \mathrm{V}$ at $t = 1.5\ \mathrm{ms}$; $v_C(0^+) = 0$; $R = 100\ \mathrm{k}\Omega$; target: $90\%$ of final
+
+**Solution:**
+
+1. Fraction of the final value already reached: $9.480/15 = 0.632$.
+2. The step response $v_C = V_s\left(1 - e^{-t/\tau}\right)$ gives $1 - e^{-t/\tau} = 0.632$, so $e^{-t/\tau} = 0.368 = e^{-1}$.
+3. Therefore $t = \tau$ exactly, and $\tau = 1.5\ \mathrm{ms}$.
+4. From $\tau = RC$: $C = \dfrac{\tau}{R} = \dfrac{1.5\times10^{-3}}{100\times10^{3}} = 15\times10^{-9}\ \mathrm{F} = 15\ \mathrm{nF}$.
+5. Sanity check: $RC = (100\ \mathrm{k}\Omega)(0.015\ \mu\mathrm{F}) = 1.5\ \mathrm{ms}$, since k-ohm times microfarad is milliseconds.
+6. For the $90\%$ point, use the inverted form $t = \tau\ln\!\left[\dfrac{x(0^+)-x(\infty)}{x(t)-x(\infty)}\right] = 1.5\ \mathrm{ms}\cdot\ln\!\left[\dfrac{0-15}{13.5-15}\right]$.
+7. The ratio is $(-15)/(-1.5) = 10$, so $t = 1.5\ln 10 = 1.5(2.3026) = 3.454\ \mathrm{ms} = 2.30\tau$, matching the expectation that $90\%$ needs slightly more than $2\tau$.
+8. Cross-check the same formula at the $99\%$ point: $t = 1.5\ln(15/0.15) = 1.5\ln 100 = 1.5(4.6052) = 6.91\ \mathrm{ms}$, exactly twice the $90\%$ time because $\ln 100 = 2\ln 10$.
+
+> [!success]- Answer
+> **$\tau = 1.5\ \mathrm{ms}$, $C = 15\ \mathrm{nF}$, and $t_{90\%} = 3.45\ \mathrm{ms}$**
+
+> [!warning] Trap
+> Treating 63.2% as an arbitrary measurement and reaching for the logarithmic formula with it, dividing $1.5\ \mathrm{ms}$ by $\ln(0.632) = -0.459$ or by $0.632$ itself. The 63.2% point *is* one time constant by definition, so $\tau = t$ with no further arithmetic; the logarithm is only needed for the non-63.2% targets.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. The 63.2 % point IS one time constant: `9.48÷15` = **0.632**, so `1.5E-3÷100E3` → $C$ = **1.5E-8** F = **15** nF and $\tau$ = **1.5** ms.
+> 2. The inverted exponential gives any crossing time in one chain with `ALPHA` `:` — `(0−15)÷(13.5−15) : 1.5E-3×ln(Ans) : 1.5E-3×ln(15÷0.15)`
+> 3. Ratio **10** → $t_{90\%}$ = **3.454E-3** s and the 99 % cross-check `ln(100)` → **6.91E-3** s = exactly twice it.
+>
+> No formula to store here: $t=\tau\ln(\cdot)$ is the one worth keeping. Type it once and `CALC` re-prompts for the ratio.
+
+### P5. At $t = 0^-$ the switch has been closed a long time, connecting a $6\ \mathrm{k}\Omega$ and a $3\ \mathrm{k}\Omega$ resistor in series across an $18\ \mathrm{V}$ source, with a $20\ \mu\mathrm{F}$ capacitor in parallel with the $3\ \mathrm{k}\Omega$ resistor. At $t = 0$ the switch opens and removes the $18\ \mathrm{V}$ source and the $6\ \mathrm{k}\Omega$ resistor from the loop, leaving only the $3\ \mathrm{k}\Omega$ resistor in series with $C$. Find $v_C(t)$ for $t > 0$ and its value at $t = 90\ \mathrm{ms}$.
+
+**Given:** $R_1 = 6\ \mathrm{k}\Omega$, $R_2 = 3\ \mathrm{k}\Omega$; $C = 20\ \mu\mathrm{F}$; $V_s = 18\ \mathrm{V}$; $t = 90\ \mathrm{ms}$
+
+**Solution:**
+
+1. Pre-switch DC steady state: the capacitor is an open circuit, so $R_1$ and $R_2$ form an unloaded divider and $v_C(0^-) = 18\cdot\dfrac{3}{6+3} = 6\ \mathrm{V}$.
+2. Continuity of capacitor voltage: $v_C(0^+) = v_C(0^-) = 6\ \mathrm{V}$.
+3. Post-switch circuit: only the $3\ \mathrm{k}\Omega$ resistor remains across the capacitor, so $R_{Th} = 3\ \mathrm{k}\Omega$ and $v_C(\infty) = 0$ (no source left to sustain it).
+4. Time constant: $\tau = (3\times10^{3})(20\times10^{-6}) = 60\ \mathrm{ms}$.
+5. Response: $v_C(t) = 0 + (6 - 0)e^{-t/0.06} = 6e^{-t/0.06}\ \mathrm{V}$ for $t > 0$.
+6. At $t = 90\ \mathrm{ms}$: exponent $-90/60 = -1.5$, and $e^{-1.5} = 0.2231$.
+7. $v_C(90\ \mathrm{ms}) = 6(0.2231) = 1.339\ \mathrm{V}$.
+8. Cross-check the current: $i_R = v_C/R_2 = 1.339/3000 = 0.446\ \mathrm{mA}$ at that instant, and $i_C = -i_R$, consistent with a discharging capacitor.
+
+> [!success]- Answer
+> **$v_C(t) = 6e^{-t/0.06}\ \mathrm{V}$ for $t>0$, so $v_C(90\ \mathrm{ms}) = 1.34\ \mathrm{V}$**
+
+> [!warning] Trap
+> Taking $R_{Th} = R_1 + R_2 = 9\ \mathrm{k}\Omega$ for the discharge because those were the two resistors in the original diagram. After the switch opens, $R_1$ is no longer in the capacitor's loop; using $9\ \mathrm{k}\Omega$ inflates $\tau$ to $180\ \mathrm{ms}$ and predicts $3.65\ \mathrm{V}$ instead of $1.34\ \mathrm{V}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. Pre-switch divider and decay in one line with `ALPHA` `:` — `18×3÷(6+3) : Ans×e^-(90E-3÷60E-3)`
+> 2. $v_C(0^+)$ = **6** V → $v_C(90\ \mathrm{ms})$ = **1.339** V, since `3E3×20E-6` gives $\tau$ = **60** ms.
+> 3. Current cross-check: `1.339÷3000` = **0.446** mA through the 3 kΩ, equal and opposite to $i_C$.
+
+## Traps & Exam Notes
+
+- **Confusing microseconds with milliseconds in $\tau = RC$.** With $R$ in k-ohm and $C$ in microfarad the product is already in milliseconds ($10\ \mathrm{k}\Omega\times10\ \mu\mathrm{F} = 100\ \mathrm{ms}$, not $100\ \mathrm{s}$), while with $R$ in ohm and $C$ in microfarad the product is in microseconds. Convert to base units once, or verify the unit pairing explicitly, before any exponential is evaluated.
+- **Inverting the RL time constant.** The inductor's time constant is $\tau = L/R$, not $R/L$. A $250\ \mathrm{mH}$ inductor with $50\ \Omega$ gives $5\ \mathrm{ms}$; the inverted form gives $200\ \mathrm{s}$ and makes the transient look frozen.
+- **Using the wrong resistance for $R_{Th}$.** $\tau$ uses the resistance seen by the storage element *after* the switch moves, with sources killed. A resistor that was in series with the source before $t=0$ is usually not part of the discharge path, and in a loaded divider the effective resistance is often a parallel combination. Redraw the post-switch circuit before computing $\tau$.
+- **Assuming the storage element's companion quantity also cannot jump.** Only $v_C$ and $i_L$ are continuous. Capacitor current jumps from 0 to $V_s/R$ the instant a step is applied, and inductor voltage jumps to whatever the resistor demands; an answer that starts the capacitor current at zero contradicts $i_C = C\,dv_C/dt \ne 0$ at $t = 0^+$.
+- **Forgetting that $x(\infty)$ is not always zero.** A discharge ends at zero, but any circuit with a source still connected ends at the DC steady-state value ($v_C = V_s$, $i_L = V_s/R$). Substituting $x(\infty) = 0$ into a driven circuit produces a curve that drifts to zero volts and violates the source.
+- **Measuring $t$ from the wrong origin or mis-scaling the exponent.** The exponent is $-(t-t_0)/\tau$ with $t_0$ the switching instant, and both $t$ and $\tau$ must be in the same unit. Mixing $t$ in seconds with $\tau$ in milliseconds (or vice versa) is the most common arithmetic slip in these problems.
+- **Reporting an exact final value instead of an exponential.** After one time constant nothing has "finished": an RC voltage is at 63.2% of its final value, not at it. Only $5\tau$ (99.3%) justifies writing the steady-state number, and even then it is an engineering approximation, not a mathematical equality.
+
+## See Also
+
+- [[10_Inductors,_Capacitors_and_Energy]]
+- [[12_Second_Order_RLC_Natural_Response]]
+- [[07_Laplace_Transform_Pairs]]
+
+---
+
+[[10_Inductors,_Capacitors_and_Energy|⬅ 10]] · [[_MOC_DC_Circuits|MOC]] · [[00_Dashboard|Dashboard]] · [[12_Second_Order_RLC_Natural_Response|12 ➡]]

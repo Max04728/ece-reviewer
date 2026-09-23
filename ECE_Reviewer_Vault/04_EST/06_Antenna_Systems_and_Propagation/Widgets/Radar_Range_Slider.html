@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar Range Equation — R_max and the Fourth-Root Sensitivity</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, clamp } from '../../../Assets/vault.js';
+
+// The radar range equation is the Friis equation with a target in the middle, so the range
+// appears TWICE - once going out to the target and once coming back:
+//     P_r = P_t G^2 lambda^2 sigma / [(4 pi)^3 R^4 L]
+// Setting P_r = P_min and solving gives R_max = [P_t G^2 lambda^2 sigma / ((4 pi)^3 P_min L)]^(1/4).
+// The fourth root is the whole story: R_max is brutally insensitive to power (16x for 2x range)
+// and brutally sensitive to the antenna gain, because G is SQUARED. This widget plots P_r(R)
+// against the P_min line so the crossing IS R_max.
+
+widget({
+  title: 'Radar Range Equation — R_max and the Fourth-Root Sensitivity',
+  description:
+    'Received power falls as 1/R^4, so it is drawn on a log-log plot as a straight line of slope -4. Where that line crosses the minimum detectable power P_min is R_max. Change the peak power and watch how little the crossing moves; change the antenna gain and watch how much it moves - G enters the equation squared.',
+  height: 620,
+  range: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+  controls: [
+    { id: 'pt', label: 'peak transmitted power P_t (kW)', min: 0.1, max: 2000, step: 0.1, value: 100 },
+    { id: 'gdbi', label: 'antenna gain G (dBi)', min: 10, max: 50, step: 0.5, value: 30 },
+    { id: 'fmhz', label: 'operating frequency f (MHz)', min: 100, max: 20000, step: 10, value: 3000 },
+    { id: 'rcs', label: 'radar cross section sigma (m^2)', min: 0.01, max: 200, step: 0.01, value: 1 },
+    { id: 'pmin', label: 'minimum detectable power P_min (dBm)', min: -140, max: -80, step: 0.5, value: -110 },
+    { id: 'loss', label: 'system losses L (dB)', min: 0, max: 30, step: 0.5, value: 6 },
+    { id: 'nf', label: 'receiver noise figure F (dB)', min: 0, max: 20, step: 0.5, value: 4 },
+    { id: 'bw', label: 'receiver bandwidth B (kHz)', min: 1, max: 5000, step: 1, value: 500 },
+    { id: 'exponent', label: 'integration pulses n (coherent)', min: 1, max: 100, step: 1, value: 1 },
+  ],
+
+  compute: (v) => {
+    const ptW = v.pt * 1000;                       // W
+    const g = Math.pow(10, v.gdbi / 10);           // linear gain
+    const lam = 299.792458 / v.fmhz;               // m, MHz -> m
+    const sigma = v.rcs;
+    const pminW = Math.pow(10, (v.pmin - 30) / 10); // dBm -> W
+    const l = Math.pow(10, v.loss / 10);           // linear loss factor
+    const n = v.exponent;
+
+    const num = ptW * g * g * lam * lam * sigma * n;
+    const den = Math.pow(4 * Math.PI, 3) * pminW * l;
+    const rmax = Math.pow(num / den, 1 / 4);
+    const rmax2 = Math.pow((4 * num) / den, 1 / 4);        // double the power -> 2^(1/4) range
+    const rmaxG3 = Math.pow((ptW * Math.pow(g * 10, 2) * lam * lam * sigma * n) / den, 1 / 4);
+
+    // P_r(R) — the same equation read as a function of range
+    const prW = (R) => num / (Math.pow(4 * Math.PI, 3) * Math.pow(Math.max(R, 1e-3), 4) * l);
+    const prDbm = (R) => 10 * Math.log10(Math.max(prW(R), 1e-30)) + 30;
+
+    // thermal noise floor from the receiver noise figure
+    const noiseDbm = -174 + 10 * Math.log10(v.bw * 1000) + v.nf;
+    const pminFromNoise = noiseDbm;                 // what P_min would be if noise-limited
+    const snrAtRmax = v.pmin - noiseDbm;
+
+    // sensitivity: dB of extra power needed for +25 % range, and range gain per 3 dB
+    const dR25 = 40 * Math.log10(1.25);
+    const rPer3dB = Math.pow(10, 3 / 40);
+    const rPer3dBDb = v.gdbi;                       // gain doubling = +3 dB -> same as 4x power
+
+    // doubling range needs 16x power - verify numerically from the equation
+    const powerRatioFor2x = Math.pow(2, 4);
+
+    // maximum unambiguous-free display range
+    const rmaxPlot = rmax * 8;
+
+    return {
+      ptW, g, lam, sigma, pminW, l, n, rmax, rmax2, rmaxG3, prDbm, prW, noiseDbm,
+      pminFromNoise, snrAtRmax, dR25, rPer3dB, rPer3dBDb, powerRatioFor2x, rmaxPlot,
+      gdbi: v.gdbi, pmin: v.pmin, loss: v.loss, bw: v.bw, nf: v.nf, fmhz: v.fmhz,
+      valid: true,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w, H = plot.h;
+    const L = 84, Rr = W - 250, T = 84, B = H - 92;
+    const xlo = Math.log10(out.rmax / 40), xhi = Math.log10(out.rmax * 8);
+    const yTop = out.pmin + 60, yBot = out.pmin - 40;
+    const X = (R) => L + ((Math.log10(Math.max(R, 1e-6)) - xlo) / (xhi - xlo)) * (Rr - L);
+    const Y = (dbm) => B - ((clamp(dbm, yBot, yTop) - yBot) / (yTop - yBot)) * (B - T);
+
+    // frame
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(L, T, Rr - L, B - T);
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    for (let e = -3; e <= 6; e++) {
+      for (let m = 1; m < 10; m++) {
+        const R = m * Math.pow(10, e);
+        if (R < out.rmax / 40 || R > out.rmax * 8) continue;
+        const x = X(R);
+        ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, B); ctx.stroke();
+      }
+    }
+    for (let db = Math.ceil(yTop / 10) * 10; db >= yBot; db -= 10) {
+      ctx.beginPath(); ctx.moveTo(L, Y(db)); ctx.lineTo(Rr, Y(db)); ctx.stroke();
+    }
+    ctx.restore();
+
+    // decade labels
+    for (let e = -3; e <= 6; e++) {
+      const R = Math.pow(10, e);
+      if (R < out.rmax / 40 || R > out.rmax * 8) continue;
+      plot.text(fmt(R, 3), X(R), B + 15, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    for (let db = Math.ceil(yTop / 20) * 20; db >= yBot; db -= 20) {
+      plot.text(String(db), L - 6, Y(db) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('range R (m, log scale)', (L + Rr) / 2, B + 33,
+      { color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center' });
+    ctx.save();
+    ctx.translate(18, (T + B) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = PALETTE.text;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('received power P_r (dBm)', 0, 0);
+    ctx.restore();
+
+    // noise floor
+    if (out.noiseDbm > yBot && out.noiseDbm < yTop) {
+      plot.segment(L, out.noiseDbm, Rr, out.noiseDbm,
+        { color: 'rgba(203,166,247,0.85)', width: 1.6, dash: [4, 3] });
+      plot.text('thermal noise floor kTBF = ' + fmt(out.noiseDbm, 5) + ' dBm',
+        L + 8, Y(out.noiseDbm) - 6, { color: PALETTE.accent5, font: '10px ui-monospace, monospace' });
+    }
+
+    // ---- 1/R^4 line --------------------------------------------------------
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= 900; i++) {
+      const R = Math.pow(10, xlo + (i / 900) * (xhi - xlo));
+      const p = out.prDbm(R);
+      if (!Number.isFinite(p)) { started = false; continue; }
+      const px = X(R), py = Y(p);
+      if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    plot.text('P_r = P_t G\u00B2\u03BB\u00B2\u03C3 / [(4\u03C0)\u00B3 R\u2074 L]', X(out.rmax * 0.02 + out.rmax / 40), Y(out.prDbm(out.rmax * 0.03 + out.rmax / 40)) - 10,
+      { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    plot.fn((R) => out.prDbm(out.rmax) - 40 * Math.log10(R / out.rmax), out.rmax / 40, out.rmax * 8,
+      { color: 'rgba(166,227,161,0.45)', width: 1.2, dash: [6, 4], samples: 200 });
+    plot.text('slope \u221240 dB/decade  (1/R\u2074)', X(out.rmax * 0.06 + out.rmax / 40), Y(out.prDbm(out.rmax * 0.06 + out.rmax / 40)) - 26,
+      { color: 'rgba(166,227,161,0.7)', font: '10px ui-monospace, monospace' });
+
+    // ---- P_min line --------------------------------------------------------
+    plot.segment(L, out.pmin, Rr, out.pmin, { color: PALETTE.accent2, width: 2.2, dash: [8, 5] });
+    plot.text('P_min = ' + fmt(out.pmin, 5) + ' dBm  (minimum detectable)', L + 8, Y(out.pmin) - 8,
+      { color: PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+
+    // ---- the crossing ------------------------------------------------------
+    const xr = X(out.rmax);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(xr, T); ctx.lineTo(xr, B); ctx.stroke();
+    ctx.restore();
+    plot.dot(out.rmax, out.pmin, { color: PALETTE.warn, r: 7 });
+    plot.text('R_max = ' + fmt(out.rmax, 5) + ' m', xr + 8, T + 14,
+      { color: PALETTE.warn, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('= ' + fmt(out.rmax / 1000, 5) + ' km', xr + 8, T + 30,
+      { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+
+    // ---- the 2x-range / 16x-power demonstration ----------------------------
+    const x2 = X(out.rmax * 2);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(137,180,250,0.8)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x2, T); ctx.lineTo(x2, B); ctx.stroke();
+    ctx.restore();
+    plot.text('2 R_max', x2, B - 6, { color: PALETTE.accent, font: '10px ui-monospace, monospace', align: 'center' });
+    const dNeeded = out.prDbm(out.rmax * 2) - out.pmin;
+    plot.text('\u2190 needs +' + fmt(dNeeded, 4) + ' dB of power (16\u00D7) to reach here',
+      x2 + 6, (T + B) / 2, { color: PALETTE.accent, font: '10px ui-monospace, monospace' });
+
+    // ---- sensitivity panel -------------------------------------------------
+    const px0 = Rr + 22;
+    const rows = [
+      ['RANGE EQUATION', PALETTE.text],
+      ['R_max = [P_t G\u00B2 \u03BB\u00B2 \u03C3 /', PALETTE.accent],
+      ['        ((4\u03C0)\u00B3 P_min L)]^(1/4)', PALETTE.accent],
+      ['', PALETTE.text],
+      ['P_t    = ' + fmt(out.ptW, 5) + ' W', PALETTE.text],
+      ['G      = ' + fmt(out.gdbi, 4) + ' dBi = ' + fmt(out.g, 5), PALETTE.text],
+      ['lambda = ' + fmt(out.lam, 5) + ' m', PALETTE.text],
+      ['sigma  = ' + fmt(out.sigma, 4) + ' m^2', PALETTE.text],
+      ['P_min  = ' + fmt(out.pmin, 5) + ' dBm', PALETTE.text],
+      ['L      = ' + fmt(out.loss, 4) + ' dB = ' + fmt(out.l, 5), PALETTE.text],
+      ['', PALETTE.text],
+      ['R_max  = ' + fmt(out.rmax, 6) + ' m', PALETTE.warn],
+      ['       = ' + fmt(out.rmax / 1000, 6) + ' km', PALETTE.warn],
+      ['', PALETTE.text],
+      ['SENSITIVITY', PALETTE.accent2],
+      ['2\u00D7 range needs ' + fmt(out.powerRatioFor2x, 3) + '\u00D7 power', PALETTE.text],
+      ['  (+' + fmt(40 * Math.log10(2), 4) + ' dB)', PALETTE.text],
+      ['+3 dB power \u2192 ' + fmt(out.rPer3dB, 5) + '\u00D7 range', PALETTE.text],
+      ['  (+' + fmt(20 * Math.log10(out.rPer3dB), 4) + ' %)', PALETTE.text],
+      ['+25 % range needs +' + fmt(out.dR25, 4) + ' dB', PALETTE.text],
+      ['+3 dB antenna gain \u2192 ' + fmt(Math.pow(10, 3 / 20), 5) + '\u00D7 range', PALETTE.text],
+      ['  (G is SQUARED)', PALETTE.accent4],
+      ['+6 dB gain = +6 dB power', PALETTE.dim],
+      ['', PALETTE.text],
+      ['NOISE', PALETTE.accent5],
+      ['kTBF = ' + fmt(out.noiseDbm, 5) + ' dBm', PALETTE.text],
+      ['F = ' + fmt(out.nf, 4) + ' dB, B = ' + fmt(out.bw, 5) + ' kHz', PALETTE.text],
+      ['margin at R_max = ' + fmt(out.snrAtRmax, 4) + ' dB', PALETTE.text],
+      ['pulses n = ' + fmt(out.n, 3) + ' (coherent)', PALETTE.text],
+    ];
+    let ly = T;
+    for (const [txt, col] of rows) {
+      if (txt === '') { ly += 8; continue; }
+      plot.text(txt, px0, ly, { color: col, font: '10px ui-monospace, monospace' });
+      ly += 14;
+    }
+
+    // ---- formula strip -----------------------------------------------------
+    plot.text('R_max = [P_t G\u00B2 \u03BB\u00B2 \u03C3 / ((4\u03C0)\u00B3 P_min L)]^(1/4)  =  [' + fmt(out.ptW, 5) + ' \u00D7 ' +
+      fmt(out.g, 5) + '\u00B2 \u00D7 ' + fmt(out.lam, 5) + '\u00B2 \u00D7 ' + fmt(out.sigma, 4) + ' / ((4\u03C0)\u00B3 \u00D7 ' +
+      fmt(out.pminW, 5) + ' \u00D7 ' + fmt(out.l, 5) + ')]^(1/4)',
+      16, 18, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('R_max = ' + fmt(out.rmax, 6) + ' m = ' + fmt(out.rmax / 1000, 6) + ' km        doubling P_t gives only ' +
+      fmt(out.rmax2 / out.rmax, 5) + '\u00D7 the range (2^(1/4))',
+      16, 36, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+    plot.text('P_r(R) uses the same numbers in reverse: P_r(' + fmt(out.rmax, 5) + ' m) = ' +
+      fmt(out.prDbm(out.rmax), 5) + ' dBm = P_min exactly, which is what makes the crossing R_max.',
+      16, 54, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+
+    // ---- verdict -----------------------------------------------------------
+    let verdict;
+    if (out.snrAtRmax < 3) {
+      verdict = 'The P_min you set is only ' + fmt(out.snrAtRmax, 4) + ' dB above the kTBF noise floor, so this ' +
+        'R_max is optimistic - real detection needs 10-13 dB of SNR at the crossing, which shortens R_max.';
+    } else {
+      verdict = 'P_min sits ' + fmt(out.snrAtRmax, 4) + ' dB above the ' + fmt(out.noiseDbm, 5) +
+        ' dBm noise floor, consistent with a usable detection threshold. R_max = ' + fmt(out.rmax, 5) +
+        ' m; for 2\u00D7 that range you would need 16\u00D7 the power (+12 dB), or +6 dB of antenna gain, ' +
+        'which the squared G makes worth 16\u00D7 as well.';
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, H - 30, W - 20, 24);
+    ctx.restore();
+    plot.text(verdict, 16, H - 13, { color: PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'R_max': fmt(out.rmax, 6) + ' m   = ' + fmt(out.rmax / 1000, 6) + ' km',
+    'peak power P_t': fmt(out.ptW, 5) + ' W   (' + fmt(10 * Math.log10(out.ptW / 1000) + 30, 5) + ' dBm)',
+    'antenna gain G': fmt(out.gdbi, 5) + ' dBi   = ' + fmt(out.g, 5) + ' linear',
+    'wavelength lambda': fmt(out.lam, 5) + ' m   (f = ' + fmt(out.fmhz, 5) + ' MHz)',
+    'radar cross section sigma': fmt(out.sigma, 5) + ' m^2',
+    'minimum detectable P_min': fmt(out.pmin, 5) + ' dBm   = ' + fmt(out.pminW, 4) + ' W',
+    'system loss L': fmt(out.loss, 5) + ' dB   = ' + fmt(out.l, 5) + ' linear',
+    'P_r at R_max': fmt(out.prDbm(out.rmax), 5) + ' dBm   (= P_min by construction)',
+    'P_r at 0.5 R_max': fmt(out.prDbm(out.rmax * 0.5), 5) + ' dBm   (+12.04 dB)',
+    'P_r at 2 R_max': fmt(out.prDbm(out.rmax * 2), 5) + ' dBm   (\u221212.04 dB)',
+    'power for 2x range': fmt(out.powerRatioFor2x, 4) + '\u00D7   (+' + fmt(40 * Math.log10(2), 5) + ' dB)',
+    'range gain from +3 dB power': fmt(out.rPer3dB, 5) + '\u00D7   (+' + fmt((out.rPer3dB - 1) * 100, 4) + ' %)',
+    'range gain from +3 dB gain': fmt(Math.pow(10, 3 / 20), 5) + '\u00D7   (G squared)',
+    'power for +25 % range': '+' + fmt(out.dR25, 5) + ' dB',
+    'thermal noise floor kTBF': fmt(out.noiseDbm, 5) + ' dBm',
+    'SNR margin at R_max': fmt(out.snrAtRmax, 5) + ' dB',
+    'coherent pulses n': fmt(out.n, 4),
+    'R_max with 10x the power': fmt(out.rmax * Math.pow(10, 1 / 4), 6) + ' m   (only 1.78x)',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The fourth root is the exam.</strong> <code>R_max \u221D P_t^(1/4)</code>, so the numbers are almost ' +
+  'insultingly insensitive: <em>double</em> the peak power and range improves by only ' +
+  '<code>2^(1/4) = 1.189</code>, about 19 %. To double the range you need <code>2^4 = 16\u00D7</code> the power - ' +
+  '+12 dB. Watch the readout: at R_max the received power is exactly P_min, and at 2 R_max it is 12.04 dB lower. ' +
+  'Every radar question that asks "what happens to range if power goes up 4\u00D7" is answered ' +
+  '<code>4^(1/4) = 1.41</code>, and every one that asks "what power for twice the range" is answered 16.' +
+  '<br><strong>Gain is squared, and that is the lever that actually works.</strong> ' +
+  'Because the antenna is used for both transmit and receive, G appears as <code>G\u00B2</code> - so +3 dB of ' +
+  'antenna gain is worth +6 dB in the range equation, exactly the same as quadrupling the transmitter power. ' +
+  'That is why radar engineers chase aperture rather than klystrons: a dish with twice the diameter has four ' +
+  'times the gain (+6 dB), which puts +12 dB into the equation and buys <code>10^(12/40) = 2.0</code> - it ' +
+  'genuinely doubles the range for the same transmitter. The equivalences worth memorising are ' +
+  '<em>+3 dB of antenna gain = 4\u00D7 the power</em> and <em>+6 dB of antenna gain = 16\u00D7 the power = ' +
+  '2\u00D7 the range</em>.<br>' +
+  '<strong>Do not forget L, and do not add it in the wrong place.</strong> System loss L sits in the ' +
+  '<em>denominator</em>, so 6 dB of loss costs range by <code>10^(6/40) = 0.71</code>, about 29 %. ' +
+  'Losses enter once (they are a one-way lumped factor), while range enters twice - that asymmetry is why R ' +
+  'appears to the fourth and L only to the first.<br>' +
+  '<strong>The trap in P_min.</strong> P_min is not a free parameter: it must clear the receiver noise floor ' +
+  '<code>kTBF</code> by the SNR a detector needs, typically 10-13 dB. Set P_min below the noise floor line in ' +
+  'this widget and the readout flags it - a range computed from an impossible P_min is the most common way to ' +
+  'get a beautiful wrong answer. Coherent integration of n pulses multiplies the effective power by n ' +
+  '(+10log n dB), so 100 pulses extend range by <code>100^(1/4) = 3.16</code>, which is the cheapest range in ' +
+  'radar - if the target stays coherent.';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

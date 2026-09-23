@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polar Area Sweep — A = ½∫r²dθ</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, simpson, PALETTE } from '../../../Assets/vault.js';
+
+// The two polar-area mistakes that cost marks on the board exam are (1) dropping the 1/2
+// and (2) integrating a full 0..2pi sweep for a curve that only needs 0..pi, which traces
+// the same region twice and silently doubles the area. Both are made visible here: the
+// running integral is compared against the closed-form area, and the widget tells you
+// exactly which angular interval is being painted a second time.
+
+const CURVES = {
+  'circle': {
+    label: 'r = 2cos θ',
+    pretty: 'r = 2 cos θ',
+    r: (t) => 2 * Math.cos(t),
+    note: 'A circle of diameter 2 centred at (1, 0), passing through the pole. It closes at θ = π/2. Sweeping to θ = π paints the same disc twice — that is the double-count trap.',
+    std: [0, Math.PI],
+    exact: Math.PI,
+    formula: 'A = ½∫₀^π (2cos θ)² dθ',
+  },
+  'rose': {
+    label: 'r = 3cos 3θ (one petal)',
+    pretty: 'r = 3 cos 3θ',
+    r: (t) => 3 * Math.cos(3 * t),
+    note: 'A three-petal rose. One petal is traced as 3θ runs through one half-period, θ ∈ [−π/6, π/6]. Beyond that you are drawing the next petal.',
+    std: [-Math.PI / 6, Math.PI / 6],
+    exact: 3 * Math.PI / 4,
+    formula: 'A = ½∫_{−π/6}^{π/6} (3cos 3θ)² dθ',
+  },
+  'cardioid': {
+    label: 'r = 2(1 + cos θ)',
+    pretty: 'r = 2(1 + cos θ)',
+    r: (t) => 2 * (1 + Math.cos(t)),
+    note: 'A cardioid (limaçon with a = b). It closes at θ = 2π, so the FULL 0..2π sweep is required here — unlike the circle, nothing is traced twice. The classic comparison case.',
+    std: [0, 2 * Math.PI],
+    exact: 6 * Math.PI,
+    formula: 'A = ½∫₀^{2π} [2(1 + cos θ)]² dθ',
+  },
+  'const': {
+    label: 'r = 2 (constant)',
+    pretty: 'r = 2',
+    r: () => 2,
+    note: 'A circle of radius 2 centred at the pole. Because r never depends on θ, the area is exactly the sector fraction of πr²: ½r²Δθ = 2Δθ.',
+    std: [0, 2 * Math.PI],
+    exact: 4 * Math.PI,
+    formula: 'A = ½∫₀^{2π} (2)² dθ',
+  },
+};
+const KEYS = Object.keys(CURVES);
+
+const D2R = Math.PI / 180;
+const R2D = 180 / Math.PI;
+
+/** Numerically integrated swept area, ½∫ r² dθ, with a running value at every angle. */
+function sweepTable(r, t0, t1, n) {
+  const h = (t1 - t0) / n;
+  const cum = new Array(n + 1);
+  cum[0] = 0;
+  let acc = 0;
+  for (let i = 0; i < n; i++) {
+    const ta = t0 + i * h, tb = ta + h, tm = (ta + tb) / 2;
+    acc += (h / 6) * (r(ta) ** 2 + 4 * r(tm) ** 2 + r(tb) ** 2);
+    cum[i + 1] = acc;
+  }
+  return { cum, h, total: 0.5 * acc };
+}
+
+widget({
+  title: 'Polar Area Sweep — A = ½∫r²dθ',
+  description:
+    'A thin wedge at radius r spanning dθ has area ½r²dθ. Sweep θ and watch those wedges accumulate; compare the running value against the closed-form area. Depth is exact, so any gap you see is a mistake in the limits, not in the arithmetic.',
+  height: 520,
+  range: { xMin: -4, xMax: 4, yMin: -3.2, yMax: 3.2 },
+  controls: [
+    { id: 'curve', label: 'polar curve', type: 'select', options: KEYS, value: 'circle' },
+    { id: 'th0', label: 'θ start (deg)', min: -180, max: 360, step: 1, value: 0 },
+    { id: 'th1', label: 'θ end (deg)', min: -180, max: 360, step: 1, value: 90 },
+    { id: 'sweep', label: 'sweep position (deg)', min: -180, max: 720, step: 0.5, value: 90 },
+    { id: 'n', label: 'wedges n', min: 8, max: 720, step: 1, value: 180 },
+    { id: 'halve', label: 'show the missing ½', type: 'checkbox', value: false },
+  ],
+  compute: (v) => {
+    const C = CURVES[v.curve];
+    const t0 = v.th0 * D2R;
+    const t1 = Math.max(t0 + 1e-6, v.th1 * D2R);
+    const n = Math.max(8, Math.round(v.n));
+    const { cum, h } = sweepTable(C.r, t0, t1, n);
+
+    // running sweep: the swept area accumulates only up to the sweep position
+    const tSweep = Math.min(t1, Math.max(t0, v.sweep * D2R));
+    const kf = (tSweep - t0) / h;
+    const ki = Math.max(0, Math.min(n, Math.floor(kf)));
+    const frac = Math.max(0, Math.min(1, kf - ki));
+    const A_swept = 0.5 * (cum[ki] + (frac > 0 ? (cum[ki + 1] - cum[ki]) * frac : 0));
+    const A_full = 0.5 * cum[n];
+
+    // closed form, but only when the limits are exactly the standard ones for the curve
+    const std = C.std;
+    let exact = null, exactKind = '—';
+    if (Math.abs(t0 - std[0]) < 1e-6 && Math.abs(t1 - std[1]) < 1e-6) {
+      exact = C.exact; exactKind = 'closed form (standard limits)';
+    } else {
+      exact = simpson((t) => C.r(t) ** 2, t0, t1, 4000) / 2;
+      exactKind = 'numeric reference (non-standard limits)';
+    }
+
+    // does this interval paint some angular region twice? Compare with the period-safe range.
+    const over = t1 - t0 > (std[1] - std[0]) + 1e-6;
+    const err = A_full - exact;
+
+    // ±2% coverage of the highlighted wedge band, drawn from the previous angle
+    const tPrev = Math.max(t0, tSweep - Math.max(2, 360 / n) * D2R);
+
+    return {
+      C, t0, t1, n, h, tSweep, tPrev, A_swept, A_full, exact, exactKind, over, err,
+      t0d: v.th0, t1d: v.th1,
+      A_noHalf: A_full,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const { C, t0, t1, tSweep, A_full } = out;
+    plot.setRange({ xMin: -4, xMax: 4.1, yMin: -3.15, yMax: 3.15 });
+    plot.clear().grid(1, 1).axes();
+
+    const P = (t) => {
+      const r = C.r(t);
+      return [r * Math.cos(t), r * Math.sin(t)];
+    };
+    // "missing ½" demo: ½ ∫r² vs ∫r². Without the ½ the swept region is twice as large,
+    // which is exactly a radius scaled by √2. W(t) is that wrong region; P(t) is the curve.
+    const W = (t) => {
+      const r = C.r(t) * (v.halve ? Math.SQRT2 : 1);
+      return [r * Math.cos(t), r * Math.sin(t)];
+    };
+    if (v.halve) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(243,139,168,0.30)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath();
+      for (let i = 0; i <= 900; i++) {
+        const t = t0 + (tSweep - t0) * (i / 900);
+        const [x, y] = W(t);
+        i === 0 ? ctx.moveTo(plot.X(x), plot.Y(y)) : ctx.lineTo(plot.X(x), plot.Y(y));
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // ---- full drawn curve (θ over its whole natural trace), dashed and dim
+    const full = [C.std[0], C.std[1]];
+    ctx.save();
+    ctx.strokeStyle = 'rgba(137,180,250,0.28)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= 1400; i++) {
+      const t = full[0] + (full[1] - full[0]) * (i / 1400);
+      const [x, y] = P(t);
+      if (!started) { ctx.moveTo(plot.X(x), plot.Y(y)); started = true; }
+      else ctx.lineTo(plot.X(x), plot.Y(y));
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // ---- swept region: polar wedge strips from the pole, painted cumulatively
+    const K = Math.max(60, Math.min(900, Math.round(out.n * (tSweep - t0) / (t1 - t0 || 1)) + 60));
+    ctx.save();
+    ctx.fillStyle = out.over ? 'rgba(243,139,168,0.26)' : 'rgba(166,227,161,0.24)';
+    ctx.beginPath();
+    ctx.moveTo(plot.X(0), plot.Y(0));
+    for (let i = 0; i <= K; i++) {
+      const t = t0 + (tSweep - t0) * (i / K);
+      const [x, y] = W(t);
+      ctx.lineTo(plot.X(x), plot.Y(y));
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // ---- the wedge being added right now
+    ctx.save();
+    ctx.fillStyle = 'rgba(249,226,175,0.55)';
+    ctx.beginPath();
+    ctx.moveTo(plot.X(0), plot.Y(0));
+    for (let i = 0; i <= 24; i++) {
+      const t = out.tPrev + (tSweep - out.tPrev) * (i / 24);
+      const [x, y] = W(t);
+      ctx.lineTo(plot.X(x), plot.Y(y));
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // ---- the active curve segment (thick)
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    let s2 = false;
+    const M = 600;
+    for (let i = 0; i <= M; i++) {
+      const t = t0 + (t1 - t0) * (i / M);
+      const [x, y] = P(t);
+      if (!s2) { ctx.moveTo(plot.X(x), plot.Y(y)); s2 = true; }
+      else ctx.lineTo(plot.X(x), plot.Y(y));
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // ---- radial edges, pole and the traced ray
+    const [xe, ye] = P(tSweep);
+    const [x0, y0] = P(t0);
+    plot.segment(0, 0, xe, ye, { color: PALETTE.warn, width: 2 });
+    plot.segment(0, 0, x0, y0, { color: PALETTE.accent4, width: 2, dash: [5, 4] });
+    plot.dot(0, 0, { color: PALETTE.dim, r: 3 });
+    plot.dot(xe, ye, { color: PALETTE.warn, r: 4 });
+    plot.label('pole', -0.34, -0.26, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // ---- trace direction arrow at mid-sweep
+    const tm = (t0 + tSweep) / 2;
+    const [xm, ym] = P(tm);
+    const [xm2, ym2] = P(tm + 0.09);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.fillStyle = PALETTE.accent3;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(plot.X(xm), plot.Y(ym));
+    ctx.lineTo(plot.X(xm2), plot.Y(ym2));
+    ctx.stroke();
+    const ang = Math.atan2(plot.Y(ym2) - plot.Y(ym), plot.X(xm2) - plot.X(xm));
+    ctx.beginPath();
+    ctx.moveTo(plot.X(xm2), plot.Y(ym2));
+    ctx.lineTo(plot.X(xm2) - 9 * Math.cos(ang - 0.4), plot.Y(ym2) - 9 * Math.sin(ang - 0.4));
+    ctx.lineTo(plot.X(xm2) - 9 * Math.cos(ang + 0.4), plot.Y(ym2) - 9 * Math.sin(ang + 0.4));
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // ---- the dA wedge annotation at a fixed readable angle
+    const ta = t0 + 0.22 * (t1 - t0);
+    const [xa, ya] = P(ta);
+    const [xb, yb] = P(ta + 0.30);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(249,226,175,0.9)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(plot.X(0), plot.Y(0));
+    ctx.lineTo(plot.X(xa), plot.Y(ya));
+    ctx.moveTo(plot.X(0), plot.Y(0));
+    ctx.lineTo(plot.X(xb), plot.Y(yb));
+    ctx.stroke();
+    ctx.restore();
+    plot.label('dA = ½r²dθ', (xa + xb) / 2 + 0.16, (ya + yb) / 2, {
+      color: PALETTE.warn, font: '11px ui-monospace, monospace',
+    });
+
+    // ---- text panel
+    const pad = plot.pad;
+    plot.text(C.label + '   with  r = ' + fmt(C.r((t0 + t1) / 2), 4) + ' at mid-interval',
+      pad + 8, pad + 16, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('A = ½ ∫ r² dθ   →   ' + fmt(0.5, 4) + ' × ∫ ( r(θ) )² dθ',
+      pad + 8, pad + 34, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    if (v.halve) {
+      plot.text('WRONG VERSION SHOWN: A = ∫ r² dθ (no ½) = ' + fmt(A_full, 6) +
+        ' — the dashed pink region is twice the true wedge.',
+        pad + 8, pad + 52, { color: PALETTE.accent2, font: 'bold 12px ui-monospace, monospace' });
+    }
+    plot.text('limits: θ = ' + fmt(out.t0d, 4) + '° to ' + fmt(out.t1d, 4) + '°   (' +
+      fmt(out.t0, 4) + ' to ' + fmt(out.t1, 4) + ' rad)',
+      pad + 8, pad + 70 + (v.halve ? 18 : 0), { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('swept so far A(' + fmt(tSweep * R2D, 4) + '°) = ' + fmt(out.A_swept, 6) +
+      '   full integral = ' + fmt(A_full, 6) + '   closed form = ' + fmt(out.exact, 6),
+      pad + 8, pad + 88 + (v.halve ? 18 : 0), { color: out.over ? PALETTE.accent2 : PALETTE.accent3, font: '12px ui-monospace, monospace' });
+
+    if (out.over) {
+      plot.text('TRACED TWICE — the interval is longer than the curve\'s own period.',
+        pad + 8, plot.h - pad - 26, { color: PALETTE.accent2, font: 'bold 12px ui-monospace, monospace' });
+      plot.text('Integral gives ' + fmt(A_full, 5) + ' but the true area is ' + fmt(out.exact, 5) +
+        '  (ratio ' + fmt(A_full / out.exact, 4) + ').',
+        pad + 8, plot.h - pad - 8, { color: PALETTE.accent2, font: '12px ui-monospace, monospace' });
+    } else if (Math.abs(A_full - out.exact) < 1e-4 * Math.max(1, Math.abs(out.exact))) {
+      plot.text('Limits match the curve\'s natural trace — integral and closed form agree.',
+        pad + 8, plot.h - pad - 8, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+    } else {
+      plot.text('Limits are not the standard ones; closed form shown is a numeric reference.',
+        pad + 8, plot.h - pad - 8, { color: PALETTE.warn, font: '12px ui-monospace, monospace' });
+    }
+  },
+
+  readout: (out) => {
+    const rows = {
+      'formula': 'A = ½∫r²dθ',
+      'θ interval': fmt(out.t0d, 4) + '° → ' + fmt(out.t1d, 4) + '°  =  ' +
+        fmt(out.t0, 4) + ' → ' + fmt(out.t1, 4) + ' rad',
+      'Δθ': fmt(out.t1 - out.t0, 5) + ' rad',
+      'swept area so far': fmt(out.A_swept, 6),
+      'integral over full interval': fmt(out.A_full, 6),
+      'closed-form area': fmt(out.exact, 6),
+      'difference': fmt(out.err, 4) +
+        (out.over ? '  ← interval too long' : Math.abs(out.err) < 1e-4 * Math.max(1, Math.abs(out.exact)) ? '  ✓' : ''),
+      'if the ½ is dropped': fmt(out.A_noHalf, 6) + '  (' + fmt(out.A_noHalf / out.exact, 4) + '× too big)',
+      'reference': out.exactKind,
+      'wedges n': String(out.n),
+    };
+    return rows;
+  },
+});
+
+// --- note under the widget -------------------------------------------------
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'polar-note';
+document.getElementById('app').appendChild(note);
+
+function refreshNote() {
+  const sel = document.querySelector('select.vault-widget-input');
+  const key = sel ? sel.value : KEYS[0];
+  const C = CURVES[key];
+  const a = C.std[0] * R2D, b = C.std[1] * R2D;
+  note.innerHTML =
+    '<strong>' + C.label + '</strong> — ' + C.note + '<br>' +
+    'Standard limits: θ = ' + fmt(a, 4) + '° to ' + fmt(b, 4) + '°  (' +
+    fmt(C.std[0], 4) + ' to ' + fmt(C.std[1], 4) + ' rad) &nbsp;·&nbsp; closed form ' +
+    C.formula + ' = <code>' + fmt(C.exact, 6) + '</code><br>' +
+    'Use the <em>θ end</em> slider to push past those limits and watch the integral keep growing while the ' +
+    'region on the page stops changing — that is a curve being traced a second time. ' +
+    'Set <em>θ start</em> = 0 and <em>θ end</em> = 360 on r = 2cos θ: the disc is one circle, but the ' +
+    'integral reads ' + fmt(2 * Math.PI, 6) + ' instead of ' + fmt(Math.PI, 6) + '. ' +
+    'Then tick <em>show the missing ½</em> to see the other classic: without the ½ every answer is exactly twice too large.';
+}
+document.addEventListener('input', refreshNote);
+document.addEventListener('change', refreshNote);
+refreshNote();
+</script>
+</body>
+</html>

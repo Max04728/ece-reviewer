@@ -1,0 +1,1109 @@
+[
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/01_Intrinsic,_Extrinsic_and_Carrier_Transport.json",
+    "problem": 1,
+    "expect": "doped with phosphorus at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(1.5E10)²÷1E16` → **2.25e4** cm⁻³ = $p_0$; the majority is $n_0 = N_D$ = **1.0e16** cm⁻³.",
+        "`1E16÷2.25E4` → **4.44e11**, so electrons dominate: n-type."
+      ],
+      "note": "Square $n_i$ before dividing — using $n_i/N_D$ is ten orders of magnitude too small."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/01_Intrinsic,_Extrinsic_and_Carrier_Transport.json",
+    "problem": 2,
+    "expect": "silicon sample, find the conductivity and resistivity",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `23` `×1E16×1350` → **2.1627** S/cm = $\\sigma$; the hole term is 12 decades smaller, so it is dropped.",
+        "`1÷Ans` → **0.4624** $\\Omega\\cdot\\mathrm{cm}$ = **4.62e-3** $\\Omega\\cdot\\mathrm{m}$."
+      ],
+      "note": "cm⁻³ with cm²/(V·s) returns S/cm, not S/m — convert the mobility too if you convert the doping."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/01_Intrinsic,_Extrinsic_and_Carrier_Transport.json",
+    "problem": 3,
+    "expect": "pure (intrinsic) silicon at 300 K",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `23` `×1.5E10×(1350+480)` → **4.3975e-6** S/cm = $\\sigma_i$; store with `SHIFT` `STO` `A`.",
+        "`1÷A` → **2.274e5** $\\Omega\\cdot\\mathrm{cm}$; `2.1627÷A` → **4.92e5**, the conductivity gain from doping."
+      ],
+      "note": "The hole term is 26 % of the intrinsic sum, so $\\mu_n+\\mu_p$ is mandatory here."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/01_Intrinsic,_Extrinsic_and_Carrier_Transport.json",
+    "problem": 4,
+    "expect": "Use the Einstein relation to find the diffusion constants",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `25` `×300÷` `SHIFT` `CVALUE` `23` → **2.5852e-2** V, store it with `SHIFT` `STO` `A` (25 is $k$, 23 is $q$).",
+        "`A×1350` → **34.90** cm²/s = $D_n$ and `A×480` → **12.41** cm²/s = $D_p$."
+      ],
+      "note": "The 26 mV shortcut returns 35.1 and 12.5; the exact $kT/q$ is 25.85 mV."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/01_Intrinsic,_Extrinsic_and_Carrier_Transport.json",
+    "problem": 5,
+    "expect": "find the electron drift velocity for",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1350×100` → **1.35e5** cm/s = **1350** m/s.",
+        "`1E-3×0.2÷(` `SHIFT` `CVALUE` `23` `×1E22×5E-4)` → **2.497e-4** V = **0.25** mV."
+      ],
+      "note": "Put n in m⁻³ and t in m first; leaving n in cm⁻³ inflates $V_H$ by 10⁶."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 1,
+    "expect": "Find the built-in potential of a silicon junction with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1E17×1E16÷2.25E20` → **4.444e12**, the dimensionless $N_AN_D/n_i^2$.",
+        "`0.026×ln(Ans)` → **0.7572** V."
+      ],
+      "note": "It is `ln`, never `log` — the Shockley form is a natural logarithm."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 2,
+    "expect": "Compute the zero-bias depletion width of that same junction.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷1E17+1÷1E16` → **1.10e-16** cm³ as the reciprocal sum.",
+        "`√(2×1.045E-12×0.757÷` `SHIFT` `CVALUE` `23` `×Ans)` → **3.30e-5** cm = **0.330** µm."
+      ],
+      "note": "$\\varepsilon$ is $\\varepsilon_{Si} = 1.045\\times10^{-12}$ F/cm = $11.8\\varepsilon_0$, not $\\varepsilon_0$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 3,
+    "expect": "Split the depletion width of the previous junction",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3.3E-5×1E17÷1.1E17` → **3.00e-5** cm = $x_n$.",
+        "`3.3E-5−Ans` → **3.00e-6** cm = $x_p$; the ratio is **10**, matching $N_A/N_D$."
+      ],
+      "note": "A 10:1 doping ratio is a 10:1 width ratio — never $W/2$ per side."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 4,
+    "expect": "Find the peak electric field in the depletion region",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×0.757÷3.3E-5` → **4.59e4** V/cm ($V_0 = \\frac{1}{2}E_{max}W$, so the 2 is the triangular-profile factor).",
+        "Charge-route check: `1.602E-19×1E16×3.0E-5÷1.045E-12` → **4.60e4** V/cm, which agrees."
+      ],
+      "note": "$E_{max} = V_0/W$ alone gives 2.30e4 V/cm — exactly half."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 5,
+    "expect": "if the cross-sectional area is",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.045E-12×1E-3÷3.3E-5` → **3.17e-11** F.",
+        "Press `ENG` (or `×1E12`) before reporting: **31.7** pF, never 3.17e-11 pF."
+      ],
+      "note": "The depletion region is the dielectric, so $C_j$ falls as $1/W$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 6,
+    "expect": "reverse biased at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√((0.757+5)÷0.757)` → **2.7577** = $W/W_0$; store with `SHIFT` `STO` `A`.",
+        "`3.3E-5×A` → **9.10e-5** cm = **0.910** µm; `31.7÷A` → **11.5** pF."
+      ],
+      "note": "Reverse bias widens W, so C must fall — an answer above $C_{j0}$ means the ratio was inverted."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 7,
+    "expect": "forward biased at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√((0.757−0.5)÷0.757)` → **0.5827** = $W/W_0$; store with `SHIFT` `STO` `A`.",
+        "`3.3E-5×A` → **1.92e-5** cm = **0.192** µm; `31.7÷A` → **54.4** pF."
+      ],
+      "note": "Forward bias shrinks W and raises $C_j$; past about 0.5 V, diffusion capacitance takes over."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 8,
+    "expect": "Find the thermal voltage at 100",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`SHIFT` `CVALUE` `25` `÷` `SHIFT` `CVALUE` `23` `×373` → **3.214e-2** V = **32.1** mV.",
+        "`Ans−0.02585` → **+6.2** mV against 300 K, yet $V_0$ still falls because $n_i^2$ grows faster."
+      ],
+      "note": "`8.617E-5×373` is the same number; codes 25 and 23 avoid typing $k$ and $q$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 9,
+    "expect": "A second junction uses",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷1E18+1÷1E15` → **1.001e-15** cm³, where the $1/N_A$ term is negligible.",
+        "`√(2×1.045E-12×0.757÷` `SHIFT` `CVALUE` `23` `×Ans)` → **9.94e-5** cm = **0.994** µm."
+      ],
+      "note": "$V_0$ depends only on the product $N_AN_D$; $W$ depends on the sum of reciprocals."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+    "problem": 10,
+    "expect": "What reverse bias reduces the junction capacitance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Type `31.7÷√(1+X÷0.757)`, then `SHIFT` `SOLVE` with a guess of 2 and `=` → **X = 2.271** V.",
+        "`L−R` shows **0**; the algebra check is $1+V_R/V_0 = 4$, so $V_R = 3V_0$."
+      ],
+      "note": "Halving $C_j$ squares the factor: dropping the square root gives 0.757 V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/03_Diode_Characteristics_and_Shockley.json",
+    "problem": 1,
+    "expect": "Find $I_D$ at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.6÷0.026` → **23.077**, the exponent $V_D/(nV_T)$.",
+        "`1E-12×e^(Ans)` → **1.0524e-2** A = **10.5** mA."
+      ],
+      "note": "If a calculator overflows on $e^{23}$, use `1E-12×10^(23.077÷ln(10))` — identical to four figures."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/03_Diode_Characteristics_and_Shockley.json",
+    "problem": 2,
+    "expect": "what forward voltage produces",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E-3÷1E-12` → **2.0e9**, the dimensionless ratio (never $I_D$ alone).",
+        "`0.026×ln(1+Ans)` → **0.5568** V."
+      ],
+      "note": "The 0.7 V habit is 25 % high at 2 mA; the whole 1 mA to 100 mA span is only 120 mV."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/03_Diode_Characteristics_and_Shockley.json",
+    "problem": 3,
+    "expect": "find the dc resistance and the dynamic resistance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.557÷2E-3` → **278.5** $\\Omega$ = $R_{dc}$ and `0.026÷2E-3` → **13.0** $\\Omega$ = $r_d$, both in one line with `ALPHA` `:`.",
+        "`278.5÷13` → **21.4**, which is $V_D/(nV_T)$ as the note predicts."
+      ],
+      "note": "$R_{dc}$ is for bias and $r_d = nV_T/I_D$ for signals; interchanging them is a 21x error."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/03_Diode_Characteristics_and_Shockley.json",
+    "problem": 4,
+    "expect": "after heating to",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "(i) `1E-12×2` → **2e-12** A of leakage at 35 °C, so the fixed-voltage current doubles: **21.0** mA.",
+        "(ii) `0.026×ln(1+10.5E-3÷2E-12)` → **0.5819** V straight from the Shockley curve.",
+        "The empirical rule `0.600−2E-3×10` → **0.580** V — the two routes agree to 2 mV."
+      ],
+      "note": "Heating raises current at fixed V but lowers V at fixed current; check the sign of the shift."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/03_Diode_Characteristics_and_Shockley.json",
+    "problem": 5,
+    "expect": "state the error in the 0.7 V constant-drop model",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.026×ln(1+20E-3÷1E-12)` → **0.6167** V = $V_j$.",
+        "`20E-3×10` → **0.200** V of bulk drop; `0.6167+Ans` → **0.817** V terminal.",
+        "`(0.817−0.7)÷0.817` → **0.143**, i.e. the 0.7 V model is **14**% low."
+      ],
+      "note": "$r_B$ belongs in the series denominator $R_L+r_B$, never as a post-hoc subtraction."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/04_Diode_Models_and_Load_Line.json",
+    "problem": 1,
+    "expect": "Find the loop current with (i) the ideal-diode model",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line with `ALPHA` `:` — `10÷1000 : (10−0.7)÷1000` → **10.0** mA ideal → **9.3** mA practical.",
+        "`(10−9.3)÷9.3` → **0.075**, the 7.5 % the ideal model overstates."
+      ],
+      "note": "The same ideal model on a 1.5 V source is 88 % high; judge by the ratio $V_{knee}/V_{DD}$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/04_Diode_Models_and_Load_Line.json",
+    "problem": 2,
+    "expect": "now uses a diode with a bulk resistance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(10−0.7)÷(1000+10)` → **9.208e-3** A = **9.21** mA, with $r_B$ inside the denominator.",
+        "`Ans×10+0.7` → **0.792** V; KVL check `9.208+0.792` → **10.0** V."
+      ],
+      "note": "$I = (V_{DD}-V_{knee})/(R_L+r_B)$; subtracting $Ir_B$ afterwards double-counts $r_B$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/04_Diode_Models_and_Load_Line.json",
+    "problem": 3,
+    "expect": "state the load-line intercepts and locate the Q point",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Intercepts first: `(10 V, 0 mA)` and `(0 V, 10 mA)` bracket every legal answer.",
+        "Type `1E-12(e^(X÷0.026)−1)=(10−X)÷1000`, `SHIFT` `SOLVE`, guess 0.6, `=` → **X = 0.5971** V.",
+        "`(10−X)÷1000` → **9.40** mA, and `L−R` shows **0**."
+      ],
+      "note": "The constant-drop Q (0.7 V, 9.3 mA) is 17 % high in voltage even though the current is right to 1 %."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/04_Diode_Models_and_Load_Line.json",
+    "problem": 4,
+    "expect": "Two diodes in series with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(12−1.4)÷1000` → **10.6** mA for two silicon diodes ($0.7+0.7$).",
+        "`(12−1.0)÷1000` → **11.0** mA for one silicon plus one germanium ($0.7+0.3$)."
+      ],
+      "note": "Series knees add; one 0.7 V drop for the whole string is about 7 % high."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/04_Diode_Models_and_Load_Line.json",
+    "problem": 5,
+    "expect": "A red LED has a nominal",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(5−2)÷20E-3` → **150** $\\Omega$, already a standard E12 value.",
+        "`20E-3²×150` → **0.060** W in the resistor and `2×20E-3` → **40** mW in the LED."
+      ],
+      "note": "$R = V_S/I_F = 250$ $\\Omega$ ignores $V_F$ and under-drives the LED at 12 mA."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 1,
+    "expect": "A half-wave rectifier with an ideal diode is fed from",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20÷π` → **6.366** V = $V_{dc}$ and `20÷2` → **10.0** V = $V_{rms}$, in one `ALPHA` `:` line.",
+        "`10÷6.366` → **1.571** = F, then `√(Ans²−1)` → **1.211** = r."
+      ],
+      "note": "Half-wave rms is $V_m/2$, not $V_m/\\sqrt{2}$; the wrong choice reports r = 0.84."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 2,
+    "expect": "The same circuit uses a real silicon diode with a 0.7 V drop.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20−0.7` → **19.3** V, the peak that actually gets integrated.",
+        "`Ans÷π` → **6.143** V = $V_{dc}$.",
+        "`Ans÷1000` → **6.14** mA = $I_{dc}$; `6.143²÷1000` → **37.7** mW = $P_{dc}$."
+      ],
+      "note": "Subtracting the drop after the $/\\pi$ gives 5.67 V; the drop reduces the peak, not the average."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 3,
+    "expect": "A center-tapped full-wave rectifier is fed by a transformer rated 24 V rms",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`12√2` → **16.971** V, the centre-tap-to-one-end peak.",
+        "`2×Ans÷π` → **10.80** V = $V_{dc}$; `2×16.971` → **33.94** V = PIV; ripple is 2f = **120** Hz."
+      ],
+      "note": "$V_m$ is half the 24 V secondary; entering $24\\sqrt{2}$ doubles both $V_{dc}$ and the PIV."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 4,
+    "expect": "is fed from a 120 V rms secondary with real silicon diodes",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`120√2` → **169.71** V = $V_m$.",
+        "`(Ans−1.4)×2÷π` → **107.1** V = $V_{dc}$ (two diodes conduct, so 1.4 V not 0.7 V).",
+        "PIV is $V_m$ itself: **169.7** V, so specify **400** V parts for margin."
+      ],
+      "note": "In a bridge the current always crosses two diodes; the drop is $2V_D$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 5,
+    "expect": "output is measured as",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10÷9` → **1.111** = F, which is the full-wave value (half-wave would be 1.571).",
+        "`√(Ans²−1)` → **0.4843** = r."
+      ],
+      "note": "Ripple is the rms of the AC part: never $V_{rms}-V_{dc} = 1.00$ V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 6,
+    "expect": "Design a bridge rectifier that delivers",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`π×12÷2+1.4` → **20.25** V = $V_m$, the peak the secondary must supply.",
+        "`Ans÷√2` → **14.32** V rms; `12÷0.5` → **24** $\\Omega$; `0.5÷2` → **0.25** A per diode; PIV = **20.25** V."
+      ],
+      "note": "Dropping the two diode drops specifies 13.3 V rms and delivers only 11.0 V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 7,
+    "expect": "with a 100 uF capacitor-input filter is fed from a secondary with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷(2×120×1000×100E-6)` → **0.041667**, then `20÷(1+Ans)` → **19.20** V = $V_{dc}$.",
+        "`Ans÷(120×1000×100E-6)` → **1.60** V pp = $V_r$.",
+        "`1.60÷(2√3×19.20)` → **0.02406** = **2.41** % ripple factor."
+      ],
+      "note": "The filtered average is $V_m-V_r/2$, never $V_m$; the 0.8 V decides pass or fail."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 9,
+    "expect": "A center-tapped full-wave rectifier with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×16.97÷π` → **10.80** V and `16.97÷√2` → **12.00** V rms.",
+        "`10.80²÷100` → **1.166** W = $P_{dc}$ and `12²÷100` → **1.440** W = $P_{ac}$.",
+        "`1.166÷1.440` → **0.810** against the $8/\\pi^2$ maximum of **0.812**."
+      ],
+      "note": "Half-wave constants here would report 40.6 % and make a correct design look impossible."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+    "problem": 10,
+    "expect": "must deliver",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "(a) `0.1÷60` → **1.667e-3** F = **1667** µF, since $f_r = f$ for half-wave.",
+        "(b) `0.1÷120` → **8.333e-4** F = **833** µF, since $f_r = 2f$ for a bridge."
+      ],
+      "note": "Using 60 Hz for the bridge doubles the capacitor and the cost."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/06_Filters,_Ripple_Factor_and_PIV.json",
+    "problem": 1,
+    "expect": "A bridge rectifier is fed by a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`12√2` → **16.971** V = $V_m$; `Ans÷1000` → **16.97** mA = $I_{dc}$.",
+        "`Ans÷(120×100E-6)` → **1.414** V pp; `÷(2√3)` → **0.408** V rms; `16.971−1.414÷2` → **16.26** V dc.",
+        "`1÷(2√3×120×1000×100E-6)` → **0.02406** = **2.41** %."
+      ],
+      "note": "A bridge ripples at 120 Hz; r contains no $V_m$, so diode drops leave it unchanged."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/06_Filters,_Ripple_Factor_and_PIV.json",
+    "problem": 2,
+    "expect": "A full-wave bridge with a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`16.971÷2000` → **8.485e-3** A; `÷(120×0.5)` → **1.414e-4** F = **141** µF, round UP to **150** µF.",
+        "`8.485E-3÷(120×150E-6)` → **0.4714** V pp; `1÷(2√3×120×2000×150E-6)` → **0.00802** = **0.80** %."
+      ],
+      "note": "Ripple is inversely proportional to C; rounding to 100 µF gives 0.707 V, 41 % over spec."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/06_Filters,_Ripple_Factor_and_PIV.json",
+    "problem": 3,
+    "expect": "Repeat the first problem for a half-wave rectifier",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`16.971÷1000` → **16.97** mA; `÷(60×100E-6)` → **2.828** V pp with $f_r = 60$ Hz.",
+        "`2.828÷(2√3)` → **0.8165** V rms; `16.971−2.828÷2` → **15.56** V; `1÷(2√3×60×1000×100E-6)` → **0.04811** = **4.81** %.",
+        "Compare: `2.828÷1.414` → **2** and `4.81÷2.41` → **2** — half the frequency, double the ripple."
+      ],
+      "note": "A half-wave filter ripples at the 60 Hz line frequency, not at 120 Hz."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/06_Filters,_Ripple_Factor_and_PIV.json",
+    "problem": 4,
+    "expect": "A half-wave capacitor-input supply runs from a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`24√2` → **33.94** V = $V_m$; `2×Ans` → **67.88** V = PIV for the half-wave filter.",
+        "Bridge case: **33.94** V per diode; surge `33.94÷1.5` → **22.63** A against the 30 A $I_{FSM}$."
+      ],
+      "note": "The capacitor doubles the half-wave PIV to $2V_m$; the unfiltered $V_m$ rating burns the diode."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/06_Filters,_Ripple_Factor_and_PIV.json",
+    "problem": 5,
+    "expect": "A C-L-C pi filter follows the bridge of problem 1",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`16.971E-3÷(120×100E-6)` → **1.414** V pp at $C_1$; `2π×120×5` → **3769.9** $\\Omega$ = $X_L$.",
+        "`1÷(2π×120×100E-6)` → **13.26** $\\Omega$ = $X_{C2}$; `Ans÷(3769.9−Ans)` → **3.531e-3** attenuation; `1.414×Ans` → **4.99e-3** V pp.",
+        "Bleeder: `16.971÷(0.1×16.971E-3)` → **10.0** k$\\Omega$."
+      ],
+      "note": "Evaluate both reactances at $f_r = 120$ Hz; at 60 Hz the attenuation looks 4x worse."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/07_Clippers,_Clampers_and_Multipliers.json",
+    "problem": 1,
+    "expect": "square wave drives a positive clamper",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10−0.7` → **9.3** V = $V_C$, and the top clamps at **+0.7** V.",
+        "`−10−9.3` → **−19.3** V = the minimum; `0.7−(−19.3)` → **20.0** V peak-to-peak.",
+        "`(0.7−19.3)÷2` → **−9.3** V dc, which is exactly $-V_C$."
+      ],
+      "note": "A clamper never changes peak-to-peak; the 0.7 V shifts the whole waveform."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/07_Clippers,_Clampers_and_Multipliers.json",
+    "problem": 2,
+    "expect": "square wave drives a negative clamper",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10−0.7` → **9.3** V = $V_C$, and the bottom clamps at **−0.7** V.",
+        "`10+9.3` → **+19.3** V = the maximum; `19.3−(−0.7)` → **20.0** V peak-to-peak.",
+        "`(19.3−0.7)÷2` → **+9.3** V dc, the mirror of the positive clamper."
+      ],
+      "note": "Reversing the diode reverses the dc shift; a sign slip turns −9.3 V into +9.3 V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/07_Clippers,_Clampers_and_Multipliers.json",
+    "problem": 3,
+    "expect": "A biased shunt clipper has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5+0.7` → **5.7** V = $V_{clip}$, the battery plus the diode drop.",
+        "`(12−5.7)÷1000` → **6.3** mA through the diode at the positive peak.",
+        "Reverse stress: `5−(−12)` → **17** V at the negative peak."
+      ],
+      "note": "Clipping at the bare 5 V battery ignores the 0.7 V drop, and the battery sets the 17 V stress."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/07_Clippers,_Clampers_and_Multipliers.json",
+    "problem": 4,
+    "expect": "full-wave (bridge-type) voltage doubler is fed by a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10−0.7` → **9.3** V per capacitor; `2×Ans` → **18.6** V = $2V_m-2V_D$ at no load.",
+        "PIV: `2×10` → **20** V per diode, so a 50 V part gives 2.5x margin."
+      ],
+      "note": "The charged capacitor adds its 9.3 V to the opposite source peak; rating at $V_m = 10$ V destroys it."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/07_Clippers,_Clampers_and_Multipliers.json",
+    "problem": 5,
+    "expect": "A quadrupler is built from a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4×12−4×0.7` → **45.2** V at no load against the ideal 48 V.",
+        "`2×12` → **24** V PIV per diode.",
+        "`4³÷(60×0.1E-6)` → **1.07e7** $\\Omega$ of source resistance; 1 mA through it would demand **1.07e4** V, so at that current the model is invalid and the output collapses."
+      ],
+      "note": "No-load output with megohms of source resistance: treat a multiplier as a voltage, not a supply."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/08_Zener_Diodes_and_Shunt_Regulators.json",
+    "problem": 1,
+    "expect": "A shunt regulator uses a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6.2÷1000` → **6.2** mA = $I_L$; `+10E-3` → **16.2** mA = $I_T$.",
+        "`(12−6.2)÷Ans` → **358** $\\Omega$, so use **360** $\\Omega$: `(12−6.2)÷360` → **16.11** mA.",
+        "`Ans−6.2` → **9.91** mA = $I_Z$; `6.2×9.911E-3` → **61.4** mW."
+      ],
+      "note": "$R_s = (V_{in}-V_Z)/(I_Z+I_L)$; omitting $I_L$ gives 580 $\\Omega$ and starves the Zener."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/08_Zener_Diodes_and_Shunt_Regulators.json",
+    "problem": 2,
+    "expect": "Give the allowable range and pick a standard value",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷6.2` → **161.3** mA = $I_{ZM}$.",
+        "`(13.5−6.2)÷(5E-3+20E-3)` → **292** $\\Omega$ = $R_{s,max}$ at low line with full load.",
+        "`(16.5−6.2)÷161.3E-3` → **63.9** $\\Omega$ = $R_{s,min}$; pick 150 $\\Omega$ and check `(16.5−6.2)÷150` → **68.67** mA."
+      ],
+      "note": "Pair $I_{L,max}$ with $V_{in,min}$ and $I_{L,min}$ with $V_{in,max}$; swapping them fails both corners."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/08_Zener_Diodes_and_Shunt_Regulators.json",
+    "problem": 3,
+    "expect": "For the regulator just designed",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(13.5−6.2)÷150` → **48.67** mA = $I_T$.",
+        "`Ans−5E-3` → **43.67** mA = $I_{L,max}$; `6.2÷Ans` → **142** $\\Omega$ = $R_{L,min}$."
+      ],
+      "note": "The full 48.7 mA is not the load limit — the Zener needs its 5 mA knee current."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/08_Zener_Diodes_and_Shunt_Regulators.json",
+    "problem": 4,
+    "expect": "find the worst-case Zener power dissipation",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Worst corner first: `(16.5−6.2)÷150` → **68.67** mA with the load disconnected.",
+        "`6.2×Ans` → **0.426** W at 25 °C, so a 0.5 W part is marginal.",
+        "Derating: `1−10E-3×25` → **0.75** W allowable at 50 °C, still 1.8x margin."
+      ],
+      "note": "Dissipation peaks at high line with no load, never at the nominal design point."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/08_Zener_Diodes_and_Shunt_Regulators.json",
+    "problem": 5,
+    "expect": "and the load regulation for a load swing from 0 to the 43.7 mA maximum",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10÷(150+10)` → **0.0625**, i.e. 6.25 % line regulation; `×3` → **0.188** V over the 3 V swing.",
+        "`150×10÷160` → **9.375** $\\Omega$ = $R_{out}$; `×43.7E-3` → **0.410** V over the load swing."
+      ],
+      "note": "The output resistance is $R_s\\parallel r_Z$, not $r_Z$ or $R_s$ alone."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/09_BJT_Structure_and_Operating_Regions.json",
+    "problem": 2,
+    "expect": "An NPN transistor is in forward-active mode with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`150×20E-6` → **3.00** mA = $I_C$.",
+        "`+20E-6` → **3.02** mA = $I_E$; `3÷3.02` → **0.9934** = $\\alpha$, matching `150÷151`."
+      ],
+      "note": "Dropping $I_B$ from $I_E$ forces $\\alpha = 1$, which no real device reaches."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/09_BJT_Structure_and_Operating_Regions.json",
+    "problem": 3,
+    "expect": "An NPN switch runs from",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "If active: `200×100E-6` → **20.0** mA, which is impossible.",
+        "`(10−0.2)÷1000` → **9.8** mA = $I_{C(sat)}$; the 0.2 V matters here.",
+        "`9.8E-3÷100E-6` → **98** = $\\beta_{forced} < \\beta$, confirming saturation."
+      ],
+      "note": "Using $V_{CE} = 0$ gives 10 mA and hides how much saturation margin the drive has."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/09_BJT_Structure_and_Operating_Regions.json",
+    "problem": 4,
+    "expect": "For a similar stage,",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100×100E-6` → **10.0** mA against `(10−0.2)÷500` → **19.6** mA, so the device is active.",
+        "`10−10E-3×500` → **5.0** V = $V_{CE}$; `19.6E-3÷100` → **196** µA = $I_{B(min)}$."
+      ],
+      "note": "196 µA is the bare edge of saturation; practical designs drive 2 to 10 times more."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/09_BJT_Structure_and_Operating_Regions.json",
+    "problem": 5,
+    "expect": "A BJT operates with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`5×80E-3+0.7×0.5E-3` → **0.4004** W = $P_D$.",
+        "`40+Ans×200` → **120.1** °C, inside the 150 °C rating.",
+        "Saturated at the same current: `0.2×80E-3` → **16** mW and `40+0.016×200` → **43.2** °C."
+      ],
+      "note": "Use the actual $V_{CE}$, not $V_{CC}$; $10\\times80$ mA would give 800 mW and a false failure."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/10_BJT_Current_Gains_and_Relationships.json",
+    "problem": 1,
+    "expect": "Convert both ways:",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One line separated by `ALPHA` `:` — `100÷(1+100) : 250÷(1+250) : 0.99÷(1−0.99) : 0.995÷(1−0.995)`.",
+        "`=` down the chain: $\\alpha$ = **0.99010** → **0.99602** → $\\beta$ = **99** → **199**."
+      ],
+      "note": "The whole size of $\\beta$ lives in $1-\\alpha$: half a percent in $\\alpha$ doubles $\\beta$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/10_BJT_Current_Gains_and_Relationships.json",
+    "problem": 2,
+    "expect": "forward-active mode has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`180×25E-6` → **4.50** mA = $I_C$.",
+        "`+25E-6` → **4.525** mA = $I_E$; `4.5÷4.525` → **0.99448**, matching `180÷181`."
+      ],
+      "note": "Keep the base current in $I_E$ — rounding it away reports $\\alpha = 1.000$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/10_BJT_Current_Gains_and_Relationships.json",
+    "problem": 3,
+    "expect": "A silicon transistor has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`101×200E-9` → **20.2** µA = $I_{CEO}$; store with `SHIFT` `STO` `A`.",
+        "`100×50E-6+A` → **5.0202** mA = $I_C$.",
+        "Error: `A÷5E-3` → **0.404** %."
+      ],
+      "note": "$I_{CEO} = (1+\\beta)I_{CBO}$; at low $\\beta$ the missing 1 is a large error."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/10_BJT_Current_Gains_and_Relationships.json",
+    "problem": 4,
+    "expect": "terminal currents are measured as",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10.05−0.05` → **10.00** mA = $I_C$ by KCL.",
+        "`10÷10.05` → **0.99502** = $\\alpha$; `10÷0.05` → **200** = $\\beta$.",
+        "Consistency: `200÷201` → **0.99502**, which matches the measured $\\alpha$."
+      ],
+      "note": "$\\alpha$ always divides by $I_E$ and $\\beta$ by $I_B$; swapping gives 200 and 201."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/10_BJT_Current_Gains_and_Relationships.json",
+    "problem": 5,
+    "expect": "A design needs",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`12E-3÷60E-6` → **200** = the required $\\beta$.",
+        "`200÷201` → **0.99502**; `12E-3÷Ans` → **12.06** mA = $I_E$.",
+        "Worst case: `12E-3÷150` → **80** µA of base drive."
+      ],
+      "note": "Size the drive from $\\beta_{min}$: at 60 µA and $\\beta = 150$ the stage gives only 9 mA."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/11_JFET_Characteristics_and_Pinch-Off.json",
+    "problem": 1,
+    "expect": "An n-channel JFET has",
+    "calc": {
+      "mode": "TABLE",
+      "steps": [
+        "`MODE` `6` with `f(X)=12(1−X÷4)²`, start −4, end 0, step 1 → $I_D$ = **0** → **0.75** → **3.0** → **6.75** → **12** mA over $V_{GS}$ = −4 V to 0 V.",
+        "Read straight off the table: **6.75** mA at −1 V and **0.75** mA at −3 V.",
+        "Boundary from the same row: `X+4` → **3** V at −1 V and **1** V at −3 V."
+      ],
+      "note": "The table exposes the parabola: −2 V gives exactly 3 mA, not the 6 mA a linear guess predicts."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/11_JFET_Characteristics_and_Pinch-Off.json",
+    "problem": 2,
+    "expect": "must be biased at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`8E-3÷12E-3` → **0.66667**; `√Ans` → **0.81650** — root before subtracting.",
+        "`4×(1−Ans)` → **0.734** V, so $V_{GS}$ = **−0.734** V.",
+        "Boundary: `4−0.734` → **3.27** V = $V_{DS(sat)}$."
+      ],
+      "note": "The linear ratio gives 1.33 V, nearly double, because Shockley is quadratic in $V_{GS}$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/11_JFET_Characteristics_and_Pinch-Off.json",
+    "problem": 3,
+    "expect": "For the same device biased at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2×12E-3÷4` → **6.0** mS = $g_{m0}$.",
+        "`×0.5` → **3.0** mS = $g_m$ at $V_{GS}$ = −2 V.",
+        "Second route: `2√(12E-3×3E-3)÷4` → **3.0** mS, which matches."
+      ],
+      "note": "$g_m = g_{m0}$ only at $V_{GS} = 0$; quoting the data-sheet $g_{fs}$ doubles the gain."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/11_JFET_Characteristics_and_Pinch-Off.json",
+    "problem": 4,
+    "expect": "The stage uses",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Shortcut: `3E-3×2200` → **−6.6**.",
+        "Exact: `2200×83000÷(2200+83000)` → **2143** $\\Omega$, then `3E-3×Ans` → **−6.43**.",
+        "`20log(6.43)` → **16.2** dB against **16.4** dB for the shortcut, only 0.2 dB here."
+      ],
+      "note": "With $R_D = 47$ k$\\Omega$ the shortcut is 3.9 dB optimistic; check $r_d$ against $R_D$ first."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/11_JFET_Characteristics_and_Pinch-Off.json",
+    "problem": 5,
+    "expect": "the drain current is",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10÷(3.12E-3−3.00E-3)` → **83.3** k$\\Omega$ = $r_d$, a slope and not $V_{DS}/I_D$.",
+        "`3E-3×Ans` → **250** = $\\mu$.",
+        "`3E-3×50E-3` → **0.15** mA from $g_m$; exact `12E-3×(1−1.95÷4)²−3E-3` → **0.152** mA."
+      ],
+      "note": "$V_{DS}/I_D$ would give 3.33 k$\\Omega$, 25x wrong; $r_d$ is $\\Delta V_{DS}/\\Delta I_D$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/12_MOSFET_Types_and_Regions.json",
+    "problem": 2,
+    "expect": "For a device with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4−1.5` → **2.5** V = the overdrive $V_{GS}-V_T$.",
+        "`0.5E-3×Ans²` → **3.125** mA in saturation; that same 2.5 V is $V_{DS(sat)}$."
+      ],
+      "note": "Squaring $V_{GS}$ instead of the overdrive gives 8 mA, more than twice the right answer."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/12_MOSFET_Types_and_Regions.json",
+    "problem": 3,
+    "expect": "is operated at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.5E-3×(2×2.5×1−1²)` → **2.00** mA in the triode region.",
+        "Compare with the saturation value **3.125** mA at the same gate voltage."
+      ],
+      "note": "Dropping the $V_{DS}^2$ term gives 2.5 mA, 25 % high at this $V_{DS}$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/12_MOSFET_Types_and_Regions.json",
+    "problem": 4,
+    "expect": "A MOSFET with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3.6E-3÷0.4E-3` → **9.0** V², so `√Ans` → **3.0** V overdrive and `+2` → **5.0** V = $V_{GS}$.",
+        "The overdrive 3 V is also $V_{DS(sat)}$.",
+        "`2×0.4E-3×3` → **2.4** mS; check `2√(0.4E-3×3.6E-3)` → **2.4** mS."
+      ],
+      "note": "Add the threshold back after the square root; $V_{GS} = 3$ V would be cutoff in a real circuit."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/12_MOSFET_Types_and_Regions.json",
+    "problem": 5,
+    "expect": "A process has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3.45E-11÷4E-9` → **8.625e-3** F/m² = **8.63** fF/µm².",
+        "`0.05×Ans` → **4.3125e-4** = $k'$ = **432** µA/V²; `2×1E-3÷Ans` → **4.64** = W/L.",
+        "`1E-3×2²` → **4.00** mA; `1÷(2×1E-3×2)` → **250** $\\Omega$ = $r_{DS(on)}$."
+      ],
+      "note": "Convert mobility to m²/(V·s) (500 becomes 0.05) first; $k = \\frac{1}{2}k'(W/L)$ carries the half."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/13_Thyristors_UJT,_SCR,_DIAC,_TRIAC.json",
+    "problem": 1,
+    "expect": "and is operated from",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`6÷(6+3)` → **0.6667** = $\\eta$.",
+        "`×20+0.7` → **14.03** V = $V_P$, the emitter drop included.",
+        "`14.03÷20` → **70.2** % of $V_{BB}$."
+      ],
+      "note": "$V_P = \\eta V_{BB}+V_D$; dropping the 0.7 V misplaces the firing point by 0.7 V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/13_Thyristors_UJT,_SCR,_DIAC,_TRIAC.json",
+    "problem": 2,
+    "expect": "drives a relaxation oscillator with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`50E3×0.1E-6` → **5.0e-3** s = RC.",
+        "`×ln(1÷(1−0.6667))` → **5.49e-3** s = **5.49** ms.",
+        "`1÷Ans` → **182** Hz."
+      ],
+      "note": "Using $T = RC = 5.0$ ms reports 200 Hz; the $\\ln 3 = 1.0986$ factor is required."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/13_Thyristors_UJT,_SCR,_DIAC,_TRIAC.json",
+    "problem": 3,
+    "expect": "An SCR conducts a sinusoidal half-wave with peak current",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`60×π÷180` → **1.0472** rad, so the cosine never sees degrees.",
+        "`100÷(2π)×(1+cos(Ans))` → **23.87** A = $I_{avg}$.",
+        "`100√((π−1.0472)÷(4π)+sin(2×1.0472)÷(8π))` → **44.85** A = $I_{rms}$; `÷23.87` → **1.88** = F."
+      ],
+      "note": "$\\alpha$ must be in radians; putting 60 in the cosine gives a meaningless current."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/13_Thyristors_UJT,_SCR,_DIAC,_TRIAC.json",
+    "problem": 4,
+    "expect": "The SCR above has an on-state drop of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.5×23.87` → **35.8** W; the constant-drop model pairs with the AVERAGE current.",
+        "`0.8+0.5+2.0` → **3.3** °C/W, so `40+35.8×Ans` → **158** °C, over the 125 °C limit.",
+        "`(125−40)÷35.8` → **2.37** °C/W total; `−1.3` → **1.07** °C/W for the sink."
+      ],
+      "note": "Using 44.85 A rms gives 67 W and demands an impossible heat sink."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/13_Thyristors_UJT,_SCR,_DIAC,_TRIAC.json",
+    "problem": 5,
+    "expect": "A TRIAC is triggered symmetrically through a DIAC",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`√2×220` → **311.1** V = $V_m$; `32÷Ans` → **10.3** % of the peak.",
+        "At $\\alpha = 90°$ the bracket is `(π−π÷2)÷2÷π` → **0.25**, so `√Ans×311.1` → **155.6** V rms.",
+        "`Ans²÷20` → **1210** W, exactly half of `220²÷20` → **2420** W; `311.1÷20` → **15.6** A peak."
+      ],
+      "note": "The line is rms: using 220 V as the peak reports 110 V and 605 W."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/14_Optoelectronics_and_Solar_Cells.json",
+    "problem": 1,
+    "expect": "Find the emission wavelength of a GaAs LED",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "One `ALPHA` `:` chain — `1240÷1.42 : 1240÷2.26 : 1240÷650` → **873** nm → **549** nm → **1.908** eV.",
+        "Silicon cut-off for comparison: `1240÷1.12` → **1107** nm, which is why 850 nm detection works."
+      ],
+      "note": "The 1240 constant is in eV·nm: enter 650, never $650\\times10^{-9}$."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/14_Optoelectronics_and_Solar_Cells.json",
+    "problem": 2,
+    "expect": "Design the series resistor for",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Red: `(5−2)÷20E-3` → **150** $\\Omega$; `3×20E-3` → **0.060** W in the resistor.",
+        "Blue: `(12−3.4)÷20E-3` → **430** $\\Omega$; `8.6×20E-3` → **0.172** W, so a 1/4 W part."
+      ],
+      "note": "Rating the resistor at $I_F^2R$ alone forgets the LED itself: 40 mW red, 68 mW blue."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/14_Optoelectronics_and_Solar_Cells.json",
+    "problem": 3,
+    "expect": "A silicon photodiode has quantum efficiency",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.8×0.85÷1.24` → **0.5484** A/W = $R_\\lambda$.",
+        "`×100E-6` → **54.8** µA = $I_{ph}$.",
+        "`×10E3` → **0.548** V across the 10 k$\\Omega$ load."
+      ],
+      "note": "0.548 V is far below the 5 V reverse bias, so the mode stays photoconductive and linear."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/14_Optoelectronics_and_Solar_Cells.json",
+    "problem": 4,
+    "expect": "A silicon solar cell of area",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.553×2.35` → **1.300** W = $P_{max}$.",
+        "`÷(0.62×2.5)` → **0.8384** = the fill factor.",
+        "Area 100 cm² = 0.01 m², so `1.300÷(1000×0.01)` → **0.1300** = **13.0** % efficiency."
+      ],
+      "note": "One sun is 1000 W/m² or 100 mW/cm²; mixing them is a $10^4$ error."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/14_Optoelectronics_and_Solar_Cells.json",
+    "problem": 5,
+    "expect": "The same cell has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.5×0.2` → **0.500** A = $I_{SC}$ at 0.2 sun, linear in irradiance.",
+        "`0.026×ln(0.2)` → **−0.0418** V, so $V_{OC}$ = **0.578** V, only 6.7 % down.",
+        "`0.839×0.578×0.5` → **0.242** W; temperature `25×(−2.2E-3)` → **−55** mV."
+      ],
+      "note": "Scale $I_{SC}$ linearly but $V_{OC}$ logarithmically; a linear $V_{OC}$ predicts 0.124 V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/15_Special_Diodes_Varactor,_Schottky,_Tunnel.json",
+    "problem": 1,
+    "expect": "A varactor has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1+2÷0.7` → **3.8571**; `100÷√Ans` → **50.92** pF at 2 V.",
+        "`1+10÷0.7` → **15.2857**; `100÷√Ans` → **25.58** pF at 10 V; `50.92÷Ans` → **1.99** tuning ratio.",
+        "`1÷(2π√(1E-6×50.92E-12))` → **2.230e7** Hz and with 25.58 pF → **3.147e7** Hz."
+      ],
+      "note": "Keep $V_0$ in the denominator: dropping it gives 30.2 pF instead of 25.6 pF at 10 V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/15_Special_Diodes_Varactor,_Schottky,_Tunnel.json",
+    "problem": 2,
+    "expect": "For the same varactor, what reverse bias",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(100÷20)²−1` → **24**, then `×0.7` → **16.8** V = $V_R$.",
+        "Check: `1+16.8÷0.7` → **25**, `√Ans` → **5**, `100÷5` → **20** pF — it closes."
+      ],
+      "note": "Forgetting the $1/m$ power gives 2.8 V; a 15 V tuning line cannot reach 16.8 V."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/15_Special_Diodes_Varactor,_Schottky,_Tunnel.json",
+    "problem": 3,
+    "expect": "A clamp must hold a logic node below",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Clamp: the pn drop of **0.7** V exceeds the 0.4 V limit, while the Schottky's **0.3** V leaves 0.1 V of margin.",
+        "Recovery: `0.5×20×1×50E-9×200E3` → **0.100** W for pn and **0.010** W for the Schottky.",
+        "Conduction at duty 0.5: `0.5×1×0.7` → **0.350** W against `0.5×1×0.3` → **0.150** W; total saving **0.29** W."
+      ],
+      "note": "Check the Schottky's 20 to 45 V reverse rating and its leakage before choosing it."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/15_Special_Diodes_Varactor,_Schottky,_Tunnel.json",
+    "problem": 4,
+    "expect": "A germanium tunnel diode has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10÷1` → **10** = PVR.",
+        "`(350−65)÷(1−10)` → **−31.7** $\\Omega$ = $R_n$; both differences are required.",
+        "Swing: `350−65` → **285** mV between $V_P$ and $V_V$."
+      ],
+      "note": "Dividing by $I_P$ or $I_V$ alone gives −28.5 $\\Omega$ or −285 $\\Omega$; it is the slope."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/15_Special_Diodes_Varactor,_Schottky,_Tunnel.json",
+    "problem": 5,
+    "expect": "Select the best of varactor, Schottky or tunnel diode",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1÷((2π×1E8)²×1E-7)` → **2.533e-11** F = **25.3** pF required at 100 MHz.",
+        "The varactor gives 25.58 pF at 10 V, so `1÷(2π√(1E-7×25.58E-12))` → **9.95e7** Hz, essentially the target.",
+        "Job ii savings: `5×(0.7−0.3)` → **2.0** W plus `0.5×12×5×100E3×(50E-9−5E-9)` → **0.135** W."
+      ],
+      "note": "10 GHz needs a negative resistance of 31.7 $\\Omega$ above 30 $\\Omega$ and no transit-time limit."
+    }
+  }
+]

@@ -1,0 +1,185 @@
+---
+id: GEAS-02-06
+title: "Angular Momentum and Rigid Bodies"
+part: "03_GEAS"
+area: "02_University_Physics"
+topic: 6
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[05_Rotational_Kinematics_and_Torque]]"]
+tags: ["ece", "geas", "university_physics"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 06 — Angular Momentum and Rigid Bodies
+
+> [!abstract] Scope
+> Use $L = I\omega$ and its conservation to track spinning systems, and split a rolling body's energy correctly between translation and rotation.
+
+## Core Concept
+
+> [!tip] Intuition
+> Angular momentum is rotational inertia in motion, and it is stubborn: with no external torque it cannot be created or destroyed, only redistributed. Pulling mass closer to the axis shrinks $I$, so $\omega$ must rise to keep $I\omega$ fixed - the figure skater's spin.
+
+**Angular momentum is $L = I\omega$ for a rigid body and $L = mvr\sin\theta$ for a point mass.** The two forms are the same idea; the second uses $r\sin\theta$, the perpendicular distance from the axis to the velocity line, because a particle moving directly toward or away from the axis carries no angular momentum about it. Units are $\mathrm{kg\cdot m^2/s}$ and $\omega$ must be in rad/s. As a vector, $\vec{L}$ points along the rotation axis, which is what makes a spinning bicycle wheel resist tilting.
+
+**Conservation of angular momentum.** When the net external torque is zero the conserved quantity is:
+$$I_1\omega_1 = I_2\omega_2$$
+The classic case is a skater or a diver redistributing mass without any push: shrinking $I$ from 4.0 to $1.6\ \mathrm{kg\cdot m^2}$ raises $\omega$ from 2.0 to 5.0 rev/s. The method is always the same - identify $I$ before and after, set $I_1\omega_1 = I_2\omega_2$, solve for the unknown. Since the rotational energy is:
+$$KE_{rot} = \frac{1}{2}I\omega^2 = \frac{L^2}{2I}$$
+a smaller $I$ at the same $L$ means *more* rotational kinetic energy; the skater does that work by pulling her arms in against the centrifugal tendency, so energy is not conserved even though $L$ is.
+
+**Torque is the rate of change of angular momentum:
+$$\tau = \frac{dL}{dt}$$
+or $\tau\Delta t = \Delta L$ for a constant torque.** This is the rotational twin of impulse-momentum and it is the fastest route when a torque acts for a known time: a $12\ \mathrm{N\cdot m}$ torque on $I = 3.0\ \mathrm{kg\cdot m^2}$ for 2.0 s delivers $24\ \mathrm{kg\cdot m^2/s}$ of angular momentum, which is $\omega = 8\ \mathrm{rad/s}$ from rest. Use the impulse form when time is given; use $\sum\tau = I\alpha$ when the geometry is given.
+
+**Rolling without slipping is translational *and* rotational motion at once.** The contact point is instantaneously at rest, so $v = R\omega$ holds, and a rolling body's total kinetic energy is:
+$$KE = \frac{1}{2}mv^2 + \frac{1}{2}I\omega^2$$
+Substituting $\omega = \frac{v}{R}$ turns it into:
+$$KE = \frac{1}{2}mv^2\left(1 + \frac{I}{mR^2}\right)$$
+where the factor $\frac{I}{mR^2}$ is the shape's rotational signature: 0 for a sliding block, $\frac{1}{2}$ for a disk or cylinder, 1 for a hoop, $\frac{2}{5}$ for a solid sphere, $\frac{2}{3}$ for a hollow sphere.
+
+**That shape factor decides every rolling race.** Energy conservation down a ramp of height $h$ gives $v = \sqrt{\frac{2gh}{1 + I/(mR^2)}}$, so the object with the *smallest* $I/(mR^2)$ arrives first regardless of its mass or radius. A solid sphere ($\frac{2}{5}$) beats a disk ($\frac{1}{2}$), which beats a hoop (1) - and a frictionless sliding block beats them all at $\sqrt{2gh}$. Two balls of different mass but the same shape tie exactly, which is the counter-intuitive answer boards like to key.
+
+**When conservation does not apply.** $I\omega$ is constant only when no net *external* torque acts. A rolling ball slowed by friction, a spinning top falling over under gravity, and a wheel with an applied brake all have external torques and lose or gain angular momentum. The usual mistake is to conserve $L$ while a friction force or the weight of an overhanging mass is torquing the system; the fix is either to include the object supplying the torque in the system or to use $\tau\Delta t = \Delta L$.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Angular momentum of a rigid body | $L = I\omega$ | omega in rad/s. About a fixed axis or the centre of mass; I must be taken about that same axis. |
+| Angular momentum of a point mass | $L = mvr\sin\theta$ | r sin(theta) is the perpendicular distance from the axis to the velocity line. Motion straight toward the axis gives L = 0. |
+| Conservation of angular momentum | $I_1\omega_1 = I_2\omega_2$ | Requires zero net external torque. Kinetic energy is generally NOT conserved in the same process. |
+| Torque as the rate of angular momentum | $\tau = \frac{dL}{dt}, \qquad \tau\,\Delta t = \Delta L$ | The second form is the angular impulse theorem, for a constant torque acting over a known time. |
+| Rotational kinetic energy | $KE_{rot} = \frac{1}{2}I\omega^2 = \frac{L^2}{2I}$ | The second form shows that at fixed L, a smaller I means a larger KE - the skater does work pulling her arms in. |
+| Total kinetic energy of a rolling body | $KE = \frac{1}{2}mv^2 + \frac{1}{2}I\omega^2$ | Both terms are needed. Ignoring the rotational term overstates the speed by up to sqrt(2). |
+| Rolling without slipping | $v = R\omega$ | The contact point is instantaneously at rest. Broken as soon as the body skids. |
+| Shape factor | $I/(mR^2) = 0\ \mathrm{slide},\ \tfrac{1}{2}\ \mathrm{disk},\ \tfrac{2}{5}\ \mathrm{solid\ sphere},\ 1\ \mathrm{hoop}$ | Determines the rolling race. Smaller factor means faster descent. |
+| Rolling speed from a height h | $v = \sqrt{\frac{2gh}{1 + I/(mR^2)}}$ | Mass and radius cancel within a shape. A frictionless sliding block gives sqrt(2gh). |
+| Rolling acceleration on an incline | $a = \frac{g\sin\theta}{1 + I/(mR^2)}$ | Less than g sin(theta) because part of the energy goes into spinning. Friction is required, but static friction does no work. |
+| Angular impulse | $\int \tau\,dt = \Delta L$ | Rotational twin of the impulse-momentum theorem. Use when a torque acts for a stated time interval. |
+
+## Worked Problems
+
+### P1. A figure skater spinning at $2.0\ \mathrm{rev/s}$ has a moment of inertia of $4.0\ \mathrm{kg\cdot m^2}$ with arms extended. She pulls her arms in, reducing her moment of inertia to $1.6\ \mathrm{kg\cdot m^2}$. Find her new rotation rate and her ratio of final to initial rotational kinetic energy.
+
+**Given:** I_1 = 4.0 kg m^2; omega_1 = 2.0 rev/s; I_2 = 1.6 kg m^2; no external torque
+
+**Solution:**
+
+1. The ice exerts no torque about the vertical axis, so $L = I\omega$ is conserved.
+2. $I_1\omega_1 = I_2\omega_2$, so $\omega_2 = \frac{I_1}{I_2}\omega_1 = \frac{4.0}{1.6}(2.0) = (2.5)(2.0) = 5.0\ \mathrm{rev/s}$
+3. Kinetic energy ratio using $KE = \frac{L^2}{2I}$ with $L$ fixed: $\frac{KE_2}{KE_1} = \frac{I_1}{I_2} = 2.5$
+4. Check directly: $KE_1 = \frac{1}{2}(4.0)(2.0)^2 = 8.0$ units; $KE_2 = \frac{1}{2}(1.6)(5.0)^2 = 20$ units, and $\frac{20}{8.0} = 2.5$.
+
+> [!success]- Answer
+> **$\omega_2 = 5.0\ \mathrm{rev/s}$; the rotational KE rises by a factor of 2.5 (the skater supplies that energy by pulling her arms inward).**
+
+> [!warning] Trap
+> Conserving kinetic energy instead of angular momentum. Setting $\frac{1}{2}I_1\omega_1^2 = \frac{1}{2}I_2\omega_2^2$ gives $\omega_2 = 3.16\ \mathrm{rev/s}$, which contradicts $I\omega$ conservation - and the skater's muscles really do add the missing 12 units of energy.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `4.0÷1.6×2.0` → $\omega_2$ = **5.0** rev/s — $L$, not kinetic energy, is what is conserved.
+> 2. `4.0÷1.6` → the $KE$ ratio **2.5**; check `0.5×4.0×2.0²` = **8.0** and `0.5×1.6×5.0²` = **20.0**.
+
+### P2. A solid sphere is released from rest and rolls without slipping down an incline from a height of $2.0\ \mathrm{m}$. Find its speed at the bottom, and compare it with a hoop of the same mass and radius.
+
+**Given:** h = 2.0 m; solid sphere: I = (2/5)mR^2; rolling without slipping; g = 9.81 m/s^2
+
+**Solution:**
+
+1. Rolling speed formula: $v = \sqrt{\frac{2gh}{1 + I/(mR^2)}}$
+2. For a solid sphere $\frac{I}{mR^2} = \frac{2}{5} = 0.40$, so the denominator is 1.40.
+3. $v_{sphere} = \sqrt{\frac{2(9.81)(2.0)}{1.40}} = \sqrt{\frac{39.24}{1.40}} = \sqrt{28.03} = 5.29\ \mathrm{m/s}$
+4. For a hoop $\frac{I}{mR^2} = 1$, so $v_{hoop} = \sqrt{\frac{39.24}{2.0}} = \sqrt{19.62} = 4.43\ \mathrm{m/s}$
+5. A frictionless sliding block would reach $\sqrt{2gh} = \sqrt{39.24} = 6.26\ \mathrm{m/s}$ - faster than either, because none of its energy is diverted into rotation.
+
+> [!success]- Answer
+> **Sphere: $5.29\ \mathrm{m/s}$; hoop: $4.43\ \mathrm{m/s}$; a sliding block would reach $6.26\ \mathrm{m/s}$.**
+
+> [!warning] Trap
+> Using $v = \sqrt{2gh}$ for a rolling body. That ignores the $\frac{1}{2}I\omega^2$ term and overstates the sphere's speed by 18%; it also wrongly predicts that a hoop and a sphere arrive together.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `√(2×9.81×2.0÷1.40)` → sphere $v$ = **5.29** m/s (1.40 is $1+I/mR^2$ with $I/mR^2 = 2/5$).
+> 2. `√(2×9.81×2.0÷2.0)` → hoop **4.43** m/s; `√(2×9.81×2.0)` → frictionless slider **6.26** m/s.
+
+### P3. A $0.50\ \mathrm{kg}$ ball on a string moves in a horizontal circle of radius $0.80\ \mathrm{m}$ at a constant speed of $6.0\ \mathrm{m/s}$. Find its angular momentum about the centre of the circle.
+
+**Given:** m = 0.50 kg; r = 0.80 m; v = 6.0 m/s; uniform circular motion
+
+**Solution:**
+
+1. The velocity is everywhere perpendicular to the radius, so $\theta = 90^\circ$ and $\sin\theta = 1$.
+2. $L = mvr\sin\theta = (0.50)(6.0)(0.80)(1)$
+3. $L = 2.4\ \mathrm{kg\cdot m^2/s}$
+4. Cross-check with the rigid-body form: $\omega = \frac{v}{r} = \frac{6.0}{0.80} = 7.5\ \mathrm{rad/s}$ and $I = mr^2 = (0.50)(0.64) = 0.32\ \mathrm{kg\cdot m^2}$, so $L = I\omega = (0.32)(7.5) = 2.4\ \mathrm{kg\cdot m^2/s}$.
+
+> [!success]- Answer
+> **$L = 2.4\ \mathrm{kg\cdot m^2/s}$ about the centre.**
+
+> [!warning] Trap
+> Using $r = 0.80$ with an angle other than $90^\circ$, or confusing $I = mr^2$ with $L = mvr$. Both routes give 2.4 here, but for an off-centre axis only $mvr\sin\theta$ (with the perpendicular distance) is correct.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `0.50×6.0×0.80` → $L$ = **2.4** kg·m²/s, with sin 90° = 1 here.
+> 2. Cross-check: `6.0÷0.80` → $\omega$ = **7.5** rad/s; `0.50×0.80²×Ans` → **2.4** kg·m²/s.
+
+### P4. A solid disk of mass $4.0\ \mathrm{kg}$ and radius $0.50\ \mathrm{m}$ spins about its central axis at $30\ \mathrm{rad/s}$. Find its moment of inertia and its rotational kinetic energy.
+
+**Given:** M = 4.0 kg; R = 0.50 m; omega = 30 rad/s; solid disk
+
+**Solution:**
+
+1. $I = \frac{1}{2}MR^2 = \frac{1}{2}(4.0)(0.50)^2 = \frac{1}{2}(4.0)(0.25) = 0.50\ \mathrm{kg\cdot m^2}$
+2. $KE_{rot} = \frac{1}{2}I\omega^2 = \frac{1}{2}(0.50)(30)^2$
+3. $KE_{rot} = (0.25)(900) = 225\ \mathrm{J}$
+
+> [!success]- Answer
+> **$I = 0.50\ \mathrm{kg\cdot m^2}$; $KE_{rot} = 225\ \mathrm{J}$.**
+
+> [!warning] Trap
+> Using $I = MR^2$ (the hoop value). That doubles $I$ to $1.0$ and the energy to 450 J. A disk has half its mass effectively nearer the axis than a hoop, hence the factor of $\frac{1}{2}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `0.5×4.0×0.50²` → $I$ = **0.50** kg·m².
+> 2. `0.5×Ans×30²` → $KE_{rot}$ = **225** J; the hoop value `4.0×0.50²` = **1.0** kg·m² doubles it to **450** J.
+
+### P5. A constant torque of $12\ \mathrm{N\cdot m}$ is applied to a wheel with $I = 3.0\ \mathrm{kg\cdot m^2}$ that is initially at rest. Find its angular velocity after $2.0\ \mathrm{s}$ and the angular impulse delivered.
+
+**Given:** tau = 12 N m; I = 3.0 kg m^2; t = 2.0 s; omega_0 = 0
+
+**Solution:**
+
+1. Angular acceleration: $\alpha = \frac{\tau}{I} = \frac{12}{3.0} = 4.0\ \mathrm{rad/s^2}$
+2. $\omega = \omega_0 + \alpha t = 0 + (4.0)(2.0) = 8.0\ \mathrm{rad/s}$
+3. Angular impulse: $\tau\Delta t = (12)(2.0) = 24\ \mathrm{N\cdot m\cdot s}$
+4. Check with $\Delta L = I\omega = (3.0)(8.0) = 24\ \mathrm{kg\cdot m^2/s}$ - it matches the impulse exactly.
+
+> [!success]- Answer
+> **$\omega = 8.0\ \mathrm{rad/s}$; angular impulse $= 24\ \mathrm{N\cdot m\cdot s}$.**
+
+> [!warning] Trap
+> Using $\tau = I\omega$ (dropping the time) and reporting $\omega = 4.0\ \mathrm{rad/s}$ directly from $\frac{\tau}{I}$. $\frac{\tau}{I}$ is the angular *acceleration*; multiplying by the time is what gives the angular velocity.
+
+## Traps & Exam Notes
+
+- **Conserving kinetic energy in a spin-up.** $I_1\omega_1 = I_2\omega_2$ conserves $L$, not KE. A skater shrinking $I$ by 2.5x gains 2.5x the rotational energy; writing an energy equation gives 3.16 rev/s instead of the correct 5.0 rev/s.
+- **Using $v = \sqrt{2gh}$ for a rolling body.** That formula assumes all the potential energy becomes translation. A solid sphere gets $5.29\ \mathrm{m/s}$ from a 2.0 m drop, not $6.26\ \mathrm{m/s}$; the difference is the rotational term.
+- **Mixing rpm and rad/s inside $L = I\omega$.** Angular momentum in $\mathrm{kg\cdot m^2/s}$ requires rad/s. The skater problem happens to work in rev/s because the units cancel, but the moment you compute an energy or a torque the unconverted value is wrong by $\frac{2\pi}{60}$.
+- **Believing heavier or larger rolling bodies arrive first.** The mass and radius cancel in $v = \sqrt{2gh/(1+I/mR^2)}$, so only the shape matters. Two solid spheres of different size tie exactly, and a small sphere beats a large hoop.
+- **Forgetting the rotational half of rolling KE.** $KE = \frac{1}{2}mv^2 + \frac{1}{2}I\omega^2$; dropping the second term makes a disk's kinetic energy come out 33% low and gives the wrong speed at the bottom of a ramp.
+- **Conserving angular momentum while an external torque acts.** A ball rolling to rest, a top falling under gravity, or a pulley with a hanging mass all have net external torque. Only the ice-skater case (torque-free about the spin axis) justifies $I_1\omega_1 = I_2\omega_2$.
+
+## See Also
+
+- [[05_Rotational_Kinematics_and_Torque]]
+- [[04_Momentum_and_Collisions]]
+- [[03_Work,_Energy_and_Conservation]]
+
+---
+
+[[05_Rotational_Kinematics_and_Torque|⬅ 05]] · [[_MOC_University_Physics|MOC]] · [[00_Dashboard|Dashboard]] · [[07_Fluid_Statics_Pascal_and_Archimedes|07 ➡]]

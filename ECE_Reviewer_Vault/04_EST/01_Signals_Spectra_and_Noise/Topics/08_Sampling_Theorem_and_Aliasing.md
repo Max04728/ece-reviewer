@@ -1,0 +1,244 @@
+---
+id: EST-01-08
+title: "Sampling Theorem and Aliasing"
+part: "04_EST"
+area: "01_Signals_Spectra_and_Noise"
+topic: 8
+tier: 1
+depth: full
+problem_count: 9
+prereqs: ["[[01_Time_vs_Frequency_and_Line_Spectra]]", "[[13_Fourier_Transform_Properties]]"]
+tags: ["ece", "est", "signals_spectra_and_noise"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 08 — Sampling Theorem and Aliasing
+
+> [!abstract] Scope
+> Apply the sampling theorem to choose a sampling rate, and compute the alias frequency produced when a component above half the sampling rate is sampled.
+
+## Core Concept
+
+> [!tip] Intuition
+> Sampling multiplies the spectrum by an impulse train, which copies the whole spectrum at every multiple of the sampling frequency. If the copies overlap, the overlap is permanent: a high-frequency tone reappears as a lower-frequency tone that no filter can distinguish from a genuine one.
+
+**The theorem, stated precisely.** If a signal is band-limited so that it contains no frequency above $f_m$, it can be reconstructed exactly from samples taken at a rate $f_s \ge 2f_m$. Three quantities must never be confused: the **Nyquist rate** $2f_m$ is a property of the *signal*; the **Nyquist frequency** $f_s/2$ is a property of the *sampler*; the **Nyquist interval** $1/(2f_m)$ is the largest spacing between samples that still works. Reconstruction is exact in principle by passing the sample train through an ideal lowpass filter of bandwidth $f_s/2$, which is the mathematical content of the sinc-interpolation formula $x(t) = \sum_n x(nT_s)\,\mathrm{sinc}\!\left(\frac{t-nT_s}{T_s}\right)$.
+
+**Why: the spectrum is replicated.** Sampling is multiplication by an impulse train, and the transform of an impulse train is another impulse train with spacing $f_s$. Multiplication in time is convolution in frequency, so the sampled spectrum is the original spectrum repeated at $0, \pm f_s, \pm 2f_s, \dots$ The original occupies $[-f_m, f_m]$; the nearest replica occupies $[f_s-f_m, f_s+f_m]$. These two do not overlap precisely when $f_s - f_m \ge f_m$, i.e. $f_s \ge 2f_m$. When $f_s < 2f_m$ the replicas overlap and high-frequency content lands inside the baseband where it cannot be removed — this is **aliasing**.
+
+**Computing an alias frequency.** A component at $f$ is folded into the first Nyquist zone by subtracting or adding integer multiples of $f_s$ until the result lies in $[0, f_s/2]$:
+$$f_{alias} = \left| f - n f_s \right|$$
+with $n$ chosen so that the result is at most $f_s/2$. For a component in the band $(f_s/2, f_s)$ the shortcut is $f_{alias} = f_s - f$. Aliasing is not a one-way street: two different input frequencies can fold onto the *same* output frequency, and once that has happened the samples carry no information that separates them. A 4.5 kHz tone and a 1.5 kHz tone sampled at 6 kHz produce identical sample sequences, so a 1.5 kHz reading could legitimately have come from a 1.5 kHz, 4.5 kHz, 7.5 kHz, ... input.
+
+**Bandpass signals: the $2f_m$ rule is wasteful.** The theorem's condition concerns the *width* of the occupied band, not its highest frequency. A signal confined to $[f_L, f_H]$ with bandwidth $B = f_H - f_L$ can be sampled at $f_s \ge 2B$ provided the rate and the band position satisfy the bandpass-sampling (undersampling) conditions, because the replicas merely need to avoid *each other*, not avoid the origin. Undersampling is how a 100 MHz IF is digitised by a 20 MHz converter, and the same principle is why a bandpass signal at 100 MHz with 10 MHz of bandwidth needs only 20 MHz, not 200 MHz.
+
+**Practical margins, and where the theorem fails you.** In practice you sample *above* the Nyquist rate, not at it. Sampling exactly at $2f_m$ requires an ideal brick-wall filter and infinitely sharp clock edges; a tone exactly at $f_s/2$ is ambiguous (its samples depend on phase and can be all zeros). Real systems therefore leave a **guard band** between the signal's edge and $f_s/2$: the audio CD standard uses $f_s = 44.1\ \mathrm{kHz}$ for a 20 kHz signal, giving a 2.05 kHz transition band for a realisable analog filter. The theorem also says nothing about amplitude: it assumes infinite-resolution samples. Finite amplitude resolution is quantisation, and finite aperture width and clock jitter are sampling *errors* covered in [[09_Sampling_Types_and_Aperture_Effect]]; both are added to the aliasing budget rather than cured by it.
+
+**What aliasing looks like on the bench.** Aliases are not subtle. A sampling oscilloscope at $1\ \mathrm{MHz}$ has a $500\ \mathrm{kHz}$ ceiling, so a $760\ \mathrm{kHz}$ signal displays as $240\ \mathrm{kHz}$ and appears to move *backwards* in frequency as the input rises past $f_s/2$ — the classic 'folding' effect on a swept-spectrum display. A switching power supply's harmonics above $f_s/2$ show up as spurious low-frequency tones in an audio recording, and a strobe light on a wheel is the same effect in the time domain. Every one of these is fixed by an analog anti-alias filter before the sampler, as described in [[10_Anti-Aliasing_Filters]].
+
+## Derivation
+
+**The replication step.** Model sampling as multiplication by an impulse train, $x_s(t) = x(t)\sum_n \delta(t-nT_s)$. The Fourier transform of the impulse train $\sum_n\delta(t-nT_s)$ is $f_s\sum_k \delta(f-kf_s)$. Multiplication in time becomes convolution in frequency, so $X_s(f) = f_s \sum_k X(f-kf_s)$: the spectrum of $x(t)$ repeated at every integer multiple of $f_s$, each copy scaled by $f_s$.
+
+**The no-overlap (Nyquist) condition.** The baseband copy occupies $[-f_m, f_m]$; the copy centred at $f_s$ occupies $[f_s-f_m,\;f_s+f_m]$. They are disjoint if and only if the lower edge of the upper copy is at or above the upper edge of the baseband copy: $f_s - f_m \ge f_m$, giving $f_s \ge 2f_m$. Equality leaves the copies touching at $f_s/2$, which is why exact Nyquist-rate sampling demands an ideal filter.
+
+**Alias frequency by folding.** Write the input as $f = n f_s + f_0$ with $0 \le f_0 < f_s$. Subtracting the replica offsets leaves the component $f_0$ in the sampled spectrum. If $f_0 > f_s/2$, reflect it about $f_s/2$ using $f_{alias} = f_s - f_0$, which is the same as choosing the integer $n$ that minimises $|f - nf_s|$. For $f = 7\ \mathrm{kHz}$ and $f_s = 6\ \mathrm{kHz}$: $7 = 1(6) + 1$, so $f_0 = 1\ \mathrm{kHz}$ and the alias is $1\ \mathrm{kHz}$ — the 7 kHz tone is indistinguishable from a 1 kHz tone.
+
+**Why an anti-alias filter works and where it must sit.** After sampling, a component at $f_s - f_p$ sits at exactly the same frequency as a genuine component at $f_p$. No digital operation can separate them, because the sample sequences are identical. Therefore the only defence is to remove the out-of-band energy *before* the sampler, with an analog lowpass whose stopband begins at $f_s - f_p$. The required transition band $f_p \to f_s-f_p$ then determines the filter's order, as worked out in [[10_Anti-Aliasing_Filters]].
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Sampling theorem (Nyquist rate) | $f_s \ge 2 f_m$ | fm is the highest frequency in the signal. Use strictly greater in practice; equality needs an ideal filter. |
+| Nyquist frequency of a sampler | $f_N = \frac{f_s}{2}$ | A property of the sampler. Frequencies above it fold; nothing above it can be represented. |
+| Nyquist interval | $T_{max} = \frac{1}{2 f_m}$ | Largest allowable spacing between samples. |
+| Sampled spectrum (replicas) | $X_s(f) = f_s \sum_{k=-\infty}^{\infty} X(f - k f_s)$ | Shows aliasing as overlap of replicas. No overlap iff fs >= 2fm. |
+| Alias frequency (folding) | $f_a = \left\lvert f - n f_s \right \rvert, \quad n = \mathrm{round}\!\left(\frac{f}{f_s}\right)$ | Choose n so that 0 <= fa <= fs/2. Valid for any input frequency, not just those near fs. |
+| Alias shortcut for fs/2 < f < fs | $f_a = f_s - f$ | The reflection about fs/2. For f above fs, subtract whole multiples of fs first. |
+| Two frequencies that alias together | $f_2 = n f_s \pm f_1$ | Any pair related this way is indistinguishable after sampling, regardless of amplitude. |
+| Ideal reconstruction | $x(t) = \sum_{n} x(nT_s)\, \mathrm{sinc}\left(\frac{t - nT_s}{T_s}\right)$ | Requires sampling above the Nyquist rate and an ideal lowpass of bandwidth fs/2. |
+| Bandpass (undersampling) condition | $f_s \ge 2B, \quad B = f_H - f_L$ | Requires the band position to satisfy the bandpass-sampling constraints so replicas avoid each other; used for IF sampling. |
+| Guard band | $\Delta f = \frac{f_s}{2} - f_m > 0$ | The slack that makes a realisable analog anti-alias filter possible; CD audio uses 2.05 kHz. |
+
+## Interactive Widget
+
+**Aliasing Demonstrator**
+
+![[Aliasing_Demonstrator.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. A voice channel is band-limited to $4\ \mathrm{kHz}$. Find the Nyquist rate and the Nyquist interval.
+
+**Given:** fm = 4 kHz
+
+**Solution:**
+
+1. Nyquist rate = 2 fm = 2(4000) = 8000 samples/s
+2. Nyquist interval = 1/(2 fm) = 1/8000 = 125 us
+
+> [!success]- Answer
+> **fs(min) = 8 kHz; T(max) = 125 us.**
+
+> [!warning] Trap
+> Reporting 4 kHz as the minimum sampling rate. The rate must be twice the highest frequency; a 4 kHz sampler would fold everything between 2 and 4 kHz.
+
+### P2. A $3\ \mathrm{kHz}$ tone is sampled at $5\ \mathrm{kHz}$. What frequency appears in the sampled data?
+
+**Given:** f = 3 kHz; fs = 5 kHz
+
+**Solution:**
+
+1. fN = fs/2 = 2.5 kHz, and 3 kHz exceeds it, so aliasing occurs
+2. f is in the band (2.5, 5) kHz, so use the reflection fa = fs - f
+3. fa = 5 - 3 = 2 kHz
+
+> [!success]- Answer
+> **A 2 kHz tone appears in the sampled data.**
+
+> [!warning] Trap
+> Answering 3 kHz 'because it is below the sampling rate'. Being below fs is not sufficient; the limit is fs/2.
+
+### P3. A $7\ \mathrm{kHz}$ tone is sampled at $6\ \mathrm{kHz}$. Find the alias frequency.
+
+**Given:** f = 7 kHz; fs = 6 kHz
+
+**Solution:**
+
+1. fN = 3 kHz; 7 kHz is well above it
+2. Divide by fs: 7 = 1(6) + 1, so f0 = 1 kHz
+3. f0 = 1 kHz is below fN = 3 kHz, so no further reflection is needed
+4. fa = |7 - 6| = 1 kHz
+
+> [!success]- Answer
+> **The 7 kHz tone aliases to 1 kHz.**
+
+> [!warning] Trap
+> Answering 6 - 7 = -1 kHz, or 7 - 2(6) = -5 kHz. Use the absolute value, and first reduce the frequency into the first Nyquist zone by whole multiples of fs.
+
+### P4. A $2.7\ \mathrm{kHz}$ component is sampled at $4\ \mathrm{kHz}$. Find the alias frequency and state which input frequency would produce the same samples.
+
+**Given:** f = 2.7 kHz; fs = 4 kHz
+
+**Solution:**
+
+1. fN = 2 kHz, so 2.7 kHz aliases
+2. 2.7 lies in (2, 4), so fa = fs - f = 4 - 2.7 = 1.3 kHz
+3. The mirror partner is f2 = fs - fa = 2.7 kHz, and also fa + fs = 5.3 kHz
+4. Both 1.3 kHz and 2.7 kHz sampled at 4 kHz give identical sample values
+
+> [!success]- Answer
+> **fa = 1.3 kHz; a genuine 1.3 kHz tone (or a 5.3 kHz tone) gives the same samples.**
+
+> [!warning] Trap
+> Reporting 2.7 - 2 = 0.7 kHz by subtracting the Nyquist frequency. Reflection is about fs/2 in the form fs - f, which gives 1.3 kHz.
+
+### P5. A signal contains $1.5\ \mathrm{kHz}$ and $4.5\ \mathrm{kHz}$ components and is sampled at $6\ \mathrm{kHz}$. What does the sampled spectrum show?
+
+**Given:** f1 = 1.5 kHz; f2 = 4.5 kHz; fs = 6 kHz
+
+**Solution:**
+
+1. fN = 3 kHz; 1.5 kHz is below it and survives unchanged
+2. 4.5 kHz is above fN and in (3, 6), so fa = 6 - 4.5 = 1.5 kHz
+3. Both components land at 1.5 kHz and add (or beat) there
+
+> [!success]- Answer
+> **Both tones appear at 1.5 kHz; they are indistinguishable in the sampled data.**
+
+> [!warning] Trap
+> Assuming the 4.5 kHz component disappears. Aliasing does not delete energy — it relocates it, and here it lands exactly on the wanted tone, corrupting it irreversibly.
+
+### P6. An audio signal must be sampled with its highest frequency at $20\ \mathrm{kHz}$. Find the minimum rate, and explain why the CD standard uses $44.1\ \mathrm{kHz}$.
+
+**Given:** fm = 20 kHz
+
+**Solution:**
+
+1. Minimum rate = 2(20 kHz) = 40 kHz
+2. Any component between 20 kHz and fs/2 = 20 kHz would alias, so at 40 kHz the guard band is zero
+3. 44.1 kHz gives fN = 22.05 kHz and a guard band of 22.05 - 20 = 2.05 kHz
+4. That 2.05 kHz transition band is what lets a realisable analog anti-alias filter reach its stopband
+
+> [!success]- Answer
+> **Minimum 40 kHz; 44.1 kHz provides a 2.05 kHz guard band for a practical anti-alias filter.**
+
+> [!warning] Trap
+> Answering 44.1 kHz as 'the Nyquist rate for audio'. The Nyquist rate is 40 kHz; 44.1 kHz is an engineering choice driven by filter realisability and the historical video-tape line rate.
+
+### P7. A signal is sampled at $8\ \mathrm{kHz}$. What is the highest frequency that can be represented unambiguously, and where does a $5.5\ \mathrm{kHz}$ interfering tone appear?
+
+**Given:** fs = 8 kHz; interferer = 5.5 kHz
+
+**Solution:**
+
+1. fN = fs/2 = 4 kHz is the unambiguous ceiling
+2. 5.5 kHz lies in (4, 8), so fa = 8 - 5.5 = 2.5 kHz
+3. The interference appears at 2.5 kHz, inside the wanted 0-4 kHz band
+
+> [!success]- Answer
+> **Ceiling = 4 kHz; the 5.5 kHz interferer appears at 2.5 kHz.**
+
+> [!warning] Trap
+> Assuming interference above fN is harmless because it is 'outside the band of interest'. It folds back inside the band, which is exactly why an analog anti-alias filter is mandatory.
+
+### P8. A bandpass signal occupies $100\ \mathrm{MHz} \pm 5\ \mathrm{MHz}$ (so $95$–$105\ \mathrm{MHz}$). What is the minimum sampling rate, and why is it not $210\ \mathrm{MHz}$?
+
+**Given:** fL = 95 MHz; fH = 105 MHz; B = 10 MHz
+
+**Solution:**
+
+1. Bandwidth B = 105 - 95 = 10 MHz
+2. Bandpass sampling requires fs >= 2B = 20 MHz
+3. The replicas must avoid each other, not avoid the origin; with fs = 20 MHz the copies tile without overlap when the band position satisfies the bandpass condition
+4. 210 MHz would be the requirement only if the 100 MHz carrier itself had to be preserved as a low-frequency baseband signal
+
+> [!success]- Answer
+> **fs(min) = 20 MHz by bandpass sampling, not 210 MHz.**
+
+> [!warning] Trap
+> Always applying fs >= 2 x highest frequency. For a narrowband signal far from DC, the requirement is 2 x bandwidth, which is why IF sampling is practical.
+
+### P9. A signal has components at $1, 3, 5$ and $7\ \mathrm{kHz}$ and is sampled at $8\ \mathrm{kHz}$. Which components survive at their own frequency and which alias onto each other?
+
+**Given:** components 1, 3, 5, 7 kHz; fs = 8 kHz
+
+**Solution:**
+
+1. fN = 4 kHz
+2. 1 kHz < 4 kHz: survives at 1 kHz
+3. 3 kHz < 4 kHz: survives at 3 kHz
+4. 5 kHz in (4, 8): fa = 8 - 5 = 3 kHz, colliding with the 3 kHz component
+5. 7 kHz in (4, 8): fa = 8 - 7 = 1 kHz, colliding with the 1 kHz component
+6. Sampled spectrum shows only 1 kHz and 3 kHz, each carrying two original components
+
+> [!success]- Answer
+> **1 and 3 kHz survive; 5 kHz folds onto 3 kHz and 7 kHz folds onto 1 kHz.**
+
+> [!warning] Trap
+> Expecting four distinct lines in the sampled spectrum. Two pairs collapsed; the total energy is conserved but the frequency information is lost.
+
+## Traps & Exam Notes
+
+- **Sampling at $f_s = 2f_m$ and assuming it works.** The theorem's equality case needs an ideal brick-wall reconstruction filter and is ambiguous for a tone exactly at $f_s/2$. Every practical design samples strictly above $2f_m$ with a guard band.
+- **Subtracting $f_s/2$ instead of reflecting about it.** For $f_s = 4\ \mathrm{kHz}$ and $f = 2.7\ \mathrm{kHz}$ the alias is $4-2.7 = 1.3\ \mathrm{kHz}$, not $0.7\ \mathrm{kHz}$. The rule is $f_a = |f - nf_s|$ with the result placed inside $[0, f_s/2]$.
+- **Believing out-of-band energy is harmless.** Anything above $f_s/2$ folds back into the baseband, often directly on top of the wanted signal. Aliasing is not attenuation; it is relocation.
+- **Thinking a digital filter after the ADC can remove aliasing.** A component at $f_s-f_p$ and a genuine one at $f_p$ produce *identical* samples, so no digital operation can tell them apart. The anti-alias filter must be analog and must precede the sample-and-hold.
+- **Confusing Nyquist rate with Nyquist frequency.** The Nyquist rate $2f_m$ describes the signal; the Nyquist frequency $f_s/2$ describes the sampler. A problem that asks for 'the Nyquist frequency' when given $f_s = 10\ \mathrm{kHz}$ wants $5\ \mathrm{kHz}$, not $10\ \mathrm{kHz}$.
+- **Applying $2f_m$ to a bandpass signal.** For a narrowband signal at a high centre frequency, $f_s \ge 2B$ is sufficient (bandpass sampling). Answering $2f_H$ where the intended answer is $2B$ is a common exam mismatch — read whether the band starts near DC.
+- **Forgetting that two input frequencies can alias to the same output.** $f_2 = nf_s \pm f_1$ pairs are indistinguishable after sampling, so a measured 1 kHz line may have come from 1 kHz, 5 kHz, 7 kHz or 9 kHz at $f_s = 8\ \mathrm{kHz}$. Aliasing is many-to-one, never one-to-one.
+- **Ignoring that sampling above Nyquist does not add resolution or remove quantisation error.** It only prevents folding; amplitude resolution and aperture effects are separate limits.
+
+## See Also
+
+- [[09_Sampling_Types_and_Aperture_Effect]]
+- [[10_Anti-Aliasing_Filters]]
+- [[11_DFT_and_FFT]]
+- [[01_Time_vs_Frequency_and_Line_Spectra]]
+
+---
+
+[[07_Friis_Cascaded_Noise_Formula|⬅ 07]] · [[_MOC_Signals_Spectra_and_Noise|MOC]] · [[00_Dashboard|Dashboard]] · [[09_Sampling_Types_and_Aperture_Effect|09 ➡]]

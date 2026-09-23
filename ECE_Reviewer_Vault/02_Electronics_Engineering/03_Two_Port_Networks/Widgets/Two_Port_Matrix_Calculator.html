@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two-Port Matrix Calculator — Z, Y, h and ABCD with Converted Sets</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// A two-port has ONE behaviour and FOUR descriptions. The exam asks you to move between
+// them, and every conversion error traces back to one of three bookkeeping rules:
+//   1. inversion swaps the diagonal and flips the sign of the off-diagonals
+//      (y11 = z22/Δz, y12 = −z12/Δz) — NOT y11 = 1/z11;
+//   2. the h-set is written for I2 ENTERING port 2, so h21 = −z21/z22 and reciprocity
+//      reads h12 = −h21, with the minus;
+//   3. Δy = 1/Δz, Δh = z11/z22, AD − BC = z12/z21. These are the free arithmetic checks.
+//
+// CONVENTIONS (taken from this vault's ECE-03 notes, so the widget and the notes agree):
+//   z:  V1 = z11 I1 + z12 I2 ;  V2 = z21 I1 + z22 I2          (I2 entering port 2)
+//   y:  I1 = y11 V1 + y12 V2 ;  I2 = y21 V1 + y22 V2
+//   h:  V1 = h11 I1 + h12 V2 ;  I2 = h21 I1 + h22 V2
+//   T:  V1 = A V2 − B I2     ;  I1 = C V2 − D I2              (I2 LEAVING port 2)
+// The canonical internal form is always z; the other three are derived from it with the
+// formulas quoted in the on-screen conversion list.
+
+const mk = (a, b, c, d) => ({ a, b, c, d, det: a * d - b * c });
+
+function toZ(set, src) {
+  const { a, b, c, d, det } = set;
+  if (src === 'Z') return set;
+  if (src === 'Y') return det !== 0 ? mk(d / det, -b / det, -c / det, a / det) : null;
+  if (src === 'h') return d !== 0 ? mk(det / d, b / d, -c / d, 1 / d) : null;              // dz = Δh/h22
+  if (src === 'T') return c !== 0 ? mk(a / c, det / c, 1 / c, d / c) : null;               // z21 = 1/C
+  return null;
+}
+function fromZ(z) {
+  const Dz = z.det;
+  const Y = Dz !== 0 ? mk(z.d / Dz, -z.b / Dz, -z.c / Dz, z.a / Dz) : null;
+  const h = z.d !== 0 ? mk(Dz / z.d, z.b / z.d, -z.c / z.d, 1 / z.d) : null;
+  const T = z.c !== 0 ? mk(z.a / z.c, Dz / z.c, 1 / z.c, z.d / z.c) : null;
+  return { Z: z, Y, h, T };
+}
+
+// slider-space <-> SI conversion for each set (the sliders must stay in a usable range)
+const SCALE = { Z: 1, Y: 1e-3, h: [1, 1, 1, 1e-3], T: [1, 1, 1, 1e-3] };
+const LABELS = {
+  Z: ['z11 (Ω)', 'z12 (Ω)', 'z21 (Ω)', 'z22 (Ω)'],
+  Y: ['y11 (mS)', 'y12 (mS)', 'y21 (mS)', 'y22 (mS)'],
+  h: ['h11 (Ω)', 'h12 ()', 'h21 ()', 'h22 (mS)'],
+  T: ['A ()', 'B (Ω)', 'C (mS)', 'D ()'],
+};
+const RANGES = {
+  Z: [[5, 500, 1], [1, 400, 1], [1, 400, 1], [5, 500, 1]],
+  Y: [[1, 100, 0.5], [-60, 60, 0.5], [-60, 60, 0.5], [1, 100, 0.5]],
+  h: [[1, 500, 1], [-20, 20, 0.1], [-20, 20, 0.1], [0.1, 50, 0.1]],
+  T: [[0.1, 5, 0.05], [1, 500, 1], [0.1, 100, 0.5], [0.1, 5, 0.05]],
+};
+const REL = 1e-6;   // tolerance for the reciprocity / symmetry verdicts
+
+function close(x, y) {
+  const m = Math.max(Math.abs(x), Math.abs(y), 1e-12);
+  return Math.abs(x - y) / m < 1e-6;
+}
+
+widget({
+  title: 'Two-Port Matrix Calculator — One Network, Four Descriptions',
+  description:
+    'Enter any four numbers in any one parameter set. The other three sets are converted for you, with the determinant, the reciprocity verdict and the symmetry verdict for each. The conversion formulas and the substituted arithmetic are printed below the diagram.',
+  height: 400,
+  controls: [
+    { id: 'src', label: 'input set', type: 'select', options: [
+      { value: 'Z', label: 'Z — open-circuit impedance (Ω)' },
+      { value: 'Y', label: 'Y — short-circuit admittance (mS)' },
+      { value: 'h', label: 'h — hybrid (I2 entering port 2)' },
+      { value: 'T', label: 'ABCD — transmission (I2 leaving port 2)' },
+    ], value: 'Z' },
+    { id: 'r1', label: 'first element', min: 5, max: 500, step: 1, value: 70 },
+    { id: 'r2', label: 'second element', min: -60, max: 400, step: 1, value: 50 },
+    { id: 'r3', label: 'third element', min: -60, max: 400, step: 1, value: 50 },
+    { id: 'r4', label: 'fourth element', min: 5, max: 500, step: 1, value: 200 },
+  ],
+  compute: (v) => {
+    const src = v.src;
+    const sc = SCALE[src];
+    const raw = [v.r1, v.r2, v.r3, v.r4];
+    const val = raw.map((x, i) => x * (Array.isArray(sc) ? sc[i] : sc));
+    const input = mk(val[0], val[1], val[2], val[3]);
+    const z = toZ(input, src);
+    if (!z || !Number.isFinite(z.a) || !Number.isFinite(z.d)) {
+      return { src, input, ok: false };
+    }
+    const s = fromZ(z);
+    // reciprocity: z12 = z21, y12 = y21, h12 = -h21, AD - BC = 1
+    const recZ = close(z.b, z.c);
+    const recH = s.h ? close(s.h.b, -s.h.c) : null;
+    const recT = s.T ? close(s.T.det, 1) : null;
+    const recY = s.Y ? close(s.Y.b, s.Y.c) : null;
+    // symmetry (port equality): z11 = z22, y11 = y22, A = D, Δh = 1 — needs reciprocity too
+    const symZ = close(z.a, z.d) && recZ;
+    const symY = s.Y ? close(s.Y.a, s.Y.d) && recY : null;
+    const symT = s.T ? close(s.T.a, s.T.d) && recT : null;
+    const symH = s.h ? close(s.h.det, 1) && recH : null;
+    // extracted T and pi equivalents (reciprocal networks only)
+    const tEq = recZ ? { Za: z.a - z.b, Zb: z.b, Zc: z.d - z.b } : null;
+    const pEq = (s.Y && recY)
+      ? { Ya: s.Y.a + s.Y.b, Yb: -s.Y.b, Yc: s.Y.d + s.Y.b }
+      : null;
+    const Rref = 50;
+    const Gp = s.T && Math.abs(s.T.a + s.T.b / Rref) > 1e-15
+      ? 1 / (s.T.a + s.T.b / Rref) : NaN;
+    return { src, input, ...s, ok: true, recZ, recY, recH, recT, symZ, symY, symH, symT, tEq, pEq, Gp, Rref };
+  },
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h, pad = plot.pad;
+    plot.clear();
+    ctx.save();
+    ctx.textAlign = 'left';
+    const txt = (s, x, y, color, font, align) => {
+      ctx.fillStyle = color || PALETTE.text;
+      ctx.textAlign = align || 'left';
+      ctx.font = font || '12px ui-monospace, monospace';
+      ctx.fillText(s, x, y);
+    };
+    const seg = (x1, y1, x2, y2, color, w, dash) => {
+      ctx.strokeStyle = color; ctx.lineWidth = w || 1.6;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.setLineDash([]);
+    };
+
+    if (!out.ok) {
+      txt('This set is singular — the other sets do not exist.', pad, pad + 20, PALETTE.accent2, '14px system-ui, sans-serif');
+      ctx.restore();
+      return;
+    }
+
+    const title = (s, x, y, c) => txt(s, x, y, c, 'bold 12px ui-monospace, monospace');
+    const col = (x, y, rows) => {
+      rows.forEach((r, i) => {
+        txt(r[0], x, y + i * 21, PALETTE.dim, '11px ui-monospace, monospace');
+        txt(r[1], x + 34, y + i * 21, r[2] || PALETTE.text, '12px ui-monospace, monospace');
+      });
+    };
+
+    // ---------------- panel A: the two network models ----------------
+    const xa = pad + 4;
+    const xb = pad + Math.round(W * 0.34);
+    title('T equivalent (from the z set)', xa, pad + 14, PALETTE.accent);
+    if (out.tEq && v.src !== 'Y') {
+      col(xa, pad + 38, [
+        ['Za', fmt(out.tEq.Za, 5) + ' Ω', out.tEq.Za < 0 ? PALETTE.accent2 : PALETTE.accent3],
+        ['Zb', fmt(out.tEq.Zb, 5) + ' Ω', out.tEq.Zb < 0 ? PALETTE.accent2 : PALETTE.accent3],
+        ['Zc', fmt(out.tEq.Zc, 5) + ' Ω', out.tEq.Zc < 0 ? PALETTE.accent2 : PALETTE.accent3],
+      ]);
+      if (out.tEq.Za < 0 || out.tEq.Zb < 0 || out.tEq.Zc < 0) {
+        txt('negative arm → not realisable', xa, pad + 110, PALETTE.accent2, '11px ui-monospace, monospace');
+        txt('with passive elements', xa, pad + 124, PALETTE.accent2, '11px ui-monospace, monospace');
+      } else {
+        txt('all arms positive', xa, pad + 110, PALETTE.accent3, '11px ui-monospace, monospace');
+      }
+    } else {
+      txt('no T equivalent:', xa, pad + 38, PALETTE.accent2, '12px ui-monospace, monospace');
+      txt('z12 ≠ z21 (non-reciprocal)', xa, pad + 56, PALETTE.accent2, '12px ui-monospace, monospace');
+    }
+
+    title('Pi equivalent (from the y set)', xb, pad + 14, PALETTE.accent3);
+    if (out.pEq) {
+      col(xb, pad + 38, [
+        ['Ya', fmt(out.pEq.Ya * 1e3, 5) + ' mS', out.pEq.Ya < 0 ? PALETTE.accent2 : PALETTE.accent3],
+        ['Yb', fmt(out.pEq.Yb * 1e3, 5) + ' mS', out.pEq.Yb < 0 ? PALETTE.accent2 : PALETTE.accent3],
+        ['Yc', fmt(out.pEq.Yc * 1e3, 5) + ' mS', out.pEq.Yc < 0 ? PALETTE.accent2 : PALETTE.accent3],
+      ]);
+      txt(out.pEq.Yb < 0 ? 'series arm is negative — normal for a pi' : 'series arm positive',
+        xb, pad + 110, PALETTE.dim, '11px ui-monospace, monospace');
+    } else {
+      txt('no pi equivalent (non-reciprocal)', xb, pad + 38, PALETTE.accent2, '12px ui-monospace, monospace');
+    }
+
+    // ---------------- panel B: the four matrices ----------------
+    const yTop = pad + 140;
+    title('The four parameter sets (same network)', xa, yTop, PALETTE.warn);
+    const mats = [
+      ['Z (Ω)', out.Z, PALETTE.accent],
+      ['Y (mS)', out.Y ? { a: out.Y.a * 1e3, b: out.Y.b * 1e3, c: out.Y.c * 1e3, d: out.Y.d * 1e3, det: out.Y.det } : null, PALETTE.accent3],
+      ['h', out.h, PALETTE.accent4],
+      ['ABCD', out.T, PALETTE.accent5],
+    ];
+    const unitOf = (setName, k) => {
+      if (setName === 'Z') return k === 1 ? ' Ω' : '';
+      if (setName === 'Y') return ' mS';
+      if (setName === 'h') return (k === 0 ? ' Ω' : k === 3 ? ' mS' : '');
+      return (k === 1 ? ' Ω' : k === 2 ? ' mS' : '');
+    };
+    const dec = (setName, x) => {
+      const a = Math.abs(x);
+      if (!Number.isFinite(x)) return '—';
+      if (a !== 0 && (a < 1e-3 || a >= 1e5)) return x.toExponential(3);
+      return fmt(x, 5);
+    };
+    mats.forEach((m, i) => {
+      const my = yTop + 24 + i * 46;
+      txt(m[0], xa, my, m[2], 'bold 12px ui-monospace, monospace');
+      if (!m[1]) { txt('does not exist (singular)', xa + 80, my, PALETTE.accent2, '12px ui-monospace, monospace'); return; }
+      const g = m[1];
+      txt(dec(m[0], g.a) + unitOf(m[0], 0), xa + 78, my, PALETTE.text, '12px ui-monospace, monospace');
+      txt(dec(m[0], g.b) + unitOf(m[0], 1), xa + 205, my, PALETTE.text, '12px ui-monospace, monospace');
+      txt('| det = ' + dec(m[0], g.det), xa + 330, my, PALETTE.dim, '11px ui-monospace, monospace');
+      txt(dec(m[0], g.c) + unitOf(m[0], 2), xa + 78, my + 18, PALETTE.text, '12px ui-monospace, monospace');
+      txt(dec(m[0], g.d) + unitOf(m[0], 3), xa + 205, my + 18, PALETTE.text, '12px ui-monospace, monospace');
+    });
+    txt('top row = 11, 12      bottom row = 21, 22',
+      xa, yTop + 24 + 4 * 46 + 6, PALETTE.dim, '10px ui-monospace, monospace');
+
+    // ---------------- panel C: verdicts ----------------
+    const xr = pad + Math.round(W * 0.70);
+    title('Reciprocity', xr, pad + 14, PALETTE.warn);
+    const vline = (label, ok, i) => {
+      txt((ok ? '✓ ' : '✗ ') + label, xr, pad + 36 + i * 17,
+        ok ? PALETTE.accent3 : PALETTE.accent2, '11px ui-monospace, monospace');
+    };
+    vline('z12 = z21', out.recZ, 0);
+    vline('y12 = y21', out.recY === null ? false : out.recY, 1);
+    vline('h12 = −h21', out.recH === null ? false : out.recH, 2);
+    vline('AD − BC = 1', out.recT === null ? false : out.recT, 3);
+    txt(out.recZ ? 'RECIPROCAL' : 'NON-RECIPROCAL', xr, pad + 36 + 4 * 17 + 4,
+      out.recZ ? PALETTE.accent3 : PALETTE.accent2, 'bold 12px ui-monospace, monospace');
+
+    title('Symmetry (ports interchangeable)', xr, pad + 140, PALETTE.warn);
+    const sline = (label, ok, i) => {
+      txt((ok ? '✓ ' : '✗ ') + label, xr, pad + 162 + i * 17,
+        ok ? PALETTE.accent3 : PALETTE.accent2, '11px ui-monospace, monospace');
+    };
+    sline('z11 = z22 (and z12 = z21)', out.symZ, 0);
+    sline('y11 = y22', out.symY === null ? false : out.symY, 1);
+    sline('A = D', out.symT === null ? false : out.symT, 2);
+    sline('Δh = 1', out.symH === null ? false : out.symH, 3);
+    txt(out.symZ ? 'SYMMETRIC' : 'NOT SYMMETRIC', xr, pad + 162 + 4 * 17 + 4,
+      out.symZ ? PALETTE.accent3 : PALETTE.accent2, 'bold 12px ui-monospace, monospace');
+    if (out.recZ && !out.symZ) {
+      txt('reciprocal but not', xr, pad + 162 + 5 * 17 + 2, PALETTE.dim, '11px ui-monospace, monospace');
+      txt('symmetric — the usual case', xr, pad + 162 + 6 * 17 + 2, PALETTE.dim, '11px ui-monospace, monospace');
+    }
+    txt('G_p into ' + out.Rref + ' Ω = 1/(A + B/' + out.Rref + ') = ' + fmt(out.Gp, 4),
+      xr, H - pad - 4, PALETTE.dim, '10px ui-monospace, monospace');
+    ctx.restore();
+
+    // ---------------- conversion formulas + substituted arithmetic ----------------
+    const f = document.getElementById('tp-formula');
+    if (f) {
+      const g = out;
+      const src = v.src;
+      const sc = SCALE[src];
+      const raw = [v.r1, v.r2, v.r3, v.r4];
+      const vals = raw.map((x, i) => x * (Array.isArray(sc) ? sc[i] : sc));
+      const unitTxt = src === 'Z' ? ' Ω' : src === 'Y' ? ' mS' : src === 'h'
+        ? [' Ω', '', '', ' mS'] : ['', ' Ω', ' mS', ''];
+      const u = (i) => (Array.isArray(unitTxt) ? unitTxt[i] : unitTxt);
+      const inputLine = LABELS[src].map((L, i) => L + ' = ' + fmt(vals[i], 5) + u(i)).join(',  ');
+      f.innerHTML =
+        '<div><strong>Input (' + src + ' set):</strong> ' + inputLine + ' &nbsp;|&nbsp; Δ = ' + fmt(g.input.det, 6) + '</div>' +
+        '<div><strong>Z ↔ Y</strong> (invert): y11 = z22/Δz = ' + fmt(g.Z.d, 5) + '/' + fmt(g.Z.det, 5) + ' = ' + fmt(g.Y ? g.Y.a : NaN, 5) +
+        ', y12 = −z12/Δz = −' + fmt(g.Z.b, 5) + '/' + fmt(g.Z.det, 5) + ' = ' + fmt(g.Y ? g.Y.b : NaN, 5) + ' &nbsp;(diagonals swap, off-diagonals flip sign — y11 ≠ 1/z11)</div>' +
+        '<div><strong>Z → h</strong>: h11 = Δz/z22 = ' + fmt(g.Z.det, 5) + '/' + fmt(g.Z.d, 5) + ' = ' + fmt(g.h ? g.h.a : NaN, 5) + ' Ω' +
+        ', h12 = z12/z22 = ' + fmt(g.h ? g.h.b : NaN, 5) + ', h21 = −z21/z22 = −' + fmt(g.Z.c, 5) + '/' + fmt(g.Z.d, 5) + ' = ' + fmt(g.h ? g.h.c : NaN, 5) +
+        ', h22 = 1/z22 = ' + fmt(g.h ? g.h.d : NaN, 5) + ' S &nbsp;(written for I2 entering port 2, hence the minus on h21)</div>' +
+        '<div><strong>Z → ABCD</strong>: A = z11/z21 = ' + fmt(g.Z.a, 5) + '/' + fmt(g.Z.c, 5) + ' = ' + fmt(g.T ? g.T.a : NaN, 5) +
+        ', B = Δz/z21 = ' + fmt(g.T ? g.T.b : NaN, 5) + ' Ω, C = 1/z21 = ' + fmt(g.T ? g.T.c : NaN, 5) + ' S, D = z22/z21 = ' + fmt(g.T ? g.T.d : NaN, 5) + '</div>' +
+        '<div><strong>Determinants:</strong> Δz = z11z22 − z12z21 = ' + fmt(g.Z.det, 6) +
+        ' &nbsp;|&nbsp; Δy = 1/Δz = ' + fmt(g.Y ? g.Y.det : NaN, 6) +
+        ' &nbsp;|&nbsp; Δh = z11/z22 = ' + fmt(g.h ? g.h.det : NaN, 6) +
+        ' &nbsp;|&nbsp; AD − BC = z12/z21 = ' + fmt(g.T ? g.T.det : NaN, 6) + '</div>' +
+        '<div><strong>Verdict:</strong> ' + (g.recZ ? 'reciprocal' : 'NOT reciprocal') + ' (z12 ' + fmt(g.Z.b, 5) + ' vs z21 ' + fmt(g.Z.c, 5) +
+        '; h12 ' + fmt(g.h ? g.h.b : NaN, 5) + ' vs −h21 ' + fmt(g.h ? -g.h.c : NaN, 5) + ') &nbsp;and ' +
+        (g.symZ ? 'symmetric' : 'NOT symmetric') + ' (z11 ' + fmt(g.Z.a, 5) + ' vs z22 ' + fmt(g.Z.d, 5) +
+        '; A ' + fmt(g.T ? g.T.a : NaN, 5) + ' vs D ' + fmt(g.T ? g.T.d : NaN, 5) + ')' + '</div>';
+    }
+  },
+  readout: (out) => out.ok ? {
+    'Δz (Ω²)': fmt(out.Z.det, 6),
+    'Δy = 1/Δz': fmt(out.Y ? out.Y.det : NaN, 6),
+    'Δh = z11/z22': fmt(out.h ? out.h.det : NaN, 6),
+    'AD − BC': fmt(out.T ? out.T.det : NaN, 6),
+    'reciprocal?': out.recZ ? 'yes (z12 = z21)' : 'no (z12 ≠ z21)',
+    'symmetric?': out.symZ ? 'yes (z11 = z22)' : 'no (z11 ≠ z22)',
+    'h21 = −z21/z22': fmt(out.h ? out.h.c : NaN, 6),
+    'A, B, C, D': out.T ? [out.T.a, out.T.b, out.T.c, out.T.d].map((x) => fmt(x, 4)).join(', ') : '—',
+    'G_p (50 Ω system)': fmt(out.Gp, 5),
+  } : { 'error': 'input set is singular — no equivalent exists' },
+});
+
+const host = document.getElementById('app');
+
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'tp-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight — one behaviour, four descriptions, and the determinants are the free checks.</strong> ' +
+  'Δy = 1/Δz, Δh = z11/z22 and AD − BC = z12/z21 always hold, so if your converted set disagrees with any of ' +
+  'those, the conversion is wrong — you never have to re-derive the network to find out. ' +
+  '<strong>The mistakes this prevents:</strong> (1) writing y11 = 1/z11. z11 is measured with port 2 ' +
+  '<em>open</em>, y11 with port 2 <em>shorted</em>: the correct relation is y11 = z22/Δz, so the diagonals ' +
+  'swap and only the off-diagonals flip sign. For the default T network that is 6.09 mS, not 14.3 mS. ' +
+  '(2) Dropping the minus in h21 = −z21/z22. The h set is written for I2 <em>entering</em> port 2, so a ' +
+  'passive T has a NEGATIVE h21 (−0.25 here) and reciprocity reads h12 = −h21, not h12 = h21. Comparing ' +
+  'h12 with +h21 makes a genuine non-reciprocal amplifier look almost reciprocal. ' +
+  '(3) Reading a matching pair of off-diagonals as symmetry. z12 = z21 proves reciprocity only; symmetry ' +
+  'also needs z11 = z22 (equivalently A = D, Δh = 1). The default network here is reciprocal but NOT ' +
+  'symmetric — the classic trap. ' +
+  '<strong>Also remember:</strong> if Δz = 0 the Y set does not exist at all (an ideal transformer, an ' +
+  'ideal series element), and a network containing a dependent source has no three-element T or pi ' +
+  'equivalent — the extraction formulas still return numbers, but they only reproduce one direction. ' +
+  'Consistent units matter too: z and h11 are ohms, y, h22 are siemens, and h12, h21, A, D are pure numbers.';
+host.appendChild(note);
+</script>
+</body>
+</html>

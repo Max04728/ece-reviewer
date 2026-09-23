@@ -1,0 +1,165 @@
+---
+id: EST-04-13
+title: "TCP vs UDP and Port Numbers"
+part: "04_EST"
+area: "04_Data_Communications_and_Networking"
+topic: 13
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_TCP_-_IP_Protocol_Suite]]"]
+tags: ["ece", "est", "data_communications_and_networking"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 13 — TCP vs UDP and Port Numbers
+
+> [!abstract] Scope
+> Compare TCP and UDP on header overhead, reliability and ordering, and recall the well-known port numbers and the arithmetic of a TCP window.
+
+## Core Concept
+
+> [!tip] Intuition
+> TCP is a phone call: handshake, sequence numbers, acknowledgements, retransmission, and an ordered byte stream. UDP is a postcard: write the address, drop it in the slot, and hope. The header difference is only 12 bytes, but the behavioural difference is everything.
+
+**TCP: connection-oriented and reliable.** A TCP connection is established with a three-way handshake (SYN, SYN-ACK, ACK) and torn down with a four-way exchange (FIN, ACK, FIN, ACK). Every byte is numbered, every segment is acknowledged, and unacknowledged data is retransmitted on timeout or on three duplicate ACKs. TCP delivers an *ordered byte stream*, not a message stream, so an application must frame its own messages. It also performs flow control with a receive window and congestion control with slow start, congestion avoidance, fast retransmit and fast recovery. The header is 20 bytes minimum and up to 60 with options.
+
+**UDP: connectionless and unreliable.** UDP has no handshake, no sequence numbers, no acknowledgements and no retransmission. It simply multiplexes datagrams to ports with a checksum for integrity. The header is a fixed 8 bytes — source port, destination port, length and checksum — and never grows. Whatever reliability is needed must be provided by the application. In exchange, UDP has no connection setup delay, no head-of-line blocking (a lost UDP datagram does not stall later ones), and it preserves message boundaries, since one send is one datagram.
+
+**Port numbers and sockets.** A port is a 16-bit number identifying a process, ranging from 0 to 65535 in three bands: *well-known* 0–1023 (assigned by IANA to standard services and on Unix requiring privilege to bind), *registered* 1024–49151 (vendor applications), and *dynamic/ephemeral* 49152–65535 (chosen by the client for the duration of a connection). A connection is uniquely identified by the five-tuple (protocol, source IP, source port, destination IP, destination port). A server listening on one port can therefore serve thousands of clients, because each client's ephemeral port makes its connection distinct.
+
+**Ports worth memorising.** FTP 20 (data) and 21 (control), SSH 22, Telnet 23, SMTP 25, DNS 53 (both UDP and TCP), DHCP 67 (server) and 68 (client), TFTP 69 (UDP), HTTP 80, POP3 110, NTP 123 (UDP), IMAP 143, SNMP 161 (UDP), HTTPS 443, and RDP 3389. The general pattern is that protocols needing low latency and tolerating loss use UDP (DNS queries, DHCP, TFTP, NTP, SNMP, streaming), while those needing reliability and ordering use TCP (HTTP, SMTP, FTP, SSH, IMAP).
+
+**Why a protocol picks one.** DNS uses UDP for ordinary queries because a query and its answer fit in one datagram and a retry is cheaper than a handshake; it falls back to TCP for zone transfers and for responses too large to fit. HTTP uses TCP because a web page must arrive complete and in order. Voice over IP uses UDP because a retransmitted voice sample arrives too late to be useful — better to conceal a 20 ms gap than to deliver it late. Live video likewise. The rule of thumb: choose UDP when late data is worthless, TCP when missing data is unacceptable.
+
+**Window arithmetic and why scaling exists.** A TCP receiver advertises a window in a 16-bit field, so the maximum is 65535 bytes without options. Throughput is bounded by window divided by round-trip time, so a 64 KB window over a 100 ms RTT caps a connection at about 5.2 Mbps no matter how fast the link is. The window scaling option (RFC 1323) multiplies the advertised window by $2^k$ for $k$ up to 14, raising the ceiling to about 1 GB. This is why long-fat networks — high bandwidth, high latency — need window scaling and why a misconfigured receiver can bottleneck a gigabit link.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| TCP header size | $H_{TCP} = 20\ \mathrm{to}\ 60\ \mathrm{bytes}$ | 20 bytes minimum, 60 maximum with the 40-byte options field. The data offset field counts 4-byte words. |
+| UDP header size | $H_{UDP} = 8\ \mathrm{bytes}$ | Fixed: source port, destination port, length, checksum. Never larger. |
+| Layers 3-4 overhead | $H_{TCP} = 40\ \mathrm{bytes}, \quad H_{UDP} = 28\ \mathrm{bytes}$ | Includes the 20-byte IPv4 header. Add 18 bytes of Ethernet for the frame-level figure. |
+| Port ranges | $0{-}1023\ \mathrm{well{-}known}; \quad 1024{-}49151\ \mathrm{registered}; \quad 49152{-}65535\ \mathrm{dynamic}$ | 16-bit port field, so 65 536 possible values per protocol. |
+| Connection five-tuple | $(\mathrm{protocol},\ \mathrm{src\ IP},\ \mathrm{src\ port},\ \mathrm{dst\ IP},\ \mathrm{dst\ port})$ | Uniquely identifies a connection. One listening port can serve many clients because source ports differ. |
+| TCP throughput bound | $R_{max} = \frac{W}{\mathrm{RTT}}$ | W is the advertised window in bits, RTT in seconds. The bandwidth-delay product in bytes sets the window needed. |
+| Required window | $W = R \times \mathrm{RTT}$ | For 100 Mbps at 100 ms RTT the window must be 1.25 MB, far beyond the 64 KB base field. |
+| Maximum base window | $W_{base} = 2^{16} - 1 = 65535\ \mathrm{bytes}$ | 16-bit window field. Effective maximum is 65535 with the window never fully closed. |
+| Window scaling | $W_{eff} = W_{advertised} \times 2^k, \quad k \leq 14$ | RFC 1323 option. k = 14 raises the ceiling to about 1 GB. |
+| TCP handshake messages | $\mathrm{SYN} \to \mathrm{SYN{-}ACK} \to \mathrm{ACK}$ | Three messages, one round trip of setup delay. Teardown takes four because each direction closes independently. |
+| Congestion window growth | $\mathrm{slow\ start:\ doubling\ per\ RTT}; \quad \mathrm{avoidance:\ +1\ MSS\ per\ RTT}$ | cwnd halves on loss (AIMD). The effective window is min(cwnd, advertised window). |
+
+## Worked Problems
+
+### P1. Compare the layer-3/4 header overhead of TCP and UDP for a 100-byte payload over IPv4, and give the efficiency of each.
+
+**Given:** payload = 100 bytes; TCP = 20 + IPv4 20; UDP = 8 + IPv4 20
+
+**Solution:**
+
+1. TCP total = 100 + 40 = 140 bytes; efficiency = 100/140 = 71.4%
+2. UDP total = 100 + 28 = 128 bytes; efficiency = 100/128 = 78.1%
+3. Difference = 12 bytes, or 8.6 percentage points of efficiency
+4. Overhead ratio TCP/UDP = 40/28 = 1.43
+
+> [!success]- Answer
+> **TCP $71.4\%$; UDP $78.1\%$**
+
+> [!warning] Trap
+> Quoting a 12-byte difference as if TCP's reliability were free. For a 100-byte payload the extra 12 bytes cost 8.6 points of efficiency — small payloads are where the TCP-versus-UDP header gap actually bites.
+
+### P2. A TCP connection has a 64 KB advertised window and a round-trip time of $100\ \mathrm{ms}$. Find the maximum throughput, then the window needed for $1\ \mathrm{Gbps}$.
+
+**Given:** W = 65536 bytes; RTT = 100 ms; target rate = 1 Gbps
+
+**Solution:**
+
+1. W in bits = 65536 x 8 = 524 288 bits
+2. R_max = W/RTT = 524 288/0.1
+3. = 5 242 880 bps = 5.24 Mbps
+4. For 1 Gbps: W = R x RTT = 1e9 x 0.1/8 = 12 500 000 bytes
+5. Window scaling needed: 12 500 000/65535 = 190.7, so 2^k >= 191 -> k = 8 (2^8 = 256)
+
+> [!success]- Answer
+> **$5.24\ \mathrm{Mbps}$; a $12.5\ \mathrm{MB}$ window, needing scale factor $k = 8$**
+
+> [!warning] Trap
+> Reporting the throughput as 1 Gbps because the link is gigabit. The window, not the link rate, is the binding constraint: a 64 KB window over 100 ms caps any connection at 5.24 Mbps regardless of the underlying capacity.
+
+### P3. A server listens on TCP port 443. How many simultaneous client connections can it distinguish, and what identifies each one?
+
+**Given:** server port = 443; 16-bit port field; ephemeral range 49152-65535
+
+**Solution:**
+
+1. Each connection is identified by the five-tuple (TCP, client IP, client port, server IP, 443)
+2. The server's port is the same for all connections, so the distinguishing fields are the client IP and client port
+3. Ephemeral ports number 65536 - 49152 = 16384 per client IP
+4. The theoretical maximum per client IP is therefore 16 384 connections, multiplied by the number of distinct client IPs
+
+> [!success]- Answer
+> **Up to 16,384 connections per client IP; the five-tuple distinguishes each**
+
+> [!warning] Trap
+> Concluding that a server can only accept one connection per port. The server's port is a *listening* endpoint; the kernel accepts many connections on it because the client's port and IP make each five-tuple unique.
+
+### P4. Match each service to its transport protocol and port: DNS query, DHCP, TFTP, HTTPS, SNMP, NTP.
+
+**Given:** six services
+
+**Solution:**
+
+1. DNS ordinary query: UDP port 53 (TCP 53 for zone transfers)
+2. DHCP: UDP ports 67 (server) and 68 (client)
+3. TFTP: UDP port 69
+4. HTTPS: TCP port 443
+5. SNMP: UDP port 161
+6. NTP: UDP port 123
+
+> [!success]- Answer
+> **DNS UDP/53, DHCP UDP/67-68, TFTP UDP/69, HTTPS TCP/443, SNMP UDP/161, NTP UDP/123**
+
+> [!warning] Trap
+> Answering UDP/53 for *all* DNS traffic. DNS zone transfers exceed a datagram and require TCP/53; describing DNS as purely UDP is incomplete and is a frequent board answer key.
+
+### P5. An application must stream live voice at 64 kbps over a link with 1% packet loss. Justify whether TCP or UDP is appropriate, using numbers.
+
+**Given:** rate = 64 kbps; loss = 1%; link RTT = 150 ms
+
+**Solution:**
+
+1. A 20 ms voice frame holds 64 000 x 0.02 = 1280 bits = 160 bytes
+2. With 1% loss, about 1 frame in 100 is lost, so roughly one frame every 2 seconds
+3. A TCP retransmission takes at least one RTT = 150 ms to recover, by which time the frame is 7.5 frames late
+4. The delayed frame is useless to the listener, and TCP's in-order delivery means every later frame is also held back — head-of-line blocking
+5. UDP delivers the remaining 99% immediately, and the codec conceals the gap
+
+> [!success]- Answer
+> **UDP — a retransmitted frame arrives 150 ms late and TCP would stall all later frames**
+
+> [!warning] Trap
+> Choosing TCP because it guarantees delivery. For real-time media, a late frame is worse than a missing one, and TCP's strict ordering turns a single loss into a burst of delay across all subsequent frames.
+
+## Traps & Exam Notes
+
+- **Using the 8-byte UDP header size where the 20-byte TCP size belongs.** UDP is 8 bytes fixed; TCP is 20 minimum and up to 60 with options. The layer-3/4 totals are 28 and 40 bytes over IPv4.
+- **Assuming a gigabit link gives gigabit TCP.** Throughput is bounded by window/RTT. Without window scaling a 64 KB window caps a connection at 5.24 Mbps at 100 ms RTT no matter how much capacity the path has.
+- **Calling port numbers of 1024 or below free for any application.** The well-known range 0–1023 is controlled by IANA and, on Unix-like systems, requires elevated privilege to bind. Using one for an application is an error even though the port field can hold it.
+- **Believing DNS is always UDP.** Queries are UDP/53, but zone transfers and truncated responses use TCP/53. A firewall rule that permits only UDP/53 breaks zone transfers.
+- **Thinking UDP preserves message boundaries *and* orders them.** UDP preserves boundaries — one send equals one datagram — but delivers no ordering and no guarantee of arrival. Applications that need both must add sequencing themselves, which is what RTP does.
+- **Confusing the receive window with the congestion window.** The receive window is advertised by the receiver and reflects its buffer; the congestion window is maintained by the sender and reflects network conditions. The effective limit is the smaller of the two.
+- **Treating the three-way handshake as two round trips.** SYN, SYN-ACK, ACK is one round trip of setup latency. Teardown takes two round trips because each direction closes independently.
+
+## See Also
+
+- [[02_TCP_-_IP_Protocol_Suite]]
+- [[04_ARQ_Stop-and-Wait,_GBN,_Selective_Repeat]]
+- [[09_IPv4_Addressing_and_Classes]]
+- [[01_OSI_Seven-Layer_Model]]
+
+---
+
+[[12_Routing_Algorithms_Distance_Vector_and_Link_State|⬅ 12]] · [[_MOC_Data_Communications_and_Networking|MOC]] · [[00_Dashboard|Dashboard]] · [[14_Multiplexing_FDM,_TDM,_T1_and_E1|14 ➡]]

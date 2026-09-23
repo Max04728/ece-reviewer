@@ -1,0 +1,161 @@
+{
+  "scope": "Apply the dielectric relations D = eps E and the electrostatic boundary conditions at an interface — tangential E and normal D — to find fields, surface charge and capacitance with dielectrics present.",
+  "intuition": "A dielectric does not block the field, it dilutes it: the material polarizes, the bound charge lines up against the applied field, and the net field inside drops by the factor eps_r. Boundary conditions are simply Gauss's law and the conservative-field law applied to a vanishing pillbox and a vanishing loop at the interface.",
+  "concept": [
+    "**What a dielectric does.** In an applied field the bound charges in a dielectric shift slightly, producing dipoles whose net effect is a polarization $\\mathbf{P}$ in the direction of $\\mathbf{E}$. The resulting bound charge creates a field that opposes the applied one, so the field *inside* the material is weaker than in free space. For a linear isotropic dielectric the polarization is proportional to the applied field: $\\mathbf{P}=\\chi_e\\varepsilon_0\\mathbf{E}$, and the flux density then combines both terms: $\\mathbf{D}=\\varepsilon_0\\mathbf{E}+\\mathbf{P}=\\varepsilon_0(1+\\chi_e)\\mathbf{E}=\\varepsilon_0\\varepsilon_r\\mathbf{E}$. The relative permittivity $\\varepsilon_r\\ge1$ is dimensionless; $\\chi_e=0$ and $\\varepsilon_r=1$ in vacuum, and for air the deviation is under 0.1 percent, so air is treated as free space in exam work.",
+    "**Boundary condition on the tangential field.** Apply $\\oint\\mathbf{E}\\cdot d\\mathbf{l}=0$ to a thin rectangular loop straddling the interface. As the loop's height shrinks to zero the two side contributions vanish and the top and bottom legs give $E_{1t}=E_{2t}$: the tangential component of $\\mathbf{E}$ is continuous across any interface. Consequence: the potential is continuous too, and a field line crossing a boundary changes direction but its tangential part does not jump.",
+    "**Boundary condition on the normal flux density.** Apply Gauss's law to a flat pillbox straddling the interface. The sides contribute nothing as the height vanishes, so $D_{1n}-D_{2n}=\\rho_s$ where $\\rho_s$ is the *free* surface charge density on the interface and the normal is taken from region 2 to region 1. If there is no free surface charge, the normal component of $\\mathbf{D}$ is continuous. Note carefully which quantity is continuous in which direction: normal $D$ continuous (no free charge), tangential $E$ continuous — never normal $E$ or tangential $D$.",
+    "**Refraction and the conductor case.** Dividing the two conditions gives the refraction law: $\\dfrac{\\tan\\theta_1}{\\tan\\theta_2}=\\dfrac{\\varepsilon_{r1}}{\\varepsilon_{r2}}$, where $\\theta$ is measured from the normal, so field lines bend away from the normal on entering the higher-permittivity medium. At a conductor–dielectric boundary, $\\mathbf{E}=0$ inside the conductor, so $E_t=0$ in the dielectric just outside: the field there is purely normal, $D_n=\\rho_s$ and $E=\\rho_s/\\varepsilon$. That single fact is what makes a capacitor plate a well-defined equipotential surface with a uniform charge density, and it is why the capacitance of any geometry scales as $C=\\varepsilon_rC_0$ once the space between the electrodes is filled with dielectric."
+  ],
+  "formulas": [
+    {
+      "q": "Flux density in matter",
+      "e": "\\mathbf{D}=\\varepsilon_0\\mathbf{E}+\\mathbf{P}=\\varepsilon_0\\varepsilon_r\\mathbf{E}=\\varepsilon\\mathbf{E}",
+      "n": "D responds to free charge only; eps = eps_r eps0 has units F/m."
+    },
+    {
+      "q": "Polarization",
+      "e": "\\mathbf{P}=\\chi_e\\varepsilon_0\\mathbf{E}=(\\varepsilon_r-1)\\varepsilon_0\\mathbf{E}",
+      "n": "Applies to linear isotropic dielectrics. C/m²."
+    },
+    {
+      "q": "Relative permittivity",
+      "e": "\\varepsilon_r=1+\\chi_e=\\frac{\\varepsilon}{\\varepsilon_0}",
+      "n": "Dimensionless and >= 1. Air is 1.0006, so use 1.0 in exam work."
+    },
+    {
+      "q": "Tangential E continuous",
+      "e": "E_{1t}=E_{2t}",
+      "n": "Always true, for any two media, with or without surface charge."
+    },
+    {
+      "q": "Normal D boundary",
+      "e": "D_{1n}-D_{2n}=\\rho_s",
+      "n": "Normal from region 2 to region 1; rho_s is FREE surface charge only. No free charge means D_n is continuous."
+    },
+    {
+      "q": "Field-line refraction",
+      "e": "\\frac{\\tan\\theta_1}{\\tan\\theta_2}=\\frac{\\varepsilon_{r1}}{\\varepsilon_{r2}}",
+      "n": "Angles measured from the normal. Requires both media linear and no free interface charge."
+    },
+    {
+      "q": "Conductor-dielectric boundary",
+      "e": "E_t=0,\\qquad D_n=\\rho_s,\\qquad E_{\\mathrm{normal}}=\\frac{\\rho_s}{\\varepsilon}",
+      "n": "Field is normal to the metal surface; no tangential component in electrostatics."
+    },
+    {
+      "q": "Capacitance with dielectric",
+      "e": "C=\\varepsilon_rC_0",
+      "n": "C0 is the vacuum capacitance of the same geometry. eps_r multiplies once, never twice."
+    },
+    {
+      "q": "Field with free charge fixed",
+      "e": "E=\\frac{E_0}{\\varepsilon_r}",
+      "n": "Isolated plates (charge fixed). With the battery connected instead, E stays V/d and Q rises by eps_r."
+    },
+    {
+      "q": "Energy density with dielectric",
+      "e": "u=\\frac{1}{2}\\mathbf{D}\\cdot\\mathbf{E}=\\frac{1}{2}\\varepsilon E^2",
+      "n": "J/m^3. For the same E, a dielectric stores eps_r times more energy per volume."
+    }
+  ],
+  "problems": [
+    {
+      "prompt": "A field $E_0=10$ kV/m exists in air between isolated plates. A dielectric with $\\varepsilon_r=4$ is inserted to fill the gap completely. Find $E$, $D$ and $P$ in the dielectric, taking $\\varepsilon_0=8.854\\times10^{-12}$ F/m.",
+      "give": [
+        "E0 = 10 kV/m (air)",
+        "eps_r = 4",
+        "isolated plates (free charge fixed)"
+      ],
+      "steps": [
+        "Free charge is fixed, so D is unchanged: D = eps0 E0 = (8.854e-12)(1e4) = 8.854e-8 C/m^2",
+        "E = D/(eps0 eps_r) = E0/eps_r = 1e4/4 = 2500 V/m",
+        "P = D - eps0 E = 8.854e-8 - (8.854e-12)(2500) = 8.854e-8 - 2.214e-8",
+        "P = 6.640e-8 C/m^2",
+        "Check: P = (eps_r - 1)eps0 E = 3(8.854e-12)(2500) = 6.64e-8 C/m^2"
+      ],
+      "ans": "$E=2.5$ kV/m; $D=88.5$ nC/m²; $P=66.4$ nC/m².",
+      "trap": "Keeping $E=10$ kV/m because the applied voltage 'is still there'. With isolated plates the charge is fixed, so the field must drop by $\\varepsilon_r$. Only with the battery still connected does $E=V/d$ stay unchanged.", "calc": {"mode":"COMP","steps":["`SHIFT` `CVALUE` `32` `×1E4=` → $D$ = **8.854E-8** C/m², frozen because the plates are isolated.","`1E4÷4=` → $E$ = **2500** V/m.","`SHIFT` `CVALUE` `32` `×3×Ans=` → $P$ = **6.640E-8** C/m², from $P=(\\varepsilon_r-1)\\varepsilon_0E$."]}
+    },
+    {
+      "prompt": "A field in air makes $45^\\circ$ with the normal to a flat interface with a dielectric of $\\varepsilon_r=3$, and there is no free surface charge. Find the angle the field makes with the normal inside the dielectric.",
+      "give": [
+        "theta1 = 45 deg in air",
+        "eps_r1 = 1, eps_r2 = 3",
+        "rho_s = 0"
+      ],
+      "steps": [
+        "No free charge, so tan(theta1)/tan(theta2) = eps_r1/eps_r2",
+        "Solve for the unknown angle: tan(theta2) = tan(theta1) x (eps_r2/eps_r1)",
+        "tan(theta2) = tan(45 deg) x (3/1) = 1 x 3 = 3",
+        "theta2 = arctan(3) = 71.6 deg"
+      ],
+      "ans": "$\\theta_2=71.6^\\circ$ from the normal — the field bends *away* from the normal on entering the higher-permittivity medium.",
+      "trap": "Inverting the ratio and getting $\\arctan(1/3)=18.4^\\circ$. The tangential component of $\\mathbf{E}$ is unchanged while the normal component shrinks by $\\varepsilon_r$, so the field lies *closer to the surface* in the denser dielectric — it bends away from the normal.", "calc": {"mode":"COMP","steps":["`\\tan45×3=` → **3** = $\\tan\\theta_2$, from $\\tan\\theta_2=\\tan\\theta_1\\,\\varepsilon_{r2}/\\varepsilon_{r1}$.","`SHIFT` `\\tan⁻¹` `Ans` `=` → $\\theta_2$ = **71.57°** from the normal.","Inverted ratio check: `SHIFT` `\\tan⁻¹(1÷3)=` → **18.43°**, the trap answer."]}
+    },
+    {
+      "prompt": "The normal component of $\\mathbf{D}$ in region 1 is $D_{1n}=5$ nC/m². The interface carries a free surface charge $\\rho_s=2$ nC/m² (normal directed from region 2 into region 1). Find $D_{2n}$.",
+      "give": [
+        "D1n = 5 nC/m2",
+        "rho_s = 2 nC/m2 (normal from region 2 to region 1)"
+      ],
+      "steps": [
+        "Boundary condition: D_1n - D_2n = rho_s",
+        "Rearrange: D_2n = D_1n - rho_s",
+        "D_2n = 5 - 2 = 3 nC/m^2",
+        "If rho_s had been zero, D_2n would equal D_1n = 5 nC/m^2"
+      ],
+      "ans": "$D_{2n}=3$ nC/m².",
+      "trap": "Adding instead of subtracting, which comes from choosing the normal direction inconsistently. Write the normal direction down first; the sign of $\\rho_s$ and the order of the subtraction both follow from it."
+    },
+    {
+      "prompt": "A conductor surface in a dielectric with $\\varepsilon_r=2.5$ carries a free surface charge $\\rho_s=20$ nC/m². Find the field just outside in the dielectric, and the field that would exist if the dielectric were replaced by air.",
+      "give": [
+        "rho_s = 20 nC/m2",
+        "eps_r = 2.5"
+      ],
+      "steps": [
+        "Inside the conductor E = 0, so the field outside is purely normal",
+        "D_n = rho_s = 20 nC/m^2 = 2.0e-8 C/m^2",
+        "In the dielectric: E = D/(eps0 eps_r) = (2.0e-8)/[(8.854e-12)(2.5)]",
+        "= (2.0e-8)/(2.2135e-11) = 903.6 V/m",
+        "In air: E = (2.0e-8)/(8.854e-12) = 2259 V/m; ratio 2259/903.6 = 2.5"
+      ],
+      "ans": "$E=904$ V/m in the dielectric; $2259$ V/m in air — smaller by exactly $\\varepsilon_r=2.5$.",
+      "trap": "Using $E=\\rho_s/\\varepsilon_0$ inside the dielectric and ignoring $\\varepsilon_r$. The conductor fixes $D_n$, not $E_n$; the field then depends on the material.", "calc": {"mode":"COMP","steps":["`2E-8÷(2.5×` `SHIFT` `CVALUE` `32` `)=` → $E$ = **903.5** V/m in the dielectric, with code `32` = $\\varepsilon_0$.","`×2.5=` → **2259** V/m in air, exactly $\\varepsilon_r$ times larger.","The conductor fixes $D_n$ = **2.0E-8** C/m², not $E_n$."]}
+    },
+    {
+      "prompt": "A parallel-plate capacitor has $A=0.01$ m² and plate separation $d=0.5$ mm. Find its capacitance with air, and with a dielectric of $\\varepsilon_r=6$ filling the gap.",
+      "give": [
+        "A = 0.01 m2",
+        "d = 0.5 mm",
+        "eps_r = 6"
+      ],
+      "steps": [
+        "C0 = eps0 A/d = (8.854e-12)(0.01)/(5e-4) = (8.854e-14)/(5e-4) = 1.7708e-10 F",
+        "C = eps_r C0 = 6(1.7708e-10) = 1.0625e-9 F",
+        "In practical units: 177 pF with air, 1.06 nF with the dielectric"
+      ],
+      "ans": "$C_0=177$ pF; $C=1.06$ nF.",
+      "trap": "Writing $C=\\varepsilon_r^2\\varepsilon_0A/d$ or multiplying by $\\varepsilon_r$ twice. The permittivity enters once: $\\varepsilon=\\varepsilon_r\\varepsilon_0$, and then $C=\\varepsilon A/d$.", "calc": {"mode":"COMP","steps":["`SHIFT` `CVALUE` `32` `×0.01÷0.5E-3=` → $C_0$ = **1.7708E-10** F = **177.1** pF.","`×6=` → $C$ = **1.0625E-9** F = **1.06** nF.","$\\varepsilon_r$ enters once: the air value is `÷6=` → **2.951E-11** F, exactly $\\varepsilon_r$ times smaller."]}
+    }
+  ],
+  "traps": [
+    "**Continuity applied to the wrong quantity.** Tangential *E* is continuous; normal *D* is continuous only when there is no free surface charge. Normal E and tangential D both jump — the jumps are in the ratios $\\varepsilon_{r1}/\\varepsilon_{r2}$ and $\\varepsilon_{r2}/\\varepsilon_{r1}$ respectively.",
+    "**Forgetting the free surface charge in the normal-D condition.** $D_{1n}-D_{2n}=\\rho_s$. On a conductor surface $\\rho_s\\neq0$, so D is deliberately discontinuous there — and that is exactly what sets $E=\\rho_s/\\varepsilon$ outside.",
+    "**Multiplying by $\\varepsilon_r$ twice.** The relation is $\\mathbf{D}=\\varepsilon_0\\varepsilon_r\\mathbf{E}$ and $C=\\varepsilon_rC_0$ — one factor. A capacitance reported $\\varepsilon_r$ times too large is the signature of this slip.",
+    "**Isolated plates versus connected battery.** With the plates isolated, inserting a dielectric keeps $Q$ (and $D$) fixed and reduces $E$ and $V$ by $\\varepsilon_r$. With the battery connected, $V$ (and $E=V/d$) stay fixed and $Q$ rises by $\\varepsilon_r$. Stored energy moves in opposite directions in the two cases, so read the question before choosing.",
+    "**Treating $\\varepsilon_r$ as dimensional.** It is a dimensionless ratio, always at least 1. A computed $\\varepsilon_r<1$ means a ratio was inverted.",
+    "**Assuming the field inside a dielectric is zero.** Only a *conductor* has zero internal field. A dielectric reduces the field by $\\varepsilon_r$ but the field is still there and still does work on charges."
+  ],
+  "refs": [
+    "[[05_Gauss_Law_and_Applications]]",
+    "[[07_Dipoles_and_Polarization]]",
+    "[[09_Capacitance_from_Geometry]]",
+    "[[10_Electrostatic_Energy_and_Forces]]"
+  ],
+  "prereqs": [
+    "[[05_Gauss_Law_and_Applications]]",
+    "[[07_Dipoles_and_Polarization]]"
+  ]
+}

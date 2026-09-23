@@ -1,0 +1,101 @@
+{
+  "scope": "Predict the rate at which energy moves by conduction, convection and radiation, and pick the right law for a given geometry.",
+  "intuition": "Heat always runs downhill in temperature, and the three named modes are just three different carriers: vibrating atoms that never move (conduction), a fluid that physically carries the energy away (convection), and electromagnetic waves that need no medium at all (radiation).",
+  "concept": [
+    "**Pick the mode from the geometry, not from the wording.** Touching solids or a solid wall with a temperature difference across it means conduction and $H = kA\\Delta T/L$. A moving fluid, a fan, a breeze, a hot pipe in air means convection and $H = hA\\Delta T$, where $h$ is a property of the *flow*, not of the material. No medium between the bodies means radiation and the Stefan-Boltzmann law. Most board items are decided in the first sentence.",
+    "**Conduction is a thermal circuit.** Heat flow is the thermal analogue of Ohm's law: temperature difference is voltage, $H$ is current and $R = L/(kA)$ is resistance. In series (a composite wall) the resistances add and $H$ is the same through every layer; in parallel the conductances add. This framing is what makes interface-temperature items solvable: find $H$ for the whole stack, then step through one layer at a time.",
+    "**The temperature profile inside a slab is linear only for constant $k$ and steady state.** If $k$ varies with temperature, or if the slab is warming up, the straight-line profile is an approximation. The board will still say 'steady state' in the stem whenever it expects the linear result — look for those words.",
+    "**Convection is not a material constant.** $h$ for the same surface can be $5\\ \\mathrm{W/(m^2K)}$ in still air and $100\\ \\mathrm{W/(m^2K)}$ with a fan, so a 'find $h$' item is really asking you to divide a measured heat rate by $A\\Delta T$. The exam usually supplies $h$ and expects only the $hA\\Delta T$ arithmetic, including the area of the *exposed* surface.",
+    "**Radiation is a fourth-power law, so linear intuition fails badly.** The net exchange is: $H_{net} = \\varepsilon\\sigma A(T^4 - T_s^4)$. It requires **absolute** temperatures; a $13\\ \\mathrm{K}$ difference between skin at $306\\ \\mathrm{K}$ and walls at $293\\ \\mathrm{K}$ still gives roughly $100\\ \\mathrm{W}$ because the fourth-power gap is not small. At equal temperatures the net exchange is exactly zero, which is the sanity check the exam uses to test whether you used $- T_s^4$ or forgot it.",
+    "**Every real body both emits and absorbs.** The $\\varepsilon\\sigma A T^4$ term is emission, the $\\varepsilon\\sigma A T_s^4$ term is absorption of the surroundings' radiation. Writing only the emission term overstates the loss by about 15%, which is exactly the size of the error the board hides in the distractors. In symbols Wien's law reads: $\\lambda_{max}T = 2.898\\times10^{-3}\\ \\mathrm{m\\cdot K}$. It is the companion result and is what links a temperature to its colour."
+  ],
+  "formulas": [
+    { "q": "Conduction rate (Fourier)", "e": "H = \\frac{kA\\Delta T}{L}", "n": "Steady state, one slab, constant k. k is per metre of thickness, so L must be in m: a wall given in cm and used as-is inflates H by 100." },
+    { "q": "Thermal resistance", "e": "R = \\frac{L}{kA}", "n": "Series layers add: R_total = R1 + R2 + ... Units K/W. Use this whenever an interface temperature is asked." },
+    { "q": "Convection (Newton)", "e": "H = hA\\Delta T", "n": "h depends on the fluid flow, not on the solid; A is the exposed area. Never mix h with a thermal conductivity k." },
+    { "q": "Stefan-Boltzmann (emission)", "e": "H = \\varepsilon\\sigma A T^4", "n": "T must be in kelvin. sigma = 5.67e-8 W/(m^2 K^4). Emissivity 0 <= eps <= 1; eps = 1 for a blackbody." },
+    { "q": "Net radiation exchange", "e": "H_{net} = \\varepsilon\\sigma A(T^4 - T_s^4)", "n": "Both bodies at absolute temperature, surroundings at T_s. Single-body emission only is the classic wrong answer." },
+    { "q": "Wien displacement law", "e": "\\lambda_{max} = \\frac{2.898\\times10^{-3}}{T}", "n": "T in kelvin, result in metres. Use 2900/T as the exam rounding; multiply by 1e9 for nm." },
+    { "q": "Composite wall heat rate", "e": "H = \\frac{A\\Delta T}{\\sum_i L_i/k_i}", "n": "Series layers, same area. If the layers have different areas, convert each to its own resistance first." },
+    { "q": "Interface temperature", "e": "T_1 = T_{hot} - H R_1", "n": "Step from the hot face through one layer. R_1 must be that layer's own L/(kA)." },
+    { "q": "Board constants", "e": "\\sigma = 5.67\\times10^{-8},\\ k_{air}\\approx0.026,\\ k_{Cu} = 401,\\ k_{Al} = 237,\\ k_{glass}\\approx0.8\\ \\mathrm{W/(m\\cdot K)}", "n": "Rounded for exam use. Air is a very poor conductor, which is why trapped air is insulation." }
+  ],
+  "problems": [
+    {
+      "prompt": "A copper plate of area $0.500\\ \\mathrm{m^2}$ and thickness $2.00\\ \\mathrm{cm}$ is held with a $60.0\\ ^\\circ\\mathrm{C}$ temperature difference across it. With $k_{Cu} = 401\\ \\mathrm{W/(m\\cdot K)}$, find the rate of heat conduction.",
+      "give": ["$A = 0.500\\ \\mathrm{m^2}$", "$L = 2.00\\ \\mathrm{cm}$", "$\\Delta T = 60.0\\ ^\\circ\\mathrm{C}$", "$k = 401\\ \\mathrm{W/(m\\cdot K)}$"],
+      "steps": [
+        "Convert thickness: $L = 2.00\\ \\mathrm{cm} = 2.00\\times10^{-2}\\ \\mathrm{m}$",
+        "$H = kA\\Delta T/L = (401)(0.500)(60.0)/(2.00\\times10^{-2})$",
+        "$= 12{,}030 / 2.00\\times10^{-2}$",
+        "$H = 6.02\\times10^{5}\\ \\mathrm{W} = 602\\ \\mathrm{kW}$"
+      ],
+      "ans": "$H = 6.02\\times10^{5}\\ \\mathrm{W}$ ($602\\ \\mathrm{kW}$).",
+      "trap": "Substituting $L = 2.00$ instead of $0.0200\\ \\mathrm{m}$. A centimetre thickness left unconverted inflates the heat rate by a factor of 100, turning 602 kW into 60.2 MW.", "calc": {"mode":"COMP","steps":["`401×0.500×60.0÷2.00E-2` → $H$ = **6.02E5** W = **602** kW.","Enter the thickness as `2.00E-2` m: typing `2.00` gives **6015** W, wrong by the factor 100, because $k$ is per metre."]}
+    },
+    {
+      "prompt": "A wall is $3.00\\ \\mathrm{m}$ high by $5.00\\ \\mathrm{m}$ wide. It has a $1.00\\ \\mathrm{cm}$ gypsum layer ($k = 0.170$) on the inside and a $10.0\\ \\mathrm{cm}$ brick layer ($k = 0.600$) outside. Inside air is $30.0\\ ^\\circ\\mathrm{C}$ and outside air is $0.0\\ ^\\circ\\mathrm{C}$; ignore convection films and find the heat rate and the temperature at the layer interface.",
+      "give": ["$A = 15.0\\ \\mathrm{m^2}$", "$L_1 = 0.0100\\ \\mathrm{m}$, $k_1 = 0.170\\ \\mathrm{W/(m\\cdot K)}$", "$L_2 = 0.100\\ \\mathrm{m}$, $k_2 = 0.600\\ \\mathrm{W/(m\\cdot K)}$", "$\\Delta T = 30.0\\ \\mathrm{K}$"],
+      "steps": [
+        "Gypsum resistance: $R_1 = L_1/(k_1A) = 0.0100/[(0.170)(15.0)] = 3.92\\times10^{-3}\\ \\mathrm{K/W}$",
+        "Brick resistance: $R_2 = 0.100/[(0.600)(15.0)] = 1.111\\times10^{-2}\\ \\mathrm{K/W}$",
+        "Total: $R = 1.503\\times10^{-2}\\ \\mathrm{K/W}$, so $H = \\Delta T/R = 30.0/0.01503 = 1996\\ \\mathrm{W}$",
+        "Interface drop across the gypsum: $\\Delta T_1 = H R_1 = (1996)(3.92\\times10^{-3}) = 7.82\\ \\mathrm{K}$",
+        "$T_{interface} = 30.0 - 7.8 = 22.2\\ ^\\circ\\mathrm{C}$"
+      ],
+      "ans": "$H \\approx 2.00\\times10^{3}\\ \\mathrm{W}$ and $T_{interface} \\approx 22.2\\ ^\\circ\\mathrm{C}$.",
+      "trap": "Treating the two layers as parallel and adding conductivities instead of resistances. Series layers add $L/k$; adding $k$ values gives a heat rate that is wrong by more than an order of magnitude and always in the 'too fast' direction.", "calc": {"mode":"COMP","steps":["`0.0100÷(0.170×15.0)` → $R_1$ = **3.92E-3** K/W; `0.100÷(0.600×15.0)` → $R_2$ = **1.111E-2** K/W — series resistances add.","`30.0÷(Ans+3.92E-3)` → $H$ = **1996** W; `1996×3.92E-3` → **7.82** K; `30.0−Ans` → $T_i$ = **22.2** °C."]}
+    },
+    {
+      "prompt": "A person has $1.80\\ \\mathrm{m^2}$ of exposed skin at $33.0\\ ^\\circ\\mathrm{C}$ with emissivity $0.970$, in a room whose walls are at $20.0\\ ^\\circ\\mathrm{C}$. Find the net radiative heat loss.",
+      "give": ["$A = 1.80\\ \\mathrm{m^2}$", "$\\varepsilon = 0.970$", "$T = 306.15\\ \\mathrm{K}$, $T_s = 293.15\\ \\mathrm{K}$", "$\\sigma = 5.67\\times10^{-8}\\ \\mathrm{W/(m^2\\cdot K^4)}$"],
+      "steps": [
+        "Convert to kelvin: $33.0 + 273.15 = 306.15\\ \\mathrm{K}$ and $20.0 + 273.15 = 293.15\\ \\mathrm{K}$",
+        "$T^4 = (306.15)^4 = 8.788\\times10^{9}$; $T_s^4 = (293.15)^4 = 7.386\\times10^{9}$",
+        "$T^4 - T_s^4 = 1.402\\times10^{9}\\ \\mathrm{K^4}$",
+        "$H_{net} = \\varepsilon\\sigma A(T^4 - T_s^4) = (0.970)(5.67\\times10^{-8})(1.80)(1.402\\times10^{9})$",
+        "$= (0.970)(5.67)(1.80)(1.402\\times10^{1}) = 139\\ \\mathrm{W}$"
+      ],
+      "ans": "$H_{net} \\approx 1.4\\times10^{2}\\ \\mathrm{W}$ net loss (about $140\\ \\mathrm{W}$).",
+      "trap": "Using $\\varepsilon\\sigma AT^4$ alone, which gives about $870\\ \\mathrm{W}$ and ignores the radiation the person absorbs from the $20\\ ^\\circ\\mathrm{C}$ walls. Also fatal: using $33$ and $20$ directly, because $T^4$ of a Celsius number is physically meaningless.", "calc": {"mode":"COMP","steps":["Celsius to kelvin with `SHIFT` `CVALUE` 38 (273.15 K): `33+CVALUE 38` → **306.15** K and `20+CVALUE 38` → **293.15** K.","`0.970×` `SHIFT` `CVALUE` 31 `×1.80×(306.15⁴−293.15⁴)` → $H_{net}$ = **139** W (code 31 is $\\sigma$).","The emission-only form $\\varepsilon\\sigma AT^4$ drops the $T_s^4$ absorption term — the body also absorbs from the walls."]}
+    },
+    {
+      "prompt": "A wall of area $12.0\\ \\mathrm{m^2}$ and thickness $0.150\\ \\mathrm{m}$ has $k = 0.800\\ \\mathrm{W/(m\\cdot K)}$. Its inner face is at $25.0\\ ^\\circ\\mathrm{C}$ and its outer face is at $5.0\\ ^\\circ\\mathrm{C}$. Find the heat rate and the steady-state temperature at the mid-plane.",
+      "give": ["$A = 12.0\\ \\mathrm{m^2}$", "$L = 0.150\\ \\mathrm{m}$", "$k = 0.800\\ \\mathrm{W/(m\\cdot K)}$", "$\\Delta T = 20.0\\ \\mathrm{K}$"],
+      "steps": [
+        "$H = kA\\Delta T/L = (0.800)(12.0)(20.0)/0.150$",
+        "$= 192/0.150 = 1280\\ \\mathrm{W}$",
+        "For a single slab with constant $k$, temperature falls linearly, so the mid-plane sits halfway: $T_m = (25.0 + 5.0)/2$"
+      ],
+      "ans": "$H = 1.28\\times10^{3}\\ \\mathrm{W}$ and $T_{mid} = 15.0\\ ^\\circ\\mathrm{C}$.",
+      "trap": "Trying to weight the mid-plane temperature toward one face, or 'averaging' with the kelvin values by mistake. Linearity of the profile gives the midpoint; 298.15 K and 278.15 K also average to 288.15 K, so the Celsius average is the intended quick route.", "calc": {"mode":"COMP","steps":["`0.800×12.0×20.0÷0.150` → $H$ = **1280** W.","Steady state with constant $k$ means a linear profile, so `(25.0+5.0)÷2` → $T_{mid}$ = **15.0** °C."]}
+    },
+    {
+      "prompt": "At what wavelength does the Sun ($5800\\ \\mathrm{K}$) peak, and at what wavelength does the Earth's surface ($287\\ \\mathrm{K}$) peak? Use Wien's law with $2.898\\times10^{-3}\\ \\mathrm{m\\cdot K}$.",
+      "give": ["$T_{Sun} = 5800\\ \\mathrm{K}$", "$T_{Earth} = 287\\ \\mathrm{K}$"],
+      "steps": [
+        "$\\lambda_{max} = b/T = (2.898\\times10^{-3})/5800 = 5.00\\times10^{-7}\\ \\mathrm{m} = 500\\ \\mathrm{nm}$",
+        "$\\lambda_{max} = (2.898\\times10^{-3})/287 = 1.01\\times10^{-5}\\ \\mathrm{m} = 10.1\\ \\mu\\mathrm{m}$"
+      ],
+      "ans": "Sun peaks at about $500\\ \\mathrm{nm}$ (visible, green-blue); Earth peaks at about $10.1\\ \\mu\\mathrm{m}$ (thermal infrared).",
+      "trap": "Leaving the answer in metres when the item offers nm and micrometre choices, or using the Sun's surface temperature as $5800\\ ^\\circ\\mathrm{C}$. Wien's law takes kelvin only, and the constant already carries the $10^{-3}$.", "calc": {"mode":"COMP","steps":["`2.898E-3÷5800` → **5.00E-7** m, i.e. **500** nm (`×1E9`).","`2.898E-3÷287` → **1.01E-5** m, i.e. **10.1** µm (`×1E6`); Wien's law takes kelvin only."]}
+    }
+  ],
+  "traps": [
+    "**Using Celsius in a radiation law.** $T^4$ with $T$ in degrees Celsius is meaningless and produces answers off by many orders of magnitude. Convert with $T = {}^\\circ\\mathrm{C} + 273.15$ first.",
+    "**Dropping the $T_s^4$ absorption term.** Net loss is $\\varepsilon\\sigma A(T^4 - T_s^4)$, not $\\varepsilon\\sigma AT^4$. At a $13\\ \\mathrm{K}$ gap near room temperature the emission-only answer is about 15% too large.",
+    "**Leaving thickness in centimetres.** $k$ is per metre, so an unconverted cm thickness scales $H$ by 100. Every composite-wall distractor is built on this.",
+    "**Adding conductivities for layers in series.** Resistances $L/(kA)$ add, not $k$ values. Adding $k$ gives a wall that conducts several times too well.",
+    "**Confusing $h$ with $k$.** A convective coefficient carries the flow's behaviour and can change by a factor of 20 when a fan starts; $k$ is a material constant. Swapping them makes a still-air problem look like a forced-convection problem.",
+    "**Forgetting that a blackbody is also the best absorber.** Assuming a shiny surface loses no heat radiatively, or that a black surface is 'cold' because it looks dark, inverts the physics.",
+    "**Steady state assumed silently.** A linear temperature profile is valid only at steady state; the unsteady case needs the heat equation, which is outside this note's scope."
+  ],
+  "refs": [
+    "[[09_Thermal_Expansion_and_Calorimetry]]",
+    "[[11_First_Law_and_Processes]]",
+    "[[12_Second_Law,_Entropy_and_Carnot]]",
+    "[[08_Fluid_Dynamics_Continuity_and_Bernoulli]]",
+    "[[_MOC_University_Physics]]"
+  ],
+  "prereqs": ["[[09_Thermal_Expansion_and_Calorimetry]]"]
+}

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aliasing Demonstrator — f, fs and the fold</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Aliasing is usually taught as a rule ("fs must exceed 2f") and almost never shown.
+// Here a real sinusoid is sampled and the *reconstruction* is drawn through the very
+// same sample points. Push f above fs/2 and the dashed reconstruction drops to a low
+// frequency that passes through every sample — proof that the samples alone cannot
+// tell you which frequency produced them.
+//
+// Fold formula:  f_signed = f - fs*round(f/fs)      (lands in [-fs/2, +fs/2])
+//                f_alias  = |f_signed|
+
+const TAU = Math.PI * 2;
+
+/** Signed fold: the frequency the sampler actually "sees", in [-fs/2, +fs/2]. */
+const fold = (f, fs) => f - fs * Math.round(f / fs);
+const aliasOf = (f, fs) => Math.abs(fold(f, fs));
+
+const app = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+app.appendChild(formula);
+
+widget({
+  title: 'Aliasing Demonstrator — a sinusoid, a sampler, and the fold',
+  description:
+    'Upper panel: the true continuous wave (solid), the sample points, and the alias reconstruction that passes through exactly those samples (dashed). Lower panel: the sample sequence as stems, with the alias curve overlaid. Raise f above fs/2 and the dashed wave separates from the solid one — that divergence is aliasing.',
+  height: 560,
+  range: { xMin: 0, xMax: 0.5, yMin: 0, yMax: 100 },
+  controls: [
+    { id: 'f1', label: 'signal frequency f (Hz)', min: 0.5, max: 25, step: 0.05, value: 3 },
+    { id: 'fs', label: 'sampling rate fs (Hz)', min: 2, max: 80, step: 0.25, value: 8 },
+    { id: 'amp2', label: 'amplitude of a 2nd component', min: 0, max: 1, step: 0.05, value: 0 },
+    { id: 'f2', label: '2nd component frequency (Hz)', min: 0.5, max: 25, step: 0.05, value: 17 },
+    { id: 'T', label: 'time window (s)', min: 0.1, max: 1, step: 0.01, value: 0.5 },
+  ],
+  compute: (v) => {
+    const { f1, fs, amp2, f2, T } = v;
+    const comps = [{ f: f1, A: 1 }];
+    if (amp2 > 0) comps.push({ f: f2, A: amp2 });
+    for (const c of comps) {
+      c.foldSigned = fold(c.f, fs);
+      c.alias = Math.abs(c.foldSigned);
+      c.folds = Math.round(c.f / fs);
+      c.aliased = c.f > fs / 2 + 1e-9;
+    }
+    const fMax = fs / 2;
+    const nyquistRate = 2 * f1;
+    const nyquistRateAll = 2 * Math.max(...comps.map((c) => c.f));
+    const fMaxSig = Math.max(...comps.map((c) => c.f));
+    const samples = [];
+    const N = Math.floor(T * fs);
+    for (let n = 0; n <= N; n++) samples.push(n / fs);
+    const amp = 1 + amp2;
+    const trueAt = (t) => comps.reduce((s, c) => s + c.A * Math.cos(TAU * c.f * t), 0);
+    const aliasAt = (t) => comps.reduce((s, c) => s + c.A * Math.cos(TAU * c.alias * t), 0);
+    const anyAlias = comps.some((c) => c.aliased);
+    const atNyquist = Math.abs(f1 - fMax) < 1e-9;
+    return { f1, fs, amp2, f2, T, comps, fMax, nyquistRate, nyquistRateAll, fMaxSig, samples, amp, trueAt, aliasAt, anyAlias, atNyquist };
+  },
+  draw: (ctx, v, out, plot) => {
+    const TOP_LO = 58, TOP_HI = 96, BOT_LO = 6, BOT_HI = 44;
+    const A = out.amp * 1.18;
+    const sy = (x, lo, hi) => lo + ((x + A) / (2 * A)) * (hi - lo);
+    const topY = (x) => sy(x, TOP_LO, TOP_HI);
+    const botY = (x) => sy(x, BOT_LO, BOT_HI);
+
+    plot.setRange({ xMin: 0, xMax: out.T, yMin: 0, yMax: 100 });
+    plot.clear();
+
+    // panel backgrounds
+    ctx.save();
+    ctx.fillStyle = '#23233a';
+    ctx.fillRect(plot.X(0), plot.Y(TOP_HI), plot.X(out.T) - plot.X(0), plot.Y(TOP_LO) - plot.Y(TOP_HI));
+    ctx.fillStyle = '#202032';
+    ctx.fillRect(plot.X(0), plot.Y(BOT_HI), plot.X(out.T) - plot.X(0), plot.Y(BOT_LO) - plot.Y(BOT_HI));
+    ctx.restore();
+
+    // time gridlines every 0.05 s
+    const stepT = out.T <= 0.25 ? 0.025 : out.T <= 0.6 ? 0.05 : 0.1;
+    for (let t = 0; t <= out.T + 1e-9; t += stepT) {
+      plot.segment(t, 0, t, 100, { color: PALETTE.grid, width: 1 });
+      plot.text(fmt(t, 3), plot.X(t), plot.Y(0) + 13, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    // zero line in each band
+    plot.segment(0, topY(0), out.T, topY(0), { color: PALETTE.axis, width: 1 });
+    plot.segment(0, botY(0), out.T, botY(0), { color: PALETTE.axis, width: 1 });
+
+    // sample instants (faint verticals)
+    for (const t of out.samples) {
+      plot.segment(t, TOP_LO, t, TOP_HI, { color: 'rgba(160,160,190,0.16)', width: 1 });
+      plot.segment(t, BOT_LO, t, BOT_HI, { color: 'rgba(160,160,190,0.16)', width: 1 });
+    }
+
+    // true continuous waveform
+    plot.fn((t) => topY(out.trueAt(t)), 0, out.T, { color: PALETTE.accent, width: 2.5, samples: 1600 });
+    // alias reconstruction
+    plot.fn((t) => topY(out.aliasAt(t)), 0, out.T, { color: PALETTE.accent2, width: 2, samples: 1600, dash: [7, 5] });
+
+    // sample points
+    for (const t of out.samples) plot.dot(t, topY(out.trueAt(t)), { color: PALETTE.warn, r: 3.5 });
+
+    // lower panel: stems of the sample sequence, alias curve through them
+    for (const t of out.samples) {
+      plot.segment(t, botY(0), t, botY(out.trueAt(t)), { color: 'rgba(166,227,161,0.6)', width: 2 });
+    }
+    plot.fn((t) => botY(out.aliasAt(t)), 0, out.T, { color: PALETTE.accent2, width: 2, samples: 1600, dash: [7, 5] });
+    for (const t of out.samples) plot.dot(t, botY(out.trueAt(t)), { color: PALETTE.accent3, r: 3.5 });
+
+    // labels
+    plot.text('CONTINUOUS TIME — true wave (blue), samples (yellow), alias reconstruction (red dashed)',
+      plot.X(0) + 6, plot.Y(TOP_HI) - 8, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+    plot.text('SAMPLED SEQUENCE x[n] at t = n/fs — the samples alone match the dashed alias curve exactly',
+      plot.X(0) + 6, plot.Y(BOT_HI) - 8, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+    plot.text('time (s)', plot.X(out.T) - 6, plot.Y(0) + 13, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+
+    // status box
+    const msg = out.anyAlias ? 'ALIASING' : 'no aliasing';
+    const col = out.anyAlias ? PALETTE.accent2 : PALETTE.accent3;
+    ctx.save();
+    ctx.fillStyle = 'rgba(30,30,46,0.92)';
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.rect(plot.X(out.T) - 258, plot.Y(TOP_HI) + 8, 250, 66);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    plot.text('f = ' + fmt(out.f1, 4) + ' Hz   fs = ' + fmt(out.fs, 4) + ' Hz', plot.X(out.T) - 250, plot.Y(TOP_HI) + 28,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('apparent f = ' + fmt(out.comps[0].alias, 4) + ' Hz   ' + msg, plot.X(out.T) - 250, plot.Y(TOP_HI) + 46,
+      { color: col, font: '12px ui-monospace, monospace' });
+    plot.text('Nyquist rate 2f = ' + fmt(out.nyquistRate, 4) + ' Hz', plot.X(out.T) - 250, plot.Y(TOP_HI) + 64,
+      { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+
+    // substituted formula
+    const c1 = out.comps[0];
+    const c2 = out.comps[1];
+    formula.innerHTML =
+      '<strong>Governing formulas, with the current numbers substituted.</strong><br>' +
+      '<span class="vault-mono">x(t) = A·cos(2π f t), sampled at t = n/fs. Aliasing occurs when f &gt; fs/2.</span><br>' +
+      '<span class="vault-mono">fold: f_signed = f − fs·round(f/fs) = ' + fmt(c1.f, 4) + ' − ' + fmt(out.fs, 4) +
+      '·round(' + fmt(c1.f / out.fs, 4) + ') = ' + fmt(c1.foldSigned, 4) + ' Hz  →  f_alias = |f_signed| = ' +
+      fmt(c1.alias, 4) + ' Hz</span><br>' +
+      '<span class="vault-mono">Nyquist frequency fs/2 = ' + fmt(out.fs / 2, 4) + ' Hz   vs   f = ' + fmt(out.f1, 4) +
+      ' Hz  →  ' + (c1.aliased ? 'f &gt; fs/2, ALIASED' : 'f ≤ fs/2, safe') + '</span><br>' +
+      '<span class="vault-mono">Nyquist rate = 2·f_max = 2·' + fmt(out.fMaxSig, 4) + ' = ' + fmt(out.nyquistRateAll, 4) +
+      ' Hz   ·   fs = ' + fmt(out.fs, 4) + ' Hz  →  ' + (out.fs >= out.nyquistRateAll ? 'adequate' : 'TOO LOW') + '</span><br>' +
+      (c2 ? '<span class="vault-mono">2nd component: f2 = ' + fmt(c2.f, 4) + ' Hz, A2 = ' + fmt(out.amp2, 3) +
+        '  →  alias ' + fmt(c2.alias, 4) + ' Hz, folds = ' + c2.folds + '</span>' : '') +
+      (out.atNyquist ? '<br><span class="vault-mono">f = fs/2 exactly: the samples land on the peaks, so the amplitude survives but the phase is unrecoverable — the borderline case.</span>' : '');
+  },
+  readout: (out) => {
+    const c1 = out.comps[0];
+    const rows = {
+      'signal f': fmt(out.f1, 4) + ' Hz',
+      'sampling fs': fmt(out.fs, 4) + ' Hz',
+      'Nyquist rate (2f)': fmt(out.nyquistRate, 4) + ' Hz',
+      'Nyquist frequency (fs/2)': fmt(out.fs / 2, 4) + ' Hz',
+      'apparent (alias) frequency': fmt(c1.alias, 4) + ' Hz',
+      'aliasing?': c1.aliased ? 'YES — f exceeds fs/2' : 'no',
+      'fold count round(f/fs)': String(c1.folds),
+      'samples per period (fs/f)': fmt(out.fs / out.f1, 4),
+      'samples in window': String(out.samples.length),
+    };
+    if (out.comps[1]) {
+      rows['2nd component alias'] = fmt(out.comps[1].alias, 4) + ' Hz';
+      rows['highest frequency present'] = fmt(out.fMaxSig, 4) + ' Hz';
+    }
+    return rows;
+  },
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The exam point.</strong> The rule is stated on the <em>highest frequency present</em>, not on the ' +
+  'signal you happen to be thinking about: the sampling rate must exceed twice f_max, so fs = 8 Hz is fine for ' +
+  'f = 3 Hz (Nyquist rate 6 Hz) but hopeless for f = 17 Hz, which folds to 8·round(17/8) = 16, giving ' +
+  '|17 − 16| = 1 Hz — a 17 Hz tone that looks exactly like a 1 Hz tone in the data. ' +
+  'Trap 1: using fs/2 (the Nyquist frequency, in Hz) when the question asks for the Nyquist rate (2f_max, in Hz). ' +
+  'Trap 2: forgetting that folding is a reflection, so a tone between fs/2 and fs comes back as fs − f, ' +
+  'not as f − fs/2. Trap 3: an anti-aliasing filter must sit before the sampler — once folded, no digital ' +
+  'filter can separate the alias from a genuine low-frequency signal, which is why the two curves in the ' +
+  'lower panel are identical at every sample.';
+app.appendChild(note);
+
+app.insertBefore(formula, app.querySelector('.vault-widget-canvas'));
+</script>
+</body>
+</html>

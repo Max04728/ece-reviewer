@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taylor Series Convergence — Radius, Interval and Pointwise Error</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The exam fact is not "Taylor series converge" but WHERE: the radius of convergence is the
+// distance from the expansion centre to the nearest singularity of the function (in the
+// complex plane), and the approximation is superb near a and catastrophic at R. This widget
+// therefore always draws the error panel, in log scale, on the same x-axis as the function.
+
+/** Taylor coefficients c_n = f^(n)(a)/n! for the six standard series. */
+function taylorCoeffs(kind, a, N) {
+  const cs = [];
+  for (let n = 0; n < N; n++) {
+    if (kind === 'exp') cs.push(Math.exp(a) / fact(n));
+    else if (kind === 'sin') cs.push(Math.sin(a + n * Math.PI / 2) / fact(n));
+    else if (kind === 'cos') cs.push(Math.cos(a + n * Math.PI / 2) / fact(n));
+    else if (kind === 'log1p') {
+      if (n === 0) cs.push(Math.log(1 + a));
+      else cs.push(((n % 2 ? 1 : -1) / (n * Math.pow(1 + a, n))));
+    } else if (kind === 'geom') cs.push(1 / Math.pow(1 - a, n + 1));
+    else {
+      // sqrt(1+x) = (1+x)^(1/2): binomial(1/2, n) * (1+a)^(1/2 - n)
+      let p = 1;
+      for (let k = 0; k < n; k++) p = p * (0.5 - k);
+      cs.push((p / fact(n)) * Math.pow(1 + a, 0.5 - n));
+    }
+  }
+  return cs;
+}
+
+const FACT = [1];
+function fact(n) {
+  while (FACT.length <= n) FACT.push(FACT[FACT.length - 1] * FACT.length);
+  return FACT[n];
+}
+
+function fOf(kind) {
+  if (kind === 'exp') return (x) => Math.exp(x);
+  if (kind === 'sin') return (x) => Math.sin(x);
+  if (kind === 'cos') return (x) => Math.cos(x);
+  if (kind === 'log1p') return (x) => (x > -1 ? Math.log(1 + x) : NaN);
+  if (kind === 'geom') return (x) => (Math.abs(x - 1) < 1e-12 ? NaN : 1 / (1 - x));
+  return (x) => (x >= -1 ? Math.sqrt(1 + x) : NaN);
+}
+
+function seriesName(kind) {
+  if (kind === 'exp') return 'e^x';
+  if (kind === 'sin') return 'sin x';
+  if (kind === 'cos') return 'cos x';
+  if (kind === 'log1p') return 'ln(1 + x)';
+  if (kind === 'geom') return '1/(1 - x)';
+  return 'sqrt(1 + x)';
+}
+
+/** Human-readable polynomial with substituted coefficients. */
+function polyStr(cs, a, maxTerms) {
+  const parts = [];
+  const lim = Math.min(cs.length, maxTerms);
+  for (let k = 0; k < lim; k++) {
+    const c = cs[k];
+    if (k === 0) { parts.push(fmt(c, 5)); continue; }
+    let base;
+    if (Math.abs(a) < 1e-12) base = k === 1 ? 'x' : 'x^' + k;
+    else {
+      const inner = a >= 0 ? '(x - ' + fmt(a, 4) + ')' : '(x + ' + fmt(-a, 4) + ')';
+      base = k === 1 ? inner : inner + '^' + k;
+    }
+    const sign = c >= 0 ? ' + ' : ' - ';
+    parts.push(sign + fmt(Math.abs(c), 5) + ' ' + base);
+  }
+  if (cs.length > maxTerms) parts.push(' + ...');
+  return parts.join('');
+}
+
+widget({
+  title: 'Taylor Series Convergence — Radius, Interval and Error',
+  description:
+    'Choose a function and an expansion centre a, then slide the number of terms N. The left panel overlays the N-term Taylor polynomial on the true function; the right panel plots log10 of the absolute error on the same x-axis, so the collapse near the centre and the blow-up at the radius of convergence are both visible.',
+  height: 480,
+  range: { xMin: -6, xMax: 6, yMin: -3, yMax: 5 },
+  controls: [
+    { id: 'kind', label: 'function', type: 'select', options: [
+      { value: 'exp', label: 'e^x   — entire, R = infinity' },
+      { value: 'sin', label: 'sin x   — entire, R = infinity' },
+      { value: 'cos', label: 'cos x   — entire, R = infinity' },
+      { value: 'log1p', label: 'ln(1 + x)   — R = |1 + a|' },
+      { value: 'geom', label: '1/(1 - x)   — R = |1 - a|' },
+      { value: 'sqrt1p', label: 'sqrt(1 + x)   — R = |1 + a|' },
+    ], value: 'exp' },
+    { id: 'a', label: 'expansion centre a', min: -0.9, max: 0.9, step: 0.05, value: 0 },
+    { id: 'N', label: 'N — number of terms kept (degrees 0..N-1)', min: 1, max: 20, step: 1, value: 5 },
+  ],
+
+  compute: (v) => {
+    const kind = v.kind;
+    const a = v.a;
+    const N = Math.max(1, Math.round(v.N));
+    const f = fOf(kind);
+    const cs = taylorCoeffs(kind, a, N);
+    const poly = (x) => {
+      let y = 0, p = 1;
+      for (let k = 0; k < cs.length; k++) { y += cs[k] * p; p = p * (x - a); }
+      return y;
+    };
+
+    // ------------------------------------------------------ radius of convergence
+    let R;
+    if (kind === 'exp' || kind === 'sin' || kind === 'cos') R = Infinity;
+    else if (kind === 'geom') R = Math.abs(1 - a);
+    else R = Math.abs(1 + a);
+
+    // ------------------------------------------------------------ plotted domain
+    let xlo, xhi;
+    if (!Number.isFinite(R)) {
+      const w = kind === 'exp' ? 2 : 2 * Math.PI;
+      xlo = a - w; xhi = a + w;
+    } else {
+      xlo = a - 1.5 * R;
+      xhi = a + 1.5 * R;
+      if (kind === 'log1p' || kind === 'sqrt1p') xlo = Math.max(xlo, -0.98);
+      if (kind === 'geom') xhi = Math.min(xhi, 0.98);
+    }
+    if (!(xhi > xlo)) { xhi = xlo + 1; }
+
+    const errAt = (x) => {
+      const fv = f(x), pv = poly(x);
+      if (!Number.isFinite(fv) || !Number.isFinite(pv)) return NaN;
+      return Math.abs(fv - pv);
+    };
+    const maxErr = (lo, hi) => {
+      let m = 0;
+      for (let i = 0; i <= 900; i++) {
+        const x = lo + (hi - lo) * (i / 900);
+        const e = errAt(x);
+        if (Number.isFinite(e)) m = Math.max(m, e);
+      }
+      return m;
+    };
+
+    const errFull = maxErr(xlo, xhi);
+    let errIn;
+    if (Number.isFinite(R)) {
+      const lo = Math.max(xlo, a - R), hi = Math.min(xhi, a + R);
+      errIn = hi > lo ? maxErr(lo, hi) : 0;
+    } else {
+      errIn = errFull;
+    }
+
+    // ------------------------------------------------------------- error at a few x
+    const errAtA = errAt(a);
+    const probe = Number.isFinite(R) ? a + 0.95 * R : a + 0.95 * Math.min(2, Math.abs(xhi - a));
+    const errNearEdge = errAt(probe);
+    const fAtA = f(a), pAtA = poly(a);
+
+    // ---------------------------------------------------------- interval of convergence
+    let intervalStr, noteStr;
+    if (!Number.isFinite(R)) {
+      intervalStr = '(-infinity, +infinity) — the whole real line';
+      noteStr = 'Entire function: no singularity anywhere in the finite complex plane, so every x converges.';
+    } else {
+      const lo = a - R, hi = a + R;
+      intervalStr = '(' + fmt(lo, 5) + ' , ' + fmt(hi, 5) + ')';
+      if (Math.abs(a) < 1e-12) {
+        if (kind === 'log1p') noteStr = 'Maclaurin: converges at x = +1 (alternating harmonic) and diverges at x = -1.';
+        else if (kind === 'geom') noteStr = 'Maclaurin: diverges at BOTH endpoints x = -1 and x = +1.';
+        else noteStr = 'Maclaurin: converges at x = +1 (terms decay like n^-3/2) and diverges at x = -1.';
+      } else {
+        noteStr = 'Endpoints must be tested separately; the nearest singularity sits at the edge of this interval.';
+      }
+    }
+
+    const yLo = Math.min(...(function () {
+      const s = [];
+      for (let i = 0; i <= 200; i++) {
+        const x = xlo + (xhi - xlo) * (i / 200);
+        const y = f(x);
+        if (Number.isFinite(y)) s.push(y);
+      }
+      return s.length ? s : [0];
+    })());
+    const yHi = Math.max(...(function () {
+      const s = [];
+      for (let i = 0; i <= 200; i++) {
+        const x = xlo + (xhi - xlo) * (i / 200);
+        const y = f(x);
+        if (Number.isFinite(y)) s.push(y);
+      }
+      return s.length ? s : [1];
+    })());
+    const padY = Math.max(0.4, 0.15 * Math.abs(yHi - yLo));
+    const yMin = yLo - padY, yMax = yHi + padY;
+
+    return { kind, a, N, f, poly, cs, R, xlo, xhi, yMin, yMax, errFull, errIn, errAtA,
+             errNearEdge, probe, fAtA, pAtA, intervalStr, noteStr,
+             name: seriesName(kind), coefStr: polyStr(cs, a, 9), degree: N - 1 };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const pad = plot.pad;
+    const AX = { x0: pad + 52, x1: 470, y0: 108, y1: 396 };
+    const BX = { x0: 566, x1: plot.w - pad - 16, y0: 108, y1: 396 };
+
+    const f = out.f || (() => NaN);
+    const poly = out.poly || (() => NaN);
+    const xlo = out.xlo ?? -1, xhi = out.xhi ?? 1;
+    const yMin = out.yMin ?? -1, yMax = out.yMax ?? 1;
+
+    // Pixel-space drawing helpers. The Plot helpers always map through the Plot's own
+    // range, so inside a side-by-side panel with its own scale every line is drawn here.
+    const pseg = (x1, y1, x2, y2, o) => {
+      ctx.save();
+      ctx.strokeStyle = o.color || PALETTE.axis;
+      ctx.lineWidth = o.width || 1.5;
+      if (o.dash) ctx.setLineDash(o.dash);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.restore();
+    };
+    const pline = (fn, a, b, xf, yf, o) => {
+      const n = o.samples || 800;
+      ctx.save();
+      ctx.strokeStyle = o.color || PALETTE.accent;
+      ctx.lineWidth = o.width || 2;
+      if (o.dash) ctx.setLineDash(o.dash);
+      ctx.beginPath();
+      let started = false;
+      for (let i = 0; i <= n; i++) {
+        const x = a + (b - a) * (i / n);
+        const y = fn(x);
+        if (!Number.isFinite(y)) { started = false; continue; }
+        const px = xf(x), py = yf(y);
+        if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+    const pdot = (px, py, r, color) => {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    };
+
+    // ------------------------------------------------------------- left panel
+    const X = (x) => AX.x0 + ((x - xlo) / (xhi - xlo)) * (AX.x1 - AX.x0);
+    const Y = (y) => AX.y1 - ((y - yMin) / (yMax - yMin)) * (AX.y1 - AX.y0);
+    const ySpan = yMax - yMin;
+    const clip = (fn) => (x) => {
+      const y = fn(x);
+      if (!Number.isFinite(y)) return NaN;
+      if (y > yMax + 6 * ySpan || y < yMin - 6 * ySpan) return NaN;
+      return y;
+    };
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let x = Math.ceil(xlo); x <= xhi; x++) {
+      ctx.beginPath(); ctx.moveTo(X(x), AX.y0); ctx.lineTo(X(x), AX.y1); ctx.stroke();
+    }
+    for (let y = Math.ceil(yMin); y <= yMax; y++) {
+      ctx.beginPath(); ctx.moveTo(AX.x0, Y(y)); ctx.lineTo(AX.x1, Y(y)); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.strokeRect(AX.x0, AX.y0, AX.x1 - AX.x0, AX.y1 - AX.y0);
+    ctx.restore();
+
+    if (yMin <= 0 && yMax >= 0) pseg(AX.x0, Y(0), AX.x1, Y(0), { color: PALETTE.axis, width: 1.4 });
+    if (xlo <= 0 && xhi >= 0) pseg(X(0), AX.y0, X(0), AX.y1, { color: PALETTE.axis, width: 1.2 });
+
+    // convergence boundary
+    if (Number.isFinite(out.R)) {
+      for (const sgn of [1, -1]) {
+        const xb = out.a + sgn * out.R;
+        if (xb > xlo && xb < xhi) {
+          pseg(X(xb), AX.y0, X(xb), AX.y1, { color: PALETTE.accent2, width: 1.6, dash: [5, 4] });
+          plot.text('a ' + (sgn > 0 ? '+' : '-') + ' R', X(xb), AX.y0 - 5,
+            { color: PALETTE.accent2, font: '10px ui-monospace, monospace', align: 'center' });
+        }
+      }
+    }
+    pseg(X(out.a), AX.y0, X(out.a), AX.y1, { color: PALETTE.accent5, width: 1.4, dash: [2, 3] });
+    plot.text('a', X(out.a), AX.y1 + 14, { color: PALETTE.accent5, font: '10px ui-monospace, monospace', align: 'center' });
+
+    // true function and its polynomial
+    pline(clip(f), xlo, xhi, X, Y, { color: PALETTE.accent3, width: 2.6, samples: 900 });
+    pline(clip(poly), xlo, xhi, X, Y, { color: PALETTE.accent, width: 2.0, samples: 900, dash: [7, 5] });
+
+    // axes labels
+    plot.text('x', AX.x1, Y(0) - 6, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+    plot.text(out.name + '  (solid)   vs   P_' + out.degree + '(x)  (dashed)', AX.x0, AX.y0 - 24,
+      { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('N = ' + out.N + ' terms, degree ' + out.degree + ', centre a = ' + fmt(out.a, 4),
+      AX.x0, AX.y0 - 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    pdot(X(out.a), Y(out.fAtA), 4, PALETTE.warn);
+
+    // ------------------------------------------------------------- right panel
+    const LLO = -17, LHI = 3;
+    const XB = (x) => BX.x0 + ((x - xlo) / (xhi - xlo)) * (BX.x1 - BX.x0);
+    const YB = (lg) => BX.y1 - ((lg - LLO) / (LHI - LLO)) * (BX.y1 - BX.y0);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (const lg of [-15, -10, -5, 0]) {
+      ctx.beginPath(); ctx.moveTo(BX.x0, YB(lg)); ctx.lineTo(BX.x1, YB(lg)); ctx.stroke();
+    }
+    for (let x = Math.ceil(xlo); x <= xhi; x++) {
+      ctx.beginPath(); ctx.moveTo(XB(x), BX.y0); ctx.lineTo(XB(x), BX.y1); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.4;
+    ctx.strokeRect(BX.x0, BX.y0, BX.x1 - BX.x0, BX.y1 - BX.y0);
+    ctx.restore();
+
+    for (const lg of [-15, -10, -5, 0]) {
+      plot.text('1e' + lg, BX.x0 - 6, YB(lg) + 4,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('log10 |error|  (absolute error vs x)', BX.x0, BX.y0 - 24,
+      { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('flat floor = machine precision; the cliff is the radius of convergence',
+      BX.x0, BX.y0 - 8, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    if (Number.isFinite(out.R)) {
+      for (const sgn of [1, -1]) {
+        const xb = out.a + sgn * out.R;
+        if (xb > xlo && xb < xhi) {
+          pseg(XB(xb), BX.y0, XB(xb), BX.y1, { color: PALETTE.accent2, width: 1.6, dash: [5, 4] });
+        }
+      }
+    }
+    pseg(XB(out.a), BX.y0, XB(out.a), BX.y1, { color: PALETTE.accent5, width: 1.2, dash: [2, 3] });
+
+    const errFn = (x) => {
+      const fv = f(x), pv = poly(x);
+      if (!Number.isFinite(fv) || !Number.isFinite(pv)) return NaN;
+      const e = Math.abs(fv - pv);
+      if (e <= 0) return LLO;
+      const lg = Math.log10(e);
+      return Math.max(LLO, Math.min(LHI, lg));
+    };
+    pline(errFn, xlo, xhi, XB, YB, { color: PALETTE.accent4, width: 2.2, samples: 1200 });
+
+    // ------------------------------------------------------------- header text
+    plot.text('Taylor coefficients  f^(n)(a)/n!  —  P(x) = ' + out.coefStr,
+      pad + 8, pad + 18, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text('R = radius of convergence = ' + (Number.isFinite(out.R) ? fmt(out.R, 5) : 'infinity') +
+      '   |   interval of convergence = ' + out.intervalStr +
+      '   |   P(a) = ' + fmt(out.pAtA, 6) + ' and f(a) = ' + fmt(out.fAtA, 6) + '  (must agree)',
+      pad + 8, pad + 36, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('max |error| inside R = ' + fmt(out.errIn, 4) +
+      '      max |error| on the plotted interval = ' + fmt(out.errFull, 4) +
+      '      |error| at x = ' + fmt(out.probe, 4) + ' is ' + fmt(out.errNearEdge, 4),
+      pad + 8, pad + 54, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+
+    // -------------------------------------------------------------- verdict bar
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.90)';
+    ctx.fillRect(pad + 4, plot.h - pad - 30, plot.iw, 30);
+    ctx.restore();
+    const verdict = Number.isFinite(out.R)
+      ? 'Finite radius: the series is exact at the centre, excellent nearby, and useless past x = a +/- ' + fmt(out.R, 5) + '. ' + out.noteStr
+      : 'Entire function: R is infinite, so adding terms improves the fit everywhere on this window.';
+    plot.text(verdict, pad + 14, plot.h - pad - 10,
+      { color: Number.isFinite(out.R) ? PALETTE.accent4 : PALETTE.accent3, font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'function': out.name || '—',
+    'centre a': fmt(out.a, 5),
+    'terms N (degree N-1)': String(out.N) + '   (degree ' + String(out.degree) + ')',
+    'radius of convergence R': Number.isFinite(out.R) ? fmt(out.R, 6) : 'infinity',
+    'interval of convergence': out.intervalStr || '—',
+    'endpoint behaviour': out.noteStr || '—',
+    'max |error| on plotted interval': fmt(out.errFull, 4),
+    'max |error| inside R': fmt(out.errIn, 4),
+    '|error| near x = a + 0.95R': fmt(out.errNearEdge, 4) + '   (at x = ' + fmt(out.probe, 4) + ')',
+    'P(a) vs f(a)': fmt(out.pAtA, 6) + '  vs  ' + fmt(out.fAtA, 6) + '   (exact match at the centre)',
+    'substituted polynomial': 'P(x) = ' + (out.coefStr || '—'),
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Where the radius comes from.</strong> R is the distance from the centre a to the nearest ' +
+  '<em>singularity in the complex plane</em>, not the nearest point where the graph looks odd. ' +
+  'ln(1 + x) and sqrt(1 + x) are singular at x = &minus;1 (a branch point / log singularity), so R = |1 + a|; ' +
+  '1/(1 &minus; x) is singular at x = +1, so R = |1 &minus; a|. e^x, sin x and cos x have no finite singularity, ' +
+  'so R = &infin;. The singularity is invisible on the real axis for sqrt(1 + x), yet it still caps the series &mdash; ' +
+  'which is why you cannot get R from the graph alone. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> reading R off the picture as "where the curve stops matching". ' +
+  'The correct test is the ratio test on the coefficients, |c_(n+1)/c_n| &rarr; 1/R, and for a binomial or log series ' +
+  'the singularity argument gives R instantly. The second classic slip is quoting the interval as closed: for the ' +
+  'Maclaurin series of ln(1 + x) the interval is (&minus;1, +1] &mdash; it converges at x = +1 (alternating harmonic) ' +
+  'but diverges at x = &minus;1, and a full-mark answer must state which endpoints converge.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

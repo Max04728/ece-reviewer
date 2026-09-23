@@ -1,0 +1,186 @@
+---
+id: EST-06-02
+title: "Radiation Resistance, Efficiency and Capture Area"
+part: "04_EST"
+area: "06_Antenna_Systems_and_Propagation"
+topic: 2
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[01_Antenna_Parameters_Directivity,_Gain,_EIRP]]"]
+tags: ["ece", "est", "antenna_systems_and_propagation"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 02 — Radiation Resistance, Efficiency and Capture Area
+
+> [!abstract] Scope
+> Compute the radiation resistance of short, half-wave and quarter-wave radiators, separate ohmic loss from radiation loss, and convert gain into effective capture area.
+
+## Core Concept
+
+> [!tip] Intuition
+> A radiating antenna looks like a resistor to its feed line: power delivered to that resistance is power launched into space. Any real ohmic resistance sitting next to it turns part of the input into heat, and the ratio of the two is the efficiency that separates gain from directivity.
+
+**Radiation resistance is a bookkeeping device, not a physical resistor.** $R_{\mathrm{rad}}$ is defined so that the power delivered to it equals the power actually radiated:
+$$P_{\mathrm{rad}} = \tfrac{1}{2}I^2R_{\mathrm{rad}}$$
+for a peak current $I$. For the infinitesimal Hertzian dipole of length $l \ll \lambda$, the radiation resistance is:
+$$R_{\mathrm{rad}} = 80\pi^2(l/\lambda)^2\ \Omega$$
+The $({l}/{\lambda})^2$ dependence is brutal: halving the antenna length quarters the radiation resistance, and since the current is fixed by the feed, the radiated power collapses with it. That single exponent explains why electrically small antennas are so difficult — they are inherently poor radiators, not merely inefficient ones.
+
+**The standard reference values.** A half-wave dipole in free space has $R_{\mathrm{rad}} = 73\ \Omega$, which is why $73\ \Omega$ coax and $75\ \Omega$ systems exist. A quarter-wave monopole mounted on a perfect ground plane radiates only into the upper hemisphere but, from the feed's point of view, its twin image doubles the field; the result is exactly half the dipole's radiation resistance, $R_{\mathrm{rad}} = 36.5\ \Omega$, and a pattern identical to the dipole's upper half. Note carefully that the gain is *not* halved — the monopole radiates the same power into half the solid angle, so its directivity doubles to 3.28 (5.15 dBi) while its radiation resistance halves.
+
+**Efficiency separates gain from directivity.** A real antenna has an ohmic (conductor and dielectric) loss resistance $R_{\mathrm{loss}}$ in series, and the radiation efficiency is:
+$$\eta = R_{\mathrm{rad}}/(R_{\mathrm{rad}} + R_{\mathrm{loss}})$$
+The gain includes it, $G = \eta D$, the directivity does not. This is the key distinction the exam tests: adding loss resistance leaves the radiation *pattern* untouched, so the beamwidth, sidelobe levels and hence $D$ are unchanged, while the peak gain falls by exactly $10\log_{10}\eta\ \mathrm{dB}$. A lossy antenna is a quieter transmitter, not a wider one.
+
+**Effective (capture) area is the receiving-side dual of gain.** Any antenna has an effective aperture given by:
+$$A_e = \lambda^2 G/(4\pi) = \lambda^2 D\eta/(4\pi)$$
+It is the area that, multiplied by the incident power flux density $S$, gives the power delivered to a matched load, $P_{\mathrm{rec}} = S A_e$. Note the frequency dependence: at fixed gain, $A_e$ scales as $\lambda^2$, so a dipole's capture area at 100 MHz is nine times its value at 300 MHz. Note also that $A_e$ is smaller than the physical aperture $A_{\mathrm{phys}}$ by the aperture efficiency, $A_{\mathrm{phys}} = A_e/\eta_{ap}$, with $\eta_{ap}$ typically 0.5–0.7 for a parabolic dish because the feed illuminates the centre more strongly than the rim.
+
+**Putting the numbers together.** A half-wave dipole at 300 MHz has $\lambda = 1\ \mathrm{m}$ and $D = 1.64$, so its capture area is:
+$$A_e = 1(1.64)/(4\pi) = 0.1305\ \mathrm{m^2}$$
+At 100 MHz the same antenna's capture area is:
+$$A_e = 9(1.64)/(4\pi) = 1.175\ \mathrm{m^2}$$
+For a Hertzian dipole with $l = 0.01\lambda$ the radiation resistance is only:
+$$R_{\mathrm{rad}} = 80\pi^2(10^{-4}) = 0.0789\ \Omega$$
+— with even $1\ \Omega$ of loss resistance the efficiency is only 7.3 %, or $-11.4\ \mathrm{dB}$, and three quarters of the transmitter's power becomes heat. Contrast a half-wave dipole with $R_{\mathrm{rad}} = 73\ \Omega$ and $R_{\mathrm{loss}} = 2\ \Omega$:
+$$\eta = 73/75 = 0.9733$$
+($-0.12\ \mathrm{dB}$) and, with $D = 1.64$, $G = 1.596 = 2.03\ \mathrm{dBi}$ against a lossless 2.15 dBi.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Hertzian (short) dipole radiation resistance | $R_{\mathrm{rad}} = 80\pi^2\left(\frac{l}{\lambda}\right)^2\ \Omega$ | Valid for l << lambda (l < lambda/10) with uniform current. The squared length ratio is the killer. |
+| Half-wave dipole radiation resistance | $R_{\mathrm{rad}} = 73\ \Omega$ | Free space, thin wire. This is the reference for dBd, G = 1.64 = 2.15 dBi. |
+| Quarter-wave monopole radiation resistance | $R_{\mathrm{rad}} = 36.5\ \Omega$ | Over a perfect ground plane: half the dipole value, but directivity doubles to 3.28. |
+| Radiation efficiency | $\eta = \frac{R_{\mathrm{rad}}}{R_{\mathrm{rad}} + R_{\mathrm{loss}}}$ | All resistances in ohms. Dimensionless; 0 <= eta <= 1. |
+| Loss resistance from efficiency | $R_{\mathrm{loss}} = R_{\mathrm{rad}}\left(\frac{1}{\eta} - 1\right)$ | Invert the efficiency relation when the loss resistance is the unknown. |
+| Efficiency in decibels | $\eta(\mathrm{dB}) = 10\log_{10}\eta$ | Always zero or negative. A 7.3 % efficient antenna is -11.4 dB. |
+| Gain versus directivity | $G = \eta D$ | Loss reduces gain only. D, beamwidth and sidelobes are unchanged. |
+| Effective (capture) area | $A_e = \frac{\lambda^2 G}{4\pi} = \frac{\lambda^2 D \eta}{4\pi}$ | Same for transmit and receive. Set eta = 1 for a lossless antenna. |
+| Physical aperture from effective area | $A_{\mathrm{phys}} = \frac{A_e}{\eta_{ap}}$ | Aperture efficiency eta_ap is roughly 0.5-0.7 for a parabolic dish. |
+| Circular aperture area | $A_{\mathrm{phys}} = \frac{\pi d^2}{4}$ | d is the dish diameter. Invert this to size a dish from a required A_e. |
+| Power captured by a receiving antenna | $P_{\mathrm{rec}} = S\,A_e$ | S in W/m^2 from the transmitter. This is the receiving half of the Friis equation. |
+| Power flux density | $S = \frac{P_t G_t}{4\pi R^2}$ | Peak-direction density at distance R. Pair with A_e to get received power. |
+
+## Worked Problems
+
+### P1. A half-wave dipole ($D = 1.64$) is used first at $300\ \mathrm{MHz}$ and then at $100\ \mathrm{MHz}$. Find its effective capture area at each frequency and explain the ratio.
+
+**Given:** D = 1.64; f1 = 300 MHz; f2 = 100 MHz; lossless (eta = 1); c = 3e8 m/s
+
+**Solution:**
+
+1. At 300 MHz: $\lambda = c/f = 3\times10^{8}/3\times10^{8} = 1.00\ \mathrm{m}$
+2. $A_e = \lambda^2 D/(4\pi) = (1.00)^2(1.64)/(12.566) = 0.1305\ \mathrm{m^2}$
+3. At 100 MHz: $\lambda = 3\times10^{8}/1\times10^{8} = 3.00\ \mathrm{m}$
+4. $A_e = (3.00)^2(1.64)/(12.566) = 14.76/12.566 = 1.175\ \mathrm{m^2}$
+5. Ratio: $1.175/0.1305 = 9.00 = (300/100)^2$, confirming $A_e \propto \lambda^2$ at fixed gain
+6. Physically the same piece of wire intercepts nine times more power at 100 MHz because the wavefront it spans is three times longer in each transverse direction
+
+> [!success]- Answer
+> **$A_e = 0.1305\ \mathrm{m^2}$ at 300 MHz and $1.175\ \mathrm{m^2}$ at 100 MHz — a factor of 9 from $\lambda^2$ scaling.**
+
+> [!warning] Trap
+> Assuming capture area is fixed by the antenna's physical size. $A_e$ depends on $\lambda^2$, not on metal area; the same dipole captures nine times more power at one third the frequency.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `SHIFT` `CVALUE` 28 (c0) `÷300×10^6` → $\lambda$ = **1.00** m; `Ans²×1.64÷(4π)` → $A_e$ = **0.1305** m².
+> 2. `Ans×9` → **1.175** m² at 100 MHz. $\lambda$ triples, so $A_e$ goes as 3² = 9 — the second frequency needs no second wavelength.
+
+### P2. A Hertzian dipole is $0.01\lambda$ long and has a loss resistance of $1.0\ \Omega$. Find its radiation resistance, its radiation efficiency in percent and in dB, and the fraction of input power turned into heat.
+
+**Given:** l = 0.01 lambda; R_loss = 1.0 ohm; Hertzian dipole formula applies
+
+**Solution:**
+
+1. Radiation resistance: $R_{\mathrm{rad}} = 80\pi^2(l/\lambda)^2 = 80\pi^2(0.01)^2$
+2. $= 80(9.8696)(1\times10^{-4}) = 0.07896\ \Omega$
+3. Efficiency: $\eta = R_{\mathrm{rad}}/(R_{\mathrm{rad}} + R_{\mathrm{loss}}) = 0.07896/(0.07896 + 1.0)$
+4. $= 0.07896/1.07896 = 0.07318$, i.e. 7.32 %
+5. In decibels: $\eta(\mathrm{dB}) = 10\log_{10}(0.07318) = -11.36\ \mathrm{dB}$
+6. Heat fraction: $1 - 0.0732 = 0.927$, so 92.7 % of the input power is dissipated in the loss resistance
+
+> [!success]- Answer
+> **$R_{\mathrm{rad}} = 0.0789\ \Omega$, $\eta = 7.3\ \% = -11.4\ \mathrm{dB}$, with 92.7 % of the power lost as heat.**
+
+> [!warning] Trap
+> Size-comparing the dipole to a half-wave dipole and assuming a few percent loss. The $({l}/{\lambda})^2$ law makes a $0.01\lambda$ radiator's resistance 0.079 Ω, so even 1 Ω of loss swamps it and destroys the efficiency.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `80π²×0.01²` → $R_\mathrm{rad}$ = **0.07896** Ω.
+> 2. `Ans÷(Ans+1)` → $\eta$ = **0.07318** = **7.32** %.
+> 3. `10log(Ans)` → **-11.36** dB; `1-0.07318` → **0.927**, so 92.7 % of the input becomes heat.
+
+### P3. A half-wave dipole has $R_{\mathrm{rad}} = 73\ \Omega$ and a loss resistance of $2\ \Omega$. Find its radiation efficiency, its gain as a ratio and in dBi, and state what happens to its directivity.
+
+**Given:** R_rad = 73 ohm; R_loss = 2 ohm; dipole directivity D = 1.64
+
+**Solution:**
+
+1. $\eta = R_{\mathrm{rad}}/(R_{\mathrm{rad}} + R_{\mathrm{loss}}) = 73/(73+2) = 73/75$
+2. $= 0.97333$, i.e. 97.3 % efficient
+3. In decibels: $10\log_{10}(0.97333) = -0.117\ \mathrm{dB}$ — a negligible loss
+4. Gain: $G = \eta D = 0.97333 \times 1.64 = 1.5963$
+5. In dBi: $10\log_{10}(1.5963) = 2.031\ \mathrm{dBi}$, against 2.15 dBi for the lossless dipole
+6. Directivity is unchanged at $D = 1.64$ (2.15 dBi): the loss resistance adds no new pattern, it only converts some input power to heat
+
+> [!success]- Answer
+> **$\eta = 0.9733 = -0.12\ \mathrm{dB}$, $G = 1.596 = 2.03\ \mathrm{dBi}$, while $D$ stays at $1.64 = 2.15\ \mathrm{dBi}$.**
+
+> [!warning] Trap
+> Concluding that the loss broadens the beam or reduces directivity. Loss reduces gain, never directivity — a lossy antenna radiates the same pattern with less power, so it is simply a weaker transmitter.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `73÷(73+2)` → $\eta$ = **0.97333**; `10log(Ans)` → **-0.117** dB, a negligible loss.
+> 2. `73÷75×1.64` → $G$ = **1.5963**; `10log(Ans)` → **2.031** dBi against the lossless dipole's 2.15 dBi.
+
+### P4. A parabolic dish must deliver $40\ \mathrm{dBi}$ of gain at $10\ \mathrm{GHz}$ using a feed with aperture efficiency $\eta_{ap} = 0.6$. Find the required effective aperture, the physical aperture, and the dish diameter.
+
+**Given:** G = 40 dBi; f = 10 GHz; eta_ap = 0.6; c = 3e8 m/s
+
+**Solution:**
+
+1. Convert gain: $G = 10^{40/10} = 1.00\times10^{4}$ (dimensionless)
+2. Wavelength: $\lambda = c/f = 3\times10^{8}/10^{10} = 0.03\ \mathrm{m}$
+3. Effective aperture: $A_e = G\lambda^2/(4\pi) = 10^{4}(0.03)^2/12.566$
+4. $= 10^{4}(9\times10^{-4})/12.566 = 9.00/12.566 = 0.7162\ \mathrm{m^2}$
+5. Physical aperture: $A_{\mathrm{phys}} = A_e/\eta_{ap} = 0.7162/0.6 = 1.194\ \mathrm{m^2}$
+6. Diameter: $d = \sqrt{4A_{\mathrm{phys}}/\pi} = \sqrt{4(1.194)/\pi} = \sqrt{1.520} = 1.23\ \mathrm{m}$
+
+> [!success]- Answer
+> **$A_e = 0.716\ \mathrm{m^2}$, $A_{\mathrm{phys}} = 1.19\ \mathrm{m^2}$, dish diameter $d = 1.23\ \mathrm{m}$.**
+
+> [!warning] Trap
+> Sizing the dish from $A_e$ alone. The physical aperture must be larger by $1/\eta_{ap}$; using 0.716 m² would give a 0.95 m dish, about 23 % too small and short of the 40 dBi requirement.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `10^(40÷10)` → $G$ = **1.000×10^4** linear. The squaring rules out staying in dBi.
+> 2. `SHIFT` `CVALUE` 28 (c0) `÷10×10^9` → $\lambda$ = **0.03** m; `10^4×Ans²÷(4π)` → $A_e$ = **0.7162** m².
+> 3. `Ans÷0.6` → $A_\mathrm{phys}$ = **1.194** m²; `√(4×Ans÷π)` → $d$ = **1.233** m.
+
+## Traps & Exam Notes
+
+- **Treating $R_{\mathrm{rad}}$ as a real resistor that dissipates heat.** Radiation resistance represents power launched into space; only $R_{\mathrm{loss}}$ produces heat. Adding the two and calling it all loss destroys the efficiency calculation.
+- **Scaling radiation resistance linearly with length.** $R_{\mathrm{rad}} = 80\pi^2(l/\lambda)^2$ is quadratic. Doubling the length of a short dipole quadruples $R_{\mathrm{rad}}$; treating it as linear understates it by a factor of two.
+- **Using the Hertzian formula for a half-wave dipole.** $80\pi^2(l/\lambda)^2$ is only valid for $l \ll \lambda$; at $l = \lambda/2$ it gives $80\pi^2(0.25) = 49.3\ \Omega$ instead of the correct $73\ \Omega$ — a 33 % error that looks plausible.
+- **Halving the monopole's directivity along with its resistance.** A quarter-wave monopole over a perfect ground has $R_{\mathrm{rad}} = 36.5\ \Omega$, but because it radiates into a half-space its directivity is *twice* the dipole's, $3.28 = 5.15\ \mathrm{dBi}$, not half.
+- **Concluding that a lossy antenna has lower directivity.** Loss enters only through $G = \eta D$. Beamwidth, sidelobe level and $D$ are pattern properties and do not change when $R_{\mathrm{loss}}$ is added.
+- **Assuming $A_e$ equals the physical dish area.** $A_e = \eta_{ap}A_{\mathrm{phys}}$ with $\eta_{ap} \approx 0.5$–$0.7$. Ignoring the taper loss under-sizes the dish and overstates the achievable gain by 1.5–3 dB.
+- **Forgetting the $\lambda^2$ in the capture-area relation.** At fixed gain, doubling the frequency quarters $A_e$. A dish quoted as '40 dBi' at 10 GHz has only one quarter of that capture area at 20 GHz.
+- **Mixing ohms and dB in the efficiency step.** $\eta$ is a dimensionless ratio in $[0,1]$; its dB form is always negative. Writing $\eta = 0.9733\ \mathrm{dB}$ instead of $-0.117\ \mathrm{dB}$ confuses the ratio with its logarithmic equivalent.
+
+## See Also
+
+- [[01_Antenna_Parameters_Directivity,_Gain,_EIRP]]
+- [[03_Hertzian_and_Half-Wave_Dipoles]]
+- [[05_Parabolic_Reflector_Antennas]]
+- [[06_FSPL_and_Friis_Transmission_Equation]]
+
+---
+
+[[01_Antenna_Parameters_Directivity,_Gain,_EIRP|⬅ 01]] · [[_MOC_Antenna_Systems_and_Propagation|MOC]] · [[00_Dashboard|Dashboard]] · [[03_Hertzian_and_Half-Wave_Dipoles|03 ➡]]

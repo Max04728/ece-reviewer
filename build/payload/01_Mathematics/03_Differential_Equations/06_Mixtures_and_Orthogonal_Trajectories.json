@@ -1,0 +1,116 @@
+{
+  "scope": "Set up and solve one-tank mixing problems as linear first-order equations with a time-varying volume, and find the orthogonal trajectories of a given one-parameter family of curves.",
+  "intuition": "A mixing problem is a conservation statement: the rate of change of the dissolved amount equals what flows in minus what flows out, and the outflow concentration is whatever the tank currently holds. Orthogonal trajectories are the same differential equation with the slope replaced by its negative reciprocal.",
+  "concept": [
+    "**The balance law.** For a well-stirred tank, the conservation statement is: $\\frac{dA}{dt}=(\\mathrm{rate\\ in})-(\\mathrm{rate\\ out})=c_{\\mathrm{in}}r_{\\mathrm{in}}-\\frac{A}{V(t)}r_{\\mathrm{out}}$. Here $A$ is the mass of solute, $c_{\\mathrm{in}}$ the inflow concentration and $r$ the volumetric flow rates. This is linear in $A$ and is solved with an integrating factor. 'Well stirred' is the modelling assumption that makes the outflow concentration equal to $A/V$; without it, the problem is not a first-order ODE at all.",
+    "**The volume is a function of time whenever the flow rates differ.** The volume itself is: $V(t)=V_0+(r_{\\mathrm{in}}-r_{\\mathrm{out}})t$. When $r_{\\mathrm{in}}=r_{\\mathrm{out}}$ the volume is constant and the outflow term is $-\\frac{r}{V}A$, which gives the clean solution: $A(t)=c_{\\mathrm{in}}V+\\left(A_0-c_{\\mathrm{in}}V\\right)e^{-rt/V}$. Its steady state is $A_\\infty=c_{\\mathrm{in}}V$, so the tank ends up at the inflow concentration. When the rates differ, $V$ must be substituted into the integrating factor, so $\\mu=e^{\\int r_{\\mathrm{out}}dt/V(t)}$ generally becomes a power of $V(t)$, not an exponential.",
+    "**The single most common modelling error.** The rate out is $\\frac{A}{V}\\cdot r_{\\mathrm{out}}$, not $A\\cdot r_{\\mathrm{out}}$ and not $c_{\\mathrm{in}}r_{\\mathrm{out}}$. The concentration leaving is the concentration *inside* the tank at that instant, which is the whole reason the equation is differential rather than algebraic. Using the inflow concentration for the outflow makes the amount grow without bound and is the classic wrong answer.",
+    "**Steady state and the physical check.** With constant volume, $\\frac{dA}{dt}=0$ gives the steady state: $A_\\infty=c_{\\mathrm{in}}V$, so the final concentration is exactly the inflow concentration. Any solution must approach that value and not overshoot it — a mass of solute greater than $c_{\\mathrm{in}}V$ is impossible when the two rates are equal and the tank started below it. Use this as a sanity check on the sign of the exponential.",
+    "**Orthogonal trajectories: the recipe.** Given a one-parameter family $F(x,y,C)=0$: (1) differentiate implicitly to get a relation involving $C$; (2) eliminate $C$ between the original family and its derivative so the slope is expressed as $y'=f(x,y)$; (3) the orthogonal family satisfies $y'=-\\frac{1}{f(x,y)}$; (4) solve that new ODE. Two curves are orthogonal when the product of their slopes is $-1$, so the negative reciprocal is the entire content of the method.",
+    "**Why elimination of $C$ is not optional.** The family carries one parameter; the slope field that is orthogonal to it must be a property of the *whole* family, not of one member. If $C$ remains in the ODE, the 'orthogonal' equation is really a statement about a single curve, and the resulting trajectories will cross only that member at right angles.",
+    "**Worked patterns worth recognising.** The orthogonal trajectories of the circles $x^{2}+y^{2}=C^{2}$ are the lines $y=kx$ through the origin. Those of the parabolas $y=Cx^{2}$ are the ellipses $x^{2}+2y^{2}=K$. Those of $xy=C$ are the hyperbolas $x^{2}-y^{2}=K$. In every case the answer is obtained by replacing the slope with its negative reciprocal and then separating."
+  ],
+  "formulas": [
+    { "q": "Tank mass balance", "e": "\\frac{dA}{dt}=c_{\\mathrm{in}}r_{\\mathrm{in}}-\\frac{A}{V(t)}r_{\\mathrm{out}}", "n": "A in mass units (kg, g, lb), c_in in mass per volume, r in volume per time. A must be the total mass, not the concentration." },
+    { "q": "Volume in the tank", "e": "V(t)=V_0+(r_{\\mathrm{in}}-r_{\\mathrm{out}})t", "n": "Only constant when the two flow rates are equal; otherwise the outflow term is time-dependent." },
+    { "q": "Equal-rate solution", "e": "A(t)=c_{\\mathrm{in}}V+\\left(A_0-c_{\\mathrm{in}}V\\right)e^{-r_{\\mathrm{out}}t/V}", "n": "Valid only for r_in = r_out. The steady state is A_infinity = c_in V." },
+    { "q": "Steady state", "e": "A_\\infty=c_{\\mathrm{in}}V", "n": "With constant V. The tank cannot finish richer than the inflow concentration." },
+    { "q": "Outflow term", "e": "\\mathrm{rate\\ out}=\\frac{A(t)}{V(t)}r_{\\mathrm{out}}", "n": "Uses the current tank concentration, never the inflow concentration." },
+    { "q": "Orthogonality condition", "e": "m_1m_2=-1\\ \\Rightarrow\\ m_\\perp=-\\frac{1}{m}", "n": "Perpendicular lines have negative reciprocal slopes; the sign matters." },
+    { "q": "Orthogonal trajectories", "e": "\\frac{dy}{dx}=-\\frac{1}{f(x,y)}", "n": "f is the slope of the given family AFTER the parameter C has been eliminated." },
+    { "q": "Elimination step", "e": "y'=f(x,y,C)\\ \\mathrm{and}\\ F(x,y,C)=0\\ \\Rightarrow\\ y'=f(x,y)", "n": "Solve the original family for C and substitute; a surviving C means the ODE describes one curve, not the family." },
+    { "q": "Standard result: circles", "e": "x^{2}+y^{2}=C^{2}\\ \\Rightarrow\\ \\mathrm{orthogonal\\ family\\ } y=kx", "n": "Radial lines. Slope of the family is -x/y, so the orthogonal slope is y/x." },
+    { "q": "Standard result: parabolas", "e": "y=Cx^{2}\\ \\Rightarrow\\ x^{2}+2y^{2}=K", "n": "Family slope is 2y/x, so the orthogonal ODE is 2y dy = -x dx." }
+  ],
+  "problems": [
+    {
+      "prompt": "A tank holds $100\\,\\mathrm{L}$ of brine containing $10\\,\\mathrm{kg}$ of salt. Brine with $0.2\\,\\mathrm{kg/L}$ of salt enters at $5\\,\\mathrm{L/min}$ and the well-stirred mixture leaves at $5\\,\\mathrm{L/min}$. Find the salt content $A(t)$ and the time at which it reaches $15\\,\\mathrm{kg}$.",
+      "give": ["V_0 = 100 L", "A_0 = 10 kg", "c_in = 0.2 kg/L", "r_in = r_out = 5 L/min"],
+      "steps": [
+        "Rates are equal, so $V=100\\,\\mathrm{L}$ throughout",
+        "Balance: $\\dfrac{dA}{dt}=(0.2)(5)-\\dfrac{A}{100}(5)=1-\\dfrac{A}{20}$",
+        "Standard linear form $A'+\\dfrac{1}{20}A=1$ with $\\mu=e^{t/20}$",
+        "$\\left(e^{t/20}A\\right)'=e^{t/20}$, so $e^{t/20}A=20e^{t/20}+C$ and $A=20+Ce^{-t/20}$",
+        "Apply $A(0)=10$: $10=20+C$, so $C=-10$",
+        "Set $A=15$: $15=20-10e^{-t/20}$, so $e^{-t/20}=0.5$",
+        "$t=20\\ln 2=13.86\\,\\mathrm{min}$"
+      ],
+      "ans": "$A(t)=20-10e^{-t/20}$ kg, reaching $15$ kg at $t=20\\ln 2\\approx13.9$ min; the limiting content is $20$ kg.",
+      "trap": "Writing the outflow as $0.2\\times5=1\\,\\mathrm{kg/min}$, i.e. using the inflow concentration for the outflow. That makes $dA/dt=0$ and predicts a constant $10\\,\\mathrm{kg}$ forever. The outflow concentration is $A/V$, which starts at $0.1\\,\\mathrm{kg/L}$."
+    },
+    {
+      "prompt": "A $200\\,\\mathrm{L}$ tank is filled with pure water. Brine containing $0.5\\,\\mathrm{kg/L}$ of salt enters at $4\\,\\mathrm{L/min}$ and the mixture leaves at $4\\,\\mathrm{L/min}$. Find the salt content and the concentration after $20$ minutes.",
+      "give": ["V = 200 L", "A_0 = 0", "c_in = 0.5 kg/L", "r = 4 L/min"],
+      "steps": [
+        "Volume is constant at $200\\,\\mathrm{L}$",
+        "$\\dfrac{dA}{dt}=0.5(4)-\\dfrac{A}{200}(4)=2-\\dfrac{A}{50}$",
+        "Steady state: $2-\\dfrac{A}{50}=0$ gives $A_\\infty=100\\,\\mathrm{kg}=c_{\\mathrm{in}}V$",
+        "$A=100+Ce^{-t/50}$; with $A(0)=0$, $C=-100$",
+        "$A(t)=100\\left(1-e^{-0.02t}\\right)$",
+        "At $t=20$: $A=100\\left(1-e^{-0.4}\\right)=100(1-0.6703)=32.97\\,\\mathrm{kg}$",
+        "Concentration $=\\dfrac{A}{V}=\\dfrac{32.97}{200}=0.165\\,\\mathrm{kg/L}$"
+      ],
+      "ans": "$A(20)=33.0$ kg and $C(20)=0.165$ kg/L (approaching the inflow value $0.5$ kg/L).",
+      "trap": "Reporting the concentration as $A(20)$ itself. The question asks for concentration, which is $A/V$; on the way the two happen to share a value only at the steady state."
+    },
+    {
+      "prompt": "A $50\\,\\mathrm{L}$ tank holds $2\\,\\mathrm{kg}$ of salt in solution. Brine with $0.1\\,\\mathrm{kg/L}$ enters at $3\\,\\mathrm{L/min}$ while the mixture leaves at $2\\,\\mathrm{L/min}$. Find $A(t)$ and the amount after $50$ minutes.",
+      "give": ["V_0 = 50 L", "A_0 = 2 kg", "c_in = 0.1 kg/L", "r_in = 3 L/min", "r_out = 2 L/min"],
+      "steps": [
+        "The rates differ: $V(t)=50+(3-2)t=50+t$",
+        "$\\dfrac{dA}{dt}=0.1(3)-\\dfrac{A}{50+t}(2)=0.3-\\dfrac{2A}{50+t}$",
+        "Linear form $A'+\\dfrac{2}{50+t}A=0.3$ with $\\mu=e^{\\int 2\\,dt/(50+t)}=(50+t)^{2}$",
+        "$\\left((50+t)^{2}A\\right)'=0.3(50+t)^{2}$",
+        "$(50+t)^{2}A=0.1(50+t)^{3}+C$, so $A=0.1(50+t)+\\dfrac{C}{(50+t)^{2}}$",
+        "Apply $A(0)=2$: $2=5+\\dfrac{C}{2500}$, so $C=-7500$",
+        "At $t=50$: $V=100$ and $A=0.1(100)-\\dfrac{7500}{10000}=10-0.75$"
+      ],
+      "ans": "$A(t)=0.1(50+t)-\\dfrac{7500}{(50+t)^{2}}$ kg, so $A(50)=9.25$ kg.",
+      "trap": "Using the constant-volume formula with $V=50$, which ignores that the tank is filling. Because $r_{\\mathrm{in}}>r_{\\mathrm{out}}$ the volume grows, the outflow term $-2A/(50+t)$ decays faster than $-A/25$ would, and the constant-volume answer is too low."
+    },
+    {
+      "prompt": "Find the orthogonal trajectories of the family $y=Cx^{2}$.",
+      "give": ["family: y = C x^2", "one parameter C"],
+      "steps": [
+        "Differentiate: $y'=2Cx$",
+        "Eliminate $C$ using $C=\\dfrac{y}{x^{2}}$: $y'=2\\cdot\\dfrac{y}{x^{2}}\\cdot x=\\dfrac{2y}{x}$",
+        "Orthogonal slope: $\\dfrac{dy}{dx}=-\\dfrac{1}{2y/x}=-\\dfrac{x}{2y}$",
+        "Separate: $2y\\,dy=-x\\,dx$",
+        "Integrate: $y^{2}=-\\dfrac{x^{2}}{2}+K$",
+        "Multiply by 2 and rename the constant"
+      ],
+      "ans": "$x^{2}+2y^{2}=C$ — a family of ellipses, orthogonal to the parabolas at every intersection.",
+      "trap": "Forgetting to eliminate $C$ before taking the negative reciprocal. Using $y'=2Cx$ directly gives $-1/(2Cx)$, whose solution depends on $C$; it cuts only the single parabola $y=Cx^{2}$ at right angles instead of the whole family."
+    },
+    {
+      "prompt": "Find the orthogonal trajectories of the family of circles $x^{2}+y^{2}=C^{2}$ centred at the origin.",
+      "give": ["family: x^2 + y^2 = C^2"],
+      "steps": [
+        "Differentiate implicitly: $2x+2yy'=0$ — the parameter $C$ already cancels",
+        "So $y'=-\\dfrac{x}{y}$",
+        "Orthogonal slope: $\\dfrac{dy}{dx}=\\dfrac{y}{x}$",
+        "Separate: $\\dfrac{dy}{y}=\\dfrac{dx}{x}$",
+        "$\\ln\\lvert y\\rvert=\\ln\\lvert x\\rvert+c$, so $y=kx$"
+      ],
+      "ans": "$y=kx$ — the straight lines through the origin, i.e. the radii of the circles.",
+      "trap": "Taking the orthogonal slope as $-y/x$ (reciprocal without the sign change) and obtaining hyperbolas $xy=K$. The condition is $m_\\perp=-1/m$, not $1/m$; dropping the minus gives the wrong family entirely."
+    }
+  ],
+  "traps": [
+    "**Using the inflow concentration for the outflow.** The rate out is $\\frac{A}{V}r_{\\mathrm{out}}$. Setting it to $c_{\\mathrm{in}}r_{\\mathrm{out}}$ makes $dA/dt=0$ and predicts no change at all.",
+    "**Assuming the volume is constant.** Unless $r_{\\mathrm{in}}=r_{\\mathrm{out}}$, $V=V_0+(r_{\\mathrm{in}}-r_{\\mathrm{out}})t$ must be carried into the integrating factor; the constant-volume exponential solution is then wrong, sometimes by several kilograms.",
+    "**Confusing amount with concentration.** The ODE governs the total mass $A$; the answer to a 'concentration' question is $A/V$, and $V$ may itself be changing.",
+    "**Mixing units of mass and volume.** $dA/dt$ has units of mass per time; $c_{\\mathrm{in}}r_{\\mathrm{in}}$ must give the same units. A concentration in g/L with a rate in L/min yields g/min, so $A$ is in grams — do not then quote it in kilograms without converting.",
+    "**Sign error in the orthogonal slope.** The orthogonal family satisfies $y'=-1/f$, so a missing minus sign returns a family parallel-like to the original rather than perpendicular to it. Check with a known pair: circles centred at the origin must produce radial lines.",
+    "**Failing to eliminate the parameter $C$.** The slope of the orthogonal family must be a function of $x$ and $y$ only; an ODE still containing $C$ describes the orthogonal curve to one member of the family, not the trajectory family.",
+    "**Ignoring the physical asymptote in a mixing answer.** With equal rates the amount must tend to $c_{\\mathrm{in}}V$ from below if it started below. An exponential that overshoots that value signals a sign error in the outflow or integrating factor."
+  ],
+  "refs": [
+    "[[01_Separation_of_Variables]]",
+    "[[02_Linear_First_Order_and_Bernoulli]]",
+    "[[04_Homogeneous_Equations_and_Substitutions]]",
+    "[[05_Growth,_Decay_and_Newton’s_Cooling]]",
+    "[[09_Plane_Areas_Cartesian]]"
+  ],
+  "prereqs": ["[[02_Linear_First_Order_and_Bernoulli]]"]
+}

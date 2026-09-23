@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VSWR and Reflection Coefficient Explorer</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, deg } from '../../../Assets/vault.js';
+
+// Every VSWR question is really five numbers computed from one complex ratio:
+//   Gamma = (ZL - Z0)/(ZL + Z0)  ->  |Gamma|, angle, VSWR, return loss, mismatch loss.
+// Students routinely lose the sign of the angle, forget that return loss is 20*log|Gamma|
+// (not 10*log), and cannot say WHERE the voltage maximum sits. The upper panel draws the
+// standing wave in wavelengths from the load, so the max/min positions are read off directly.
+
+const TAU = Math.PI * 2;
+const cdiv = (are, aim, bre, bim) => {
+  const d2 = bre * bre + bim * bim;
+  return { re: (are * bre + aim * bim) / d2, im: (aim * bre - are * bim) / d2 };
+};
+/** "0.3333", "0.2 + j0.4" or "0.2 − j0.4" — no trailing j0. */
+const cstr = (re, im) =>
+  fmt(re, 4) + (Math.abs(im) < 1e-12 ? '' : (im > 0 ? ' + j' : ' − j') + fmt(Math.abs(im), 4));
+/** Load impedance string; R = Infinity means an open circuit. */
+const zstr = (R, X) => (R === Infinity ? '∞' : cstr(R, X));
+
+const KINDS = [
+  { value: 'matched', label: 'matched load  ZL = Z0' },
+  { value: 'open', label: 'open circuit  ZL = infinity' },
+  { value: 'short', label: 'short circuit  ZL = 0' },
+  { value: 'twice', label: 'ZL = 2 Z0' },
+  { value: 'half', label: 'ZL = Z0 / 2' },
+  { value: 'complex', label: 'complex load  ZL = Z0 (1 + j)' },
+  { value: 'custom', label: 'custom R + jX  (use the sliders)' },
+];
+
+const app = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+app.appendChild(formula);
+
+let api = null;
+let prev = { R: 100, X: 0 };
+
+api = widget({
+  title: 'VSWR and Reflection Coefficient Explorer — ZL on a Z0 line',
+  description:
+    'Pick a load and read the whole mismatch story at once: Γ (complex), |Γ|, the angle, VSWR, return loss and mismatch loss, plus the standing-wave pattern |V(d)|/|V+| along the line. Maxima sit at d = −θλ/4π and repeat every λ/2, with a minimum λ/4 from each maximum. Moving a load slider switches the preset to custom automatically.',
+  height: 520,
+  range: { xMin: 0, xMax: 1.5, yMin: 0, yMax: 100 },
+  controls: [
+    { id: 'kind', label: 'load preset', type: 'select', options: KINDS, value: 'twice' },
+    { id: 'R', label: 'custom load R (ohm)', min: 0, max: 200, step: 0.5, value: 100 },
+    { id: 'X', label: 'custom load X (ohm, + = inductive)', min: -200, max: 200, step: 0.5, value: 0 },
+    { id: 'Z0', label: 'characteristic impedance Z0 (ohm)', min: 10, max: 100, step: 1, value: 50 },
+    { id: 'len', label: 'line length shown (wavelengths)', min: 0.25, max: 3, step: 0.05, value: 1.5 },
+  ],
+  onChange: (vals, state) => {
+    if ((vals.R !== prev.R || vals.X !== prev.X) && vals.kind !== 'custom') {
+      state.values.kind = 'custom';
+      if (api) { api.controls.kind.input.value = 'custom'; api.controls.kind.show(); }
+    }
+    prev = { R: vals.R, X: vals.X };
+  },
+  compute: (v) => {
+    const Z0 = v.Z0;
+    let R, X;
+    if (v.kind === 'matched') { R = Z0; X = 0; }
+    else if (v.kind === 'short') { R = 0; X = 0; }
+    else if (v.kind === 'open') { R = Infinity; X = 0; }
+    else if (v.kind === 'twice') { R = 2 * Z0; X = 0; }
+    else if (v.kind === 'half') { R = 0.5 * Z0; X = 0; }
+    else if (v.kind === 'complex') { R = Z0; X = Z0; }
+    else { R = v.R; X = v.X; }
+    const zlText = R === Infinity
+      ? 'infinity (open circuit)'
+      : zstr(R, X) + ' ohm';
+
+    const gam = R === Infinity ? { re: 1, im: 0 } : cdiv(R - Z0, X, R + Z0, X);
+    const g = Math.hypot(gam.re, gam.im);
+    const theta = Math.atan2(gam.im, gam.re);
+    const vswr = g < 1 ? (1 + g) / (1 - g) : Infinity;
+    const rl = g > 0 ? -20 * Math.log10(g) : Infinity;
+    const ml = g < 1 ? -10 * Math.log10(1 - g * g) : Infinity;
+    const reflPow = g * g;
+    const vMax = 1 + g;
+    const vMin = 1 - g;
+    // |V(d)| = |V+| |1 + Gamma e^(j2*beta*d)|  with d measured in wavelengths u:
+    // 2*beta*d = 4*pi*u, so the maxima sit where 4*pi*u + theta = 2*pi*n.
+    const uMax1 = (((-theta / (2 * TAU)) % 0.5) + 0.5) % 0.5;
+    // minima are lambda/4 from the maxima; take the first one that is not negative
+    const uMin1 = (((uMax1 - 0.25) % 0.5) + 0.5) % 0.5;
+    const vnorm = (u) => Math.sqrt(1 + g * g + 2 * g * Math.cos(TAU * 2 * u + theta));
+    return { Z0, R, X, zlText, gam, g, theta, vswr, rl, ml, reflPow, vMax, vMin, uMax1, uMin1, len: v.len, vnorm, kind: v.kind };
+  },
+  draw: (ctx, v, out, plot) => {
+    const len = out.len;
+    const WAVE_LO = 46, WAVE_HI = 97, YMAX = 2.15;
+    const wY = (val) => WAVE_LO + (val / YMAX) * (WAVE_HI - WAVE_LO);
+
+    plot.setRange({ xMin: 0, xMax: len, yMin: 0, yMax: 100 });
+    plot.clear();
+
+    // panels
+    ctx.save();
+    ctx.fillStyle = '#23233a';
+    ctx.fillRect(plot.X(0), plot.Y(WAVE_HI), plot.X(len) - plot.X(0), plot.Y(WAVE_LO) - plot.Y(WAVE_HI));
+    ctx.fillStyle = '#1b1b2c';
+    ctx.fillRect(plot.X(0), plot.Y(WAVE_LO), plot.X(len) - plot.X(0), plot.Y(0) - plot.Y(WAVE_LO));
+    ctx.restore();
+    plot.segment(0, WAVE_LO, len, WAVE_LO, { color: PALETTE.axis, width: 1.5 });
+
+    // horizontal reference lines in the wave panel
+    for (const val of [0, 0.5, 1, 1.5, 2]) {
+      const y = wY(val);
+      plot.segment(0, y, len, y, { color: PALETTE.grid, width: 1 });
+      plot.text(fmt(val, 2), plot.X(0) - 6, y + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    // wavelength grid
+    for (let u = 0; u <= len + 1e-9; u += 0.25) {
+      plot.segment(u, WAVE_LO, u, WAVE_HI, { color: u % 0.5 < 1e-9 ? PALETTE.grid : 'rgba(58,58,82,0.5)', width: 1 });
+      if (u % 0.5 < 1e-9) {
+        plot.text(fmt(u, 3) + 'λ', plot.X(u), plot.Y(WAVE_LO) + 14,
+          { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+      }
+    }
+
+    // reference levels
+    plot.segment(0, wY(1), len, wY(1), { color: PALETTE.axis, width: 1, dash: [4, 4] });
+    plot.segment(0, wY(out.vMax), len, wY(out.vMax), { color: 'rgba(243,139,168,0.75)', width: 1.5, dash: [6, 4] });
+    plot.segment(0, wY(out.vMin), len, wY(out.vMin), { color: 'rgba(166,227,161,0.75)', width: 1.5, dash: [6, 4] });
+
+    // standing wave
+    plot.fn((u) => wY(out.vnorm(u)), 0, len, { color: PALETTE.accent, width: 2.5, samples: 1400 });
+
+    // load plane
+    plot.segment(0, WAVE_LO, 0, WAVE_HI, { color: PALETTE.warn, width: 2 });
+    plot.text('LOAD', plot.X(0) + 6, plot.Y(WAVE_LO) - 8, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+
+    // maxima and minima
+    for (let u = out.uMax1; u <= len + 1e-9; u += 0.5) {
+      plot.dot(u, wY(out.vMax), { color: PALETTE.accent2, r: 4 });
+      plot.text('max ' + fmt(u, 3) + 'λ', plot.X(u), plot.Y(WAVE_LO) + 30, { color: PALETTE.accent2, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    for (let u = out.uMin1; u <= len + 1e-9; u += 0.5) {
+      plot.dot(u, wY(out.vMin), { color: PALETTE.accent3, r: 4 });
+      plot.text('min ' + fmt(u, 3) + 'λ', plot.X(u), plot.Y(WAVE_LO) + 44, { color: PALETTE.accent3, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+
+    plot.text('|V(d)| / |V+| along the line — the pattern repeats every λ/2; maxima and minima alternate every λ/4',
+      plot.X(0) + 6, plot.Y(WAVE_HI) - 8, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+
+    // ---- bottom panel: numbers + Gamma phasor ---------------------------
+    const bx = plot.X(0) + 10;
+    const by = plot.Y(WAVE_LO) + 68;
+    const matched = out.g < 1e-6;
+    const col = matched ? PALETTE.accent3 : out.g > 0.5 ? PALETTE.accent2 : PALETTE.warn;
+    plot.text('ZL = ' + out.zlText + '    Z0 = ' + fmt(out.Z0, 4) + ' ohm', bx, by,
+      { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text('Γ = ' + cstr(out.gam.re, out.gam.im) +
+      '    |Γ| = ' + fmt(out.g, 4) + '    ∠Γ = ' + fmt(deg(out.theta), 4) + '°', bx, by + 20,
+      { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text('VSWR = ' + fmt(out.vswr, 4) + '    return loss = ' + fmt(out.rl, 4) + ' dB    mismatch loss = ' + fmt(out.ml, 4) + ' dB',
+      bx, by + 40, { color: col, font: '12px ui-monospace, monospace' });
+    plot.text('Vmax = ' + fmt(out.vMax, 4) + '    Vmin = ' + fmt(out.vMin, 4) +
+      '    reflected power = ' + fmt(out.reflPow * 100, 4) + '%', bx, by + 60,
+      { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    plot.text(matched
+      ? 'flat line: no standing wave, Vmax = Vmin = |V+|'
+      : 'first maximum at ' + fmt(out.uMax1, 4) + 'λ, first minimum at ' + fmt(out.uMin1, 4) + 'λ from the load',
+    bx, by + 78, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // Gamma plane inset, bottom right
+    const cxp = plot.X(len) - 80;
+    const cyp = plot.Y(WAVE_LO) + 106;
+    const rad = 44;
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.95)';
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cxp, cyp, rad + 10, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = PALETTE.axis;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cxp - rad - 6, cyp); ctx.lineTo(cxp + rad + 6, cyp); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cxp, cyp - rad - 6); ctx.lineTo(cxp, cyp + rad + 6); ctx.stroke();
+    ctx.strokeStyle = PALETTE.dim;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.arc(cxp, cyp, rad, 0, TAU); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = PALETTE.warn;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cxp, cyp, 20, 0, -out.theta, out.theta > 0);
+    ctx.stroke();
+    ctx.strokeStyle = PALETTE.accent2;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cxp, cyp);
+    ctx.lineTo(cxp + out.gam.re * rad, cyp - out.gam.im * rad);
+    ctx.stroke();
+    ctx.fillStyle = PALETTE.accent2;
+    ctx.beginPath();
+    ctx.arc(cxp + out.gam.re * rad, cyp - out.gam.im * rad, 5, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = PALETTE.dim;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText('Γ plane (unit circle)', cxp - 52, cyp - rad - 18);
+    ctx.restore();
+
+    formula.innerHTML =
+      '<strong>Governing formulas, with the current numbers substituted.</strong><br>' +
+      '<span class="vault-mono">Γ = (ZL − Z0)/(ZL + Z0) = (' + zstr(out.R, out.X) +
+      ' − ' + fmt(out.Z0, 4) + ') / (' + zstr(out.R, out.X) +
+      ' + ' + fmt(out.Z0, 4) + ') = ' + cstr(out.gam.re, out.gam.im) +
+      ' = ' + fmt(out.g, 4) + ' ∠ ' + fmt(deg(out.theta), 4) + '°</span><br>' +
+      '<span class="vault-mono">VSWR = (1 + |Γ|)/(1 − |Γ|) = (1 + ' + fmt(out.g, 4) + ')/(1 − ' + fmt(out.g, 4) + ') = ' + fmt(out.vswr, 4) + '</span><br>' +
+      '<span class="vault-mono">return loss = −20 log10|Γ| = ' + fmt(out.rl, 4) +
+      ' dB    ·    reflected power = |Γ|² = ' + fmt(out.reflPow, 4) + ' (' + fmt(out.reflPow * 100, 4) + '%)</span><br>' +
+      '<span class="vault-mono">mismatch loss = −10 log10(1 − |Γ|²) = ' + fmt(out.ml, 4) + ' dB</span><br>' +
+      '<span class="vault-mono">|V(d)|/|V+| = √(1 + |Γ|² + 2|Γ|cos(2βd + θ)),  d in wavelengths: first maximum at d = −θλ/4π = ' +
+      fmt(out.uMax1, 4) + 'λ, first minimum at ' + fmt(out.uMin1, 4) + 'λ</span>';
+  },
+  readout: (out) => ({
+    'Γ (complex)': cstr(out.gam.re, out.gam.im),
+    '|Γ| magnitude': fmt(out.g, 4),
+    '∠Γ angle': fmt(deg(out.theta), 4) + '°',
+    'VSWR': fmt(out.vswr, 4),
+    'return loss': fmt(out.rl, 4) + ' dB',
+    'mismatch loss': fmt(out.ml, 4) + ' dB',
+    'reflected power': fmt(out.reflPow * 100, 4) + ' %',
+    'transmitted power': fmt((1 - out.reflPow) * 100, 4) + ' %',
+    'Vmax / |V+|': fmt(out.vMax, 4),
+    'Vmin / |V+|': fmt(out.vMin, 4),
+    'first voltage maximum': fmt(out.uMax1, 4) + ' λ from the load',
+    'first voltage minimum': fmt(out.uMin1, 4) + ' λ from the load (0 = at the load)',
+    'load ZL': out.zlText,
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The exam point.</strong> For Z0 = 50 ohm and ZL = 100 ohm: Γ = (100 − 50)/(100 + 50) = ' +
+  '0.3333 ∠ 0°, VSWR = 1.3333 / 0.6667 = 2.0, return loss = −20 log10(0.3333) = 9.542 dB and mismatch loss = ' +
+  '−10 log10(1 − 0.1111) = 0.5115 dB. Traps: (1) return loss uses 20 log10|Γ| because Γ is a voltage ratio — ' +
+  'the power form 10 log10|Γ|²  gives the same number, but mixing the two conventions is the usual slip; ' +
+  '(2) mismatch loss is NOT return loss — at VSWR = 2 the return loss is 9.54 dB while only 0.51 dB of signal ' +
+  'is actually lost; (3) for a resistive load above Z0 the voltage maximum sits AT the load (Γ ∠ 0°) and the ' +
+  'minimum is λ/4 away, while for a load below Z0 it is the other way round (minimum at the load, maximum at ' +
+  'λ/4), and for a complex load the maximum sits at −θλ/4π — watch the marked positions move as the angle of Γ ' +
+  'changes.';
+app.appendChild(note);
+
+app.insertBefore(formula, app.querySelector('.vault-widget-canvas'));
+</script>
+</body>
+</html>

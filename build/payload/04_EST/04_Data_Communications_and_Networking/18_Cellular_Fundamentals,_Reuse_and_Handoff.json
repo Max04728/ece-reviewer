@@ -1,0 +1,105 @@
+{
+  "scope": "Compute the frequency-reuse cluster size, the co-channel reuse ratio and the resulting signal-to-interference ratio, and explain handoff, sectoring and cell splitting.",
+  "intuition": "Cellular radio is a spectrum-reuse trick. The same frequencies are used again and again in cells far enough apart that the two conversations do not hear each other; the geometry of that spacing sets the capacity and the interference.",
+  "concept": [
+    "**Frequency reuse.** The available spectrum is divided into $k$ channel groups and each group is assigned to one cell in a *cluster* of $N$ cells. The cluster is then repeated across the service area, so the total number of channels is $MkN$ where $M$ is the number of clusters. Two cells using the same group are *co-channel* cells, and their separation $D$ must be large enough that the signal-to-interference ratio is acceptable. Shrinking the cell radius $R$ increases the number of clusters for a given area and therefore increases capacity — but only up to the point where co-channel interference limits it.",
+    "**Cluster size is not arbitrary.** Only certain cluster sizes tile the plane without gaps or overlaps. With $i$ and $j$ non-negative integers, the permitted values are $N = i^2 + ij + j^2$, giving 1, 3, 4, 7, 9, 12, 13, 16, 19, ... The practically important ones are $N = 3$ (used with 120° sectoring), $N = 4$, $N = 7$ (the classic AMPS design) and $N = 12$. Smaller $N$ means more capacity but also more co-channel interference, so the choice is a direct trade.",
+    "**The co-channel reuse ratio.** From the geometry of a hexagonal grid, the distance to the nearest co-channel cell is $D = R\\sqrt{3N}$, so $Q = D/R = \\sqrt{3N}$. For $N = 7$ this is 4.583 and for $N = 4$ it is 3.464. $Q$ is the single number that determines interference: larger $Q$ means co-channel cells are farther away relative to the cell size and the link is cleaner, at the cost of fewer channels per cell.",
+    "**Signal-to-interference ratio.** In the first tier there are six co-channel interfering cells at distance $D$ (approximately). With a path-loss exponent $n$ (2 for free space, 3 to 4 for typical urban cellular, 4 to 5 in dense buildings) the ratio is: $S/I = \\dfrac{(D/R)^n}{6} = \\dfrac{(3N)^{n/2}}{6}$. The classic AMPS result with $N = 7$ and $n = 4$ is $S/I = 441/6 = 73.5$, i.e. $18.7\\ \\mathrm{dB}$ — enough for acceptable analog voice quality.",
+    "**Sectoring.** Replacing an omnidirectional base-station antenna with three $120^\\circ$ sector antennas reduces the number of co-channel interferers seen by any one sector from six to roughly two, improving $S/I$ by about $10\\log_{10}3 = 4.8\\ \\mathrm{dB}$ for the same $N$. That improvement can be spent either on better quality or on a smaller cluster size and therefore more capacity. Six $60^\\circ$ sectors give a further improvement. The cost is more antennas, more handoffs between sectors and trunking inefficiency (each sector has its own channel pool).",
+    "**Handoff and cell splitting.** As a mobile moves between cells the network must transfer the call without dropping it. *Hard handoff* (break-before-make) releases the old channel before acquiring the new one and is used by FDMA/TDMA systems; *soft handoff* (make-before-break) keeps both channels briefly and is a natural feature of CDMA, where a mobile can be in the active set of two or more cells simultaneously. *Cell splitting* increases capacity by subdividing congested cells into smaller ones with lower transmit power and smaller antennas; halving the radius creates four cells of one quarter the area each, multiplying capacity by four at the cost of more base stations and more frequent handoffs."
+  ],
+  "formulas": [
+    { "q": "Cluster size", "e": "N = i^2 + i j + j^2", "n": "i and j are non-negative integers. Permitted values: 1, 3, 4, 7, 9, 12, 13, 16, 19, ..." },
+    { "q": "Co-channel reuse ratio", "e": "Q = \\frac{D}{R} = \\sqrt{3N}", "n": "D is the distance to the nearest co-channel cell, R the cell radius. N = 7 gives 4.583." },
+    { "q": "Reuse distance", "e": "D = R\\sqrt{3N}", "n": "For R = 1 km and N = 7, D = 4.58 km." },
+    { "q": "Signal-to-interference ratio", "e": "\\frac{S}{I} = \\frac{(D/R)^n}{N_I} = \\frac{(3N)^{n/2}}{N_I}", "n": "N_I is the number of co-channel interferers: 6 for omnidirectional, about 2 for 120-degree sectoring." },
+    { "q": "S/I in dB", "e": "\\left(\\frac{S}{I}\\right)_{dB} = 10\\log_{10}\\!\\left(\\frac{(3N)^{n/2}}{N_I}\\right)", "n": "N = 7, n = 4, N_I = 6 gives 18.7 dB." },
+    { "q": "Path-loss exponent", "e": "n \\approx 2\\ (\\mathrm{free\\ space}),\\ 3{-}4\\ (\\mathrm{urban}),\\ 4{-}5\\ (\\mathrm{dense})", "n": "Doubling the distance costs 6 dB in free space and 12-18 dB in a city." },
+    { "q": "Total system capacity", "e": "C = M k N = \\frac{k \\times A}{N \\times A_{cell}}", "n": "M clusters, k channels per cell, N cells per cluster. Total channels equal the spectrum divided by the reuse factor." },
+    { "q": "Channels per cell", "e": "k = \\frac{C_{total}}{N}", "n": "700 total channels with N = 7 gives 100 channels per cell." },
+    { "q": "Sectoring improvement", "e": "\\Delta_{dB} = 10\\log_{10}\\!\\left(\\frac{N_{I,omni}}{N_{I,sector}}\\right)", "n": "Six interferers reduced to two by 120-degree sectoring gives about 4.8 dB." },
+    { "q": "Cell splitting gain", "e": "G = \\left(\\frac{R_{old}}{R_{new}}\\right)^{2}", "n": "Halving the radius quadruples the number of cells and therefore the capacity." },
+    { "q": "Carrier-to-interference with sectoring", "e": "\\frac{S}{I} = \\frac{(D/R)^n}{2}\\ (120^\\circ\\ \\mathrm{sectors})", "n": "Uses the two nearest co-channel sectors rather than all six." },
+    { "q": "Trunking efficiency", "e": "\\mathrm{Erlang\\ B}: \\ P_b = f(A, C)", "n": "A is offered traffic in Erlangs, C the number of channels. More channels per pool means higher efficiency per channel." }
+  ],
+  "problems": [
+    {
+      "prompt": "Find the cluster size and the co-channel reuse ratio for $i = 2$, $j = 1$.",
+      "give": ["i = 2", "j = 1"],
+      "steps": [
+        "N = i^2 + ij + j^2 = 4 + 2 + 1 = 7",
+        "Q = sqrt(3N) = sqrt(21)",
+        "= 4.583"
+      ],
+      "ans": "$N = 7$, $Q = 4.583$",
+      "trap": "Computing $N = i^2 + j^2 = 5$, a value that does not tile the plane. The cross term $ij$ is part of the formula and omitting it gives a cluster size that cannot exist."
+    },
+    {
+      "prompt": "A system uses a cluster size of 7 and a path-loss exponent of 4, with six co-channel interferers. Find $S/I$ in ratio and in dB.",
+      "give": ["N = 7", "n = 4", "N_I = 6"],
+      "steps": [
+        "D/R = sqrt(3N) = sqrt(21) = 4.583",
+        "(D/R)^4 = 4.583^4 = (4.583^2)^2 = 21^2 = 441",
+        "S/I = 441/6 = 73.5",
+        "In dB: 10 log10(73.5) = 18.66 dB"
+      ],
+      "ans": "$S/I = 73.5 = 18.7\\ \\mathrm{dB}$",
+      "trap": "Using $n = 2$ (free space) instead of the given 4. That gives $S/I = 21/6 = 3.5 = 5.4\\ \\mathrm{dB}$ — a completely unusable link, and a reminder that the path-loss exponent dominates the answer."
+    },
+    {
+      "prompt": "A cellular system has 700 channels total and uses a cluster size of 7. Find the channels per cell. Then find the improvement in $S/I$ from three-sector antennas.",
+      "give": ["C_total = 700", "N = 7", "sectoring: 6 interferers reduced to 2"],
+      "steps": [
+        "Channels per cell = 700/7 = 100",
+        "Sectoring reduces co-channel interferers from 6 to 2",
+        "Improvement = 10 log10(6/2) = 10 log10(3)",
+        "= 4.77 dB"
+      ],
+      "ans": "100 channels per cell; sectoring gains $4.8\\ \\mathrm{dB}$ of $S/I$",
+      "trap": "Assuming sectoring increases the number of channels. It does not — it improves the interference ratio for the same cluster size, or equivalently lets you reduce $N$ to gain capacity. The sector antennas also fragment the channel pool, which reduces trunking efficiency."
+    },
+    {
+      "prompt": "A congested cell of radius $1\\ \\mathrm{km}$ is split by halving the radius. Find the capacity gain and the change in the reuse distance for $N = 7$.",
+      "give": ["R_old = 1 km", "R_new = 0.5 km", "N = 7"],
+      "steps": [
+        "Cell area scales with R^2, so halving R quarters the area",
+        "Gain = (R_old/R_new)^2 = (1/0.5)^2 = 4",
+        "D_old = R sqrt(3N) = 1 x 4.583 = 4.583 km",
+        "D_new = 0.5 x 4.583 = 2.292 km",
+        "Both the reuse distance and the required transmit power scale down with R"
+      ],
+      "ans": "Four times the capacity; reuse distance drops from $4.58\\ \\mathrm{km}$ to $2.29\\ \\mathrm{km}$",
+      "trap": "Saying capacity doubles because the radius halved. Capacity scales with the number of *cells*, which scales with area, so it goes as the square of the radius ratio — a factor of 4, not 2. The cost is a fourfold increase in base stations and far more frequent handoffs."
+    },
+    {
+      "prompt": "A system requires $S/I \\geq 18\\ \\mathrm{dB}$ with $n = 4$ and six co-channel interferers. Find the minimum cluster size.",
+      "give": ["S/I >= 18 dB", "n = 4", "N_I = 6"],
+      "steps": [
+        "18 dB is a linear ratio of 10^1.8 = 63.1",
+        "Require (sqrt(3N))^4/6 >= 63.1, which is (3N)^2/6 >= 63.1, i.e. 1.5 N^2 >= 63.1",
+        "So N^2 >= 42.07 and N >= 6.49",
+        "Permitted cluster sizes are 1, 3, 4, 7, 9, ... — the smallest that satisfies the inequality is N = 7",
+        "Check: (3 x 7)^2/6 = 441/6 = 73.5 = 18.7 dB, which meets the 18 dB requirement"
+      ],
+      "ans": "$N = 7$",
+      "trap": "Reporting $N = 6.49$ or rounding it to $N = 6$. Cluster sizes are constrained to $N = i^2+ij+j^2$, so the answer must be a permitted value; 6 is not one. $N = 4$ is permitted but gives $(3 \\times 4)^2/6 = 24 = 13.8\\ \\mathrm{dB}$, which fails the 18 dB requirement outright, so $N = 7$ is the smallest permitted size that works."
+    }
+  ],
+  "traps": [
+    "**Omitting the $ij$ cross term in $N = i^2 + ij + j^2$.** Dropping it gives cluster sizes such as 5 and 10 that cannot tile a hexagonal grid. The permitted sizes are 1, 3, 4, 7, 9, 12, 13, 16, 19, ...",
+    "**Using the free-space path-loss exponent when a cellular one is intended.** $S/I$ depends on $n$ as $(3N)^{n/2}$; dropping from 4 to 2 changes 18.7 dB into 5.4 dB. Read the exponent the question gives.",
+    "**Assuming $S/I$ improves linearly with $N$.** It goes as $(3N)^{n/2}$ — for $n = 4$ the ratio scales as $N^2$, so doubling the cluster size improves $S/I$ by 6 dB, not 3 dB.",
+    "**Thinking sectoring adds channels.** Sectoring reduces the number of co-channel interferers seen per antenna, improving the interference ratio for the same cluster size. The channel pool is merely partitioned among sectors, which reduces trunking efficiency.",
+    "**Concluding that cell splitting doubles capacity when the radius halves.** Capacity scales with area, so it quadruples. The practical limit is the increased handoff rate and the cost of the added base stations.",
+    "**Treating soft handoff as merely a CDMA implementation detail.** It is a capacity feature as well: a mobile in soft handoff transmits to two cells, which improves the link budget at the cell edge and reduces the required transmit power, at the cost of consuming two channels briefly.",
+    "**Forgetting that co-channel cells are only the *first tier*.** The six nearest interferers dominate, but ignoring the second tier overstates $S/I$ slightly in a real system with small $N$."
+  ],
+  "refs": [
+    "[[16_Multiple_Access_FDMA,_TDMA,_CDMA]]",
+    "[[19_Cellular_Generations_2G_to_5G]]",
+    "[[17_OFDMA_and_Spread_Spectrum]]",
+    "[[14_Multiplexing_FDM,_TDM,_T1_and_E1]]"
+  ],
+  "prereqs": ["[[16_Multiple_Access_FDMA,_TDMA,_CDMA]]"]
+}

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FM Threshold Effect — Output SNR vs Input CNR</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, clamp } from '../../../Assets/vault.js';
+
+// FM trades bandwidth for noise immunity. Above threshold the trade is spectacular:
+//   (S/N)_out = 3 beta^2 (beta + 1) / 2  x  (C/N)_in          <- the "improvement factor"
+// and the improvement grows as beta^3. The catch is the THRESHOLD. Once the input CNR falls
+// below it the discriminator starts clicking, output noise rises faster than the carrier
+// falls, and the output SNR collapses far more steeply than the 1:1 line. A higher beta
+// therefore needs a STRONGER input signal - that is the trade this widget exists to show.
+
+const db = (x) => 10 * Math.log10(Math.max(x, 1e-12));
+const fromDb = (d) => Math.pow(10, Number(d) / 10);
+
+widget({
+  title: 'FM Threshold Effect — Output SNR against Input CNR',
+  description:
+    'The straight blue line is the FM noise-improvement law, which knows nothing about the threshold. The green curve is what a real discriminator does: it tracks the law while the carrier is strong, then falls off a cliff. The red vertical line is the threshold CNR. Increase beta and the law gets steeper (good) but the cliff moves to the RIGHT, demanding a stronger carrier (bad).',
+  height: 560,
+  range: { xMin: 0, xMax: 30, yMin: -6, yMax: 56 },
+  controls: [
+    { id: 'beta', label: 'modulation index beta = delta_f / f_m', min: 0.2, max: 10, step: 0.1, value: 5 },
+    { id: 'cnr', label: 'input carrier-to-noise ratio C/N (dB)', min: -5, max: 35, step: 0.5, value: 15 },
+    { id: 'fm', label: 'modulating frequency f_m (kHz)', min: 0.5, max: 15, step: 0.5, value: 3 },
+    { id: 'demod', label: 'demodulator', type: 'select', value: 'disc',
+      options: [
+        { value: 'disc', label: 'standard discriminator / limiter' },
+        { value: 'pll', label: 'PLL or FM feedback (threshold extension)' },
+      ] },
+    { id: 'showLaw', label: 'show the linear-region law', type: 'checkbox', value: true },
+    { id: 'showBw', label: 'show Carson bandwidth cost', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const beta = v.beta;
+    const cnrDb = v.cnr;
+    const fm = v.fm;                                  // kHz
+    const pll = v.demod === 'pll';
+
+    // (S/N)_out = 3 beta^2 (beta+1)/2 x (C/N)_in   (all as power ratios, above threshold)
+    const improvement = (3 * beta * beta * (beta + 1)) / 2;
+    const impDb = db(improvement);
+
+    // Threshold. Standard treatment: the discriminator threshold sits where the output SNR
+    // is about 10-13 dB. Taking (S/N)_th = 13 dB gives CNR_th = (S/N)_th / improvement, and
+    // rearranging the law back gives the widely quoted CNR_th = 10(beta + 1) dB.
+    const snrThDb = pll ? 10 : 13;                    // threshold output SNR of the detector
+    const cnrThLin = fromDb(snrThDb) / improvement;
+    const cnrThDb = db(cnrThLin);
+    const cnrThRuleDb = db(10 * (beta + 1));           // the "10(beta+1)" textbook rule, as dB
+
+    // Below threshold the discriminator degrades much faster than linear. Model the
+    // sub-threshold branch as the linear law divided by the click-noise enhancement.
+    const xth = cnrThDb / 10;                          // threshold in "10 dB units"
+    const rolloff = (c) => {
+      const x = c / 10;
+      return Math.max(0.01, Math.pow(10, 2.2 * (xth - x)) + 0.25 * (xth - x));
+    };
+
+    const snrLin = (cDb) => db(improvement) + cDb;                       // linear-region law
+    const snrActual = (cDb) => {
+      const lin = snrLin(cDb);
+      if (cDb >= cnrThDb) {
+        // just above threshold a residual click term keeps the curve slightly under the law
+        return lin - 0.6 * Math.exp(-(cDb - cnrThDb) / 2.0);
+      }
+      return lin - db(rolloff(cDb));
+    };
+
+    const snrOut1 = snrActual(cnrDb);
+    const snrLaw1 = snrLin(cnrDb);
+    const above = cnrDb >= cnrThDb;
+    const margin = cnrDb - cnrThDb;
+
+    // Carson's rule bandwidth and the noise power the wider band admits
+    const bwKHz = 2 * (beta + 1) * fm;
+    const bNbfmKHz = 2 * fm;
+    const nDensity = -174;                             // dBm/Hz, thermal at 290 K
+    const noiseDbm = nDensity + 10 * Math.log10(bwKHz * 1000);
+    const requiredCarrierDbm = noiseDbm + cnrDb;
+    const thresholdCarrierDbm = noiseDbm + cnrThDb;
+
+    // Improvement measured from the actual curves, so the quoted factor can be checked
+    const measuredGain = snrOut1 - cnrDb;
+
+    return {
+      beta, cnrDb, fm, pll, improvement, impDb, snrThDb, cnrThLin, cnrThDb, cnrThRuleDb,
+      snrOut1, snrLaw1, above, margin, snrLin, snrActual, bwKHz, bNbfmKHz,
+      noiseDbm, requiredCarrierDbm, thresholdCarrierDbm, measuredGain,
+      carsonRatio: bwKHz / bNbfmKHz,
+      valid: true,
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const W = plot.w;
+    const L = 78, Rr = W - 118, T = 66, B = plot.h - 66;
+    const xMin = 0, xMax = 30, yMin = -6, yMax = 56;
+    const X = (c) => L + ((c - xMin) / (xMax - xMin)) * (Rr - L);
+    const Y = (s) => B - ((s - yMin) / (yMax - yMin)) * (B - T);
+
+    // ---- frame, grid, ticks ------------------------------------------------
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(L, T, Rr - L, B - T);
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1;
+    for (let c = 0; c <= 30; c += 5) {
+      ctx.beginPath(); ctx.moveTo(X(c), T); ctx.lineTo(X(c), B); ctx.stroke();
+    }
+    for (let s = 0; s <= 50; s += 10) {
+      ctx.beginPath(); ctx.moveTo(L, Y(s)); ctx.lineTo(Rr, Y(s)); ctx.stroke();
+    }
+    ctx.restore();
+    for (let c = 0; c <= 30; c += 5) {
+      plot.text(String(c), X(c), B + 16, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    for (let s = 0; s <= 50; s += 10) {
+      plot.text(String(s), L - 6, Y(s) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('input CNR  (C/N)_in  (dB)', (L + Rr) / 2, B + 34,
+      { color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center' });
+    ctx.save();
+    ctx.translate(18, (T + B) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = PALETTE.text;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('output SNR  (S/N)_out  (dB)', 0, 0);
+    ctx.restore();
+
+    // ---- the 1:1 reference (no improvement at all) -------------------------
+    plot.fn((c) => c, xMin, xMax, { color: 'rgba(138,138,168,0.55)', width: 1.2, dash: [4, 4] });
+    plot.text('S/N out = C/N in (no improvement)', X(24.6), Y(24.6) - 6,
+      { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+
+    // ---- threshold region shading -----------------------------------------
+    ctx.save();
+    ctx.fillStyle = 'rgba(243,139,168,0.13)';
+    ctx.fillRect(L, T, X(Math.max(xMin, out.cnrThDb)) - L, B - T);
+    ctx.restore();
+    plot.text('BELOW THRESHOLD', L + 6, T + 16, { color: PALETTE.accent2, font: 'bold 10px ui-monospace, monospace' });
+    plot.text('ABOVE THRESHOLD', X(Math.max(xMin, out.cnrThDb)) + 8, T + 16,
+      { color: PALETTE.accent3, font: 'bold 10px ui-monospace, monospace' });
+
+    // ---- the linear law ----------------------------------------------------
+    if (v.showLaw) {
+      plot.fn(out.snrLin, xMin, xMax, { color: PALETTE.accent, width: 2.2 });
+      plot.text('law: 3beta^2(beta+1)/2 x C/N', X(2.0), Y(out.snrLin(2.0)) - 8,
+        { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    }
+
+    // ---- the real discriminator curve --------------------------------------
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.lineWidth = 2.8;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= 900; i++) {
+      const c = xMin + (i / 900) * (xMax - xMin);
+      const s = out.snrActual(c);
+      if (!Number.isFinite(s)) { started = false; continue; }
+      const px = X(c), py = Y(clamp(s, yMin - 20, yMax + 20));
+      if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    plot.text('actual FM discriminator', X(6.5), Y(out.snrActual(6.5)) - 10,
+      { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+
+    // ---- threshold marker --------------------------------------------------
+    const xt = X(out.cnrThDb);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent2;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(xt, T); ctx.lineTo(xt, B); ctx.stroke();
+    ctx.restore();
+    plot.text('threshold ' + fmt(out.cnrThDb, 4) + ' dB', xt + 4, B - 8,
+      { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+
+    // ---- operating point ---------------------------------------------------
+    const xo = X(out.cnrDb), yo = Y(out.snrOut1);
+    plot.dot(out.cnrDb, out.snrOut1, { color: PALETTE.warn, r: 6 });
+    ctx.save();
+    ctx.strokeStyle = 'rgba(249,226,175,0.6)';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(L, yo); ctx.lineTo(xo, yo); ctx.lineTo(xo, B); ctx.stroke();
+    ctx.restore();
+    plot.text('operating point ' + fmt(out.cnrDb, 4) + ' dB \u2192 ' + fmt(out.snrOut1, 4) + ' dB',
+      xo + 8, yo - 10, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+    // threshold crossing of the law at this beta, for comparison
+    plot.dot(out.cnrThDb, out.snrThDb, { color: PALETTE.accent2, r: 5 });
+    plot.text('(S/N)_th = ' + fmt(out.snrThDb, 3) + ' dB', xt + 6, Y(out.snrThDb) - 8,
+      { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+
+    // ---- formula strip -----------------------------------------------------
+    plot.text('(S/N)_out = [3 beta^2 (beta + 1) / 2] x (C/N)_in        beta = ' + fmt(out.beta, 4),
+      16, 18, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('improvement = 3(' + fmt(out.beta, 4) + ')^2(' + fmt(out.beta, 4) + ' + 1)/2 = ' +
+      fmt(out.improvement, 5) + '  = ' + fmt(out.impDb, 5) + ' dB',
+      16, 35, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    let third = 'threshold: CNR_th = (S/N)_th / improvement = ' + fmt(out.snrThDb, 3) + ' dB / ' +
+      fmt(out.improvement, 4) + ' = ' + fmt(out.cnrThDb, 5) + ' dB';
+    if (v.showBw) {
+      third += '        Carson bandwidth B = 2(beta+1)f_m = 2(' + fmt(out.beta, 3) + '+1)(' + fmt(out.fm, 4) +
+        ' kHz) = ' + fmt(out.bwKHz, 5) + ' kHz';
+    }
+    plot.text(third, 16, 52, { color: PALETTE.accent4, font: '12px ui-monospace, monospace' });
+
+    // ---- verdict -----------------------------------------------------------
+    let verdict;
+    if (out.above) {
+      verdict = 'ABOVE THRESHOLD by ' + fmt(out.margin, 3) + ' dB: the output SNR follows the law. ' +
+        'S/N = ' + fmt(out.snrLaw1, 5) + ' dB, i.e. ' + fmt(out.measuredGain, 5) +
+        ' dB better than the input CNR.';
+    } else {
+      verdict = 'BELOW THRESHOLD by ' + fmt(-out.margin, 3) + ' dB: the discriminator is clicking. Output SNR has ' +
+        'collapsed to ' + fmt(out.snrOut1, 5) + ' dB instead of the ' + fmt(out.snrLaw1, 5) +
+        ' dB the linear law promises \u2014 a shortfall of ' + fmt(out.snrLaw1 - out.snrOut1, 4) + ' dB.';
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, plot.h - 30, W - 20, 24);
+    ctx.restore();
+    plot.text(verdict, 16, plot.h - 13,
+      { color: out.above ? PALETTE.accent3 : PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+    if (v.showBw) {
+      plot.text('noise floor N = kTB = ' + fmt(out.noiseDbm, 5) + ' dBm over ' + fmt(out.bwKHz, 5) +
+        ' kHz  \u2192  carrier needed = ' + fmt(out.requiredCarrierDbm, 5) + ' dBm; threshold carrier = ' +
+        fmt(out.thresholdCarrierDbm, 5) + ' dBm',
+        16, plot.h - 36, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    }
+  },
+
+  readout: (out) => ({
+    'modulation index beta': fmt(out.beta, 5),
+    'input CNR (C/N)_in': fmt(out.cnrDb, 5) + ' dB',
+    'output SNR (S/N)_out': fmt(out.snrOut1, 5) + ' dB',
+    'linear law would give': fmt(out.snrLaw1, 5) + ' dB',
+    'threshold CNR': fmt(out.cnrThDb, 5) + ' dB',
+    'textbook rule 10(beta+1) dB': fmt(out.cnrThRuleDb, 5) + ' dB',
+    'threshold rule (linear)': fmt(10 * (out.beta + 1), 5) + '  (= 10(beta+1))',
+    'threshold output SNR': fmt(out.snrThDb, 5) + ' dB',
+    'threshold in carrier power': fmt(out.thresholdCarrierDbm, 5) + ' dBm',
+    'system state': out.above
+      ? 'ABOVE threshold by ' + fmt(out.margin, 4) + ' dB'
+      : 'BELOW threshold by ' + fmt(-out.margin, 4) + ' dB',
+    'SNR improvement factor': fmt(out.improvement, 5) + '  (' + fmt(out.impDb, 5) + ' dB)',
+    'measured gain out - in': fmt(out.measuredGain, 5) + ' dB',
+    'Carson bandwidth B': fmt(out.bwKHz, 5) + ' kHz   (2(beta+1)f_m)',
+    'bandwidth expansion vs NBFM': fmt(out.carsonRatio, 5) + ' x',
+    'noise floor kTB': fmt(out.noiseDbm, 5) + ' dBm',
+    'carrier power needed here': fmt(out.requiredCarrierDbm, 5) + ' dBm',
+    'demodulator': out.pll ? 'PLL / FM feedback (threshold extension, ~3 dB lower)' : 'standard limiter-discriminator',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The trade is real, and it runs against intuition.</strong> Above threshold the improvement factor is ' +
+  '<code>3 beta^2 (beta + 1) / 2</code>, which grows roughly as beta cubed - push beta from 2 to 5 and the gain ' +
+  'jumps from 9 to 45 (9.5 dB to 16.5 dB). But the threshold sits where the output SNR falls to the detector ' +
+  'limit, so <code>CNR_th = (S/N)_th / improvement</code>: <em>the same factor that multiplies your output SNR ' +
+  'divides the CNR you can tolerate</em>. Raising beta raises the threshold, and the receiver now needs a ' +
+  'stronger carrier before any of that improvement shows up. Carson adds the second cost: ' +
+  '<code>B = 2(beta + 1) f_m</code>, so beta = 5 at f_m = 3 kHz needs 36 kHz of spectrum against 6 kHz for NBFM, ' +
+  'and the wider band admits six times more noise power (kTB), which is precisely why the threshold moves up.<br>' +
+  '<strong>The exam mistake this prevents.</strong> Never apply <code>(S/N)_out = 3 beta^2 (beta+1)/2 x (C/N)_in</code> ' +
+  'to a weak-signal question. That formula is the <em>above-threshold</em> law; below threshold it over-predicts ' +
+  'badly - slide the CNR under the red line and watch the green curve fall several dB per dB instead of 1:1. ' +
+  'If a problem quotes a CNR of 8 dB with beta = 5, the answer is not "31.5 dB output"; it is "below threshold, ' +
+  'the discriminator is clicking, the linear formula does not apply".<br>' +
+  '<strong>Two more things worth internalising.</strong> (1) The threshold is a property of the ' +
+  '<em>demodulator</em>, not the modulation: a PLL or FM-feedback detector extends it by roughly 3 dB, which is ' +
+  'why the toggle moves the red line. (2) FM is only worth its bandwidth when the input is strong. If CNR is ' +
+  'marginal, a narrowband system with a lower threshold wins - the comparison an examiner is fishing for when ' +
+  'the stem says "the receiver must operate at low carrier-to-noise ratio".';
+
+const host = document.getElementById('app');
+if (host) host.appendChild(note);
+</script>
+</body>
+</html>

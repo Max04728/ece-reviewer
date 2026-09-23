@@ -1,0 +1,105 @@
+{
+  "scope": "Design and analyse the step-up chopper: derive the conversion ratio from inductor volt-second balance, size the inductor for a ripple target, find the CCM boundary, and account for the output capacitor charging only during the off interval.",
+  "intuition": "The inductor is charged from the source while the switch is closed, and that stored energy is dumped into the output through the diode when the switch opens. Because the output is never connected directly to the input, $V_o$ can exceed $V_{in}$ — and the longer the switch stays closed, the larger the output.",
+  "concept": [
+    "**Volt-second balance gives the step-up ratio.** In CCM the inductor sees $+V_{in}$ for the whole on-time $DT_s$ and $V_{in}-V_o$ (a negative quantity, since $V_o>V_{in}$) during $(1-D)T_s$. Steady state demands zero net volt-seconds: $V_{in}DT_s+(V_{in}-V_o)(1-D)T_s=0$. Expanding to $V_{in}D+V_{in}-V_{in}D-V_o+V_oD=0$ cancels to $V_{in}-V_o(1-D)=0$, so $V_o=\\dfrac{V_{in}}{1-D}$, equivalently $D=1-\\dfrac{V_{in}}{V_o}$. The two facts to carry into the exam are that the ratio is always greater than one for $0<D<1$, and that it *blows up* as $D\\rightarrow1$: the ideal model predicts infinite output at $D=1$, which is physically impossible because real parasitic resistances make the curve peak and then fall, so duty ratios above roughly 0.85 to 0.9 are never used in a single-stage boost.",
+    "**Ripple is set during the on-time only.** With $V_{in}$ across $L$ while the switch is closed, the current ramps at $V_{in}/L$ for $DT_s$, so $\\Delta I_L=\\dfrac{V_{in}D}{Lf_s}$. Substituting $V_{in}=V_o(1-D)$ gives the equivalent form $\\Delta I_L=\\dfrac{V_oD(1-D)}{Lf_s}$, which peaks at $D=0.5$ — a boost is *worst case for inductor ripple at half duty*, unlike a buck. The average inductor current is the input current, and it is larger than the load current: $I_L=I_{in}=\\dfrac{P_o}{V_{in}}=\\dfrac{I_o}{1-D}$, so a 12 V-to-24 V boost delivering 1 A draws 2 A through the inductor and the switch.",
+    "**The output capacitor here is a different animal from the buck's.** In a boost the diode (the only path into the output) conducts only during $(1-D)T_s$, so the capacitor must supply the entire load current during the on-time and is recharged in short, high-current pulses. Charge balance over one period gives $\\Delta Q=I_oDT_s$ and therefore $\\Delta V_o=\\dfrac{I_oDT_s}{C}=\\dfrac{V_oD}{RCf_s}$, i.e. $\\dfrac{\\Delta V_o}{V_o}=\\dfrac{D}{RCf_s}$ — the ripple *fraction* contains $D$, unlike the buck's $\\Delta V_o=\\Delta I_L/(8f_sC)$. This also explains why a boost has poor ripple performance at high duty and needs a large, low-ESR capacitor: the load current is drawn from the capacitor, not the inductor, for a fraction $D$ of every cycle.",
+    "**Boundary, stresses and the CCM assumption.** CCM requires the average inductor current $I_L=V_o/((1-D)R)$ to exceed half the ripple, which gives the boundary inductance $L=\\dfrac{D(1-D)^2R}{2f_s}$ and the boundary current $I_{OB}=\\dfrac{V_oD(1-D)}{2Lf_s}$. Note how quickly the $(1-D)^2$ factor makes $L$ large as $D$ grows: at $D=0.9$ with $R=100\\ \\Omega$ and $f_s=100\\ \\mathrm{kHz}$ the boundary is $405\\ \\mu\\mathrm{H}$, so a high-step boost is always close to DCM and its output rises above the ideal $V_{in}/(1-D)$ at light load. Device stresses are the nastiest part of the topology: when the switch is off it stands off the *entire output voltage* $V_o$ (not $V_{in}$), the diode reverse-blocks $V_o$, the switch carries the full inductor current with an RMS value $I_{sw,rms}=I_L\\sqrt D$, and the diode carries the full inductor current for $(1-D)$ of the time with an average equal to $I_o$. This is why a boost's switch is rated for a higher voltage than the input would suggest, and why a boost cannot protect itself against a shorted output — there is a DC path from input to output through the diode."
+  ],
+  "formulas": [
+    { "q": "Ideal conversion ratio (CCM)", "e": "V_o=\\frac{V_{in}}{1-D}", "n": "Always a step-up: D between 0 and 1 gives V_o > V_in. The ideal ratio runs away as D approaches 1, so keep D below about 0.85." },
+    { "q": "Duty ratio for a target output", "e": "D=1-\\frac{V_{in}}{V_o}", "n": "The workhorse design equation. The 12 V to 24 V standard example gives D = 0.5. D cannot exceed 1, so V_o must exceed V_in." },
+    { "q": "Inductor volt-second balance", "e": "V_{in}\\,D\\,T_s=V_o(1-D)T_s", "n": "The derivation, CCM only. The on-time voltage is +V_in and the off-time voltage is V_in - V_o = -V_o D/(1-D)." },
+    { "q": "Inductor ripple current", "e": "\\Delta I_L=\\frac{V_{in}D}{Lf_s}=\\frac{V_oD(1-D)}{Lf_s}", "n": "Peak-to-peak. Worst case at D = 0.5; independent of load. Use the minimum V_in for the smallest ripple and maximum V_in for the largest." },
+    { "q": "Average inductor (input) current", "e": "I_L=I_{in}=\\frac{I_o}{1-D}=\\frac{V_o}{(1-D)R}", "n": "The inductor carries the input current, not the output current. A 1 A load at D = 0.5 draws 2 A from the source." },
+    { "q": "CCM boundary inductance", "e": "L=\\frac{D(1-D)^2R}{2f_s}", "n": "Equals the buck's (1-D)R/(2f_s) form after using I_L = I_o/(1-D). Grows as (1-D)^2 as D rises, so high-step boosts are ripple-limited." },
+    { "q": "Output capacitor ripple", "e": "\\Delta V_o=\\frac{V_oD}{RCf_s}=\\frac{I_oD}{Cf_s}", "n": "The capacitor feeds the load during the on-time only, so D appears explicitly. The ESR term I_L,pk x ESR often dominates." },
+    { "q": "Switch and diode stresses", "e": "V_{sw,off}=V_o,\\quad V_{D,rev}=V_o,\\quad I_{D,avg}=I_o,\\quad I_{sw,rms}=I_L\\sqrt D", "n": "The switch and diode both stand off the full output voltage; the diode's average current equals the load current, and the switch RMS current carries the sqrt(D) factor." }
+  ],
+  "problems": [
+    {
+      "prompt": "A boost converter runs from $V_{in}=12\\ \\mathrm{V}$, $D=0.5$, $f_s=50\\ \\mathrm{kHz}$, $L=100\\ \\mu\\mathrm{H}$, $C=470\\ \\mu\\mathrm{F}$ into $R=20\\ \\Omega$. Find $V_o$, $I_o$, the average inductor current, the ripple and peak current, and the output ripple.",
+      "give": ["V_in = 12 V", "D = 0.5", "f_s = 50 kHz", "L = 100 uH", "C = 470 uF", "R = 20 Ohm"],
+      "steps": [
+        "$V_o=\\dfrac{V_{in}}{1-D}=\\dfrac{12}{0.5}=24\\ \\mathrm{V}$.",
+        "$I_o=V_o/R=24/20=1.2\\ \\mathrm{A}$; the inductor (input) current is $I_L=I_o/(1-D)=1.2/0.5=2.4\\ \\mathrm{A}$.",
+        "Ripple: $\\Delta I_L=\\dfrac{V_{in}D}{Lf_s}=\\dfrac{(12)(0.5)}{(100\\times10^{-6})(50\\times10^{3})}=\\dfrac{6}{5}=1.2\\ \\mathrm{A}$ peak-to-peak.",
+        "Peak: $I_{L,pk}=2.4+0.6=3.0\\ \\mathrm{A}$; minimum $2.4-0.6=1.8\\ \\mathrm{A}>0$, so CCM.",
+        "Output ripple: $\\Delta V_o=\\dfrac{I_oD}{Cf_s}=\\dfrac{(1.2)(0.5)}{(470\\times10^{-6})(50\\times10^{3})}=\\dfrac{0.6}{23.5}=25.5\\ \\mathrm{mV}$ (0.106 percent of $V_o$)."
+      ],
+      "ans": "$V_o=24\\ \\mathrm{V}$, $I_o=1.2\\ \\mathrm{A}$, $I_L=2.4\\ \\mathrm{A}$, $\\Delta I_L=1.2\\ \\mathrm{A}$ p-p, $I_{L,pk}=3.0\\ \\mathrm{A}$, $\\Delta V_o=25.5\\ \\mathrm{mV}$.",
+      "trap": "Using $I_o=1.2\\ \\mathrm{A}$ as the inductor current. The inductor carries the *input* current $I_o/(1-D)=2.4\\ \\mathrm{A}$, so the switch and inductor must be rated for twice the load current at $D=0.5$."
+    },
+    {
+      "prompt": "Repeat the analysis when the input is only $5\\ \\mathrm{V}$ and the output must be $12\\ \\mathrm{V}$ at $0.5\\ \\mathrm{A}$ with $f_s=100\\ \\mathrm{kHz}$: find $D$, the required inductance to hold $\\Delta I_L$ at 20 percent of $I_L$, the peak inductor current, and the minimum inductance for CCM.",
+      "give": ["V_in = 5 V", "V_o = 12 V", "I_o = 0.5 A", "f_s = 100 kHz", "ripple target = 20% of I_L"],
+      "steps": [
+        "$D=1-\\dfrac{V_{in}}{V_o}=1-\\dfrac{5}{12}=0.5833$.",
+        "$I_L=\\dfrac{I_o}{1-D}=\\dfrac{0.5}{0.4167}=1.2\\ \\mathrm{A}$; the ripple target is $0.2(1.2)=0.24\\ \\mathrm{A}$ peak-to-peak.",
+        "Solve for $L$: $L=\\dfrac{V_{in}D}{\\Delta I_Lf_s}=\\dfrac{(5)(0.5833)}{(0.24)(100\\times10^{3})}=\\dfrac{2.9167}{24\\,000}=121.5\\ \\mu\\mathrm{H}$.",
+        "Peak current: $I_{L,pk}=1.2+0.24/2=1.32\\ \\mathrm{A}$.",
+        "CCM boundary: $R=V_o/I_o=24\\ \\Omega$, so $L_{min}=\\dfrac{D(1-D)^2R}{2f_s}=\\dfrac{(0.5833)(0.4167)^2(24)}{2(100\\times10^{3})}=\\dfrac{2.4306}{200\\,000}=12.2\\ \\mu\\mathrm{H}$; the 121.5 uH design is far above it, so CCM holds."
+      ],
+      "ans": "$D=0.5833$, $L\\approx122\\ \\mu\\mathrm{H}$ for 20 percent ripple, $I_{L,pk}=1.32\\ \\mathrm{A}$, and $L_{min}=12.2\\ \\mu\\mathrm{H}$ for CCM.",
+      "trap": "Setting the duty from a linear '5 V to 12 V is 2.4 times' guess and writing $D=0.42$ (that is $125/12$ backwards). The duty is $1-V_{in}/V_o=0.583$, and the inverse relation $V_o=(1-D)^{-1}V_{in}$ is nonlinear."
+    },
+    {
+      "prompt": "A boost converter must deliver $24\\ \\mathrm{V}$ at $1\\ \\mathrm{A}$ from $12\\ \\mathrm{V}$ with $f_s=40\\ \\mathrm{kHz}$. Find the minimum inductance for CCM and the duty ratio, then find the capacitor for 1 percent output ripple. Also state the switch voltage rating you would specify.",
+      "give": ["V_in = 12 V", "V_o = 24 V", "I_o = 1 A", "f_s = 40 kHz", "ripple target = 1% of V_o"],
+      "steps": [
+        "$D=1-12/24=0.5$; $R=24/1=24\\ \\Omega$.",
+        "$L_{min}=\\dfrac{D(1-D)^2R}{2f_s}=\\dfrac{(0.5)(0.25)(24)}{2(40\\times10^{3})}=\\dfrac{3}{80\\,000}=37.5\\ \\mu\\mathrm{H}$.",
+        "Ripple target: $\\Delta V_o=0.01(24)=0.24\\ \\mathrm{V}$; from $\\Delta V_o=\\dfrac{I_oD}{Cf_s}$ solve $C=\\dfrac{I_oD}{\\Delta V_of_s}=\\dfrac{(1)(0.5)}{(0.24)(40\\times10^{3})}=\\dfrac{0.5}{9600}=52.1\\ \\mu\\mathrm{F}$.",
+        "Choose the next standard value above that, e.g. $100\\ \\mu\\mathrm{F}$ low-ESR, because the ESR term also contributes ripple.",
+        "The switch must block $V_o=24\\ \\mathrm{V}$ when off, so specify at least a 60 V device (2x derating) while carrying $I_{L,pk}=I_o/(1-D)+\\Delta I_L/2=2+0.4=2.4\\ \\mathrm{A}$."
+      ],
+      "ans": "$D=0.5$, $L_{min}=37.5\\ \\mu\\mathrm{H}$, $C\\approx52\\ \\mu\\mathrm{F}$ (use 100 uF low-ESR), switch rated at least 60 V and $\\ge2.4\\ \\mathrm{A}$ peak.",
+      "trap": "Rating the switch at $V_{in}=12\\ \\mathrm{V}$ because that is the source. In a boost the off-state switch stands off the full $V_o=24\\ \\mathrm{V}$, so a 20 V device fails on the first switching cycle."
+    },
+    {
+      "prompt": "For a boost with $V_{in}=15\\ \\mathrm{V}$, $V_o=48\\ \\mathrm{V}$, $R=100\\ \\Omega$, $f_s=100\\ \\mathrm{kHz}$ and $L=470\\ \\mu\\mathrm{H}$, check CCM and find the boundary inductance. What happens to the ideal $V_o$ prediction if $L$ is reduced to $50\\ \\mu\\mathrm{H}$ at the same load?",
+      "give": ["V_in = 15 V", "V_o = 48 V", "R = 100 Ohm", "f_s = 100 kHz", "L = 470 uH (then 50 uH)"],
+      "steps": [
+        "$D=1-15/48=0.6875$; $(1-D)=0.3125$; $I_o=V_o/R=0.48\\ \\mathrm{A}$ and $I_L=0.48/0.3125=1.536\\ \\mathrm{A}$.",
+        "$\\Delta I_L=\\dfrac{V_{in}D}{Lf_s}=\\dfrac{(15)(0.6875)}{(470\\times10^{-6})(100\\times10^{3})}=\\dfrac{10.3125}{47}=0.219\\ \\mathrm{A}$; half-ripple $0.11\\ \\mathrm{A}<1.536\\ \\mathrm{A}$, so CCM.",
+        "Boundary: $L_{min}=\\dfrac{D(1-D)^2R}{2f_s}=\\dfrac{(0.6875)(0.09766)(100)}{200\\,000}=\\dfrac{6.714}{200\\,000}=33.6\\ \\mu\\mathrm{H}$.",
+        "With $L=50\\ \\mu\\mathrm{H}$ the ripple becomes $\\Delta I_L=10.3125/(50\\times10^{-6}\\times10^{5})=2.06\\ \\mathrm{A}$, which exceeds $2I_L=3.07\\ \\mathrm{A}$? No — $2.06<3.07$, so it is still CCM but only just (half-ripple $1.03\\ \\mathrm{A}$ versus $1.536\\ \\mathrm{A}$).",
+        "Even lower, below $33.6\\ \\mu\\mathrm{H}$, the converter enters DCM and $V_o$ rises above the ideal $48\\ \\mathrm{V}$; the ideal formula is then only a lower bound."
+      ],
+      "ans": "The 470 uH design is solidly CCM ($\\Delta I_L=0.219\\ \\mathrm{A}$); $L_{min}=33.6\\ \\mu\\mathrm{H}$; at 50 uH it is still CCM but marginal ($\\Delta I_L=2.06\\ \\mathrm{A}$), and below the boundary the output exceeds the ideal 48 V.",
+      "trap": "Assuming a high-step boost ($D=0.69$) is automatically in CCM because the load is 100 $\\Omega$. The $(1-D)^2$ factor shrinks the boundary to $33.6\\ \\mu\\mathrm{H}$, so a 22 uH inductor would put this converter in DCM and lift the output above 48 V."
+    },
+    {
+      "prompt": "For the converter of problem 3 ($V_{in}=12\\ \\mathrm{V}$, $V_o=24\\ \\mathrm{V}$, $I_o=1\\ \\mathrm{A}$, $f_s=40\\ \\mathrm{kHz}$, $L=100\\ \\mu\\mathrm{H}$, $D=0.5$), find the RMS switch current and the switch conduction loss for $R_{DS(on)}=0.1\\ \\Omega$, plus the average diode current.",
+      "give": ["V_in = 12 V", "V_o = 24 V", "I_o = 1 A", "D = 0.5", "L = 100 uH", "f_s = 40 kHz", "R_DS(on) = 0.1 Ohm"],
+      "steps": [
+        "$I_L=I_o/(1-D)=2\\ \\mathrm{A}$; ripple $\\Delta I_L=\\dfrac{(12)(0.5)}{(100\\times10^{-6})(40\\times10^{3})}=\\dfrac{6}{4}=1.5\\ \\mathrm{A}$ p-p.",
+        "RMS switch current (neglecting ripple shape): $I_{sw,rms}\\approx I_L\\sqrt D=2\\sqrt{0.5}=1.414\\ \\mathrm{A}$.",
+        "Conduction loss: $P=R_{DS(on)}I_{sw,rms}^2=(0.1)(1.414)^2=(0.1)(2.0)=0.20\\ \\mathrm{W}$.",
+        "Diode average current: $I_{D,avg}=I_o=1\\ \\mathrm{A}$, and it blocks $V_o=24\\ \\mathrm{V}$ in reverse."
+      ],
+      "ans": "$I_{sw,rms}\\approx1.41\\ \\mathrm{A}$, $P_{sw}\\approx0.20\\ \\mathrm{W}$; the diode carries $1\\ \\mathrm{A}$ average and blocks $24\\ \\mathrm{V}$.",
+      "trap": "Using the DC inductor current (2 A) directly in $I^2R$: that gives $(0.1)(4)=0.4\\ \\mathrm{W}$, double the correct answer. The switch conducts for only half the period, hence the $\\sqrt D$ factor on the RMS current."
+    }
+  ],
+  "traps": [
+    "**Applying the buck's $V_o=DV_{in}$ to a boost.** At $D=0.6$ a boost gives $V_{in}/0.4=2.5V_{in}$, not $0.6V_{in}$ — a factor-of-4 error in the same problem, and the output direction is opposite.",
+    "**Using the load current as the inductor current.** $I_L=I_o/(1-D)$; at $D=0.5$ a 1.2 A load draws 2.4 A through the inductor and switch, so under-rating by a factor of two burns the switch.",
+    "**Rating the switch at the input voltage.** The off-state switch and the reverse-biased diode both stand off the full output: with $V_{in}=12\\ \\mathrm{V}$ and $V_o=24\\ \\mathrm{V}$ a 20 V device is destroyed, and a 30 V device has no margin.",
+    "**Dropping $D$ from the output-ripple formula.** The boost capacitor supplies the load during the on-time, so $\\Delta V_o=I_oD/(Cf_s)$; the buck's $\\Delta I_L/(8f_sC)$ (no $D$) gives the wrong answer and the wrong scaling with duty.",
+    "**Designing for $D$ above about 0.85.** The ideal $1/(1-D)$ explodes while real losses make the output peak and then fall, so a 5 V-to-48 V single-stage boost ($D=0.896$) cannot deliver the ideal output no matter how large the inductor.",
+    "**Assuming CCM at light load because the duty ratio is high.** The boundary $L=D(1-D)^2R/(2f_s)$ shrinks with the load resistance; at $V_o=48\\ \\mathrm{V}$, $R=100\\ \\Omega$ the boundary is only $33.6\\ \\mu\\mathrm{H}$, and a 22 uH inductor leaves the converter in DCM with an output above the ideal value."
+  ],
+  "refs": [
+    "[[04_Buck_Converter]]",
+    "[[06_Buck-Boost_Converter]]",
+    "[[08_PWM_Techniques]]",
+    "[[01_Power_Switches_MOSFET,_IGBT,_GTO,_TRIAC]]",
+    "[[09_Linear_Voltage_Regulators]]"
+  ],
+  "prereqs": [
+    "[[11_First_Order_RC_and_RL_Transients]]",
+    "[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]"
+  ]
+}

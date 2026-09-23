@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buck / Boost / Buck-Boost — Duty Cycle Explorer</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// The three dc-dc converters are one idea with three voltage ratios, and students
+// routinely memorise the ratios without connecting them to the switch waveform or to
+// the inductor current ripple. Drawing the switch node waveform and the inductor
+// current together makes the volt-second balance argument visible.
+
+const TOPOS = {
+  buck: {
+    name: 'Buck (step-down)',
+    ratio: (D) => D,
+    formula: 'V_o = D·V_in',
+    range: '0 ≤ V_o ≤ V_in',
+    note: 'The switch node alternates between V_in and 0. The inductor sees (V_in − V_o) while the switch is on and −V_o while it is off; volt-second balance gives V_o = D·V_in.',
+    inductorSlopeOn: (D, Vin, Vo, L, f) => (Vin - Vo) / L,
+    inductorSlopeOff: (D, Vin, Vo, L, f) => -Vo / L,
+  },
+  boost: {
+    name: 'Boost (step-up)',
+    ratio: (D) => 1 / (1 - D),
+    formula: 'V_o = V_in/(1 − D)',
+    range: 'V_o ≥ V_in, diverges as D → 1',
+    note: 'The inductor charges from V_in while the switch is on and discharges into the output while it is off. Real converters cannot reach the ideal ratio because parasitic resistance limits the practical duty cycle to roughly 0.85.',
+    inductorSlopeOn: (D, Vin, Vo, L, f) => Vin / L,
+    inductorSlopeOff: (D, Vin, Vo, L, f) => (Vin - Vo) / L,
+  },
+  buckboost: {
+    name: 'Buck-Boost (inverting)',
+    ratio: (D) => D / (1 - D),
+    formula: '|V_o| = D·V_in/(1 − D)',
+    range: 'Any magnitude; output polarity inverted',
+    note: 'The output magnitude equals the input at D = 0.5. Note the output is INVERTED — a fact that is easy to lose in a hurry and that matters for the polarity of the output capacitor.',
+    inductorSlopeOn: (D, Vin, Vo, L, f) => Vin / L,
+    inductorSlopeOff: (D, Vin, Vo, L, f) => Vo / L,
+  },
+};
+
+const keys = Object.keys(TOPOS);
+
+widget({
+  title: 'DC-DC Converter — Duty Cycle Explorer',
+  description:
+    'One switch, one inductor, three voltage ratios. Watch the switch-node waveform, the inductor current ripple, and the boundary between continuous and discontinuous conduction.',
+  height: 470,
+  range: { xMin: 0, xMax: 2, yMin: -0.1, yMax: 1.2 },
+  controls: [
+    { id: 'topo', label: 'topology', type: 'select', options: keys, value: 'buck' },
+    { id: 'D', label: 'duty cycle D', min: 0.02, max: 0.95, step: 0.01, value: 0.5 },
+    { id: 'Vin', label: 'input voltage (V)', min: 1, max: 50, step: 1, value: 12 },
+    { id: 'L', label: 'inductance (µH)', min: 10, max: 500, step: 10, value: 100 },
+    { id: 'f', label: 'switching frequency (kHz)', min: 20, max: 500, step: 10, value: 100 },
+    { id: 'Io', label: 'load current (A)', min: 0.05, max: 5, step: 0.05, value: 1 },
+  ],
+  compute: (v) => {
+    const T = TOPOS[v.topo];
+    const D = v.D;
+    const Vin = v.Vin;
+    const Vo = T.ratio(D) * Vin;
+    const L = v.L * 1e-6;
+    const f = v.f * 1e3;
+    const Io = v.Io;
+    const Ts = 1 / f;
+    // inductor ripple current: dI = (V_L/L)*dt over the on time
+    const slopeOn = T.inductorSlopeOn(D, Vin, Vo, L, f);
+    const ton = D * Ts;
+    const dI = Math.abs(slopeOn) * ton;
+    // boundary between CCM and DCM: Io_crit = dI/2
+    const Icrit = dI / 2;
+    const ccm = Io >= Icrit;
+    return { T, D, Vin, Vo, L, f, Io, Ts, ton, slopeOn, dI, Icrit, ccm, Ipeak: Io + dI / 2, Imin: Io - dI / 2 };
+  },
+  draw: (ctx, v, out, plot) => {
+    const { T, D, Vin, Vo, Ts, ton, dI, Io, Icrit, ccm } = out;
+    const cycles = 2;
+    plot.setRange({ xMin: 0, xMax: cycles * Ts * 1e6, yMin: -0.1, yMax: 1.25 });
+    plot.clear().grid(Ts * 1e6 / 2, 0.25).axes();
+
+    // --- upper band: switch node voltage, normalised -----------------------
+    const topBase = 0.72, topH = 0.45;
+    const vsw = (t) => {
+      const ph = (t % Ts) / Ts;
+      if (T.name.startsWith('Boost')) return ph < D ? 0 : 1;
+      if (T.name.startsWith('Buck-Boost')) return ph < D ? 1 : 0; // switch to ground then to output
+      return ph < D ? 1 : 0;
+    };
+    // draw as a square wave
+    for (let c = 0; c < cycles; c++) {
+      const t0 = c * Ts;
+      const x1 = plot.X((t0 + ton) * 1e6);
+      const x0 = plot.X(t0 * 1e6);
+      const x2 = plot.X((t0 + Ts) * 1e6);
+      const hi = vsw(t0) === 1;
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      const yHi = plot.Y(topBase + topH), yLo = plot.Y(topBase);
+      if (hi) {
+        ctx.moveTo(x0, yLo); ctx.lineTo(x0, yHi); ctx.lineTo(x1, yHi); ctx.lineTo(x1, yLo); ctx.lineTo(x2, yLo);
+      } else {
+        ctx.moveTo(x0, yHi); ctx.lineTo(x0, yLo); ctx.lineTo(x1, yLo); ctx.lineTo(x1, yHi); ctx.lineTo(x2, yHi);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    plot.text('switch-node voltage (normalised)', plot.pad + 4, plot.Y(topBase + topH) - 8, {
+      color: PALETTE.accent, font: '11px ui-monospace, monospace',
+    });
+    plot.text('t_on = ' + fmt(ton * 1e6, 3) + ' µs   t_off = ' + fmt((Ts - ton) * 1e6, 3) + ' µs',
+      plot.pad + 4, plot.Y(topBase + topH) - 24, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // --- lower band: inductor current -------------------------------------
+    const base = 0.08, scale = 0.5 / Math.max(Io + dI, 1e-9);
+    const iL = (t) => {
+      const ph = (t % Ts) / Ts;
+      const rising = out.slopeOn > 0;
+      if (rising) return ph < D ? Io - dI / 2 + dI * (ph / D) : Io + dI / 2 - dI * ((ph - D) / (1 - D));
+      return ph < D ? Io + dI / 2 - dI * (ph / D) : Io - dI / 2 + dI * ((ph - D) / (1 - D));
+    };
+    plot.fn((t) => base + iL(t) * scale, 0, cycles * Ts, { color: PALETTE.accent3, width: 2.5, samples: 800 });
+    // average current line
+    plot.segment(0, base + Io * scale, cycles * Ts, base + Io * scale, { color: PALETTE.warn, dash: [4, 4], width: 1.2 });
+    plot.text('inductor current   ΔI = ' + fmt(dI, 4) + ' A   avg = ' + fmt(Io, 3) + ' A',
+      plot.pad + 4, plot.Y(base + (Io + dI) * scale) - 8, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    if (!ccm) {
+      plot.text('DISCONTINUOUS conduction: I_min would go negative',
+        plot.pad + 4, plot.Y(base) + 16, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    }
+  },
+  readout: (out) => ({
+    'topology': out.T.name,
+    'voltage ratio V_o/V_in': fmt(out.T.ratio(out.D), 4),
+    'output voltage': fmt(out.Vo, 4) + ' V',
+    'duty cycle D': fmt(out.D * 100, 2) + ' %',
+    'inductor ripple ΔI': fmt(out.dI, 4) + ' A',
+    'peak inductor current': fmt(out.Ipeak, 4) + ' A',
+    'CCM/DCM boundary Io': fmt(out.Icrit, 4) + ' A',
+    'conduction mode': out.ccm ? 'continuous (CCM)' : 'discontinuous (DCM)',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'conv-note';
+note.innerHTML = '<strong>' + TOPOS.buck.name + '</strong> — ' + TOPOS.buck.formula + '.<br>' + TOPOS.buck.note;
+document.getElementById('app').appendChild(note);
+document.addEventListener('input', () => {
+  const sel = document.querySelector('select.vault-widget-input');
+  if (!sel) return;
+  const T = TOPOS[sel.value];
+  const el = document.getElementById('conv-note');
+  if (el) el.innerHTML = '<strong>' + T.name + '</strong> — ' + T.formula + '.<br>' + T.note;
+});
+</script>
+</body>
+</html>

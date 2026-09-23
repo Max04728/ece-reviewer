@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Disk / Washer Method</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, trapezoid } from '../../../Assets/vault.js';
+
+// The insight this targets: a solid of revolution is a stack of thin slices, and the
+// integral is just the limit of that sum. Watching the approximation converge as n
+// rises makes the "add up the slices" idea concrete before the algebra arrives.
+
+const PRESETS = {
+  'disk: y = sqrt(x), x-axis': {
+    label: 'Disk — rotate y = √x about the x-axis',
+    f: (x) => Math.sqrt(x),
+    g: () => 0,
+    a: 0, b: 4,
+    exact: (a, b) => Math.PI * (b * b - a * a) / 2,
+    explain: 'V = π∫y²dx = π∫x dx. The slice is a solid disk because the region touches the axis.',
+  },
+  'washer: y = x and y = x^2': {
+    label: 'Washer — rotate the region between y = x and y = x²',
+    f: (x) => x,
+    g: (x) => x * x,
+    a: 0, b: 1,
+    exact: () => Math.PI * (1 / 3 - 1 / 5),
+    explain: 'V = π∫(R² − r²)dx with R = x and r = x². A hole appears because the region does not touch the axis.',
+  },
+  'washer about y = -1': {
+    label: 'Offset axis — rotate y = x² about the line y = −1',
+    f: (x) => x * x + 1,
+    g: () => 0,
+    a: 0, b: 2,
+    exact: () => Math.PI * (32 / 5 + 16 / 3 + 2),
+    explain: 'Radius is the distance to the AXIS, so rotating about y = −1 makes the radius (x² + 1), not x².',
+  },
+};
+
+const keys = Object.keys(PRESETS);
+
+widget({
+  title: 'Disk / Washer Method — Slices and Convergence',
+  description:
+    'Each slice is a disk (or a washer with a hole). Watch the Riemann sum converge to the exact volume as the slice count rises.',
+  height: 430,
+  range: { xMin: -0.5, xMax: 4.5, yMin: -1.5, yMax: 4.5 },
+  controls: [
+    { id: 'which', label: 'solid', type: 'select', options: keys, value: keys[0] },
+    { id: 'n', label: 'number of slices n', min: 1, max: 120, step: 1, value: 8 },
+    { id: 'showRiemann', label: 'show slice boundaries', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const P = PRESETS[v.which];
+    const n = Math.max(1, Math.round(v.n));
+    const dx = (P.b - P.a) / n;
+    let V = 0;
+    for (let i = 0; i < n; i++) {
+      const x = P.a + (i + 0.5) * dx;
+      const R = P.f(x) - P.g(x);
+      V += Math.PI * R * R * dx;
+    }
+    const exact = P.exact(P.a, P.b);
+    return { P, n, dx, V, exact, err: Math.abs(V - exact) };
+  },
+  draw: (ctx, v, out, plot) => {
+    const { P, n } = out;
+    plot.setRange({ xMin: P.a - 0.5, xMax: P.b + 0.5, yMin: Math.min(-1.5, P.g(P.a) - 1), yMax: Math.max(...[P.a, P.b].map(P.f)) + 0.8 });
+    plot.clear().grid(1, 1).axes();
+
+    // the generating region
+    plot.fn(P.f, P.a, P.b, { color: PALETTE.accent, width: 2.5 });
+    if (P.g(P.a) !== 0 || P.g(P.b) !== 0) {
+      plot.fn(P.g, P.a, P.b, { color: PALETTE.accent5, width: 2.5 });
+    }
+
+    // the actual slices as washers in cross-section
+    const dx = (P.b - P.a) / n;
+    const sliceFill = n > 40 ? 'rgba(137,180,250,0.20)' : 'rgba(137,180,250,0.34)';
+    for (let i = 0; i < n; i++) {
+      const x0 = P.a + i * dx;
+      const x1 = x0 + dx;
+      const xm = (x0 + x1) / 2;
+      const top = P.f(xm);
+      const bot = P.g(xm);
+      // draw the slice as a rectangle (side view of the washer's cross-section)
+      const X0 = plot.X(x0), X1 = plot.X(x1), Yt = plot.Y(top), Yb = plot.Y(bot);
+      ctx.save();
+      ctx.fillStyle = sliceFill;
+      ctx.fillRect(X0, Yt, Math.max(1, X1 - X0), Yb - Yt);
+      if (v.showRiemann && n <= 60) {
+        ctx.strokeStyle = PALETTE.grid;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(X0, Yt, Math.max(1, X1 - X0), Yb - Yt);
+      }
+      ctx.restore();
+    }
+
+    // the axis of revolution when it is not y = 0
+    if (P.g(P.a) !== 0 || P.g(P.b) !== 0) {
+      plot.segment(P.a - 0.3, 0, P.b + 0.3, 0, { color: PALETTE.warn, dash: [5, 4], width: 1.5 });
+      plot.label('axis of revolution', P.a + 0.1, 0.18, { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    }
+
+    plot.text(P.label, plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+  },
+  readout: (out) => ({
+    'slices n': String(out.n),
+    'slice width dx': fmt(out.dx, 4),
+    'Riemann sum V': fmt(out.V, 7),
+    'exact V': fmt(out.exact, 7),
+    'absolute error': fmt(out.err, 3),
+    'relative error': out.exact ? fmt(Math.abs(out.err / out.exact) * 100, 4) + ' %' : '—',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'disk-note';
+note.innerHTML = '<strong>' + PRESETS[keys[0]].label + '</strong><br>' + PRESETS[keys[0]].explain;
+document.getElementById('app').appendChild(note);
+document.addEventListener('input', () => {
+  const sel = document.querySelector('select.vault-widget-input');
+  const P = PRESETS[sel.value];
+  document.getElementById('disk-note').innerHTML = '<strong>' + P.label + '</strong><br>' + P.explain;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+{
+  "scope": "Solve a linear constant-coefficient difference equation by recursion or $z$-transforms, and decide stability from the characteristic roots.",
+  "intuition": "A difference equation is a rule for computing the next sample from the last few. Its homogeneous solution is set by the characteristic roots; the input adds a particular solution, and the total is the sum of the two.",
+  "concept": [
+    "**The form and the two solutions.** A linear constant-coefficient difference equation (LCCDE) has the form: $\\sum_{k=0}^{N}a_k y[n-k]=\\sum_{m=0}^{M}b_m x[n-m]$. Its solution splits into the **zero-input** (natural, homogeneous) response driven by the initial conditions $y[-1],y[-2],\\dots$ and the **zero-state** (forced) response driven by the input with zero initial rest. The total response is their sum. Do not confuse the zero-input response with the 'natural response' of the *forced* system: with a nonzero input the initial conditions of the particular solution also matter, and the zero-input/zero-state split is the one that is unambiguous.",
+    "**Recursion.** Given the initial conditions, solve for $y[n]$ directly: $y[n]=\\dfrac{1}{a_0}\\left(\\sum b_m x[n-m]-\\sum_{k\\ge1}a_k y[n-k]\\right)$. This is exact and fast for the first few samples, and it is the best way to check any closed form you derive. It works for any input, including ones with no closed form.",
+    "**$z$-transform method.** Transform with initial conditions included. For a delay: $\\mathcal{Z}\\{y[n-k]\\}=z^{-k}Y(z)+\\sum_{m=1}^{k}y[-m]z^{-(k-m)}$ for $k\\ge1$ — then solve algebraically and invert. The transfer function is: $H(z)=\\dfrac{\\sum b_mz^{-m}}{\\sum a_kz^{-k}}$. It is what remains when all initial conditions are zero, and its ROC tells you the causality/stability story.",
+    "**Stability from the characteristic roots.** The characteristic equation comes from setting the input to zero: $\\sum a_kz^{-k}=0$, which after multiplying by $z^{N}$ is a polynomial in $z$ whose roots are the poles. For a **causal** system, BIBO stability requires every pole strictly inside the unit circle, $\\lvert p_i\\rvert<1$. Poles on $\\lvert z\\rvert=1$ give marginal behaviour (a bounded natural response but an unbounded response to a resonant input); poles outside give an exponentially growing impulse response.",
+    "**Second-order shortcut (Jury/triangle test).** For $z^2+a_1z+a_2=0$ the roots are both inside the unit circle iff $\\lvert a_2\\rvert<1$ **and** $\\lvert a_1\\rvert<1+a_2$. This is the DT mirror of the Routh condition for a second-order polynomial, and it is what board questions use for a symbolic coefficient. Complex-conjugate poles are stable whenever their radius $\\sqrt{a_2}$ is less than 1, which is why $a_2$ alone is a *necessary* but not sufficient condition — the $a_1$ inequality rules out a pair of real poles straddling the unit circle."
+  ],
+  "formulas": [
+    { "q": "General LCCDE", "e": "\\sum_{k=0}^{N} a_k y[n-k] = \\sum_{m=0}^{M} b_m x[n-m]", "n": "Constant coefficients; the system is LTI and causal when the recursion is in y[n-k], k>=1." },
+    { "q": "Transfer function", "e": "H(z) = \\frac{\\sum_{m=0}^{M} b_m z^{-m}}{\\sum_{k=0}^{N} a_k z^{-k}}", "n": "Obtained with zero initial conditions." },
+    { "q": "Recursion form", "e": "y[n] = \\frac{1}{a_0}\\left(\\sum_m b_m x[n-m] - \\sum_{k\\ge1} a_k y[n-k]\\right)", "n": "Use it to generate samples and to check a closed form." },
+    { "q": "Zero-input response", "e": "y_{zi}[n] = \\sum_i C_i p_i^{\\,n}", "n": "C_i from the initial conditions y[-1], y[-2], ...; p_i are the characteristic roots." },
+    { "q": "Characteristic equation", "e": "\\sum_{k=0}^{N} a_k z^{N-k} = 0", "n": "Multiply by z^N so the roots are the poles in z (not their reciprocals)." },
+    { "q": "Causal stability condition", "e": "\\lvert p_i \\rvert < 1\\ \\mathrm{for\\ every\\ pole}", "n": "Causal systems only; for a non-causal ROC, stability means the ROC contains |z| = 1." },
+    { "q": "Second-order Jury conditions", "e": "\\lvert a_2 \\rvert < 1\\ \\mathrm{and}\\ \\lvert a_1 \\rvert < 1+a_2", "n": "For z^2 + a1 z + a2 = 0. Both are needed." },
+    { "q": "First-order recursion", "e": "y[n] = a y[n-1] + x[n] \\Rightarrow p = a", "n": "Stable iff |a| < 1; time constant -1/ln|a| samples." },
+    { "q": "Step response of a first-order recursion", "e": "y[n] = \\frac{b}{1-a}\\left(1-a^{n+1}\\right)u[n]", "n": "For y[n] = a y[n-1] + b x[n] with x = u[n] and zero initial rest." },
+    { "q": "Impulse response", "e": "h[n] = \\mathcal{Z}^{-1}\\{H(z)\\}", "n": "Zero-state response to delta[n]; the recursion with x = delta generates it sample by sample." }
+  ],
+  "problems": [
+    {
+      "prompt": "Solve $y[n]-0.5y[n-1]=x[n]$ with $y[-1]=2$ and $x[n]=0$ for $n\\ge0$.",
+      "give": ["y[n] - 0.5 y[n-1] = x[n]", "y[-1] = 2", "x[n] = 0"],
+      "steps": [
+        "Zero input, so this is the zero-input response: $y[n]=0.5y[n-1]$ for $n\\ge0$",
+        "$y[0]=0.5y[-1]=0.5(2)=1$",
+        "$y[1]=0.5(1)=0.5$, $y[2]=0.5(0.5)=0.25$",
+        "General form: $y[n]=(0.5)^{n}y[0]=(0.5)^{n}$ for $n\\ge0$",
+        "So $y[n]=(0.5)^{n}u[n]$, or equivalently $2(0.5)^{n+1}u[n]$"
+      ],
+      "ans": "$y[n]=(0.5)^{n}u[n]$ — a decaying natural response set by the single pole at $z=0.5$.",
+      "trap": "Answering $y[n]=2(0.5)^{n}u[n]$ by propagating the initial condition directly. The state at $n=-1$ decays once *before* $n=0$: $y[0]=0.5y[-1]=1$."
+    },
+    {
+      "prompt": "Find the unit-step response of $y[n]-0.5y[n-1]=x[n]$ with zero initial rest.",
+      "give": ["y[n] - 0.5 y[n-1] = x[n]", "x[n] = u[n]", "y[-1] = 0"],
+      "steps": [
+        "With zero initial rest, $H(z)=\\dfrac{1}{1-0.5z^{-1}}$",
+        "For a step, $Y(z)=\\dfrac{1}{(1-0.5z^{-1})(1-z^{-1})}$",
+        "Partial fractions: $Y(z)=\\dfrac{2}{1-z^{-1}}-\\dfrac{1}{1-0.5z^{-1}}$",
+        "Both poles are inside the unit circle, so both terms are causal: $y[n]=\\left(2-(0.5)^{n}\\right)u[n]$",
+        "Check $n=0$: $y[0]=2-1=1$; recursion gives $0.5(0)+1=1$ ✓",
+        "Check $n=1$: $2-0.5=1.5$; recursion gives $0.5(1)+1=1.5$ ✓; the final value is $H(1)=2$"
+      ],
+      "ans": "$y[n]=\\left(2-(0.5)^{n}\\right)u[n]$, settling to 2.",
+      "trap": "Ignoring $y[-1]$ and using it anyway. With zero initial rest the recursion starts from $y[-1]=0$; if the problem gave $y[-1]\\neq0$ you would need the extra zero-input term added to this answer."
+    },
+    {
+      "prompt": "Determine the stability of $y[n]=1.2y[n-1]-0.32y[n-2]+x[n]$.",
+      "give": ["y[n] = 1.2 y[n-1] - 0.32 y[n-2] + x[n]"],
+      "steps": [
+        "Characteristic equation: $z^2-1.2z+0.32=0$",
+        "Discriminant: $1.44-4(0.32) = 1.44-1.28 = 0.16$, $\\sqrt{0.16}=0.4$",
+        "$z = \\dfrac{1.2\\pm0.4}{2} \\Rightarrow z_1 = 0.8,\\ z_2 = 0.4$",
+        "Both magnitudes are less than 1, so the system is BIBO stable",
+        "Cross-check with the Jury conditions: $\\lvert a_2\\rvert = 0.32 < 1$ ✓ and $\\lvert a_1\\rvert = 1.2 < 1+0.32 = 1.32$ ✓"
+      ],
+      "ans": "Stable: poles at $z=0.8$ and $z=0.4$, both inside the unit circle.",
+      "trap": "Reading the characteristic polynomial off the recursion without the sign flip. The recursion has $-1.2y[n-1]$, so the polynomial is $z^2-1.2z+0.32$, with roots $+0.8$ and $+0.4$ — not $-0.8$ and $-0.4$."
+    },
+    {
+      "prompt": "For $z^2-1\\cdot z+0.5=0$, use the Jury conditions to decide stability and confirm with the pole positions.",
+      "give": ["z^2 - z + 0.5 = 0", "a1 = -1, a2 = 0.5"],
+      "steps": [
+        "Condition 1: $\\lvert a_2\\rvert = 0.5 < 1$ ✓",
+        "Condition 2: $\\lvert a_1\\rvert = 1 < 1+a_2 = 1.5$ ✓",
+        "Both conditions hold, so the poles are inside the unit circle",
+        "Explicit roots: $z = \\dfrac{1\\pm\\sqrt{1-2}}{2} = 0.5\\pm j0.5$",
+        "Magnitudes: $\\lvert z\\rvert = \\sqrt{0.25+0.25} = \\sqrt{0.5} = 0.707 < 1$ ✓ stable"
+      ],
+      "ans": "Stable; poles at $0.5\\pm j0.5$ with $\\lvert z\\rvert=0.707$.",
+      "trap": "Checking only $\\lvert a_2\\rvert<1$. That condition alone is satisfied by $z^2-1.9z+0.9$, whose roots 1.0 and 0.9 include a pole on the unit circle. The $\\lvert a_1\\rvert<1+a_2$ condition is what catches it."
+    },
+    {
+      "prompt": "Find the impulse response of $y[n]=2y[n-1]+x[n]$ and use it to decide stability.",
+      "give": ["y[n] = 2 y[n-1] + x[n]"],
+      "steps": [
+        "With zero initial rest, $H(z)=\\dfrac{1}{1-2z^{-1}}$, pole at $z=2$",
+        "$h[n]=(2)^{n}u[n]$",
+        "Absolute summability test: $\\sum_{n=0}^{\\infty}\\lvert 2\\rvert^{n} = \\infty$",
+        "The system is not BIBO stable; the pole lies outside the unit circle",
+        "Equivalently, the natural response grows without bound for any nonzero initial condition"
+      ],
+      "ans": "$h[n]=2^{n}u[n]$ — unstable, because the pole at $z=2$ is outside the unit circle.",
+      "trap": "Concluding stability because the ROC $\\lvert z\\rvert>2$ is 'outside a pole'. A causal ROC outside the outermost pole includes the unit circle only if that pole radius is less than 1; here the unit circle is excluded."
+    }
+  ],
+  "traps": [
+    "**Dropping the initial-condition terms when transforming.** $\\mathcal{Z}\\{y[n-1]\\}=z^{-1}Y(z)+y[-1]$; omitting $y[-1]$ silently computes the zero-state response only.",
+    "**Reporting the zero-state answer when initial conditions were given.** For a first-order system, $y[-1]$ contributes $a^{n+1}y[-1]$, which can dominate the early samples.",
+    "**Sign errors building the characteristic polynomial.** A recursion with $-ay[n-1]$ gives $z-a=0$, not $z+a=0$.",
+    "**Testing stability with the $z^{-1}$ polynomial.** Roots of $\\sum a_kz^{-k}=0$ are the reciprocals of the poles; multiply by $z^N$ first.",
+    "**Treating a pole on the unit circle as stable.** A pole at $z=1$ gives a bounded natural response to a step but an unbounded response to a ramp, so the system is not BIBO stable.",
+    "**Applying the causal stability rule to a non-causal ROC.** Stability is always 'the ROC contains $\\lvert z\\rvert=1$'; 'all poles inside the unit circle' is only the causal special case.",
+    "**Trusting the Jury conditions for orders above two.** $\\lvert a_2\\rvert<1$ and $\\lvert a_1\\rvert<1+a_2$ apply to a quadratic only; higher orders need the full Jury array.",
+    "**Confusing the natural response with the zero-input response.** With a nonzero input the forced particular solution also contains the characteristic modes; only the zero-input/zero-state split is unambiguous."
+  ],
+  "refs": [
+    "[[08_Inverse_Z_Transform]]",
+    "[[10_System_Response_and_Step_Response]]",
+    "[[06_Z_Transform_Definition_and_ROC]]"
+  ],
+  "prereqs": ["[[08_Inverse_Z_Transform]]"]
+}

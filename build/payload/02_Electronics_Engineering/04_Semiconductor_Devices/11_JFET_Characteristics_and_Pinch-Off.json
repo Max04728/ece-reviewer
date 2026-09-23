@@ -1,0 +1,101 @@
+{
+  "scope": "Use the Shockley square law and the transconductance relations to find drain current, gate-source voltage, g_m, r_d and voltage gain for an n-channel JFET.",
+  "intuition": "A JFET is a bar of silicon with a reverse-biased gate junction wrapped around it. Increasing the reverse gate voltage widens the depletion region and squeezes the conducting channel, so the drain current falls. At V_GS(off) the channel is fully pinched shut and only a trickle flows.",
+  "concept": [
+    "**Structure and why the gate draws no current.** An n-channel JFET is a lightly doped n-type channel with two heavily doped $p^{+}$ gate regions diffused into its sides; the gate and channel form a $p^{+}n$ junction that is **always reverse biased** in normal operation. Because the junction is reverse biased, the gate current is only the reverse saturation current, typically nanoamps, so the gate presents a very high input resistance (megohms to hundreds of megohms) and the device is controlled by the gate *voltage*, not by gate current. That is the fundamental break from the BJT, whose forward-biased input junction demands real base current. The gate is used only to modulate the width of the depletion region that extends into the channel.",
+    "**Two regions, and the boundary between them.** With a small $V_{DS}$ the channel behaves as a voltage-controlled resistor: increasing $V_{GS}$ (more reverse bias) raises the channel resistance. This is the **ohmic or triode region**, and it exists only while $V_{DS}$ is smaller than the pinch-off boundary $V_{DS(sat)}=V_{GS}-V_{GS(off)}=V_{GS}+V_P$. As $V_{DS}$ grows, the voltage drop along the channel makes the depletion region near the drain wider than near the source, and at $V_{DS}=V_{DS(sat)}$ the two depletion regions meet at the drain end: the channel is **pinched off**. Pinch-off is not a shutdown — the voltage across the pinched section is fixed at $V_{DS(sat)}$, so the current through it is fixed and further increases in $V_{DS}$ only widen the depletion region toward the source. The drain current therefore becomes nearly constant: this is the **saturation or constant-current region**, and it is where the JFET is used as an amplifier. The current at $V_{GS}=0$, measured well into the constant-current region, is the data-sheet parameter $I_{DSS}$; the (negative for n-channel) gate voltage that reduces the current to essentially zero is $V_{GS(off)}=-V_P$, where $V_P$ is the pinch-off voltage as a positive magnitude.",
+    "**The transfer characteristic is a square law.** The Shockley equation $I_D=I_{DSS}\\left(1-\\frac{|V_{GS}|}{V_P}\\right)^{2}$ is a parabola on the transfer curve, controlled at three points you can plot from memory: $I_D=I_{DSS}$ at $V_{GS}=0$, $I_D=I_{DSS}/4$ at $V_{GS}=-V_P/2$, and $I_D=0$ at $V_{GS}=-V_P=-V_{GS(off)}$. It applies **only in the constant-current region**; in the ohmic region the same $V_{GS}$ gives a smaller current that depends on $V_{DS}$. Notice also that the curve is not a straight line, which is exactly why the transconductance changes with bias: $g_m=g_{m0}\\left(1-\\frac{|V_{GS}|}{V_P}\\right)$ where $g_{m0}=2I_{DSS}/|V_P|$ is the transconductance at $V_{GS}=0$. Eliminating the gate voltage gives the form that is fastest in an exam, $g_m=\\frac{2\\sqrt{I_{DSS}I_D}}{|V_P|}$, and its companion $g_m=g_{m0}\\sqrt{I_D/I_{DSS}}$. Maximum $g_m$ occurs at $V_{GS}=0$; $g_m$ falls to zero at pinch-off, so an amplifier biased near cutoff has almost no gain.",
+    "**Small-signal model and the limits of the simple gain formula.** For small signals the JFET is a voltage-controlled current source: a gate-source voltage $v_{gs}$ produces a drain current $g_m v_{gs}$, in parallel with the drain resistance $r_d=\\Delta V_{DS}/\\Delta I_D$ at constant $V_{GS}$, and the amplification factor is $\\mu=g_m r_d$. With a drain resistor $R_D$ the voltage gain is $A_v=-g_m(R_D\\parallel r_d)$, and the textbook shortcut $A_v=-g_mR_D$ is only valid when $r_d\\gg R_D$. Because $r_d$ is typically tens to hundreds of kilohms, a $2.2\\ \\mathrm{k\\Omega}$ drain resistor makes the shortcut good to a few percent, but a $47\\ \\mathrm{k\\Omega}$ load makes it badly optimistic. Three further limits matter: the gate-source junction must never be forward biased (about $+0.7\\ \\mathrm{V}$ destroys the high input resistance and can damage the device), the maximum drain current is bounded by $I_{DSS}$ so the square law fails if the bias asks for more, and the transconductance falls with temperature while $I_{DSS}$ also falls, which is why JFET bias is reasonably but not perfectly stable."
+  ],
+  "formulas": [
+    { "q": "Shockley square law (magnitude form)", "e": "I_D = I_{DSS}\\left(1 - \\frac{\\lvert V_{GS}\\rvert}{V_P}\\right)^{2}", "n": "n-channel, constant-current region only. V_P is the pinch-off magnitude (a positive number) and V_GS is between 0 and -V_P. At V_GS = 0, I_D = I_DSS; at |V_GS| = V_P, I_D = 0." },
+    { "q": "Shockley law with a signed pinch-off voltage", "e": "I_D = I_{DSS}\\left(1 - \\frac{V_{GS}}{V_{GS(off)}}\\right)^{2}, \\qquad V_{GS(off)} = -V_P < 0", "n": "Equivalent to the magnitude form ONLY if V_GS(off) is entered as the negative number. Substituting a positive V_P here gives (1 - (-2)/4)^2 = 2.25 and an impossible I_D above I_DSS." },
+    { "q": "Inverse Shockley: gate voltage for a target current", "e": "\\lvert V_{GS}\\rvert = V_P\\left(1 - \\sqrt{\\frac{I_D}{I_{DSS}}}\\right)", "n": "Take the square root before subtracting; the common error is to use the linear ratio I_D/I_DSS and get a gate voltage that is far too small." },
+    { "q": "Pinch-off boundary in the output characteristic", "e": "V_{DS(sat)} = V_{GS} - V_{GS(off)} = V_{GS} + V_P", "n": "For V_DS below this the device is in the ohmic region and Shockley does not apply. Example: V_GS = -2 V, V_P = 4 V requires V_DS >= 2 V for constant current." },
+    { "q": "Maximum transconductance (at V_GS = 0)", "e": "g_{m0} = \\frac{2 I_{DSS}}{\\lvert V_P\\rvert}", "n": "The largest g_m the device can give, in siemens (A/V). Compare with the data sheet g_fs at the intended bias point, which is always smaller." },
+    { "q": "Transconductance at a bias point", "e": "g_m = g_{m0}\\left(1 - \\frac{\\lvert V_{GS}\\rvert}{V_P}\\right) = \\frac{2\\sqrt{I_{DSS}I_D}}{\\lvert V_P\\rvert}", "n": "Use the first form when V_GS is known and the second when I_D is known. g_m falls linearly with V_GS but only as the square root of I_D." },
+    { "q": "Transconductance scaled from I_DSS", "e": "g_m = g_{m0}\\sqrt{\\frac{I_D}{I_{DSS}}}", "n": "Quick bias check: at I_D = I_DSS/4 the transconductance is halved. Using the linear ratio I_D/I_DSS instead of the square root overestimates g_m by 2x in that example." },
+    { "q": "Voltage gain of the common-source stage", "e": "A_v = -g_m R_D \\quad\\mathrm{or\\ exactly}\\quad A_v = -g_m\\left(R_D \\parallel r_d\\right)", "n": "The simple form assumes r_d >> R_D. The negative sign is the 180 degree phase inversion of the common-source connection." },
+    { "q": "Drain resistance and amplification factor", "e": "r_d = \\frac{\\Delta V_{DS}}{\\Delta I_D} \\ \\mathrm{at\\ constant\\ } V_{GS}, \\qquad \\mu = g_m r_d", "n": "r_d comes from the slope of the output curves; a flatter curve means a larger r_d. mu is dimensionless. For r_d = 83 kohm and g_m = 3 mS, mu = 250." },
+    { "q": "Ohmic-region channel resistance", "e": "r_{DS(on)} \\approx \\frac{V_{DS(sat)}}{I_{DSS}} = \\frac{\\lvert V_P\\rvert}{I_{DSS}} \\quad \\mathrm{at\\ } V_{GS} = 0", "n": "Rough small-signal on-resistance with the gate shorted to the source and a small V_DS. It rises steeply as V_GS approaches V_GS(off)." }
+  ],
+  "problems": [
+    {
+      "prompt": "An n-channel JFET has $I_{DSS}=12\\ \\mathrm{mA}$ and $V_P=4\\ \\mathrm{V}$ (so $V_{GS(off)}=-4\\ \\mathrm{V}$). Find $I_D$ for $V_{GS}=-1\\ \\mathrm{V}$ and for $V_{GS}=-3\\ \\mathrm{V}$, and state the minimum $V_{DS}$ needed for each answer to be valid.",
+      "give": ["I_DSS = 12 mA", "V_P = 4 V", "V_GS(off) = -4 V", "Case a: V_GS = -1 V", "Case b: V_GS = -3 V"],
+      "steps": [
+        "Case a: I_D = I_DSS(1 - |V_GS|/V_P)^2 = 12 mA * (1 - 1/4)^2 = 12 mA * 0.5625 = 6.75 mA",
+        "Validity for case a: V_DS >= V_GS + V_P = -1 + 4 = 3 V",
+        "Case b: I_D = 12 mA * (1 - 3/4)^2 = 12 mA * 0.0625 = 0.75 mA",
+        "Validity for case b: V_DS >= -3 + 4 = 1 V",
+        "Sanity check with the memorised points: I_D = I_DSS = 12 mA at V_GS = 0, I_D = I_DSS/4 = 3 mA at V_GS = -2 V, and I_D = 0 at V_GS = -4 V"
+      ],
+      "ans": "I_D = 6.75 mA at V_GS = -1 V (needs V_DS >= 3 V) and I_D = 0.75 mA at V_GS = -3 V (needs V_DS >= 1 V).",
+      "trap": "Interpolating linearly between the memorised points. Halfway from 0 to -4 V is -2 V, and the linear guess of 6 mA is wrong: the square law gives exactly 3 mA there, and -1 V gives 6.75 mA rather than 9 mA. The transfer curve is a parabola, not a line.", "calc": {"mode":"TABLE","steps":["`MODE` `6` with `f(X)=12(1−X÷4)²`, start −4, end 0, step 1 → $I_D$ = **0** → **0.75** → **3.0** → **6.75** → **12** mA over $V_{GS}$ = −4 V to 0 V.","Read straight off the table: **6.75** mA at −1 V and **0.75** mA at −3 V.","Boundary from the same row: `X+4` → **3** V at −1 V and **1** V at −3 V."],"note":"The table exposes the parabola: −2 V gives exactly 3 mA, not the 6 mA a linear guess predicts."}
+    },
+    {
+      "prompt": "The same JFET ($I_{DSS}=12\\ \\mathrm{mA}$, $V_P=4\\ \\mathrm{V}$) must be biased at $I_D=8\\ \\mathrm{mA}$. Find the required $V_{GS}$ and the resulting $V_{DS(sat)}$.",
+      "give": ["I_DSS = 12 mA", "V_P = 4 V", "Target I_D = 8 mA"],
+      "steps": [
+        "I_D/I_DSS = 8/12 = 0.6667, so sqrt(I_D/I_DSS) = 0.8165",
+        "|V_GS| = V_P(1 - sqrt(I_D/I_DSS)) = 4(1 - 0.8165) = 4(0.1835) = 0.734 V, so V_GS = -0.734 V",
+        "Boundary: V_DS(sat) = V_GS + V_P = -0.734 + 4 = 3.27 V, so the drain supply must allow at least 3.27 V across the device",
+        "Check: 12 mA * (1 - 0.734/4)^2 = 12 mA * (0.8165)^2 = 12 mA * 0.6667 = 8.00 mA"
+      ],
+      "ans": "V_GS = -0.734 V and V_DS(sat) = 3.27 V.",
+      "trap": "Using the linear ratio: |V_GS| = 4(1 - 8/12) = 1.33 V. That looks plausible and is nearly twice the correct answer; the square root is required because the Shockley equation is quadratic in V_GS.", "calc": {"mode":"COMP","steps":["`8E-3÷12E-3` → **0.66667**; `√Ans` → **0.81650** — root before subtracting.","`4×(1−Ans)` → **0.734** V, so $V_{GS}$ = **−0.734** V.","Boundary: `4−0.734` → **3.27** V = $V_{DS(sat)}$."],"note":"The linear ratio gives 1.33 V, nearly double, because Shockley is quadratic in $V_{GS}$."}
+    },
+    {
+      "prompt": "For the same device biased at $V_{GS}=-2\\ \\mathrm{V}$ (so $I_D=3\\ \\mathrm{mA}$), find $g_{m0}$ and $g_m$ two ways.",
+      "give": ["I_DSS = 12 mA", "V_P = 4 V", "V_GS = -2 V", "I_D = 3 mA"],
+      "steps": [
+        "g_m0 = 2*I_DSS/|V_P| = 2(12 mA)/4 V = 6 mS",
+        "g_m = g_m0(1 - |V_GS|/V_P) = 6 mS * (1 - 2/4) = 6 mS * 0.5 = 3 mS",
+        "Second route: g_m = 2*sqrt(I_DSS*I_D)/|V_P| = 2*sqrt(12 mA * 3 mA)/4 V",
+        "sqrt(36e-6 A^2) = 6 mA, so g_m = 2(6 mA)/4 V = 3 mS, which matches"
+      ],
+      "ans": "g_m0 = 6 mS at V_GS = 0 and g_m = 3 mS at the V_GS = -2 V bias point.",
+      "trap": "Reporting g_m = g_m0 = 6 mS at every bias point. The transconductance is halved at |V_GS| = V_P/2 and falls to zero at pinch-off, so quoting the data-sheet maximum g_fs for a device biased near cutoff doubles the predicted gain.", "calc": {"mode":"COMP","steps":["`2×12E-3÷4` → **6.0** mS = $g_{m0}$.","`×0.5` → **3.0** mS = $g_m$ at $V_{GS}$ = −2 V.","Second route: `2√(12E-3×3E-3)÷4` → **3.0** mS, which matches."],"note":"$g_m = g_{m0}$ only at $V_{GS} = 0$; quoting the data-sheet $g_{fs}$ doubles the gain."}
+    },
+    {
+      "prompt": "The stage uses $R_D=2.2\\ \\mathrm{k\\Omega}$ and the bias of the previous problem ($g_m=3\\ \\mathrm{mS}$, $r_d=83\\ \\mathrm{k\\Omega}$). Find the voltage gain both with and without $r_d$, in ratio and in dB.",
+      "give": ["g_m = 3 mS", "R_D = 2.2 kohm", "r_d = 83 kohm"],
+      "steps": [
+        "Approximate: A_v = -g_m*R_D = -(3 mS)(2200 ohm) = -6.6",
+        "R_D parallel r_d = (2200 * 83000)/(2200 + 83000) = 1.826e8/8.52e4 = 2143 ohm",
+        "Exact: A_v = -g_m*(R_D || r_d) = -(3 mS)(2143 ohm) = -6.43",
+        "In dB: 20*log10(6.43) = 16.2 dB, against 20*log10(6.6) = 16.4 dB for the shortcut, an error of only 0.2 dB"
+      ],
+      "ans": "A_v = -6.6 by the shortcut and -6.43 exactly, i.e. 16.2 dB with 180 degree phase inversion.",
+      "trap": "Assuming the shortcut is always safe. Here R_D is only 2.6 percent of r_d so the error is small, but with R_D = 47 kohm the exact gain is -g_m(47k || 83k) = -3 mS * 30.0 kohm = -90 instead of -141, a 3.9 dB error that would ruin a gain budget.", "calc": {"mode":"COMP","steps":["Shortcut: `3E-3×2200` → **−6.6**.","Exact: `2200×83000÷(2200+83000)` → **2143** $\\Omega$, then `3E-3×Ans` → **−6.43**.","`20log(6.43)` → **16.2** dB against **16.4** dB for the shortcut, only 0.2 dB here."],"note":"With $R_D = 47$ k$\\Omega$ the shortcut is 3.9 dB optimistic; check $r_d$ against $R_D$ first."}
+    },
+    {
+      "prompt": "At $V_{GS}=-2\\ \\mathrm{V}$ the drain current is $3.00\\ \\mathrm{mA}$ at $V_{DS}=10\\ \\mathrm{V}$ and $3.12\\ \\mathrm{mA}$ at $V_{DS}=20\\ \\mathrm{V}$. Find $r_d$ and the amplification factor $\\mu$. Then estimate the change in $I_D$ for a $50\\ \\mathrm{mV}$ step in $V_{GS}$ and compare with the exact Shockley value.",
+      "give": ["I_D = 3.00 mA at V_DS = 10 V", "I_D = 3.12 mA at V_DS = 20 V", "g_m = 3 mS", "V_GS step = 50 mV", "V_GS = -2 V"],
+      "steps": [
+        "r_d = delta_V_DS/delta_I_D = (20 - 10) V / (3.12 - 3.00) mA = 10 V / 0.12 mA = 83.3 kohm",
+        "mu = g_m*r_d = (3e-3 A/V)(83.3e3 ohm) = 250",
+        "Small-signal estimate: delta_I_D = g_m*delta_V_GS = (3 mS)(50 mV) = 0.15 mA",
+        "Exact at V_GS = -1.95 V: I_D = 12 mA*(1 - 1.95/4)^2 = 12 mA*(0.5125)^2 = 3.152 mA, so the true step is 0.152 mA"
+      ],
+      "ans": "r_d = 83.3 kohm, mu = 250, and delta_I_D = 0.15 mA by g_m against 0.152 mA exactly (about 1 percent low).",
+      "trap": "Computing r_d as V_DS/I_D = 10/3.00 mA = 3.33 kohm. Drain resistance is a slope, delta_V_DS over delta_I_D, not a DC operating-point ratio. A related error is calling mu dimensionless current gain when it is the voltage amplification factor g_m*r_d.", "calc": {"mode":"COMP","steps":["`10÷(3.12E-3−3.00E-3)` → **83.3** k$\\Omega$ = $r_d$, a slope and not $V_{DS}/I_D$.","`3E-3×Ans` → **250** = $\\mu$.","`3E-3×50E-3` → **0.15** mA from $g_m$; exact `12E-3×(1−1.95÷4)²−3E-3` → **0.152** mA."],"note":"$V_{DS}/I_D$ would give 3.33 k$\\Omega$, 25x wrong; $r_d$ is $\\Delta V_{DS}/\\Delta I_D$."}
+    }
+  ],
+  "traps": [
+    "**Mixing the sign conventions for $V_P$ and $V_{GS}$.** Entering $V_P=+4\\ \\mathrm{V}$ in $I_D=I_{DSS}(1-V_{GS}/V_P)^2$ with $V_{GS}=-2\\ \\mathrm{V}$ gives $(1.5)^2=2.25$ and $I_D=27\\ \\mathrm{mA}$, four and a half times $I_{DSS}$ and physically impossible. Use the magnitude form $\\left(1-|V_{GS}|/V_P\\right)^2$ or carry $V_{GS(off)}=-V_P$ with its sign.",
+    "**Applying the Shockley equation in the ohmic region.** It is valid only for $V_{DS}\\ge V_{GS}-V_{GS(off)}$. Below that boundary the channel is not pinched off and the current depends on $V_{DS}$, so using the square law there overstates the current.",
+    "**Thinking $I_{DSS}$ is the absolute maximum drain current.** $I_{DSS}$ is defined at $V_{GS}=0$ and $V_{DS}\\ge|V_P|$, and it is also the largest current the square law can produce. Any calculation returning $I_D>I_{DSS}$ means a sign or convention error.",
+    "**Treating $g_m$ as proportional to $I_D$.** It goes as $\\sqrt{I_D}$, so halving the drain current reduces $g_m$ by a factor of $\\sqrt{2}$, not 2. Quoting the data-sheet $g_{fs}$ maximum for a bias point near cutoff is the same error in disguise.",
+    "**Assuming the gate draws a little current or needs a bias supply.** The gate junction is reverse biased, so $I_G$ is nanoamps and a gate resistor exists only to set the DC reference and the input impedance. A forward-biased gate (about $+0.7\\ \\mathrm{V}$) collapses the input resistance and can destroy the device.",
+    "**Ignoring $r_d$ in the gain.** $A_v=-g_mR_D$ is valid only while $r_d\\gg R_D$; with a large drain resistor the exact $A_v=-g_m(R_D\\parallel r_d)$ can be several dB lower."
+  ],
+  "refs": [
+    "[[12_MOSFET_Types_and_Regions]]",
+    "[[04_FET_Biasing_Configurations]]",
+    "[[05_BJT_Small-Signal_h-Parameter_Model]]"
+  ],
+  "prereqs": [
+    "[[02_PN_Junction_and_Depletion_Region]]"
+  ]
+}

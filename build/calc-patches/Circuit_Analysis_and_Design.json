@@ -1,0 +1,1009 @@
+[
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 1,
+    "expect": "for a fixed-bias (base-bias) NPN stage.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(12 − 0.7) ÷ 240E3` → $I_B$ = **47.08** $\\mu$A; `× 100` → $I_C$ = **4.708** mA.",
+        "`12 − Ans × 2.2E3` → $V_{CE}$ = **1.642** V, above $V_{CE(sat)}$, so the active-region assumption holds."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 2,
+    "expect": "built with a replacement transistor whose",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`150 × (12 − 0.7) ÷ 240E3` → the linear $I_C$ = **7.063** mA; `12 − Ans × 2.2E3` → $V_{CE}$ = **−3.54** V, which is impossible.",
+        "So clamp and recompute: `(12 − 0.2) ÷ 2.2E3` → $I_{C(sat)}$ = **5.36** mA with $V_{CE}$ = **0.2** V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 3,
+    "expect": "for an emitter-stabilized bias network.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(12 − 0.7) ÷ (240E3 + 101 × 1E3)` → $I_B$ = **33.14** $\\mu$A.",
+        "`× 100` → $I_C$ = **3.314** mA; `÷ 100 × 101` → $I_E$ = **3.347** mA.",
+        "`12 − Ans × 1E3 − 3.314E-3 × 2.2E3` → $V_{CE}$ = **1.363** V ($I_E$ from `Ans`, $I_C$ typed)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 4,
+    "expect": "both exactly and with the standard approximation",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`22 × 20 ÷ 104` → $V_{TH}$ = **4.231** V; `82 × 22 ÷ 104` → $R_{TH}$ = **17.35** k$\\Omega$.",
+        "`MODE` `5` `1` (2 unknowns): coefficients `−120` `1` `0` then `18.85` `1.5` `3.531` `=` → $I_B$ = **0.01776** mA, $I_C$ = **2.131** mA (R in k$\\Omega$, so the currents come out in mA).",
+        "`20 − 2.131 × 4.7 − 0.01776 × 121 × 1.5` → $V_{CE}$ = **6.76** V; the approximation `3.531 ÷ 1.5` → $I_E$ = **2.354** mA and `20 − 2.354 × 6.2` → **5.41** V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 5,
+    "expect": "for a collector-to-base (collector-feedback) bias stage",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(12 − 0.7) ÷ (220E3 + 101 × 2.2E3)` → $I_B$ = **25.55** $\\mu$A.",
+        "`× 100` → $I_C$ = **2.555** mA; `× 220E3 + 0.7` → $V_{CE}$ = **6.32** V (the whole of $V_C$, since $R_E = 0$)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 6,
+    "expect": "A two-supply emitter-bias stage returns the emitter",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100E3 ÷ 101` → $R_B/(\\beta+1)$ = **990.1** $\\Omega$; `9.3 ÷ (4.7E3 + Ans)` → $I_E$ = **1.634** mA.",
+        "The shortcut, for comparison: `9.3 ÷ 4.7E3` → **1.979** mA, which is **+21.1** % high."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 7,
+    "expect": "for a target Q-point of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E-3 ÷ 150 × 151` → $I_E$ = **2.013** mA; `× 1E3 + 0.7` → $V_B$ = **2.713** V.",
+        "`2.713 ÷ (20 × 2E-3 ÷ 150)` → $R_2$ = **10.17** k$\\Omega$; `9.287 ÷ (21 × 2E-3 ÷ 150)` → $R_1$ = **33.17** k$\\Omega$.",
+        "Re-solve with the standard values: `33 × 10 ÷ 43` → $R_{TH}$ = **7.674** k$\\Omega$, `10 × 12 ÷ 43` → $V_{TH}$ = **2.791** V, then `(2.791 − 0.7) ÷ (7.674 + 151)` → $I_B$ = **13.18** $\\mu$A and `× 150` → $I_C$ = **1.976** mA."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 8,
+    "expect": "Complete DC analysis: find",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`8.2 × 18 ÷ 47.2` → $V_{TH}$ = **3.127** V; `39 × 8.2 ÷ 47.2` → $R_{TH}$ = **6.775** k$\\Omega$.",
+        "`MODE` `5` `1`: coefficients `−150` `1` `0` then `7.775` `1` `2.427` `=` → $I_B$ = **0.01538** mA, $I_C$ = **2.308** mA.",
+        "`0.01538 × 151` → $I_E$ = **2.323** mA, so $V_E$ = **2.323** V and $V_B$ = **3.023** V; `18 − 2.308 × 3.3` → $V_C$ = **10.39** V, giving $V_{CE}$ = **8.06** V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/01_BJT_DC_Biasing_Configurations.json",
+    "problem": 9,
+    "expect": "Using the voltage-divider stage of the previous problem",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3.531 ÷ (17.35 + 101 × 1.5)` → $I_B$ = **20.91** $\\mu$A and `× 100` → $I_C$ = **2.091** mA at $\\beta$ = 100.",
+        "`3.531 ÷ (17.35 + 301 × 1.5)` → $I_B$ = **7.531** $\\mu$A and `× 300` → $I_C$ = **2.259** mA at $\\beta$ = 300.",
+        "`(2.259 − 2.091) ÷ 2.091` → **+8.0** % for a 3× change in $\\beta$, against +200 % for fixed bias."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/02_Load_Lines_and_Q_Point.json",
+    "problem": 1,
+    "expect": "A fixed-bias CE stage has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(12 − 0.7) ÷ 470E3` → $I_{BQ}$ = **24.04** $\\mu$A; `× 100` → $I_{CQ}$ = **2.404** mA.",
+        "`12 ÷ 2.2E3` → the DC-line endpoint $I_{C(sat)}$ = **5.455** mA; `12 − 2.404E-3 × 2.2E3` → $V_{CEQ}$ = **6.711** V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/02_Load_Lines_and_Q_Point.json",
+    "problem": 2,
+    "expect": "is capacitively coupled to a load",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.2 × 4.7 ÷ (2.2 + 4.7)` → $r_{ac}$ = **1.499** k$\\Omega$.",
+        "`2.404 + 6.711 ÷ 1.499` → $i_{c,max}$ = **6.882** mA; `6.711 + 2.404 × 1.499` → $v_{ce,max}$ = **10.31** V.",
+        "`2.404 × 1.499` → $I_{CQ}r_{ac}$ = **3.604** V, so the smaller of 3.604 and 6.711 gives $V_{opp}$ = **3.60** V peak (7.21 V peak-to-peak)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/02_Load_Lines_and_Q_Point.json",
+    "problem": 3,
+    "expect": "A CE stage with an UNBYPASSED emitter resistor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3.3 × 10 ÷ 13.3` → $R_C \\parallel R_L$ = **2.481** k$\\Omega$; `+ 1` → $r_{ac}$ = **3.481** k$\\Omega$.",
+        "`15 − 2 × 4.3` → $V_{CEQ}$ = **6.4** V.",
+        "`2 × 3.481` → $I_{CQ}r_{ac}$ = **6.962** V, so the binding limit is the 6.4 V cutoff side: $V_{opp}$ = **6.40** V peak."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/02_Load_Lines_and_Q_Point.json",
+    "problem": 4,
+    "expect": "the DC load line has intercepts",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "Slopes: `8 ÷ 16` → **0.5** mA/V and `10 ÷ 15` → **0.6667** mA/V.",
+        "`SHIFT` `SOLVE` on `8 − 0.5X = 10 − 0.6667X` (the inner equals is `ALPHA` `=`), guess 1 → $v_{CE}$ = **12.0** V.",
+        "`8 − 0.5 × 12` → $I_{CQ}$ = **2.0** mA; `16 ÷ 8` → $R_C + R_E$ = **2** k$\\Omega$; `15 ÷ 10` → $r_{ac}$ = **1.5** k$\\Omega$; `2 × 1.5` → $V_{opp}$ = **3.0** V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/02_Load_Lines_and_Q_Point.json",
+    "problem": 5,
+    "expect": "Find the maximum symmetrical swing (a) with no load",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`12 − 3 × 2` → $V_{CEQ}$ = **6.0** V, so Q sits at the centre of the DC line.",
+        "(a) no load means $r_{ac} = R_C$: `3 × 2` → **6.0** V, equal to $V_{CEQ}$, so $V_{opp}$ = **6.0** V peak.",
+        "(b) `2 × 2 ÷ (2 + 2)` → $r_{ac}$ = **1.0** k$\\Omega$, so `3 × 1` → **3.0** V peak — the current limit binds first."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/03_Bias_Stability_and_Stability_Factors.json",
+    "problem": 1,
+    "expect": "A fixed-bias stage (no emitter resistor)",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 + 100` → fixed-bias $S_{I_{CO}}$ = **101**; `× 0.5` → $\\Delta I_C$ = **50.5** $\\mu$A.",
+        "`101 × 6.79 ÷ (5.79 + 101)` → divider $S$ = **6.42**; `× 0.5` → $\\Delta I_C$ = **3.21** $\\mu$A.",
+        "`101 ÷ 6.42` → the divider drift is **15.7**× smaller."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/03_Bias_Stability_and_Stability_Factors.json",
+    "problem": 2,
+    "expect": "Find the quiescent current and the exact stability factor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`39 × 6.8 ÷ 45.8` → $R_{TH}$ = **5.790** k$\\Omega$; `12 × 6.8 ÷ 45.8` → $V_{TH}$ = **1.782** V.",
+        "`150 × (1.782 − 0.7) ÷ (5.79 + 151)` → $I_{CQ}$ = **1.035** mA.",
+        "`151 × 6.79 ÷ 156.79` → $S$ = **6.54**; the rule of thumb `1 + 5.79` → **6.79**, 3.8 % high."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/03_Bias_Stability_and_Stability_Factors.json",
+    "problem": 3,
+    "expect": "find $S_{V_{BE}}$ and the collector-current change",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`150 ÷ 156790` → $\\lvert S_{V_{BE}} \\rvert$ = **9.567e-4** A/V = **0.957** mA/V.",
+        "`0.957 × 2` → **1.913** $\\mu$A per °C (mA/V times mV); `× 40` → **76.5** $\\mu$A over 40 °C.",
+        "`76.5 ÷ 1035` → **7.4** % of the quiescent current."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/03_Bias_Stability_and_Stability_Factors.json",
+    "problem": 4,
+    "expect": "if the batch of transistors arrives with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1.035 × 6.79 ÷ (150 × 156.79)` → $S_\\beta$ = **2.988e-7** A per unit $\\beta$ = **0.299** $\\mu$A per unit $\\beta$.",
+        "`0.299 × 10` → **2.99** $\\mu$A; `÷ 1035` → **+0.29** %.",
+        "Direct check at $\\beta$ = 160: `160 × 1.082 ÷ (5.79 + 161)` → $I_C$ = **1.038** mA, that is **+0.27** % on 1.035 mA."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/03_Bias_Stability_and_Stability_Factors.json",
+    "problem": 5,
+    "expect": "A fixed-bias Ge stage has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.1 × 2^(30 ÷ 10)` → $I_{CO}(55)$ = **0.8** $\\mu$A, so $\\Delta I_{CO}$ = **0.7** $\\mu$A.",
+        "`101 × 0.7` → $\\Delta I_C$ = **70.7** $\\mu$A, using $S = 1 + \\beta$.",
+        "`100 × (12 − 0.7) ÷ 470` → $I_{CQ}$ = **2.404** mA; `70.7 ÷ 2404` → **2.9** %."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/04_FET_Biasing_Configurations.json",
+    "problem": 1,
+    "expect": "A self-biased n-channel JFET has",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "Substituting $V_{GS} = -I_DR_S$ into Shockley gives `0.5X² − 5X + 8 = 0`, i.e. `X² − 10X + 16 = 0`.",
+        "`MODE` `5` page 2 `1` (quadratic), coefficients `1` `−10` `16` `=` → $I_D$ = **8** and **2** mA; keep **2** mA because it needs $V_{GS}$ = **−2** V, inside pinch-off.",
+        "`20 − 2 × (2.2 + 1)` → $V_{DS}$ = **13.6** V, above $V_{GS} - V_P$ = 2 V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/04_FET_Biasing_Configurations.json",
+    "problem": 2,
+    "expect": "A voltage-divider biased JFET has",
+    "calc": {
+      "mode": "EQN",
+      "steps": [
+        "`20 × 0.7 ÷ 4.0` → $V_G$ = **3.5** V; Shockley then gives `I_D² − 17I_D + 56.25 = 0`.",
+        "`MODE` `5` page 2 `1`: coefficients `1` `−17` `56.25` `=` → **12.5** and **4.5** mA; keep **4.5** mA, which needs $V_{GS}$ = **−1.0** V.",
+        "`4.5 × 1` → $V_S$ = **4.5** V; `20 − 4.5 × 2.2` → $V_D$ = **10.1** V; $V_{DS}$ = **5.6** V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/04_FET_Biasing_Configurations.json",
+    "problem": 3,
+    "expect": "A JFET is biased from a dual supply",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(20 × 1 + (−10) × 2.75) ÷ 3.75` → $V_G$ = **−2.0** V.",
+        "The source is grounded, so $V_{GS} = V_G$: `8 × (1 − (−2) ÷ (−4))²` → $I_D$ = **2.0** mA.",
+        "`20 − 2 × 2.2` → $V_{DS}$ = **15.6** V, well above $V_{GS} - V_P$ = 2 V."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/04_FET_Biasing_Configurations.json",
+    "problem": 4,
+    "expect": "and, in a second design, at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2 × 8 ÷ 4` → $g_{m0}$ = **4** mS.",
+        "Design 1: `8 × (1 − 2 ÷ 4)²` → $I_D$ = **2** mA; `4 × (1 − 2 ÷ 4)` → $g_m$ = **2.0** mS, checked by `4 × √(2 ÷ 8)`.",
+        "Design 2: `8 × (1 − 1 ÷ 4)²` → $I_D$ = **4.5** mA; `4 × (1 − 1 ÷ 4)` → $g_m$ = **3.0** mS, checked by `2 × 4.5 ÷ 3`."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/04_FET_Biasing_Configurations.json",
+    "problem": 5,
+    "expect": "A JFET is fixed-biased: the source is grounded",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`12 × (1 − 1.5 ÷ 6)²` → $I_D$ = **6.75** mA.",
+        "`15 − 6.75 × 1` → $V_{DS}$ = **8.25** V, above $V_{GS} - V_P$ = **4.5** V, so the square law is valid.",
+        "`2 × 12 ÷ 6 × (1 − 1.5 ÷ 6)` → $g_m$ = **3.0** mS."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/05_BJT_Small-Signal_h-Parameter_Model.json",
+    "problem": 1,
+    "expect": "Find the AC load, the current gain",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.2 × 4.7 ÷ (2.2 + 4.7)` → $R_L$ = **1.499** k$\\Omega$.",
+        "`25E-6 × 1.499E3` → $h_{oe}R_L$ = **0.0375**, so $A_i \\approx h_{fe}$ = **100** and $Z_i \\approx h_{ie}$ = **1** k$\\Omega$.",
+        "`−100 × 1.499` → $A_v$ = **−149.9** (inverting)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/05_BJT_Small-Signal_h-Parameter_Model.json",
+    "problem": 2,
+    "expect": "find the EXACT current gain and input impedance",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`: MatA = `1000 2.5E-4 100 25E-6` (that is $h_{ie}$, $h_{re}$ in the first row and $h_{fe}$, $h_{oe}$ in the second); `Apps` `▼` `1` `Det` → $\\Delta h$ = **0**.",
+        "`25E-6 × 1.499E3` → **0.0375**, so `100 ÷ 1.0375` → $A_i$ = **96.4**.",
+        "`1000 − 2.5E-4 × 96.4 × 1499` → $Z_i$ = **964** $\\Omega$; `−96.4 × 1499 ÷ 964` → $A_v$ = **−149.9**, the same as the approximation."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/05_BJT_Small-Signal_h-Parameter_Model.json",
+    "problem": 3,
+    "expect": "working into a heavy AC load of",
+    "calc": {
+      "mode": "MATX",
+      "steps": [
+        "`MODE` `7`: MatA = `1200 2.5E-4 120 30E-6`; `Det` → $\\Delta h$ = **0.006** — a subtraction, not a sum.",
+        "`30E-6 × 1E4` → $h_{oe}R_L$ = **0.30**; `120 ÷ 1.30` → $A_i$ = **92.3**.",
+        "`(1200 + 0.006 × 1E4) ÷ 1.30` → $Z_i$ = **969** $\\Omega$; `−120 × 1E4 ÷ 1260` → $A_v$ = **−952** against the approximation **−1000**, 5 % high."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/05_BJT_Small-Signal_h-Parameter_Model.json",
+    "problem": 4,
+    "expect": "Find $r_e$, $h_{ie}$, $h_{fe}$ and the voltage gain, then repeat",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`26E-3 ÷ 1E-3` → $r_e$ = **26** $\\Omega$; `× 100` → $h_{ie}$ = **2.6** k$\\Omega$, with $h_{fe} = \\beta$ = **100**.",
+        "Unloaded: `2600 ÷ 26` → $\\lvert A_v \\rvert$ = **100**, the same as $R_C/r_e$ because $\\beta$ cancels.",
+        "Loaded: `2.6 × 2.6 ÷ 5.2` → $R_L$ = **1.3** k$\\Omega$, so `1300 ÷ 26` → $\\lvert A_v \\rvert$ = **50**, exactly half."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/05_BJT_Small-Signal_h-Parameter_Model.json",
+    "problem": 5,
+    "expect": "and an UNBYPASSED emitter resistor",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`101 × 100` → $(1 + h_{fe})R_E$ = **10.1** k$\\Omega$; `+ 1000` → $Z_i$ = **11.1** k$\\Omega$.",
+        "`−100 × 2000 ÷ 11100` → $A_v$ = **−18.0**.",
+        "Bypassed for comparison: `−100 × 2000 ÷ 1000` → **−200** with $Z_i$ = **1** k$\\Omega$, a factor of 11."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 1,
+    "expect": "for a BJT biased at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`26 ÷ 2` → $r_e$ = **13** $\\Omega$; `× 150` → $r_\\pi$ = **1.95** k$\\Omega$.",
+        "`(150 ÷ 151 × 2) ÷ 26` → $g_m$ = **76.4** mS; the $r_e$-model convention gives `1 ÷ 13` → **76.9** mS."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 2,
+    "expect": "A CE amplifier has the Q-point of the previous problem",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4.7 × 10 ÷ 14.7` → $R_L'$ = **3.197** k$\\Omega$; `−3197 ÷ 13` → $A_v$ = **−245.9**.",
+        "`220 × 1.95 ÷ 221.95` → $Z_i$ = **1.933** k$\\Omega$.",
+        "`245.9 × 1933 ÷ 3197` → $A_i$ = **148.7**, just under $\\beta$ as expected."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 3,
+    "expect": "Repeat the previous problem but include the transistor output resistance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 ÷ (1 ÷ 50 + 1 ÷ 4.7 + 1 ÷ 10)` → $R_{ac}$ = **3.005** k$\\Omega$ (the `x⁻¹` key is the fast route to a parallel set).",
+        "`−3005 ÷ 13` → $A_v$ = **−231.2**.",
+        "`(245.9 − 231.2) ÷ 231.2` → **+6.4** %, the error from dropping $r_o$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 4,
+    "expect": "The same stage is rebuilt with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`13 + 470` → **483** $\\Omega$; `−3197 ÷ 483` → $A_v$ = **−6.62**.",
+        "`1950 + 151 × 470` → **72.92** k$\\Omega$; `220 × 72.92 ÷ 292.92` → $Z_i$ = **54.8** k$\\Omega$.",
+        "The trade: the gain falls **37**× (246 to 6.62) while $Z_i$ rises **28**× (1.93 k to 54.8 k)."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 5,
+    "expect": "for a common-base stage",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`13 × 2000 ÷ 2013` → $Z_i$ = **12.9** $\\Omega$.",
+        "`3197 ÷ 13` → $A_v$ = **+245.9** — the same magnitude as the CE stage but non-inverting.",
+        "`150 ÷ 151` → $\\alpha$ = **0.9934**, so $A_i = -\\alpha$ = **−0.993**, and `Z_o` = **4.7** k$\\Omega$ = $R_C$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 6,
+    "expect": "An emitter follower drives a load",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 × 2 ÷ 3` → $R_L'$ = **666.7** $\\Omega$; `666.7 ÷ (13 + 666.7)` → $A_v$ = **0.981**.",
+        "`1950 + 151 × 666.7` → **102.6** k$\\Omega$; `100 × 102.6 ÷ 202.6` → $Z_i$ = **50.6** k$\\Omega$.",
+        "`600 × 100 ÷ 100.6` → $R_s \\parallel R_B$ = **596.4** $\\Omega$, so `13 + 596.4 ÷ 151` → **16.95** $\\Omega$ and `1000 × 16.95 ÷ 1016.95` → $Z_o$ = **16.7** $\\Omega$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 7,
+    "expect": "Design the bias current for a CE stage",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3.9 × 6.8 ÷ 10.7` → $R_L'$ = **2.478** k$\\Omega$.",
+        "`SHIFT` `SOLVE` on `120 = 2.478X ÷ 0.026` (the inner equals is `ALPHA` `=`), guess 1 → $I_E$ = **1.259** mA.",
+        "Check: `0.026 ÷ 1.259` → $r_e$ = **20.65** $\\Omega$, and `2478 ÷ 20.65` → **120.0**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 8,
+    "expect": "is driven from a source with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10 × 1933 ÷ (1933 + 600)` → $v_b$ = **7.63** mV.",
+        "`245.9 × 7.63` → $v_o$ = **1.88** V peak.",
+        "`(10 − 7.63) ÷ 10` → **23.7** % of the source lost at the input; `1.987 × 3.197` → **6.35** V of swing available, so there is no clipping."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/06_Small-Signal_re_Model_CE,_CB,_CC.json",
+    "problem": 9,
+    "expect": "A 1 V source with",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 × 1000 ÷ 11000` → the direct connection gives $v_L$ = **0.0909** V.",
+        "`1 × 1 ÷ 2` → $R_L'$ = **500** $\\Omega$; `1950 + 151 × 500` → **77.45** k$\\Omega$; `100 × 77.45 ÷ 177.45` → $Z_i$ = **43.6** k$\\Omega$.",
+        "`43.6 ÷ 53.6` → $v_b$ = **0.8136** V, `500 ÷ 513` → $A_v$ = **0.9747**, so $v_L$ = **0.793** V; `0.793 ÷ 0.0909` → **8.7**× better."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/07_Hybrid-Pi_Model.json",
+    "problem": 1,
+    "expect": "A silicon NPN is biased at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1E-3 ÷ 26E-3` → $g_m$ = **38.46** mS; `100 ÷ 38.46E-3` → $r_\\pi$ = **2.60** k$\\Omega$.",
+        "`26E-3 ÷ 1.01E-3` → $r_e$ = **25.7** $\\Omega$; `100 ÷ 1E-3` → $r_o$ = **100** k$\\Omega$.",
+        "`2600 ÷ 25.7` → **101.2** = $\\beta + 1$, the model's own consistency check."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/07_Hybrid-Pi_Model.json",
+    "problem": 2,
+    "expect": "Find the midband voltage gain, the input resistance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4.7 × 10 ÷ 14.7` → $R_C \\parallel R_L$ = **3.197** k$\\Omega$.",
+        "`−38.5 × 3.197` → $A_v$ = **−123.1**; `2.6 × 47 ÷ 49.6` → $R_{in}$ = **2.464** k$\\Omega$.",
+        "`20 log(123.1)` → **41.8** dB, with the minus sign carried separately as the 180° inversion."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/07_Hybrid-Pi_Model.json",
+    "problem": 3,
+    "expect": "and an open output",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`−38.46 × 3` → $A_v$ = **−115.4** V/V with the Early effect ignored.",
+        "`3 × 100 ÷ 103` → $R_C \\parallel r_o$ = **2.913** k$\\Omega$; `−38.46 × 2.913` → $A_v$ = **−112.0** V/V.",
+        "`(115.4 − 112.0) ÷ 112.0` → **3.0** % overstatement when $r_o$ is dropped."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/07_Hybrid-Pi_Model.json",
+    "problem": 4,
+    "expect": "delivers its output to a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4.7 × 100 ÷ 104.7` → $R_C \\parallel r_o$ = **4.489** k$\\Omega$; `38.46 × 4.489 × 10` → $v_c$ = **1.727** V peak.",
+        "`1 ÷ (1 ÷ 4.7 + 1 ÷ 10 + 1 ÷ 100)` → **3.097** k$\\Omega$; `38.46 × 3.097 × 10` → $v_L$ = **1.191** V peak.",
+        "`3.097 ÷ 4.489` → **0.690**, that is **3.2** dB lost across the load network."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/08_FET_Amplifiers_CS,_CD,_CG.json",
+    "problem": 2,
+    "expect": "is rewired as a source follower",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2.2 × 10 ÷ 12.2` → $R_S \\parallel R_L$ = **1.803** k$\\Omega$.",
+        "`2.32 × 1.803` → $g_mR_S'$ = **4.183**; `Ans ÷ (1 + Ans)` → $A_v$ = **0.807**.",
+        "`1 ÷ 2.32E-3` → $1/g_m$ = **431** $\\Omega$; `2200 × 431 ÷ 2631` → $R_{out}$ = **360** $\\Omega$, with $R_{in} = R_G$ = **1** M$\\Omega$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/08_FET_Amplifiers_CS,_CD,_CG.json",
+    "problem": 3,
+    "expect": "is used as a common-gate stage",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 ÷ 4E-3` → $1/g_m$ = **250** $\\Omega$; `1000 × 250 ÷ 1250` → $R_{in}$ = **200** $\\Omega$.",
+        "`1 ÷ (1 ÷ 3.3 + 1 ÷ 10 + 1 ÷ 50)` → the drain-side AC load including $r_d$ = **2.364** k$\\Omega$.",
+        "`4 × 2.364` → $A_v$ = **+9.46** V/V (non-inverting); `3.3 × 50 ÷ 53.3` → $R_{out}$ = **3.10** k$\\Omega$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/09_Multistage,_Cascade_and_Cascode.json",
+    "problem": 1,
+    "expect": "Two identical CE stages are cascaded",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`3 × 10 ÷ 13` → $R_{L(eff)2}$ = **2.308** k$\\Omega$; `−40 × 2.308` → $A_{v2}$ = **−92.3**.",
+        "`3 × 2.7 ÷ 5.7` → $R_{L(eff)1}$ = **1.421** k$\\Omega$; `−40 × 1.421` → $A_{v1}$ = **−56.8**.",
+        "`56.8 × 92.3` → $A_{v(total)}$ = **5243** V/V, positive because two inversions cancel; `20 log(Ans)` → **74.4** dB."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/09_Multistage,_Cascade_and_Cascode.json",
+    "problem": 2,
+    "expect": "the dB lost to interstage loading alone",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4.7 × 2.2 ÷ 6.9` → $R_{L(eff)1}$ = **1.499** k$\\Omega$; `−40 × 1.499` → $A_{v1}$ = **−59.9**.",
+        "`59.9 × 150` → $A_{v(total)}$ = **8985**; `20 log(Ans)` → **79.1** dB.",
+        "Unloaded `−40 × 4.7` → **−188**, so `20 log(188 × 150)` → **89.0** dB and the loading costs **9.9** dB."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/09_Multistage,_Cascade_and_Cascode.json",
+    "problem": 4,
+    "expect": "A three-stage amplifier has stage gains",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`40 + 34 + 20 − 3` → **91** dB total; a loss always subtracts.",
+        "`10^(91 ÷ 20)` → $A$ = **3.548e4** V/V (voltage ratio, so the divisor is 20, not 10).",
+        "`5 ÷ 3.548E4` → $v_{in}$ = **141** $\\mu$V for a 5 V output."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/10_Darlington_and_Feedback_Pairs.json",
+    "problem": 1,
+    "expect": "A Darlington pair uses two identical transistors",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`150 × 150 + 150 + 150` → $\\beta_D$ = **22800**; the approximation `150²` = **22500** is 1.3 % low.",
+        "`22800 × 20E-6` → $I_E$ = **456** mA.",
+        "`1 × 1 ÷ 2` → $R_E \\parallel R_L$ = **0.5** k$\\Omega$; `22800 × 500` → $R_{in(D)}$ = **11.4** M$\\Omega$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/10_Darlington_and_Feedback_Pairs.json",
+    "problem": 2,
+    "expect": "The Darlington above has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.70 + 0.75` → $V_{BE(D)}$ = **1.45** V, the two junctions in series.",
+        "`2 × 1 ÷ 3` → $R_E \\parallel R_L$ = **0.667** k$\\Omega$.",
+        "`(12 − 1.45) × 1 ÷ 3` → the positive peak = **3.52** V, and the pair loses 0.75 V more headroom than a single follower."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/10_Darlington_and_Feedback_Pairs.json",
+    "problem": 3,
+    "expect": "A Darlington emitter follower has",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`80 × 80 + 80 + 80` → $\\beta_D$ = **6560**.",
+        "`10 × 100 ÷ 110` → $R_s \\parallel R_B$ = **9.09** k$\\Omega$; `9090 ÷ 6560` → **1.386** $\\Omega$.",
+        "`26 ÷ 5` → $r_e$ = **5.2** $\\Omega$; `+ 1.386` → $R_{out}$ = **6.59** $\\Omega$, of which the $r_e$ floor is the bulk."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/11_Frequency_Response_and_Bode_Plots.json",
+    "problem": 1,
+    "expect": "Find the two low-frequency corners",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 ÷ (2π × 11E3 × 1E-6)` → $f_{L(in)}$ = **14.47** Hz.",
+        "`1 ÷ (2π × 10E3 × 1E-6)` → $f_{L(out)}$ = **15.92** Hz.",
+        "The higher corner dominates, so the stage's $f_L$ = **15.9** Hz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/11_Frequency_Response_and_Bode_Plots.json",
+    "problem": 2,
+    "expect": "find the resistance seen by $C_E$ and its corner frequency",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 × 47 ÷ 48` → $R_s \\parallel R_B$ = **979** $\\Omega$; `+ 2600` → **3579** $\\Omega$; `÷ 101` → **35.4** $\\Omega$.",
+        "`1 ÷ (1 ÷ 1000 + 1 ÷ (26 + 35.4))` → the resistance seen by $C_E$ = **57.9** $\\Omega$.",
+        "`1 ÷ (2π × 57.9 × 10E-6)` → $f_{L(bypass)}$ = **274.9** Hz, 19× the 14.5 Hz input corner."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/11_Frequency_Response_and_Bode_Plots.json",
+    "problem": 4,
+    "expect": "and a single dominant pole at",
+    "calc": {
+      "mode": "TABLE",
+      "steps": [
+        "`MODE` `6`: f(X) = `20 log(400 ÷ √(1 + (X ÷ 50)²))`, with X in kHz.",
+        "Start 50, end 500, step 50 → at X = 100 kHz the table reads **45.05** dB and at X = 500 kHz **32.0** dB.",
+        "The straight-line asymptote gives 52.0 − 6.0 = **46.0** dB at the octave point, so it is **0.9** dB optimistic there."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/11_Frequency_Response_and_Bode_Plots.json",
+    "problem": 5,
+    "expect": "Two voltage-gain stages are cascaded",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100 × 100` → $A_{mid}$ = **1.0e4**; `20 log(Ans)` → **80.0** dB.",
+        "`100E3 × √(√2 − 1)` → $f_H$ = **64.4** kHz, the shrinkage factor for two identical poles.",
+        "`1E4 × 64.4E3` → GBP = **6.44e8** Hz, not the single-pole **1.0e7**; the slope is **−40** dB/decade with phase about **−168**°."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/13_Gain-Bandwidth_Product_and_fT.json",
+    "problem": 1,
+    "expect": "the forward transit time, and the current gain at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.04 ÷ (2π × 12E-12)` → $f_T$ = **5.305e8** Hz = **530.5** MHz.",
+        "`Ans ÷ 100` → $f_\\beta$ = **5.305** MHz; `1 ÷ (2π × 5.305E8)` → $\\tau_F$ = **3.00e-10** s.",
+        "`100 ÷ √(1 + (20 ÷ 5.305)²)` → $\\lvert h_{fe} \\rvert$ = **25.6** at 20 MHz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/13_Gain-Bandwidth_Product_and_fT.json",
+    "problem": 2,
+    "expect": "then state the effect of using",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E-3 ÷ 26E-3` → $g_m$ = **76.92** mS.",
+        "`76.92E-3 ÷ (2π × 29E-12)` → $f_T$ = **4.222e8** Hz; `1 ÷ (2π × 4.222E8)` → $\\tau_F$ = **3.77e-10** s.",
+        "With $V_T$ = 25 mV: `2E-3 ÷ 25E-3` → **80** mS, so `80E-3 ÷ (2π × 29E-12)` → **439** MHz, 4 % high."
+      ],
+      "note": "True $V_T = kT/q$ at 300 K is 25.85 mV — `SHIFT` `CVALUE` 25 `× 300 ÷` `SHIFT` `CVALUE` 23 — which is why 26 mV is the rounding and 25 mV is not."
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/13_Gain-Bandwidth_Product_and_fT.json",
+    "problem": 3,
+    "expect": "and an upper cutoff of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100 × 12E3` → $GBW$ = **1.2e6** Hz.",
+        "`1.2E6 ÷ 20` → **60** kHz at $\\lvert A_v \\rvert$ = 20, and `1.2E6 ÷ 1` → **1.2** MHz at unity gain: the gain fell 5× and the bandwidth rose 5×."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/13_Gain-Bandwidth_Product_and_fT.json",
+    "problem": 4,
+    "expect": "An op-amp has a unity-gain bandwidth",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2E6 ÷ 40` → $BW$ = **50** kHz.",
+        "`2E6 ÷ 200E3` → $\\lvert A_v \\rvert$ = **10** for 200 kHz of bandwidth.",
+        "`2E6 ÷ 1000` → **2** kHz, nominal only: that sits at the open-loop dominant pole, where the gain-bandwidth rule stops describing the circuit."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/13_Gain-Bandwidth_Product_and_fT.json",
+    "problem": 5,
+    "expect": "At what frequency does the current gain fall to",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`800E6 ÷ 120` → $f_\\beta$ = **6.667** MHz.",
+        "`1 ÷ (2π × 800E6)` → $\\tau_F$ = **1.989e-10** s.",
+        "`120 ÷ √(1 + (60 ÷ 6.667)²)` → $\\lvert h_{fe} \\rvert$ = **13.25**; the asymptote `800 ÷ 60` → **13.3** confirms it, and unity gain is at $f_T$ = **800** MHz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/14_Feedback_Amplifier_Topologies.json",
+    "problem": 1,
+    "expect": "the exact closed-loop gain and the percentage shortfall",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1000 × 0.01` → $A\\beta$ = **10**; `+ 1` → $D$ = **11**.",
+        "`1000 ÷ 11` → $A_f$ = **90.909**.",
+        "`(100 − 90.909) ÷ 100` → **9.091** % below the ideal $1/\\beta$ = 100, which is exactly $1/D$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/14_Feedback_Amplifier_Topologies.json",
+    "problem": 2,
+    "expect": "varies by $\\pm20\\%$ over temperature.",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10000 × 0.001` → $A\\beta$ = **10**, so $D$ = **11**; `10000 ÷ 11` → $A_f$ = **909.1**.",
+        "At the two extremes: `12000 ÷ 13` → **923.1** and `8000 ÷ 9` → **888.9**.",
+        "`(923.08 − 909.09) ÷ 909.09` → **+1.5** % and `(888.89 − 909.09) ÷ 909.09` → **−2.2** %, against ±20 % open loop."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/14_Feedback_Amplifier_Topologies.json",
+    "problem": 3,
+    "expect": "and give $R_{if}$ for the shunt-shunt case",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`10 × 11` → series mixing gives $R_{if}$ = **110** k$\\Omega$; `50 ÷ 11` → voltage sampling gives $R_{of}$ = **4.545** k$\\Omega$.",
+        "`50 × 11` → current sampling gives $R_{of}$ = **550** k$\\Omega$, with $R_{if}$ still **110** k$\\Omega$ for series-series.",
+        "`10 ÷ 11` → shunt mixing gives $R_{if}$ = **909** $\\Omega$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/14_Feedback_Amplifier_Topologies.json",
+    "problem": 4,
+    "expect": "verify that the gain-bandwidth product is unchanged",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`11 × 10E3` → $f_{Hf}$ = **110** kHz; `100 ÷ 11` → $f_{Lf}$ = **9.09** Hz.",
+        "`1000 × 10E3` → the open-loop $GBW$ = **1.0e7** Hz.",
+        "`1000 ÷ 11` → $A_f$ = **90.91**, and `90.91 × 110E3` → **1.0e7** Hz — unchanged."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/15_Power_Amplifiers_Classes_A,_B,_AB,_C.json",
+    "problem": 1,
+    "expect": "A class B complementary emitter-follower output stage",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`20 ÷ 8` → $I_p$ = **2.5** A; `20² ÷ (2 × 8)` → $P_{o(max)}$ = **25** W.",
+        "`2 ÷ π × 2.5 × 20` → $P_i$ = **31.83** W; `25 ÷ Ans` → $\\eta$ = **0.7854**.",
+        "`31.83 − 25` → $P_D$ = **6.83** W for both devices, **3.42** W each."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/15_Power_Amplifiers_Classes_A,_B,_AB,_C.json",
+    "problem": 2,
+    "expect": "find the output level at which the transistors dissipate the most power",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`2 × 20 ÷ π` → $V_p$ = **12.73** V; `÷ 8` → $I_p$ = **1.5915** A.",
+        "`12.73² ÷ 16` → $P_o$ = **10.13** W; `2 ÷ π × 1.5915 × 20` → $P_i$ = **20.26** W.",
+        "`20.26 − 10.13` → $P_D$ = **10.13** W total, **5.07** W each, at **50** % efficiency — 1.48× the full-output figure of 6.83 W."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/15_Power_Amplifiers_Classes_A,_B,_AB,_C.json",
+    "problem": 3,
+    "expect": "A class A stage runs from",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "(a) `12 ÷ 16` → $I_{CQ}$ = **0.75** A; `6² ÷ 16` → $P_{o(max)}$ = **2.25** W; `12 × 0.75` → $P_i$ = **9** W.",
+        "(a) `2.25 ÷ 9` → $\\eta$ = **25** %; at zero signal the device takes `6 × 0.75` = **4.5** W, the worst case.",
+        "(b) `12 ÷ 8` → $I_{CQ}$ = **1.5** A; `12² ÷ 16` → **9** W; `12 × 1.5` → **18** W; `9 ÷ 18` → **50** %, with all 18 W in the device at no signal."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/15_Power_Amplifiers_Classes_A,_B,_AB,_C.json",
+    "problem": 4,
+    "expect": "A single-supply complementary (capacitor-coupled) output stage",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`24 ÷ 2` → $V_p$ = **12** V, half the supply blocked by the coupling capacitor; `÷ 8` → $I_p$ = **1.5** A.",
+        "`24² ÷ (8 × 8)` → $P_{o(max)}$ = **9** W; `2 ÷ π × 1.5 × 24` → $P_i$ = **22.92** W.",
+        "`9 ÷ 22.92` → $\\eta$ = **39.3** %; `22.92 − 9` → $P_D$ = **13.92** W total, **6.96** W each."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/15_Power_Amplifiers_Classes_A,_B,_AB,_C.json",
+    "problem": 5,
+    "expect": "A class AB output stage is biased by a",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`0.65 × (1 + 1 ÷ 1)` → $V_{BB}$ = **1.30** V.",
+        "`1.30 − 2 × 0.60` → **0.10** V left across the two emitter resistors in series.",
+        "`0.10 ÷ (2 × 0.47)` → $I_Q$ = **0.1064** A = **106** mA; at exactly `2 × 0.60` = 1.20 V the excess is 0 and $I_Q$ = **0**, which is class B again."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/16_Oscillators_RC_Phase_Shift_and_Wien_Bridge.json",
+    "problem": 1,
+    "expect": "An RC phase-shift oscillator uses three identical sections",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 ÷ (2π × 10E3 × 10E-9 × √6)` → $f_0$ = **649.7** Hz; the `√6` is the whole difference from the Wien formula.",
+        "`1 ÷ 29` → $\\beta$ = **0.03448**.",
+        "Minimum `29 × 1` → $R_f \\ge$ **29** k$\\Omega$; with the 33 k$\\Omega$ standard value, `33 ÷ 29` → $\\lvert A\\beta \\rvert$ = **1.138**, a 13.8 % start-up margin."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/16_Oscillators_RC_Phase_Shift_and_Wien_Bridge.json",
+    "problem": 2,
+    "expect": "must run at",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 ÷ (2π × 2000 × 10E-9 × √6)` → $R$ = **3249** $\\Omega$, so use the **3.3** k$\\Omega$ standard value.",
+        "`1 ÷ (2π × 3300 × 10E-9 × √6)` → $f_0$ = **1968.9** Hz, only 1.6 % low.",
+        "`29 × 1` → $R_f \\ge$ **29** k$\\Omega$; the standard 33 k$\\Omega$ gives `33 ÷ 29` → **1.138**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/16_Oscillators_RC_Phase_Shift_and_Wien_Bridge.json",
+    "problem": 3,
+    "expect": "in both arms of the frequency-selective network",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 ÷ (2π × 1600 × 0.1E-6)` → $f_0$ = **994.7** Hz.",
+        "`A = 1 + R_f ÷ R_1 = 3` needs `R_f = 2 × 10` → **20** k$\\Omega$.",
+        "Loop check: `3 × (1 ÷ 3)` → **1.000**, the Barkhausen magnitude at the zero-phase frequency."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/16_Oscillators_RC_Phase_Shift_and_Wien_Bridge.json",
+    "problem": 4,
+    "expect": "uses a tungsten lamp of cold resistance",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 + 220 ÷ 100` → $A$ = **3.20** cold, so $\\lvert A\\beta \\rvert$ = **1.067**, the start-up margin.",
+        "`1 + 220 ÷ 115` → $A$ = **2.913**, so $\\lvert A\\beta \\rvert$ = **0.971** and the amplitude decays.",
+        "Equilibrium: `220 ÷ (3 − 1)` → $R_{lamp}$ = **110** $\\Omega$, between the cold and hot values."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/16_Oscillators_RC_Phase_Shift_and_Wien_Bridge.json",
+    "problem": 5,
+    "expect": "A student builds a phase-shift oscillator with only two RC sections",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`4700 × 22E-9` → $RC$ = **1.034e-4** s; `1 ÷ (2π × Ans × √6)` → $f_0$ = **628.4** Hz.",
+        "Three sections still give $\\beta$ = 1/29, so `29 × 2.2` → $R_f \\ge$ **63.8** k$\\Omega$, met by the standard 68 k$\\Omega$."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/17_Oscillators_Hartley,_Colpitts,_Crystal.json",
+    "problem": 1,
+    "expect": "A Hartley oscillator uses a tapped coil",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100 + 400` → $L_{eq}$ = **500** $\\mu$H; `1 ÷ (2π × √(500E-6 × 100E-12))` → $f_0$ = **711.8** kHz.",
+        "`100 ÷ 400` → $\\beta$ = **0.25**.",
+        "`400 ÷ 100` → $\\lvert A_v \\rvert \\ge$ **4**; `4 × 0.25` → **1.000**, the Barkhausen magnitude."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/17_Oscillators_Hartley,_Colpitts,_Crystal.json",
+    "problem": 2,
+    "expect": "with a capacitive divider of",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`470 × 2200 ÷ (470 + 2200)` → $C_{eq}$ = **387.3** pF, smaller than either capacitor.",
+        "`1 ÷ (2π × √(200E-6 × 387.3E-12))` → $f_0$ = **571.9** kHz.",
+        "`2200 ÷ 470` → $\\lvert A_v \\rvert \\ge$ **4.68**, that is $1/\\beta$ with $\\beta = C_1/C_2$ = **0.2136**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/17_Oscillators_Hartley,_Colpitts,_Crystal.json",
+    "problem": 3,
+    "expect": "A quartz crystal has motional elements",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`1 ÷ (2π × √(2 × 0.01E-12))` → $f_s$ = **1.1254e6** Hz.",
+        "`1.1254E6 × √(1 + 0.01 ÷ 5)` → $f_p$ = **1.1265e6** Hz, a spacing of **1.13** kHz (0.1 %).",
+        "`2π × 1.1254E6 × 2 ÷ 100` → crystal $Q$ = **1.41e5**; `2π × 1.1254E6 × 100E-6 ÷ 10` → the LC tank's **70.7**."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/17_Oscillators_Hartley,_Colpitts,_Crystal.json",
+    "problem": 4,
+    "expect": "Design a Hartley oscillator for",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`(1 ÷ (2π × 1E6))²` → $L_{eq}C$ = **2.533e-14** s².",
+        "`Ans ÷ 200E-6` → $C$ = **126.7** pF.",
+        "`20 ÷ 180` → $\\beta$ = **0.1111**, so `180 ÷ 20` → $\\lvert A_v \\rvert \\ge$ **9**; the check `1 ÷ (2π × √(200E-6 × 126.7E-12))` → **1.000** MHz."
+      ]
+    }
+  },
+  {
+    "file": "build/payload/02_Electronics_Engineering/05_Circuit_Analysis_and_Design/17_Oscillators_Hartley,_Colpitts,_Crystal.json",
+    "problem": 5,
+    "expect": "A Colpitts oscillator is designed for",
+    "calc": {
+      "mode": "COMP",
+      "steps": [
+        "`100 × 470 ÷ 570` → $C_{eq}$ = **82.46** pF.",
+        "`(1 ÷ (2π × 5E6))² ÷ 82.46E-12` → $L$ = **1.229e-5** H; `470 ÷ 100` → $\\lvert A_v \\rvert \\ge$ **4.7**.",
+        "With the 20 pF stray: `120 × 470 ÷ 590` → $C_{eq}'$ = **95.59** pF, and `1 ÷ (2π × √(12.29E-6 × 95.59E-12))` → **4.644** MHz, **−7.1** %."
+      ]
+    }
+  }
+]

@@ -1,0 +1,162 @@
+---
+id: GEAS-05-07
+title: "PW, FW and AW Methods"
+part: "03_GEAS"
+area: "05_Engineering_Economy"
+topic: 7
+tier: 2
+depth: full
+problem_count: 4
+prereqs: ["[[01_Simple_and_Compound_Interest]]", "[[03_Ordinary_Annuity_and_Annuity_Due]]"]
+tags: ["ece", "geas", "engineering_economy"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 07 — PW, FW and AW Methods
+
+> [!abstract] Scope
+> Compare mutually exclusive alternatives by restating their cash flows at a common point in time as present, future or annual worth.
+
+## Core Concept
+
+> [!tip] Intuition
+> Present worth, future worth and annual worth are three views of one number. Multiplying a present worth by (1+i)^n or by (A/P,i,n) scales every alternative by the same positive factor, so the ranking cannot change — but the annual view is the only one that survives unequal lives.
+
+**Present worth.** Discount every cash flow to time 0 at the MARR:
+$$PW = \sum_{t=0}^{n} CF_t(1+i)^{-t}$$
+A project with $PW \ge 0$ earns at least the MARR, and among mutually exclusive alternatives with equal lives the largest present worth is the best choice. The method works because PW converts all cash flows, at their own dates and signs, into one equivalent amount today; it is a value measure, not a ratio, so it is not fooled by scale.
+
+**Future worth.** Compounding to the end of the study period, $FW = PW(1+i)^n = \sum CF_t(1+i)^{n-t}$, must give the same ranking as PW because every alternative with the same $n$ is multiplied by the identical factor $(1+i)^n$. FW is convenient when the natural decision point is the end of the project — a terminal-value or retirement comparison — and it is the natural output when cash flows are already accumulated forward, as in external-rate-of-return work.
+
+**Annual worth.** $AW = PW(A/P,i,n)$ restates the whole project as a level end-of-period amount, which is the only valid common basis when alternatives have different lives. Comparing PW across a 4-year and a 6-year alternative requires an arbitrary study period; comparing AW does not, because each alternative is expressed as a cost or benefit per year, repeatable forever. The classical alternative — expand both lives to their least common multiple and compare PW over that horizon — gives the same ranking, which is a useful check on an AW result. The capital-recovery factor is where the two meet:
+$$(A/P,i,n) = (A/F,i,n) + i$$
+so AW can be assembled as $-FC(A/P,i,n) + A + SV(A/F,i,n)$ for a cost-only alternative.
+
+**Practical rules.** When all alternatives produce the same revenue, choose the least negative PW or AW (minimum cost); when revenues differ, choose the greatest. Only cash flows that differ between alternatives belong in the analysis: common fixed costs cancel, and the past is irrelevant — a cost already incurred is sunk. Salvage value enters as a receipt at the end of the study period, and any working capital is recovered then too. The rate $i$ is the MARR, or the rate the problem says 'money is worth'; if alternatives have different risks, they need different MARRs, and the comparison must say so.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Present worth | $PW = \sum_{t=0}^{n} CF_t(1+i)^{-t}$ | i is the MARR per period. A flow at time 0 is not discounted; all others use their own period count. |
+| Present worth from mixed factors | $PW = -FC + A(P/A,i,n) + SV(P/F,i,n)$ | The standard project form. Signs must reflect whether each flow is a receipt or a disbursement. |
+| Future worth | $FW = PW(1+i)^n = \sum_{t=0}^{n} CF_t(1+i)^{n-t}$ | Same ranking as PW for equal lives. A flow at year t compounds n - t periods, not n. |
+| Annual worth from present worth | $AW = PW(A/P,i,n)$ | The only valid comparison for unequal lives; positive AW means the project beats the MARR. |
+| Annual worth of a cost alternative | $AW = -FC(A/P,i,n) + A + SV(A/F,i,n)$ | Cost-only form: A is the annual net receipt (negative for a cost). Choose the algebraically largest AW. |
+| Capital recovery factor | $(A/P,i,n) = \frac{i(1+i)^n}{(1+i)^n - 1}$ | Converts a present amount into a level annual amount; equals (A/F,i,n) + i. |
+| Capital recovery identity | $(A/P,i,n) = (A/F,i,n) + i$ | The i term is the interest on the unrecovered balance; the A/F term rebuilds the principal. |
+| Unequal lives, least common multiple | $PW_{LCM} = AW(A/P,i,N_{LCM})^{-1}$ | Repeat each alternative to the LCM horizon and compare PW; must agree with the AW ranking. |
+
+## Interactive Widget
+
+**Cash Flow Diagram Builder**
+
+![[Cash_Flow_Diagram_Builder.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. A project costs ₱800,000 now and returns ₱250,000 per year for 6 years, with a ₱100,000 salvage at the end of year 6. At a MARR of 12%, find the present worth.
+
+**Given:** $FC = 800000$; $A = 250000$ for 6 years; $SV = 100000$; $i = 0.12$
+
+**Solution:**
+
+1. $PW = -800000 + 250000(P/A,12\%,6) + 100000(P/F,12\%,6)$.
+2. $(P/A,12\%,6) = [1-(1.12)^{-6}]/0.12 = 4.111407$, so the revenue term is $250000(4.111407) = 1027851.8$.
+3. $(P/F,12\%,6) = (1.12)^{-6} = 0.506631$, so the salvage term is $100000(0.506631) = 50663.1$.
+4. $PW = -800000 + 1027851.8 + 50663.1 = 278514.9$.
+
+> [!success]- Answer
+> **$PW = 278515$, so the project is acceptable.**
+
+> [!warning] Trap
+> Discounting the ₱250,000 as a single amount at year 6, or leaving it undiscounted. End-of-period convention puts the first receipt at t = 1; treating all six receipts as if they arrived today inflates the PW to ₱800,000.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `−800000+250000((1.12)^6−1)÷(0.12(1.12)^6)+100000×1.12^-6` → $PW$ = **278514.94**.
+> 2. The two factors on their own: $(P/A,12\%,6)$ = **4.111407** and $(P/F,12\%,6)$ = **0.506631**, exactly the values the note quotes.
+
+### P2. For the same project, compute the future worth at the end of year 6 and confirm it agrees with the present-worth decision.
+
+**Given:** $PW = 278514.9$; $i = 0.12$; $n = 6$
+
+**Solution:**
+
+1. $FW = PW(1+i)^n = 278514.9(1.12)^6$.
+2. $(1.12)^6 = 1.973823$.
+3. $FW = 278514.9(1.973823) = 549739.1$.
+4. Direct check: $250000(F/A,12\%,6) + 100000 - 800000(F/P,12\%,6) = 2028797.3 + 100000 - 1579058.2 = 549739.1$.
+
+> [!success]- Answer
+> **$FW = 549739$; the positive value agrees with the PW decision.**
+
+> [!warning] Trap
+> Reporting the present worth as the future worth, or compounding the year-6 salvage. The FW of a receipt at year t uses (1+i)^(n-t) periods, and the year-6 salvage is not compounded at all.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `278514.94×1.12^6` → $FW$ = **549739.11** — one multiplication replaces re-compounding every flow.
+> 2. Direct check on the flows: `250000((1.12)^6−1)÷0.12+100000−800000×1.12^6` → **549739.11**.
+
+### P3. Convert the same project's present worth into an equivalent annual amount at 12%.
+
+**Given:** $PW = 278514.9$; $i = 0.12$; $n = 6$
+
+**Solution:**
+
+1. $AW = PW(A/P,12\%,6)$.
+2. $(A/P,12\%,6) = 0.12(1.12)^6/[(1.12)^6 - 1] = 0.2368587/0.973823 = 0.2432257$.
+3. $AW = 278514.9(0.2432257) = 67742.0$.
+4. Direct check: $-800000(0.2432257) + 250000 + 100000(0.1232257) = -194580.6 + 250000 + 12322.6 = 67742.0$.
+
+> [!success]- Answer
+> **$AW = 67742$ per year.**
+
+> [!warning] Trap
+> Dividing the present worth by the life, $278514.9/6 = 46419$, and calling it the annual worth. Simple division ignores interest; the capital-recovery factor is larger because it also recovers the interest on the unrecovered balance.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `278514.94×0.12×1.12^6÷(1.12^6−1)` → $AW$ = **67742.00**, the same as $PW\,(A/P,12\%,6)$.
+> 2. The $(A/P)$ factor at 7 figures is **0.2432257**; the note's $PW$ and this key sequence agree to the peso.
+
+### P4. Two cost alternatives at 10%: X has a ₱400,000 first cost, a 4-year life, no salvage and ₱60,000 annual cost; Y has a ₱600,000 first cost, a 6-year life, no salvage and ₱40,000 annual cost. Which is cheaper?
+
+**Given:** $i = 0.10$; X: $FC = 400000$, $n = 4$, $A = 60000$; Y: $FC = 600000$, $n = 6$, $A = 40000$
+
+**Solution:**
+
+1. Lives differ, so compare annual worth. X: $(A/P,10\%,4) = 0.10(1.10)^4/[(1.10)^4 - 1] = 0.146410/0.464100 = 0.3154708$.
+2. $AW_X = -400000(0.3154708) - 60000 = -126188.3 - 60000 = -186188.3$.
+3. Y: $(A/P,10\%,6) = 0.1771561/0.771561 = 0.2296074$.
+4. $AW_Y = -600000(0.2296074) - 40000 = -137764.4 - 40000 = -177764.4$.
+5. Check by the 12-year common multiple: $PW_X = -1268629.8$, $PW_Y = -1211232.1$; multiplying each by $(A/P,10\%,12) = 0.1467634$ returns the same annual amounts.
+
+> [!success]- Answer
+> **Y is cheaper by $186188.3 - 177764.4 = 8424$ per year.**
+
+> [!warning] Trap
+> Comparing first costs (₱400,000 versus ₱600,000) and choosing X, or comparing PW over the 4-year and 6-year lives directly. Annual worth puts both on a per-year basis so the different lives cannot distort the ranking.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `−400000×0.1×1.1^4÷(1.1^4−1)−60000` → $AW_X$ = **−186188.32**.
+> 2. `−600000×0.1×1.1^6÷(1.1^6−1)−40000` → $AW_Y$ = **−177764.43**; Y costs **8423.89**, the note's ₱8,424, less per year.
+
+## Traps & Exam Notes
+
+- **Comparing present worths of unequal lives.** A 4-year PW against a 6-year PW compares different amounts of service. Convert to annual worth, or repeat both to the least common multiple.
+- **Discounting a time-0 flow.** The first cost at t = 0 is already a present amount; multiplying it by (1+i)^0 is harmless, but applying a (P/F) factor to it is not.
+- **Including sunk costs.** Money already spent does not change between alternatives and cannot affect the choice. Only future, differing cash flows belong in the analysis.
+- **Mixing the sign convention.** With identical revenues, the best alternative has the least negative PW or AW, not the largest number. Ranking by absolute value picks the most expensive option.
+- **Dividing PW by n to get AW.** Straight division ignores interest entirely; the correct conversion uses (A/P,i,n), which always exceeds 1/n.
+- **Using a nominal rate as the MARR when compounding is not annual.** PW factors must be built on the effective rate per cash-flow period.
+
+## See Also
+
+- [[03_Ordinary_Annuity_and_Annuity_Due]]
+- [[06_Capitalized_Cost]]
+- [[08_Rate_of_Return_and_Payback]]
+
+---
+
+[[06_Capitalized_Cost|⬅ 06]] · [[_MOC_Engineering_Economy|MOC]] · [[00_Dashboard|Dashboard]] · [[08_Rate_of_Return_and_Payback|08 ➡]]

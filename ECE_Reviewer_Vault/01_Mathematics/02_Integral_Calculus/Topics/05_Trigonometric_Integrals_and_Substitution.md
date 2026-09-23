@@ -1,0 +1,163 @@
+---
+id: MATH-02-05
+title: "Trigonometric Integrals and Substitution"
+part: "01_Mathematics"
+area: "02_Integral_Calculus"
+topic: 5
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_Algebraic_Substitution]]"]
+tags: ["ece", "mathematics", "integral_calculus"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 05 — Trigonometric Integrals and Substitution
+
+> [!abstract] Scope
+> Integrate products and powers of trigonometric functions using odd-power splitting, power reduction, and trigonometric substitution for radicals.
+
+## Core Concept
+
+> [!tip] Intuition
+> There is no single rule for trigonometric integrals — there is a decision tree. The exponents tell you which identity to use, and reading that tree correctly is the whole skill.
+
+**Odd power of sine or cosine: split off one factor.** For $\int \sin^m x\cos^n x\,dx$ with $m$ odd, peel off one $\sin x$ and convert the remaining even power using $\sin^2 x = 1-\cos^2 x$. The leftover $\sin x\,dx$ is exactly the differential of $u = \cos x$, so the substitution works. Symmetrically, an odd power of cosine means saving one $\cos x\,dx$ and substituting $u = \sin x$. **If at least one exponent is odd, this always works.**
+
+**Both powers even: power reduction.** When both exponents are even, splitting is impossible. Use the half-angle identities $\sin^2 x = \frac{1-\cos 2x}{2}$ and $\cos^2 x = \frac{1+\cos 2x}{2}$ to lower the powers, then repeat as needed. For $\int\sin^2 x\,dx$ this gives $\frac{x}{2} - \frac{\sin 2x}{4}$ — note the bare $x$ term, which is a common omission.
+
+**Powers of tangent and secant.** Section by section: for $\int\tan^n x\,dx$ with $n$ even or odd, peel $\tan^2 x = \sec^2 x - 1$. For $\int\sec^n x\,dx$ with $n$ even, save $\sec^2 x$ and substitute $u = \tan x$. For $\int\tan^m x\sec^n x\,dx$ with $n$ even, the same substitution works; with $m$ odd, save $\sec x\tan x$ and substitute $u = \sec x$. The two special cases that must be memorised because no substitution reaches them are $\int\sec x\,dx = \ln|\sec x+\tan x|$ and $\int\sec^3 x\,dx$ (which closes algebraically via parts).
+
+**Trigonometric substitution for radicals.** This is the other half of the topic: radicals of the forms $\sqrt{a^2-x^2}$, $\sqrt{a^2+x^2}$ and $\sqrt{x^2-a^2}$ are removed by $x = a\sin\theta$, $x = a\tan\theta$ and $x = a\sec\theta$ respectively. The purpose is to use a Pythagorean identity to collapse the radical into a single factor. Afterwards, convert back via a reference triangle rather than by manipulating inverse functions.
+
+**Products of different angles.** Integrals such as $\int \sin 3x\cos 5x\,dx$ are not covered by the power rules because the angles differ. Use the product-to-sum identities, for example $\sin A\cos B = \frac{1}{2}[\sin(A-B) + \sin(A+B)]$, to convert the product into a sum of simple sines and cosines that integrate directly.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Pythagorean | $\sin^2 x + \cos^2 x = 1$ | The basis for odd-power splitting. |
+| Secant-tangent identity | $1 + \tan^2 x = \sec^2 x$ | Converts tan^2 to sec^2 - 1, and powers of sec to tan. |
+| Power reduction (sin) | $\sin^2 x = \frac{1-\cos 2x}{2}$ | Use when both exponents are even. |
+| Power reduction (cos) | $\cos^2 x = \frac{1+\cos 2x}{2}$ | Note the plus sign, opposite to the sine version. |
+| Double angle (sin) | $\sin 2x = 2\sin x\cos x$ | Converts a product of sin and cos into a single sine. |
+| Product to sum | $\sin A\cos B = \tfrac{1}{2}\left[\sin(A-B)+\sin(A+B)\right]$ | For products with different angles. |
+| Secant integral | $\int \sec x\,dx = \ln\lvert \sec x + \tan x \rvert + C$ | Memorise. No substitution reaches it directly. |
+| Tangent integral | $\int \tan x\,dx = -\ln\lvert \cos x \rvert + C = \ln\lvert \sec x \rvert + C$ | The minus sign is required. |
+| Radical a^2 - x^2 | $x = a\sin\theta, \quad \sqrt{a^2-x^2} = a\cos\theta$ | Substitution for the difference form. |
+| Radical a^2 + x^2 | $x = a\tan\theta, \quad \sqrt{a^2+x^2} = a\sec\theta$ | Substitution for the sum form. |
+| Radical x^2 - a^2 | $x = a\sec\theta, \quad \sqrt{x^2-a^2} = a\tan\theta$ | Requires \|x\| >= a. |
+| Secant cubed | $\int \sec^3 x\,dx = \tfrac{1}{2}\left(\sec x\tan x + \ln\lvert \sec x+\tan x \rvert\right) + C$ | Closes by parts; memorise the result. |
+
+## Worked Problems
+
+### P1. Evaluate $\displaystyle\int \sin^3 x\,dx$.
+
+**Given:** odd power of sine
+
+**Solution:**
+
+1. Split off one factor: sin^3 x = sin^2 x * sin x
+2. Convert the even part using sin^2 x = 1 - cos^2 x: = (1 - cos^2 x) sin x
+3. Let u = cos x, so du = -sin x dx, giving -∫(1 - u^2)du
+4. Integrate: -(u - u^3/3) = -u + u^3/3
+5. Back-substitute
+
+> [!success]- Answer
+> **$-\cos x + \dfrac{\cos^3 x}{3} + C$**
+
+> [!warning] Trap
+> Trying to use a power-reduction identity on an odd power. Odd powers are handled by splitting and substituting; the half-angle route is for even powers only.
+
+### P2. Evaluate $\displaystyle\int \sin^2 x\,dx$.
+
+**Given:** even power, requires power reduction
+
+**Solution:**
+
+1. Use the half-angle identity: sin^2 x = (1 - cos 2x)/2
+2. Integrate: (1/2)∫(1 - cos 2x)dx = (1/2)[x - (sin 2x)/2]
+3. Simplify
+
+> [!success]- Answer
+> **$\dfrac{x}{2} - \dfrac{\sin 2x}{4} + C$**
+
+> [!warning] Trap
+> Reporting only -(sin 2x)/4 and dropping the x/2 term. The bare x arises because the average of sin^2 is 1/2, not 0.
+
+### P3. Evaluate $\displaystyle\int \sin^3 x\cos^2 x\,dx$.
+
+**Given:** one exponent odd
+
+**Solution:**
+
+1. The sine exponent is odd, so split: sin^3 x cos^2 x = (sin^2 x)(cos^2 x)(sin x)
+2. Convert the sine using sin^2 x = 1 - cos^2 x: = (1 - cos^2 x)cos^2 x sin x
+3. Let u = cos x, du = -sin x dx: -∫(1-u^2)u^2 du = -∫(u^2 - u^4)du
+4. Integrate: -(u^3/3 - u^5/5)
+5. Back-substitute
+
+> [!success]- Answer
+> **$-\dfrac{\cos^3 x}{3} + \dfrac{\cos^5 x}{5} + C$**
+
+> [!warning] Trap
+> Choosing u = sin x instead. With an odd sine power you must save sin x dx, which pairs with u = cos x - the substitution follows from which factor you split off.
+
+### P4. Evaluate $\displaystyle\int \tan^3 x\,dx$.
+
+**Given:** odd power of tangent
+
+**Solution:**
+
+1. Split: tan^3 x = tan x * tan^2 x
+2. Use tan^2 x = sec^2 x - 1: = tan x sec^2 x - tan x
+3. First term: let u = tan x, du = sec^2 x dx, giving ∫u du = u^2/2 = tan^2 x/2
+4. Second term: ∫tan x dx = -ln|cos x|, so subtracting gives +ln|cos x|
+5. Combine
+
+> [!success]- Answer
+> **$\dfrac{\tan^2 x}{2} + \ln|\cos x| + C$**
+
+> [!warning] Trap
+> Losing the sign on the tangent integral. Since the term appears with a minus in the split, -∫tan x dx = +ln|cos x|.
+
+### P5. Evaluate $\displaystyle\int \sec^4 x\,dx$.
+
+**Given:** even power of secant
+
+**Solution:**
+
+1. Split: sec^4 x = sec^2 x * sec^2 x
+2. Use sec^2 x = 1 + tan^2 x on one factor: = (1 + tan^2 x)sec^2 x
+3. Let u = tan x, du = sec^2 x dx: ∫(1 + u^2)du
+4. Integrate: u + u^3/3
+5. Back-substitute
+
+> [!success]- Answer
+> **$\tan x + \dfrac{\tan^3 x}{3} + C$**
+
+> [!warning] Trap
+> Saving the wrong factor. For an even secant power you keep exactly one sec^2 x dx for the differential of tan x, and convert the rest.
+
+## Traps & Exam Notes
+
+- **Using power reduction on an odd power.** Odd powers are handled by splitting off one factor and substituting. Half-angle identities are for the case where *both* exponents are even.
+- **Dropping the bare $x$ term** in even-power results. $\int\sin^2 x\,dx$ contains $\frac{x}{2}$ because the mean of $\sin^2$ is $\frac12$.
+- **Saving the wrong factor when splitting.** For odd sine, save $\sin x\,dx$ and use $u=\cos x$. For odd cosine, save $\cos x\,dx$ and use $u=\sin x$. Pairing these wrongly makes the integral worse, not better.
+- **Sign slip in $\int\tan x\,dx$.** It is $-\ln|\cos x|$, equivalently $+\ln|\sec x|$. The minus comes from the derivative of cosine.
+- **$\int\sec x\,dx$ is not elementary by inspection.** It is $\ln|\sec x+\tan x|$; it cannot be reached by a straightforward substitution, so it must be memorised.
+- **Wrong trigonometric substitution for the radical.** $a^2-x^2$ pairs with sine, $a^2+x^2$ with tangent, $x^2-a^2$ with secant. Using the wrong one leaves a radical that does not simplify.
+- **Forgetting to convert back to $x$.** A trigonometric substitution answer in terms of $\theta$ is incomplete; use a reference triangle.
+- **Different angles in a product.** $\int\sin 3x\cos 5x\,dx$ needs product-to-sum, not the power rules.
+
+## See Also
+
+- [[02_Algebraic_Substitution]]
+- [[04_Integration_by_Parts_and_Tabular]]
+- [[10_Plane_Areas_Polar]]
+
+---
+
+[[04_Integration_by_Parts_and_Tabular|⬅ 04]] · [[_MOC_Integral_Calculus|MOC]] · [[00_Dashboard|Dashboard]] · [[06_Partial_Fractions|06 ➡]]

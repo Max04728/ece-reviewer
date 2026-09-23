@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eye Diagram and ISI Viewer — Raised-Cosine Roll-off, Eye Opening, Sampling Instant</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// The eye diagram is the only picture that answers three exam questions at once:
+//   (1) WHERE to sample   -> the instant of maximum vertical opening;
+//   (2) HOW MUCH margin   -> the eye opening, i.e. the distance from the eye centre to
+//                            the nearest decision threshold, which IS the noise margin;
+//   (3) IS THERE ISI      -> if the eye closes when the channel is band-limited, the
+//                            pulses overlap and Nyquist's first criterion is violated.
+// The widget builds the waveform honestly: random binary symbols are shaped with a
+// raised-cosine pulse, so ISI appears exactly when the channel truncates the pulse tails
+// or when the roll-off is applied at the wrong bandwidth. The alpha = 0 case is included
+// deliberately because it is the theoretical ideal (zero excess bandwidth) that cannot be
+// built — its sinc tail decays as 1/t, so any truncation destroys the zero crossings.
+//
+// Raised cosine:  h(t) = sinc(t/Ts) * cos(pi*alpha*t/Ts) / (1 - (2*alpha*t/Ts)^2)
+// Nyquist bandwidth: B = (1 + alpha) / (2Ts)  =  Rs(1+alpha)/2  ->  excess bandwidth alpha.
+
+const SPAN = 8;              // symbols of pulse memory kept on each side
+const NTRACE = 34;           // overlaid symbol intervals
+const NS = 16;               // sub-samples per symbol in the sampling grid
+
+/** Deterministic 32-bit LCG so the picture is stable while a slider moves. */
+function lcg(seed) {
+  let s = seed >>> 0;
+  return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+}
+
+function sinc(x) {
+  if (Math.abs(x) < 1e-12) return 1;
+  const p = Math.PI * x;
+  return Math.sin(p) / p;
+}
+
+function raisedCosine(t, alpha) {
+  const s = sinc(t);
+  if (alpha < 1e-9) return s;                     // pure sinc: alpha = 0
+  const num = Math.cos(Math.PI * alpha * t);
+  const den = 1 - Math.pow(2 * alpha * t, 2);
+  if (Math.abs(den) < 1e-9) {
+    // limit at t = ±1/(2alpha):  h = (alpha/2)·sin(pi/(2alpha))  -> in sinc units
+    return (Math.PI / 4) * sinc(1 / (2 * alpha));
+  }
+  return s * num / den;
+}
+
+const frame = (ctx, plot, { top, bottom, yMin, yMax }) => {
+  const px0 = plot.pad, px1 = plot.w - plot.pad;
+  return {
+    px0, px1, top, bottom, yMin, yMax,
+    X: (x, xMin, xMax) => px0 + ((x - xMin) / (xMax - xMin)) * (px1 - px0),
+    Y: (y) => bottom - ((y - yMin) / (yMax - yMin)) * (bottom - top),
+    line(x1, y1, x2, y2, color, width = 1.5, dash = null) {
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color;
+      ctx.lineWidth = width; ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    },
+    text(s, x, y, color = PALETTE.text, align = 'left', font = '11px ui-monospace, monospace') {
+      ctx.save(); ctx.fillStyle = color; ctx.textAlign = align; ctx.font = font;
+      ctx.fillText(s, x, y); ctx.restore();
+    },
+  };
+};
+
+widget({
+  title: 'Eye Diagram and ISI — Raised-Cosine Roll-off, Eye Opening and Sampling Instant',
+  description:
+    'Every symbol interval is overlaid so the openings become visible. The eye opening is measured numerically from the traces, and the bandwidth column shows what the roll-off factor costs.',
+  height: 580,
+  controls: [
+    { id: 'alpha', label: 'roll-off factor α', min: 0, max: 1, step: 0.01, value: 0.35 },
+    { id: 'jitter', label: 'timing jitter (fraction of Ts)', min: 0, max: 0.3, step: 0.005, value: 0.03 },
+    { id: 'noise', label: 'noise (σ as fraction of peak)', min: 0, max: 0.35, step: 0.005, value: 0.02 },
+    { id: 'nchan', label: 'channel bandwidth (× symbol rate Rs)', min: 0.30, max: 2.0, step: 0.01, value: 2.0 },
+    { id: 'nbits', label: 'number of symbols', min: 40, max: 400, step: 10, value: 200 },
+    { id: 'ideal', label: 'ideal channel (no bandwidth limit)', type: 'checkbox', value: true },
+  ],
+  compute: (v) => {
+    const n = Math.round(v.nbits);
+    const rnd = lcg(12345);
+    const sym = [];
+    for (let i = 0; i < n; i++) sym.push(rnd() < 0.5 ? -1 : 1);
+    const alpha = v.alpha;
+    // channel: 2nd-order low-pass at the cutoff, applied as a simple 3-tap moving
+    // average when the bandwidth is below the ideal. A moving average of length L has
+    // its first null at Rs/L, so L is chosen from the requested bandwidth.
+    const L = v.ideal ? 1 : Math.max(1, Math.round(1 / Math.max(0.05, v.nchan)));
+    const chan = (signal) => {
+      if (L <= 1) return signal;
+      const out = new Array(signal.length).fill(0);
+      for (let i = 0; i < signal.length; i++) {
+        let s = 0, c = 0;
+        for (let k = 0; k < L; k++) { const j = i - k; if (j >= 0) { s += signal[j]; c++; } }
+        out[i] = s / Math.max(1, c);
+      }
+      return out;
+    };
+    // time grid: from symbol -SPAN to symbol n + SPAN, sampled at NS points per symbol
+    const t0 = -SPAN, t1 = n + SPAN;
+    const M = Math.round((t1 - t0) * NS);
+    const tGrid = new Array(M + 1);
+    const pulseOut = new Array(M + 1).fill(0);
+    for (let i = 0; i <= M; i++) tGrid[i] = t0 + i / NS;
+    for (let i = 0; i <= M; i++) {
+      let s = 0;
+      for (let k = 0; k < n; k++) {
+        const dt = tGrid[i] - k;
+        if (dt < -SPAN || dt > SPAN) continue;
+        s += sym[k] * raisedCosine(dt, alpha);
+      }
+      pulseOut[i] = s;
+    }
+    const y = chan(pulseOut);
+    const peak = Math.max(...y.map(Math.abs)) || 1;
+    const yn = y.map((x) => x / peak);            // normalise so the eye spans ±1 ideally
+
+    // build the overlaid traces: each trace is one 2-symbol window centred on a sampling
+    // instant, with its own timing jitter and noise realisation
+    const traces = [];
+    const nt = Math.min(NTRACE, Math.max(8, Math.floor(n / 3)));
+    const rnd2 = lcg(99991);
+    for (let k = 0; k < nt; k++) {
+      const c = 20 + k * Math.max(1, Math.floor((n - 40) / nt));
+      const jit = (v.jitter > 0 ? (rnd2() * 2 - 1) * v.jitter : 0);
+      const sig = v.noise > 0 ? v.noise : 0;
+      const pts = [];
+      for (let i = -NS; i <= NS; i++) {
+        const idx = Math.round((c + jit) * NS) + (SPAN * NS) + i;
+        if (idx < 0 || idx >= yn.length) continue;
+        const tt = (i / NS);
+        const val = yn[idx] + (sig > 0 ? (rnd2() * 2 - 1) * sig * 0.6 : 0);
+        pts.push([tt, val]);
+      }
+      traces.push({ pts, c });
+    }
+    // eye opening measured AT the nominal sampling instant (t = 0 in the window)
+    let hi = -Infinity, lo = Infinity;
+    for (const tr of traces) {
+      for (const p of tr.pts) if (Math.abs(p[0]) < 1e-9) { hi = Math.max(hi, p[1]); lo = Math.min(lo, p[1]); }
+    }
+    if (!Number.isFinite(hi)) { hi = 1; lo = -1; }
+    const eyeOpen = hi - lo;                       // peak-to-peak at the sampling point
+    // vertical eye half-opening about the zero threshold = the noise margin
+    const marginToZero = Math.min(hi, -lo);
+    // ISI test: measure the spread of the inner traces only (those whose value at t=0
+    // should be exactly ±1). Any spread beyond the noise floor is intersymbol interference.
+    let inner = [];
+    for (const tr of traces) {
+      for (const p of tr.pts) if (Math.abs(p[0]) < 1e-9) {
+        // distance from the nearest ideal level {+1, -1}
+        inner.push(Math.abs(Math.abs(p[1]) - 1));
+      }
+    }
+    inner.sort((a, b) => a - b);
+    const isiSpread = inner.length ? inner[Math.floor(inner.length * 0.9)] : 0;
+    const noiseFloor = v.noise * 0.6;
+    const isiPresent = isiSpread > noiseFloor + 0.02;
+    // bandwidth accounting
+    const bw = (1 + alpha) / 2;                    // in units of Rs
+    const firstNull = (1 + alpha) / 2;
+    const excess = alpha / 2;
+    // timing sensitivity: how fast the eye closes away from the optimum
+    let eyeAtHalf = null;
+    {
+      let h2 = -Infinity, l2 = Infinity;
+      for (const tr of traces) for (const p of tr.pts) {
+        if (Math.abs(p[0] - 0.5) < 1e-9) { h2 = Math.max(h2, p[1]); l2 = Math.min(l2, p[1]); }
+      }
+      eyeAtHalf = Number.isFinite(h2) ? h2 - l2 : null;
+    }
+    return {
+      traces, sym, alpha, eyeOpen, marginToZero, isiPresent, isiSpread, noiseFloor,
+      bw, firstNull, excess, jitter: v.jitter, noise: v.noise, nchan: v.nchan,
+      ideal: v.ideal, L, eyeAtHalf, n, peak,
+    };
+  },
+  draw: (ctx, v, o, plot) => {
+    plot.clear();
+
+    // ------------------------------------------------------------- the eye --
+    const E = frame(ctx, plot, { top: 40, bottom: 430, yMin: -1.85, yMax: 1.85 });
+    const xMin = -1.35, xMax = 1.35;
+    const X = (t) => E.X(t, xMin, xMax);
+    // thresholds and centre
+    E.line(E.px0, E.Y(0), E.px1, E.Y(0), PALETTE.axis, 2);
+    E.line(E.px0, E.Y(1), E.px1, E.Y(1), 'rgba(166,227,161,0.35)', 1, [5, 4]);
+    E.line(E.px0, E.Y(-1), E.px1, E.Y(-1), 'rgba(166,227,161,0.35)', 1, [5, 4]);
+    E.text('+1 ideal level', E.px0 + 4, E.Y(1) - 6, PALETTE.accent3, 'left', '10px ui-monospace, monospace');
+    E.text('−1 ideal level', E.px0 + 4, E.Y(-1) + 14, PALETTE.accent3, 'left', '10px ui-monospace, monospace');
+    E.text('decision threshold (0 V)', E.px0 + 4, E.Y(0) - 6, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    // the overlaid traces
+    o.traces.forEach((tr, i) => {
+      ctx.save();
+      ctx.strokeStyle = i % 2 ? 'rgba(137,180,250,0.55)' : 'rgba(166,227,161,0.55)';
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      tr.pts.forEach((p, j) => { j === 0 ? ctx.moveTo(X(p[0]), E.Y(p[1])) : ctx.lineTo(X(p[0]), E.Y(p[1])); });
+      ctx.stroke(); ctx.restore();
+    });
+    // the best sampling instant
+    E.line(X(0), E.top, X(0), E.bottom, PALETTE.warn, 2, [6, 4]);
+    E.text('best sampling instant (t = 0 of each symbol, i.e. the peak of the eye)', X(0) + 6, E.top + 14, PALETTE.warn);
+    // the eye opening bracket at the sampling instant
+    const Xo = X(0);
+    E.line(Xo - 7, E.Y(o.eyeOpen / 2), Xo - 7, E.Y(-o.eyeOpen / 2), PALETTE.accent2, 3);
+    E.line(Xo - 11, E.Y(o.eyeOpen / 2), Xo - 3, E.Y(o.eyeOpen / 2), PALETTE.accent2, 2);
+    E.line(Xo - 11, E.Y(-o.eyeOpen / 2), Xo - 3, E.Y(-o.eyeOpen / 2), PALETTE.accent2, 2);
+    E.text('eye opening = ' + fmt(o.eyeOpen, 4) + ' (peak-to-peak)', Xo + 8, E.Y(-o.eyeOpen / 2) + 14, PALETTE.accent2);
+    E.text('noise margin to the zero threshold = ' + fmt(o.marginToZero, 4), Xo + 8, E.Y(-o.eyeOpen / 2) + 28, PALETTE.accent2);
+    // symbol-boundary guides on the window edges
+    E.line(X(1), E.top, X(1), E.bottom, 'rgba(160,160,190,0.4)', 1, [3, 3]);
+    E.line(X(-1), E.top, X(-1), E.bottom, 'rgba(160,160,190,0.4)', 1, [3, 3]);
+    E.text('one symbol period Ts', X(0), E.bottom + 16, PALETTE.dim, 'center');
+    E.text('eye diagram: ' + o.traces.length + ' overlaid symbol intervals, raised-cosine α = ' + fmt(o.alpha, 3),
+      E.px0, 24, PALETTE.text, 'left', '12px ui-monospace, monospace');
+    E.text(o.isiPresent ? 'ISI PRESENT — the inner traces do not all pass through ±1 at the sampling instant, so the eye is partially closed'
+      : 'NO ISI — every inner trace passes through ±1 at the sampling instant (Nyquist criterion satisfied)',
+      E.px0, E.top + 14, o.isiPresent ? PALETTE.accent2 : PALETTE.accent3, 'left', '11px ui-monospace, monospace');
+
+    // ---------------------------------------------------- pulse + spectrum --
+    const P = frame(ctx, plot, { top: 462, bottom: 546, yMin: -0.35, yMax: 1.15 });
+    const px0 = P.px0, px1 = P.px0 + (P.px1 - P.px0) * 0.42;
+    const pt = (t) => px0 + ((t + 5) / 10) * (px1 - px0);
+    P.line(px0, P.Y(0), px1, P.Y(0), PALETTE.axis, 1.2);
+    ctx.save(); ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 500; i++) {
+      const t = -5 + 10 * i / 500;
+      const val = raisedCosine(t, o.alpha) / (1 + 0.0);
+      const XX = pt(t), YY = P.Y(val);
+      i === 0 ? ctx.moveTo(XX, YY) : ctx.lineTo(XX, YY);
+    }
+    ctx.stroke(); ctx.restore();
+    for (let k = -4; k <= 4; k++) {
+      const XX = pt(k);
+      P.line(XX, P.Y(0) - 4, XX, P.Y(0) + 4, 'rgba(160,160,190,0.6)', 1);
+      if (Math.abs(k) % 2 === 0) P.text(String(k), XX, P.Y(0) + 14, PALETTE.dim, 'center', '9px ui-monospace, monospace');
+    }
+    P.text('raised-cosine pulse h(t), α = ' + fmt(o.alpha, 3) + ' — zero at every other symbol instant (Nyquist)',
+      px0, P.top - 4, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    // bandwidth bar
+    const bx0 = P.px0 + (P.px1 - P.px0) * 0.50, bx1 = P.px1;
+    const fMax = 1.1;
+    const FX = (f) => bx0 + (f / fMax) * (bx1 - bx0);
+    P.line(bx0, P.Y(0), bx1, P.Y(0), PALETTE.axis, 1.2);
+    const bwW = (1 + o.alpha) / 2;
+    ctx.save();
+    ctx.fillStyle = 'rgba(137,180,250,0.35)'; ctx.fillRect(FX(0), P.Y(0.9), FX(0.5) - FX(0), P.Y(0) - P.Y(0.9));
+    ctx.fillStyle = 'rgba(243,139,168,0.35)'; ctx.fillRect(FX(0.5), P.Y(0.9), FX(bwW) - FX(0.5), P.Y(0) - P.Y(0.9));
+    ctx.restore();
+    P.line(FX(0.5), P.Y(0), FX(0.5), P.Y(1.0), PALETTE.accent, 1.5, [4, 3]);
+    P.line(FX(bwW), P.Y(0), FX(bwW), P.Y(1.0), PALETTE.accent2, 1.5, [4, 3]);
+    P.text('Nyquist minimum', FX(0.5), P.Y(1.0) - 4, PALETTE.accent, 'center', '9px ui-monospace, monospace');
+    P.text('brick wall', FX(bwW) + 2, P.Y(1.0) - 16, PALETTE.accent2, 'left', '9px ui-monospace, monospace');
+    P.text('0', FX(0), P.Y(0) + 14, PALETTE.dim, 'center', '9px ui-monospace, monospace');
+    P.text('Rs/2', FX(0.5), P.Y(0) + 14, PALETTE.accent, 'center', '9px ui-monospace, monospace');
+    P.text(fmt(bwW, 3) + 'Rs', FX(bwW), P.Y(0) + 14, PALETTE.accent2, 'center', '9px ui-monospace, monospace');
+    P.text('required bandwidth = (1 + α)/2 × Rs = ' + fmt(o.bw, 4) + ' Rs  (excess = α/2 = ' + fmt(o.excess, 4) + ' Rs)',
+      bx0, P.top - 4, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+
+    // -------------------------------------------------------- substituted ---
+    const F = document.getElementById('eye-formula');
+    if (F) {
+      F.innerHTML =
+        '<div><strong>Raised cosine:</strong> h(t) = sinc(t/Ts)·cos(παt/Ts) / [1 − (2αt/Ts)²]; '
+        + 'with Ts = 1/Rs the required bandwidth is <strong>B = (1 + α)Rs/2 = (1 + ' + fmt(o.alpha, 3) + ')'
+        + fmt(0.5, 2) + 'Rs = ' + fmt(o.bw, 5) + ' Rs</strong> (Nyquist minimum ' + fmt(0.5, 2) + ' Rs plus '
+        + fmt(o.excess, 5) + ' Rs of excess bandwidth)</div>'
+        + '<div><strong>Eye opening measured from the traces</strong> = ' + fmt(o.eyeOpen, 5)
+        + ' peak-to-peak at the optimum instant; the <strong>noise margin is ' + fmt(o.marginToZero, 5)
+        + '</strong> about the zero threshold (half the opening). Additive noise must stay inside this margin '
+        + 'for the decision to be correct.</div>'
+        + '<div><strong>ISI test:</strong> at the sampling instant the inner traces miss the ideal ±1 levels by '
+        + fmt(o.isiSpread, 5) + ' at the 90th percentile, against a noise floor of ' + fmt(o.noiseFloor, 5)
+        + ' → <strong>' + (o.isiPresent ? 'ISI present' : 'no ISI') + '</strong>. '
+        + (o.ideal ? 'The channel is ideal here, so any spread comes from jitter and noise only — set '
+          + '"ideal channel" off and pull the bandwidth below ~1.3Rs to watch ISI appear.' : '') + '</div>'
+        + '<div><strong>Timing sensitivity:</strong> the opening falls from ' + fmt(o.eyeOpen, 4) + ' at t = 0 to '
+        + (o.eyeAtHalf === null ? '—' : fmt(o.eyeAtHalf, 4)) + ' half a symbol away, so a clock error of 0.5Ts costs '
+        + (o.eyeAtHalf === null ? '—' : fmt((1 - o.eyeAtHalf / Math.max(o.eyeOpen, 1e-9)) * 100, 4) + ' %')
+        + ' of the margin. That is why the sampling instant must be recovered, not assumed.</div>'
+        + '<div><strong>α = 0 vs α = 1:</strong> α = 0 gives the minimum possible bandwidth Rs/2 but its sinc tails '
+        + 'decay as 1/t, so the pulse is unrealisable (it needs infinite delay and a perfect brick-wall filter, and any '
+        + 'timing error or truncation destroys the zero crossings). α = 1 needs Rs — double the bandwidth — but the '
+        + 'tails decay as 1/t³ and the eye stays open under sloppy timing. Real systems use α ≈ 0.2–0.5: '
+        + 'the bandwidth-versus-timing-robustness trade in one number.</div>';
+    }
+  },
+  readout: (out) => ({
+    'roll-off α': fmt(out.alpha, 4),
+    'bandwidth (1+α)Rs/2': fmt(out.bw, 5) + ' × Rs',
+    'excess bandwidth': fmt(out.excess, 5) + ' × Rs',
+    'eye opening': fmt(out.eyeOpen, 5),
+    'noise margin': fmt(out.marginToZero, 5),
+    'best sampling instant': 't = 0 (eye centre)',
+    'ISI present?': out.isiPresent ? 'YES' : 'no',
+    'ISI spread (p90)': fmt(out.isiSpread, 5),
+    'noise σ': fmt(out.noiseFloor, 5),
+    'channel model': out.ideal ? 'ideal (no band limit)' : 'moving average, ' + out.L + '-sample window',
+  }),
+});
+
+const host = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'eye-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight: the eye opening IS the noise margin, and the roll-off factor α is the price paid for keeping '
+  + 'it open.</strong> Nyquist\'s first criterion says a pulse train has no ISI at the sampling instants if the pulse '
+  + 'is zero at every other symbol instant — the raised cosine does exactly that for every α, but only if the full '
+  + 'bandwidth (1 + α)Rs/2 is actually available. Truncate the bandwidth and the zero crossings are no longer zeros, '
+  + 'which is what this widget\'s channel slider demonstrates.'
+  + '<br><strong>Three mistakes this widget prevents.</strong> '
+  + '(1) <em>Quoting the bandwidth of a raised-cosine system as Rs/2.</em> Rs/2 is only the α = 0 ideal. The examinable '
+  + 'formula is B = (1 + α)Rs/2 = Rs/2 + αRs/2, and the excess term is what a real filter must pass. For α = 0.5 at '
+  + 'Rs = 1 Mbaud the answer is 750 kHz, not 500 kHz. '
+  + '(2) <em>Sampling at the symbol boundary instead of the centre.</em> The eye is widest in the middle of the symbol '
+  + 'period and closes to nothing at the boundaries — the trace at t = ±0.5Ts shows exactly that. A receiver that '
+  + 'samples on the edge has no margin at all, which is why clock recovery exists and why jitter, not noise, is often '
+  + 'the limiting impairment in a real link. '
+  + '(3) <em>Thinking α = 0 is the best design because it is the most bandwidth-efficient.</em> It is the least '
+  + 'realisable. Its sinc tail decays as 1/t, so the pulse needs infinite delay and the eye collapses under the '
+  + 'slightest timing error; α = 1 doubles the bandwidth but decays as 1/t³ and tolerates timing slop. '
+  + 'The design question is never "what is the smallest bandwidth" but "what α keeps the eye open with the clock I '
+  + 'can actually build" — typically 0.2–0.5 in practice.'
+  + '<br><strong>Exam reflex:</strong> "a channel passes 0–10 kHz and we need 8 kbaud, what roll-off is possible?" '
+  + 'B = (1 + α)Rs/2 → 10 kHz = (1 + α)·8k/2 → (1 + α) = 2.5 → α = 1.5, which is impossible, so the link is '
+  + 'infeasible at that rate. Every raised-cosine numerical question is that one line rearranged.';
+host.appendChild(note);
+</script>
+</body>
+</html>

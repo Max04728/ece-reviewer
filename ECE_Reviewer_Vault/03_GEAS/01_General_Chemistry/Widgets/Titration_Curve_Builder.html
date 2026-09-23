@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Titration Curve Builder</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+/* ============================================================================
+ * Titration curve builder — strong/weak acid with a strong base, and the
+ * mirror-image weak base with a strong acid.
+ *
+ * The chemistry is done properly (charge balance + mass balance solved as a
+ * cubic in [H+], by bisection) rather than with the textbook short-cuts, so
+ * the widget keeps working when the approximation that a real exam question
+ * would use is pushed past its limits. The four regions the LET exam actually
+ * asks about are marked on the plot:
+ *
+ *   1. initial pH                  - weak acid: [H+] = sqrt(Ka.Ca)
+ *   2. buffer region               - pH = pKa + log([A-]/[HA])
+ *   3. half-equivalence point      - pH = pKa exactly, independent of Ca
+ *   4. equivalence point           - strong/strong: pH = 7
+ *                                    weak acid: pH = 7 + 0.5(pKa + log C)
+ * ==========================================================================*/
+
+const KW = 1e-14;
+
+/** Newton solve of a 1-D equation; bisection fallback keeps it bulletproof. */
+function newton(f, lo, hi, n = 80) {
+  let flo = f(lo);
+  for (let i = 0; i < n; i++) {
+    const mid = (lo + hi) / 2;
+    const fm = f(mid);
+    if (!Number.isFinite(fm)) return mid;
+    if ((flo < 0) === (fm < 0)) { lo = mid; flo = fm; } else { hi = mid; }
+  }
+  return (lo + hi) / 2;
+}
+
+function pHStrong(Ca, Cb, Va, Vb) {
+  const V = Va + Vb;
+  if (V <= 0) return 7;
+  const cA = (Ca * Va) / V;
+  const cB = (Cb * Vb) / V;
+  const net = cA - cB;
+  let h;
+  if (net > 1e-12) h = (net + Math.sqrt(net * net + 4 * KW)) / 2;      // excess strong acid
+  else if (net < -1e-12) h = KW / (-net);                                // excess strong base
+  else h = Math.sqrt(KW);
+  return Math.max(0, Math.min(14, -Math.log10(h)));
+}
+
+/** Weak acid HA (C_Ha total) + strong base (C_B total): charge balance. */
+function pHWeakAcid(Ka, C_Ha, C_B) {
+  const f = (h) => h + C_B - KW / h - (C_Ha * Ka) / (Ka + h);
+  if (!(C_Ha > 0) && !(C_B > 0)) return 7;
+  const h = newton(f, 1e-15, 1);
+  return Math.max(0, Math.min(14, -Math.log10(h)));
+}
+
+/** Weak base B (C_B total) + strong acid (C_Ha total): charge balance. */
+function pHWeakBase(Ka, Ca_acid, Cb_base) {
+  const f = (h) => h + (Cb_base * h) / (Ka + h) - KW / h - Ca_acid;
+  if (!(Ca_acid > 0) && !(Cb_base > 0)) return 7;
+  const h = newton(f, 1e-15, 1);
+  return Math.max(0, Math.min(14, -Math.log10(h)));
+}
+
+/* --------------------------------------------------------------------------
+ * Curve builders. Each returns the curve plus the two points the exam asks
+ * about: the equivalence point and the half-equivalence point.
+ * ------------------------------------------------------------------------*/
+
+function titrateStrongAcidStrongBase({ Ca, Cb, Va }) {
+  const Veq = (Ca * Va) / Cb;
+  const c = (Vb) => pHStrong(Ca, Cb, Va, Vb);
+  return {
+    Veq, Vhalf: Veq / 2, pHhalf: c(Veq / 2), pHeq: c(Veq), pH0: c(0),
+    halfIsPka: false, hasBuffer: false, c,
+  };
+}
+
+function titrateWeakAcidStrongBase({ Ca, Ka, Cb, Va }) {
+  const Veq = (Ca * Va) / Cb;
+  const c = (Vb) => {
+    const V = Va + Vb;
+    return pHWeakAcid(Ka, (Ca * Va) / V, (Cb * Vb) / V);
+  };
+  return {
+    Veq, Vhalf: Veq / 2, pHhalf: c(Veq / 2), pHeq: c(Veq), pH0: c(0),
+    halfIsPka: true, hasBuffer: true, c,
+    pKa: -Math.log10(Ka),
+    /* textbook approximations, shown side by side with the exact solver so the
+       student can see WHY the equivalence pH is not 7 for a weak acid */
+    pH0approx: 0.5 * (-Math.log10(Ka) - Math.log10(Ca)),
+    pHeqapprox: 7 + 0.5 * (-Math.log10(Ka) + Math.log10(Ca * Va / (Va + Veq))),
+  };
+}
+
+function titrateStrongAcidWeakBase({ Ca, Ka, Cb, Va }) {
+  // titrating the weak base B (Cb, Va) with strong acid (Ca) -- "Ka" arrives as
+  // the pKa of the conjugate acid BH+, which is what the slider offers.
+  const Veq = (Cb * Va) / Ca;
+  const c = (Vb) => {
+    const V = Va + Vb;
+    return pHWeakBase(Ka, (Ca * Vb) / V, (Cb * Va) / V);
+  };
+  return {
+    Veq, Vhalf: Veq / 2, pHhalf: c(Veq / 2), pHeq: c(Veq), pH0: c(0),
+    halfIsPka: true, hasBuffer: true, c,
+    pKa: -Math.log10(Ka),
+    pH0approx: 14 - 0.5 * (14 - (-Math.log10(Ka)) - Math.log10(Cb)),
+    pHeqapprox: 7 - 0.5 * (-Math.log10(Ka) + Math.log10(Cb * Va / (Va + Veq))),
+  };
+}
+
+const SCEN = {
+  strong: {
+    name: 'strong acid + strong base',
+    titrant: 'strong base NaOH',
+    analyte: 'strong acid HCl',
+    build: titrateStrongAcidStrongBase,
+    eqNote: 'strong/strong equivalence pH is exactly 7.00',
+  },
+  weakAcid: {
+    name: 'weak acid + strong base',
+    titrant: 'strong base NaOH',
+    analyte: 'weak acid HA',
+    build: titrateWeakAcidStrongBase,
+    eqNote: 'the salt A- hydrolyses, so the equivalence pH sits ABOVE 7',
+  },
+  weakBase: {
+    name: 'weak base + strong acid',
+    titrant: 'strong acid HCl',
+    analyte: 'weak base B',
+    build: titrateStrongAcidWeakBase,
+    eqNote: 'the salt BH+ hydrolyses, so the equivalence pH sits BELOW 7',
+  },
+};
+
+function buildCurve(scen, v) {
+  const Ca = v.Ca;
+  const Cb = v.Ct;
+  const Va = v.Va;
+  const Ka = Math.pow(10, -v.pKa);
+  const S = SCEN[scen];
+  const r = S.build({ Ca, Ka, Cb, Va });
+  const Vmax = Math.max(0.02, 2.2 * r.Veq);
+  const N = 300;
+  const pts = [];
+  for (let i = 0; i <= N; i++) {
+    const Vb = (Vmax * i) / N;
+    const pH = r.c(Vb);
+    if (Number.isFinite(pH)) pts.push([Vb, pH]);
+  }
+  return { ...r, S, pts, Vmax, Veq: r.Veq, Ka, Ca, Cb, Va };
+}
+
+/* ------------------------------------------------------------------------*/
+
+/* The formula/insight panel lives under the widget and is rebuilt on every
+   control change, so the displayed equations always carry current numbers. */
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'tit-note';
+
+widget({
+  title: 'Titration Curve Builder',
+  description:
+    'Titrate a strong or weak acid with a strong base (or a weak base with a strong acid). ' +
+    'The equivalence point and the half-equivalence point are marked, and the buffer region is shaded.',
+  height: 470,
+  range: { xMin: 0, xMax: 50, yMin: 0, yMax: 14 },
+  controls: [
+    {
+      id: 'scen', label: 'system', type: 'select',
+      options: [
+        { value: 'strong', label: 'strong acid + strong base' },
+        { value: 'weakAcid', label: 'weak acid + strong base' },
+        { value: 'weakBase', label: 'weak base + strong acid' },
+      ],
+      value: 'weakAcid',
+    },
+    { id: 'Ca', label: 'analyte concentration Ca (M)', min: 0.01, max: 1, step: 0.01, value: 0.1 },
+    { id: 'Va', label: 'analyte volume Va (mL)', min: 10, max: 100, step: 1, value: 50 },
+    { id: 'pKa', label: 'pKa of the weak species (slider is log scale)', min: 2, max: 12, step: 0.05, value: 4.74 },
+    { id: 'Ct', label: 'titrant concentration (M)', min: 0.01, max: 1, step: 0.01, value: 0.1 },
+    { id: 'showBuf', label: 'shade the buffer region', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const R = buildCurve(v.scen, v);
+    R.showBuf = !!v.showBuf;
+    return R;
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const xMax = Math.max(1, out.Vmax);
+    plot.setRange({ xMin: 0, xMax, yMin: 0, yMax: 14 });
+    plot.clear().grid(xMax / 10, 1).axes();
+
+    // buffer region: 0.1 Veq .. 0.9 Veq (Henderson-Hasselbalch is usable there)
+    if (out.showBuf && out.hasBuffer && out.Veq > 0) {
+      const V1 = 0.1 * out.Veq, V2 = 0.9 * out.Veq;
+      ctx.save();
+      ctx.fillStyle = 'rgba(166,227,161,0.16)';
+      ctx.fillRect(plot.X(V1), plot.Y(14), plot.X(V2) - plot.X(V1), plot.Y(0) - plot.Y(14));
+      ctx.restore();
+      plot.label('buffer region', plot.X(V1) + 6, plot.Y(13.3), { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+
+    // pH 7 neutral reference and the pKa reference
+    plot.segment(0, 7, xMax, 7, { color: PALETTE.dim, width: 1, dash: [4, 4] });
+    plot.label('pH 7', plot.X(xMax) - 40, plot.Y(7) - 5, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    if (out.hasBuffer) {
+      plot.segment(0, out.pKa, 1.9 * out.Veq, out.pKa, { color: PALETTE.accent5, width: 1, dash: [3, 5] });
+      plot.label('pH = pKa = ' + fmt(out.pKa, 3), plot.X(0.05 * xMax), plot.Y(out.pKa) - 5,
+        { color: PALETTE.accent5, font: '11px ui-monospace, monospace' });
+    }
+
+    // equivalence volume
+    plot.segment(out.Veq, 0, out.Veq, out.pHeq, { color: PALETTE.accent2, width: 1, dash: [5, 4] });
+
+    // the curve itself
+    plot.fn((V) => out.c(V), 0, xMax, { color: PALETTE.accent, width: 2.6, samples: 420 });
+
+    // markers
+    plot.dot(out.Veq, out.pHeq, { color: PALETTE.accent2, r: 5 });
+    plot.label('EP  pH ' + fmt(out.pHeq, 3), plot.X(out.Veq) + 8, plot.Y(out.pHeq) - 8,
+      { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    if (out.hasBuffer) {
+      plot.dot(out.Vhalf, out.pHhalf, { color: PALETTE.accent3, r: 5 });
+      plot.label('half-EP  pH ' + fmt(out.pHhalf, 3), plot.X(out.Vhalf) + 8, plot.Y(out.pHhalf) + 16,
+        { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+    plot.dot(0, out.pH0, { color: PALETTE.warn, r: 4 });
+    plot.label('initial pH ' + fmt(out.pH0, 3), plot.X(0) + 8, plot.Y(out.pH0) + 16,
+      { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+
+    plot.text('pH', plot.pad - 22, plot.pad + 6, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('volume of ' + out.S.titrant + ' added (mL)', plot.pad + 130, plot.h - 8,
+      { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text(out.S.name, plot.pad + 6, plot.pad + 14, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const rows = {
+      'burette reading shown': fmt(out.Vmax, 3) + ' mL',
+      'pH at that reading': fmt(out.c(out.Vmax), 3),
+      'initial pH': fmt(out.pH0, 3),
+      'equivalence volume Veq': fmt(out.Veq, 4) + ' mL',
+      'pH at equivalence': fmt(out.pHeq, 3),
+    };
+    if (out.hasBuffer) {
+      rows['pKa'] = fmt(out.pKa, 3);
+      rows['half-equivalence volume'] = fmt(out.Vhalf, 4) + ' mL';
+      rows['pH at half-equivalence'] = fmt(out.pHhalf, 3);
+      rows['pH - pKa at half-EP'] = fmt(out.pHhalf - out.pKa, 3) + '  (must be ~0)';
+    } else {
+      rows['half-equivalence volume'] = fmt(out.Vhalf, 4) + ' mL';
+      rows['pH at half-equivalence'] = fmt(out.pHhalf, 3);
+    }
+    return rows;
+  },
+
+  onChange: (v) => {
+    renderNote(buildCurve(v.scen, v));
+  },
+});
+
+function renderNote(out) {
+  const weak = out.hasBuffer;
+  const parts = [];
+  parts.push('<strong>' + out.S.name + '</strong> — ' + out.S.eqNote);
+
+  parts.push('<div class="vault-mono" style="margin-top:8px">'
+    + 'mole balance at equivalence: n_analyte . C_analyte . V_analyte = n_titrant . C_titrant . V_titrant<br>'
+    + 'V_eq = (C_analyte . V_analyte) / C_titrant = (' + fmt(out.Ca, 3) + ' M . ' + fmt(out.Va, 3)
+    + ' mL) / ' + fmt(out.Cb, 3) + ' M = <strong>' + fmt(out.Veq, 4) + ' mL</strong><br>'
+    + 'pHeq computed by charge balance: ' + fmt(out.pHeq, 3) + '</div>');
+
+  if (weak) {
+    parts.push('<div class="vault-mono" style="margin-top:8px">'
+      + 'Henderson-Hasselbalch: pH = pKa + log10([A-] / [HA])<br>'
+      + 'at half-equivalence [A-] = [HA], so log10(1) = 0 and <strong>pH = pKa = '
+      + fmt(out.pKa, 3) + '</strong>. Ca cancels completely.<br>'
+      + 'exact charge-balance solver gives pH ' + fmt(out.pHhalf, 3) + ' at '
+      + fmt(out.Vhalf, 3) + ' mL — residual pH - pKa = ' + fmt(out.pHhalf - out.pKa, 4) + '</div>');
+    parts.push('<div class="vault-mono" style="margin-top:8px">'
+      + 'initial pH (textbook): 0.5 . (pKa - log10 Ca) = ' + fmt(out.pH0approx, 3)
+      + '   vs exact ' + fmt(out.pH0, 3) + '<br>'
+      + 'equivalence pH by salt hydrolysis: 7 + 0.5 . (pKa + log10 C_salt) = '
+      + fmt(out.pHeqapprox, 3) + '   vs exact ' + fmt(out.pHeq, 3) + '</div>');
+  } else {
+    parts.push('<div class="vault-mono" style="margin-top:8px">'
+      + 'strong/strong: neither ion hydrolyses, so at V_eq the solution is exactly neutral.<br>'
+      + 'pH = 7.000 for every Ca and Cb — only V_eq moves when the concentrations change.</div>');
+  }
+  parts.push('<div style="margin-top:8px">'
+    + '<strong>Exam trap this widget kills:</strong> the half-equivalence point is where pH = pKa '
+    + '<em>regardless of the acid concentration</em>. Diluting a weak acid 100x shifts the '
+    + 'starting pH and the equivalence pH, but the half-equivalence pH does not budge — so any '
+    + 'answer choice that makes pH at half-EP depend on Ca is wrong. Also note that for a weak '
+    + 'acid the equivalence pH is NOT 7: the conjugate base hydrolyses and pushes it basic.</div>');
+  note.innerHTML = parts.join('');
+}
+
+document.getElementById('app').appendChild(note);
+renderNote(buildCurve('weakAcid', { Ca: 0.1, Va: 50, pKa: 4.74, Ct: 0.1 }));
+</script>
+</body>
+</html>

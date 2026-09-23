@@ -1,0 +1,107 @@
+{
+  "scope": "Convert a digital code into a precise analog voltage or current — R-2R ladders, binary-weighted resistors, multiplying DACs and PWM-plus-filter — and quantify step size, settling, monotonicity and error.",
+  "intuition": "A DAC is a set of switched current sources summed into one node, where each source is weighted by a power of two. The ladder network is what makes those weights accurate using only two resistor values, and the op-amp turns the summed current into a voltage.",
+  "concept": [
+    "**The transfer function and the step.** An $n$-bit DAC maps an integer code $D$ (from 0 to $2^n-1$) into an output, most simply $V_o = V_{ref}D/2^n$, so one LSB is $V_{ref}/2^n$ and the largest code produces $V_{ref}(2^n-1)/2^n$ — one LSB *below* $V_{ref}$. At 8 bits that shortfall is 0.4% of full scale, which is significant; at 12 bits it is 0.024% and usually negligible. The two numbers students most often swap are the number of steps ($2^n$) and the number of codes ($2^n$, from 0 to $2^n-1$): the step is $V_{ref}/2^n$ precisely because the top code cannot reach $V_{ref}$, and reporting $V_{ref}/(2^n-1)$ as the LSB makes the converter appear 0.4% coarser at 8 bits.",
+    "**Binary-weighted resistors versus the R-2R ladder.** The direct approach switches $n$ resistors whose values are $R, 2R, 4R, \\ldots, 2^{n-1}R$ into a summing junction, producing $I_o = (V_{ref}/R)(b_{n-1} + b_{n-2}/2 + \\cdots)$. It works, but the resistor spread is $2^{n-1}:1$: a 12-bit version needs a 2048:1 ratio, and the MSB resistor must be matched to better than half an LSB of the full scale — about 0.012% — while the smallest resistor carries almost no current. That is impossible to fabricate economically, which is why the R-2R ladder exists: it needs only two resistor values in a 2:1 ratio regardless of bit count, and each bit's contribution is set by the network's division ratio rather than by absolute matching. An R-2R DAC is also inherently monotonic when its switches are ideal, because each bit adds a current that is larger than the sum of all lower bits' contributions.",
+    "**Settling, glitches and dynamic specs.** A DAC's *static* accuracy is described by offset, gain error, INL and DNL in LSBs; its *dynamic* behaviour is described by settling time and glitch energy. Settling time is the time to reach and stay within a specified band, and the band matters: a part specified as 1 µs to 0.1% can take considerably longer to ±½LSB at 12 bits, so the maximum update rate is $1/(t_s + t_{update})$ with the settling measured at the resolution actually used. The worst glitch occurs at a *major carry*, when many bits change at once (0111 to 1000): the switches do not move simultaneously, so the output can transiently jump much further than the step being commanded, and audio and waveform-generation DACs add a deglitcher or a track-and-hold to hide it. Settling is limited by the op-amp's slew rate at large steps and by its gain-bandwidth at small ones, so a fast DAC behind a slow op-amp is only as fast as the op-amp.",
+    "**Multiplying DACs and PWM filters.** If the reference input is replaced by a signal, the same converter becomes a four-quadrant multiplier: $V_o = -V_{in}D/2^n$, so a digital word can scale an AC waveform (a digitally controlled attenuator or modulator). The bandwidth is then limited by the reference input path, not just by the ladder's settling. At the other end of the cost scale, a microcontroller can produce an analog output from a PWM pin and an RC low-pass: the average is $V_{avg} = DV_{ref}$ and the residual ripple is $V_{ref}D(1-D)/(f_{PWM}RC)$, worst at $D = 0.5$. The design tension is unavoidable — enlarging $RC$ to reduce ripple also lengthens the settling time ($5RC$), so a filter big enough to give 8 mV of ripple on a 20 kHz, 24 V PWM takes 135 ms to settle and can therefore only be updated about seven times a second. PWM filtering is fine for a slow setpoint and hopeless for a waveform.",
+    "**Error budget and monotonicity.** Combining the static errors into one number is the practical skill: offset spec plus INL spec plus the gain error converted to LSBs gives the worst-case deviation. A gain error of 0.5% at full scale of an 8-bit converter is $0.005 \\times 255 = 1.275$ LSB, so 1 LSB of offset and 2 LSB of INL give a 4.3 LSB total, which is $\\log_2 4.3 = 2.1$ bits lost — an 8-bit DAC behaving like a 5.9-bit one. Monotonicity is the property that increasing codes never decrease the output, and it is guaranteed only while DNL stays above $-1$ LSB; a DAC with a large differential error at a major carry loses it. Finally, the reference itself is part of the converter: any ripple or drift on $V_{ref}$ appears directly multiplied by the code, so a precision DAC needs a precision reference, not the logic supply."
+  ],
+  "formulas": [
+    { "q": "DAC transfer function", "e": "V_o = V_{ref}\\frac{D}{2^n}", "n": "D is the decimal code 0 to 2^n - 1. Inverting output stages add a minus sign; a multiplying DAC uses a signal instead of V_ref." },
+    { "q": "Resolution step", "e": "V_{LSB} = \\frac{V_{ref}}{2^n}", "n": "There are 2^n steps, so full scale is V_ref(2^n - 1)/2^n, one LSB below V_ref. Using 2^n - 1 in the denominator is a 0.4% error at 8 bits." },
+    { "q": "Full-scale output", "e": "V_{FS} = V_{ref}\\frac{2^n-1}{2^n}", "n": "For an 8-bit, 5 V DAC this is 4.9805 V, not 5.000 V; the shortfall is 0.4% of full scale." },
+    { "q": "Binary-weighted resistor spread", "e": "\\frac{R_{max}}{R_{min}} = 2^{n-1}", "n": "A 12-bit binary-weighted DAC needs a 2048:1 ratio and 0.012% matching at the MSB, which is why it is impractical above about 8 bits." },
+    { "q": "R-2R ladder matching", "e": "\\frac{R_{max}}{R_{min}} = 2", "n": "Only two resistor values regardless of bit count, and each bit's weight comes from the network ratio, so the DAC stays monotonic with ideal switches." },
+    { "q": "Maximum update rate", "e": "f_{max} = \\frac{1}{t_s + t_{update}}", "n": "t_s must be quoted at the resolution in use: 0.1% settling is much faster than settling to half an LSB at 12 bits." },
+    { "q": "PWM DAC average", "e": "V_{avg} = D\\,V_{ref}", "n": "D is the duty cycle. The average is exact; only the ripple and the settling time limit the usefulness." },
+    { "q": "PWM ripple after an RC filter", "e": "V_{ripple} = \\frac{V_{ref}D(1-D)}{f_{PWM}RC}", "n": "Peak-to-peak, worst at D = 0.5. Making RC larger reduces ripple but raises the settling time 5RC and lowers the update rate." },
+    { "q": "Multiplying DAC", "e": "V_o = -V_{in}\\frac{D}{2^n}", "n": "The reference is replaced by a signal, so the word scales it; bandwidth is limited by the reference input path as well as by settling." },
+    { "q": "Error budget in LSBs", "e": "E_{LSB} = E_{offset} + E_{INL} + \\frac{\\varepsilon_{gain}\\,(2^n-1)}{1}", "n": "A 0.5% gain error is 1.275 LSB at 8 bits: with 1 LSB offset and 2 LSB INL the total is 4.3 LSB, which is 2.1 bits of resolution lost." }
+  ],
+  "problems": [
+    {
+      "prompt": "An 8-bit R-2R DAC has $V_{ref} = 5\\ \\mathrm{V}$. Find the LSB size, the full-scale output, and the output for the binary input 10110100.",
+      "give": ["n = 8 bits", "V_ref = 5 V", "input = 10110100"],
+      "steps": [
+        "LSB = 5/256 = 19.53 mV",
+        "Full scale = 5 x 255/256 = 4.9805 V",
+        "10110100 binary = 128 + 32 + 16 + 4 = 180",
+        "V_o = 5 x 180/256 = 5 x 0.703125 = 3.5156 V"
+      ],
+      "ans": "$19.53\\ \\mathrm{mV}$ per LSB, $4.9805\\ \\mathrm{V}$ full scale, and $3.5156\\ \\mathrm{V}$ for code 180.",
+      "trap": "Reporting full scale as 5.000 V. The largest 8-bit code is 255, so full scale is $255/256$ of $V_{ref}$; the 19.5 mV shortfall is larger than one LSB and matters in a calibration."
+    },
+    {
+      "prompt": "A 12-bit DAC uses $V_{ref} = 2.5\\ \\mathrm{V}$. Find the LSB size and the output for codes 1000 and 2048.",
+      "give": ["n = 12 bits", "V_ref = 2.5 V", "codes 1000 and 2048"],
+      "steps": [
+        "LSB = 2.5/4096 = 0.61035 mV",
+        "Code 2048 is exactly half scale: 2.5 x 2048/4096 = 1.250 V",
+        "Code 1000: 2.5 x 1000/4096 = 0.61035 V",
+        "Code 4095 (full scale): 2.5 x 4095/4096 = 2.49939 V"
+      ],
+      "ans": "$0.610\\ \\mathrm{mV}$ per LSB, $1.2500\\ \\mathrm{V}$ for code 2048 and $0.6104\\ \\mathrm{V}$ for code 1000.",
+      "trap": "Forgetting that a code of 1000 in *binary* is 8, not one thousand. If the input word is binary, convert it first; the arithmetic above assumes a decimal code of 1000."
+    },
+    {
+      "prompt": "A microcontroller generates an analog setpoint from a $24\\ \\mathrm{V}$, $20\\ \\mathrm{kHz}$ PWM at $D = 0.25$, filtered by an RC network. Find the average voltage, the ripple for $R = 2.7\\ \\mathrm{k\\Omega}$ and $C = 10\\ \\mu\\mathrm{F}$, and the resulting update rate.",
+      "give": ["V_ref = 24 V", "f_PWM = 20 kHz", "D = 0.25", "R = 2.7 kohm", "C = 10 uF"],
+      "steps": [
+        "Average = D V_ref = 0.25 x 24 = 6.0 V",
+        "RC = 2700 x 10e-6 = 0.027 s",
+        "Ripple = V_ref D(1-D)/(f RC) = 24 x 0.1875/(20000 x 0.027)",
+        "= 4.5/540 = 8.33e-3 V = 8.33 mV peak-to-peak",
+        "Settling time = 5RC = 0.135 s, so the setpoint can only be updated about 1/0.135 = 7.4 times per second"
+      ],
+      "ans": "$6.0\\ \\mathrm{V}$ average with $8.3\\ \\mathrm{mV}$ of ripple, but only about $7\\ \\mathrm{Hz}$ of usable update rate.",
+      "trap": "Sizing the filter for ripple alone. Every improvement in ripple costs settling time — the same RC that reduces ripple to millivolts makes the output take 135 ms to reach a new setpoint, so a PWM DAC cannot follow a changing waveform."
+    },
+    {
+      "prompt": "An 8-bit DAC has $\\pm2$ LSB integral nonlinearity, 1 LSB of offset error and a $0.5\\%$ gain error at full scale. Find the worst-case total error in LSBs and the effective number of bits.",
+      "give": ["n = 8 bits", "INL = +/-2 LSB", "offset = 1 LSB", "gain error = 0.5%"],
+      "steps": [
+        "Gain error in LSBs = 0.005 x (2^8 - 1) = 0.005 x 255 = 1.275 LSB",
+        "Total = 1 + 2 + 1.275 = 4.275 LSB",
+        "Bits lost = log2(4.275) = 2.10",
+        "Effective resolution = 8 - 2.10 = 5.90 bits"
+      ],
+      "ans": "Worst-case error $4.3\\ \\mathrm{LSB}$, so an 8-bit DAC delivers about $5.9$ effective bits.",
+      "trap": "Adding the percentage gain error directly to the LSB figures. A gain error must first be converted using the full-scale code count: 0.5% of 255 is 1.275 LSB, not 0.005 LSB."
+    },
+    {
+      "prompt": "A 12-bit binary-weighted-resistor DAC is proposed with a smallest resistor of $1\\ \\mathrm{k\\Omega}$. Find the largest resistor, the resistance spread, and the matching accuracy the MSB resistor would need. Explain why an R-2R ladder is used instead.",
+      "give": ["n = 12 bits", "R_min = 1 kohm"],
+      "steps": [
+        "Largest resistor = 2^(12-1) x 1 kohm = 2048 x 1 kohm = 2.048 Mohm",
+        "Spread = 2048:1",
+        "To hold the MSB to half an LSB of full scale the MSB current must be accurate to 1/(2 x 2^12) = 1/8192",
+        "That is 0.0122% matching across a 2048:1 range, which cannot be fabricated or trimmed economically",
+        "An R-2R ladder needs only a 2:1 ratio for any bit count, so matching is practical to 16 bits and beyond"
+      ],
+      "ans": "A $2.048\\ \\mathrm{M\\Omega}$ maximum resistor, a $2048:1$ spread and $0.012\\%$ MSB matching — hence the R-2R ladder, which needs only $2:1$.",
+      "trap": "Assuming resistor *ratios* are what matter in a binary-weighted DAC. Ratios are easy; what defeats the topology is that the absolute resistor values span three decades, so the tiny currents in the low-order bits are swamped by switch leakage and offset."
+    }
+  ],
+  "traps": [
+    "**Reporting full scale as $V_{ref}$.** The largest code is $2^n-1$, so full scale is $V_{ref}(2^n-1)/2^n$: 4.9805 V from a 5 V, 8-bit DAC. The 19.5 mV gap exceeds one LSB and corrupts any calibration that assumes 5.000 V.",
+    "**Dividing by $2^n-1$ to get the LSB.** The step is $V_{ref}/2^n$; there are $2^n$ steps. The two conventions differ by 0.4% at 8 bits.",
+    "**Mixing LSBs with percentages.** INL and DNL are in LSBs, gain error is a percentage of full scale; convert before adding, or the error budget is meaningless.",
+    "**Believing an R-2R DAC is monotonic in every implementation.** Monotonicity requires DNL above $-1$ LSB, which ideal switches give but real switch-resistance mismatch, op-amp offset and reference drift can take away.",
+    "**Using a settling time measured at 0.1% for a 12-bit design.** Settling to half an LSB at 12 bits takes substantially longer, so the maximum update rate quoted from the datasheet's 0.1% figure is optimistic.",
+    "**Underestimating major-carry glitches.** When the code changes from 0111 to 1000 several switches move at once, and the transient can be many LSBs even though the commanded step is one; a deglitcher or track-and-hold is required for waveform generation.",
+    "**Reducing PWM ripple without checking settling.** Ripple falls as $1/RC$ but settling grows as $5RC$, so a filter quiet enough for a precision setpoint can take 135 ms to settle and cannot follow any changing waveform.",
+    "**Forgetting the reference is part of the converter.** Any ripple, drift or load-induced sag on $V_{ref}$ multiplies directly into the output; the logic supply is not an adequate reference for a precision DAC."
+  ],
+  "refs": [
+    "[[13_ADC_Architectures_and_Quantization]]",
+    "[[12_Signal_Conditioning_and_DAQ]]",
+    "[[08_PWM_Techniques]]",
+    "[[09_Linear_Voltage_Regulators]]"
+  ],
+  "prereqs": [
+    "[[02_Linear_Op-Amp_Circuits]]",
+    "[[13_ADC_Architectures_and_Quantization]]"
+  ]
+}

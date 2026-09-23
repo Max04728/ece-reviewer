@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Op-Amp Configuration Playground — Gain, Bandwidth, Slew Limit</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Seven classic op-amp configurations on one bench. The algebraic ones are exact;
+// the integrator and the differentiator are done as real first-order transfer
+// functions (a lossy integrator with Rf across C, a practical differentiator with
+// Rin in series with C), so the ideal textbook answer and the real answer are both
+// visible. The schematic is drawn from the same parameters that feed the maths --
+// if a resistor is missing from the picture, it is missing from the equation too.
+
+const VRAIL = 13;            // V, output saturation on a +/-15 V supply
+const PERIODS_PLOT = 2;      // periods drawn
+const PERIODS_RUN = 4;       // periods simulated (first two are warm-up)
+const NSAMP = 12000;         // total integration samples
+
+const CONFIGS = [
+  { value: 'inverting', label: 'inverting amplifier' },
+  { value: 'noninv', label: 'non-inverting amplifier' },
+  { value: 'follower', label: 'voltage follower' },
+  { value: 'summing', label: 'summing amplifier' },
+  { value: 'difference', label: 'difference amplifier' },
+  { value: 'integrator', label: 'integrator (lossy)' },
+  { value: 'differentiator', label: 'differentiator (practical)' },
+];
+
+/** Small canvas helpers -- the schematic is drawn in raw pixel space. */
+function wire(ctx, x1, y1, x2, y2, color, w) {
+  ctx.save();
+  ctx.strokeStyle = color || PALETTE.axis;
+  ctx.lineWidth = w || 1.6;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.restore();
+}
+function node(ctx, x, y, color) {
+  ctx.save();
+  ctx.fillStyle = color || PALETTE.axis;
+  ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+function rbox(ctx, x, y, w, h, label, color) {
+  ctx.save();
+  ctx.fillStyle = PALETTE.panel;
+  ctx.strokeStyle = color || PALETTE.accent4;
+  ctx.lineWidth = 1.6;
+  ctx.fillRect(x - w / 2, y - h / 2, w, h);
+  ctx.strokeRect(x - w / 2, y - h / 2, w, h);
+  ctx.restore();
+  return label;
+}
+function cbox(ctx, x, y, horiz, label, color) {
+  // Two plates perpendicular to the wire. horiz = wire runs left-to-right.
+  ctx.save();
+  ctx.strokeStyle = color || PALETTE.accent5;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  if (horiz) {
+    ctx.moveTo(x - 4, y - 11); ctx.lineTo(x - 4, y + 11);
+    ctx.moveTo(x + 4, y - 11); ctx.lineTo(x + 4, y + 11);
+  } else {
+    ctx.moveTo(x - 11, y - 4); ctx.lineTo(x + 11, y - 4);
+    ctx.moveTo(x - 11, y + 4); ctx.lineTo(x + 11, y + 4);
+  }
+  ctx.stroke();
+  ctx.restore();
+  return label;
+}
+function gnd(ctx, x, y, color) {
+  ctx.save();
+  ctx.strokeStyle = color || PALETTE.axis;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(x - 12, y); ctx.lineTo(x + 12, y);
+  ctx.moveTo(x - 7, y + 5); ctx.lineTo(x + 7, y + 5);
+  ctx.moveTo(x - 3, y + 10); ctx.lineTo(x + 3, y + 10);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Draw the op-amp symbol plus the component set for one configuration. */
+function schematic(ctx, cfg, plot, P) {
+  const cx = P.x0 + 200, cy = P.y0 + 118;
+  const L = cx - 34, R = cx + 34;
+  const xin = L - 24;            // node just left of the inverting pin
+  const xfb = R + 52;            // feedback tap on the output
+  const yfb = cy - 86;           // feedback rail
+  const txt = (s, x, y, col, al) => plot.text(s, x, y, { color: col || PALETTE.dim, font: '11px ui-monospace, monospace', align: al || 'left' });
+
+  // the amplifier
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(L, cy - 32); ctx.lineTo(L, cy + 32); ctx.lineTo(R, cy); ctx.closePath();
+  ctx.fillStyle = 'rgba(137,180,250,0.10)'; ctx.fill();
+  ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2; ctx.stroke();
+  ctx.restore();
+  txt('−', L + 7, cy - 20, PALETTE.text);
+  txt('+', L + 7, cy + 27, PALETTE.text);
+
+  const inBox = (x, y, label, col) => { rbox(ctx, x, y, 44, 16, label, col); txt(label, x, y + 26, col || PALETTE.accent4, 'center'); };
+  const fbCap = (x, y, label, col) => { cbox(ctx, x, y, true, label, col); txt(label, x, y - 18, col || PALETTE.accent5, 'center'); };
+
+  // inverting pin wire up to node
+  wire(ctx, L, cy - 16, xin, cy - 16);
+
+  if (cfg === 'inverting' || cfg === 'integrator' || cfg === 'differentiator' || cfg === 'summing') {
+    // input network on the inverting side
+    if (cfg === 'differentiator') {
+      wire(ctx, xin - 96, cy - 16, xin - 70, cy - 16);
+      inBox(xin - 48, cy - 16, 'Rin', PALETTE.accent4);
+      wire(ctx, xin - 26, cy - 16, xin - 18, cy - 16);
+      cbox(ctx, xin - 12, cy - 16, true, 'C', PALETTE.accent5);
+      txt('C', xin - 12, cy - 32, PALETTE.accent5, 'center');
+      wire(ctx, xin - 6, cy - 16, xin, cy - 16);
+      txt('Vi', xin - 104, cy - 22, PALETTE.text);
+    } else {
+      wire(ctx, xin - 96, cy - 16, xin - 66, cy - 16);
+      inBox(xin - 44, cy - 16, 'Rin', PALETTE.accent4);
+      wire(ctx, xin - 22, cy - 16, xin, cy - 16);
+      txt('Vi', xin - 104, cy - 22, PALETTE.text);
+    }
+    // feedback rail
+    wire(ctx, R, cy, xfb, cy);
+    wire(ctx, xfb, cy, xfb, yfb);
+    wire(ctx, xfb, yfb, xin, yfb);
+    wire(ctx, xin, yfb, xin, cy - 16);
+    node(ctx, xin, cy - 16);
+    if (cfg === 'integrator') {
+      fbCap((xin + xfb) / 2, yfb, 'C');
+      txt('Rf sits in parallel with C and sets the dc gain -Rf/Rin', P.x0 + 6, P.y1 - 22, PALETTE.accent4);
+      txt('integrator action only above 1/(2 pi Rf C)', P.x0 + 6, P.y1 - 8, PALETTE.dim);
+    } else {
+      inBox((xin + xfb) / 2, yfb, 'Rf', PALETTE.accent4);
+    }
+    // second input for the summing amplifier
+    if (cfg === 'summing') {
+      wire(ctx, xin - 86, cy + 58, xin - 60, cy + 58);
+      inBox(xin - 38, cy + 58, 'R3', PALETTE.accent3);
+      wire(ctx, xin - 16, cy + 58, xin, cy + 58);
+      wire(ctx, xin, cy + 58, xin, cy - 16);
+      node(ctx, xin, cy - 16);
+      txt('V2', xin - 94, cy + 52, PALETTE.text);
+    }
+    // non-inverting pin to ground
+    wire(ctx, L, cy + 16, L - 40, cy + 16);
+    wire(ctx, L - 40, cy + 16, L - 40, cy + 62);
+    gnd(ctx, L - 40, cy + 62);
+    if (cfg === 'summing') txt('R3 is the second input resistor', P.x0 + 4, P.y1 - 8, PALETTE.dim);
+  }
+
+  if (cfg === 'noninv' || cfg === 'follower') {
+    wire(ctx, L, cy + 16, L - 96, cy + 16);
+    txt('Vi', L - 104, cy + 10, PALETTE.text);
+    wire(ctx, R, cy, xfb, cy);
+    wire(ctx, xfb, cy, xfb, yfb);
+    wire(ctx, xfb, yfb, xin, yfb);
+    wire(ctx, xin, yfb, xin, cy - 16);
+    if (cfg === 'noninv') {
+      inBox((xin + xfb) / 2, yfb, 'Rf', PALETTE.accent4);
+      wire(ctx, xin, cy - 16, xin, cy + 28);
+      rbox(ctx, xin, cy + 40, 16, 24, 'Rin', PALETTE.accent3);
+      txt('Rin', xin - 14, cy + 44, PALETTE.accent3, 'right');
+      wire(ctx, xin, cy + 52, xin, cy + 76);
+      gnd(ctx, xin, cy + 76);
+      node(ctx, xin, cy - 16);
+    } else {
+      txt('output wired straight back to the inverting input', P.x0 + 4, P.y1 - 8, PALETTE.dim);
+    }
+  }
+
+  if (cfg === 'difference') {
+    wire(ctx, xin - 96, cy - 16, xin - 66, cy - 16);
+    inBox(xin - 44, cy - 16, 'Rin', PALETTE.accent4);
+    wire(ctx, xin - 22, cy - 16, xin, cy - 16);
+    txt('V1', xin - 104, cy - 22, PALETTE.text);
+    wire(ctx, R, cy, xfb, cy);
+    wire(ctx, xfb, cy, xfb, yfb);
+    wire(ctx, xfb, yfb, xin, yfb);
+    wire(ctx, xin, yfb, xin, cy - 16);
+    inBox((xin + xfb) / 2, yfb, 'Rf', PALETTE.accent4);
+    node(ctx, xin, cy - 16);
+    wire(ctx, L, cy + 16, xin, cy + 16);
+    wire(ctx, xin - 96, cy + 16, xin - 66, cy + 16);
+    inBox(xin - 44, cy + 16, 'R3', PALETTE.accent3);
+    wire(ctx, xin - 22, cy + 16, xin, cy + 16);
+    txt('V2', xin - 104, cy + 10, PALETTE.text);
+    wire(ctx, xin, cy + 16, xin, cy + 34);
+    rbox(ctx, xin, cy + 44, 16, 22, 'R4', PALETTE.accent3);
+    txt('R4', xin + 16, cy + 48, PALETTE.accent3);
+    wire(ctx, xin, cy + 55, xin, cy + 80);
+    gnd(ctx, xin, cy + 80);
+    node(ctx, xin, cy + 16);
+    txt('balanced when Rf/Rin = R4/R3', P.x0 + 4, P.y1 - 8, PALETTE.dim);
+  }
+
+  // output
+  wire(ctx, xfb, cy, xfb + 52, cy);
+  txt('Vo', xfb + 56, cy + 4, PALETTE.text);
+  node(ctx, xfb, cy);
+  wire(ctx, xfb + 52, cy, xfb + 52, cy - 12);
+  wire(ctx, xfb + 52, cy - 12, xfb + 66, cy - 12);
+  node(ctx, xfb + 52, cy - 12);
+}
+
+widget({
+  title: 'Op-Amp Configuration Playground',
+  description:
+    'Pick a configuration, set the components, and read the closed-loop gain, the output waveform and the bandwidth the gain-bandwidth product allows. Switch on real parameters to see finite open-loop gain, output saturation and slew-rate limiting act on the same circuit.',
+  height: 700,
+  range: { xMin: -1, xMax: 1, yMin: -1, yMax: 1 },
+  controls: [
+    { id: 'config', label: 'configuration', type: 'select', options: CONFIGS, value: 'inverting' },
+    { id: 'wave', label: 'input waveform', type: 'select', options: [
+      { value: 'sine', label: 'sine' }, { value: 'square', label: 'square' }], value: 'sine' },
+    { id: 'Rin', label: 'input resistor Rin (k)', min: 1, max: 100, step: 1, value: 10 },
+    { id: 'Rf', label: 'feedback resistor Rf (k)', min: 1, max: 500, step: 5, value: 100 },
+    { id: 'R3', label: 'second-input resistor R3 (k)', min: 1, max: 100, step: 1, value: 10 },
+    { id: 'R4', label: 'divider resistor R4 (k)', min: 1, max: 500, step: 5, value: 100 },
+    { id: 'C', label: 'capacitor C (nF)', min: 1, max: 1000, step: 1, value: 10 },
+    { id: 'Vin', label: 'input amplitude (V peak)', min: 0.1, max: 5, step: 0.1, value: 1 },
+    { id: 'Vin2', label: 'V2 (second input / dc) (V)', min: 0, max: 2, step: 0.05, value: 0.5 },
+    { id: 'f', label: 'frequency (Hz)', min: 10, max: 5000, step: 10, value: 1000 },
+    { id: 'GBW', label: 'gain-bandwidth product (MHz)', min: 0.1, max: 20, step: 0.1, value: 1 },
+    { id: 'A0', label: 'open-loop dc gain A0', min: 1000, max: 1000000, step: 1000, value: 100000 },
+    { id: 'SR', label: 'slew rate (V/us)', min: 0.1, max: 50, step: 0.1, value: 1 },
+    { id: 'real', label: 'real parameters (A0, rail, slew)', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const cfg = v.config;
+    const Rin = v.Rin * 1e3, Rf = v.Rf * 1e3, R3 = v.R3 * 1e3, R4 = v.R4 * 1e3;
+    const C = v.C * 1e-9;
+    const f = v.f, w = 2 * Math.PI * f, T = 1 / f;
+    const A0 = v.A0, GBW = v.GBW * 1e6, SR = v.SR * 1e6;
+    const A = v.Vin, V2 = v.Vin2;
+
+    // ---------------------------------------------------------- ideal gain
+    // Difference amplifier: exact two-source solution.
+    const aInv = Rf / Rin;                                     // gain seen by V1
+    const aNon = R4 * (Rin + Rf) / (Rin * (R3 + R4));          // gain seen by V2
+    // gSig is the gain the waveform actually sees; NG is the NOISE GAIN (the gain
+    // from the op-amp input to the output with the sources zeroed), which is the
+    // beta denominator that sets the finite-A0 error: Av(real) = Av/(1 + NG/A0).
+    let gIdeal, NG, phi = 0, reactive = false;
+    if (cfg === 'inverting') { gIdeal = -aInv; NG = 1 + aInv; }
+    else if (cfg === 'noninv') { gIdeal = 1 + aInv; NG = 1 + aInv; }
+    else if (cfg === 'follower') { gIdeal = 1; NG = 1; }
+    else if (cfg === 'summing') { gIdeal = -aInv; NG = 1 + aInv + Rf / R3; }
+    else if (cfg === 'difference') { gIdeal = (aNon + aInv) / 2; NG = 1 + aInv; }
+    else if (cfg === 'integrator') {
+      gIdeal = (Rf / Rin) / Math.sqrt(1 + (w * Rf * C) * (w * Rf * C));
+      phi = 180 - (Math.atan(w * Rf * C) * 180) / Math.PI;
+      NG = 1 + aInv;
+      reactive = true;
+    } else {
+      gIdeal = (w * Rf * C) / Math.sqrt(1 + (w * Rin * C) * (w * Rin * C));
+      phi = -90 - (Math.atan(w * Rin * C) * 180) / Math.PI;
+      NG = 1 + aInv;
+      reactive = true;
+    }
+
+    // ------------------------------------------------- finite open-loop gain
+    const gReal = gIdeal / (1 + NG / A0);
+    const gainErrPct = gIdeal !== 0 ? Math.abs(1 / (1 + NG / A0) - 1) * 100 : 0;
+
+    // ----------------------------------------------------------- bandwidth
+    let f3 = NaN, fNote = '';
+    if (cfg === 'integrator') {
+      f3 = 1 / (2 * Math.PI * Rin * C);          // unity-gain (0 dB) frequency
+      fNote = 'f_unity = 1/(2 pi Rin C)';
+    } else if (cfg === 'differentiator') {
+      f3 = 1 / (2 * Math.PI * Rf * C);           // frequency of 0 dB
+      fNote = 'f_unity = 1/(2 pi Rf C)';
+    } else {
+      f3 = GBW / Math.max(Math.abs(gIdeal), 1e-12);
+      fNote = 'f_3dB = GBW / |Av|';
+    }
+
+    // ------------------------------------------------------ input waveform
+    const edge = T / 500;                        // smoothing for the square edges
+    const s = (x) => Math.tanh(x);
+    const vinAt = (t) => {
+      if (v.wave === 'sine') return A * Math.sin(w * t);
+      const u = ((t % T) + T) % T;
+      if (u < T / 2) return A * s((2 * u) / edge) * s((2 * (T / 2 - u)) / edge);
+      return -A * s((2 * (u - T / 2)) / edge) * s((2 * (T - u)) / edge);
+    };
+    const dvinAt = (t) => {
+      if (v.wave === 'sine') return A * w * Math.cos(w * t);
+      const u = ((t % T) + T) % T;
+      const k = (2 * A) / edge;
+      if (u < T / 2) {
+        const a = s((2 * u) / edge), b = s((2 * (T / 2 - u)) / edge);
+        return k * ((1 - a * a) * b - a * (1 - b * b));
+      }
+      const a = s((2 * (u - T / 2)) / edge), b = s((2 * (T - u)) / edge);
+      return -k * ((1 - a * a) * b - a * (1 - b * b));
+    };
+
+    // ------------------------------------------- transient simulation (ODE)
+    const tau = cfg === 'integrator' ? Rf * C : cfg === 'differentiator' ? Rin * C : 0;
+    const tEnd = PERIODS_RUN * T;
+    const dt = tEnd / NSAMP;
+    const al = tau > 0 ? Math.exp(-dt / tau) : 0;
+    const ys = new Float64Array(NSAMP + 1);
+    let y = 0;
+    for (let i = 0; i <= NSAMP; i++) {
+      const t = i * dt;
+      const xin = vinAt(t);
+      let u;
+      if (cfg === 'integrator') u = -(Rf / Rin) * xin;
+      else if (cfg === 'differentiator') u = -Rf * C * dvinAt(t);
+      else if (cfg === 'summing') u = -(Rf / Rin) * xin - (Rf / R3) * V2;
+      else if (cfg === 'difference') u = aNon * V2 - aInv * xin;
+      else u = gIdeal * xin;
+      // exact zero-order-hold update of tau y' + y = u ; stable for any dt
+      y = tau > 0 ? y * al + (1 - al) * u : u;
+      ys[i] = y;
+    }
+
+    // ------------------------------------------- non-ideal passes, in order
+    // (1) finite A0 scales the whole response, (2) the output can only move at
+    // the slew rate, (3) the output cannot leave the supply rails.
+    let satFlag = false, slewFlag = false;
+    if (v.real) {
+      const scale = reactive ? 1 : gReal / gIdeal;
+      let prev = 0;
+      for (let i = 0; i <= NSAMP; i++) {
+        let z = ys[i] * scale;
+        const mx = SR * dt;
+        if (i > 0 && Math.abs(z - prev) > mx) { slewFlag = true; z = prev + Math.sign(z - prev) * mx; }
+        if (Math.abs(z) > VRAIL) { satFlag = true; z = Math.sign(z) * VRAIL; }
+        ys[i] = z;
+        prev = z;
+      }
+    }
+
+    // keep the last PERIODS_PLOT periods
+    const i0 = NSAMP - Math.round(NSAMP * (PERIODS_PLOT / PERIODS_RUN));
+    const xs = [], yo = [], yi = [];
+    for (let i = i0; i <= NSAMP; i++) {
+      const t = i * dt;
+      xs.push(t - (PERIODS_RUN - PERIODS_PLOT) * T);
+      yo.push(ys[i]);
+      yi.push(vinAt(t));
+    }
+    let peak = 0, vinPeak = 0;
+    for (let i = 0; i < yo.length; i++) {
+      peak = Math.max(peak, Math.abs(yo[i]));
+      vinPeak = Math.max(vinPeak, Math.abs(yi[i]));
+    }
+    const reqSR = 2 * Math.PI * f * peak;
+    const fpbw = SR / (2 * Math.PI * Math.max(peak, 1e-9));
+
+    // ------------------------------------------------------- formula lines
+    const kR = (x) => fmt(x / 1e3, 4) + 'k';
+    let l1, l2;
+    if (cfg === 'inverting') {
+      l1 = 'Av = -Rf/Rin = -' + kR(Rf) + ' / ' + kR(Rin) + ' = ' + fmt(gIdeal, 4) + ' V/V';
+    } else if (cfg === 'noninv') {
+      l1 = 'Av = 1 + Rf/Rin = 1 + ' + kR(Rf) + ' / ' + kR(Rin) + ' = ' + fmt(gIdeal, 4) + ' V/V';
+    } else if (cfg === 'follower') {
+      l1 = 'Av = 1 exactly (100% of the output is fed back): Av = ' + fmt(gIdeal, 4) + ' V/V, beta = 1';
+    } else if (cfg === 'summing') {
+      l1 = 'Vo = -(Rf/Rin)V1 - (Rf/R3)V2 = ' + fmt(-Rf / Rin, 4) + ' V1 + ' + fmt(-Rf / R3, 4) +
+        ' V2   (two independent weights, not one gain)';
+    } else if (cfg === 'difference') {
+      l1 = 'Vo = A2 V2 - A1 V1 ; A1 = Rf/Rin = ' + fmt(aInv, 4) + ' , A2 = R4(Rin+Rf)/(Rin(R3+R4)) = ' + fmt(aNon, 4) +
+        ' ; Ad = ' + fmt(gIdeal, 4) + ' , Acm = ' + fmt(aNon - aInv, 4);
+    } else if (cfg === 'integrator') {
+      l1 = 'H = -Rf / (Rin (1 + j w Rf C)) ; |H| at ' + fmt(f, 4) + ' Hz = ' + fmt(gIdeal, 4) +
+        ' ; ideal 1/(w Rin C) = ' + fmt(1 / (w * Rin * C), 4);
+    } else {
+      l1 = 'H = -j w Rf C / (1 + j w Rin C) ; |H| at ' + fmt(f, 4) + ' Hz = ' + fmt(gIdeal, 4) +
+        ' ; ideal w Rf C = ' + fmt(w * Rf * C, 4) + ' ; hf limit Rf/Rin = ' + fmt(Rf / Rin, 4);
+    }
+    if (cfg === 'integrator') {
+      l2 = 'f_pole = 1/(2 pi Rf C) = ' + fmt(1 / (2 * Math.PI * Rf * C), 4) + ' Hz , ' + fNote + ' = ' + fmt(f3, 4) + ' Hz';
+    } else if (cfg === 'differentiator') {
+      l2 = 'f_pole = 1/(2 pi Rin C) = ' + fmt(1 / (2 * Math.PI * Rin * C), 4) + ' Hz , ' + fNote + ' = ' + fmt(f3, 4) + ' Hz';
+    } else {
+      l2 = fNote + ' = ' + fmt(GBW / 1e6, 3) + ' MHz / ' + fmt(Math.abs(gIdeal), 4) + ' = ' + fmt(f3, 4) + ' Hz';
+    }
+    const l3 = 'real mode: Av(real) = ' + fmt(gReal, 5) + ' (error ' + fmt(gainErrPct, 3) + ' % from finite A0 = ' +
+      fmt(A0, 4) + ')   |   required SR = 2 pi f Vopk = ' + fmt(reqSR / 1e6, 4) + ' V/us vs SR = ' + fmt(v.SR, 3) + ' V/us';
+
+    return { cfg, gIdeal, gReal, NG, gainErrPct, f3, phi, reactive, xs, yo, yi, peak, vinPeak,
+             satFlag, slewFlag, reqSR, fpbw, l1, l2, l3, dt, T, edge,
+             aInv, aNon, Acm: aNon - aInv,
+             cmrr: (aNon - aInv) === 0 ? Infinity : gIdeal / Math.abs(aNon - aInv) };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const pad = plot.pad, W = plot.w, H = plot.h;
+
+    // --------------------------------------------------------- formula block
+    plot.text(out.l1, 16, 22, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    plot.text(out.l2, 16, 40, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text(out.l3, 16, 58, { color: v.real ? PALETTE.accent3 : PALETTE.dim, font: '12px ui-monospace, monospace' });
+
+    // ------------------------------------------------------- schematic panel
+    const P = { x0: 10, y0: 74, x1: 420, y1: 300 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(P.x0, P.y0, P.x1 - P.x0, P.y1 - P.y0);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(P.x0, P.y0, P.x1 - P.x0, P.y1 - P.y0);
+    ctx.restore();
+    plot.text('schematic', P.x0 + 8, P.y0 + 16, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    schematic(ctx, out.cfg, plot, P);
+
+    // ------------------------------------------------------- operating notes
+    const Q = { x0: 436, y0: 74, x1: W - 10, y1: 300 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.55)';
+    ctx.fillRect(Q.x0, Q.y0, Q.x1 - Q.x0, Q.y1 - Q.y0);
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(Q.x0, Q.y0, Q.x1 - Q.x0, Q.y1 - Q.y0);
+    ctx.restore();
+    let row = Q.y0 + 22;
+    const line = (k, val, col) => {
+      plot.text(k, Q.x0 + 10, row, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+      plot.text(val, Q.x0 + 176, row, { color: col || PALETTE.text, font: '12px ui-monospace, monospace' });
+      row += 22;
+    };
+    line('closed-loop gain', fmt(out.gIdeal, 5), PALETTE.accent);
+    line('noise gain NG (1 + beta A)', fmt(out.NG, 5), PALETTE.dim);
+    line('gain with finite A0', fmt(out.gReal, 5), v.real ? PALETTE.accent3 : PALETTE.dim);
+    line('gain error', fmt(out.gainErrPct, 3) + ' %', out.gainErrPct > 1 ? PALETTE.accent2 : PALETTE.accent3);
+    line('closed-loop bandwidth', fmt(out.f3, 4) + ' Hz');
+    if (out.reactive) line('phase at ' + fmt(v.f, 4) + ' Hz', fmt(out.phi, 4) + ' deg');
+    line('output peak (sine equiv)', fmt(out.peak, 4) + ' V');
+    line('saturation rail', '+/- ' + fmt(VRAIL, 3) + ' V', out.satFlag ? PALETTE.accent2 : PALETTE.dim);
+    line('slew-rate state', out.slewFlag ? 'SLEW LIMITED' : 'linear', out.slewFlag ? PALETTE.warn : PALETTE.accent3);
+    line('rail-saturated?', out.satFlag ? 'YES - clipped flat' : 'no', out.satFlag ? PALETTE.accent2 : PALETTE.accent3);
+    if (out.cfg === 'difference') {
+      line('CMRR', Number.isFinite(out.cmrr) ? fmt(out.cmrr, 4) + '  (' + fmt(20 * Math.log10(out.cmrr), 4) + ' dB)' : 'infinite (balanced)',
+        Math.abs(out.Acm) < 1e-12 ? PALETTE.accent3 : PALETTE.warn);
+    }
+
+    // ------------------------------------------------------ waveform panel
+    const B = { x0: 46, y0: 336, x1: W - 16, y1: H - 34 };
+    ctx.save();
+    ctx.fillStyle = 'rgba(30,30,46,0.9)';
+    ctx.fillRect(0, 316, W, H - 306);
+    ctx.restore();
+    const span = out.xs[out.xs.length - 1] - out.xs[0];
+    const ymax = Math.max(out.peak, out.vinPeak, 1e-3) * 1.18;
+    const X = (t) => B.x0 + ((t - out.xs[0]) / span) * (B.x1 - B.x0);
+    const Y = (y) => (B.y0 + B.y1) / 2 - (y / ymax) * ((B.y1 - B.y0) / 2);
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let g = -3; g <= 3; g++) {
+      const yy = Y((g / 3) * ymax);
+      ctx.beginPath(); ctx.moveTo(B.x0, yy); ctx.lineTo(B.x1, yy); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(B.x0, Y(0)); ctx.lineTo(B.x1, Y(0)); ctx.stroke();
+    ctx.strokeStyle = 'rgba(243,139,168,0.5)'; ctx.setLineDash([4, 4]);
+    for (const r of [VRAIL, -VRAIL]) {
+      ctx.beginPath(); ctx.moveTo(B.x0, Y(Math.min(r, ymax))); ctx.lineTo(B.x1, Y(Math.min(r, ymax))); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+    for (const g of [-1, -0.5, 0, 0.5, 1]) {
+      plot.text(fmt(g * ymax, 3) + ' V', B.x0 - 6, Y(g * ymax) + 4,
+        { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('input (dashed) and output (solid), two periods at ' + fmt(v.f, 4) + ' Hz',
+      B.x0, B.y0 - 8, { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    const trace = (arr, color, width, dash) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      for (let i = 0; i < arr.length; i++) {
+        const px = X(out.xs[i]), py = Y(arr[i]);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+    trace(out.yi, PALETTE.accent3, 1.6, [5, 4]);
+    trace(out.yo, PALETTE.accent2, 2.4, null);
+
+    // period markers
+    for (let p = 0; p <= 2; p++) {
+      const tt = out.xs[0] + (p / 2) * span;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(160,160,190,0.35)'; ctx.setLineDash([2, 4]);
+      ctx.beginPath(); ctx.moveTo(X(tt), B.y0); ctx.lineTo(X(tt), B.y1); ctx.stroke();
+      ctx.restore();
+      plot.text('T' + (p ? ' + ' + p : ''), X(tt), B.y1 + 14, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('time', B.x1, B.y1 + 14, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+
+    if (out.satFlag) {
+      plot.text('output hits the +/-13 V rail - reduce Vin or the gain', B.x0 + 6, B.y1 - 8,
+        { color: PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+    } else if (out.slewFlag) {
+      plot.text('output slope capped at SR - the op amp cannot follow the ideal edge', B.x0 + 6, B.y1 - 8,
+        { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+    }
+  },
+
+  readout: (out, state) => {
+    const v = state.values;
+    const r = {
+      'configuration': v.config,
+      'ideal gain |Av|': fmt(out.gIdeal, 5) + ' V/V' + (out.gIdeal < 0 ? '  (inverting)' : '  (non-inverting)'),
+      'with finite A0': fmt(out.gReal, 5) + ' V/V',
+      'gain error from A0': fmt(out.gainErrPct, 3) + ' %',
+      'closed-loop BW': fmt(out.f3, 4) + ' Hz' + (out.reactive ? '  (unity-gain freq)' : ''),
+      'output peak': fmt(out.peak, 4) + ' V',
+      'input peak': fmt(out.vinPeak, 4) + ' V',
+      'SR needed now': fmt(out.reqSR / 1e6, 4) + ' V/us  vs SR ' + fmt(v.SR, 3) + ' V/us',
+      'full-power BW': fmt(out.fpbw, 4) + ' Hz  (= SR / 2 pi Vopk)',
+      'integrate/differentiate?': out.reactive ? 'yes - phase ' + fmt(out.phi, 4) + ' deg' : 'no - resistive, phase 0 or 180',
+      'slew limited?': out.slewFlag ? 'YES' : 'no',
+      'rail saturated?': out.satFlag ? 'YES - ideal answer is above 13 V' : 'no',
+    };
+    if (v.config === 'difference') {
+      r['A1 = Rf/Rin'] = fmt(out.aInv, 5);
+      r['A2 = R4(Rin+Rf)/(Rin(R3+R4))'] = fmt(out.aNon, 5);
+      r['common-mode gain Acm'] = fmt(out.Acm, 5);
+      r['CMRR'] = Number.isFinite(out.cmrr) ? fmt(20 * Math.log10(out.cmrr), 4) + ' dB' : 'infinite (balanced)';
+    }
+    if (v.config === 'integrator' || v.config === 'differentiator') {
+      r['dc gain -Rf/Rin'] = fmt(-out.aInv, 5) + ' V/V';
+    }
+    if (v.config === 'summing') {
+      r['weight on V1'] = fmt(-out.aInv, 5) + ' V/V  (-Rf/Rin)';
+      r['weight on V2'] = fmt(-(v.Rf / v.R3), 5) + ' V/V  (-Rf/R3)';
+    }
+    return r;
+  },
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'opamp-note';
+document.getElementById('app').appendChild(note);
+note.innerHTML =
+  '<strong>The three numbers that decide an op-amp problem are gain, bandwidth and slew rate, and the ' +
+  'ideal op-amp gives you only the first.</strong> The closed-loop gain is set by the feedback network, ' +
+  'and for every resistive configuration it is a ratio of resistors: <code>-Rf/Rin</code> (inverting), ' +
+  '<code>1 + Rf/Rin</code> (non-inverting), <code>1</code> (follower), <code>-Rf(V1/R1 + V2/R2)</code> ' +
+  '(summing), and for the difference amplifier <code>Ad = (A2 + A1)/2</code> with ' +
+  '<code>A1 = Rf/Rin</code> and <code>A2 = R4(R1+Rf)/(R1(R3+R4))</code>.<br>' +
+  '<strong>Slide A0 down and watch the gain error grow as 1/A0.</strong> That is the whole reason the ' +
+  'follower exists: with beta = 1 the error is only <code>1/A0</code>, the smallest any configuration can ' +
+  'manage, which is why a follower is used as a buffer and never as an amplifier.<br>' +
+  '<strong>Bandwidth is not free.</strong> The gain-bandwidth product is constant, so closing the loop for ' +
+  'a gain of 100 leaves <code>f_3dB = GBW/100</code>; a 1 MHz part becomes a 10 kHz amplifier. Cascade two ' +
+  'stages of 10 instead of one stage of 100 and you keep far more bandwidth, at the cost of two parts.<br>' +
+  '<strong>The exam trap is the unit on the slew rate.</strong> Slew rate is quoted in V/us, so ' +
+  '<code>2 pi f Vopk</code> must be converted before it is compared. A 1 V/us part asked for a 10 V peak at ' +
+  '20 kHz needs 1.26 V/us and fails - and the failure looks like a triangle wave, not like clipping, which ' +
+  'is why it is often misread as a distortion or a filter problem. Saturating on the rail clips the tops ' +
+  'flat; slewing tilts the slopes. Learn to tell the two pictures apart.<br>' +
+  '<strong>On the reactive two:</strong> the ideal integrator has infinite dc gain, which is why every real ' +
+  'one has <code>Rf</code> across the capacitor (dc gain <code>-Rf/Rin</code>, integrator action only above ' +
+  '<code>1/(2 pi Rf C)</code>), and the ideal differentiator has gain rising forever with frequency, which ' +
+  'is why every real one has <code>Rin</code> in series with the input capacitor (high-frequency gain ' +
+  'capped at <code>-Rf/Rin</code>). Say the pole frequency out loud in an exam and you have explained why ' +
+  'the circuit is built the way it is.';
+</script>
+</body>
+</html>

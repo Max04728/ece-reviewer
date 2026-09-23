@@ -1,0 +1,196 @@
+---
+id: ECE-02-09
+title: "Balanced Wye and Delta Systems"
+part: "02_Electronics_Engineering"
+area: "02_AC_Circuits"
+topic: 9
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[02_Phasors_and_Complex_Impedance]]", "[[03_Delta-Wye_Transformations]]"]
+tags: ["ece", "electronics_engineering", "ac_circuits"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 09 — Balanced Wye and Delta Systems
+
+> [!abstract] Scope
+> How phase and line voltages and currents differ by factors of $\sqrt{3}$ and $30^\circ$ in balanced wye and delta systems, and how to collapse such a system into one equivalent single-phase circuit solved against the per-phase voltage.
+
+## Core Concept
+
+> [!tip] Intuition
+> Three equal phasors spaced $120^\circ$ apart add to exactly zero, so a balanced source has nothing left over to push down the neutral. On a phasor diagram the difference of any two phase voltages is a phasor $\sqrt{3}$ times longer and rotated $30^\circ$ ahead — the whole wye line-to-line rule is one vector subtraction.
+
+**Nomenclature and the wye relations.** Each source branch or load branch is a *phase*; the three wires leaving the system are *lines*. The subscripts say which: $V_{an}$ is the phase-$a$-to-neutral voltage and $V_{ab}$ is the line-$a$-to-line-$b$ voltage. For a balanced positive (abc) sequence with $V_{an} = V_p\angle 0^\circ$, the other phase voltages are $V_p\angle -120^\circ$ and $V_p\angle +120^\circ$, so $$V_{ab} = V_{an} - V_{bn} = V_p\left(1\angle 0^\circ - 1\angle -120^\circ\right) = \sqrt{3}\,V_p\angle 30^\circ .$$ Hence $V_L = \sqrt{3}\,V_{ph}$ and the line voltage leads the corresponding phase voltage by $30^\circ$: the $\sqrt{3}$ and the $30^\circ$ are two faces of the same subtraction, not two independent facts. The line current is untouched in wye, because each line is in series with one phase winding, so $I_L = I_{ph}$ — the wye connection moves the $\sqrt{3}$ onto the voltage.
+
+**Delta, and the $\Delta \leftrightarrow Y$ conversion.** A delta load places each phase directly across a pair of lines, so $V_L = V_{ph}$ and the $\sqrt{3}$ moves to the current. Applying KCL at node $a$, the line current is:
+$$I_a = I_{ab} - I_{ca} = I_p\left(1\angle 0^\circ - 1\angle 120^\circ\right) = \sqrt{3}\,I_p\angle -30^\circ$$
+so $I_L = \sqrt{3}\,I_{ph}$ and the line current lags the phase current by $30^\circ$. When a delta load must be analysed per phase, replace it with the wye equivalent $Z_Y = Z_\Delta/3$. The factor follows from matching line quantities: the same line voltage across a $Z_Y$ wye must give the same line current as the delta, and $\left(V_L/\sqrt{3}\right)/\left(Z_\Delta/3\right)$ equals $\sqrt{3}V_L/Z_\Delta$. Both the resistance and the reactance are divided by three and the impedance angle is untouched — a $30\angle 30^\circ\ \Omega$ delta is a $10\angle 30^\circ\ \Omega$ wye.
+
+**Per-phase analysis, the neutral, and when it breaks.** In a balanced system every phase carries the same current magnitude at the same angle $\theta = \angle Z_{ph}$, so a single phase can be solved against the per-phase voltage and the result replicated with $\pm 120^\circ$ rotations. The neutral current is $I_n = I_a + I_b + I_c$: three equal-magnitude phasors $120^\circ$ apart, which sum to identically zero. That is why a balanced four-wire load runs unchanged as a three-wire load, and why the per-phase equivalent is legitimate at all. Total power is the same number in either connection:
+$$3V_{ph}I_{ph}\cos\theta = \sqrt{3}\,V_L I_L\cos\theta$$
+and the two forms give the same number for wye and for delta, which makes a useful arithmetic check. The method fails as soon as balance is lost: an unbalanced four-wire load needs the neutral current with the neutral clamping the phase voltages, an unbalanced three-wire load shifts the neutral point so the per-phase voltages are no longer $V_L/\sqrt{3}$, triplen (3rd, 9th, ...) harmonic currents add in the neutral even when the fundamentals cancel, and a negative-sequence source reverses the sign of the $30^\circ$ shift without changing the $\sqrt{3}$.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Wye line-to-line voltage | $V_L = \sqrt{3}\,V_{ph}, \qquad V_{ab} = \sqrt{3}\,V_{an}\angle 30^\circ$ | Balanced positive sequence. The line voltage is the **larger** quantity: a $400\ \text{V}$ line gives $V_{ph} = 400/\sqrt{3} = 230.9\ \text{V}$. |
+| Wye line current | $I_L = I_{ph}$ | Each line is in series with one phase, so KCL forces equality. There is no $\sqrt{3}$ here; dividing by it is the classic wye error. |
+| Delta phase voltage | $V_L = V_{ph}$ | Every delta phase spans two lines, so a $400\ \text{V}$ line places $400\ \text{V}$ across each phase. No $\sqrt{3}$ on the voltage side of a delta. |
+| Delta line current | $I_L = \sqrt{3}\,I_{ph}, \qquad I_a = \sqrt{3}\,I_{ab}\angle -30^\circ$ | Balanced positive sequence: the line current is the larger one and lags its phase current by $30^\circ$. |
+| Per-phase current and angle | $I_{ph} = \frac{V_{ph}}{\lvert Z_{ph} \rvert}, \qquad \theta = \angle Z_{ph}$ | Use $V_{ph} = V_L/\sqrt{3}$ for a wye load and $V_{ph} = V_L$ for a delta load. $\theta$ is the load impedance angle, not the $30^\circ$ source shift. |
+| Neutral current | $I_n = I_a + I_b + I_c = 0$ | Balanced fundamental currents only. One open phase makes $I_n$ equal to a full phase current, and triplen harmonics do not cancel. |
+| Delta-to-wye impedance | $Z_Y = \frac{Z_\Delta}{3}$ | Balanced load, all three branches equal. Magnitude and angle both survive: $30\angle 30^\circ\ \Omega \to 10\angle 30^\circ\ \Omega$. |
+| Wye-to-delta impedance | $Z_\Delta = 3Z_Y$ | The inverse conversion; use it when a wye load must be re-expressed as a delta at the same line quantities. |
+| Total three-phase power | $P = 3V_{ph}I_{ph}\cos\theta = \sqrt{3}\,V_L I_L\cos\theta, \qquad S = \sqrt{3}\,V_L I_L$ | Balanced loads, with $Q = \sqrt{3}\,V_L I_L\sin\theta$. The $\sqrt{3}$ form already contains the connection, so add no extra factor for wye or delta. |
+
+## Interactive Widget
+
+**Three Phase Phasor Viewer**
+
+![[Three_Phase_Phasor_Viewer.html|width: 100%; height: max-content]]
+
+## Worked Problems
+
+### P1. A 60 Hz, positive-sequence, balanced wye-connected source supplies a line-to-line voltage $V_L = 400\ \mathrm{V\ rms}$ (the standard Philippine 400 V service). Find the phase voltage magnitude, and write $V_{ab}$ and $V_{bc}$ as phasors if $V_{an} = 230.9\angle 0^\circ\ \mathrm{V}$.
+
+**Given:** V_L = 400 V rms; f = 60 Hz; positive (abc) sequence; V_an = 230.9∠0° V
+
+**Solution:**
+
+1. In wye the phase voltage is the smaller quantity: $V_{ph} = V_L/\sqrt{3} = 400/1.7321 = 230.94\ \mathrm{V\ rms}$, the familiar nominal $230\ \mathrm{V}$.
+2. The line voltage leads the corresponding phase voltage by $30^\circ$, so $V_{ab} = \sqrt{3}\,V_{an}\angle 30^\circ = 400\angle 30^\circ\ \mathrm{V}$.
+3. $V_{bn} = 230.94\angle(-120^\circ)$, hence $V_{bc} = \sqrt{3}V_{bn}\angle 30^\circ = 400\angle(-120^\circ + 30^\circ) = 400\angle -90^\circ\ \mathrm{V}$.
+4. Check with a direct subtraction: $V_{bc} = V_{bn} - V_{cn} = 230.94\angle -120^\circ - 230.94\angle 120^\circ = 400\angle -90^\circ\ \mathrm{V}$ ✓
+
+> [!success]- Answer
+> **$V_{ph} = 230.9\ \mathrm{V\ rms}$; $V_{ab} = 400\angle 30^\circ\ \mathrm{V}$ and $V_{bc} = 400\angle -90^\circ\ \mathrm{V}$**
+
+> [!warning] Trap
+> Taking $V_{ph} = 400\ \mathrm{V}$ because that is the number printed on the service. In wye the phase voltage is the smaller one, $400/\sqrt{3} = 230.9\ \mathrm{V}$, so using $400\ \mathrm{V}$ inflates every phase current and the total power by $\sqrt{3}$ (about 73 %).
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `400÷√3 : √3×230.94` → $V_{ph}$ = **230.94** V rms → $V_{ab}$ = **400** V at **30**°, since the line voltage leads its phase voltage by 30°.
+> 2. `SHIFT` `Rec(` `230.94` `,` `−120` `)` → $X$ = **−115.5**, $Y$ = **−200.0**, the rectangular form of $\mathbf{V}_{bn} = 230.94\angle-120^\circ$ V.
+> 3. `SHIFT` `Rec(` `230.94` `,` `120` `)` → $X$ = **−115.5**, $Y$ = **200.0**; subtracting gives $0 - j400$ V, so $\mathbf{V}_{bc} = 400\angle-90^\circ$ V.
+>
+> `Rec(` gives the rectangular form of one phasor, so two `Rec(` results subtracted is a law-of-cosines check with no complex mode.
+
+### P2. A balanced delta-connected load with $Z_\Delta = 30\angle 30^\circ\ \Omega$ per phase is connected across a $400\ \mathrm{V}$, 60 Hz three-phase line. Taking $V_{ab} = 400\angle 0^\circ\ \mathrm{V}$, find the phase current $I_{ab}$ and the line current $I_a$.
+
+**Given:** V_L = 400 V rms; Z_Delta = 30∠30° Ω per phase; V_ab = 400∠0° V; delta connection
+
+**Solution:**
+
+1. In delta $V_{ph} = V_L = 400\ \mathrm{V}$, so $I_{ab} = V_{ab}/Z_\Delta = 400\angle 0^\circ/(30\angle 30^\circ) = 13.33\angle -30^\circ\ \mathrm{A\ rms}$.
+2. The line current is $\sqrt{3}$ times the phase current and lags it by $30^\circ$: $I_a = \sqrt{3}(13.33)\angle(-30^\circ - 30^\circ) = 23.09\angle -60^\circ\ \mathrm{A\ rms}$.
+3. Verify from KCL at node $a$: $I_a = I_{ab} - I_{ca}$ with $I_{ca} = 13.33\angle 90^\circ$. Then $13.33\angle-30^\circ - 13.33\angle 90^\circ = (11.55 - j6.67) - (j13.33) = 11.55 - j20.0 = 23.09\angle -60^\circ\ \mathrm{A}$ ✓
+4. Power check: $P = \sqrt{3}V_LI_L\cos 30^\circ = \sqrt{3}(400)(23.09)(0.8660) = 13.86\ \mathrm{kW}$, matching $3I_{ph}^{2}R = 3(13.33)^{2}(25.98) = 13.86\ \mathrm{kW}$.
+
+> [!success]- Answer
+> **$I_{ab} = 13.33\angle -30^\circ\ \mathrm{A\ rms}$ and $I_a = 23.09\angle -60^\circ\ \mathrm{A\ rms}$**
+
+> [!warning] Trap
+> Writing $I_a = I_{ab}/\sqrt{3} = 7.70\ \mathrm{A}$ by reflex. In delta the line current is the **larger** quantity, $I_L = \sqrt{3}I_{ph} = 23.09\ \mathrm{A}$; the only place a division by $\sqrt{3}$ belongs is the wye voltage conversion.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `400÷30 : 0−30` → $\mathbf{I}_{ab}$ = **13.33** A rms at **−30**°.
+> 2. `13.33×√3 : −30−30` → $I_L$ = **23.09** A rms at **−60**°.
+> 3. `SHIFT` `Rec(` `13.33` `,` `−30` `)` and `SHIFT` `Rec(` `13.33` `,` `90` `)` → $(11.55, -6.667)$ and $(0, 13.33)$; their difference is $11.55 - j20.0$ = **23.09∠−60°** A, the KCL check.
+>
+> In delta $I_L = \sqrt{3}I_{ph}$ and the line current *lags* by 30°; dividing by $\sqrt{3}$ belongs only to the wye voltage.
+
+### P3. A balanced wye-connected load with $Z_Y = 10 + j8\ \Omega$ per phase is fed from a $400\ \mathrm{V}$ line-to-line, 60 Hz, three-phase, three-wire source with negligible line impedance. Find the line current, the power factor, and the total three-phase real and reactive power.
+
+**Given:** V_L = 400 V rms; f = 60 Hz; Z_Y = 10 + j8 ohm per phase; three-wire wye load
+
+**Solution:**
+
+1. Per-phase voltage: $V_{ph} = 400/\sqrt{3} = 230.94\ \mathrm{V\ rms}$. In wye the line current equals the phase current, so $I_L = I_{ph}$.
+2. $|Z_Y| = \sqrt{10^{2}+8^{2}} = \sqrt{164} = 12.806\ \Omega$, hence $I_L = 230.94/12.806 = 18.03\ \mathrm{A\ rms}$.
+3. $\theta = \tan^{-1}(8/10) = 38.66^\circ$ lagging, so $pf = \cos 38.66^\circ = 10/12.806 = 0.7809$ lagging.
+4. $P = 3I^{2}R = 3(18.03)^{2}(10) = 9756\ \mathrm{W}$ and $Q = 3I^{2}X = 3(18.03)^{2}(8) = 7805\ \mathrm{var}$.
+5. Cross-check with the line form: $P = \sqrt{3}V_LI_L\cos\theta = \sqrt{3}(400)(18.03)(0.7809) = 9.76\ \mathrm{kW}$ ✓
+
+> [!success]- Answer
+> **$I_L = 18.03\ \mathrm{A\ rms}$, $pf = 0.781$ lagging, $P = 9.76\ \mathrm{kW}$, $Q = 7.80\ \mathrm{kvar}$**
+
+> [!warning] Trap
+> Using $V_{ph} = 400\ \mathrm{V}$ in the per-phase circuit. A wye load on a $400\ \mathrm{V}$ line sees $400/\sqrt{3} = 230.9\ \mathrm{V}$ per phase; with $400\ \mathrm{V}$ the phase current comes out $31.2\ \mathrm{A}$ ($\sqrt{3}$ times too high) and, because $P = 3I^{2}R$ is quadratic in current, the power comes out $3$ times too large — $29.3\ \mathrm{kW}$ instead of $9.76\ \mathrm{kW}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `400÷√3 : √(10²+8²) : 230.94÷12.806 : 10÷12.806` → $V_{ph}$ = **230.94** V → $\lvert \mathbf{Z}_Y \rvert$ = **12.806** Ω → $I_L$ = **18.03** A → $\mathrm{pf}$ = **0.7809** lagging.
+> 2. `3×18.03²×10 : 3×18.03²×8 : √3×400×18.03×0.7809` → $P$ = **9756** W → $Q$ = **7805** var → line-form check **9.76** kW.
+>
+> In wye $I_L = I_{ph}$, so the one current feeds both $3I^2R$ and $\sqrt{3}V_LI_L\cos\theta$.
+
+### P4. Three identical coils of $Z_\Delta = 30 + j36\ \Omega$ are reconnected from delta to wye and placed on the same $400\ \mathrm{V}$, 60 Hz line. Find the equivalent per-phase wye impedance, the new line current and the total real power, and confirm that the delta connection gives the same line current.
+
+**Given:** V_L = 400 V rms; Z_Delta = 30 + j36 ohm per phase; same 400 V line for both connections; f = 60 Hz
+
+**Solution:**
+
+1. $Z_Y = Z_\Delta/3 = (30 + j36)/3 = 10 + j12\ \Omega$, so $|Z_Y| = \sqrt{100+144} = 15.62\ \Omega$ at the unchanged angle $50.19^\circ$.
+2. Wye per-phase voltage $V_{ph} = 400/\sqrt{3} = 230.94\ \mathrm{V\ rms}$, so $I_L = I_{ph} = 230.94/15.62 = 14.78\ \mathrm{A\ rms}$.
+3. Delta check: $|Z_\Delta| = \sqrt{900+1296} = 46.86\ \Omega$, $I_{ph} = 400/46.86 = 8.536\ \mathrm{A}$, and $I_L = \sqrt{3}(8.536) = 14.78\ \mathrm{A}$ — identical, as the equivalence requires.
+4. $P = 3I^{2}R = 3(14.78)^{2}(10) = 6557\ \mathrm{W}$; cross-check $P = \sqrt{3}(400)(14.78)\cos 50.19^\circ = 6.56\ \mathrm{kW}$.
+
+> [!success]- Answer
+> **$Z_Y = 10 + j12\ \Omega$, $I_L = 14.78\ \mathrm{A\ rms}$, $P = 6.56\ \mathrm{kW}$ — the same line current and power as the delta connection**
+
+> [!warning] Trap
+> Assuming the $\Delta \to Y$ conversion preserves the *phase* current. The delta phase current is $8.54\ \mathrm{A}$ while the equivalent wye phase current is $14.78\ \mathrm{A}$; only line quantities (current, voltage, power) are preserved. Dividing only the resistance and writing $Z_Y = 10 + j36\ \Omega$ is the same slip in impedance form and drops the line current to $6.18\ \mathrm{A}$.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `30÷3 : 36÷3 : √(10²+12²)` → $\mathbf{Z}_Y = 10 + j12$ Ω, so $\lvert \mathbf{Z}_Y \rvert$ = **15.620** Ω at the unchanged **50.19**°.
+> 2. `400÷√3 : 230.94÷15.62 : √(30²+36²) : 400÷46.86×√3` → $V_{ph}$ = **230.94** V → wye $I_L$ = **14.78** A → $\lvert \mathbf{Z}_\Delta \rvert$ = **46.86** Ω → delta $I_L$ = **14.78** A, identical.
+> 3. `3×14.78²×10 : √3×400×14.78×cos(50.19)` → $P$ = **6557** W → check **6.56** kW.
+>
+> Only *line* quantities survive $\Delta \to Y$: the delta phase current is 8.54 A while the wye phase current is 14.78 A.
+
+### P5. A balanced four-wire wye load with $Z_Y = 20\angle -25^\circ\ \Omega$ per phase is supplied from a $400\ \mathrm{V}$, 60 Hz, positive-sequence source with $V_{an} = 230.94\angle 0^\circ\ \mathrm{V}$. Show that the neutral current is zero, then find it if phase $a$ is opened while the neutral stays connected.
+
+**Given:** V_L = 400 V rms; V_an = 230.94∠0° V; Z_Y = 20∠-25° ohm per phase; four-wire system; f = 60 Hz
+
+**Solution:**
+
+1. Each phase current has magnitude $V_{ph}/|Z_Y| = 230.94/20 = 11.55\ \mathrm{A\ rms}$ and leads its own phase voltage by $25^\circ$: $I_a = 11.55\angle 25^\circ$, $I_b = 11.55\angle -95^\circ$, $I_c = 11.55\angle 145^\circ$.
+2. Sum the rectangular components: real part $= 11.55(0.9063 - 0.0872 - 0.8192) = 0$ and imaginary part $= 11.55(0.4226 - 0.9962 + 0.5736) = 0$, so $I_n = I_a + I_b + I_c = 0$ exactly.
+3. The result is structural, not numerical: three equal-magnitude phasors $120^\circ$ apart always close into a triangle. Removing the neutral therefore changes nothing while the load stays balanced.
+4. With phase $a$ open the neutral still clamps the neutral point, so the remaining phase voltages are unchanged and $I_n = I_b + I_c = 11.55(\angle -95^\circ + \angle 145^\circ) = 11.55(-0.9063 - j0.4226) = 11.55\angle 205^\circ\ \mathrm{A\ rms}$, that is $11.55\ \mathrm{A}$ returning in the neutral.
+5. Sanity check: $I_b + I_c = -I_a$ from step 2, so $|I_n| = |I_a| = 11.55\ \mathrm{A}$ ✓
+
+> [!success]- Answer
+> **Balanced: $I_n = 0$. With phase $a$ open: $I_n = I_b + I_c = 11.55\angle 205^\circ\ \mathrm{A\ rms}$ (magnitude $11.55\ \mathrm{A}$)**
+
+> [!warning] Trap
+> Reporting a neutral current of $\sqrt{3} \times 11.55 = 20.0\ \mathrm{A}$ by importing the line/phase current rule into the neutral conductor. The $\sqrt{3}$ rule belongs to *line* currents of a delta, not to the neutral; in a balanced wye the three phase currents sum to exactly zero, and the neutral only reaches $11.55\ \mathrm{A}$ when a phase is lost.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `230.94÷20 : 0−(−25)` → $\lvert \mathbf{I}_{ph} \rvert$ = **11.55** A rms, leading its own phase voltage by **25**°.
+> 2. `SHIFT` `Rec(` `11.55` `,` `25` `)`, `SHIFT` `Rec(` `11.55` `,` `−95` `)`, `SHIFT` `Rec(` `11.55` `,` `145` `)` → $(10.47, 4.88) + (-1.01, -11.51) + (-9.46, 6.62) = 0 + j0$, so $I_n = 0$.
+> 3. Drop the first term for the open-a case, leaving $(-10.47, -4.88)$; `SHIFT` `Pol(` `−10.47` `,` `−4.88` `)` → $I_n$ = **11.55** A at **205**°.
+>
+> Three equal phasors 120° apart close into a triangle in rectangular form, which is why the neutral carries nothing while the load stays balanced.
+
+## Traps & Exam Notes
+
+- **Taking the line voltage as the phase voltage of a wye load.** On a $400\ \mathrm{V}$ line the phase voltage is $400/\sqrt{3} = 230.9\ \mathrm{V}$ — that is exactly where the nominal $230\ \mathrm{V}$ comes from. Using $400\ \mathrm{V}$ scales the phase current by $\sqrt{3}$ and, because $P = 3I^{2}R$, scales the total power by $3$ — turning a $9.76\ \mathrm{kW}$ answer into $29.3\ \mathrm{kW}$.
+- **Attaching the $\sqrt{3}$ to the wrong quantity.** In wye $V_L = \sqrt{3}V_{ph}$ but $I_L = I_{ph}$; in delta $V_L = V_{ph}$ but $I_L = \sqrt{3}I_{ph}$. Applying a $\sqrt{3}$ to both current and voltage of the same connection multiplies the computed power by $3$.
+- **Dropping the $30^\circ$ shift.** $V_{ab}$ leads $V_{an}$ by $30^\circ$, and in positive sequence $I_a$ lags $I_{ab}$ by $30^\circ$. Converting delta to wye or paralleling a delta and a wye load without carrying that rotation leaves the two current sets $30^\circ$ apart, so the KCL sum at the node no longer closes.
+- **Assuming the neutral current stays zero in every balanced-looking case.** Perfectly balanced fundamental currents give $I_n = 0$ exactly, but losing one phase makes the neutral carry a full phase current ($11.55\ \mathrm{A}$ in the worked example), and triplen harmonics (3rd, 9th, ...) add in the neutral even when the fundamentals cancel perfectly.
+
+## See Also
+
+- [[08_Parallel_Resonance_and_Anti-Resonance]]
+- [[10_Three-Phase_Power_and_Two-Wattmeter]]
+- [[05_AC_Power,_PQS_and_Triangle]]
+- [[03_Series_and_Parallel_AC_Analysis]]
+
+---
+
+[[08_Parallel_Resonance_and_Anti-Resonance|⬅ 08]] · [[_MOC_AC_Circuits|MOC]] · [[00_Dashboard|Dashboard]] · [[10_Three-Phase_Power_and_Two-Wattmeter|10 ➡]]

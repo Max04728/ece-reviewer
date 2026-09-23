@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Z-Plane ROC Map — Poles, Zeros, Unit Circle and Stability</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// In the z-plane the ROC is not a half-plane but a RING bounded by poles (or by 0 and
+// infinity). The exam test is always the same: does the ring contain the unit circle?
+// If it does, the DTFT converges and a stable, causal LTI system exists; if it does not,
+// the same X(z) describes an unstable sequence. Shading the ring next to the unit circle
+// makes the test visual.
+
+/** Roots of a real polynomial of degree <= 2 (all this widget needs), highest first. */
+function polyRoots2(c) {
+  const a = c.slice();
+  while (a.length > 1 && Math.abs(a[0]) < 1e-12) a.shift();
+  const n = a.length - 1;
+  if (n < 1) return [];
+  if (n === 1) return [{ re: -a[1] / a[0], im: 0 }];
+  if (n === 2) {
+    const A = a[0], B = a[1], C = a[2];
+    const disc = B * B - 4 * A * C;
+    if (disc >= 0) {
+      const s = Math.sqrt(disc);
+      return [{ re: (-B + s) / (2 * A), im: 0 }, { re: (-B - s) / (2 * A), im: 0 }];
+    }
+    const s = Math.sqrt(-disc);
+    return [{ re: -B / (2 * A), im: s / (2 * A) }, { re: -B / (2 * A), im: -s / (2 * A) }];
+  }
+  // degree 3+ fallback: Durand-Kerner
+  const monic = a.map((x) => x / a[0]);
+  let z = [];
+  let cur = { re: 1, im: 0 };
+  for (let k = 0; k < n; k++) {
+    cur = { re: cur.re * 0.4 - cur.im * 0.9, im: cur.re * 0.9 + cur.im * 0.4 };
+    z.push({ re: cur.re, im: cur.im });
+  }
+  const add = (p, q) => ({ re: p.re + q.re, im: p.im + q.im });
+  const sub = (p, q) => ({ re: p.re - q.re, im: p.im - q.im });
+  const mul = (p, q) => ({ re: p.re * q.re - p.im * q.im, im: p.re * q.im + p.im * q.re });
+  const div = (p, q) => {
+    const d = q.re * q.re + q.im * q.im;
+    if (d < 1e-300) return { re: NaN, im: NaN };
+    return { re: (p.re * q.re + p.im * q.im) / d, im: (p.im * q.re - p.re * q.im) / d };
+  };
+  for (let it = 0; it < 400; it++) {
+    let worst = 0;
+    const next = [];
+    for (let i = 0; i < n; i++) {
+      let num = { re: monic[0], im: 0 };
+      for (let k = 1; k <= n; k++) num = add(mul(num, z[i]), { re: monic[k], im: 0 });
+      let den = { re: 1, im: 0 };
+      for (let j = 0; j < n; j++) if (j !== i) den = mul(den, sub(z[i], z[j]));
+      const q = div(num, den);
+      next.push(sub(z[i], q));
+      worst = Math.max(worst, Math.hypot(q.re, q.im));
+    }
+    z = next;
+    if (!Number.isFinite(worst) || worst < 1e-14) break;
+  }
+  return z.map((r) => ({ re: r.re, im: Math.abs(r.im) < 1e-7 ? 0 : r.im }));
+}
+
+function zLoc(list, tag) {
+  if (!list || !list.length) return 'none';
+  const out = [];
+  for (let i = 0; i < list.length; i++) {
+    const p = list[i];
+    const im = Math.abs(p.im);
+    if (im < 1e-7) out.push(tag + (i + 1) + ' = ' + fmt(p.re, 4));
+    else out.push(tag + (i + 1) + ' = ' + fmt(p.re, 4) + (p.im > 0 ? ' + j' : ' - j') + fmt(im, 4));
+  }
+  return out.join('   ,   ');
+}
+
+widget({
+  title: 'Z-Plane ROC Map — Poles, Zeros, Unit Circle and Stability',
+  description:
+    'Choose a z-transform and see its poles and zeros in the z-plane with the region of convergence shaded. The ROC is always a ring bounded by poles; the system is stable and its DTFT exists exactly when that ring contains the unit circle. The same X(z) with different ROCs is a different sequence, which is the whole point of the picture.',
+  height: 480,
+  range: { xMin: -3, xMax: 3, yMin: -3, yMax: 3 },
+  controls: [
+    { id: 'preset', label: 'z-transform', type: 'select', options: [
+      { value: 'causal', label: '1/(1 - a z^-1), causal  (ROC |z| > |a|)' },
+      { value: 'anticausal', label: '1/(1 - a z^-1), anti-causal  (ROC |z| < |a|)' },
+      { value: 'two', label: '1/((1 - 0.5 z^-1)(1 - 2 z^-1))  — pick the ROC' },
+      { value: 'finite', label: 'finite-length sequence x[n] = {1, 1, 1}' },
+    ], value: 'causal' },
+    { id: 'a', label: 'a  — pole location (first two presets)', min: 0.05, max: 2.5, step: 0.05, value: 0.9 },
+    { id: 'roc', label: 'ROC choice (two-pole preset only)', type: 'select', options: [
+      { value: 'outer', label: '|z| > 2   causal, unstable' },
+      { value: 'ring', label: '0.5 < |z| < 2   two-sided, STABLE' },
+      { value: 'inner', label: '|z| < 0.5   anti-causal, unstable' },
+    ], value: 'ring' },
+  ],
+
+  compute: (v) => {
+    const a = Math.max(0.05, Math.min(2.5, v.a));
+    let poles = [], zeros = [], roc = { kind: 'outer', rIn: 0, rOut: 0 };
+    let xStr = '', seqForm = '', rocStr = '', rocWhy = '';
+
+    if (v.preset === 'causal') {
+      poles = polyRoots2([1, -a]);
+      zeros = [{ re: 0, im: 0 }];
+      roc = { kind: 'outer', rIn: 0, rOut: a };
+      xStr = 'X(z) = 1/(1 - ' + fmt(a, 4) + ' z^-1) = z/(z - ' + fmt(a, 4) + ')';
+      seqForm = 'x[n] = (' + fmt(a, 4) + ')^n u[n]  — right-sided, causal';
+      rocStr = '|z| > ' + fmt(a, 4);
+      rocWhy = 'causal (right-sided) sequence: the ROC is outside the outermost pole';
+    } else if (v.preset === 'anticausal') {
+      poles = polyRoots2([1, -a]);
+      zeros = [{ re: 0, im: 0 }];
+      roc = { kind: 'inner', rIn: 0, rOut: a };
+      xStr = 'X(z) = 1/(1 - ' + fmt(a, 4) + ' z^-1) = z/(z - ' + fmt(a, 4) + ')';
+      seqForm = 'x[n] = -(' + fmt(a, 4) + ')^n u[-n-1]  — left-sided, anti-causal';
+      rocStr = '|z| < ' + fmt(a, 4);
+      rocWhy = 'anti-causal (left-sided) sequence: the ROC is inside the innermost pole';
+    } else if (v.preset === 'two') {
+      poles = [{ re: 0.5, im: 0 }, { re: 2, im: 0 }];
+      zeros = [{ re: 0, im: 0 }, { re: 0, im: 0 }];
+      xStr = 'X(z) = 1/((1 - 0.5 z^-1)(1 - 2 z^-1)) = z^2/((z - 0.5)(z - 2))';
+      if (v.roc === 'outer') {
+        roc = { kind: 'outer', rIn: 0, rOut: 2 };
+        rocStr = '|z| > 2';
+        seqForm = 'x[n] = (-1/6)(0.5)^n u[n] + (8/3)(2)^n u[n]   — causal, the 2^n term DIVERGES';
+        rocWhy = 'outside the outermost pole: causal, but the unit circle is not inside, so unstable';
+      } else if (v.roc === 'ring') {
+        roc = { kind: 'ring', rIn: 0.5, rOut: 2 };
+        rocStr = '0.5 < |z| < 2';
+        seqForm = 'x[n] = (-1/6)(0.5)^n u[n] - (8/3)(2)^n u[-n-1]   — two-sided and STABLE';
+        rocWhy = 'between the two poles: two-sided, and the unit circle lies inside it';
+      } else {
+        roc = { kind: 'inner', rIn: 0, rOut: 0.5 };
+        rocStr = '|z| < 0.5';
+        seqForm = 'x[n] = (1/6)(0.5)^n u[-n-1] - (8/3)(2)^n u[-n-1]   — anti-causal and UNSTABLE';
+        rocWhy = 'inside the innermost pole: anti-causal, and the unit circle is outside it';
+      }
+    } else {
+      poles = [{ re: 0, im: 0 }, { re: 0, im: 0 }];
+      zeros = polyRoots2([1, 1, 1]);
+      roc = { kind: 'outer', rIn: 0, rOut: 0 };
+      xStr = 'X(z) = 1 + z^-1 + z^-2 = (z^2 + z + 1)/z^2';
+      seqForm = 'x[n] = {1, 1, 1} at n = 0, 1, 2  — finite length, so the ROC is the whole z-plane except z = 0';
+      rocStr = '|z| > 0   (entire z-plane except the origin)';
+      rocWhy = 'a finite-length causal sequence converges everywhere except at z = 0';
+    }
+
+    // ------------------------------------------------- does the ROC hold the unit circle?
+    let unitIn;
+    if (roc.kind === 'outer') unitIn = 1 > roc.rOut;
+    else if (roc.kind === 'inner') unitIn = 1 < roc.rOut;
+    else unitIn = 1 > roc.rIn && 1 < roc.rOut;
+
+    let stableStr;
+    if (unitIn) stableStr = 'YES — the unit circle is inside the ROC, so the DTFT converges and the system is stable';
+    else if (roc.kind === 'outer') stableStr = 'NO — the unit circle is inside the pole ring, so the causal sequence diverges';
+    else if (roc.kind === 'inner') stableStr = 'NO — the unit circle lies outside the anti-causal ROC';
+    else stableStr = 'NO — the unit circle is not inside this ring';
+
+    // Pole radius margin: the signed distance from the ROC edge to |z| = 1. Positive means
+    // the unit circle is strictly inside the ROC. For |z| > rOut the edge is at rOut and the
+    // unit circle sits 1 - rOut outside it; for |z| < rOut the sign flips.
+    let margin;
+    if (roc.kind === 'ring') margin = Math.min(roc.rOut - 1, 1 - roc.rIn);
+    else if (roc.kind === 'outer') margin = 1 - roc.rOut;
+    else margin = roc.rOut - 1;
+
+    // DC gain, only meaningful when z = 1 is actually inside the ROC.
+    let unitGain = 0, unitGainDefined = false;
+    if (unitIn) {
+      if (v.preset === 'causal' || v.preset === 'anticausal') { unitGain = 1 / (1 - a); unitGainDefined = true; }
+      else if (v.preset === 'two') { unitGain = 1 / ((1 - 0.5) * (1 - 2)); unitGainDefined = true; }
+      else { unitGain = 3; unitGainDefined = true; }
+    }
+
+    return { preset: v.preset, a, poles, zeros, roc, rocStr, rocWhy, xStr, seqForm, stableStr,
+             unitIn, margin, unitGain, unitGainDefined,
+             poleStr: zLoc(poles, 'p'), zeroStr: zLoc(zeros, 'z'),
+             maxR: Math.max(1, Math.abs(a), 2, ...poles.map((p) => Math.hypot(p.re, p.im))) };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const pad = plot.pad;
+    const roc = out.roc || { kind: 'outer', rIn: 0, rOut: 0 };
+    const poles = out.poles || [];
+    const zeros = out.zeros || [];
+
+    const cx = 248, cy = 252, RPix = 132;
+    const span = Math.max(1.35, (out.maxR || 2) * 1.3);
+    const K = RPix / span;
+    const X = (re) => cx + re * K;
+    const Y = (im) => cy - im * K;
+
+    // ------------------------------------------------------------- ROC shading
+    const big = RPix + 90;
+    ctx.save();
+    ctx.fillStyle = 'rgba(137,180,250,0.17)';
+    ctx.beginPath();
+    if (roc.kind === 'outer') {
+      ctx.arc(cx, cy, big, 0, Math.PI * 2, false);
+      if (roc.rOut > 0) ctx.arc(cx, cy, roc.rOut * K, 0, Math.PI * 2, true);
+    } else if (roc.kind === 'inner') {
+      ctx.arc(cx, cy, Math.max(0.0001, roc.rOut * K), 0, Math.PI * 2, false);
+    } else {
+      ctx.arc(cx, cy, roc.rOut * K, 0, Math.PI * 2, false);
+      ctx.arc(cx, cy, roc.rIn * K, 0, Math.PI * 2, true);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // ------------------------------------------------------------- grid + axes
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let k = -4; k <= 4; k++) {
+      if (k === 0) continue;
+      ctx.beginPath(); ctx.moveTo(X(k * 0.5), Y(-span)); ctx.lineTo(X(k * 0.5), Y(span)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(-span), Y(k * 0.5)); ctx.lineTo(X(span), Y(k * 0.5)); ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(X(-span), Y(0)); ctx.lineTo(X(span), Y(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0), Y(-span)); ctx.lineTo(X(0), Y(span)); ctx.stroke();
+    ctx.restore();
+    plot.text('Re', X(span) - 2, Y(0) + 15, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+    plot.text('Im', X(0) + 6, Y(span) + 4, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // dashed rings at every integer radius, then the UNIT CIRCLE in bold
+    ctx.save();
+    ctx.strokeStyle = 'rgba(160,160,190,0.22)';
+    ctx.setLineDash([2, 4]);
+    for (let r = 1; r <= Math.ceil(span); r++) {
+      if (Math.abs(r - 1) < 1e-9) continue;
+      ctx.beginPath(); ctx.arc(cx, cy, r * K, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.strokeStyle = PALETTE.accent3;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.arc(cx, cy, K, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    plot.text('|z| = 1 (unit circle)', cx + K * 0.70, cy - K * 0.70,
+      { color: PALETTE.accent3, font: 'bold 10px ui-monospace, monospace' });
+
+    // ROC boundary circles
+    ctx.save();
+    ctx.strokeStyle = PALETTE.accent;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    if (roc.kind === 'outer') {
+      if (roc.rOut > 0) { ctx.beginPath(); ctx.arc(cx, cy, roc.rOut * K, 0, Math.PI * 2); ctx.stroke(); }
+    } else if (roc.kind === 'inner') {
+      ctx.beginPath(); ctx.arc(cx, cy, Math.max(0.0001, roc.rOut * K), 0, Math.PI * 2); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(cx, cy, roc.rOut * K, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, Math.max(0.0001, roc.rIn * K), 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.restore();
+
+    // ------------------------------------------------------------------- poles
+    for (let i = 0; i < poles.length; i++) {
+      const p = poles[i];
+      const px = X(p.re), py = Y(p.im), s = 6;
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent2; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(px - s, py - s); ctx.lineTo(px + s, py + s);
+      ctx.moveTo(px + s, py - s); ctx.lineTo(px - s, py + s);
+      ctx.stroke();
+      ctx.restore();
+      if (i === 0) plot.text('poles', px + 9, py - 9, { color: PALETTE.accent2, font: '11px ui-monospace, monospace' });
+    }
+    for (let i = 0; i < zeros.length; i++) {
+      const z = zeros[i];
+      const px = X(z.re), py = Y(z.im);
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent4; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+      if (i === 0) plot.text('zeros', px + 9, py - 9, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+    }
+
+    // -------------------------------------------------------------- right column
+    const TX = 396;
+    plot.text('X(z)  ' + (out.xStr || ''), TX, pad + 20, { color: PALETTE.text, font: 'bold 10px ui-monospace, monospace' });
+    plot.text('poles:  ' + (out.poleStr || 'none'), TX, pad + 42, { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    plot.text('zeros:  ' + (out.zeroStr || 'none'), TX, pad + 60, { color: PALETTE.accent4, font: '10px ui-monospace, monospace' });
+    plot.text('ROC:  ' + (out.rocStr || ''), TX, pad + 84, { color: PALETTE.accent, font: 'bold 11px ui-monospace, monospace' });
+    plot.text(out.rocWhy || '', TX, pad + 102, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    plot.text('sequence:  ' + (out.seqForm || ''), TX, pad + 122, { color: PALETTE.accent3, font: '10px ui-monospace, monospace' });
+    plot.text('unit circle inside the ROC?  ' + (out.unitIn ? 'YES' : 'NO'),
+      TX, pad + 148, { color: out.unitIn ? PALETTE.accent3 : PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('distance from the ROC edge to |z| = 1:  ' + fmt(out.margin, 4),
+      TX, pad + 168, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    plot.text('stability test:  all |z| poles inside the unit circle AND the ROC contains |z| = 1',
+      TX, pad + 192, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    plot.text('for a CAUSAL system the two conditions coincide: all |p| < 1.',
+      TX, pad + 208, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    if (out.unitGainDefined) {
+      plot.text('X(z) at z = 1 (DC gain) = ' + fmt(out.unitGain, 5),
+        TX, pad + 232, { color: PALETTE.warn, font: '10px ui-monospace, monospace' });
+    }
+
+    // -------------------------------------------------------------- verdict bar
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(pad + 4, plot.h - pad - 32, plot.iw, 32);
+    ctx.restore();
+    plot.text(out.stableStr || '', pad + 14, plot.h - pad - 11,
+      { color: out.unitIn ? PALETTE.accent3 : PALETTE.accent2, font: 'bold 12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'X(z)': out.xStr || '—',
+    'poles': out.poleStr || 'none',
+    'zeros': out.zeroStr || 'none',
+    'region of convergence': out.rocStr || '—',
+    'why this ROC': out.rocWhy || '—',
+    'resulting sequence x[n]': out.seqForm || '—',
+    'ROC includes the unit circle?': out.unitIn ? 'YES — the DTFT exists and the system is stable' : 'NO — the DTFT does not converge',
+    'causal and stable?': out.unitIn ? 'YES (if the ROC is the causal one)' : 'NO (the unit circle lies outside the ROC)',
+    'distance from ROC edge to |z| = 1': fmt(out.margin, 5) + (out.margin > 0 ? '   (positive = unit circle inside)' : '   (negative = unit circle outside)'),
+    'DC gain X(1)': out.unitGainDefined ? fmt(out.unitGain, 5) : 'not defined (the unit circle is outside the ROC)',
+    'preset': out.preset || '—',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>X(z) alone is not the sequence.</strong> A z-transform is only complete once the ROC is stated. ' +
+  'The same X(z) = 1/(1 &minus; a z&#8315;&sup1;) is a<sup>n</sup>u[n] when |z| &gt; |a| and ' +
+  '&minus;a<sup>n</sup>u[&minus;n&minus;1] when |z| &lt; |a| &mdash; switch the preset between causal and ' +
+  'anti-causal and watch the shaded ring jump from outside the pole to inside it while the crosses stay put. ' +
+  '<br><br><strong>The ROC is always a ring between poles.</strong> For a right-sided sequence it is outside ' +
+  'the outermost pole; for a left-sided one it is inside the innermost; for a two-sided one it is the annulus ' +
+  'between two poles. There are exactly as many possible ROCs as there are pole rings, and each is a different ' +
+  'sequence. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> reading "all poles are inside the unit circle" as the ' +
+  'stability test for <em>every</em> system. That rule is only equivalent to stability when the ROC is the ' +
+  'causal one. The universal test is "the ROC contains the unit circle": the two-pole example here has one pole ' +
+  'at 0.5 and one at 2, so it can never be both causal and stable &mdash; only the two-sided ROC ' +
+  '0.5 &lt; |z| &lt; 2 gives a stable system, and that system is not causal. Second slip: assuming a pole at ' +
+  'z = 0 matters. It does not affect the ROC radius at all (|z| &gt; 0 is still the whole plane minus the ' +
+  'origin), which is why the finite-length sequence has a DTFT even though it has a double pole at the origin.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

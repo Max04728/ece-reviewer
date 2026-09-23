@@ -1,0 +1,161 @@
+{
+  "scope": "Write the AM waveform, find the modulation index from amplitudes or envelope extremes, and check whether the signal is overmodulated.",
+  "intuition": "Amplitude modulation makes the carrier's height follow the message. The modulation index measures how far the height swings: at 100 percent the envelope just touches zero, and beyond that the envelope folds through zero and simple envelope detection produces distortion instead of the message.",
+  "concept": [
+    "**The waveform and its envelope.** With a single-tone message, an AM signal takes the following form: $s(t) = A_c\\left[1 + m\\cos(\\omega_m t)\\right]\\cos(\\omega_c t)$. Here $A_c$ is the unmodulated carrier amplitude, $\\omega_m = 2\\pi f_m$ is the message frequency, and $m$ is the **modulation index**. The term in brackets is the envelope: it is the carrier amplitude slowly rising and falling with the message, and it is exactly what a diode-and-RC envelope detector recovers. The index is defined as $m = A_m/A_c$, the ratio of the message's peak amplitude to the carrier's amplitude — not the ratio to the peak envelope, which is the most common substitution error.",
+    "**Measuring the index three ways.** If the amplitudes are given, $m = A_m/A_c$. If the *envelope* extremes are given (as read from an oscilloscope), then $E_{max} = A_c(1+m)$ and $E_{min} = A_c(1-m)$. Dividing gives the index directly: $m = \\dfrac{E_{max}-E_{min}}{E_{max}+E_{min}}$. The $A_c$ cancels, so the index follows from the two extremes alone. If powers are given, $m = \\sqrt{2(P_t-P_c)/P_c}$, since the total power exceeds the carrier power by the sideband power $P_c m^2/2$. If a DC ammeter on the final amplifier is available, $m = \\sqrt{(I_t/I_c)^2-1}\\times\\sqrt{2}$ in the standard current form $I_t = I_c\\sqrt{1+m^2/2}$. Percent modulation is $100m$; 100 percent modulation means $m = 1$.",
+    "**The spectrum: carrier plus two sidebands.** Expanding the product with the standard identity: $\\cos A\\cos B = \\tfrac{1}{2}[\\cos(A-B)+\\cos(A+B)]$. Applying it gives: $s(t) = A_c\\cos\\omega_c t + \\tfrac{mA_c}{2}\\cos(\\omega_c-\\omega_m)t + \\tfrac{mA_c}{2}\\cos(\\omega_c+\\omega_m)t$. The result is the carrier unchanged, plus a **lower sideband (LSB)** at $f_c-f_m$ and an **upper sideband (USB)** at $f_c+f_m$, each with peak amplitude $mA_c/2$. All the information lives in those two sidebands; the carrier conveys nothing and is there only to make envelope detection possible. This is why removing the carrier (DSB-SC) and then one sideband (SSB) is attractive — see [[03_DSB-SC_and_SSB-SC]] — and why plain AM is the least power-efficient analogue scheme: at best one third of the transmitted power carries information.",
+    "**Power: the $1+m^2/2$ budget.** For a carrier of amplitude $A_c$ across a resistance $R$, $P_c = A_c^2/(2R)$; the two sidebands together carry $P_c m^2/2$, so each carries $P_c m^2/4$ and the total is $P_t = P_c\\left(1+\\frac{m^2}{2}\\right)$. The efficiency (the fraction of transmitted power that is information) is therefore as follows: $\\eta = \\dfrac{m^2/2}{1+m^2/2} = \\dfrac{m^2}{2+m^2}$. The result is monotonic in $m$ and reaches its maximum of $1/3$ only at $m = 1$. Note how sharp the penalty is for under-modulation: at $m = 0.5$ the efficiency is $0.25/2.25 = 11.1$ percent, so a 100 percent-modulated transmitter is three times as efficient as a half-modulated one with the same carrier. All the power formulas assume the same load resistance and the same $A_c$; comparing a modulated and an unmodulated case with different load resistances is a classic trap.",
+    "**Overmodulation: the failure mode.** If $m>1$ the bracket $1+m\\cos\\omega_m t$ goes negative for part of each cycle. The instantaneous envelope then passes through zero and the RF phase reverses by 180 degrees, but an envelope detector's diode blocks the negative excursion, so the recovered waveform is a flattened, rectified version of the message with strong harmonic distortion. In the frequency domain the message is no longer a single tone: sidebands appear at multiples of $f_m$ (splatter), and the occupied bandwidth is much greater than $2f_m$ — overmodulation is an interference crime, not just a fidelity problem. Worse, the usual measurement formula $m = (E_{max}-E_{min})/(E_{max}+E_{min})$ is *invalid* for $m>1$: because the detector only sees $|1+m\\cos|$, the measured extremes give an apparent index below 1 even when the transmitter is heavily overmodulated.",
+    "**Several tones at once, and when AM is the wrong choice.** With two independent tones of indices $m_1$ and $m_2$ the *total* index used for the power budget is the RMS combination $m_{tot} = \\sqrt{m_1^2+m_2^2}$, while the envelope's peak is governed by the sum $m_1+m_2$: to keep the envelope non-negative at the worst instant you need $m_1+m_2 \\le 1$, so the power-based total index is then at most $\\sqrt{0.5}=0.707$ and the efficiency at most 20 percent. This is why a voice signal, whose peak-to-average ratio is high, never achieves high AM efficiency. Finally, remember the boundary conditions of envelope detection: it requires a carrier of reasonable size relative to the sidebands (so $m\\le1$) and it requires the carrier to be *transmitted at all*. DSB-SC and SSB cannot be demodulated by an envelope detector; they need a product detector with a locally reinserted carrier, and every frequency or phase error in that local carrier corrupts the recovered audio."
+  ],
+  "derive": [
+    "**The waveform expanded into three components.** Start from $s(t) = A_c[1+m\\cos\\omega_m t]\\cos\\omega_c t$ and distribute: $s(t) = A_c\\cos\\omega_c t + mA_c\\cos\\omega_m t\\cos\\omega_c t$. Apply the product identity $\\cos\\omega_m t\\cos\\omega_c t = \\tfrac{1}{2}[\\cos(\\omega_c-\\omega_m)t + \\cos(\\omega_c+\\omega_m)t]$. The result is $s(t) = A_c\\cos\\omega_c t + \\tfrac{mA_c}{2}\\cos(\\omega_c-\\omega_m)t + \\tfrac{mA_c}{2}\\cos(\\omega_c+\\omega_m)t$ — carrier plus LSB plus USB, which also shows the required bandwidth is $2f_m$.",
+    "**The modulation index from envelope extremes.** The envelope is $E(t) = A_c(1+m\\cos\\omega_m t)$, whose maximum occurs at $\\cos\\omega_m t = 1$ and minimum at $\\cos\\omega_m t = -1$: $E_{max} = A_c(1+m)$ and $E_{min} = A_c(1-m)$. Adding gives $E_{max}+E_{min} = 2A_c$; subtracting gives $E_{max}-E_{min} = 2mA_c$. Dividing eliminates $A_c$: $m = \\dfrac{E_{max}-E_{min}}{E_{max}+E_{min}}$. This derivation assumes $m\\le1$, so that $E_{min}$ is the true envelope minimum rather than a folded value.",
+    "**Total power from the three components.** With $R=1$ for convenience, the carrier contributes $P_c = A_c^2/2$. Each sideband has amplitude $mA_c/2$, so each contributes $\\tfrac{1}{2}(mA_c/2)^2 = m^2A_c^2/8 = P_c m^2/4$. Two sidebands give $P_c m^2/2$, hence $P_t = P_c + P_c m^2/2 = P_c\\left(1+\\frac{m^2}{2}\\right)$. Expressing the same result through currents, $P \\propto I^2R$, gives $I_t = I_c\\sqrt{1+m^2/2}$.",
+    "**Efficiency and its 1/3 ceiling.** The useful (sideband) power is $P_{sb} = P_c m^2/2$ and the total is $P_c(1+m^2/2)$, so $\\eta = \\dfrac{P_c m^2/2}{P_c(1+m^2/2)} = \\dfrac{m^2}{2+m^2}$. This is increasing in $m$ for $m>0$, and at the largest permissible value $m=1$ it equals $1/3 = 33.3\\%$. No amount of carrier power improves it: two thirds of an ideal AM transmitter's power is spent on a carrier that carries no information."
+  ],
+  "formulas": [
+    { "q": "AM waveform (single tone)", "e": "s(t) = A_c\\left[1 + m\\cos(\\omega_m t)\\right]\\cos(\\omega_c t)", "n": "Envelope = Ac(1 + m cos wm t). Valid while m <= 1 so the envelope never goes negative." },
+    { "q": "Modulation index from amplitudes", "e": "m = \\frac{A_m}{A_c}", "n": "Am is the peak message amplitude, Ac the unmodulated carrier amplitude. Dimensionless; percent modulation = 100m." },
+    { "q": "Modulation index from envelope extremes", "e": "m = \\frac{E_{max} - E_{min}}{E_{max} + E_{min}}", "n": "Valid only for m <= 1. For overmodulation the detector sees a folded envelope and this returns an apparent index below 1." },
+    { "q": "Envelope extremes", "e": "E_{max} = A_c(1+m), \\qquad E_{min} = A_c(1-m)", "n": "Emin = 0 at exactly 100 percent modulation; negative only in the mathematical model, not on a diode detector." },
+    { "q": "AM spectrum components", "e": "A_c\\ \\mathrm{at}\\ f_c, \\quad \\frac{mA_c}{2}\\ \\mathrm{at}\\ f_c \\pm f_m", "n": "LSB at fc - fm, USB at fc + fm. Equal amplitudes; the carrier is unchanged by modulation." },
+    { "q": "Total transmitted power", "e": "P_t = P_c\\left(1 + \\frac{m^2}{2}\\right), \\qquad P_c = \\frac{A_c^{2}}{2R}", "n": "Assumes the same load R for carrier and sidebands. At m = 1, Pt = 1.5 Pc." },
+    { "q": "Power per sideband", "e": "P_{USB} = P_{LSB} = \\frac{P_c m^2}{4}", "n": "Together they carry Pc m^2/2. Using Pc m^2/2 for ONE sideband doubles every answer." },
+    { "q": "Total sideband (information) power", "e": "P_{sb} = \\frac{P_c m^2}{2}", "n": "The only part of an AM signal that carries the message." },
+    { "q": "Modulation efficiency", "e": "\\eta = \\frac{m^2}{2 + m^2}", "n": "Maximum 1/3 at m = 1. At m = 0.5 it is only 11.1 percent." },
+    { "q": "Modulation index from powers", "e": "m = \\sqrt{\\frac{2(P_t - P_c)}{P_c}}", "n": "Use when total and carrier powers are known; Pt must exceed Pc." },
+    { "q": "Antenna current relation", "e": "I_t = I_c\\sqrt{1 + \\frac{m^2}{2}}", "n": "Valid for the same antenna resistance. At m = 1 the current rises by 22.5 percent." },
+    { "q": "Bandwidth and multi-tone index", "e": "BW = 2 f_{m(max)}, \\qquad m_{tot} = \\sqrt{m_1^2+m_2^2}", "n": "For several tones use the highest modulating frequency for BW and the quadrature sum for the power index; the envelope peak is set by m1 + m2 <= 1." },
+    { "q": "Overmodulation condition", "e": "m > 1 \\ \\Rightarrow\\ 1 + m\\cos\\omega_m t < 0 \\ \\mathrm{for\\ part\\ of\\ the\\ cycle}", "n": "Produces envelope folding, harmonic sidebands and splatter; the envelope detector output is severely distorted." }
+  ],
+  "problems": [
+    {
+      "prompt": "An AM transmitter has an unmodulated carrier amplitude of $12\\ \\mathrm{V}$ and is modulated by a $6\\ \\mathrm{V}$ peak sinusoid. Find the modulation index and the percent modulation.",
+      "give": ["Ac = 12 V", "Am = 6 V"],
+      "steps": [
+        "m = Am/Ac",
+        "m = 6/12 = 0.5",
+        "Percent modulation = 100 x 0.5 = 50 percent"
+      ],
+      "ans": "m = 0.5 (50 percent modulation).",
+      "trap": "Dividing by the peak envelope Ac + Am = 18 V and answering m = 0.333. The index is referenced to the carrier amplitude, not to the maximum envelope excursion."
+    },
+    {
+      "prompt": "The envelope of an AM wave reaches a maximum of $15\\ \\mathrm{V}$ and a minimum of $5\\ \\mathrm{V}$. Find the modulation index, the carrier amplitude and the message amplitude.",
+      "give": ["Emax = 15 V", "Emin = 5 V"],
+      "steps": [
+        "m = (Emax - Emin)/(Emax + Emin) = (15 - 5)/(15 + 5) = 10/20",
+        "m = 0.5",
+        "Ac = (Emax + Emin)/2 = 10 V",
+        "Am = m Ac = 0.5 x 10 = 5 V"
+      ],
+      "ans": "m = 0.5; Ac = 10 V; Am = 5 V.",
+      "trap": "Reporting m = (15-5)/15 = 0.667 by dividing by Emax instead of by the sum. The sum is the correct denominator because Emax + Emin = 2Ac.", "calc": {"mode":"COMP","steps":["One line with `ALPHA` `:` — `(15−5)÷(15+5) : (15+5)÷2 : Ans×0.5`","`=` down the chain: $m$ = **0.5** → $A_c$ = **10** V → $A_m$ = **5** V. The third statement reads `Ans` = 10 from the second."],"note":"The denominator is the SUM $E_{max}+E_{min}=2A_c$, never $E_{max}$ alone: `(15−5)÷15` = **0.667** is the trap answer."}
+    },
+    {
+      "prompt": "A $100\\ \\mathrm{W}$ carrier is amplitude-modulated to a depth of 60 percent. Find the total power, the total sideband power, the power in each sideband and the efficiency.",
+      "give": ["Pc = 100 W", "m = 0.6"],
+      "steps": [
+        "Pt = Pc(1 + m^2/2) = 100(1 + 0.18) = 118 W",
+        "Sideband power total = Pt - Pc = 18 W",
+        "Each sideband = Pc m^2/4 = 100(0.36)/4 = 9 W",
+        "Efficiency = 18/118 = 15.25 percent"
+      ],
+      "ans": "Pt = 118 W; sideband total 18 W (9 W each); efficiency 15.3 percent.",
+      "trap": "Using Pt = Pc(1+m^2) = 136 W. The sideband term is m squared over TWO: the two sidebands together carry Pc m^2/2, each carrying half of that.", "calc": {"mode":"COMP","steps":["`100(1+0.6^2÷2) : Ans−100 : 100×0.6^2÷4 : 18÷118`","`=` down the chain: $P_t$ = **118** W → sidebands **18** W → each sideband **9** W → $\\eta$ = **0.1525** = **15.25** % (the note rounds to 15.3 %)."],"note":"The sideband term is $m^2/2$: `100×(1+0.6^2)` = **136** W and `100×0.6^2÷2` = **18** W read as ONE sideband are the two standard traps."}
+    },
+    {
+      "prompt": "Compare the modulation efficiency of an AM transmitter at $m = 1$ and at $m = 0.5$.",
+      "give": ["m = 1 then m = 0.5"],
+      "steps": [
+        "At m = 1: eta = 1/(2+1) = 1/3 = 33.3 percent",
+        "At m = 0.5: eta = 0.25/(2+0.25) = 0.25/2.25 = 11.1 percent",
+        "Ratio = 33.3/11.1 = 3, i.e. 4.77 dB more information power for the same carrier"
+      ],
+      "ans": "33.3 percent at m = 1 versus 11.1 percent at m = 0.5 — a factor of 3.",
+      "trap": "Assuming efficiency halves when m halves. Efficiency goes as m^2 for small m, so halving the index quarters the efficiency.", "calc": {"mode":"COMP","steps":["`1÷3 : 0.25÷2.25` → $\\eta$ = **0.3333** → **0.1111**, i.e. **33.3** % against **11.1** %.","`(1÷3)÷(0.25÷2.25)` → ratio **3**; `10log(Ans)` → **4.77** dB."],"note":"Efficiencies are POWER ratios, so the dB form is `10log`, not `20log` — `20log(3)` = **9.54** dB overstates the gain."}
+    },
+    {
+      "prompt": "An AM broadcast transmitter draws an antenna current of $5\\ \\mathrm{A}$ with no modulation and $5.74\\ \\mathrm{A}$ when modulated. Find the modulation index.",
+      "give": ["Ic = 5 A", "It = 5.74 A"],
+      "steps": [
+        "It = Ic sqrt(1 + m^2/2), so (It/Ic)^2 = 1 + m^2/2",
+        "(5.74/5)^2 = (1.148)^2 = 1.318",
+        "m^2/2 = 0.318, so m^2 = 0.636",
+        "m = 0.797, about 0.8"
+      ],
+      "ans": "m ≈ 0.8 (80 percent modulation).",
+      "trap": "Using It/Ic = 1.148 as the modulation index. The current ratio involves sqrt(1+m^2/2), so the index comes from the square of the ratio, not the ratio itself.", "calc": {"mode":"COMP","steps":["`√(2((5.74÷5)^2−1)) : Ans×100`","`=` down the chain: $m$ = **0.7974** → **79.74** %, i.e. the note's 0.8 (80 %)."],"note":"The current ratio must be SQUARED first: $I_t/I_c$ = **1.148** is not the index — that is the trap answer."}
+    },
+    {
+      "prompt": "An AM transmitter delivers $60\\ \\mathrm{kW}$ when modulated and $50\\ \\mathrm{kW}$ with the carrier alone. Find the modulation index and the efficiency.",
+      "give": ["Pt = 60 kW", "Pc = 50 kW"],
+      "steps": [
+        "Pt - Pc = 10 kW = Pc m^2/2",
+        "m^2 = 2(10)/50 = 0.4",
+        "m = sqrt(0.4) = 0.632",
+        "Efficiency = 10/60 = 16.7 percent"
+      ],
+      "ans": "m = 0.632 (63.2 percent); efficiency = 16.7 percent.",
+      "trap": "Computing m = 10/50 = 0.2 by treating the power ratio as the index. The sideband power is Pc m^2/2, so the index is the square root of twice the power ratio.", "calc": {"mode":"COMP","steps":["`√(2(60−50)÷50) : 10÷60`","`=` down the chain: $m$ = **0.6325** = **63.25** % → $\\eta$ = **0.1667** = **16.67** %."],"note":"The sideband power is the DIFFERENCE $P_t-P_c$ = **10** kW and the index is its square root; the bare power ratio `10÷50` = **0.2** is the trap."}
+    },
+    {
+      "prompt": "Two independent tones modulate a carrier with indices $m_1 = 0.4$ and $m_2 = 0.3$. Find the total modulation index, the efficiency, and state whether the envelope stays non-negative.",
+      "give": ["m1 = 0.4", "m2 = 0.3"],
+      "steps": [
+        "m_tot = sqrt(m1^2 + m2^2) = sqrt(0.16 + 0.09) = sqrt(0.25) = 0.5",
+        "Efficiency = m^2/(2+m^2) = 0.25/2.25 = 11.1 percent",
+        "Peak envelope check: the worst case is m1 + m2 = 0.7 <= 1, so the envelope never crosses zero",
+        "Note that the power index (0.5) is smaller than the peak sum (0.7): both must be checked"
+      ],
+      "ans": "m_tot = 0.5; efficiency 11.1 percent; peak sum 0.7 so the envelope remains non-negative.",
+      "trap": "Adding the indices to get m = 0.7 for the power budget. Power adds, so the index combines in quadrature (0.5); only the peak-envelope check uses the arithmetic sum.", "calc": {"mode":"COMP","steps":["`√(0.4^2+0.3^2) : Ans^2÷(2+Ans^2) : 0.4+0.3`","`=` down the chain: $m_{tot}$ = **0.5** → $\\eta$ = **0.1111** = **11.11** % → peak sum = **0.7** $\\le$ 1, so the envelope stays non-negative."],"note":"Power indices combine in QUADRATURE (**0.5**); the arithmetic sum **0.7** governs only the peak-envelope check and is not the power index."}
+    },
+    {
+      "prompt": "A transmitter is accidentally overmodulated with a true index of $1.2$ and a carrier amplitude of $10\\ \\mathrm{V}$. Find the true envelope extremes, and the index a technician would compute from a scope display of the detected envelope.",
+      "give": ["m = 1.2", "Ac = 10 V"],
+      "steps": [
+        "True extremes: Emax = Ac(1+m) = 10(2.2) = 22 V; the mathematical minimum is Ac(1-m) = 10(-0.2) = -2 V",
+        "A diode envelope detector cannot go negative, so the displayed minimum is 2 V",
+        "Apparent index = (22 - 2)/(22 + 2) = 20/24 = 0.833",
+        "The true index is 1.2, so the scope method understates a badly overmodulated signal"
+      ],
+      "ans": "True extremes 22 V and -2 V; the detector shows 22 V and 2 V, giving a misleading apparent index of 0.833.",
+      "trap": "Trusting m = (Emax-Emin)/(Emax+Emin) to detect overmodulation. It only works for m <= 1; overmodulated signals show envelope flattening, harmonics at multiples of fm and splatter, not a computed index above 1.", "calc": {"mode":"COMP","steps":["`10(1+1.2) : 10(1−1.2) : (22−2)÷(22+2)`","`=` down the chain: $E_{max}$ = **22** V → $E_{min}$ = **−2** V → apparent index **0.8333** once the diode folds the −2 V to **2** V."],"note":"The scope formula returns **0.833** for a true index of **1.2** — it cannot detect overmodulation, which is exactly the point."}
+    },
+    {
+      "prompt": "An AM transmitter is 100 percent modulated. By what percentage does the antenna current increase over the unmodulated value, and what is the total power if the carrier power is $1\\ \\mathrm{kW}$?",
+      "give": ["m = 1", "Pc = 1 kW"],
+      "steps": [
+        "It/Ic = sqrt(1 + m^2/2) = sqrt(1.5) = 1.2247",
+        "Current increase = 22.47 percent",
+        "Pt = Pc(1 + m^2/2) = 1000(1.5) = 1500 W",
+        "Sideband power = 500 W, of which 250 W is in each sideband"
+      ],
+      "ans": "Current rises 22.5 percent; Pt = 1.5 kW with 500 W in the sidebands.",
+      "trap": "Expecting the current to double at 100 percent modulation. Power rises by 50 percent, and current, going as the square root of power, rises by only 22.5 percent.", "calc": {"mode":"COMP","steps":["`√1.5 : (Ans−1)×100 : 1000×1.5`","`=` down the chain: $I_t/I_c$ = **1.2247** → current rise **22.47** % → $P_t$ = **1500** W, so **500** W in the sidebands and **250** W each."],"note":"Power rises **50** % but current only **22.5** % ($\\sqrt{1.5}$): expecting the current to double at $m=1$ is the trap."}
+    }
+  ],
+  "traps": [
+    "**Using $A_c + A_m$ as the denominator for the index.** $m = A_m/A_c$. The common wrong answer $A_m/(A_c+A_m)$ understates the index by the factor $1/(1+m)$ and turns a 100 percent-modulated signal into 50 percent.",
+    "**Applying $(E_{max}-E_{min})/(E_{max}+E_{min})$ to an overmodulated wave.** This formula assumes the envelope minimum is a true minimum. Past $m=1$ the detector folds the negative excursion, so the measurement returns an apparent index below 1 and hides the splatter and distortion entirely.",
+    "**Charging the sideband power to one sideband.** The two sidebands together carry $P_c m^2/2$; each carries $P_c m^2/4$. Reporting $P_c m^2/2$ as 'the power in the sideband' doubles it — and in a single-sideband comparison that error turns a 4.77 dB saving into 1.76 dB.",
+    "**Treating the modulation efficiency as improvable.** $\\eta = m^2/(2+m^2)$ is capped at exactly $1/3$ (33.3 percent) at $m=1$. Two thirds of an ideal AM transmitter's power is in a carrier that carries no information, and no adjustment of $m$ or $P_c$ changes that.",
+    "**Comparing powers across different load resistances.** $P_c = A_c^2/(2R)$; a problem that changes the antenna resistance between the carrier and modulated cases cannot use the simple ratios. If currents are given, verify that the resistance is the same before applying $I_t = I_c\\sqrt{1+m^2/2}$.",
+    "**Adding multi-tone indices arithmetically for the power budget.** Power adds, so the index that goes into $P_c m^2/2$ is $\\sqrt{m_1^2+m_2^2}$. The arithmetic sum $m_1+m_2$ governs the *peak* envelope and must be kept at or below 1 to avoid overmodulation, so both checks are needed.",
+    "**Assuming any AM signal can be envelope-detected.** Envelope detection needs a transmitted carrier and $m\\le1$. DSB-SC and SSB have no carrier; feeding them to a diode detector produces a garbled, frequency-doubled mess, which is why they need a product detector with a locally reinserted carrier.",
+    "**Forgetting that overmodulation widens the spectrum.** Sidebands appear at multiples of $f_m$, so the occupied bandwidth exceeds $2f_m$ and adjacent channels are splattered — an overmodulated transmitter fails a spectral-mask test even when its audio 'sounds loud'."
+  ],
+  "refs": [
+    "[[02_AM_Spectrum,_Bandwidth_and_Power]]",
+    "[[03_DSB-SC_and_SSB-SC]]",
+    "[[04_VSB_and_AM_Variants_Comparison]]",
+    "[[10_AM_vs_FM_Noise_Comparison]]",
+    "[[12_Superheterodyne_Receiver]]"
+  ],
+  "prereqs": [
+    "[[01_Time_vs_Frequency_and_Line_Spectra]]"
+  ]
+}

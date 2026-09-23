@@ -1,0 +1,99 @@
+{
+  "scope": "Spread an asset's depreciable cost over its service life by straight-line and sum-of-years-digits, and track the resulting book value.",
+  "intuition": "Depreciation is bookkeeping, not cash: it writes off an asset's cost against the income it helps earn. Straight line writes it off evenly; sum-of-years-digits front-loads the write-off so that more of the cost lands in the early, higher-tax years.",
+  "concept": [
+    "**What is being depreciated.** Only the depreciable basis $FC - SV$ is written off, never the whole first cost: the salvage value is expected to be recovered at retirement, so it is not an expense. Depreciation is charged over the service (useful) life $n$ stated in the problem, and the accumulated charge can never exceed the basis. Book value is what remains: $BV_m = FC - \\mathrm{accumulated\\ depreciation}$. It is an accounting residual that has no necessary relation to market value. Land is not depreciable, and depreciation itself is not a cash flow — it matters because it reduces taxable income.",
+    "**Straight-line method.** SLM charges the same amount every year, $d = (FC-SV)/n$, so after $m$ years $BV_m = FC - m(FC-SV)/n$. The method is the easiest to audit and the default in Philippine practice when no other method is specified; the annual rate is simply $100\\%/n$ of the depreciable basis, which is why a 10-year asset is described as depreciating at 10% per year under SLM. Because the charge is constant, book value declines linearly and reaches exactly the salvage value at the end of year $n$.",
+    "**Sum-of-years-digits method.** SYD is an accelerated method. The digits $n, n-1, \\dots, 1$ are assigned to years 1 to $n$ and normalised by their sum $S = n(n+1)/2$, so year $m$ takes the fraction $(n-m+1)/S$ of the depreciable basis: $d_m = (FC-SV)(n-m+1)/S$. Year 1 takes the largest share and year $n$ the smallest, and the accumulated charge after $m$ years is $(FC-SV)\\,m(2n-m+1)/(2S)$, giving $BV_m = FC - (FC-SV)\\,m(2n-m+1)/(n(n+1))$. SYD reaches the same salvage value as SLM at the end of the life; it merely shifts the timing, which is valuable because a peso of depreciation deferred is a peso of tax deferred.",
+    "**Why accelerate at all, and where the exam focuses.** Accelerated depreciation raises early deductions and lowers early taxable income, deferring tax without changing the total. It also matches the fact that many assets lose value fast and then slowly. The board-level questions are almost always one of four: compute a year's depreciation, compute book value after $m$ years, find the salvage or life implied by a given book value, or compare the two methods in a specific year. The comparison is instructive: SYD is larger than SLM only in the first half of the life, because SYD's falling fraction eventually drops below the constant SLM rate."
+  ],
+  "formulas": [
+    { "q": "Depreciable basis", "e": "\\mathrm{basis} = FC - SV", "n": "Only this amount is written off, ever. Land is excluded and SV is not depreciable." },
+    { "q": "Straight-line annual depreciation", "e": "d = \\frac{FC - SV}{n}", "n": "Constant each year; n is the service life stated in the problem, in periods." },
+    { "q": "Straight-line book value", "e": "BV_m = FC - \\frac{m(FC-SV)}{n}", "n": "Linear decline. At m = n it equals SV exactly." },
+    { "q": "Sum of years digits", "e": "S = \\frac{n(n+1)}{2}", "n": "The normalising denominator for every SYD fraction; the exam shortcut is the triangular number." },
+    { "q": "SYD depreciation in year m", "e": "d_m = (FC-SV)\\frac{n-m+1}{S}", "n": "Year 1 has the largest charge n/S of the basis; year n has 1/S." },
+    { "q": "SYD accumulated depreciation", "e": "\\sum_{k=1}^{m} d_k = (FC-SV)\\frac{m(2n-m+1)}{2S}", "n": "Use for book value after m years without adding every year individually." },
+    { "q": "SYD book value after m years", "e": "BV_m = FC - (FC-SV)\\frac{m(2n-m+1)}{n(n+1)}", "n": "Equivalent to the accumulated form with S = n(n+1)/2." },
+    { "q": "Total depreciation over the life", "e": "\\sum_{m=1}^{n} d_m = FC - SV", "n": "Identical for every depreciation method; only the timing differs." },
+    { "q": "SLM annual rate", "e": "\\mathrm{rate} = \\frac{1}{n}\\ \\mathrm{of\\ the\\ depreciable\\ basis}", "n": "Do not confuse with the declining-balance rate, which is applied to book value." }
+  ],
+  "problems": [
+    {
+      "prompt": "A machine costs ₱1,200,000, has an estimated salvage value of ₱120,000 and a service life of 8 years. Find the annual straight-line depreciation and the book value after 5 years.",
+      "give": ["$FC = 1200000$", "$SV = 120000$", "$n = 8$ years"],
+      "steps": [
+        "Depreciable basis: $FC - SV = 1200000 - 120000 = 1080000$.",
+        "Annual charge: $d = 1080000/8 = 135000$.",
+        "Accumulated after 5 years: $5(135000) = 675000$.",
+        "$BV_5 = 1200000 - 675000 = 525000$."
+      ],
+      "ans": "$d = 135000$ per year; $BV_5 = 525000$.",
+      "trap": "Depreciating the whole first cost, 1200000/8 = 150000 per year. That overstates the charge by ₱15,000 annually and drives book value below salvage before the life ends."
+    },
+    {
+      "prompt": "For the same machine, use the sum-of-years-digits method to find the depreciation in each of the first 3 years and the book value after 3 years.",
+      "give": ["$FC = 1200000$", "$SV = 120000$", "$n = 8$ years", "SYD"],
+      "steps": [
+        "$S = n(n+1)/2 = 8(9)/2 = 36$.",
+        "Year 1: $1080000(8/36) = 240000$. Year 2: $1080000(7/36) = 210000$. Year 3: $1080000(6/36) = 180000$.",
+        "Accumulated: $240000 + 210000 + 180000 = 630000$.",
+        "$BV_3 = 1200000 - 630000 = 570000$."
+      ],
+      "ans": "Year 1 ₱240,000; year 2 ₱210,000; year 3 ₱180,000; $BV_3 = 570000$.",
+      "trap": "Applying the SYD fraction to the full first cost, 1200000(8/36) = ₱266,667 in year 1. The salvage value must be removed first: SYD allocates FC - SV, not FC.", "calc": {"mode":"TABLE","steps":["`MODE` `6` TABLE: `f(X)=1080000(9−X)÷36` for the year's charge and `g(X)=1200000−1080000×X(17−X)÷72` for book value; Start **1**, End **3**, Step **1**.","Scroll the table: charges **240000** → **210000** → **180000**; book values **960000** → **750000** → **570000**.","So the three-year accumulation is **630000** and $BV_3$ = **570000**, the same as `1200000−1080000×3×14÷72` → **570000**."]}
+    },
+    {
+      "prompt": "Using the same 8-year machine, find the book value after 5 years under SYD without computing each year separately.",
+      "give": ["$FC = 1200000$", "$SV = 120000$", "$n = 8$, $S = 36$"],
+      "steps": [
+        "Accumulated fraction after 5 years: $\\sum_{k=1}^{5}(9-k) = 8+7+6+5+4 = 30$, i.e. $30/36$ of the basis.",
+        "Formula check: $m(2n-m+1)/(2S) = 5(16-5+1)/(72) = 60/72 = 30/36$.",
+        "Accumulated depreciation: $1080000(30/36) = 900000$.",
+        "$BV_5 = 1200000 - 900000 = 300000$."
+      ],
+      "ans": "$BV_5 = 300000$ under SYD (against ₱525,000 under SLM).",
+      "trap": "Using the year-5 fraction (n-m+1 = 4, i.e. 4/36) in place of the accumulated sum. After five years the accumulation is 30/36, five times larger.", "calc": {"mode":"COMP","steps":["`5×(2×8−5+1)÷(8×9)` → accumulated fraction = **0.833333** = **30/36**, with $S = 8\\times9/2$ = **36**.","`1200000−1080000×Ans` → $BV_5$ = **300000**, against **525000** under SLM."]}
+    },
+    {
+      "prompt": "Compare SLM and SYD for the same machine in year 5. Which method charges more depreciation that year?",
+      "give": ["$FC = 1200000$", "$SV = 120000$", "$n = 8$", "year 5"],
+      "steps": [
+        "SLM year 5: $d = 135000$.",
+        "SYD year 5: $1080000(4/36) = 120000$.",
+        "SLM exceeds SYD by $135000 - 120000 = 15000$.",
+        "The crossover is at the midpoint of the life: SYD's year-m fraction falls to 1/n when $n-m+1 = S/n = 4.5$."
+      ],
+      "ans": "SLM charges ₱135,000 against SYD's ₱120,000 in year 5; SYD is faster only through year 4.",
+      "trap": "Assuming the accelerated method always depreciates more. SYD front-loads, so from the midpoint of the life onward its yearly charge is the smaller of the two, even though the totals are identical."
+    },
+    {
+      "prompt": "An asset costs ₱900,000, has a 10-year life and is depreciated straight line. After 6 years its book value is ₱420,000. Find the salvage value and the annual depreciation.",
+      "give": ["$FC = 900000$", "$n = 10$", "$BV_6 = 420000$"],
+      "steps": [
+        "Accumulated depreciation after 6 years: $900000 - 420000 = 480000$.",
+        "$BV_m = FC - m(FC-SV)/n$, so $480000 = 6(900000-SV)/10$.",
+        "$0.6(900000-SV) = 480000$, hence $900000-SV = 800000$.",
+        "$SV = 100000$ and $d = 800000/10 = 80000$ per year."
+      ],
+      "ans": "$SV = 100000$; $d = 80000$ per year.",
+      "trap": "Reading BV_m = FC - m d as if d were computed on FC alone. Here d = (900000-100000)/10 = ₱80,000; using ₱90,000 would imply a negative salvage value."
+    }
+  ],
+  "traps": [
+    "**Depreciating the first cost instead of the basis.** The salvage value is never depreciated, so every method multiplies (FC - SV), not FC.",
+    "**Letting book value fall below salvage.** Neither SLM nor SYD can do this if the basis is right, but arithmetic that forgets SV produces negative implied salvage values.",
+    "**Using the year fraction for the accumulated sum.** SYD's book value needs the accumulated fraction m(2n-m+1)/(2S), not the single-year fraction (n-m+1)/S.",
+    "**Assuming an accelerated method always charges more.** SYD exceeds SLM only in the first half of the life; afterwards it charges less, and the totals are equal.",
+    "**Confusing book value with market value.** Book value is a residual of the depreciation schedule. A replacement or salvage decision uses the resale price, not the book value.",
+    "**Treating depreciation as a cash outflow.** It is a non-cash charge against taxable income; it changes taxes and therefore cash flow, but it is not itself a payment."
+  ],
+  "refs": [
+    "[[11_Depreciation_DB_and_DDB]]",
+    "[[13_Replacement_Analysis]]",
+    "[[06_Capitalized_Cost]]"
+  ],
+  "prereqs": [
+    "[[01_Simple_and_Compound_Interest]]"
+  ]
+}

@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DC Load Line and Q-Point — Output Swing and Symmetrical Clipping</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// The load line is the set of every (V_CE, I_C) pair the EXTERNAL circuit allows:
+//     I_C = (V_CC - V_CE)/(R_C + R_E)
+// The transistor's characteristic is the set the DEVICE allows. The Q-point is where the
+// two meet, and it is a single point because the base current picks one characteristic.
+// The exam question is never "find the Q-point" - it is "how far can the output swing
+// before it clips, and does it clip symmetrically?". Both answers are read straight off
+// the load line: the Q-point walks along it as I_B changes, and the swing is limited by
+// whichever intercept (saturation at V_CE = V_CE(sat), cutoff at I_C = 0) is nearer.
+
+const VCE_SAT = 0.2;      // the saturation boundary used for the region test and the swing limit
+const V_K = 0.06;         // knee sharpness of the idealised characteristic
+const V_A = 80;           // Early voltage, used ONLY to give the drawn curves a small slope
+
+/**
+ * The device model used for every NUMBER: a sharp knee at V_CE(sat), then an exactly flat
+ * I_C = beta*I_B. Keeping it flat makes the Q-point the textbook intersection
+ * V_CEQ = V_CC - I_CQ(R_C+R_E) with I_CQ = beta*I_B, so every readout is hand-checkable.
+ * (The drawn family adds a mild Early slope so the curves look like a real datasheet --
+ * that is cosmetic and is never used in the arithmetic.)
+ */
+const icDevice = (ib, beta, vce) => beta * ib * (1 - Math.exp(-Math.max(vce, 0) / V_K));
+const icDrawn = (ib, beta, vce) => icDevice(ib, beta, vce) * (1 + Math.max(vce, 0) / V_A);
+
+/** Find the Q-point: intersect the load line with the characteristic for this beta. */
+function qpoint(Vcc, Rc, Re, ib, beta) {
+  const R = Rc + Re;
+  const ll = (vce) => (Vcc - vce) / R;                 // load line
+  if (ib <= 0) return { Vce: Vcc, Ic: 0, saturated: false, cutoff: true };
+  const icSatLimit = ll(VCE_SAT);
+  if (beta * ib >= icSatLimit) {
+    // the device cannot reach beta*I_B on this load line: saturated, current set by the resistors
+    return { Vce: VCE_SAT, Ic: icSatLimit, saturated: true, cutoff: false };
+  }
+  // bisect on V_CE, where ll - ch changes sign
+  let lo = VCE_SAT, hi = Vcc;
+  for (let i = 0; i < 200; i++) {
+    const mid = (lo + hi) / 2;
+    if (ll(mid) - icDevice(ib, beta, mid) > 0) lo = mid; else hi = mid;
+  }
+  const vce = (lo + hi) / 2;
+  return { Vce: vce, Ic: ll(vce), saturated: false, cutoff: false };
+}
+
+widget({
+  title: 'DC Load Line and Q-Point — Swing and Symmetrical Clipping',
+  description:
+    'The load line is fixed by V_CC and R_C + R_E; the base-current slider picks which output characteristic the transistor sits on, and their intersection is the Q-point. Slide I_B and watch the available swing run out on one side first — that asymmetry IS clipping.',
+  height: 560,
+  range: { xMin: 0, xMax: 20, yMin: 0, yMax: 10 },
+  controls: [
+    { id: 'Vcc', label: 'supply V_CC (V)', min: 3, max: 30, step: 0.5, value: 12 },
+    { id: 'Rc', label: 'collector resistor R_C (kΩ)', min: 0.1, max: 10, step: 0.1, value: 2.2 },
+    { id: 'Re', label: 'emitter resistor R_E (kΩ, 0 for a CE stage)', min: 0, max: 3, step: 0.05, value: 0 },
+    { id: 'IB', label: 'base current I_B (µA)', min: 5, max: 400, step: 5, value: 20 },
+    { id: 'beta', label: 'β (h_FE)', min: 20, max: 400, step: 5, value: 120 },
+  ],
+
+  compute: (v) => {
+    const Vcc = v.Vcc, Rc = v.Rc * 1e3, Re = v.Re * 1e3, R = Rc + Re;
+    const ib = v.IB * 1e-6, beta = v.beta;
+    const q = qpoint(Vcc, Rc, Re, ib, beta);
+
+    const IcSat = Vcc / R;                        // V_CE = 0 intercept
+    const IcAtSatV = (Vcc - VCE_SAT) / R;         // I_C when V_CE = V_CE(sat)
+
+    // available swing, measured in volts along the load line
+    const swingDown = Math.max(0, q.Vce - VCE_SAT);          // toward saturation
+    // toward cutoff the current rises by the Early effect as V_CE grows, so the excursion
+    // that just touches beta*I_B is A_up = (Vcc - beta*I_B*R) / (1 + beta*I_B*R/V_A)
+    const bIbR = beta * ib * R;
+    const swingUpRaw = Math.max(0, (Vcc - bIbR) / (1 + bIbR / V_A));
+    const swingUp = Math.min(swingUpRaw, Math.max(0, Vcc - q.Vce));
+    const vceCut = Vcc, vceSat = VCE_SAT;
+    const limitV = Math.min(swingUp, swingDown);
+    const maxSym = 2 * limitV;
+    const limiting = q.saturated ? 'saturation' : (q.cutoff ? 'cutoff' : (swingUp <= swingDown ? 'cutoff' : 'saturation'));
+    const asym = swingUp + swingDown > 0 ? Math.abs(swingUp - swingDown) / Math.max(swingUp, swingDown) : 1;
+
+    // family of characteristics for the curve family drawing
+    const fam = [0.25, 0.5, 1, 1.5, 2, 3].map((f) => ({ ib: ib * f, beta }))
+      .filter((c) => c.ib <= 600e-6).map((c) => {
+        const qq = qpoint(Vcc, Rc, Re, c.ib, beta);
+        return { ...c, q: qq };
+      });
+
+    // the quiescent point is the load-line midpoint when the swing is symmetrical
+    const midIc = IcSat / 2;
+
+    return { Vcc, Rc, Re, R, ib, beta, q, IcSat, swingUp, swingDown, limitV, maxSym, limiting, asym,
+             fam, midIc, vceCut, vceSat };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const q = out.q;
+    const L = { x0: 64, x1: 384, y0: 96, y1: 402 };
+    const M = { x0: 424, x1: plot.w - 22, y0: 96, y1: 402 };
+
+    // ---------------------------------------------------------------- header
+    plot.text('load line:  I_C = (V_CC − V_CE)/(R_C + R_E)        device:  I_C = β·I_B at the Q-point        V_CE = V_CC − I_C(R_C + R_E)',
+      14, 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text('substituted:  I_C = (' + fmt(out.Vcc, 4) + ' − V_CE)/' + fmt(out.R / 1e3, 4) + ' kΩ        I_B = ' + fmt(out.ib * 1e6, 5) +
+      ' µA,  β = ' + fmt(out.beta, 4) + '  →  β·I_B = ' + fmt(out.beta * out.ib * 1e3, 5) + ' mA        V_CE = ' + fmt(out.Vcc, 4) +
+      ' − ' + fmt(q.Ic * 1e3, 4) + ' mA × ' + fmt(out.R / 1e3, 4) + ' kΩ = ' + fmt(q.Vce, 5) + ' V',
+      14, 38, { color: PALETTE.accent, font: '12px ui-monospace, monospace' });
+    plot.text('intercepts:  saturation at V_CE = 0 → I_C = V_CC/(R_C+R_E) = ' + fmt(out.IcSat * 1e3, 5) +
+      ' mA;   cutoff at I_C = 0 → V_CE = V_CC = ' + fmt(out.Vcc, 4) + ' V',
+      14, 56, { color: PALETTE.dim, font: '12px ui-monospace, monospace' });
+    plot.text('Q-point ' + (q.saturated ? 'is SATURATED — the device cannot reach β·I_B on this load line'
+      : q.cutoff ? 'is at CUTOFF — no base drive' : 'is ACTIVE — the intersection lies on the flat part of the characteristic'),
+      14, 74, { color: q.saturated ? PALETTE.accent2 : q.cutoff ? PALETTE.accent4 : PALETTE.accent3,
+        font: 'bold 12px ui-monospace, monospace' });
+
+    // ================================================================ load line plot
+    const VMAX = out.Vcc * 1.05;
+    const IMAX = out.IcSat * 1.15;
+    const X = (u) => L.x0 + (u / VMAX) * (L.x1 - L.x0);
+    const Y = (i) => L.y1 - (i / IMAX) * (L.y1 - L.y0);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(L.x0 - 12, L.y0 - 14, L.x1 - L.x0 + 22, L.y1 - L.y0 + 30);
+    ctx.restore();
+    plot.text('output characteristics and the DC load line', L.x0 - 12, L.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let g = 1; g <= 4; g++) {
+      const y = L.y1 - (g / 4) * (L.y1 - L.y0);
+      ctx.beginPath(); ctx.moveTo(L.x0, y); ctx.lineTo(L.x1, y); ctx.stroke();
+      const x = L.x0 + (g / 4) * (L.x1 - L.x0);
+      ctx.beginPath(); ctx.moveTo(x, L.y0); ctx.lineTo(x, L.y1); ctx.stroke();
+    }
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(L.x0, L.y1); ctx.lineTo(L.x1, L.y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L.x0, L.y0); ctx.lineTo(L.x0, L.y1); ctx.stroke();
+    ctx.restore();
+    for (let g = 0; g <= 4; g++) {
+      plot.text(fmt((g / 4) * VMAX, 3), L.x0 + (g / 4) * (L.x1 - L.x0), L.y1 + 14,
+        { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'center' });
+      plot.text(fmt((g / 4) * IMAX, 4), L.x0 - 4, L.y1 - (g / 4) * (L.y1 - L.y0) + 3,
+        { color: PALETTE.dim, font: '9px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('V_CE (V)', (L.x0 + L.x1) / 2, L.y1 + 28, { color: PALETTE.text, font: '11px ui-monospace, monospace', align: 'center' });
+    plot.text('I_C (mA)', L.x0 - 46, L.y0 + 4, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+
+    // the characteristic family
+    const CURVE = 260;
+    for (const c of out.fam) {
+      if (c.ib <= 0) continue;
+      ctx.save();
+      const isQ = Math.abs(c.ib - out.ib) < out.ib * 0.02;
+      ctx.strokeStyle = isQ ? PALETTE.accent3 : 'rgba(137,180,250,0.42)';
+      ctx.lineWidth = isQ ? 2.4 : 1.2;
+      ctx.beginPath();
+      for (let i = 0; i <= CURVE; i++) {
+        const vce = (VMAX * i) / CURVE;
+        const px = X(vce), py = Y(icDrawn(c.ib, out.beta, vce));
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+      const yl = Y(icDrawn(c.ib, out.beta, VMAX * 0.98));
+      if (yl > L.y0 + 6 && yl < L.y1 - 4) {
+        plot.text(fmt(c.ib * 1e6, 3) + ' µA', L.x1 - 4, yl + 9,
+          { color: Math.abs(c.ib - out.ib) < out.ib * 0.02 ? PALETTE.accent3 : 'rgba(137,180,250,0.75)',
+            font: '9px ui-monospace, monospace', align: 'right' });
+      }
+    }
+
+    // the load line
+    plot.segment(0, out.IcSat, out.Vcc, 0, { color: PALETTE.accent4, width: 2.4 });
+    plot.dot(0, out.IcSat, { color: PALETTE.accent2, r: 4.5 });
+    plot.dot(out.Vcc, 0, { color: PALETTE.accent3, r: 4.5 });
+    plot.text('I_C(sat) = ' + fmt(out.IcSat * 1e3, 5) + ' mA', X(0) + 8, Y(out.IcSat) - 6,
+      { color: PALETTE.accent2, font: '10px ui-monospace, monospace' });
+    plot.text('V_CE(cutoff) = ' + fmt(out.Vcc, 4) + ' V', X(out.Vcc) - 4, Y(0) + 16,
+      { color: PALETTE.accent3, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // the swing segments drawn along the load line, from the Q-point out to each limit
+    plot.segment(q.Vce, q.Ic, out.Vcc, 0, { color: 'rgba(166,227,161,0.9)', width: 5 });
+    plot.segment(q.Vce, q.Ic, out.vceSat, (out.Vcc - out.vceSat) / out.R, { color: 'rgba(243,139,168,0.9)', width: 5 });
+    plot.text('↑ ' + fmt(out.swingUp, 4) + ' V to cutoff', X(out.Vcc * 0.86), Y(out.IcSat * 0.10),
+      { color: PALETTE.accent3, font: '8px ui-monospace, monospace', align: 'right' });
+    plot.text('↓ ' + fmt(out.swingDown, 4) + ' V to saturation', X(out.vceSat + out.Vcc * 0.06), Y((out.Vcc - out.vceSat) / out.R * 0.72),
+      { color: PALETTE.accent2, font: '8px ui-monospace, monospace' });
+    // the Q-point
+    plot.dot(q.Vce, q.Ic, { color: PALETTE.warn, r: 6 });
+    plot.text('Q (' + fmt(q.Vce, 4) + ' V, ' + fmt(q.Ic * 1e3, 5) + ' mA)', X(q.Vce) + 8, Y(q.Ic) - 6,
+      { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+
+    // the midpoint of the load line, i.e. where the swing WOULD be symmetrical
+    if (!q.saturated && !q.cutoff) {
+      plot.segment(0, out.midIc, out.Vcc, out.midIc, { color: 'rgba(249,226,175,0.35)', width: 1, dash: [3, 4] });
+      plot.text('half of I_C(sat) — the Q-point for symmetric swing', X(out.Vcc * 0.5), Y(out.midIc) - 5,
+        { color: 'rgba(249,226,175,0.75)', font: '8px ui-monospace, monospace', align: 'center' });
+    }
+
+    // ================================================================ right: swing + waveform
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.5)';
+    ctx.fillRect(M.x0 - 12, M.y0 - 14, M.x1 - M.x0 + 22, M.y1 - M.y0 + 30);
+    ctx.restore();
+    plot.text('what limits the output swing', M.x0 - 12, M.y0 - 22,
+      { color: PALETTE.text, font: 'bold 11px ui-monospace, monospace' });
+
+    // swing bars
+    const BW = M.x1 - M.x0 - 12;
+    const baseY = M.y0 + 34;
+    const maxSw = Math.max(out.swingUp, out.swingDown, 1e-9);
+    for (const [i, [lab, val, col]] of [['toward cutoff', out.swingUp, PALETTE.accent3],
+                                        ['toward sat.', out.swingDown, PALETTE.accent2]].entries()) {
+      const y = baseY + i * 42;
+      ctx.save();
+      ctx.fillStyle = 'rgba(30,30,46,0.7)';
+      ctx.fillRect(M.x0, y, BW, 20);
+      ctx.fillStyle = col;
+      ctx.fillRect(M.x0, y, Math.max(1, (val / maxSw) * BW), 20);
+      ctx.restore();
+      plot.text(lab, M.x0 + 6, y + 14, { color: PALETTE.bg, font: 'bold 10px ui-monospace, monospace' });
+      plot.text(fmt(val, 4) + ' V', M.x0 + BW - 6, y + 14, { color: PALETTE.text, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.text('limiting side: ' + out.limiting.toUpperCase(), M.x0, baseY + 88,
+      { color: out.limiting === 'cutoff' ? PALETTE.accent3 : PALETTE.accent2, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('max symmetrical peak = min(up, down) = ' + fmt(out.limitV, 4) + ' V',
+      M.x0, baseY + 104, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+    plot.text('max peak-to-peak (symmetrical) = ' + fmt(out.maxSym, 4) + ' V',
+      M.x0, baseY + 120, { color: PALETTE.warn, font: 'bold 11px ui-monospace, monospace' });
+    plot.text('asymmetry (up vs down) = ' + fmt(out.asym * 100, 4) + ' %',
+      M.x0, baseY + 138, { color: out.asym < 0.15 ? PALETTE.accent3 : PALETTE.accent4, font: '11px ui-monospace, monospace' });
+
+    // waveform sketch: the AC output riding on V_CEQ, with both clipping levels marked
+    const W = { x0: M.x0, x1: M.x1, y0: baseY + 162, y1: baseY + 262 };
+    plot.text('output V_CE around the Q-point (one full cycle, ±the symmetrical peak)',
+      M.x0, W.y0 - 8, { color: PALETTE.dim, font: '10px ui-monospace, monospace' });
+    const lo = out.vceSat, hi = out.Vcc;
+    const WY = (u) => W.y1 - ((u - lo) / Math.max(hi - lo, 1e-9)) * (W.y1 - W.y0);
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W.x0, WY(out.vceSat)); ctx.lineTo(W.x1, WY(out.vceSat)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W.x0, WY(out.Vcc)); ctx.lineTo(W.x1, WY(out.Vcc)); ctx.stroke();
+    ctx.strokeStyle = PALETTE.axis; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(W.x0, WY(out.vceCut)); ctx.lineTo(W.x1, WY(out.vceCut)); ctx.stroke();
+    ctx.restore();
+    plot.text('V_CC = ' + fmt(out.Vcc, 4) + ' V  (cutoff clip)', W.x1, WY(out.Vcc) - 4,
+      { color: PALETTE.accent3, font: '9px ui-monospace, monospace', align: 'right' });
+    plot.text('V_CE(sat) = ' + fmt(out.vceSat, 3) + ' V  (saturation clip)', W.x1, WY(out.vceSat) + 11,
+      { color: PALETTE.accent2, font: '9px ui-monospace, monospace', align: 'right' });
+    // the signal: a sinusoid of amplitude limitV, clipped at both rails
+    ctx.save();
+    ctx.strokeStyle = PALETTE.warn; ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    for (let i = 0; i <= 480; i++) {
+      const t = i / 480;
+      const raw = q.Vce + out.limitV * Math.sin(2 * Math.PI * t);
+      const y = Math.max(out.vceSat, Math.min(out.Vcc, raw));
+      const px = W.x0 + t * (W.x1 - W.x0), py = WY(y);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    plot.segment(W.x0, WY(q.Vce), W.x1, WY(q.Vce), { color: PALETTE.accent5, width: 1.2, dash: [4, 3] });
+    plot.text('V_CEQ = ' + fmt(q.Vce, 4) + ' V', W.x0 + 4, WY(q.Vce) - 4,
+      { color: PALETTE.accent5, font: '9px ui-monospace, monospace' });
+
+    // verdict strip
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(10, plot.h - 24, plot.w - 20, 20);
+    ctx.restore();
+    let verdict;
+    if (q.saturated) {
+      verdict = 'The intersection fell at V_CE(sat): the transistor is SATURATED, I_C = ' + fmt(q.Ic * 1e3, 5) +
+        ' mA is set by the resistors, not by β, and there is no downward swing left at all. Reduce I_B or R_C.';
+    } else if (q.cutoff) {
+      verdict = 'I_B = 0, so the device is at CUTOFF and V_CE = V_CC. There is no collector current to swing.';
+    } else if (out.asym < 0.15) {
+      verdict = 'Almost symmetrical: the Q-point sits near the middle of the load line, so the output can swing ' +
+        fmt(out.limitV, 4) + ' V either way (' + fmt(out.maxSym, 4) + ' V peak-to-peak) before clipping.';
+    } else {
+      verdict = 'CLIPS ON THE ' + out.limiting.toUpperCase() + ' SIDE: the Q-point is off-centre, so the swing is limited by the ' +
+        out.limiting + ' intercept — only ' + fmt(out.limitV, 4) + ' V is available against ' +
+        fmt(Math.max(out.swingUp, out.swingDown), 4) + ' V on the other side. Maximum symmetrical output is 2 × ' + fmt(out.limitV, 4) + ' V.';
+    }
+    plot.text(verdict, 16, plot.h - 10,
+      { color: q.saturated || q.cutoff ? PALETTE.accent2 : (out.asym < 0.15 ? PALETTE.accent3 : PALETTE.warn),
+        font: 'bold 11px ui-monospace, monospace' });
+  },
+
+  readout: (out) => {
+    const q = out.q;
+    return {
+      'Q-point (V_CEQ, I_CQ)': '(' + fmt(q.Vce, 6) + ' V, ' + fmt(q.Ic * 1e3, 6) + ' mA)',
+      'device state': q.saturated ? 'SATURATED — β·I_B is not achievable' : q.cutoff ? 'CUTOFF — no base drive' : 'ACTIVE',
+      'I_C from β·I_B': fmt(out.beta * out.ib * 1e3, 6) + ' mA' +
+        (q.saturated ? '  ← larger than the load line allows' : '  ← matches the load line'),
+      'load-line intercepts': 'I_C(sat) = ' + fmt(out.IcSat * 1e3, 6) + ' mA at V_CE = 0;  V_CE(cutoff) = ' + fmt(out.Vcc, 4) + ' V at I_C = 0',
+      'load-line equation': 'I_C = (V_CC − V_CE)/(R_C + R_E) = (' + fmt(out.Vcc, 4) + ' − V_CE)/' + fmt(out.R, 4) + ' Ω',
+      'slope dI_C/dV_CE': fmt(-1 / out.R * 1e3, 5) + ' mA/V   ( = −1/(R_C+R_E) )',
+      'R_C + R_E': fmt(out.R / 1e3, 5) + ' kΩ' + (out.Re === 0 ? '   (CE stage: R_E = 0)' : ''),
+      'swing toward cutoff': fmt(out.swingUp, 6) + ' V   (up to V_CE = V_CC)',
+      'swing toward saturation': fmt(out.swingDown, 6) + ' V   (down to V_CE = V_CE(sat) = ' + fmt(out.vceSat, 3) + ' V)',
+      'limiting side': out.limiting.toUpperCase() + ' clips first',
+      'max symmetrical peak': fmt(out.limitV, 6) + ' V   = min(up, down)',
+      'max peak-to-peak': fmt(out.maxSym, 6) + ' V',
+      'asymmetry': fmt(out.asym * 100, 5) + ' %   (0 % = perfectly centred Q-point)',
+      'Q-point for symmetry': 'I_CQ = I_C(sat)/2 = ' + fmt(out.IcSat * 5e2, 5) + ' mA, i.e. V_CEQ = V_CC/2 = ' + fmt(out.Vcc / 2, 5) + ' V',
+      'small-signal gain estimate': 'A_v = −g_m R_C with g_m = I_CQ/V_T = ' + fmt(q.Ic / 0.025, 5) + ' S  →  A_v = ' + fmt(-(q.Ic / 0.025) * out.Rc, 5) + '   (CE, R_E unbypassed, source resistance ignored)',
+      'trap': 'V_CEQ and I_CQ must lie ON the load line — a Q-point off the line means β·I_B was used where it does not apply',
+    };
+  },
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The load line is the circuit\'s opinion; the characteristic is the device\'s opinion; the Q-point is where they agree.</strong> ' +
+  'The load line <code>I_C = (V_CC − V_CE)/(R_C + R_E)</code> depends only on the external resistors, so it does not move when you change β — ' +
+  'only the characteristic moves, and the Q-point slides <em>along</em> the fixed line. That is the single most useful mental picture for this topic. ' +
+  'Everything the board asks follows from it: saturation is the load-line intercept at <code>V_CE = 0</code>, where <code>I_C(sat) = V_CC/(R_C + R_E)</code>; ' +
+  'cutoff is the intercept at <code>I_C = 0</code>, where <code>V_CE = V_CC</code>; and the maximum symmetrical output swing is ' +
+  '<code>2 × min(V_CEQ − V_CE(sat), V_CC − V_CEQ)</code>. ' +
+  'The trap is assuming the Q-point sits halfway. It does so only when <code>I_CQ = I_C(sat)/2</code>; otherwise the smaller of the two distances sets the ' +
+  'swing and the amplifier clips asymmetrically — the output flattens on one side before the other, which is exactly what a distorted waveform looks like ' +
+  'on a scope and exactly what a question is testing when it says "the output clips on the positive peaks". ' +
+  'Two more things worth marks. First, <em>V_CE(sat) is not zero</em>: a saturated transistor still holds about 0.2–0.3 V, and ignoring it overstates the ' +
+  'downward swing. Second, <em>β·I_B is valid only in the active region</em> — if the intersection you compute lands at V_CE(sat), the base current is no ' +
+  'longer setting the collector current, the resistors are, and quoting β·I_B there is the classic half-mark answer.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

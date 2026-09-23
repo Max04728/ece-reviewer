@@ -1,0 +1,108 @@
+{
+  "scope": "Compute average and RMS output voltage, current and power of half-wave and full-wave phase-controlled rectifiers as a function of the firing angle, and rate the thyristors and free-wheeling path for inductive loads.",
+  "intuition": "A phase-controlled rectifier is an uncontrolled rectifier with a deliberate delay: the thyristor blocks until the AC source has risen to whatever level you choose, so you control the delivered voltage by throwing away the first slice of every half-cycle. Average voltage therefore falls monotonically from the full uncontrolled value at $\\alpha=0$ to zero at $\\alpha=180^\\circ$.",
+  "concept": [
+    "**The firing-angle convention and why the average voltage has that cosine form.** With $v_s=V_m\\sin\\omega t$ and the SCR gated at $\\alpha$, the load sees $v_s$ only from $\\omega t=\\alpha$ to $\\pi$ (half-wave) or to $\\pi+\\alpha$ (full-wave). The average of a sine over the remaining conduction window is $V_{avg}=\\dfrac{V_m}{2\\pi}(1+\\cos\\alpha)$ for one SCR and $V_{avg}=\\dfrac{V_m}{\\pi}(1+\\cos\\alpha)$ for a bridge, because the bridge delivers *two* identical pulses per cycle. Both expressions contain the whole design story: at $\\alpha=0$ the bracket is 2 and the half-wave value collapses to the familiar uncontrolled $V_m/\\pi$ (and the bridge to $2V_m/\\pi$), at $\\alpha=90^\\circ$ it is exactly 1 (half of full output), and at $\\alpha=180^\\circ$ it is 0. Angles are always in **degrees** on the board; the formula needs $\\alpha$ in radians only inside $\\sin(2\\alpha)$-type RMS expressions, so convert deliberately and never mix.",
+    "**RMS is the waveform that sets heating, and it does not fall as fast as the average.** Because the average is over a shortened window, the form factor rises sharply as $\\alpha$ increases: the same SCR that gives $V_{avg}=40.5\\ \\mathrm{V}$ at $\\alpha=60^\\circ$ has $V_{rms}=81.1\\ \\mathrm{V}$, a form factor near 2. This is why the load's $I^2R$ heating and the thyristor's own $I_{rms}^2R_{on}$ loss must use the RMS expressions $V_{rms}=V_m\\sqrt{\\dfrac{1}{2\\pi}\\left(\\pi-\\alpha+\\dfrac{\\sin 2\\alpha}{2}\\right)}$ for half-wave and $V_m\\sqrt{\\dfrac{1}{\\pi}\\left(\\pi-\\alpha+\\dfrac{\\sin2\\alpha}{2}\\right)}$ for the bridge, not the average. At $\\alpha=0$ the bridge square root becomes $\\sqrt{1}=1$, so $V_{rms}=V_m/\\sqrt2=V_{s,rms}$: with no delay the load sees the entire sine, which is a useful sanity check.",
+    "**Triggering and commutation.** The SCR is a latching device: a short gate pulse of a few tens of milliamperes (referenced to cathode) fires it, and it then stays on by itself until its anode current falls below the holding current $I_H$. In a line-commutated rectifier that happens naturally at the AC zero crossing, when the source voltage reverses and the current is forced to zero — this is **natural (line) commutation**, and it is why these circuits need no forced turn-off circuitry. The gate pulse must still be present at the right instant and, with an inductive load, must be either a wide pulse or a train of pulses, because the anode current may not have reached the latching current $I_L$ before a narrow pulse ends.",
+    "**Inductive loads and the free-wheeling diode.** With a purely resistive load the current falls to zero with the voltage at $\\omega t=\\pi$ and the SCR turns off. With a large inductance the current cannot stop instantly, so it keeps flowing past $\\pi$ (the load voltage goes negative) and the SCR stays on until the current itself reaches zero at the **extinction angle** $\\beta>\\pi$. That is why $V_{avg}$ for an RL load can be *lower* than the resistive formula, and why it can even go negative in inversion mode. Adding a **free-wheeling diode** across the load gives the inductor current a path that bypasses the source, so the current free-wheels through the diode while the load voltage is clamped to about one diode drop instead of a large negative value: the output never reverses, the average voltage is raised, the extra negative excursion is removed, and the SCR turns off cleanly at $\\pi$. Without it, an RL load both reduces the average output and makes the diode's own reverse recovery and the SCR's $dv/dt$ worse."
+  ],
+  "formulas": [
+    { "q": "Half-wave controlled average", "e": "V_{o,avg}=\\frac{V_m}{2\\pi}(1+\\cos\\alpha)", "n": "One SCR, resistive load, alpha in degrees. At alpha = 0 this is the uncontrolled V_m/pi; at 180 deg it is zero." },
+    { "q": "Full-wave (bridge) controlled average", "e": "V_{o,avg}=\\frac{V_m}{\\pi}(1+\\cos\\alpha)", "n": "Two pulses per cycle, exactly twice the half-wave value. At alpha = 0 it is 2 V_m/pi." },
+    { "q": "Half-wave controlled RMS", "e": "V_{o,rms}=V_m\\sqrt{\\frac{1}{2\\pi}\\left(\\pi-\\alpha+\\frac{\\sin 2\\alpha}{2}\\right)}", "n": "alpha inside sin(2 alpha) must be in radians. Use this for load I^2R heating and for SCR loss, never the average." },
+    { "q": "Full-wave controlled RMS", "e": "V_{o,rms}=V_m\\sqrt{\\frac{1}{\\pi}\\left(\\pi-\\alpha+\\frac{\\sin 2\\alpha}{2}\\right)}", "n": "Bridge. At alpha = 0 the root is 1, so V_rms = V_m/sqrt(2) = the source rms; a quick check that the formula is right." },
+    { "q": "RMS output current", "e": "I_{o,rms}=\\frac{V_{o,rms}}{R_L}", "n": "Resistive load. This, not the average, sets the load power P = I_rms^2 R_L and the SCR conduction loss I_rms^2 R_on; with an RL load replace R_L by the load impedance magnitude." },
+    { "q": "Form factor", "e": "FF=\\frac{V_{o,rms}}{V_{o,avg}}=\\sqrt{\\pi\\left(\\frac{\\pi-\\alpha+\\frac{\\sin2\\alpha}{2}}{1+\\cos\\alpha}\\right)}", "n": "For a half-wave SCR with a resistive load. It grows without bound as alpha approaches 180 deg, so a meter reading average badly misstates heating." },
+    { "q": "SCR peak reverse voltage", "e": "PIV=V_m", "n": "Half-wave and bridge alike see V_m in the reverse direction (bridge: each of the two conducting devices blocks V_m; the bridge pair PIV is V_m, the centre-tap is 2 V_m)." },
+    { "q": "Continuous-current RL average", "e": "V_{o,avg}=\\frac{V_m\\cos\\alpha}{\\pi}\\ \\ (\\beta=\\pi+\\alpha)", "n": "Half-wave converter with the current smoothed to a constant I_d and no free-wheeling diode. At alpha = 120 deg this is -27.0 V, so the average reverses and the converter inverts." },
+    { "q": "Free-wheeling diode effect", "e": "V_{o,avg}=\\frac{V_m}{2\\pi}(1+\\cos\\alpha),\\ \\ \\beta=\\pi", "n": "The free-wheeling diode clamps the load voltage at about 0.7 V so it never reverses, restores the resistive-formula average, and lets the SCR commutate at the zero crossing." }
+  ],
+  "problems": [
+    {
+      "prompt": "A half-wave SCR rectifier is fed from $120\\ \\mathrm{V}$ rms, 60 Hz and drives a $50\\ \\Omega$ resistor. The SCR is fired at $\\alpha=60^\\circ$. Find $V_m$, $V_{o,avg}$, $V_{o,rms}$, the average and RMS load current, and the load power.",
+      "give": ["V_s,rms = 120 V", "f = 60 Hz", "R_L = 50 Ohm", "alpha = 60 deg"],
+      "steps": [
+        "Peak: $V_m=\\sqrt2(120)=169.7\\ \\mathrm{V}$.",
+        "Average: $V_{o,avg}=\\dfrac{169.7}{2\\pi}(1+\\cos60^\\circ)=\\dfrac{169.7}{6.283}(1.5)=27.01(1.5)=40.5\\ \\mathrm{V}$.",
+        "RMS: $\\pi-\\alpha+\\dfrac{\\sin2\\alpha}{2}$ with $\\alpha=1.0472\\ \\mathrm{rad}$ gives $3.1416-1.0472+\\dfrac{\\sin120^\\circ}{2}=2.0944+0.4330=2.5274$; divide by $2\\pi$ to get $0.40225$, take the root: $0.6342$.",
+        "So $V_{o,rms}=169.7(0.6342)=107.6\\ \\mathrm{V}$.",
+        "Currents: $I_{avg}=40.5/50=0.810\\ \\mathrm{A}$ and $I_{rms}=107.6/50=2.152\\ \\mathrm{A}$.",
+        "Load power: $P=I_{rms}^2R_L=(2.152)^2(50)=231.6\\ \\mathrm{W}$, which is much more than $V_{avg}I_{avg}=32.8\\ \\mathrm{W}$."
+      ],
+      "ans": "$V_m=169.7\\ \\mathrm{V}$; $V_{o,avg}=40.5\\ \\mathrm{V}$; $V_{o,rms}=107.6\\ \\mathrm{V}$; $I_{avg}=0.810\\ \\mathrm{A}$; $I_{rms}=2.15\\ \\mathrm{A}$; $P=232\\ \\mathrm{W}$.",
+      "trap": "Computing the load power as $V_{avg}I_{avg}=32.8\\ \\mathrm{W}$. The resistor heats on the RMS waveform, so the correct value is $232\\ \\mathrm{W}$ — a factor of 7 error at $\\alpha=60^\\circ$, and far worse at larger $\\alpha$."
+    },
+    {
+      "prompt": "Repeat for a full-wave bridge controlled rectifier on the same $120\\ \\mathrm{V}$ rms source, $50\\ \\Omega$ load, $\\alpha=60^\\circ$. Find $V_{o,avg}$, $V_{o,rms}$ and the power, and compare with the half-wave results.",
+      "give": ["V_s,rms = 120 V", "V_m = 169.7 V", "R_L = 50 Ohm", "alpha = 60 deg", "bridge (full-wave)"],
+      "steps": [
+        "Average is double the half-wave case: $V_{o,avg}=\\dfrac{169.7}{\\pi}(1+\\cos60^\\circ)=54.02(1.5)=81.0\\ \\mathrm{V}$.",
+        "RMS bracket: divide 2.5274 by $\\pi$ instead of $2\\pi$ to get $0.80450$; the root is $0.8969$.",
+        "$V_{o,rms}=169.7(0.8969)=152.2\\ \\mathrm{V}$.",
+        "Currents: $I_{avg}=81.0/50=1.620\\ \\mathrm{A}$; $I_{rms}=152.2/50=3.044\\ \\mathrm{A}$.",
+        "Power: $P=(3.044)^2(50)=463.3\\ \\mathrm{W}$, and each SCR carries $I_{avg}/2=0.810\\ \\mathrm{A}$ average."
+      ],
+      "ans": "$V_{o,avg}=81.0\\ \\mathrm{V}$, $V_{o,rms}=152.2\\ \\mathrm{V}$, $I_{rms}=3.04\\ \\mathrm{A}$, $P=463\\ \\mathrm{W}$; the bridge delivers exactly twice the half-wave average voltage at the same firing angle.",
+      "trap": "Using the half-wave formula for the bridge (getting 40.5 V instead of 81.0 V), or dividing the bridge RMS by $2\\pi$ instead of $\\pi$. The bridge produces two identical pulses per cycle, so both average and RMS formulas double relative to the single-SCR case."
+    },
+    {
+      "prompt": "For the full-wave bridge above, find the power dissipated in each SCR if its on-state drop is modelled by $R_{on}=0.05\\ \\Omega$, and check the average device current against its average rating.",
+      "give": ["I_rms(load) = 3.044 A", "R_on = 0.05 Ohm per SCR", "I_avg(load) = 1.620 A"],
+      "steps": [
+        "Each SCR conducts one half-cycle of the pair pattern; for a bridge with a resistive load the device RMS current is $I_{rms}/\\sqrt2=3.044/1.414=2.152\\ \\mathrm{A}$.",
+        "Conduction loss: $P_{SCR}=I_{SCR,rms}^2R_{on}=(2.152)^2(0.05)=0.2316\\ \\mathrm{W}$ per device.",
+        "Average device current: $I_{SCR,avg}=1.620/2=0.810\\ \\mathrm{A}$.",
+        "Total SCR loss in the bridge is $4(0.232)=0.93\\ \\mathrm{W}$ (or $2\\times0.232$ if two devices share each conduction path), negligible next to the $463\\ \\mathrm{W}$ load."
+      ],
+      "ans": "About $0.232\\ \\mathrm{W}$ per SCR, $0.810\\ \\mathrm{A}$ average per device — the losses are small, but they set the heatsink requirement and the loss scales with $I_{rms}^2$, not with the average.",
+      "trap": "Using the load average current $1.62\\ \\mathrm{A}$ in $I^2R$ to get $0.131\\ \\mathrm{W}$, or forgetting that PWM/phase-controlled RMS currents are much larger than average. The loss is 76 percent too low in this case, and the error grows as $\\alpha$ increases."
+    },
+    {
+      "prompt": "A half-wave SCR with a *very large* inductance (so the current is essentially constant, $I_d$) and negligible resistance is fired at $\\alpha=120^\\circ$. Explain why the extinction angle is no longer $180^\\circ$, then find $V_{o,avg}$ for $V_m=169.7\\ \\mathrm{V}$. What does the free-wheeling diode change?",
+      "give": ["V_m = 169.7 V", "alpha = 120 deg", "L very large, R negligible (I_d constant)"],
+      "steps": [
+        "First apply the resistive formula as a reference: $V_{o,avg}=\\dfrac{169.7}{2\\pi}(1+\\cos120^\\circ)=\\dfrac{169.7}{6.283}(1-0.5)=27.01(0.5)=13.5\\ \\mathrm{V}$.",
+        "That value assumes the SCR stops conducting at $\\omega t=\\pi$. With a large inductance the current cannot stop there, so the SCR stays on through a negative half-cycle of source voltage until the current itself reaches zero: the extinction angle is $\\beta=\\pi+\\alpha$, and the load voltage is negative from $\\pi$ to $\\pi+\\alpha$.",
+        "Re-integrate over the real window: $V_{o,avg}=\\dfrac{1}{2\\pi}\\displaystyle\\int_{\\alpha}^{\\pi+\\alpha}V_m\\sin\\omega t\\,d(\\omega t)=\\dfrac{V_m}{2\\pi}\\left[-\\cos\\omega t\\right]_{\\alpha}^{\\pi+\\alpha}=\\dfrac{V_m}{2\\pi}(\\cos\\alpha+\\cos\\alpha)=\\dfrac{V_m\\cos\\alpha}{\\pi}$.",
+        "Numerically $V_{o,avg}=\\dfrac{169.7\\cos120^\\circ}{\\pi}=\\dfrac{-84.85}{\\pi}=-27.0\\ \\mathrm{V}$: with the current still positive the converter delivers *negative* average voltage, which is inversion (power flowing from the DC side back to the AC source).",
+        "Adding the free-wheeling diode clamps the load voltage at about $0.7\\ \\mathrm{V}$ (never negative), removes the negative excursion, and the average returns to the $13.5\\ \\mathrm{V}$ of the resistive formula, with the SCR turning off cleanly at $\\pi$."
+      ],
+      "ans": "$V_{o,avg}=+13.5\\ \\mathrm{V}$ with a free-wheeling diode (the SCR turns off at $180^\\circ$); with continuous inductor current and no free-wheeling path the extinction angle is $\\beta=\\pi+\\alpha$ and $V_{o,avg}=V_m\\cos\\alpha/\\pi=-27.0\\ \\mathrm{V}$ (inversion).",
+      "trap": "Applying the $\\frac{V_m}{2\\pi}(1+\\cos\\alpha)$ formula to an inductive load without checking the extinction angle. With large $L$ and no free-wheeling diode the current persists to $\\beta=\\pi+\\alpha$, so at $\\alpha=120^\\circ$ the true average is $V_m\\cos\\alpha/\\pi=-27.0\\ \\mathrm{V}$, not $+13.5\\ \\mathrm{V}$ — the sign itself is wrong."
+    },
+    {
+      "prompt": "A single-phase half-wave controlled rectifier must deliver $V_{o,avg}=60\\ \\mathrm{V}$ to a resistive load from a $230\\ \\mathrm{V}$ rms, 50 Hz supply. Find the required firing angle and the extinction angle if the load becomes inductive and the current stays continuous.",
+      "give": ["V_s,rms = 230 V", "V_o,avg required = 60 V", "R_L resistive (then inductive)"],
+      "steps": [
+        "$V_m=\\sqrt2(230)=325.3\\ \\mathrm{V}$.",
+        "Uncontrolled half-wave average would be $V_m/\\pi=103.5\\ \\mathrm{V}$, so $60\\ \\mathrm{V}$ needs delay.",
+        "Solve $60=\\dfrac{325.3}{2\\pi}(1+\\cos\\alpha)$: $1+\\cos\\alpha=\\dfrac{60(6.2832)}{325.3}=1.159$, so $\\cos\\alpha=0.159$.",
+        "$\\alpha=\\arccos(0.159)=80.9^\\circ$, a late firing that leaves about 99 degrees of conduction.",
+        "For a resistive load the conduction ends at $180^\\circ$; with an inductive load and no free-wheeling diode the extinction angle extends beyond $180^\\circ$ and the average drops below $60\\ \\mathrm{V}$, so re-trigger earlier or add the free-wheeling diode."
+      ],
+      "ans": "$\\alpha\\approx80.9^\\circ$; extinction stays at $180^\\circ$ for a resistive load but moves past it for an inductive one, which lowers the delivered average.",
+      "trap": "Solving for $\\alpha$ in radians and reporting $1.41$ instead of $80.9^\\circ$, or forgetting to double-check the answer against the uncontrolled value $V_m/\\pi=103.5\\ \\mathrm{V}$ — a firing angle of $80.9^\\circ$ should give roughly 58 percent of full output, and $60/103.5=0.58$ confirms it."
+    }
+  ],
+  "traps": [
+    "**Using the average voltage to find the load power.** At $\\alpha=60^\\circ$ a $50\\ \\Omega$ load from $120\\ \\mathrm{V}$ rms has $V_{avg}=40.5\\ \\mathrm{V}$ and $V_{rms}=107.6\\ \\mathrm{V}$; the power is $232\\ \\mathrm{W}$, not $V_{avg}I_{avg}=32.8\\ \\mathrm{W}$ — a factor of seven.",
+    "**Halving the bridge formula.** $V_{o,avg}=\\frac{V_m}{\\pi}(1+\\cos\\alpha)$ is the *bridge*; a single SCR uses the $2\\pi$ denominator. Mixing them gives exactly a factor-of-two error in every problem.",
+    "**Ignoring the extinction angle with an RL load.** Above $\\alpha=90^\\circ$ an RL load without a free-wheeling diode drives $V_{o,avg}$ toward and past zero (inversion), so the resistive formula overstates the output by a large margin: at $\\alpha=120^\\circ$ with $V_m=169.7\\ \\mathrm{V}$ the resistive formula gives $+13.5\\ \\mathrm{V}$ while the fully smoothed current gives $V_m\\cos\\alpha/\\pi=-27.0\\ \\mathrm{V}$ — the sign is wrong, not just the magnitude.",
+    "**Converting $\\alpha$ for the $\\sin2\\alpha$ term incorrectly.** The RMS formulas need radians inside $\\sin2\\alpha$: $\\alpha=60^\\circ$ is $1.0472$ rad and $\\sin120^\\circ=0.866$, but typing $\\sin(2\\times60)=0.745$ (degrees-mode calculator) gives $V_{rms}=104.6\\ \\mathrm{V}$ instead of $107.6\\ \\mathrm{V}$.",
+    "**Forgetting that a narrow gate pulse may not latch.** The anode current must exceed the latching current $I_L$ before the pulse ends; a $1\\ \\mu\\mathrm{s}$ spike driving a highly inductive load can fail to fire the SCR and produce a random half-cycle dropout, so use a wide pulse or a pulse train.",
+    "**Assuming the SCR turns off when the gate signal stops.** An SCR has no gate turn-off: once anode current exceeds the holding current $I_H$, removing the gate does nothing, and with continuous inductive current the device only stops at natural commutation or when the current is interrupted."
+  ],
+  "refs": [
+    "[[01_Power_Switches_MOSFET,_IGBT,_GTO,_TRIAC]]",
+    "[[13_Thyristors_UJT,_SCR,_DIAC,_TRIAC]]",
+    "[[05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge]]",
+    "[[06_Filters,_Ripple_Factor_and_PIV]]",
+    "[[09_Linear_Voltage_Regulators]]",
+    "[[08_PWM_Techniques]]"
+  ],
+  "prereqs": [
+    "[[05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge]]",
+    "[[02_Phasors_and_Complex_Impedance]]"
+  ]
+}

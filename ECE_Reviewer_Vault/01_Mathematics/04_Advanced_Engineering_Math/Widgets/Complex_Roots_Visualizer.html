@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complex Roots Visualizer — n-th Roots and the Complex Quadratic</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE, deg, rad } from '../../../Assets/vault.js';
+
+// Two facts the board exam keeps testing, drawn once: (1) the n-th roots of a complex number
+// sit at the vertices of a REGULAR n-gon on a circle of radius r^(1/n), separated by exactly
+// 360/n degrees; (2) they sum to zero. The polygon and the summed-vector readout make both
+// visible at a glance, and the roots are printed in both polar and rectangular form because
+// the exam usually wants rectangular and the intuition lives in polar.
+
+// ---------------------------------------------------------------------------
+// complex arithmetic
+// ---------------------------------------------------------------------------
+function cAdd(a, b) { return { re: a.re + b.re, im: a.im + b.im }; }
+function cSub(a, b) { return { re: a.re - b.re, im: a.im - b.im }; }
+function cMul(a, b) { return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }; }
+function cDiv(a, b) {
+  const d = b.re * b.re + b.im * b.im;
+  if (d < 1e-300) return { re: NaN, im: NaN };
+  return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d };
+}
+function cAbs(a) { return Math.hypot(a.re, a.im); }
+function cArg(a) { return Math.atan2(a.im, a.re); }
+
+/** Principal complex square root, exact on the real axis including the negative half. */
+function cSqrt(w) {
+  if (w.im === 0) {
+    if (w.re >= 0) return { re: Math.sqrt(w.re), im: 0 };
+    return { re: 0, im: Math.sqrt(-w.re) };
+  }
+  const m = Math.hypot(w.re, w.im);
+  const re = Math.sqrt(Math.max(0, (m + w.re) / 2));
+  const im = (w.im > 0 ? 1 : -1) * Math.sqrt(Math.max(0, (m - w.re) / 2));
+  return { re, im };
+}
+
+function rect(z) {
+  const im = Math.abs(z.im);
+  if (im < 1e-10) return fmt(z.re, 5);
+  return fmt(z.re, 5) + (z.im >= 0 ? ' + j' : ' - j') + fmt(im, 5);
+}
+function polar(z) {
+  return fmt(cAbs(z), 5) + ' \u2220 ' + fmt(deg(cArg(z)), 5) + '\u00b0';
+}
+function roundZ(z) {
+  const s = Math.max(1, cAbs(z));
+  return { re: Math.abs(z.re) < s * 1e-12 ? 0 : z.re, im: Math.abs(z.im) < s * 1e-12 ? 0 : z.im };
+}
+
+widget({
+  title: 'Complex Roots Visualizer — n-th Roots and the Complex Quadratic',
+  description:
+    'Mode 1 plots the n roots of z^n = Z, where Z has modulus r and argument theta: they are equally spaced by 360/n degrees on a circle of radius r^(1/n) and form a regular n-gon whose vector sum is zero. Mode 2 solves a quadratic with fully complex coefficients and shows where the two roots sit and what they sum and multiply to.',
+  height: 470,
+  range: { xMin: -4, xMax: 4, yMin: -4, yMax: 4 },
+  controls: [
+    { id: 'mode', label: 'problem type', type: 'select', options: [
+      { value: 'nth', label: 'n-th roots of z^n = Z' },
+      { value: 'quad', label: 'quadratic  a z^2 + b z + c = 0  (complex coefficients)' },
+    ], value: 'nth' },
+    { id: 'r', label: 'r  — modulus of Z  (n-th-roots mode)', min: 0.2, max: 8, step: 0.1, value: 1 },
+    { id: 'theta', label: 'theta  — argument of Z (degrees)', min: -180, max: 180, step: 5, value: 0 },
+    { id: 'n', label: 'n  — number of roots', min: 2, max: 12, step: 1, value: 3 },
+    { id: 'aRe', label: 'a  real part', min: -4, max: 4, step: 0.25, value: 1 },
+    { id: 'aIm', label: 'a  imaginary part', min: -4, max: 4, step: 0.25, value: 0 },
+    { id: 'bRe', label: 'b  real part', min: -4, max: 4, step: 0.25, value: 0 },
+    { id: 'bIm', label: 'b  imaginary part', min: -4, max: 4, step: 0.25, value: 0 },
+    { id: 'cRe', label: 'c  real part', min: -4, max: 4, step: 0.25, value: 1 },
+    { id: 'cIm', label: 'c  imaginary part', min: -4, max: 4, step: 0.25, value: 0 },
+  ],
+
+  compute: (v) => {
+    const n = Math.max(2, Math.round(v.n));
+    const r = Math.max(1e-6, v.r);
+    const th = rad(v.theta);
+    const Z = { re: r * Math.cos(th), im: r * Math.sin(th) };
+
+    let roots = [];
+    let sum = { re: 0, im: 0 };
+    let prod = { re: 1, im: 0 };
+    let headline = '';
+    let subline = '';
+    let modulus = 1;
+    let spacingDeg = 360 / n;
+    let sideLen = 0;
+    let nature = '';
+
+    if (v.mode === 'nth') {
+      const M = Math.pow(r, 1 / n);
+      const base = cArg(Z) / n;
+      for (let k = 0; k < n; k++) {
+        const ang = base + (2 * Math.PI * k) / n;
+        roots.push(roundZ({ re: M * Math.cos(ang), im: M * Math.sin(ang) }));
+      }
+      for (const z of roots) sum = cAdd(sum, z);
+      for (const z of roots) prod = cMul(prod, z);
+      modulus = M;
+      sideLen = 2 * M * Math.sin(Math.PI / n);
+      spacingDeg = 360 / n;
+      headline = 'z^' + n + ' = Z,  Z = ' + fmt(r, 5) + ' \u2220 ' + fmt(v.theta, 5) + '\u00b0';
+      subline = 'z_k = r^(1/n) \u2220 (theta + 360k)/n,  k = 0..' + (n - 1) +
+                '     r^(1/n) = ' + fmt(r, 5) + '^(1/' + n + ') = ' + fmt(M, 5);
+      nature = 'the ' + n + ' roots are the vertices of a REGULAR ' + n + '-gon on a circle of radius ' +
+               fmt(M, 5) + ', spaced exactly ' + fmt(spacingDeg, 5) + ' degrees apart';
+    } else {
+      const A = { re: v.aRe, im: v.aIm };
+      const B = { re: v.bRe, im: v.bIm };
+      const C = { re: v.cRe, im: v.cIm };
+      const aMag = cAbs(A);
+      const bMag = cAbs(B);
+      if (aMag < 1e-9 && bMag < 1e-9) {
+        roots = [];
+        nature = 'degenerate: a = 0 and b = 0, so this is not an equation in z';
+        headline = 'a z^2 + b z + c = 0 with a = b = 0';
+        subline = 'no roots exist';
+      } else if (aMag < 1e-9) {
+        roots = [roundZ(cDiv({ re: -C.re, im: -C.im }, B))];
+        nature = 'a = 0: the equation is linear, so there is exactly one finite root';
+        headline = 'a z^2 + b z + c = 0 with a = 0  \u2192  b z + c = 0';
+        subline = 'z = -c/b = ' + rect(roots[0] === undefined ? { re: NaN, im: NaN } : roots[0]);
+      } else {
+        const disc = cSub(cMul(B, B), cMul({ re: 4, im: 0 }, cMul(A, C)));
+        const sq = cSqrt(disc);
+        const twoA = cMul({ re: 2, im: 0 }, A);
+        const mB = { re: -B.re, im: -B.im };
+        roots = [roundZ(cDiv(cAdd(mB, sq), twoA)), roundZ(cDiv(cSub(mB, sq), twoA))];
+        const dIm = Math.abs(disc.im) < 1e-9;
+        if (dIm && disc.re > 1e-9) nature = 'discriminant is real and positive: two distinct real roots';
+        else if (dIm && Math.abs(disc.re) <= 1e-9) nature = 'discriminant is zero: one repeated (double) root';
+        else if (dIm && disc.re < 0) nature = 'discriminant is real and negative: a complex-conjugate pair';
+        else nature = 'discriminant is genuinely complex: the two roots are NOT conjugates';
+        headline = 'a z^2 + b z + c = 0,   a = ' + rect(A) + ',  b = ' + rect(B) + ',  c = ' + rect(C);
+        subline = 'z = ( -b +/- sqrt(b^2 - 4ac) ) / (2a)     discriminant b^2 - 4ac = ' + rect(disc);
+      }
+      for (const z of roots) sum = cAdd(sum, z);
+      prod = { re: 1, im: 0 };
+      for (const z of roots) prod = cMul(prod, z);
+      modulus = roots.length ? Math.max.apply(null, roots.map(cAbs)) : 1;
+    }
+
+    // exact identities the exam asks for
+    const sumTheory = v.mode === 'nth'
+      ? { re: 0, im: 0 }
+      : (cAbs({ re: v.aRe, im: v.aIm }) > 1e-9
+          ? cDiv({ re: -v.bRe, im: -v.bIm }, { re: v.aRe, im: v.aIm })
+          : { re: NaN, im: NaN });
+    const prodTheory = v.mode === 'nth'
+      ? { re: (n % 2 ? 1 : -1) * Z.re, im: (n % 2 ? 1 : -1) * Z.im }
+      : (cAbs({ re: v.aRe, im: v.aIm }) > 1e-9
+          ? cDiv({ re: v.cRe, im: v.cIm }, { re: v.aRe, im: v.aIm })
+          : { re: NaN, im: NaN });
+
+    return { mode: v.mode, n, r, theta: v.theta, Z, roots, sum, prod, sumTheory, prodTheory,
+             headline, subline, nature, modulus, spacingDeg, sideLen,
+             rootRect: roots.map(rect).join('   ;   '),
+             rootPolar: roots.map(polar).join('   ;   '),
+             sumMag: cAbs(sum) };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    plot.clear();
+    const roots = out.roots || [];
+    const pad = plot.pad;
+
+    // -------------------------------------------------------------- Argand frame
+    const cx = 250, cy = 248, RPix = 130;
+    const Rmax = Math.max(0.5, out.modulus * 1.25, cAbs(out.Z) * 1.25);
+    const K = RPix / Rmax;
+    const X = (re) => cx + re * K;
+    const Y = (im) => cy - im * K;
+
+    const seg = (x1, y1, x2, y2, o) => {
+      ctx.save();
+      ctx.strokeStyle = o.color || PALETTE.axis;
+      ctx.lineWidth = o.width || 1.5;
+      if (o.dash) ctx.setLineDash(o.dash);
+      ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke();
+      ctx.restore();
+    };
+    const dotAt = (x, y, rr, color) => {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(X(x), Y(y), rr, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    };
+    const arrow = (x1, y1, x2, y2, color, w) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = w;
+      ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke();
+      const px = X(x2), py = Y(y2);
+      const ang = Math.atan2(py - Y(y1), px - X(x1));
+      const hl = 9;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(px - hl * Math.cos(ang - 0.42), py - hl * Math.sin(ang - 0.42));
+      ctx.lineTo(px - hl * Math.cos(ang + 0.42), py - hl * Math.sin(ang + 0.42));
+      ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+      ctx.restore();
+    };
+
+    // grid
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid; ctx.lineWidth = 1;
+    for (let k = -6; k <= 6; k++) {
+      const g = k * Math.max(0.5, Math.round(Rmax / 3));
+      if (Math.abs(g) > Rmax) continue;
+      ctx.beginPath(); ctx.moveTo(X(g), Y(-Rmax)); ctx.lineTo(X(g), Y(Rmax)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(-Rmax), Y(g)); ctx.lineTo(X(Rmax), Y(g)); ctx.stroke();
+    }
+    ctx.restore();
+
+    // axes
+    seg(-Rmax, 0, Rmax, 0, { color: PALETTE.axis, width: 1.6 });
+    seg(0, -Rmax, 0, Rmax, { color: PALETTE.axis, width: 1.6 });
+    plot.text('Re', X(Rmax) - 2, Y(0) + 15, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+    plot.text('Im', X(0) + 6, Y(Rmax) + 4, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // unit circle for scale, and the root circle
+    ctx.save();
+    ctx.strokeStyle = 'rgba(160,160,190,0.30)';
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.arc(cx, cy, K, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = 'rgba(203,166,247,0.85)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(cx, cy, out.modulus * K, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    plot.text('|z| = 1', cx + K * 0.72, cy - K * 0.72, { color: 'rgba(180,180,205,0.85)', font: '10px ui-monospace, monospace' });
+    plot.text('|z| = ' + fmt(out.modulus, 4), cx, cy - out.modulus * K - 8,
+      { color: PALETTE.accent5, font: '10px ui-monospace, monospace', align: 'center' });
+
+    // the source vector Z (n-th-roots mode only)
+    if (out.mode === 'nth') {
+      arrow(0, 0, out.Z.re, out.Z.im, PALETTE.warn, 2.2);
+      plot.text('Z', X(out.Z.re) + 8, Y(out.Z.im) - 6, { color: PALETTE.warn, font: 'bold 12px ui-monospace, monospace' });
+    }
+
+    // the regular polygon through the roots
+    if (roots.length >= 2) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(137,180,250,0.85)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let k = 0; k < roots.length; k++) {
+        const p = roots[k];
+        if (k === 0) ctx.moveTo(X(p.re), Y(p.im)); else ctx.lineTo(X(p.re), Y(p.im));
+      }
+      ctx.closePath(); ctx.stroke();
+      ctx.restore();
+    }
+
+    // root vectors + markers
+    for (let k = 0; k < roots.length; k++) {
+      const p = roots[k];
+      ctx.save();
+      ctx.strokeStyle = 'rgba(166,227,161,0.55)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(p.re), Y(p.im)); ctx.stroke();
+      ctx.restore();
+      dotAt(p.re, p.im, 4.5, PALETTE.accent3);
+      if (roots.length <= 8) {
+        plot.text('z' + k, X(p.re) + 7, Y(p.im) - 7, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+      }
+    }
+    dotAt(0, 0, 3, PALETTE.text);
+
+    // -------------------------------------------------------------- right column
+    const TX = 420;
+    plot.text(out.headline || '', TX, pad + 20, { color: PALETTE.text, font: 'bold 12px ui-monospace, monospace' });
+    plot.text(out.subline || '', TX, pad + 38, { color: PALETTE.accent, font: '11px ui-monospace, monospace' });
+    plot.text('roots in rectangular form:', TX, pad + 62, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    const shown = Math.min(roots.length, 8);
+    for (let k = 0; k < shown; k++) {
+      plot.text('z' + k + ' = ' + rect(roots[k]) + '   =   ' + polar(roots[k]),
+        TX + 8, pad + 80 + k * 17, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    }
+    if (roots.length > shown) {
+      plot.text('... plus ' + (roots.length - shown) + ' more, all on the same circle',
+        TX + 8, pad + 80 + shown * 17, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    }
+    const yBase = pad + 96 + shown * 17;
+    plot.text('sum  = ' + rect(out.sum) + '   (exact value ' + rect(out.sumTheory) + ')',
+      TX, yBase, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+    plot.text('prod = ' + rect(out.prod) + '   (exact value ' + rect(out.prodTheory) + ')',
+      TX, yBase + 17, { color: PALETTE.accent4, font: '11px ui-monospace, monospace' });
+    plot.text('spacing = 360/n = ' + fmt(out.spacingDeg, 5) + '\u00b0' +
+      (out.mode === 'nth' ? '     side of the n-gon = 2 r^(1/n) sin(pi/n) = ' + fmt(out.sideLen, 5) : ''),
+      TX, yBase + 34, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // -------------------------------------------------------------- verdict bar
+    ctx.save();
+    ctx.fillStyle = 'rgba(39,39,58,0.92)';
+    ctx.fillRect(pad + 4, plot.h - pad - 32, plot.iw, 32);
+    ctx.restore();
+    plot.text(out.nature || '', pad + 14, plot.h - pad - 11,
+      { color: PALETTE.warn, font: 'bold 12px ui-monospace, monospace' });
+  },
+
+  readout: (out) => ({
+    'problem': out.mode === 'nth' ? 'n-th roots of a complex number' : 'quadratic with complex coefficients',
+    'roots (rectangular)': out.rootRect || '—',
+    'roots (polar)': out.rootPolar || '—',
+    'number of roots': String((out.roots || []).length),
+    'spacing angle 360/n': out.mode === 'nth' ? fmt(out.spacingDeg, 6) + '\u00b0   (2\u03c0/n = ' + fmt(2 * Math.PI / out.n, 6) + ' rad)' : 'n/a',
+    'radius of the root circle': out.mode === 'nth' ? fmt(out.modulus, 6) + '   = r^(1/n)' : 'n/a',
+    'regular n-gon side length': out.mode === 'nth' ? fmt(out.sideLen, 6) : 'n/a',
+    'sum of roots': rect(out.sum) + '   (theory ' + rect(out.sumTheory) + ')',
+    'product of roots': rect(out.prod) + '   (theory ' + rect(out.prodTheory) + ')',
+    'sum magnitude (should be 0)': fmt(out.sumMag, 4) + '   \u2014 floating-point residual only',
+    'nature of the roots': out.nature || '—',
+    'substituted equation': out.headline || '—',
+  }),
+});
+
+// ---------------------------------------------------------------- closing note
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>De Moivre is the whole widget.</strong> The n roots of Z = r&ang;&theta; are ' +
+  '<code>z_k = r^(1/n) &ang; (&theta; + 360&deg;k)/n</code>. The modulus is the <em>n-th root</em> of r ' +
+  '(not r), and the angles are the n-th part of &theta; plus multiples of 360/n &mdash; which is exactly ' +
+  'why the roots are the vertices of a regular n-gon. Their vector sum is zero because the n unit vectors ' +
+  'are symmetrically placed; their product is (&minus;1)^(n+1) Z. ' +
+  '<br><br><strong>Exam mistake prevented:</strong> forgetting the +360&deg;k and reporting only the principal ' +
+  'root (a very common half-mark answer), and pulling the modulus out as r instead of r^(1/n) &mdash; for ' +
+  'z^3 = 8 that gives 8, 8&ang;120&deg;, 8&ang;240&deg; instead of the correct 2, 2&ang;120&deg;, 2&ang;240&deg;. ' +
+  'For the quadratic, the second trap: with genuinely complex coefficients the two roots are <em>not</em> ' +
+  'conjugates, so the shortcut "roots come in conjugate pairs" only holds when a, b and c are all real &mdash; ' +
+  'check the imaginary parts of the coefficients before you use it.';
+document.getElementById('app').appendChild(note);
+</script>
+</body>
+</html>

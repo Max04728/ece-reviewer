@@ -1,0 +1,162 @@
+{
+  "scope": "Solve a network for every node voltage by writing one KCL equation per non-reference node, using a supernode when a floating voltage source blocks the count.",
+  "intuition": "Nodal analysis picks one node as the zero-volt reference and treats every other node voltage as the unknown. KCL at each node says the currents leaving through resistors must equal the currents injected by sources — and each of those currents is just a node-voltage difference divided by a resistance.",
+  "concept": [
+    "**The node-voltage idea.** Ground one node (call its voltage zero). Every other node gets an unknown voltage measured from that reference. Branch currents then follow from Ohm's law as $(v_a - v_b)/R$, so KCL at each non-reference node becomes a linear equation in the node voltages. KVL is satisfied automatically because a node voltage is a potential and differences around any loop cancel. A network with $n$ non-reference nodes needs exactly $n$ equations.",
+    "**Writing the equations.** At node $a$, sum the currents *leaving* through every resistor and set that equal to the current injected by the sources: $\\sum_k (v_a - v_k)/R_{ak} = \\sum I_{\\mathrm{into\\ }a}$. Collecting terms gives the standard form $G_{aa}v_a - \\sum_{b\\neq a} G_{ab}v_b = I_a$, where the self-conductance $G_{aa}$ is the sum of every conductance touching node $a$ and the mutual conductance $G_{ab}$ is the conductance directly between $a$ and $b$. The conductance matrix is symmetric and its diagonal is positive — a useful sanity check.",
+    "**Current sources and voltage sources are treated differently.** Ideal current sources contribute directly to the right-hand side: an arrow into the node is $+I$, an arrow out is $-I$. An ideal voltage source connected to the reference *removes* an unknown — that node voltage is simply the source value (with its polarity). An ideal voltage source floating between two non-reference nodes is the hard case and needs a supernode.",
+    "**The supernode.** When a voltage source sits between two non-reference nodes, its current is unknown and cannot be written as a node-voltage difference. Draw a closed surface around the source and both of its nodes — that surface is a *supernode*. Write one KCL equation summing all currents leaving the supernode through the resistors (the source branch is inside the surface and its current cancels), then add the one algebraic constraint the source supplies: $v_a - v_b = V_s$ with the sign taken from the source's polarity. Two nodes, two equations.",
+    "**Reference-node choice matters for arithmetic only.** Any node can be ground; the branch currents and voltages come out identical. Choosing the node with the most branches as the reference usually produces the smallest, cleanest system.",
+    "**When nodal analysis is the wrong tool.** It is clumsy for a network that is a long chain of series loops with voltage sources and only one or two nodes (mesh analysis gives fewer equations there). It also requires that every branch current be expressible through a resistor or a source; a branch that is a bare current source between two non-reference nodes is fine, but a bare voltage source between two non-reference nodes forces a supernode.",
+    "**Dependent sources.** Express the controlling voltage or current in terms of node voltages before collecting terms. A voltage-controlled voltage source such as $0.5v_1$ is written directly as a constraint; a current-controlled source requires converting the controlling branch current into a node-voltage difference first."
+  ],
+  "derive": [
+    "**One nodal equation from KCL.** Let node $a$ connect to nodes $b, c, \\ldots$ through $R_{ab}, R_{ac}, \\ldots$ and receive a source current $I_a$. KCL with leaving currents positive is\n\n$$\\frac{v_a - v_b}{R_{ab}} + \\frac{v_a - v_c}{R_{ac}} + \\cdots = I_a$$\n\nMultiplying out gives $\\left(\\dfrac{1}{R_{ab}} + \\dfrac{1}{R_{ac}} + \\cdots\\right)v_a - \\dfrac{v_b}{R_{ab}} - \\dfrac{v_c}{R_{ac}} - \\cdots = I_a$, i.e. $G_{aa}v_a - G_{ab}v_b - G_{ac}v_c = I_a$ with $G_{ab} = 1/R_{ab}$.",
+    "**Two-node closed form.** For two nodes joined by $R_2$, each with its own resistor to ground ($R_1$, $R_3$) and injected currents $I_1, I_2$: $(G_1+G_2)v_1 - G_2v_2 = I_1$ and $-G_2v_1 + (G_2+G_3)v_2 = I_2$. Solving, $v_1 = \\dfrac{I_1(G_2+G_3) + I_2G_2}{G_1G_2 + G_1G_3 + G_2G_3}$, and the determinant is symmetric in the three conductances.",
+    "**Supernode derivation.** Let a voltage source of value $V_s$ sit between nodes $a$ (positive terminal) and $b$. Its current $i_s$ leaves $a$ and enters $b$. KCL at $a$ gives $\\sum (v_a - v_k)/R = I_a - i_s$; KCL at $b$ gives $\\sum (v_b - v_m)/R = I_b + i_s$. Adding the two equations eliminates the unknown $i_s$ — which is precisely the supernode KCL, written around the closed surface that encloses the source. The discarded information is recovered by the source itself: $v_a - v_b = V_s$.",
+    "**Branch current recovery.** Once the node voltages are known, every resistor current is $i = (v_a - v_b)/R$ taken in the direction $a \\to b$, and every source current is whatever KCL at its own node demands. Resistor power is $v^2/R$ or $i^2R$; the total must balance the source power $\\sum v_s i_s$."
+  ],
+  "formulas": [
+    { "q": "KCL at a node in node voltages", "e": "\\sum_k \\frac{v_a - v_k}{R_{ak}} = \\sum I_{\\mathrm{into\\ } a}", "n": "Leaving currents on the left, injected source currents on the right. Pick that convention and never flip it mid-problem." },
+    { "q": "Standard nodal form", "e": "G_{aa} v_a - \\sum_{b \\neq a} G_{ab} v_b = I_a", "n": "One row per non-reference node. Works for any number of nodes." },
+    { "q": "Self-conductance", "e": "G_{aa} = \\sum_k \\frac{1}{R_{ak}}", "n": "Sum of all conductances touching node a. Always positive." },
+    { "q": "Mutual conductance", "e": "G_{ab} = \\frac{1}{R_{ab}}", "n": "Conductance directly between a and b. It appears with a minus sign on the left side." },
+    { "q": "Supernode KCL", "e": "\\sum (v - v_{\\mathrm{outside}})/R = \\sum I_{\\mathrm{into\\ the\\ supernode}}", "n": "Written around a closed surface enclosing the floating voltage source and both its nodes; the source's own current cancels." },
+    { "q": "Supernode constraint", "e": "v_a - v_b = V_s", "n": "Sign taken from the source polarity. One constraint per floating source." },
+    { "q": "Voltage source to the reference", "e": "v_a = \\pm V_s", "n": "The node voltage is known outright — do not write a KCL row for it, and do not count it as an unknown." },
+    { "q": "Dependent source (VCVS)", "e": "v_a - v_b = \\mu\\, v_x", "n": "Rewrite the controlling voltage v_x in terms of node voltages BEFORE collecting terms." },
+    { "q": "Branch current from node voltages", "e": "i_{ab} = \\frac{v_a - v_b}{R}", "n": "Positive in the direction a to b. Use this to answer any follow-up current question." },
+    { "q": "Power delivered by a source", "e": "p = v_s\\, i_s", "n": "Negative p under the passive sign convention means the source is absorbing, not delivering." }
+  ],
+  "problems": [
+    {
+      "prompt": "A $5\\,\\mathrm{A}$ source injects into node 1. Node 1 has a $4\\,\\Omega$ resistor to ground and a $2\\,\\Omega$ resistor to node 2; node 2 has a $4\\,\\Omega$ resistor to ground and no source. Find both node voltages.",
+      "give": ["I = 5 A into node 1", "R1 = 4 Ω (node 1 to ground)", "R2 = 2 Ω (nodes 1-2)", "R3 = 4 Ω (node 2 to ground)"],
+      "steps": [
+        "Conductances: G1 = 1/4 = 0.25 S, G2 = 1/2 = 0.5 S, G3 = 1/4 = 0.25 S",
+        "Node 1: (G1 + G2) v1 - G2 v2 = 5 → 0.75 v1 - 0.5 v2 = 5",
+        "Node 2: -G2 v1 + (G2 + G3) v2 = 0 → -0.5 v1 + 0.75 v2 = 0 → v1 = 1.5 v2",
+        "Substitute: 0.75(1.5 v2) - 0.5 v2 = 5 → 0.625 v2 = 5 → v2 = 8 V",
+        "v1 = 1.5(8) = 12 V. Check node 1: 12/4 + (12 - 8)/2 = 3 + 2 = 5 A ✓"
+      ],
+      "ans": "$v_1 = 12\\,\\mathrm{V}$, $v_2 = 8\\,\\mathrm{V}$",
+      "trap": "Writing the mutual term as $+G_2v_2$ on the left of node 1's equation. The resistor *between* two nodes always carries a minus sign; only the self-conductance terms are positive.", "calc": {"mode":"EQN","steps":["Scale the conductance equations by 4 to keep integer coefficients: 3, −2, 20 then −2, 3, 0. Enter with `MODE` `5` `1`.","$\\rightarrow$ $v_1$ = **12** V, $v_2$ = **8** V; KCL check `12÷4+(12−8)÷2` = **5** A."]}
+    },
+    {
+      "prompt": "Node 1 is held at $12\\,\\mathrm{V}$ by a source connected to ground. A $4\\,\\Omega$ resistor joins node 1 to node 2, and node 2 has a $12\\,\\Omega$ resistor to ground plus a $2\\,\\mathrm{A}$ source injecting into it. Find $v_2$ and the current through the $4\\,\\Omega$ resistor.",
+      "give": ["v1 = 12 V (fixed by a source to ground)", "R = 4 Ω between nodes 1 and 2", "R2 = 12 Ω (node 2 to ground)", "I = 2 A into node 2"],
+      "steps": [
+        "Node 1 needs no equation — the source to ground fixes v1 = 12 V",
+        "Node 2 KCL: (v2 - 12)/4 + v2/12 = 2",
+        "Multiply by 12: 3(v2 - 12) + v2 = 24",
+        "4 v2 - 36 = 24 → v2 = 15 V",
+        "Current through the 4 Ω: (v2 - v1)/4 = (15 - 12)/4 = 0.75 A, flowing from node 2 toward node 1"
+      ],
+      "ans": "$v_2 = 15\\,\\mathrm{V}$ and $0.75\\,\\mathrm{A}$ from node 2 into node 1",
+      "trap": "Writing a KCL row for node 1 and treating the source current as an unknown. A voltage source tied to the reference removes that node from the unknowns entirely; its current is found afterwards from KCL.", "calc": {"mode":"EQN","steps":["$v_1$ is held, so the only unknown is $v_2$; in `COMP` chain `(12÷4+2)÷(1÷4+1÷12)` → $v_2$ = **15** V.","Then `(15−12)÷4` → $i_{4\\Omega}$ = **0.75** A, flowing from node 2 toward node 1. The route is forced because (15−12)/4 = 3/4 matches the KCL the node already satisfies."]}
+    },
+    {
+      "prompt": "A $6\\,\\mathrm{V}$ source floats between node 1 (positive terminal) and node 2. Node 1 has a $4\\,\\Omega$ resistor to ground, node 2 has a $6\\,\\Omega$ resistor to ground, and a $4\\,\\mathrm{A}$ source injects into node 1. Find both node voltages and the current through the $6\\,\\mathrm{V}$ source.",
+      "give": ["V_s = 6 V (node 1 positive)", "R1 = 4 Ω", "R2 = 6 Ω", "I = 4 A into node 1"],
+      "steps": [
+        "The source floats between two non-reference nodes, so enclose both in a supernode",
+        "Supernode KCL: v1/4 + v2/6 = 4 (the source branch is inside the surface)",
+        "Multiply by 12: 3 v1 + 2 v2 = 48",
+        "Constraint: v1 - v2 = 6 → v1 = v2 + 6",
+        "Substitute: 3(v2 + 6) + 2 v2 = 48 → 5 v2 = 30 → v2 = 6 V and v1 = 12 V",
+        "At node 2 the only external branch is the 6 Ω, carrying 6/6 = 1 A out, so 1 A must enter node 2 through the source",
+        "The source therefore absorbs 6 x 1 = 6 W"
+      ],
+      "ans": "$v_1 = 12\\,\\mathrm{V}$, $v_2 = 6\\,\\mathrm{V}$, and $1\\,\\mathrm{A}$ through the $6\\,\\mathrm{V}$ source (which absorbs $6\\,\\mathrm{W}$)",
+      "trap": "Writing two separate KCL equations and inventing a current for the floating source. With a supernode you write ONE KCL around the enclosing surface plus the constraint $v_1 - v_2 = V_s$.", "calc": {"mode":"EQN","steps":["Supernode scaled by 12 gives 3, 2, 48; the source gives 1, −1, 6. Enter with `MODE` `5` `1`.","$\\rightarrow$ $v_1$ = **12** V, $v_2$ = **6** V, so `6÷6` gives **1** A through the source, which absorbs 6×1 = **6** W."],"note":"Omit the $6\\,\\Omega$ branch from the supernode sum — the source branch is inside the surface, so only its constraint equation enters."}
+    },
+    {
+      "prompt": "A three-node ladder: node 1 has $5\\,\\Omega$ to ground and $4\\,\\Omega$ to node 2; node 2 has $4\\,\\Omega$ to ground and $2\\,\\Omega$ to node 3; node 3 has $4\\,\\Omega$ to ground. A $3\\,\\mathrm{A}$ source injects at node 1 and a $1.5\\,\\mathrm{A}$ source injects at node 2. Find all three node voltages.",
+      "give": ["R(1-gnd) = 5 Ω", "R(1-2) = 4 Ω", "R(2-gnd) = 4 Ω", "R(2-3) = 2 Ω", "R(3-gnd) = 4 Ω", "I1 = 3 A", "I2 = 1.5 A"],
+      "steps": [
+        "Node 1: v1/5 + (v1 - v2)/4 = 3",
+        "Node 2: (v2 - v1)/4 + v2/4 + (v2 - v3)/2 = 1.5",
+        "Node 3: (v3 - v2)/2 + v3/4 = 0 → 2(v3 - v2) + v3 = 0 → v3 = 2 v2/3",
+        "Substitute v3 = 2v2/3 into node 2: -v1/4 + v2/4 + v2/4 + v2/2 - (1/2)(2v2/3) = 1.5 → -v1/4 + v2 - v2/3 = 1.5 → -0.25 v1 + (2/3)v2 = 1.5",
+        "From node 1: 0.45 v1 - 0.25 v2 = 3",
+        "Solve the 2x2: v1 = 10 V, v2 = 6 V, hence v3 = 4 V",
+        "Check node 1: 10/5 + (10 - 6)/4 = 2 + 1 = 3 A ✓; node 2: (6-10)/4 + 6/4 + (6-4)/2 = -1 + 1.5 + 1 = 1.5 A ✓"
+      ],
+      "ans": "$v_1 = 10\\,\\mathrm{V}$, $v_2 = 6\\,\\mathrm{V}$, $v_3 = 4\\,\\mathrm{V}$",
+      "trap": "Forgetting the diagonal term for node 2. G_22 must include EVERY conductance touching node 2 — the 4 Ω to ground, the 4 Ω to node 1 and the 2 Ω to node 3 — not just the one drawn nearest the node.", "calc": {"mode":"EQN","steps":["`MODE` `5` `2`, coefficients only, node 3's equation pre-scaled: 0.45, −0.25, 0, 3 then −0.25, 1, −0.3333, 1.5 then 0, −0.6667, 1, 0.","$\\rightarrow$ $v_1$ = **10** V, $v_2$ = **6** V, $v_3$ = **4** V. Check node 1: `10÷5+(10−6)÷4` = **3** A."]}
+    },
+    {
+      "prompt": "Node 1 has a $2\\,\\Omega$ resistor to ground and a $4\\,\\Omega$ resistor to node 2, with a $5\\,\\mathrm{A}$ source injecting at node 1. Node 2 is driven by a voltage-controlled voltage source of value $0.5v_1$ connected between node 2 and ground, positive terminal at node 2. Find $v_1$ and $v_2$.",
+      "give": ["R1 = 2 Ω (node 1 to ground)", "R2 = 4 Ω (nodes 1-2)", "I = 5 A into node 1", "VCVS = 0.5 v1 at node 2 to ground"],
+      "steps": [
+        "The dependent source ties node 2 to ground, so v2 = 0.5 v1 (one unknown eliminated)",
+        "Node 1 KCL: v1/2 + (v1 - v2)/4 = 5",
+        "Substitute v2 = 0.5 v1: v1/2 + (v1 - 0.5 v1)/4 = 0.5 v1 + 0.125 v1",
+        "0.625 v1 = 5 → v1 = 8 V and v2 = 4 V",
+        "Check: 8/2 + (8 - 4)/4 = 4 + 1 = 5 A ✓"
+      ],
+      "ans": "$v_1 = 8\\,\\mathrm{V}$, $v_2 = 4\\,\\mathrm{V}$",
+      "trap": "Treating the dependent source as an independent 0.5 V source. Its value is $0.5v_1$, an unknown, so it becomes an algebraic constraint linking two node voltages rather than a fixed number.", "calc": {"mode":"EQN","steps":["The VCVS is the constraint row: 0.5, −1, 0 for $0.5v_1-v_2=0$; node 1 scaled by 4 is 3, −1, 20. Enter with `MODE` `5` `1`.","$\\rightarrow$ $v_1$ = **8** V, $v_2$ = **4** V; check `8÷2+(8−4)÷4` = **5** A."]}
+    },
+    {
+      "prompt": "A $12\\,\\mathrm{V}$ source floats between node 1 (positive terminal) and node 2. Node 1 has a $6\\,\\Omega$ resistor to ground and node 2 has a $3\\,\\Omega$ resistor to ground. A $3\\,\\mathrm{A}$ source injects at node 1. Find both node voltages and the power absorbed by the $12\\,\\mathrm{V}$ source.",
+      "give": ["V_s = 12 V (node 1 positive)", "R1 = 6 Ω", "R2 = 3 Ω", "I = 3 A into node 1"],
+      "steps": [
+        "Supernode KCL: v1/6 + v2/3 = 3 → multiply by 6: v1 + 2 v2 = 18",
+        "Constraint: v1 - v2 = 12 → v1 = v2 + 12",
+        "Substitute: v2 + 12 + 2 v2 = 18 → 3 v2 = 6 → v2 = 2 V, v1 = 14 V",
+        "At node 2 the only external branch is the 3 Ω, carrying 2/3 = 0.667 A out, so 0.667 A enters node 2 through the source",
+        "The source absorbs 12 x 0.667 = 8 W",
+        "Power check: 3 A source delivers 3 x 14 = 42 W; resistors absorb 14^2/6 + 2^2/3 = 32.67 + 1.33 = 34 W; 34 + 8 = 42 W ✓"
+      ],
+      "ans": "$v_1 = 14\\,\\mathrm{V}$, $v_2 = 2\\,\\mathrm{V}$, and the $12\\,\\mathrm{V}$ source absorbs $8\\,\\mathrm{W}$",
+      "trap": "Assuming a voltage source always delivers power. Here current enters its positive terminal, so it absorbs. Sign the source power from the direction of the current you computed, not from habit.", "calc": {"mode":"EQN","steps":["Scale the supernode KCL by 6 to keep integers: 1, 2, 18; the floating source gives 1, −1, 12. `MODE` `5` `1`.","$\\rightarrow$ $v_1$ = **14** V, $v_2$ = **2** V. Then `2÷3` = **0.667** A through the source, so it absorbs 12×0.667 = **8** W."]}
+    },
+    {
+      "prompt": "A $6\\,\\mathrm{V}$ source floats between node 2 (positive terminal) and node 3. Node 1 has $4\\,\\Omega$ to ground and $2\\,\\Omega$ to node 2; node 2 has $6\\,\\Omega$ to ground; node 3 has $3\\,\\Omega$ to ground. A $4\\,\\mathrm{A}$ source injects at node 1 and a $2\\,\\mathrm{A}$ source injects at node 2. Find all three node voltages and the current through the $6\\,\\mathrm{V}$ source.",
+      "give": ["R(1-gnd) = 4 Ω", "R(1-2) = 2 Ω", "R(2-gnd) = 6 Ω", "R(3-gnd) = 3 Ω", "I1 = 4 A", "I2 = 2 A", "V_s = 6 V between nodes 2 and 3"],
+      "steps": [
+        "Node 1 is ordinary: v1/4 + (v1 - v2)/2 = 4",
+        "Nodes 2 and 3 form a supernode: (v2 - v1)/2 + v2/6 + v3/3 = 2 + 0 = 2",
+        "Constraint: v2 - v3 = 6 → v3 = v2 - 6",
+        "Substitute into the supernode: -v1/2 + v2/2 + v2/6 + (v2 - 6)/3 = 2 → -0.5 v1 + (0.5 + 0.1667 + 0.3333)v2 - 2 = 2 → -0.5 v1 + v2 = 4",
+        "From node 1: 0.75 v1 - 0.5 v2 = 4",
+        "Solving: v2 = 4 + 0.5 v1, then 0.75 v1 - 0.5(4 + 0.5 v1) = 4 → 0.5 v1 = 6 → v1 = 12 V, v2 = 10 V, v3 = 4 V",
+        "At node 3 the only external branch is the 3 Ω, carrying 4/3 = 1.333 A, so 1.333 A leaves node 2 through the source: it delivers 6 x 1.333 = 8 W"
+      ],
+      "ans": "$v_1 = 12\\,\\mathrm{V}$, $v_2 = 10\\,\\mathrm{V}$, $v_3 = 4\\,\\mathrm{V}$, and $1.333\\,\\mathrm{A}$ through the $6\\,\\mathrm{V}$ source ($8\\,\\mathrm{W}$ delivered)",
+      "trap": "Writing the supernode KCL as if only node 2 existed. The surface encloses BOTH nodes, so every resistor attached to either node contributes a term — including the 6 Ω at node 2 and the 3 Ω at node 3.", "calc": {"mode":"EQN","steps":["`MODE` `5` `2` with integers: 3, −2, 0, 16 then −1, 2, 0, 8 then 0, 1, −1, 6, for node 1 scaled by 4, the supernode KCL, and $v_2-v_3=6$.","$\\rightarrow$ $v_1$ = **12** V, $v_2$ = **10** V, $v_3$ = **4** V; `4÷3` = **1.333** A through the source, delivering 6×1.333 = **8** W."]}
+    },
+    {
+      "prompt": "Using the network of a $5\\,\\mathrm{A}$ source into node 1 with $4\\,\\Omega$ to ground and $2\\,\\Omega$ to node 2, and $4\\,\\Omega$ from node 2 to ground, find the power delivered by the $5\\,\\mathrm{A}$ source.",
+      "give": ["I = 5 A into node 1", "R1 = 4 Ω", "R2 = 2 Ω", "R3 = 4 Ω", "v1 = 12 V from the node solution"],
+      "steps": [
+        "The source injects 5 A into node 1, whose voltage is v1 = 12 V (from the nodal solution)",
+        "The current leaves the source at its positive terminal, so p = v1 x 5",
+        "p = 12 x 5 = 60 W delivered"
+      ],
+      "ans": "$60\\,\\mathrm{W}$ delivered by the $5\\,\\mathrm{A}$ source",
+      "trap": "Multiplying by the current and then adjusting for the resistors. A current source's power uses only its own terminal voltage and its own current; the resistors dissipate part of that 60 W but do not change the source rating."
+    }
+  ],
+  "traps": [
+    "**Sign of the mutual term.** Every conductance *between* two nodes enters with a minus sign in the standard form. Writing it positive is the most common nodal error and usually still produces plausible numbers.",
+    "**Floating voltage source handled as two separate KCL rows.** That invents an unknown source current. Enclose the source and its two nodes in a supernode, write one KCL around the surface, and add $v_a - v_b = V_s$.",
+    "**Assuming a voltage source always delivers power.** Compute its current first; if current enters the positive terminal the source is absorbing, and $p = v_si_s$ comes out negative under the passive sign convention.",
+    "**Building a supernode around a voltage source that is tied to the reference.** If one terminal is ground, the node voltage is simply known — no supernode, no equation.",
+    "**Dropping a conductance from the diagonal.** $G_{aa}$ is the sum of *all* conductances touching node $a$, including every branch to a neighbour, not just the ones drawn vertically.",
+    "**Sign of a current source on the right-hand side.** An arrow into the node is positive; an arrow away from it is negative. Sketching the arrow direction next to each source prevents the flip.",
+    "**Substituting a dependent source late.** The controlling quantity must be rewritten in node voltages before the equations are collected; otherwise the system stays uncoupled and the answer is wrong.",
+    "**Counting the reference node as an unknown.** The ground node's voltage is zero by definition; only the other $n$ nodes produce equations."
+  ],
+  "refs": [
+    "[[04_Mesh_Analysis_and_Supermesh]]",
+    "[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]",
+    "[[06_Superposition_Theorem]]",
+    "[[09_Millman’s_and_Tellegen_Theorems]]"
+  ],
+  "prereqs": [
+    "[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]",
+    "[[01_Circuit_Variables,_Ohm’s_Law_and_Signs]]"
+  ]
+}

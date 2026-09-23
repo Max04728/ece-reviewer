@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subnet Calculator — Masks, Ranges, Host Counts, Binary AND and VLSM</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// WHY THIS WIDGET EXISTS
+// Subnetting questions are binary questions dressed in decimal clothes. The three things
+// the board actually tests are:
+//   (1) the AND that produces the network address, and the wildcard that produces the
+//       broadcast:  network = ip AND mask,  broadcast = network OR (NOT mask);
+//   (2) the host count:  usable = 2^(32-p) - 2  (minus network and broadcast);
+//   (3) VLSM: allocate the LARGEST requirement first, rounding each block up to a power
+//       of two, so that the small blocks do not fragment the space.
+// Every result below is printed in binary next to the decimal, because the mistakes are
+// always at the bit level: borrowing the wrong bit, forgetting the /31 exception, or
+// treating the network address as usable.
+//
+// The AND is drawn on the canvas, so the boundary between network bits and host bits is
+// visible as a colour change at the prefix position.
+
+const ipToInt = (s) => {
+  const parts = String(s).trim().split('.');
+  if (parts.length !== 4) return null;
+  let v = 0;
+  for (const p of parts) {
+    if (!/^\d{1,3}$/.test(p)) return null;
+    const n = parseInt(p, 10);
+    if (n < 0 || n > 255) return null;
+    v = ((v << 8) >>> 0) + n;
+  }
+  return v >>> 0;
+};
+const intToIp = (v) => {
+  v = v >>> 0;
+  return [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255].join('.');
+};
+const intToBin = (v) => {
+  v = v >>> 0;
+  const o = [];
+  for (let i = 3; i >= 0; i--) o.push(((v >>> (8 * i)) & 255).toString(2).padStart(8, '0'));
+  return o.join('.');
+};
+const maskOf = (p) => (p === 0 ? 0 : (0xFFFFFFFF << (32 - p)) >>> 0);
+const wildcardOf = (p) => (~maskOf(p)) >>> 0;
+const hostBits = (p) => 32 - p;
+const usableHosts = (p) => (p >= 31 ? (p === 31 ? 2 : 1) : Math.pow(2, 32 - p) - 2);
+const classOf = (v) => {
+  const first = (v >>> 24) & 255;
+  if (first === 0) return 'reserved (0.0.0.0/8, "this network")';
+  if (first === 127) return 'loopback (127.0.0.0/8)';
+  if (first <= 127) return 'Class A (1–126, default /8)';
+  if (first <= 191) return 'Class B (128–191, default /16)';
+  if (first <= 223) return 'Class C (192–223, default /24)';
+  if (first <= 239) return 'Class D multicast (224–239) — no host range';
+  return 'Class E reserved (240–255)';
+};
+const specialOf = (v) => {
+  const a = (v >>> 24) & 255, b = (v >>> 16) & 255;
+  if (a === 10) return 'RFC 1918 private (10.0.0.0/8)';
+  if (a === 172 && b >= 16 && b <= 31) return 'RFC 1918 private (172.16.0.0/12)';
+  if (a === 192 && b === 168) return 'RFC 1918 private (192.168.0.0/16)';
+  if (a === 169 && b === 254) return 'APIPA link-local (169.254.0.0/16)';
+  if (a >= 224 && a <= 239) return 'multicast';
+  if (a === 127) return 'loopback';
+  return 'public / globally routable';
+};
+
+/**
+ * Smallest block (largest prefix) that still gives `need` usable hosts, but never a
+ * block larger than the parent — a /24 parent can hand out a /25, never a /23.
+ * Scanning from /32 DOWNWARD and taking the first fit is what makes the block minimal:
+ * scanning upward returns the biggest block available, which is the classic VLSM error.
+ */
+function prefixFor(need, parentPrefix) {
+  for (let p = 32; p >= parentPrefix; p--) {
+    if (usableHosts(p) >= need) return p;
+  }
+  return 33;                                  // no block inside the parent is big enough
+}
+
+/** VLSM: largest requirement first, each block rounded up to a power of two. */
+function vlsmAllocate(baseInt, prefix, reqs) {
+  const sorted = reqs.map((r, i) => ({ ...r, i })).sort((a, b) => b.hosts - a.hosts);
+  const blockSize = Math.pow(2, 32 - prefix);
+  let cursor = baseInt >>> 0;
+  const out = [];
+  let ok = true;
+  for (const r of sorted) {
+    const p = prefixFor(r.hosts, prefix);
+    if (p > 32) {
+      out.push({ name: r.name, hosts: r.hosts, p, fits: false, why: 'needs a larger block than /' + prefix });
+      ok = false;
+      continue;
+    }
+    const size = Math.pow(2, 32 - p);
+    if ((cursor - baseInt) + size > blockSize) {
+      out.push({ name: r.name, hosts: r.hosts, p, fits: false, why: 'no contiguous space left in the block' });
+      ok = false;
+      continue;
+    }
+    const net = cursor >>> 0;
+    const bcast = (net + size - 1) >>> 0;
+    out.push({
+      name: r.name, hosts: r.hosts, p, fits: true,
+      net, bcast, size,
+      first: usableHosts(p) <= 2 ? intToIp(net) : intToIp((net + 1) >>> 0),
+      last: usableHosts(p) <= 2 ? intToIp(bcast) : intToIp((bcast - 1) >>> 0),
+      usable: usableHosts(p),
+      used: size,
+    });
+    cursor = (net + size) >>> 0;
+  }
+  const allocated = (cursor - baseInt) >>> 0;
+  return { out, ok, allocated, remaining: blockSize - allocated, blockSize };
+}
+
+const frame = (ctx, plot, { top, bottom, yMin, yMax }) => {
+  const px0 = plot.pad, px1 = plot.w - plot.pad;
+  return {
+    px0, px1, top, bottom, yMin, yMax,
+    X: (x, xMin, xMax) => px0 + ((x - xMin) / (xMax - xMin)) * (px1 - px0),
+    Y: (y) => bottom - ((y - yMin) / (yMax - yMin)) * (bottom - top),
+    line(x1, y1, x2, y2, color, width = 1.5, dash = null) {
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color;
+      ctx.lineWidth = width; ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    },
+    text(s, x, y, color = PALETTE.text, align = 'left', font = '11px ui-monospace, monospace') {
+      ctx.save(); ctx.fillStyle = color; ctx.textAlign = align; ctx.font = font;
+      ctx.fillText(s, x, y); ctx.restore();
+    },
+  };
+};
+
+widget({
+  title: 'Subnet Calculator — Network, Broadcast, Host Range and VLSM',
+  description:
+    'Type an address and a prefix, then read the network, broadcast, mask, wildcard and host range — with the binary AND drawn out so the prefix boundary is impossible to misread. VLSM mode allocates a list of host requirements out of one block.',
+  height: 620,
+  controls: [
+    { id: 'ip', label: 'IPv4 address', type: 'select', options: [
+      '192.168.10.37', '10.20.30.40', '172.16.5.200', '203.177.14.99', '198.51.100.130', '172.16.0.0',
+    ], value: '192.168.10.37' },
+    { id: 'prefix', label: 'prefix length /p', min: 0, max: 32, step: 1, value: 26, unit: 'bits' },
+    { id: 'mode', label: 'mode', type: 'select', options: [
+      { value: 'calc', label: 'single subnet (address + prefix)' },
+      { value: 'vlsm', label: 'VLSM allocation from the block' },
+    ], value: 'calc' },
+    { id: 'req', label: 'VLSM host requirement profile', type: 'select', options: [
+      { value: '100,50,20,10', label: '100, 50, 20, 10 → /25 /26 /27 /28' },
+      { value: '120,60,28,12,6,2', label: '120, 60, 28, 12, 6, 2 → uses every level' },
+      { value: '60,60,30,12,12,12', label: '60, 60, 30, 12, 12, 12 (6 subnets)' },
+      { value: '2,2,2', label: '2, 2, 2 → /31 /31 /31 (RFC 3021 links)' },
+      { value: '250,120,60,30,14', label: '250, 120, 60, 30, 14 (a /24 cannot hold these)' },
+      { value: '1000,500,250,120', label: '1000, 500, 250, 120 (needs at least a /21)' },
+      { value: '8000,4000,2000,1000', label: '8000, 4000, 2000, 1000 (needs at least a /19)' },
+    ], value: '100,50,20,10' },
+  ],
+  compute: (v) => {
+    const ip = ipToInt(v.ip);
+    const p = Math.round(v.prefix);
+    if (ip === null) return { error: 'unparseable address — use dotted decimal a.b.c.d' };
+    const mask = maskOf(p), wc = wildcardOf(p);
+    const net = (ip & mask) >>> 0;
+    const bcast = (net | wc) >>> 0;
+    const hosts = usableHosts(p);
+    const first = hosts <= 2 ? intToIp(net) : intToIp((net + 1) >>> 0);
+    const last = hosts <= 2 ? intToIp(bcast) : intToIp((bcast - 1) >>> 0);
+    const reqs = v.mode === 'vlsm'
+      ? String(v.req).split(',').map((s, i) => ({ name: 'subnet ' + (i + 1), hosts: parseInt(s.trim(), 10) }))
+      : [];
+    const vlsm = v.mode === 'vlsm' ? vlsmAllocate(net, p, reqs) : null;
+    return {
+      ip, p, mask, wc, net, bcast, hosts, first, last, vlsm, reqs,
+      ipBin: intToBin(ip), maskBin: intToBin(mask), netBin: intToBin(net), wcBin: intToBin(wc),
+      klazz: classOf(ip), special: specialOf(ip),
+      defaultPrefix: ((ip >>> 24) & 255) <= 127 ? 8 : (((ip >>> 24) & 255) <= 191 ? 16 : 24),
+      nextNet: intToIp((bcast + 1) >>> 0),
+      blockSize: Math.pow(2, 32 - p),
+    };
+  },
+  draw: (ctx, v, o, plot) => {
+    plot.clear();
+    const R = frame(ctx, plot, { top: 40, bottom: 560, yMin: 0, yMax: 1 });
+    if (o.error) {
+      R.text('Could not parse the address: ' + o.error, R.px0 + 20, R.top + 60, PALETTE.accent2, 'left', '14px ui-monospace, monospace');
+      return;
+    }
+    const dpi = o.p / 32;                                   // fraction of network bits
+
+    // ---------------------------------------------------- binary AND view --
+    const rows = [
+      ['IP address', o.ipBin, PALETTE.text],
+      ['subnet mask', o.maskBin, PALETTE.accent],
+      ['AND → network', o.netBin, PALETTE.accent3],
+      ['wildcard (NOT mask)', o.wcBin, PALETTE.accent4],
+      ['network OR wildcard → broadcast', intToBin(o.bcast), PALETTE.accent2],
+    ];
+    const bx0 = R.px0 + 178, bx1 = R.px1 - 4;
+    const x0 = bx0 + o.p * (bx1 - bx0) / 32;
+    ctx.save();
+    ctx.fillStyle = 'rgba(137,180,250,0.10)';
+    ctx.fillRect(bx0, R.top + 26, x0 - bx0, 5 * 30 + 14);
+    ctx.restore();
+    R.text('/' + o.p + ' network bits →', bx0 + 4, R.top + 16, PALETTE.accent);
+    R.text('← ' + hostBits(o.p) + ' host bits', Math.min(x0 + 6, bx1 - 90), R.top + 16, PALETTE.accent4);
+    rows.forEach((r, i) => {
+      const y = R.top + 46 + i * 30;
+      R.text(r[0], R.px0, y + 4, PALETTE.dim, 'left', '11px ui-monospace, monospace');
+      R.text(r[1], bx0, y + 4, r[2], 'left', '13px ui-monospace, monospace');
+    });
+    R.line(x0, R.top + 26, x0, R.top + 26 + 5 * 30 + 14, PALETTE.warn, 2.5, [5, 4]);
+    // bit-position ruler
+    for (let i = 0; i <= 32; i += 4) {
+      const X = bx0 + i * (bx1 - bx0) / 32;
+      R.line(X, R.top + 26 + 5 * 30 + 14, X, R.top + 26 + 5 * 30 + 20, PALETTE.dim, 1);
+      R.text(String(i), X, R.top + 26 + 5 * 30 + 32, PALETTE.dim, 'center', '9px ui-monospace, monospace');
+    }
+    R.text('bit position within the 32-bit address', bx0, R.top + 26 + 5 * 30 + 47, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+    R.text('the blue region is the network prefix — everything left of the dashed line is IDENTICAL for every host in this subnet',
+      R.px0, R.top + 8, PALETTE.dim, 'left', '10px ui-monospace, monospace');
+
+    // ----------------------------------------------------- decimal summary --
+    let y = R.top + 26 + 5 * 30 + 78;
+    const line = (k, val, color) => {
+      R.text(k, R.px0, y, PALETTE.dim, 'left', '11px ui-monospace, monospace');
+      R.text(val, R.px0 + 190, y, color || PALETTE.text, 'left', '13px ui-monospace, monospace');
+      y += 22;
+    };
+    R.line(R.px0, y - 14, R.px1, y - 14, 'rgba(160,160,190,0.3)', 1);
+    line('network address', intToIp(o.net) + '   /' + o.p, PALETTE.accent3);
+    line('broadcast address', intToIp(o.bcast), PALETTE.accent2);
+    line('first usable host', o.first, PALETTE.text);
+    line('last usable host', o.last, PALETTE.text);
+    line('subnet mask', intToIp(o.mask) + '   (/' + o.p + ')', PALETTE.accent);
+    line('wildcard mask', intToIp(o.wc) + '   (ACL form)', PALETTE.accent4);
+    line('usable hosts', String(o.hosts) + (o.p >= 31 ? '  (/31 and /32 are the special cases)' : '  = 2^' + hostBits(o.p) + ' − 2'), PALETTE.warn);
+    line('block size', String(o.blockSize) + ' addresses, subnet step = ' + String(o.blockSize) + ' in the interesting octet', PALETTE.dim);
+    line('address class', o.klazz, PALETTE.dim);
+    line('use', o.special, PALETTE.dim);
+    line('next subnet starts at', o.nextNet, PALETTE.dim);
+
+    // --------------------------------------------------------- VLSM strip --
+    if (o.vlsm) {
+      const V = frame(ctx, plot, { top: 470, bottom: 552, yMin: 0, yMax: 1 });
+      V.text('VLSM allocation of ' + intToIp(o.net) + '/' + o.p + '  (block = ' + o.vlsm.blockSize + ' addresses) — largest requirement first, each rounded up to a power of two',
+        V.px0, V.top - 4, PALETTE.warn, 'left', '11px ui-monospace, monospace');
+      const total = o.vlsm.blockSize;
+      let cx = V.px0;
+      const cw = V.px1 - V.px0;
+      const cols = [PALETTE.accent, PALETTE.accent3, PALETTE.accent4, PALETTE.accent5, PALETTE.warn, PALETTE.accent2, PALETTE.dim];
+      o.vlsm.out.forEach((s, i) => {
+        if (!s.fits) return;
+        const w = (s.size / total) * cw;
+        ctx.save();
+        ctx.fillStyle = cols[i % cols.length]; ctx.globalAlpha = 0.35;
+        ctx.fillRect(cx, V.top + 10, w - 1, 46);
+        ctx.strokeStyle = cols[i % cols.length]; ctx.lineWidth = 1.5; ctx.globalAlpha = 1;
+        ctx.strokeRect(cx, V.top + 10, w - 1, 46);
+        ctx.restore();
+        if (w > 46) V.text('/' + s.p, cx + w / 2, V.top + 26, cols[i % cols.length], 'center', '11px ui-monospace, monospace');
+        if (w > 70) V.text(s.hosts + ' h', cx + w / 2, V.top + 44, PALETTE.text, 'center', '10px ui-monospace, monospace');
+        cx += w;
+      });
+      ctx.save(); ctx.fillStyle = 'rgba(160,160,190,0.18)';
+      ctx.fillRect(cx, V.top + 10, (V.px1 - cx), 46); ctx.restore();
+      V.text('unallocated: ' + o.vlsm.remaining + ' addresses', V.px1 - 4, V.top + 74, PALETTE.dim, 'right', '10px ui-monospace, monospace');
+      if (!o.vlsm.ok) V.text('✗ one or more requirements do NOT fit in this block — the block is too small',
+        V.px0, V.top + 74, PALETTE.accent2, 'left', '11px ui-monospace, monospace');
+    }
+
+    // -------------------------------------------------------- substituted --
+    const F = document.getElementById('sub-formula');
+    if (F) {
+      const rows = [];
+      rows.push('<div><strong>network = IP AND mask</strong> → ' + intToIp(o.ip) + ' AND ' + intToIp(o.mask) + ' = <strong>'
+        + intToIp(o.net) + '</strong> &nbsp;|&nbsp; <strong>broadcast = network OR (NOT mask)</strong> = '
+        + intToIp(o.net) + ' OR ' + intToIp(o.wc) + ' = <strong>' + intToIp(o.bcast) + '</strong></div>');
+      rows.push('<div><strong>mask:</strong> /' + o.p + ' → ' + hostBits(o.p) + ' host bits, so mask = 2³² − 2^'
+        + hostBits(o.p) + ' = ' + intToIp(o.mask) + ' and wildcard = 2^' + hostBits(o.p) + ' − 1 = ' + intToIp(o.wc) + '</div>');
+      rows.push('<div><strong>usable hosts = 2^' + hostBits(o.p) + ' − 2</strong> = ' + String(Math.pow(2, hostBits(o.p)))
+        + ' − 2 = <strong>' + o.hosts + '</strong>'
+        + (o.p >= 31 ? ' &nbsp;(/31 gives 2 usable for point-to-point links and /32 gives 1, by RFC 3021 — the "−2" rule does not apply)' : '')
+        + ' &nbsp;range <strong>' + o.first + ' – ' + o.last + '</strong></div>');
+      rows.push('<div><strong>address class:</strong> ' + o.klazz + ' (default prefix /' + o.defaultPrefix + '). '
+        + 'This address is ' + o.special + '.</div>');
+      if (o.vlsm) {
+        rows.push('<div><strong>VLSM:</strong> sort the requirements descending, give each the smallest power-of-two '
+          + 'block that satisfies it, and allocate from the bottom of the block upward.</div>');
+        o.vlsm.out.forEach((s) => {
+          if (!s.fits) {
+            rows.push('<div style="color:var(--vw-accent-2)">✗ ' + s.name + ': ' + s.hosts
+              + ' hosts needs /' + s.p + ' (' + s.why + ') — raise the prefix length of the block (try /21 or shorter) '
+              + 'or lower the requirement.</div>');
+          } else {
+            rows.push('<div>' + s.name + ': need ' + s.hosts + ' hosts → /' + s.p + ' (2^' + hostBits(s.p) + ' − 2 = '
+              + s.usable + ' usable) → network <strong>' + intToIp(s.net) + '/' + s.p + '</strong>, range '
+              + s.first + ' – ' + s.last + ', broadcast ' + intToIp(s.bcast) + '</div>');
+          }
+        });
+        rows.push('<div><strong>allocated ' + o.vlsm.allocated + ' of ' + o.vlsm.blockSize + ' addresses, '
+          + o.vlsm.remaining + ' left.</strong> ' + (o.vlsm.remaining > 0 ? 'The leftovers are the rounding waste — '
+          + 'each block is a power of two, so a requirement of 100 hosts consumes a /25 (126 usable) and wastes 26.' : '')
+          + '</div>');
+      }
+      F.innerHTML = rows.join('');
+    }
+  },
+  readout: (out) => out.error ? { error: out.error } : ({
+    'address': intToIp(out.ip) + '/' + out.p,
+    'network address': intToIp(out.net),
+    'broadcast address': intToIp(out.bcast),
+    'subnet mask': intToIp(out.mask),
+    'wildcard mask': intToIp(out.wc),
+    'usable host range': out.first + ' – ' + out.last,
+    'usable hosts': String(out.hosts),
+    'address class': out.klazz.split(' (')[0],
+    'scope': out.special,
+    'block size': String(out.blockSize),
+    'VLSM subnets': out.vlsm ? String(out.vlsm.out.filter((s) => s.fits).length) + ' of ' + out.vlsm.out.length : '—',
+  }),
+});
+
+const host = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+formula.id = 'sub-formula';
+formula.style.borderLeftColor = 'var(--vw-accent)';
+host.appendChild(formula);
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>Key insight: a subnet mask is just a bit mask, and subnetting is just AND plus a count of host bits.</strong> '
+  + 'network = IP AND mask; broadcast = network OR (NOT mask); the usable range starts one above the network and ends '
+  + 'one below the broadcast. Because the block is a power of two, the subnet step in the interesting octet is '
+  + '256 − (the mask octet), which is the fastest way to enumerate subnets by hand: a /26 has a mask octet of 192, so '
+  + 'the step is 64 and the subnets begin at 0, 64, 128, 192.'
+  + '<br><strong>Three mistakes this widget prevents.</strong> '
+  + '(1) <em>Forgetting the minus two.</em> The network address and the directed broadcast belong to the subnet, not '
+  + 'to a host. A /24 gives 254 usable, not 256; a /30 gives 2, not 4. The exceptions matter: a /31 gives 2 usable '
+  + 'addresses (RFC 3021 point-to-point) and a /32 gives 1, and a question about WAN links expects you to know that. '
+  + '(2) <em>Using the wrong subnet gateway.</em> The widget prints the next subnet boundary, because the classic '
+  + 'error is placing a host one address past the broadcast into the following subnet — for 192.168.10.37/26 the host '
+  + 'range is .1–.62 and 192.168.10.64 is a different subnet. Always resolve to the network address first, then count. '
+  + '(3) <em>Allocating VLSM smallest-first.</em> If you carve the 100-host subnet out of the middle, the large blocks '
+  + 'can no longer align to their power-of-two boundary and you fragment the space. Largest first, each rounded UP to '
+  + 'a power of two, allocated from the bottom: 100 → /25 (126), 50 → /26 (62), 20 → /27 (30), 10 → /28 (14). '
+  + 'A /24 block yields exactly those four and leaves 42 addresses spare — the readout shows the leftover as the '
+  + 'rounding waste, which is the number the examiner asks for.'
+  + '<br><strong>Exam reflex:</strong> "192.168.10.37/26" → mask 255.255.255.192, block 64, so 37 falls in the 0–63 '
+  + 'subnet: network 192.168.10.0, broadcast 192.168.10.63, hosts .1–.62, 62 usable. Do it in binary once and the '
+  + 'decimal shortcut never lies.';
+host.appendChild(note);
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+{
+  "scope": "Use binary decoders to select one of 2^n lines and to generate minterms, and use priority encoders to convert a request pattern into a binary index.",
+  "intuition": "A decoder is a binary-to-one-of-many translator: it turns a code into a single active wire. An encoder runs the mirror image, turning whichever input is active into its binary code. Together they are the address decoders and interrupt controllers of every processor.",
+  "concept": [
+    "**The decoder.** An $n$-to-$2^n$ decoder asserts exactly one output, the one whose index equals the binary value on the select inputs. With an enable input the behaviour generalises: $Y_i = E\\cdot m_i$, where $m_i$ is the minterm of the select variables. The 2-to-4 and 3-to-8 decoders are the standard sizes; the 3-to-8 74LS138 is the classic part. Its outputs are **active-low**, so the selected output goes to 0 and the rest stay at 1, and it has three enables (two active-low, one active-high) which makes it easy to expand by combining decoders.",
+    "**A decoder plus an OR gate is a function generator.** Because output $i$ is exactly the minterm $m_i$ of the select variables, ORing the outputs listed in $\\sum m(\\cdot)$ realises any function of those variables in one gate level: $F = \\sum_{i\\in S} Y_i$. This is the hardware form of canonical SOP and it is why 'implement this function with a decoder and gates' is a standard exam question. When the decoder outputs are active-low, replace the OR with a NAND, by De Morgan: $\\overline{\\overline{Y_1}\\cdot\\overline{Y_5}} = Y_1 + Y_5$.",
+    "**Enlarging a decoder.** Cascading works through the enable pins: the high-order select bits drive a decoder whose outputs enable a bank of lower-order decoders. A 4-to-16 decoder is built from five 2-to-4 decoders — one to decode the two high bits into four enables, and four to decode the two low bits within each enabled bank. Only the enabled bank responds, so the 16 outputs are mutually exclusive.",
+    "**The encoder, and why priority is needed.** A $2^n$-to-$n$ encoder is the reverse: it outputs the binary index of its active input. A plain encoder assumes exactly one input is active, so two simultaneous inputs produce a meaningless OR of both indices. A **priority encoder** fixes this by defining a rank: the highest-priority active input wins and all lower inputs are ignored. It reports validity with an output (called $V$ on the 74LS148, or $\\mathrm{GS}$/group select on some parts). The 74LS148 is an 8-to-3 priority encoder whose inputs are active-low and whose outputs are the complement of the selected index, with an enable-in and enable-out pair so several can be chained into a wider encoder.",
+    "**Practical points.** Decoder outputs are mutually exclusive by construction, which makes them ideal as chip-select and address-decode lines. Unused decoder outputs are simply left unconnected (they are driven, not floating). Encoder inputs that are unused must be tied to the inactive level, not left floating, because a floating TTL input reads as a high and an active-low input would appear asserted. When reading a datasheet, always check whether the active level is high or low before assuming a '1' means selected."
+  ],
+  "formulas": [
+    { "q": "Decoder output (active-high)", "e": "Y_i = E \\cdot m_i", "n": "Exactly one output is 1 for each select code when enabled. m_i is the minterm of the select lines." },
+    { "q": "Decoder output (active-low)", "e": "\\bar Y_i = \\overline{E \\cdot m_i}", "n": "The selected output is 0. Typical of the 74LS138; unused outputs sit at 1." },
+    { "q": "Decoder size", "e": "n\\ \\mathrm{select\\ lines} \\rightarrow 2^n\\ \\mathrm{outputs}", "n": "3-to-8, 4-to-16. Adding one select line doubles the output count." },
+    { "q": "Function from a decoder", "e": "F = \\sum_{i \\in S} Y_i = \\sum m(S)", "n": "OR the active-high outputs listed by the minterm indices. Any function of the select variables is possible." },
+    { "q": "Function from an active-low decoder", "e": "F = \\overline{\\bar Y_{i_1} \\cdot \\bar Y_{i_2} \\cdots}", "n": "Use a NAND instead of an OR. De Morgan converts the AND of inverted outputs into the required sum." },
+    { "q": "Priority encoder equations (4-to-2)", "e": "A_1 = D_3 + D_2,\\quad A_0 = D_3 + \\bar D_2 D_1", "n": "D3 has the highest priority. Lower active inputs are masked, which is what removes the encoder ambiguity." },
+    { "q": "Encoder valid indicator", "e": "V = D_3 + D_2 + D_1 + D_0", "n": "V = 0 means no input is active, which is indistinguishable from 'input D0 active' without this output." },
+    { "q": "Encoder size", "e": "2^n\\ \\mathrm{inputs} \\rightarrow n\\ \\mathrm{outputs}", "n": "An 8-to-3 encoder needs 3 bits; the 74LS148 adds GS and EO for cascading." },
+    { "q": "Decoder expansion count (4-to-16)", "e": "1 + 4 = 5\\ \\mathrm{2\\!-\\!to\\!-\\!4\\ decoders}", "n": "One decodes the two high bits into enables; four serve the banks. General: 1 + 2^{n/2} blocks." },
+    { "q": "Active-low input assertion", "e": "\\mathrm{asserted} \\iff D_i = 0", "n": "On the 74LS148 an input is a request when it is LOW; the outputs are the complemented index." }
+  ],
+  "problems": [
+    {
+      "prompt": "A 3-to-8 decoder with an active-high enable receives $A_2A_1A_0 = 101$ and $E = 1$. Which output is asserted, and what are the states of the other outputs?",
+      "give": ["select = 101", "E = 1", "active-high outputs"],
+      "steps": [
+        "The decoder asserts the output whose index equals the select code",
+        "101 binary = 5 decimal",
+        "With E = 1 the decoder is enabled, so Y5 = 1",
+        "All other outputs are 0 because exactly one minterm is true for a given code"
+      ],
+      "ans": "$Y_5 = 1$; $Y_0$ through $Y_4$ and $Y_6, Y_7$ are 0",
+      "trap": "Reading the select word as decimal digits (one hundred one) or indexing from 1. The output index is the binary value, so 101 selects the sixth output, Y5."
+    },
+    {
+      "prompt": "Implement $F(A,B,C) = \\sum m(1,2,5,7)$ with a 3-to-8 decoder and one gate. Which outputs feed the gate?",
+      "give": ["F = sum m(1,2,5,7)", "3-to-8 decoder available"],
+      "steps": [
+        "Each decoder output equals one minterm of A, B, C",
+        "F is the OR of the minterms whose index is in the list",
+        "Connect Y1, Y2, Y5, Y7 to a 4-input OR gate",
+        "Check one term in isolation: code 010 asserts Y2 only, so F = 1 as required"
+      ],
+      "ans": "OR the outputs $Y_1, Y_2, Y_5, Y_7$; $F = Y_1 + Y_2 + Y_5 + Y_7$",
+      "trap": "Connecting the outputs listed in the POS index set, or ANDing the four outputs. The decoder gives minterms, so the function is the OR of the selected ones — an AND would be 0 for every input."
+    },
+    {
+      "prompt": "Repeat the previous implementation using a 74LS138, whose outputs are active-low. What gate replaces the OR?",
+      "give": ["F = sum m(1,2,5,7)", "74LS138, active-low outputs"],
+      "steps": [
+        "Output Y-bar i is 0 exactly when the select code equals i and the device is enabled",
+        "F must be 1 when any of 1, 2, 5, 7 is selected",
+        "A NAND of those four inverted outputs is 1 when at least one input is 0",
+        "By De Morgan: NAND(Y-bar1, Y-bar2, Y-bar5, Y-bar7) = Y1 + Y2 + Y5 + Y7",
+        "For a code not in the set, all four NAND inputs are 1, so F = 0"
+      ],
+      "ans": "$F = \\overline{\\bar Y_1\\cdot\\bar Y_2\\cdot\\bar Y_5\\cdot\\bar Y_7}$ using a 4-input NAND",
+      "trap": "Feeding active-low outputs into an OR gate. That produces the complement of the intended function, since the selected line is the one that is 0."
+    },
+    {
+      "prompt": "A 4-to-2 priority encoder has active-high inputs $D_3$ (highest) down to $D_0$. Find the outputs for the input pattern $0110$ and explain what the priority rule does here.",
+      "give": ["D3 D2 D1 D0 = 0 1 1 0", "D3 has highest priority"],
+      "steps": [
+        "Use A1 = D3 + D2 = 0 + 1 = 1",
+        "Use A0 = D3 + (NOT D2)D1 = 0 + (0)(1) = 0",
+        "So A1A0 = 10, the index of D2",
+        "D1 is also active but is masked because D2 outranks it",
+        "V = D3+D2+D1+D0 = 1, so the output is valid"
+      ],
+      "ans": "$A_1A_0 = 10$ (index 2) with $V = 1$; D1 is ignored",
+      "trap": "ORing the active inputs into a plain encoder, which would give 10 XOR 01 = 11 and point at the wrong input. Priority is a masking operation, not addition."
+    },
+    {
+      "prompt": "How many 2-to-4 decoders with enable pins are needed to build a 4-to-16 decoder, and how are they wired?",
+      "give": ["target = 4-to-16 decoder", "building block = 2-to-4 with enable"],
+      "steps": [
+        "Split the 4 select bits into high pair A3A2 and low pair A1A0",
+        "One 2-to-4 decoder decodes A3A2 into four mutually exclusive enable signals",
+        "Each enable drives the E input of one of four 2-to-4 decoders that decode A1A0",
+        "Only one bank is enabled, so exactly one of the 16 outputs is asserted",
+        "Total: 1 + 4 = 5 decoders"
+      ],
+      "ans": "5 decoders (1 for the high bits plus 4 banks)",
+      "trap": "Using 8 decoders or trying to OR outputs together. Cascading must go through the enable pins; ORing decoder outputs destroys the one-hot property and can assert two lines at once."
+    }
+  ],
+  "traps": [
+    "**Confusing the direction of the parts.** A decoder goes from $n$ bits to $2^n$ lines; an encoder goes from $2^n$ lines to $n$ bits. The 74LS138 is a decoder, the 74LS148 is an encoder.",
+    "**Ignoring an active-low output.** With a 74LS138 the selected line is 0. Feeding those outputs into an OR gate returns the complement of the wanted function — use a NAND.",
+    "**Forgetting the enable.** A decoder with $E = 0$ asserts nothing, so every output sits at its inactive level. Address decoders that appear dead are usually disabled by a chip-select.",
+    "**Assuming a plain encoder resolves multiple inputs.** Two simultaneous active inputs produce the OR of their indices, which may be a third, non-active index. Only a priority encoder is well defined.",
+    "**Leaving encoder inputs floating.** An unconnected TTL input floats high, which on an active-low encoder looks like an asserted request. Tie unused inputs to the inactive level.",
+    "**Reading a 74LS148 output as a plain binary index.** Its inputs are active-low and its outputs are the complemented index, so the datasheet's high-priority input 7 appears as 000, not 111.",
+    "**Using OR gates on minterm outputs when the function is specified in POS.** A POS function needs the AND of the complementary decoder outputs (or a NOR), not the OR of the 1-rows."
+  ],
+  "refs": [
+    "[[05_SOP,_POS,_Minterms_and_Maxterms]]",
+    "[[06_Karnaugh_Maps]]",
+    "[[09_Multiplexers_and_Demultiplexers]]",
+    "[[15_ASM_Charts]]"
+  ],
+  "prereqs": [
+    "[[05_SOP,_POS,_Minterms_and_Maxterms]]",
+    "[[04_Boolean_Algebra_and_De_Morgan]]"
+  ]
+}

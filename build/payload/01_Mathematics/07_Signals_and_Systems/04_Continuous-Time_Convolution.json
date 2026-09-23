@@ -1,0 +1,106 @@
+{
+  "scope": "Evaluate the convolution integral of two continuous-time signals using the graphical flip-and-slide method and the standard convolution pairs.",
+  "intuition": "Convolution asks: at each instant $t$, how much of the input's history still matters, weighted by how the system responds to it. Flipping one signal and sliding it is just a systematic way to add up that overlap.",
+  "concept": [
+    "**The integral and what it means.** The convolution of two signals is defined as: $y(t)=\\displaystyle\\int_{-\\infty}^{\\infty}x(\\tau)h(t-\\tau)\\,d\\tau$. Each value of $\\tau$ contributes the input at time $\\tau$ multiplied by the impulse response evaluated at the *age* $t-\\tau$ of that input. An LTI system is entirely described by this operation, which is why convolution is the central computation of the subject.",
+    "**The graphical procedure.** (1) Keep $x(\\tau)$ as drawn. (2) Flip $h(\\tau)$ to get $h(-\\tau)$. (3) Slide it right by $t$ to get $h(t-\\tau)$. (4) Multiply the two and integrate the overlap. (5) Repeat as $t$ moves; the answer changes form each time an edge of one signal crosses an edge of the other. The integration limits are always the overlap — never assume they are $0$ to $t$ unless both signals are causal.",
+    "**Support and duration rules.** If $x$ is supported on $[a,b]$ and $h$ on $[c,d]$, then $y$ is supported on $[a+c,\\,b+d]$ and its duration is the *sum* of the durations. This is the fastest sanity check available: a three-second input convolved with a four-second impulse response can neither start before $a+c$ nor end after $b+d$, and cannot be shorter than seven seconds. Convolution with $\\delta(t-t_0)$ simply shifts: $x(t)*\\delta(t-t_0)=x(t-t_0)$, with no scaling.",
+    "**Standard pairs worth memorising.** $u(t)*u(t)=t\\,u(t)$. $e^{-at}u(t)*e^{-bt}u(t)=\\dfrac{e^{-at}-e^{-bt}}{b-a}u(t)$ for $a\\neq b$, and $te^{-at}u(t)$ when $a=b$. A rectangular pulse convolved with a rectangular pulse of the *same* width gives a triangle; of different widths gives a trapezoid. Convolution with $u(t)$ is integration: $x(t)*u(t)=\\int_{-\\infty}^{t}x(\\tau)d\\tau$.",
+    "**Algebraic properties.** Convolution is commutative ($x*h=h*x$), associative ($(x*h_1)*h_2=x*(h_1*h_2)$) and distributive over addition ($x*(h_1+h_2)=x*h_1+x*h_2$). Commutativity lets you flip whichever signal is easier; associativity means cascaded LTI blocks can be combined in any order; distributivity matches the parallel-block rule. The output of a causal system with a causal input uses limits $0$ to $t$, because both signals vanish outside that range — that special case is widely over-generalised."
+  ],
+  "formulas": [
+    { "q": "Convolution integral", "e": "y(t) = x(t) * h(t) = \\int_{-\\infty}^{\\infty} x(\\tau) h(t-\\tau)\\,d\\tau", "n": "Flip and slide h; integrate the overlap only." },
+    { "q": "Commutativity", "e": "x * h = h * x", "n": "Flip whichever signal is easier to slide." },
+    { "q": "Shift with an impulse", "e": "x(t) * \\delta(t-t_0) = x(t-t_0)", "n": "Pure shift, no scaling. Area of the impulse is 1." },
+    { "q": "Convolution with a step", "e": "x(t) * u(t) = \\int_{-\\infty}^{t} x(\\tau)\\,d\\tau", "n": "Running integral of the input." },
+    { "q": "Step with step", "e": "u(t) * u(t) = t\\,u(t)", "n": "A ramp, not a step. Unbounded, so it grows without limit." },
+    { "q": "Distinct exponentials", "e": "e^{-at}u(t) * e^{-bt}u(t) = \\frac{e^{-at}-e^{-bt}}{b-a}u(t)", "n": "Valid for a not equal to b; note the denominator b - a." },
+    { "q": "Repeated exponential", "e": "e^{-at}u(t) * e^{-at}u(t) = t e^{-at}u(t)", "n": "The degenerate case a = b gives a linear-times-exponential." },
+    { "q": "Rectangles of equal width", "e": "\\mathrm{rect} * \\mathrm{rect} = \\mathrm{triangle}", "n": "Peak = width times height squared; total width doubles." },
+    { "q": "Rectangles of unequal width", "e": "\\mathrm{rect} * \\mathrm{rect} = \\mathrm{trapezoid}", "n": "Flat top lasts the difference of the two widths." },
+    { "q": "Duration rule", "e": "T_y = T_x + T_h,\\quad \\mathrm{support} = [a+c,\\ b+d]", "n": "Use it to reject an answer before doing any integration." },
+    { "q": "Causal limits", "e": "y(t) = \\int_0^{t} x(\\tau)h(t-\\tau)\\,d\\tau", "n": "Only when both x and h are causal (zero for t < 0)." }
+  ],
+  "problems": [
+    {
+      "prompt": "Convolve $x(t)=u(t)-u(t-2)$ with $h(t)=u(t)$.",
+      "give": ["x = unit pulse of width 2", "h = u(t)"],
+      "steps": [
+        "Support: $x$ on $[0,2]$, $h$ on $[0,\\infty)$, so $y$ is supported on $[0,\\infty)$",
+        "For $0<t<2$: the overlap is $\\tau\\in[0,t]$, so $y(t)=\\int_0^t 1\\,d\\tau = t$",
+        "For $t\\ge2$: the overlap is $\\tau\\in[0,2]$, so $y(t)=\\int_0^2 1\\,d\\tau = 2$",
+        "Write both pieces with unit steps: $y(t) = t\\,u(t) - (t-2)u(t-2)$",
+        "Check at $t=3$: $3-1 = 2$ ✓; at $t=1$: $1-0 = 1$ ✓"
+      ],
+      "ans": "$y(t)=t\\,u(t)-(t-2)u(t-2)$ — a ramp for $0\\le t\\le2$, then a constant 2.",
+      "trap": "Using the limits $0$ to $t$ for all $t$ and reporting an ever-growing ramp. The input stops at $t=2$, so the overlap stops growing and the output flattens at 2."
+    },
+    {
+      "prompt": "Convolve $x(t)=e^{-t}u(t)$ with $h(t)=e^{-2t}u(t)$, and find the peak value of the result.",
+      "give": ["x = e^{-t}u(t)", "h = e^{-2t}u(t)"],
+      "steps": [
+        "Both are causal, so $y(t)=\\int_0^{t}e^{-\\tau}e^{-2(t-\\tau)}d\\tau = e^{-2t}\\int_0^{t}e^{\\tau}d\\tau$",
+        "$= e^{-2t}\\left[e^{\\tau}\\right]_0^{t} = e^{-2t}(e^{t}-1) = e^{-t}-e^{-2t}$",
+        "Apply the standard pair with $a=1$, $b=2$: $y(t)=\\dfrac{e^{-t}-e^{-2t}}{2-1}u(t)$ ✓",
+        "Peak: $\\dfrac{dy}{dt} = -e^{-t}+2e^{-2t} = 0 \\Rightarrow e^{t}=2 \\Rightarrow t=\\ln2 = 0.693\\ \\mathrm{s}$",
+        "$y(\\ln2) = 0.5-0.25 = 0.25$"
+      ],
+      "ans": "$y(t)=(e^{-t}-e^{-2t})u(t)$, peaking at $y=0.25$ at $t=\\ln2\\approx0.693\\ \\mathrm{s}$.",
+      "trap": "Writing the denominator as $a-b = -1$ and dropping the sign, which turns a positive response into a negative one. The pair is $\\dfrac{e^{-at}-e^{-bt}}{b-a}$, and the output of two positive causal signals must be positive."
+    },
+    {
+      "prompt": "A rectangular pulse $x(t)$ (height 1, width 2, centred at the origin) is convolved with $h(t)=\\mathrm{rect}(t)$ (height 1, width 1, centred at the origin). Describe the result and give its duration.",
+      "give": ["x = rect(t/2)", "h = rect(t)"],
+      "steps": [
+        "This is a rectangle of width 2 convolved with one of width 1: unequal widths give a trapezoid",
+        "Duration rule: $T_y = 2+1 = 3$, so the result spans $t\\in[-1.5,\\,1.5]$",
+        "For $-1.5<t<-0.5$: the overlap grows linearly from 0 to 1",
+        "For $-0.5\\le t\\le0.5$: the narrower pulse sits fully inside the wider one, so $y=1$ (the flat top)",
+        "For $0.5<t<1.5$: the overlap falls linearly from 1 to 0",
+        "Peak value: the area of the narrower pulse $= 1\\times1 = 1$"
+      ],
+      "ans": "A trapezoid spanning $[-1.5,1.5]$, rising 0 to 1 over $[-1.5,-0.5]$, flat at 1 over $[-0.5,0.5]$, falling to 0 over $[0.5,1.5]$.",
+      "trap": "Drawing a triangle. Two rectangles give a triangle only when their widths are equal; with widths 2 and 1 the result has a flat top of length $2-1=1$."
+    },
+    {
+      "prompt": "Find the step response of the system with $h(t)=e^{-2t}u(t)$.",
+      "give": ["h(t) = e^{-2t}u(t)", "input = unit step"],
+      "steps": [
+        "$y(t) = u(t)*h(t) = \\int_0^{t}e^{-2\\tau}d\\tau$ for $t\\ge0$",
+        "$= \\left[-\\dfrac{e^{-2\\tau}}{2}\\right]_0^{t} = \\dfrac{1-e^{-2t}}{2}$",
+        "So $y(t) = \\dfrac{1}{2}\\left(1-e^{-2t}\\right)u(t)$",
+        "Final value: $y(\\infty) = 1/2$, and at $t=0.5$ (one time constant) $y = 0.5(1-e^{-1}) = 0.316$"
+      ],
+      "ans": "$y(t)=\\tfrac12(1-e^{-2t})u(t)$, settling to $0.5$.",
+      "trap": "Reporting $h(t)$ itself as the step response. The step response is the running integral of the impulse response — here it is finite and settles at $1/2$, whereas $h$ decays to zero."
+    },
+    {
+      "prompt": "$x(t)$ is nonzero only on $[0,3]$ and $h(t)$ only on $[1,5]$. Where is $y(t)=x*h$ nonzero, and what is its duration?",
+      "give": ["x support [0,3]", "h support [1,5]"],
+      "steps": [
+        "Convolution support is the Minkowski sum of the supports: $t=a+b$ with $a\\in[0,3]$, $b\\in[1,5]$",
+        "Minimum: $0+1 = 1$; maximum: $3+5 = 8$",
+        "So $y(t)$ is nonzero only on $[1,8]$",
+        "Duration: $8-1 = 7$, which equals $T_x+T_h = 3+4$ ✓"
+      ],
+      "ans": "$y$ is supported on $[1,8]$, duration 7 s.",
+      "trap": "Assuming the output starts at $t=0$ because 'convolution starts at zero'. The supports add; a delay in either signal delays the output."
+    }
+  ],
+  "traps": [
+    "**Forgetting to flip.** The integrand is $x(\\tau)h(t-\\tau)$, not $x(\\tau)h(\\tau)$ — the second form gives a constant times a product, which is a different operation entirely.",
+    "**Using the limits $0$ to $t$ when the signals are not both causal.** Those limits are valid only for causal $x$ and $h$; otherwise integrate over the actual overlap.",
+    "**Mixing up the duration rule.** Durations add, supports add: $T_y=T_x+T_h$ and support $[a+c,\\,b+d]$.",
+    "**Convolving with $\\delta(t-t_0)$ and scaling.** $x(t)*\\delta(t-t_0)=x(t-t_0)$: shift only, no amplitude change.",
+    "**Reporting $u(t)*u(t)=u(t)$.** It is $t\\,u(t)$, a ramp; the convolution of two bounded signals need not be bounded.",
+    "**Expecting a triangle from unequal rectangles.** Equal widths give a triangle, unequal widths a trapezoid.",
+    "**Dropping the sign in the exponential pair.** The denominator is $b-a$, not $a-b$; a negative result for two positive causal signals is the diagnostic.",
+    "**Assuming convolution is multiplication pointwise.** $x(t)h(t)$ is a different operation with different properties; convolution is an integral transform of the pair."
+  ],
+  "refs": [
+    "[[05_Discrete-Time_Convolution]]",
+    "[[03_System_Properties_and_LTI]]",
+    "[[10_System_Response_and_Step_Response]]"
+  ],
+  "prereqs": ["[[03_System_Properties_and_LTI]]"]
+}

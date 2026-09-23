@@ -1,0 +1,189 @@
+---
+id: EST-02-11
+title: "Pre-Emphasis and De-Emphasis"
+part: "04_EST"
+area: "02_Principles_of_Communications"
+topic: 11
+tier: 2
+depth: full
+problem_count: 5
+prereqs: ["[[09_FM_Noise_and_Threshold_Effect]]"]
+tags: ["ece", "est", "principles_of_communications"]
+status: not-started
+confidence: 0
+updated: 2026-09-23
+---
+
+# 11 — Pre-Emphasis and De-Emphasis
+
+> [!abstract] Scope
+> Explain why FM needs pre-emphasis and de-emphasis, compute the corner frequency and attenuation of the standard networks, and account for the SNR improvement.
+
+## Core Concept
+
+> [!tip] Intuition
+> The noise at an FM discriminator output gets louder as the audio frequency rises, so broadcasters turn the treble UP before transmitting and turn it back DOWN after receiving. The audio comes back exactly as it was, but the treble noise that arrived with it is now attenuated.
+
+**The problem the networks solve.** FM's post-discriminator noise density rises as $f^2$ (triangular noise), so the signal-to-noise ratio near the top of the audio band is far worse than near the bottom — the noise power in the full $0$–$15\ \mathrm{kHz}$ band is $(15/1)^3 = 3375$ times that of the first kilohertz. Simply filtering off the treble at the receiver would fix the noise but also remove the music. Pre-emphasis and de-emphasis exploit the fact that the *audio spectrum is not flat*: a modest boost of the treble at the transmitter can be undone exactly at the receiver, and the noise that accompanied the boosted treble is cut down with it.
+
+**The networks.** Pre-emphasis is a simple RC high-pass in the transmitter's audio path whose response is flat below $f_c = \frac{1}{2\pi\tau}$ and rises at 6 dB per octave above it. De-emphasis is the mirror image: an RC low-pass in the receiver with the *same* time constant, flat below $f_c$ and falling at 6 dB per octave above it. The two responses multiply to a constant, so the recovered audio is flat — but the noise, which entered the channel after the pre-emphasis, only sees the de-emphasis roll-off. The standard time constants are $75\ \mu\mathrm{s}$ (the Americas and Korea, corner at $2.12\ \mathrm{kHz}$), $50\ \mu\mathrm{s}$ (ITU/Europe, corner at $3.18\ \mathrm{kHz}$) and $25\ \mu\mathrm{s}$ for a few services. Mismatched time constants at the two ends colour the audio: a receiver with $50\ \mu\mathrm{s}$ de-emphasis on a $75\ \mu\mathrm{s}$ transmission sounds thin and bright.
+
+**How much SNR is recovered.** Integrating the triangular noise with and without the de-emphasis response over $0$–$f_m$ gives the improvement factor as this ratio:
+$$\dfrac{f_m^3/3}{f_c^2\left[f_m-f_c\arctan(f_m/f_c)\right]}$$
+For $75\ \mu\mathrm{s}$ and $f_m = 15\ \mathrm{kHz}$ the numbers are $f_c = 2.12\ \mathrm{kHz}$ and the ratio comes to about $20.9$, i.e. **13.2 dB** — which is why a practical broadcast FM receiver's quoted SNR is so much better than the flat $1.5\beta^2$ estimate. Because de-emphasis attenuates 15 kHz by about 17 dB relative to the flat region, and the noise density at 15 kHz is 225 times (23.5 dB) that at 1 kHz, the trade is strongly favourable for FM.
+
+**The cost: deviation headroom.** Pre-emphasis is not free. Boosting a 15 kHz component by 17 dB multiplies its amplitude by about 7.1, and since $\Delta f = k_fA_m$, the same treble content that produced 10 kHz of deviation flat now produces 71 kHz. Broadcasters therefore must back off the average audio level, or let a deviation limiter clip the boosted treble — which is why FM processors carefully combine pre-emphasis with limiting and why programme material with a lot of high-frequency energy (cymbals, sibilance) cannot reach the same loudness as bass-heavy material. The pre-emphasis network also raises the noise floor of the transmitter's own audio path at high frequency, so the audio chain must be quiet enough to survive the boost.
+
+**Why AM does not need it.** AM's post-detection noise is flat across the audio band, so a pre-emphasis/de-emphasis pair would attenuate high-frequency noise while restoring the high-frequency signal exactly — but it would also require the same 17 dB of headroom back-off, and the reduced signal power cancels the noise advantage. The exchange is only profitable when the noise density *rises* with frequency, which is precisely FM's situation. Where pre-emphasis/de-emphasis is used with non-FM systems (tape recording, FM subcarriers, some digital links) it is because the medium or the channel has its own rising noise or loss characteristic, not because of the modulation.
+
+**Where it sits in the receiver and what can go wrong.** De-emphasis follows the discriminator and precedes the audio power stages; if it were placed before the discriminator, the limiter would see a tilted signal and the deviation calibration would be wrong. Practical problems to watch for: a wrong time constant (audibly bright or dull audio with no SNR complaint), a de-emphasis network whose capacitor has drifted (a slow change in timbre that is easy to miss), and the fact that de-emphasis also attenuates any high-frequency interference that arrives *after* the discriminator, so a hum or whistle picked up in the audio stages is not helped at all. Finally, the ~13 dB figure assumes the noise is the triangular discriminator noise; impulsive noise (clicks) is spread across the band and is only partly reduced.
+
+## Formulas
+
+| Quantity | Expression | Notes |
+| --- | :---: | --- |
+| Corner frequency of the network | $f_c = \frac{1}{2\pi\tau}$ | tau = 75 us gives 2.12 kHz; 50 us gives 3.18 kHz; 25 us gives 6.37 kHz. |
+| De-emphasis response | $H_{de}(f) = \frac{1}{\sqrt{1+(f/f_c)^{2}}}$ | Flat below fc, -6 dB per octave above it. Pre-emphasis is its inverse. |
+| Pre-emphasis response | $H_{pre}(f) = \sqrt{1+(f/f_c)^{2}}$ | Product with de-emphasis is unity, so the audio is restored exactly. |
+| FM output noise density | $S_{n}(f) = K f^{2} \ (\mathrm{triangular\ noise})$ | Rises with frequency squared, which is what makes de-emphasis worthwhile. |
+| Noise power with de-emphasis | $N_o = \int_0^{f_m} \frac{K f^{2}}{1+(f/f_c)^{2}}\, df = K f_c^{2}\left[f_m - f_c\arctan\frac{f_m}{f_c}\right]$ | Compare with K fm^3/3 for the flat case. |
+| De-emphasis improvement factor | $I = \frac{f_m^{3}/3}{f_c^{2}\left[f_m - f_c\arctan(f_m/f_c)\right]}$ | About 20.9 (13.2 dB) for 75 us and fm = 15 kHz. |
+| Attenuation at the top of the band | $20\log_{10}\!\left(\frac{f_m}{f_c}\right)\ \mathrm{dB}$ | About 17 dB for 75 us and 15 kHz, relative to the flat (low-frequency) region. |
+| Pre-emphasis headroom cost | $\Delta A_{pre}\ \mathrm{dB} \Rightarrow \mathrm{audio\ level\ backed\ off\ by\ the\ same\ dB}$ | Amplitude is multiplied by 10^(dA/20) at the frequency where the boost is measured, and deviation follows amplitude. |
+| Standard time constants | $\tau = 75\ \mu\mathrm{s}\ (\mathrm{Americas}),\ 50\ \mu\mathrm{s}\ (\mathrm{ITU}),\ 25\ \mu\mathrm{s}$ | Both ends of the link must use the same tau; mismatch colours the audio. |
+| Total FM SNR with de-emphasis | $\mathrm{SNR}_o = \mathrm{SNR}_i + 10\log_{10}(1.5\beta^{2}) + 13\ \mathrm{dB}$ | The 13 dB applies for 75 us and 15 kHz audio; state the weighting used. |
+
+## Worked Problems
+
+### P1. Find the corner frequencies of the $75\ \mu\mathrm{s}$, $50\ \mu\mathrm{s}$ and $25\ \mu\mathrm{s}$ pre-emphasis/de-emphasis networks.
+
+**Given:** tau = 75 us, 50 us, 25 us
+
+**Solution:**
+
+1. fc = 1/(2 pi tau)
+2. 75 us: fc = 1/(2 pi x 75e-6) = 1/(4.712e-4) = 2122 Hz
+3. 50 us: fc = 1/(2 pi x 50e-6) = 3183 Hz
+4. 25 us: fc = 1/(2 pi x 25e-6) = 6366 Hz
+
+> [!success]- Answer
+> **2.12 kHz, 3.18 kHz and 6.37 kHz respectively.**
+
+> [!warning] Trap
+> Using fc = 1/tau and answering 13.3 kHz for the 75 µs network. The 2 pi in the conversion between time constant and corner frequency is easy to drop and gives an answer 2 pi times too high.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `1÷(2π×75E-6) : 1÷(2π×50E-6) : 1÷(2π×25E-6)`
+> 2. `=` down the chain: **2122** Hz → **3183** Hz → **6366** Hz, i.e. **2.12**, **3.18** and **6.37** kHz.
+>
+> The `2π` is the whole conversion: `1÷75E-6` = **13.3** kHz is the trap a missing $2\pi$ produces.
+
+### P2. A $75\ \mu\mathrm{s}$ de-emphasis network is used with a $15\ \mathrm{kHz}$ audio bandwidth. Find the attenuation at $15\ \mathrm{kHz}$ relative to $1\ \mathrm{kHz}$.
+
+**Given:** tau = 75 us; fc = 2122 Hz; compare 15 kHz with 1 kHz
+
+**Solution:**
+
+1. At 1 kHz: |H| = 1/sqrt(1 + (1000/2122)^2) = 1/sqrt(1.2221) = 0.9046
+2. At 15 kHz: |H| = 1/sqrt(1 + (15000/2122)^2) = 1/sqrt(50.97) = 0.1401
+3. Ratio = 0.9046/0.1401 = 6.457
+4. In dB: 20 log10(6.457) = 16.2 dB
+
+> [!success]- Answer
+> **The 15 kHz component is attenuated 16.2 dB more than the 1 kHz component.**
+
+> [!warning] Trap
+> Using 20 log10(15/1) = 23.5 dB and ignoring the corner frequency. That figure is only the asymptotic slope measured from fc; from 1 kHz — which is below fc and therefore barely attenuated — the real figure is 16.2 dB.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `√((1+(15000÷2122)^2)÷(1+(1000÷2122)^2)) : 20log(Ans)`
+> 2. `=` down the chain: voltage ratio **6.458** → **16.2** dB of extra attenuation at 15 kHz.
+>
+> $H$ is a VOLTAGE response, so `20log`; and 1 kHz is below the corner, so the asymptotic `20log(15)` = **23.5** dB is wrong.
+
+### P3. Compute the SNR improvement produced by $75\ \mu\mathrm{s}$ de-emphasis over a $15\ \mathrm{kHz}$ audio band with triangular noise, and find the total output SNR for $\beta = 5$ at 20 dB input CNR.
+
+**Given:** tau = 75 us; fm = 15 kHz; beta = 5; input CNR = 20 dB
+
+**Solution:**
+
+1. Flat noise power: fm^3/3 = (15000)^3/3 = 1.125e12 (arbitrary K units)
+2. With de-emphasis: fc^2[fm - fc arctan(fm/fc)] = (2122)^2[15000 - 2122(1.430)]
+3. = 4.503e6 x (15000 - 3034) = 4.503e6 x 11966 = 5.388e10
+4. Improvement = 1.125e12/5.388e10 = 20.88, i.e. 10 log10(20.88) = 13.2 dB
+5. Flat FM improvement: 10 log10(1.5 x 25) = 15.7 dB
+6. Total output SNR = 20 + 15.7 + 13.2 = 48.9 dB
+
+> [!success]- Answer
+> **De-emphasis adds 13.2 dB; total output SNR = 48.9 dB.**
+
+> [!warning] Trap
+> Adding 13 dB of de-emphasis improvement to an *unweighted* measurement and calling the result exact. The 13 dB figure assumes the noise is the triangular discriminator noise over the full 15 kHz baseband and that the audio is flat; real programme material, weighting curves and impulsive noise all change the number.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. In `RAD`: `15000^3÷3÷(2122^2×(15000−2122×tan⁻¹(15000÷2122)))`
+> 2. `=` → improvement factor **20.88**; `10log(Ans)` → **13.20** dB, which with `10log(1.5×5^2)` = **15.74** dB and the 20 dB input gives **48.9** dB.
+>
+> `tan⁻¹` must be in radians: $\arctan(f_m/f_c)$ = **1.430** rad, and a degree-mode answer of 81.9° wrecks the integral.
+
+### P4. Pre-emphasis boosts $15\ \mathrm{kHz}$ by $17\ \mathrm{dB}$. By how much must the transmitter's audio level be backed off to keep the peak deviation at $75\ \mathrm{kHz}$, and why does this matter?
+
+**Given:** boost = 17 dB at 15 kHz; df_max = 75 kHz
+
+**Solution:**
+
+1. 17 dB is a voltage ratio of 10^(17/20) = 7.08
+2. Deviation is proportional to the peak message amplitude: df = kf Am
+3. So the same 15 kHz content that gave some deviation now gives 7.08 times as much
+4. To stay within 75 kHz, the audio level must be reduced by 17 dB at that frequency (or a limiter acts)
+5. This is a real cost: the average loudness of high-frequency-rich material is reduced
+
+> [!success]- Answer
+> **The level must be backed off by 17 dB at 15 kHz (a 7.08x amplitude boost) to preserve the deviation limit.**
+
+> [!warning] Trap
+> Assuming pre-emphasis is free because it is undone at the receiver. It is undone for the *audio*, but the deviation headroom was consumed at the transmitter, so a pre-emphasised system cannot use the full deviation for all frequencies simultaneously.
+
+> [!tip]- Calculator technique (Canon F-789SGA) — COMP
+> 1. `10^(17÷20)` → **7.079**, the AMPLITUDE multiplier at 15 kHz; `10^(17÷10)` = **50.1** is the power ratio and the wrong key here.
+> 2. The audio level must therefore come down **17** dB at 15 kHz to hold the 75 kHz deviation limit, so the boost buys no extra deviation headroom.
+>
+> 17 dB on a voltage is `10^(17÷20)`; using the `10^` power form overstates the boost by **7.1**×.
+
+### P5. Would pre-emphasis and de-emphasis improve the signal-to-noise ratio of an AM system whose post-detection noise is flat? Justify with numbers for a 17 dB boost at 15 kHz.
+
+**Given:** AM noise is flat; boost = 17 dB at 15 kHz; audio 0-15 kHz
+
+**Solution:**
+
+1. Pre-emphasis raises the 15 kHz audio by 17 dB, and de-emphasis removes exactly that 17 dB, restoring the audio
+2. The flat noise is attenuated 17 dB at 15 kHz too, so the noise power in the top octave falls
+3. But the transmitted signal is now 17 dB louder at 15 kHz, which for AM means the modulation index would exceed 1 unless the overall level is backed off by 17 dB
+4. Backing off reduces the sideband power (and hence the post-detection signal power) by 17 dB at that frequency, cancelling the noise gain
+5. Net SNR change: essentially zero for flat noise - the technique pays only when the noise rises with frequency, as in FM
+
+> [!success]- Answer
+> **No net SNR improvement for AM. Pre-emphasis helps only because FM's noise is triangular ($f^2$).**
+
+> [!warning] Trap
+> Concluding that pre-emphasis always improves SNR. It is an exchange that requires the noise density to rise with frequency; with flat noise the required level back-off cancels the gain exactly.
+
+## Traps & Exam Notes
+
+- **Dropping the $2\pi$ when converting $\tau$ to corner frequency.** $f_c = 1/(2\pi\tau)$: $75\ \mu\mathrm{s}$ is 2.12 kHz, not 13.3 kHz. Every attenuation figure computed from the wrong corner is wrong.
+- **Using the asymptotic slope as the attenuation.** $20\log_{10}(f_m/f_c)$ is valid well above $f_c$; from 1 kHz — below the 75 µs corner — the measured ratio is 16.2 dB, not 23.5 dB. Compute the actual network response when the reference frequency is near or below the corner.
+- **Mismatching the time constants at the two ends.** A 50 µs de-emphasis on a 75 µs transmission tilts the audio spectrum even though the SNR looks fine; the correct time constant is part of the service specification, not a receiver option.
+- **Forgetting the deviation headroom cost.** A 17 dB boost at 15 kHz multiplies that component's amplitude by 7.1, so the audio level must be backed off or the deviation limiter will clip. Pre-emphasis is not free power.
+- **Placing de-emphasis before the discriminator.** De-emphasis belongs in the audio path after detection; before the discriminator it would tilt the limiter's input and corrupt the deviation-to-amplitude conversion.
+- **Assuming de-emphasis fixes impulsive noise.** The ~13 dB improvement applies to the triangular component. Clicks from ignition or switching noise are broadband and are only partly attenuated, which is why noise blankers and limiters exist alongside de-emphasis.
+- **Quoting an SNR improvement without the time constant and weighting.** De-emphasis gains range from about 8 dB (25 µs) to 13 dB (75 µs) over a 15 kHz band, and weighting curves move the number further. The figure is meaningless without them.
+
+## See Also
+
+- [[09_FM_Noise_and_Threshold_Effect]]
+- [[10_AM_vs_FM_Noise_Comparison]]
+- [[05_FM_and_PM_Fundamentals]]
+
+---
+
+[[10_AM_vs_FM_Noise_Comparison|⬅ 10]] · [[_MOC_Principles_of_Communications|MOC]] · [[00_Dashboard|Dashboard]] · [[12_Superheterodyne_Receiver|12 ➡]]

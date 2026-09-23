@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waveguide Cutoff Calculator — TE/TM modes, λg, vp and vg</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+// Rectangular waveguide is examined almost entirely through three numbers: the cutoff
+// frequency of the dominant mode, the guide wavelength, and the pair vp, vg. The point
+// students miss is that below cutoff there is no propagation at all — the mode becomes
+// evanescent and the "wavelength" stops meaning anything. Here a and b are sliders, so
+// the WR-90 numbers (a = 22.86 mm, b = 10.16 mm) can be reproduced and checked.
+//
+//   fc,mn = (c/2) sqrt((m/a)^2 + (n/b)^2)          c = 3e8 m/s (exam value)
+//   lambda_g = lambda_0 / sqrt(1 - (fc/f)^2)
+//   vp = c / sqrt(1 - (fc/f)^2),  vg = c sqrt(1 - (fc/f)^2)   ->  vp*vg = c^2
+//   eta_TE = 120*pi / sqrt(1 - (fc/f)^2)
+
+const C = 3e8;          // m/s, exam value (2.998e8 in the lab)
+const ETA0 = 120 * Math.PI;
+const TAU = Math.PI * 2;
+
+const app = document.getElementById('app');
+const formula = document.createElement('div');
+formula.className = 'vault-widget-note';
+app.appendChild(formula);
+
+widget({
+  title: 'Waveguide Cutoff Calculator — modes, λg, vp, vg and η',
+  description:
+    'A rectangular guide a × b. The upper panel places each TE and TM cutoff frequency on a frequency axis and marks the operating point; the middle panel plots vp/c and vg/c, which diverge and vanish at cutoff and always multiply back to c². Push the frequency below the dominant-mode cutoff and the guide stops propagating — it only attenuates.',
+  height: 620,
+  range: { xMin: 0, xMax: 30, yMin: 0, yMax: 100 },
+  controls: [
+    { id: 'a', label: 'broad dimension a (mm)', min: 10, max: 120, step: 0.02, value: 22.86 },
+    { id: 'b', label: 'narrow dimension b (mm)', min: 4, max: 60, step: 0.02, value: 10.16 },
+    { id: 'f', label: 'operating frequency f (GHz)', min: 1, max: 40, step: 0.01, value: 10 },
+  ],
+  compute: (v) => {
+    const A = v.a / 1000;
+    const B = v.b / 1000;
+    const fHz = v.f * 1e9;
+    const fcOf = (m, n) => (C / 2) * Math.sqrt((m / A) * (m / A) + (n / B) * (n / B));
+
+    const all = [];
+    for (let m = 0; m <= 3; m++) {
+      for (let n = 0; n <= 3; n++) {
+        if (m === 0 && n === 0) continue;
+        const fc = fcOf(m, n);
+        all.push({ m, n, name: 'TE' + m + n, fc, type: 'TE' });
+        if (m >= 1 && n >= 1) all.push({ m, n, name: 'TM' + m + n, fc, type: 'TM' });
+      }
+    }
+    all.sort((p, q) => p.fc - q.fc);
+
+    // group modes that share a cutoff (TE11/TM11 always do)
+    const groups = [];
+    for (const md of all) {
+      const last = groups[groups.length - 1];
+      if (last && Math.abs(md.fc - last.fc) < 1e-6 * Math.max(1, last.fc)) {
+        last.names.push(md.name);
+      } else {
+        groups.push({ fc: md.fc, names: [md.name], m: md.m, n: md.n });
+      }
+    }
+
+    const dom = groups[0];
+    const fc10 = dom.fc;
+    const lam0 = C / fHz;
+    const lamc = C / fc10;
+    const above = fHz > fc10;
+    const sq = above ? Math.sqrt(1 - (fc10 / fHz) * (fc10 / fHz)) : NaN;
+    const lamg = above ? lam0 / sq : NaN;
+    const vp = above ? C / sq : NaN;
+    const vg = above ? C * sq : NaN;
+    const eta = above ? ETA0 / sq : NaN;
+    const alphaNp = above ? 0 : (TAU / lam0) * Math.sqrt((fc10 / fHz) * (fc10 / fHz) - 1);
+    const alphaDb = 8.685889638 * alphaNp;
+    const prop = groups.filter((gr) => gr.fc < fHz);
+    const fPlotMax = Math.max(v.f * 1.15, (fc10 / 1e9) * 2.4, groups[3] ? (groups[3].fc / 1e9) * 1.05 : 0);
+    return { A, B, fHz, all, groups, dom, fc10, lam0, lamc, above, sq, lamg, vp, vg, eta, alphaNp, alphaDb, prop, singleMode: prop.length === 1, fPlotMax, fc: v.f, a: v.a, b: v.b };
+  },
+  draw: (ctx, v, out, plot) => {
+    const MODE_LO = 70, MODE_HI = 97, VG_LO = 32, VG_HI = 64, INFO_LO = 2, INFO_HI = 26;
+    const fmax = out.fPlotMax;
+    const yv = (val) => VG_LO + (val / 3) * (VG_HI - VG_LO);
+    plot.setRange({ xMin: 0, xMax: fmax, yMin: 0, yMax: 100 });
+    plot.clear();
+
+    ctx.save();
+    ctx.fillStyle = '#23233a';
+    ctx.fillRect(plot.X(0), plot.Y(MODE_HI), plot.X(fmax) - plot.X(0), plot.Y(MODE_LO) - plot.Y(MODE_HI));
+    ctx.fillStyle = '#1b1b2c';
+    ctx.fillRect(plot.X(0), plot.Y(VG_HI), plot.X(fmax) - plot.X(0), plot.Y(VG_LO) - plot.Y(VG_HI));
+    ctx.fillStyle = '#20202f';
+    ctx.fillRect(plot.X(0), plot.Y(INFO_HI), plot.X(fmax) - plot.X(0), plot.Y(INFO_LO) - plot.Y(INFO_HI));
+    ctx.restore();
+
+    // frequency gridlines
+    const step = fmax <= 12 ? 1 : fmax <= 30 ? 2 : 5;
+    for (let g = 0; g <= fmax + 1e-9; g += step) {
+      plot.segment(g, INFO_LO, g, MODE_HI, { color: 'rgba(58,58,82,0.55)', width: 1 });
+      plot.text(fmt(g, 3), plot.X(g), plot.Y(VG_LO) + 14, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'center' });
+    }
+    plot.text('frequency (GHz)', plot.X(fmax) - 6, plot.Y(VG_LO) + 14, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+
+    // ---- mode axis ------------------------------------------------------
+    const axisY = 74;
+    plot.segment(0, axisY, fmax, axisY, { color: PALETTE.axis, width: 2 });
+    let row = 0;
+    for (const gr of out.groups) {
+      const g = gr.fc / 1e9;
+      if (g > fmax * 1.02) break;
+      const on = gr.fc < out.fHz;
+      const col = on ? PALETTE.accent3 : PALETTE.accent2;
+      plot.segment(g, axisY - 4, g, axisY + 4, { color: col, width: 2.5 });
+      const ly = row % 2 === 0 ? 84 : 91;
+      plot.segment(g, axisY + 4, g, ly - 3, { color: col, width: 1, dash: [2, 2] });
+      plot.text(gr.names.join('/') + '  ' + fmt(g, 4) + ' GHz', plot.X(g), plot.Y(ly),
+        { color: col, font: '10px ui-monospace, monospace', align: 'center' });
+      row++;
+    }
+    plot.text('CUTOFF FREQUENCIES OF EVERY TE AND TM MODE (green = propagates at f, red = below cutoff)',
+      plot.X(0) + 6, plot.Y(MODE_HI) - 8, { color: PALETTE.text, font: '11px ui-monospace, monospace' });
+
+    // ---- vp / vg panel ---------------------------------------------------
+    for (const val of [0, 1, 2, 3]) {
+      plot.segment(0, yv(val), fmax, yv(val), { color: PALETTE.grid, width: 1 });
+      plot.text(fmt(val, 2) + 'c', plot.X(0) - 6, yv(val) + 4, { color: PALETTE.dim, font: '10px ui-monospace, monospace', align: 'right' });
+    }
+    plot.fn((g) => {
+      const ff = g * 1e9;
+      if (ff <= out.fc10) return NaN;
+      const s = Math.sqrt(1 - (out.fc10 / ff) * (out.fc10 / ff));
+      const val = 1 / s;
+      return val > 3 ? NaN : yv(val);
+    }, 0, fmax, { color: PALETTE.accent5, width: 2.5, samples: 900 });
+    plot.fn((g) => {
+      const ff = g * 1e9;
+      if (ff <= out.fc10) return NaN;
+      return yv(Math.sqrt(1 - (out.fc10 / ff) * (out.fc10 / ff)));
+    }, 0, fmax, { color: PALETTE.accent3, width: 2.5, samples: 900 });
+    plot.text('vp / c   phase velocity (purple) — exceeds c above cutoff',
+      plot.X(0) + 6, plot.Y(VG_HI) - 8, { color: PALETTE.accent5, font: '11px ui-monospace, monospace' });
+    plot.text('vg / c   group velocity (green) — approaches c far above cutoff',
+      plot.X(0) + 6, plot.Y(VG_HI) + 8, { color: PALETTE.accent3, font: '11px ui-monospace, monospace' });
+    plot.text('vp and vg exist only above fc = ' + fmt(out.fc10 / 1e9, 4) + ' GHz; at fc, vp → ∞ and vg → 0',
+      plot.X(0) + 6, plot.Y(VG_LO) - 6, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+
+    // operating frequency line across all panels
+    plot.segment(out.fc, INFO_LO, out.fc, MODE_HI, { color: PALETTE.warn, width: 2 });
+    plot.text('f = ' + fmt(out.fc, 4) + ' GHz', plot.X(out.fc) + 5, plot.Y(MODE_HI) - 8,
+      { color: PALETTE.warn, font: '11px ui-monospace, monospace' });
+    if (out.above) {
+      plot.dot(out.fc, yv(out.vp / C), { color: PALETTE.accent5, r: 4 });
+      plot.dot(out.fc, yv(out.vg / C), { color: PALETTE.accent3, r: 4 });
+    }
+
+    // ---- info strip ------------------------------------------------------
+    const t0 = plot.X(0) + 8;
+    const t1 = plot.Y(INFO_HI) + 18;
+    const col = out.above ? PALETTE.accent3 : PALETTE.accent2;
+    plot.text(out.above ? 'PROPAGATING — f > fc' : 'BELOW CUTOFF — NO PROPAGATION, ATTENUATION ONLY',
+      t0, t1, { color: col, font: '12px ui-monospace, monospace' });
+    plot.text('dominant mode ' + out.dom.names.join('/') + ':  fc = ' + fmt(out.fc10 / 1e9, 5) + ' GHz    λc = ' + fmt(out.lamc * 1000, 4) +
+      ' mm    f/fc = ' + fmt(out.fHz / out.fc10, 4), t0, t1 + 20, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+    if (out.above) {
+      plot.text('λ0 = ' + fmt(out.lam0 * 1000, 4) + ' mm    λg = ' + fmt(out.lamg * 1000, 4) + ' mm    λg/λ0 = ' + fmt(out.lamg / out.lam0, 4) +
+        '    η_TE = ' + fmt(out.eta, 5) + ' Ω', t0, t1 + 40, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+      plot.text('vp = ' + fmt(out.vp, 5) + ' m/s = ' + fmt(out.vp / C, 5) + 'c        vg = ' + fmt(out.vg, 5) + ' m/s = ' + fmt(out.vg / C, 5) + 'c',
+        t0, t1 + 60, { color: PALETTE.accent5, font: '12px ui-monospace, monospace' });
+      plot.text('vp · vg = ' + fmt(out.vp * out.vg, 5) + ' m²/s²   =   c² = ' + fmt(C * C, 5) + '   (ratio ' + fmt((out.vp * out.vg) / (C * C), 6) + ')',
+        t0, t1 + 80, { color: PALETTE.accent3, font: '12px ui-monospace, monospace' });
+    } else {
+      plot.text('λ0 = ' + fmt(out.lam0 * 1000, 4) + ' mm    no λg, no vp, no vg — the mode is evanescent',
+        t0, t1 + 40, { color: PALETTE.text, font: '12px ui-monospace, monospace' });
+      plot.text('α = (2π/λ0)·√((fc/f)² − 1) = ' + fmt(out.alphaNp, 5) + ' Np/m  =  ' + fmt(out.alphaDb, 5) + ' dB/m',
+        t0, t1 + 60, { color: PALETTE.accent2, font: '12px ui-monospace, monospace' });
+      plot.text('the field decays as e^(−αz): below cutoff the guide is an attenuator, not a transmission line',
+        t0, t1 + 80, { color: PALETTE.dim, font: '11px ui-monospace, monospace' });
+    }
+    const modeList = out.prop.map((g) => g.names.join('/')).join(', ');
+    plot.text('propagating at f: ' + (modeList || 'none') + '   ·   ' + (out.singleMode ? 'single-mode operation' : out.prop.length + ' modes propagating'),
+      plot.X(fmax) - 6, plot.Y(INFO_LO) - 6, { color: PALETTE.dim, font: '11px ui-monospace, monospace', align: 'right' });
+
+    formula.innerHTML =
+      '<strong>Governing formulas, with the current numbers substituted (c = 3×10⁸ m/s).</strong><br>' +
+      '<span class="vault-mono">fc,mn = (c/2)·√((m/a)² + (n/b)²),  a = ' + fmt(out.a, 4) + ' mm,  b = ' + fmt(out.b, 4) + ' mm</span><br>' +
+      '<span class="vault-mono">dominant mode ' + out.dom.names.join('/') + ':  fc = (3×10⁸/2)·√((' + out.dom.m + '/' + fmt(out.A, 4) + ')² + (' +
+      out.dom.n + '/' + fmt(out.B, 4) + ')²) = ' + fmt(out.fc10 / 1e9, 5) + ' GHz    ·    λc = c/fc = ' + fmt(out.lamc * 1000, 4) + ' mm</span><br>' +
+      '<span class="vault-mono">λ0 = c/f = ' + fmt(out.lam0 * 1000, 4) + ' mm    ·    ' +
+      (out.above
+        ? 'λg = λ0/√(1 − (fc/f)²) = ' + fmt(out.lamg * 1000, 4) + ' mm   with √(1 − (fc/f)²) = ' + fmt(out.sq, 5)
+        : 'f &lt; fc, so (fc/f)² − 1 = ' + fmt((out.fc10 / out.fHz) ** 2 - 1, 5) + ' and λg is undefined') + '</span><br>' +
+      (out.above
+        ? '<span class="vault-mono">vp = c/√(1 − (fc/f)²) = ' + fmt(out.vp, 6) + ' m/s = ' + fmt(out.vp / C, 5) +
+          'c    ·    vg = c·√(1 − (fc/f)²) = ' + fmt(out.vg, 6) + ' m/s = ' + fmt(out.vg / C, 5) + 'c</span><br>' +
+          '<span class="vault-mono">vp·vg = ' + fmt(out.vp * out.vg, 6) + ' m²/s²    vs    c² = ' + fmt(C * C, 6) +
+          '    →    ratio ' + fmt((out.vp * out.vg) / (C * C), 7) + '</span><br>' +
+          '<span class="vault-mono">η_TE = 120π/√(1 − (fc/f)²) = ' + fmt(out.eta, 5) + ' Ω    (η0 = 120π = ' + fmt(ETA0, 5) + ' Ω)</span>'
+        : '<span class="vault-mono">α = (2π/λ0)·√((fc/f)² − 1) = ' + fmt(out.alphaNp, 6) + ' Np/m = ' + fmt(out.alphaDb, 6) +
+          ' dB/m   (1 Np = 8.686 dB)</span>');
+  },
+  readout: (out) => ({
+    'status': out.above ? 'PROPAGATING (f > fc)' : 'BELOW CUTOFF (f < fc)',
+    'dominant mode': out.dom.names.join('/') + '  (fc = ' + fmt(out.fc10 / 1e9, 5) + ' GHz)',
+    'cutoff wavelength λc': fmt(out.lamc * 1000, 4) + ' mm',
+    'free-space λ0': fmt(out.lam0 * 1000, 4) + ' mm',
+    'guide wavelength λg': out.above ? fmt(out.lamg * 1000, 4) + ' mm' : 'undefined (evanescent)',
+    'λg / λ0': out.above ? fmt(out.lamg / out.lam0, 4) : '—',
+    'phase velocity vp': out.above ? fmt(out.vp, 5) + ' m/s  (' + fmt(out.vp / C, 4) + 'c)' : '—',
+    'group velocity vg': out.above ? fmt(out.vg, 5) + ' m/s  (' + fmt(out.vg / C, 4) + 'c)' : '—',
+    'vp · vg  vs  c²': out.above ? fmt(out.vp * out.vg, 5) + '  vs  ' + fmt(C * C, 3) + ' m²/s²' : '—',
+    'wave impedance η_TE': out.above ? fmt(out.eta, 5) + ' Ω' : '—',
+    'attenuation below cutoff': out.above ? 'none' : fmt(out.alphaNp, 4) + ' Np/m  =  ' + fmt(out.alphaDb, 4) + ' dB/m',
+    'modes propagating now': out.prop.length ? out.prop.map((g) => g.names.join('/')).join(', ') : 'none',
+    'single-mode operation?': out.singleMode ? 'yes — only the dominant mode' : 'no (' + out.prop.length + ' modes)',
+    'next cutoff above f': fmt((out.groups.find((g) => g.fc > out.fHz) || {}).fc / 1e9, 5) + ' GHz',
+  }),
+});
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.innerHTML =
+  '<strong>The exam point.</strong> WR-90 is a = 22.86 mm and b = 10.16 mm, so fc,TE10 = ' +
+  '3×10⁸/(2 × 0.02286) = 6.5617 GHz and fc,TE20 = 13.1234 GHz: the useful single-mode band is ' +
+  '6.56 – 13.12 GHz, and 10 GHz sits comfortably inside it. At 10 GHz, λ0 = 30 mm, ' +
+  '√(1 − (6.5617/10)²) = 0.7546, so λg = 39.76 mm (LONGER than λ0), vp = 1.3252c (faster than c) and ' +
+  'vg = 0.7546c; vp·vg = 9.000×10¹⁶ = c² to machine precision. Traps: (1) λg is always longer than λ0, ' +
+  'never shorter — a guide wavelength below λ0 means the cutoff term was inverted; (2) vp &gt; c is not a relativity ' +
+  'violation, it is a guided phase velocity while the energy travels at vg &lt; c; (3) below cutoff there is ' +
+  'no λg, vp or vg at all — the answer is an attenuation constant in Np/m (× 8.686 for dB/m); ' +
+  '(4) m/a and n/b must use the same units, and a and b must be in metres with c = 3×10⁸ m/s.';
+app.appendChild(note);
+
+app.insertBefore(formula, app.querySelector('.vault-widget-canvas'));
+</script>
+</body>
+</html>

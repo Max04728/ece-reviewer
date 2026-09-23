@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit Cell Viewer — SC, BCC, FCC, HCP</title>
+<link rel="stylesheet" href="../../../Assets/snippets.css">
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { widget, fmt, PALETTE } from '../../../Assets/vault.js';
+
+/* ============================================================================
+ * Unit cell viewer for simple cubic, BCC, FCC and HCP.
+ *
+ * Everything is computed from geometry, so the numbers can be checked by hand:
+ *
+ *   structure   a in terms of r        atoms/cell            APF
+ *   SC          a = 2r                 8 x 1/8 = 1           pi/6          = 0.5236
+ *   BCC         a = 4r/sqrt(3)         8 x 1/8 + 1 = 2       sqrt(3)pi/8   = 0.6802
+ *   FCC         a = 2.sqrt(2).r        8 x 1/8 + 6 x 1/2 = 4 sqrt(2)pi/6   = 0.7405
+ *   HCP         a = 2r, c = 1.633a     12 x 1/6 + 2 x 1/2 + 3 = 6   pi/(3.sqrt(2)) = 0.7405
+ *
+ *   density     rho = n.A / (N_A . V_cell)
+ *
+ * THE TRAP: counting atoms. A corner atom is shared by 8 cells, so it counts
+ * 1/8; a face atom is shared by 2 cells, so it counts 1/2; an edge atom counts
+ * 1/4 and a body atom counts 1. Forgetting the 1/8 and 1/2 gives 8, 9, 14 and 17
+ * instead of 1, 2, 4 and 6 - a completely different density.
+ *
+ * The cell is drawn in an isometric projection (x to the lower right, y to the
+ * lower left, z straight up), which is a 2D schematic of the 3D arrangement; no
+ * 3D library is needed and every atom position is exact.
+ * ==========================================================================*/
+
+const NA = 6.02214076e23;
+
+const STRUCT = {
+  SC: {
+    label: 'simple cubic (SC)',
+    aOf: (r) => 2 * r,
+    cOverA: null,
+    n: 1, cn: 6, apf: Math.PI / 6,
+    sharing: '8 corners x 1/8 = 1',
+    apfText: 'pi/6 = 0.5236',
+    aText: 'a = 2r',
+    at: () => {
+      const p = [];
+      for (let x = -1; x <= 1; x += 2) for (let y = -1; y <= 1; y += 2) for (let z = -1; z <= 1; z += 2) {
+        p.push({ u: (x + 1) / 2, v: (y + 1) / 2, w: (z + 1) / 2, frac: 1 / 8, tag: 'corner' });
+      }
+      return p;
+    },
+    edges: 'cube',
+  },
+  BCC: {
+    label: 'body-centred cubic (BCC)',
+    aOf: (r) => (4 * r) / Math.sqrt(3),
+    cOverA: null,
+    n: 2, cn: 8, apf: (Math.sqrt(3) * Math.PI) / 8,
+    sharing: '8 corners x 1/8 + 1 body x 1 = 2',
+    apfText: 'sqrt(3).pi/8 = 0.6802',
+    aText: 'a = 4r/sqrt(3)',
+    at: () => {
+      const p = [];
+      for (let x = -1; x <= 1; x += 2) for (let y = -1; y <= 1; y += 2) for (let z = -1; z <= 1; z += 2) {
+        p.push({ u: (x + 1) / 2, v: (y + 1) / 2, w: (z + 1) / 2, frac: 1 / 8, tag: 'corner' });
+      }
+      p.push({ u: 0.5, v: 0.5, w: 0.5, frac: 1, tag: 'body' });
+      return p;
+    },
+    edges: 'cube',
+  },
+  FCC: {
+    label: 'face-centred cubic (FCC)',
+    aOf: (r) => 2 * Math.SQRT2 * r,
+    cOverA: null,
+    n: 4, cn: 12, apf: (Math.SQRT2 * Math.PI) / 6,
+    sharing: '8 corners x 1/8 + 6 faces x 1/2 = 4',
+    apfText: 'sqrt(2).pi/6 = 0.7405',
+    aText: 'a = 2.sqrt(2).r',
+    at: () => {
+      const p = [];
+      for (let x = -1; x <= 1; x += 2) for (let y = -1; y <= 1; y += 2) for (let z = -1; z <= 1; z += 2) {
+        p.push({ u: (x + 1) / 2, v: (y + 1) / 2, w: (z + 1) / 2, frac: 1 / 8, tag: 'corner' });
+      }
+      for (const [u, v, w] of [[0.5, 0.5, 0], [0.5, 0.5, 1], [0.5, 0, 0.5], [0.5, 1, 0.5], [0, 0.5, 0.5], [1, 0.5, 0.5]]) {
+        p.push({ u, v, w, frac: 1 / 2, tag: 'face' });
+      }
+      return p;
+    },
+    edges: 'cube',
+  },
+  HCP: {
+    label: 'hexagonal close-packed (HCP)',
+    aOf: (r) => 2 * r,
+    cOverA: 1.632993161855452,
+    n: 6, cn: 12, apf: Math.PI / (3 * Math.SQRT2),
+    sharing: '12 corners x 1/6 + 2 face centres x 1/2 + 3 interior x 1 = 6',
+    apfText: 'pi/(3.sqrt(2)) = 0.7405',
+    aText: 'a = 2r, c = 1.633a',
+    at: () => {
+      const p = [];
+      // hexagonal prism: two basal hexagons at w = 0 and w = 1, central atoms,
+      // and three interior atoms at mid height (the 1/3, 2/3 positions)
+      for (const w of [0, 1]) {
+        for (let i = 0; i < 6; i++) {
+          const th = (Math.PI / 3) * i;
+          p.push({ u: Math.cos(th), v: Math.sin(th), w, frac: 1 / 6, tag: 'corner' });
+        }
+        p.push({ u: 0, v: 0, w, frac: 1 / 2, tag: 'face' });
+      }
+      for (let i = 0; i < 3; i++) {
+        const th = (Math.PI / 3) * i + Math.PI / 6;
+        p.push({ u: (2 * Math.cos(th)) / Math.sqrt(3), v: (2 * Math.sin(th)) / Math.sqrt(3), w: 0.5, frac: 1, tag: 'interior' });
+      }
+      return p;
+    },
+    edges: 'hex',
+  },
+};
+
+/* ---------------------------------------------------------------- geometry --
+ * Isometric projection. Lattice coordinates run 0..1 along x, y, z (HCP uses
+ * u,v in a hexagonal frame with |u| <= 1). Screen: x to the lower right, y to
+ * the lower left, z up. */
+const ISO = { ax: 0.90, ay: 0.52, az: 1.0 };
+
+function project(u, v, w, scale, cx, cy, zSpan) {
+  const X = (u - 0.5) * ISO.ax - (v - 0.5) * ISO.ax;
+  const Y = (u - 0.5) * ISO.ay + (v - 0.5) * ISO.ay - (w - 0.5) * ISO.az * zSpan;
+  return { px: cx + X * scale, py: cy + Y * scale, depth: u + v + w };
+}
+
+widget({
+  title: 'Unit Cell Viewer — Atoms per Cell, Coordination and Packing Factor',
+  description:
+    'SC, BCC, FCC and HCP drawn as an isometric projection. Atomic radius and atomic weight drive the lattice ' +
+    'parameter, the packing factor and the density numerically.',
+  height: 500,
+  range: { xMin: 0, xMax: 900, yMin: 0, yMax: 500 },
+  controls: [
+    {
+      id: 'struct', label: 'crystal structure', type: 'select',
+      options: [
+        { value: 'SC', label: 'simple cubic (SC)' },
+        { value: 'BCC', label: 'body-centred cubic (BCC)' },
+        { value: 'FCC', label: 'face-centred cubic (FCC)' },
+        { value: 'HCP', label: 'hexagonal close-packed (HCP)' },
+      ],
+      value: 'FCC',
+    },
+    { id: 'r', label: 'atomic radius r (pm)', min: 60, max: 300, step: 1, value: 128 },
+    { id: 'A', label: 'atomic weight A (g/mol)', min: 1, max: 240, step: 0.01, value: 63.546 },
+    { id: 'hard', label: 'true touching-sphere radii (otherwise reduced for clarity)', type: 'checkbox', value: false },
+    { id: 'showFrac', label: 'list every atom position and its sharing fraction', type: 'checkbox', value: true },
+  ],
+
+  compute: (v) => {
+    const S = STRUCT[v.struct];
+    const a = S.aOf(v.r);                       // pm
+    const c = S.cOverA ? S.cOverA * a : null;   // pm
+    let Vcell;                                  // pm^3
+    if (v.struct === 'HCP') {
+      Vcell = (3 * Math.sqrt(3) / 2) * a * a * c;
+    } else {
+      Vcell = a * a * a;
+    }
+    const Vcm3 = Vcell * 1e-30;                 // pm^3 -> cm^3
+    const mass = (S.n * v.A) / NA;              // g per cell
+    const rho = mass / Vcm3;                    // g/cm3
+    // independent APF route from the cell geometry, to cross-check the table value
+    const apfGeo = (S.n * (4 / 3) * Math.PI * Math.pow(v.r, 3)) / Vcell;
+    const atoms = S.at();
+    const nGeo = atoms.reduce((s, p) => s + p.frac, 0);
+    return {
+      S, a, c, Vcell, Vcm3, rho, apfGeo, atoms, nGeo,
+      r: v.r, A: v.A, hard: !!v.hard, showFrac: !!v.showFrac,
+      structure: v.struct,
+      // nearest-neighbour distance for the record
+      nn: v.struct === 'SC' ? a : (v.struct === 'BCC' ? (Math.sqrt(3) / 2) * a
+        : (v.struct === 'FCC' ? a / Math.SQRT2 : a)),
+    };
+  },
+
+  draw: (ctx, v, out, plot) => {
+    const W = plot.w, H = plot.h;
+    plot.clear();
+    // no data-space axes here: this is a schematic panel, drawn in pixels
+    ctx.save();
+    ctx.fillStyle = PALETTE.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const panelX = W * 0.44;                       // cell on the left, numbers right
+    const cx = panelX / 2, cy = H / 2 + 20;
+    const zSpan = out.c ? (out.c / out.a) : 1;     // HCP is taller than wide
+    const span = 1.32;
+    const scale = Math.min(panelX / (2.0 * ISO.ax * span), (H - 90) / (2.0 * ISO.ay * span + ISO.az * zSpan * span));
+
+    const a = out.a;
+    // atom radii: true touching spheres, or reduced so the arrangement is legible
+    const rFrac = out.hard ? out.r / a : 0.20;
+
+    // --- wireframe edges -----------------------------------------------------
+    ctx.save();
+    ctx.strokeStyle = PALETTE.grid;
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 4]);
+    const edge = (p, q) => {
+      const A = project(p[0], p[1], p[2], scale, cx, cy, zSpan);
+      const B = project(q[0], q[1], q[2], scale, cx, cy, zSpan);
+      ctx.beginPath(); ctx.moveTo(A.px, A.py); ctx.lineTo(B.px, B.py); ctx.stroke();
+    };
+    if (out.S.edges === 'cube') {
+      const c8 = [];
+      for (let x = 0; x <= 1; x++) for (let y = 0; y <= 1; y++) for (let z = 0; z <= 1; z++) c8.push([x, y, z]);
+      const key = (p) => p.join(',');
+      const S = new Set(c8.map(key));
+      for (const p of c8) {
+        for (const [dx, dy, dz] of [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) {
+          const q = [p[0] + dx, p[1] + dy, p[2] + dz];
+          if (S.has(key(q))) edge(p, q);
+        }
+      }
+    } else {
+      for (const w of [0, 1]) {
+        for (let i = 0; i < 6; i++) {
+          const t0 = (Math.PI / 3) * i, t1 = (Math.PI / 3) * (i + 1);
+          edge([Math.cos(t0), Math.sin(t0), w], [Math.cos(t1), Math.sin(t1), w]);
+        }
+      }
+      for (let i = 0; i < 6; i++) {
+        const t = (Math.PI / 3) * i;
+        edge([Math.cos(t), Math.sin(t), 0], [Math.cos(t), Math.sin(t), 1]);
+      }
+    }
+    ctx.restore();
+
+    // --- atoms, far ones first ----------------------------------------------
+    const proj = out.atoms.map((p) => {
+      const q = project(p.u, p.v, p.w, scale, cx, cy, zSpan);
+      return { ...q, frac: p.frac, tag: p.tag };
+    }).sort((m, n) => m.depth - n.depth);
+
+    const colOf = (tag) => tag === 'corner' ? PALETTE.accent
+      : (tag === 'face' ? PALETTE.accent4 : (tag === 'body' ? PALETTE.accent2 : PALETTE.accent3));
+
+    for (const p of proj) {
+      const R = Math.max(4, rFrac * a * scale);
+      const far = p.depth > 1.6;
+      ctx.save();
+      ctx.globalAlpha = out.hard ? (far ? 0.42 : 0.72) : (far ? 0.75 : 1);
+      ctx.fillStyle = colOf(p.tag);
+      ctx.beginPath(); ctx.arc(p.px, p.py, R, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = far ? PALETTE.grid : PALETTE.text;
+      ctx.lineWidth = far ? 1 : 1.6;
+      ctx.beginPath(); ctx.arc(p.px, p.py, R, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
+
+    // legend
+    const leg = [['corner atom (1/8)', PALETTE.accent], ['face atom (1/2)', PALETTE.accent4],
+      ['body atom (1)', PALETTE.accent2], ['interior atom (1)', PALETTE.accent3]];
+    let ly = 22;
+    ctx.font = '11px ui-monospace, monospace';
+    for (const [s, c] of leg) {
+      ctx.fillStyle = c;
+      ctx.beginPath(); ctx.arc(14, ly - 3, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = PALETTE.dim;
+      ctx.fillText(s, 26, ly);
+      ly += 17;
+    }
+    ctx.fillStyle = PALETTE.text;
+    ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText(out.S.label, 12, H - 12);
+
+    // --- right-hand numeric panel -------------------------------------------
+    const x0 = panelX + 16;
+    let y = 26;
+    const line = (s, opts = {}) => {
+      ctx.fillStyle = opts.color ?? PALETTE.text;
+      ctx.font = (opts.big ? '15px ' : '12px ') + 'ui-monospace, monospace';
+      ctx.fillText(s, x0 + (opts.indent ?? 0), y);
+      y += opts.big ? 24 : 18;
+    };
+    line('atoms per unit cell  n = ' + fmt(out.nGeo, 6), { big: true, color: PALETTE.accent3 });
+    line('  ' + out.S.sharing, { color: PALETTE.dim, indent: 6 });
+    line('coordination number  CN = ' + out.S.cn, { big: true, color: PALETTE.accent3 });
+    line('atomic packing factor  APF = ' + fmt(out.S.apf, 5), { big: true, color: PALETTE.accent3 });
+    line('  from geometry: n.(4/3).pi.r^3 / V_cell = ' + fmt(out.apfGeo, 5), { color: PALETTE.dim, indent: 6 });
+    y += 6;
+    line('lattice parameter  ' + out.S.aText, { color: PALETTE.warn });
+    line('  a = ' + fmt(out.a, 5) + ' pm' + (out.c ? '   c = ' + fmt(out.c, 5) + ' pm' : ''), { indent: 6 });
+    line('  nearest-neighbour distance = ' + fmt(out.nn, 5) + ' pm = 2r', { indent: 6, color: PALETTE.dim });
+    line('cell volume  V = ' + fmt(out.Vcell, 5) + ' pm^3', { color: PALETTE.warn });
+    line('  = ' + fmt(out.Vcm3, 5) + ' cm^3', { indent: 6, color: PALETTE.dim });
+    y += 6;
+    line('density  rho = n.A / (N_A.V)', { color: PALETTE.warn });
+    line('  = ' + fmt(out.nGeo, 4) + ' . ' + fmt(out.A, 5) + ' / (6.02214076e23 . ' + fmt(out.Vcm3, 5) + ')', { indent: 6, color: PALETTE.dim });
+    line('  = ' + fmt(out.rho, 5) + ' g/cm3', { big: true, indent: 6, color: PALETTE.accent2 });
+
+    if (out.showFrac) {
+      y += 4;
+      line('position list  (fractional u,v,w -> share)', { color: PALETTE.dim });
+      const shown = out.atoms.slice(0, 5);
+      for (const p of shown) {
+        line('  (' + fmt(p.u, 3) + ', ' + fmt(p.v, 3) + ', ' + fmt(p.w, 3) + ')  ' + p.tag + '  x' + p.frac,
+          { color: PALETTE.dim, indent: 8 });
+      }
+      if (out.atoms.length > shown.length) {
+        line('  ... ' + (out.atoms.length - shown.length) + ' more, all sharing as listed above', { color: PALETTE.dim, indent: 8 });
+      }
+    }
+    ctx.restore();
+  },
+
+  readout: (out) => ({
+    'structure': out.S.label,
+    'atoms per cell n': fmt(out.nGeo, 6),
+    'sharing breakdown': out.S.sharing,
+    'coordination number': String(out.S.cn),
+    'APF (table)': fmt(out.S.apf, 5),
+    'APF (from n, r, V)': fmt(out.apfGeo, 5),
+    'lattice parameter a': fmt(out.a, 5) + ' pm',
+    'c': out.c ? fmt(out.c, 5) + ' pm' : '—',
+    'c/a': out.c ? fmt(out.c / out.a, 5) : '—',
+    'cell volume': fmt(out.Vcell, 5) + ' pm^3',
+    'density': fmt(out.rho, 5) + ' g/cm3',
+    'hand-check n.A': fmt(out.nGeo * out.A, 5) + ' g/mol per cell',
+  }),
+
+  onChange: (v) => renderNote(v),
+});
+
+function renderNote(v) {
+  const S = STRUCT[v.struct];
+  const a = S.aOf(v.r);
+  const c = S.cOverA ? S.cOverA * a : null;
+  const V = v.struct === 'HCP' ? (3 * Math.sqrt(3) / 2) * a * a * c : a * a * a;
+  const Vcm3 = V * 1e-30;
+  const rho = (S.n * v.A) / NA / Vcm3;
+  const apf = (S.n * (4 / 3) * Math.PI * Math.pow(v.r, 3)) / V;
+  note.innerHTML =
+    '<div class="vault-mono">'
+    + 'a = ' + S.aText + ' = ' + fmt(a, 5) + ' pm' + (c ? ' &nbsp;&nbsp; c = 1.633a = ' + fmt(c, 5) + ' pm' : '') + '<br>'
+    + 'V_cell = ' + (v.struct === 'HCP' ? '(3.sqrt(3)/2).a^2.c' : 'a^3') + ' = ' + fmt(V, 5) + ' pm^3 = '
+    + fmt(Vcm3, 5) + ' cm^3<br>'
+    + 'APF = n.(4/3).pi.r^3 / V_cell = ' + fmt(S.n, 3) + '.(4/3).pi.(' + fmt(v.r, 4) + ')^3 / ' + fmt(V, 5)
+    + ' = <strong>' + fmt(apf, 5) + '</strong> (table value ' + S.apfText + ')<br>'
+    + 'rho = n.A / (N_A.V_cell) = ' + fmt(S.n, 3) + '.' + fmt(v.A, 5) + ' / (6.02214076e23 . '
+    + fmt(Vcm3, 5) + ') = <strong>' + fmt(rho, 5) + ' g/cm3</strong></div>'
+    + '<div style="margin-top:8px"><strong>Exam trap this widget kills:</strong> counting atoms. A corner atom is '
+    + 'shared by 8 cells and counts 1/8; a face atom is shared by 2 and counts 1/2; an edge atom counts 1/4; only '
+    + 'a body-centre or interior atom counts as a whole atom. Counting whole spheres per cell gives 8 for SC, 9 for '
+    + 'BCC, 14 for FCC and 17 for HCP instead of the correct 1, 2, 4 and 6, which then makes the density wrong by '
+    + 'the same factor. The second trap is the APF: SC 0.5236, BCC 0.6802 and both close-packed structures 0.7405, '
+    + 'the maximum possible for equal spheres. A worked check: FCC copper with r = 128 pm gives a = 2.sqrt(2).128 = '
+    + '362.0 pm, V = 4.746e-23 cm^3 and rho = 4(63.546)/(6.02214076e23 x 4.746e-23) = 8.89 g/cm3, against the '
+    + 'measured 8.96 g/cm3 &mdash; the small gap is the hard-sphere radius approximation, not a counting error. '
+    + 'HCP at the ideal c/a = 1.633 also gives 0.7405, exactly the same as FCC: they are both close-packed, and '
+    + 'they differ only in the stacking sequence ABAB against ABCABC.</div>';
+}
+
+const note = document.createElement('div');
+note.className = 'vault-widget-note';
+note.id = 'cell-note';
+document.getElementById('app').appendChild(note);
+renderNote({ struct: 'FCC', r: 128, A: 63.546, hard: false, showFrac: true });
+</script>
+</body>
+</html>

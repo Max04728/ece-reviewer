@@ -1,0 +1,110 @@
+{
+  "scope": "Advance an initial-value problem one step at a time with the explicit Euler formula, show the iteration table, and recognise its first-order error and stability limits.",
+  "intuition": "Euler's method walks forward in a straight line: at each point it reads the slope from the differential equation and takes a step of length h along that slope. The tangent is only an approximation to the curve, so each step leaves a small error that the next step inherits.",
+  "concept": [
+    "**The method is the first two terms of a Taylor series.** Start from two facts: $y(x_{i+1})=y(x_i)+h y'(x_i)+\\frac{h^{2}}{2}y''(\\xi)$ and $y'=f(x,y)$. Dropping the quadratic term gives $y_{i+1}=y_i+h\\,f(x_i,y_i)$. Everything about the method follows from that truncation: it is *explicit* (the right-hand side uses only known values) and *first-order* (the discarded term is $O(h^{2})$ per step).",
+    "**Local versus global error.** The *local* truncation error is $\\frac{h^{2}}{2}y''(\\xi)$ per step; the *global* error after $n=(x_n-x_0)/h$ steps accumulates to $O(h)$, because there are $1/h$ steps each contributing $O(h^{2})$. The practical rule: **halving $h$ halves the total error**, and the error grows with the curvature $|y''|$ of the solution — which is why the method handles almost-straight solutions well and exponential solutions badly.",
+    "**The error bound.** For $y'=f(x,y)$ with Lipschitz constant $L$ and $M=\\max|y''|$ on the interval, the explicit bound is: $|E_n|\\le\\frac{hM}{2L}\\left(e^{L(x_n-x_0)}-1\\right)$. When $f$ does not depend on $y$ ($L\\to0$) this collapses to $\\frac{hM}{2}(x_n-x_0)$ — the same $O(h)$ statement. The bound is conservative; the observed error is usually a fraction of it.",
+    "**Stability is a separate question from accuracy.** Applied to the test equation $y'=\\lambda y$ with $\\lambda<0$, Euler gives $y_{i+1}=(1+\\lambda h)y_i$. The solution only decays — as the true solution does — when $|1+\\lambda h|\\le1$, i.e. $h\\le\\frac{2}{|\\lambda|}$. Above that limit the numerical solution oscillates with growing amplitude even though the exact solution decays to zero. For $y'=-20y$ the limit is $h\\le0.1$; at $h=0.11$ the sequence is $1,-1.2,1.44,\\dots$ and diverges.",
+    "**What Euler is and is not used for.** It is the reference method for explaining order, stability and step-size trade-offs, and the base case of every Runge-Kutta scheme. It is not the production method: for the same accuracy a fourth-order method needs far fewer steps. On the board exam, expect one 2-3 step table on a simple $f(x,y)$, plus a conceptual question on order or stability.",
+    "**Reading the table.** Every column exists to be checked: $x_i$ advances by exactly $h$; the slope $f(x_i,y_i)$ is evaluated at the *current* point, not the next; and $y_{i+1}=y_i+h\\times\\mathrm{slope}$. If a row's slope looks like it was evaluated one step ahead, the whole table after that point is wrong."
+  ],
+  "formulas": [
+    { "q": "Euler update", "e": "y_{i+1} = y_i + h\\,f(x_i,y_i), \\quad x_{i+1}=x_i+h", "n": "The only formula needed to generate the table. Slope is evaluated at the start of the step." },
+    { "q": "Step count", "e": "n = \\frac{x_{\\mathrm{end}}-x_0}{h}", "n": "Must come out an integer if x_end is to be hit exactly; otherwise stop at the last full step." },
+    { "q": "Local truncation error", "e": "\\frac{h^{2}}{2}y''(\\xi), \\quad \\xi\\in(x_i,x_{i+1})", "n": "Per step. Second order locally, so first order globally." },
+    { "q": "Global error order", "e": "E = O(h)", "n": "Halving h halves the total error. Not h^2." },
+    { "q": "Global error bound", "e": "\\lvert E_n \\rvert \\le \\frac{hM}{2L}\\left(e^{L(x_n-x_0)}-1\\right)", "n": "M = max|y''|, L = Lipschitz constant of f in y. Use L -> 0 limit hM(x_n-x_0)/2 when f is independent of y." },
+    { "q": "Modified Euler / trapezoidal variant", "e": "y_{i+1} = y_i + \\frac{h}{2}\\left[f(x_i,y_i)+f(x_{i+1},y_i+h f(x_i,y_i))\\right]", "n": "Second-order accurate; see Heun's method. Same cost per step, O(h^2) global error." },
+    { "q": "Stability limit", "e": "\\lvert 1+\\lambda h \\rvert \\le 1 \\Rightarrow h \\le \\frac{2}{\\lvert \\lambda \\rvert}", "n": "For the test equation y' = lambda y with lambda < 0. Independent of accuracy." }
+  ],
+  "problems": [
+    {
+      "prompt": "Solve $\\dfrac{dy}{dx}=x+y$, $y(0)=1$ with Euler's method using $h=0.1$, and tabulate $y$ to $x=0.3$.",
+      "give": ["f(x,y) = x + y", "y(0) = 1", "h = 0.1"],
+      "steps": [
+        "Step 1: x0 = 0, y0 = 1; slope = f(0,1) = 0 + 1 = 1; y1 = 1 + 0.1(1) = 1.100000",
+        "Step 2: x1 = 0.1, y1 = 1.1; slope = 0.1 + 1.1 = 1.200000; y2 = 1.1 + 0.1(1.2) = 1.220000",
+        "Step 3: x2 = 0.2, y2 = 1.22; slope = 0.2 + 1.22 = 1.420000; y3 = 1.22 + 0.1(1.42) = 1.362000",
+        "Table: (0, 1.000000), (0.1, 1.100000), (0.2, 1.220000), (0.3, 1.362000)",
+        "Exact solution: y = 2e^x - x - 1, so y(0.3) = 2(1.349859) - 0.3 - 1 = 1.399718",
+        "Error at x = 0.3: 1.362000 - 1.399718 = -0.037718, a relative error of 2.7%"
+      ],
+      "ans": "$y(0.3) \\approx 1.3620$ (exact $1.3997$; error $2.7\\%$, an underestimate).",
+      "trap": "Evaluating the slope at the *new* point, $f(x_{i+1},y_{i+1})$, which is impossible with an explicit formula and turns the method into a different (implicit) scheme. Euler always uses the known start-of-step values."
+    },
+    {
+      "prompt": "Apply Euler's method to $\\dfrac{dy}{dx}=y-x^{2}+1$, $y(0)=0.5$, with $h=0.2$ up to $x=1.0$. The exact solution is $y=x^{2}+2x+1-0.5e^{x}$.",
+      "give": ["f(x,y) = y - x^2 + 1", "y(0) = 0.5", "h = 0.2, five steps"],
+      "steps": [
+        "Step 1: x=0, y=0.5; f = 0.5 - 0 + 1 = 1.5; y = 0.5 + 0.2(1.5) = 0.800000 (x=0.2)",
+        "Step 2: x=0.2, y=0.8; f = 0.8 - 0.04 + 1 = 1.76; y = 0.8 + 0.2(1.76) = 1.152000 (x=0.4)",
+        "Step 3: x=0.4, y=1.152; f = 1.152 - 0.16 + 1 = 1.992; y = 1.152 + 0.2(1.992) = 1.550400 (x=0.6)",
+        "Step 4: x=0.6, y=1.5504; f = 1.5504 - 0.36 + 1 = 2.1904; y = 1.5504 + 0.2(2.1904) = 1.988480 (x=0.8)",
+        "Step 5: x=0.8, y=1.98848; f = 1.98848 - 0.64 + 1 = 2.34848; y = 1.98848 + 0.2(2.34848) = 2.458176 (x=1.0)",
+        "Exact: y(1) = 1 + 2 + 1 - 0.5(2.718282) = 4 - 1.359141 = 2.640859",
+        "Error: 2.458176 - 2.640859 = -0.182683, a relative error of 6.9%"
+      ],
+      "ans": "$y(1) \\approx 2.4582$ versus the exact $2.6409$; error $6.9\\%$ (Euler underestimates here).",
+      "trap": "Using $x^{2}$ with the *previous* x-value on each row. The slope is evaluated at the current point $(x_i,y_i)$, so the $x^{2}$ term must use $x_i$: at step 3 that is $0.4^{2}=0.16$, not $0.2^{2}=0.04$."
+    },
+    {
+      "prompt": "Show that halving $h$ halves the error by redoing the previous problem with $h=0.1$, and estimate the step size for $1\\%$ relative accuracy.",
+      "give": ["same ODE, h = 0.1", "exact y(1) = 2.640859"],
+      "steps": [
+        "Ten steps with h = 0.1 give, in order: 0.650000, 0.814000, 0.991400, 1.181540, 1.383694, 1.597063, 1.820770, 2.053847, 2.295231, 2.543755",
+        "So y(1) = 2.543755 with h = 0.1",
+        "Error: 2.543755 - 2.640859 = -0.097105 (3.7%), versus -0.182683 (6.9%) at h = 0.2",
+        "Ratio of errors: 0.182683/0.097105 = 1.88 — approximately 2, confirming first order (E = O(h))",
+        "For a 1% relative error (0.026409 absolute): since error scales as h, h_new = 0.1 x (0.026409/0.097105) = 0.0272",
+        "Equivalently, n = 1/0.0272 = 37 steps; the observed scaling gives about 37, while the conservative bound hM(x_n-x_0)/2 with M = 3.64 gives h <= 0.0052 (roughly 190 steps)"
+      ],
+      "ans": "$y(1)=2.5438$ at $h=0.1$; errors fall in the ratio $1.88\\approx2$, confirming $O(h)$. About $h\\approx0.027$ (37 steps) is needed for $1\\%$.",
+      "trap": "Assuming the error falls as $h^{2}$ because the local truncation error is $h^{2}$. There are $1/h$ steps, so the global error is $O(h)$ — the second-order claim belongs to Heun and Runge-Kutta."
+    },
+    {
+      "prompt": "Euler's method is applied to $y'=-20y$, $y(0)=1$. Investigate the behaviour for $h=0.05$, $h=0.1$ and $h=0.11$.",
+      "give": ["f(x,y) = -20y", "lambda = -20", "y(0) = 1"],
+      "steps": [
+        "Recurrence: y_{i+1} = y_i + h(-20y_i) = (1 - 20h)y_i — a pure geometric sequence with factor (1 - 20h)",
+        "h = 0.05: factor = 1 - 1 = 0; y1 = 0, so y stays 0 after the first step (decays immediately)",
+        "h = 0.1: factor = 1 - 2 = -1; sequence 1, -1, 1, -1, ... — undamped oscillation, never decays",
+        "h = 0.11: factor = 1 - 2.2 = -1.2; sequence 1, -1.2, 1.44, -1.728, ... — growing oscillation, divergent",
+        "Stability condition: |1 + lambda h| <= 1 with lambda = -20 gives h <= 2/20 = 0.1",
+        "The true solution y = e^{-20x} decays to zero; at h = 0.11 the numerical solution diverges, so the method is unstable, not merely inaccurate"
+      ],
+      "ans": "Stable for $h\\le0.1$; at $h=0.11$ the factor is $-1.2$ and the solution diverges although the exact solution decays.",
+      "trap": "Thinking a smaller step is only about accuracy here. Reducing $h$ can be forced by *stability*, not accuracy: above $h=2/|\\lambda|$ the numerical solution is qualitatively wrong, no matter how short the interval."
+    },
+    {
+      "prompt": "For the test problem $y'=y$, $y(0)=1$ on $[0,2]$, compute Euler's answer at $x=2$ with $h=0.5$ and $h=0.25$ and compare with $e^{2}$.",
+      "give": ["exact y(2) = e^2 = 7.389056"],
+      "steps": [
+        "Recurrence: y_{i+1} = (1+h)y_i, so y(2) = (1+h)^(2/h)",
+        "h = 0.5 (4 steps): (1.5)^4 = 5.062500",
+        "h = 0.25 (8 steps): (1.25)^8 = 5.960464",
+        "Exact: e^2 = 7.389056",
+        "Errors: -2.326556 and -1.428592; ratio = 1.63",
+        "The ratio is near 2 as expected for O(h); Euler systematically underpredicts a growing exponential because its tangent is always below the curve"
+      ],
+      "ans": "$h=0.5:\\ 5.0625$; $h=0.25:\\ 5.9605$; exact $7.3891$. Both are understimates and the error roughly halves.",
+      "trap": "Writing $(1+h)^{2/h}$ as $1+2$ or forgetting the exponent. For $h=0.5$ the number of steps is $2/0.5=4$, not 2 — the exponent is $n$, and using the wrong $n$ produces an error larger than the method's."
+    }
+  ],
+  "traps": [
+    "**Evaluating the slope one step ahead.** Euler uses $f(x_i,y_i)$, the known values at the start of the step. Using $f(x_{i+1},y_{i+1})$ is an implicit scheme and cannot be evaluated directly.",
+    "**Claiming $O(h^{2})$ global accuracy.** The local truncation error is $h^{2}y''/2$, but $1/h$ such errors accumulate: the global order is $O(h)$. This is the most common conceptual mark lost on this topic.",
+    "**Ignoring stability.** For $y'=\\lambda y$ with $\\lambda<0$ the method is stable only for $h\\le2/|\\lambda|$. A stable-looking but too-large step produces a diverging oscillation, not a slightly wrong answer.",
+    "**Substituting the wrong x in a mixed $f(x,y)$.** Terms involving $x$ only must use the current row's $x_i$. Sliding them forward by one step is easy to do and hard to notice because the numbers still look plausible.",
+    "**Rounding every row to 2 or 3 decimals.** The $O(h)$ error of the method is small compared with accumulated rounding when each row is truncated. Carry at least 6 significant figures through the table.",
+    "**Expecting the error to have a fixed sign.** It follows $-\\frac{h}{2}\\sum y''$, so Euler undershoots a convex-up solution and overshoots a convex-down one. A mixed-sign solution can change sign mid-interval.",
+    "**Stopping the table at a non-integer number of steps.** If $(x_{\\mathrm{end}}-x_0)/h$ is not an integer, $x_{\\mathrm{end}}$ is never reached. Either change $h$ or report the last full step — do not interpolate an extra partial step as if it were Euler."
+  ],
+  "refs": [
+    "[[09_Modified_Euler_and_Heun’s_Method]]",
+    "[[10_Runge-Kutta_4th_Order]]",
+    "[[01_Separation_of_Variables]]",
+    "[[01_Error_Analysis,_Roundoff_and_Truncation]]"
+  ],
+  "prereqs": ["[[01_Separation_of_Variables]]"]
+}

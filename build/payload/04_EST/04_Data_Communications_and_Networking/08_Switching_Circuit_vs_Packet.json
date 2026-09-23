@@ -1,0 +1,91 @@
+{
+  "scope": "Compare circuit, message and packet switching on setup cost, per-hop delay and efficiency, and compute the store-and-forward delay of a multi-hop transfer.",
+  "intuition": "Circuit switching reserves a whole lane for one car. Packet switching chops everything into boxes and shares all lanes, so a box waits at each interchange while the previous one is still moving ahead of it.",
+  "concept": [
+    "**Circuit switching.** A dedicated physical path is established end to end before any data flows, held for the entire session, and torn down afterwards. The three phases are setup, data transfer and teardown. Because the path is dedicated, delay after setup is constant and essentially equal to the propagation delay — there is no queueing and no contention. The price is severe inefficiency: a voice call that is silent 60% of the time still occupies its channel 100% of the time. The public switched telephone network is the canonical example, and its capacity unit is the 64 kbps channel.",
+    "**Message switching.** The whole message is stored at each intermediate node and only forwarded once it has been received completely — *store and forward*. No dedicated path is needed and no capacity is reserved, so the medium is shared efficiently. But the end-to-end delay grows linearly with the number of hops and the message length, and an entire intermediate node's storage must hold the message, which is impractical for large files. Message switching is of historical interest and appears in exams as the baseline against which packet switching is compared.",
+    "**Packet switching.** The message is broken into packets of bounded length. Each packet is stored and forwarded independently, so after the first packet has been transmitted the pipeline fills and subsequent packets arrive one per hop-transmission-time rather than one per whole-message-hop-time. This *pipelining* is the essential advantage: the total delay becomes roughly $(\text{packets} + \text{hops} - 1)$ transmission times instead of $(\text{packets} \times \text{hops})$." ,
+    "**Datagram versus virtual circuit.** In a *datagram* network each packet is routed independently, so packets may take different paths and arrive out of order; the network keeps no per-connection state and is robust to link failures, but the endpoints must reorder. The Internet's IP is a datagram service. In a *virtual circuit* network a path is chosen at call setup and all packets follow it, with a short connection identifier in each header and per-connection state in the switches; packets arrive in order and the header overhead is small, but a switch failure breaks every circuit through it. Frame Relay, ATM and MPLS are virtual-circuit technologies, and MPLS is how virtual circuits are commonly overlaid on the datagram Internet today.",
+    "**The comparison that exam questions actually test.** Circuit switching wins when traffic is continuous and the setup cost is negligible relative to the session — voice, video, leased lines. Packet switching wins when traffic is bursty, because statistical multiplexing exploits the gaps; and it is far cheaper for data because no capacity is reserved when nobody is transmitting. The crossover is a classic calculation: compare the setup-plus-transfer time of a circuit with the pipeline time of a datagram transfer.",
+    "**Header overhead and the efficiency of statistical multiplexing.** Each packet carries a header, so smaller packets mean more overhead. But smaller packets also reduce the store-and-forward delay and the impact of losing one packet. The optimum packet size trades header overhead against retransmission cost, and real networks settle between about 64 bytes (Ethernet minimum) and 1500 bytes (Ethernet maximum). Statistical multiplexing's gain is quantified by the ratio of the sum of the individual peak rates to the shared link rate; the more bursty and the more independent the sources, the larger the safe over-subscription."
+  ],
+  "formulas": [
+    { "q": "Circuit setup phases", "e": "T_{total} = T_{setup} + T_{transfer} + T_{teardown}", "n": "Setup is a one-time cost. For short transfers it can dominate entirely." },
+    { "q": "Message switching delay", "e": "T_{msg} = N_{hops} \\times \\frac{L}{R}", "n": "The whole message is stored and forwarded at every node, so the delay is hops times total transmission time." },
+    { "q": "Packet switching delay (store and forward)", "e": "T_{pkt} = (N_{pkt} + N_{hops} - 1) \\times \\frac{L_{pkt}}{R}", "n": "Pipelining: the first packet costs hops, and each later packet costs one more transmission time." },
+    { "q": "Packet transmission time", "e": "T_t = \\frac{L_{pkt}}{R}", "n": "L_pkt in bits, R in bits per second. This is per hop." },
+    { "q": "Number of packets", "e": "N_{pkt} = \\left\\lceil \\frac{L_{msg}}{L_{pkt}} \\right\\rceil", "n": "The final partial packet still occupies a full transmission slot." },
+    { "q": "Circuit switching capacity", "e": "C = N_{channels} \\times 64\\ \\mathrm{kbps}\\ (\\mathrm{DS0})", "n": "A T1 line provides 24 such channels; an E1 provides 30." },
+    { "q": "Statistical multiplexing gain", "e": "G = \\frac{\\sum_i R_{peak,i}}{R_{link}}", "n": "The factor by which peak rates are over-subscribed. Safe only while the sources are bursty and independent." },
+    { "q": "Propagation delay", "e": "T_p = \\frac{d}{v}", "n": "v is about 2e8 m/s in cable. In circuit switching this is the only substantial delay after setup." },
+    { "q": "Packet header overhead", "e": "\\eta_{overhead} = \\frac{H}{H + P}", "n": "H is the header, P the payload. Small packets raise this sharply." },
+    { "q": "Datagram versus virtual circuit", "e": "\\mathrm{datagram:\\ no\\ state,\\ out\\ of\\ order}; \\quad \\mathrm{VC:\\ state,\\ in\\ order}", "n": "Datagram is robust and stateless; VC gives ordering and low header overhead but breaks with the switch." }
+  ],
+  "problems": [
+    {
+      "prompt": "A 1,000,000-byte message is sent over 3 hops at $1\\ \\mathrm{Mbps}$ using (a) message switching and (b) packet switching with 1000-byte packets. Find the transfer time for each.",
+      "give": ["message = 1 000 000 bytes = 8e6 bits", "3 hops (2 intermediate switches)", "R = 1 Mbps", "packet = 1000 bytes"],
+      "steps": [
+        "Transmission time of the whole message = 8e6/1e6 = 8 s per hop",
+        "Message switching: 3 hops x 8 s = 24 s",
+        "Packets: N = 1 000 000/1000 = 1000 packets",
+        "Per-packet transmission time = 8000/1e6 = 8 ms",
+        "Packet switching: (1000 + 3 - 1) x 8 ms = 1002 x 8 ms = 8.016 s",
+        "Speed-up = 24/8.016 = 2.99 times"
+      ],
+      "ans": "Message switching $24\\ \\mathrm{s}$; packet switching $8.016\\ \\mathrm{s}$",
+      "trap": "Computing packet-switching delay as $N_{pkt} \\times N_{hops} \\times T_t = 24\\ \\mathrm{s}$ and concluding there is no advantage. The whole point is pipelining — packets after the first overlap their transmission at successive hops, so the hop count adds only $N_{hops}-1$ extra transmission times."
+    },
+    {
+      "prompt": "A T1 line has 24 channels of $64\\ \\mathrm{kbps}$. How many T1 lines are needed to serve 100 subscribers whose average utilisation is 20%?",
+      "give": ["100 subscribers", "20% average utilisation", "T1 = 24 channels"],
+      "steps": [
+        "Channels needed on average = 100 x 0.20 = 20",
+        "Channels available per T1 = 24",
+        "T1 lines = ceil(20/24) = 1",
+        "One T1 line serves 24 simultaneous calls, so 20 average calls fit comfortably"
+      ],
+      "ans": "1 T1 line",
+      "trap": "Reserving one channel per subscriber and answering $\\lceil 100/24 \\rceil = 5$ lines. That is circuit-switched thinking; statistical multiplexing exploits the fact that not everyone talks at once. The catch is that the *blocking probability* must be checked — with only 4 channels of headroom, peak-hour blocking can be significant."
+    },
+    {
+      "prompt": "A circuit-switched call takes $500\\ \\mathrm{ms}$ to set up. Compare the total time to send a 100,000-byte file over a 64 kbps circuit versus a packet-switched path with no setup.",
+      "give": ["setup = 500 ms", "file = 100 000 bytes = 800 000 bits", "circuit rate = 64 kbps", "ignore propagation"],
+      "steps": [
+        "Transfer time = 800 000/64 000 = 12.5 s",
+        "Circuit total = 0.5 + 12.5 = 13.0 s",
+        "Packet-switched total = 12.5 s (no setup)",
+        "Setup overhead = 0.5/13.0 = 3.85% of the total"
+      ],
+      "ans": "Circuit $13.0\\ \\mathrm{s}$; packet $12.5\\ \\mathrm{s}$ — a $3.85\\%$ penalty",
+      "trap": "Assuming circuit switching is always much worse. For a long file the 500 ms setup is only a few percent; setup dominates only for *short* transfers. A 1000-byte file at 64 kbps takes 125 ms, so the same 500 ms setup would be 80% of the total — that is the case where packet switching wins decisively."
+    },
+    {
+      "prompt": "A datagram network and a virtual-circuit network both carry a 10-packet file. Explain the difference in packet ordering, header size and failure behaviour.",
+      "give": ["10 packets", "datagram vs virtual circuit"],
+      "steps": [
+        "Datagram: each packet carries the full destination address and is routed independently, so it may arrive out of order and by different paths",
+        "Virtual circuit: a path is fixed at setup and each packet carries a short connection identifier, so packets arrive in order",
+        "Header: datagram headers must be long enough for a full address; VC headers are short labels",
+        "Failure: a datagram network reroutes around a failed link; a VC network loses every circuit that used that link"
+      ],
+      "ans": "Datagram: independent routing, full addresses, out-of-order, robust. VC: fixed path, short labels, in-order, fragile.",
+      "trap": "Claiming a virtual circuit guarantees delivery. It guarantees *ordering* and a fixed path; it does not make the network reliable. Frame Relay and ATM had no retransmission at the network layer, and MPLS does not either."
+    }
+  ],
+  "traps": [
+    "**Computing packet-switching delay as packets times hops.** Pipelining means the answer is $(N_{pkt} + N_{hops} - 1)$ transmission times, not $N_{pkt} \\times N_{hops}$. Missing this makes packet switching look no better than message switching.",
+    "**Using the packet count where the hop count belongs.** With 3 hops there are 2 intermediate switches, and the delay formula uses $N_{hops} - 1 = 2$ extra transmission times, not 3.",
+    "**Concluding circuit switching is always inefficient.** For long, continuous transfers the setup cost is amortised away and the constant delay is an advantage. Circuit switching loses on *bursty* traffic, not on all traffic.",
+    "**Confusing virtual circuits with reliable delivery.** A VC gives ordering and a fixed path plus short headers. It provides no acknowledgement and no retransmission unless a higher layer adds them.",
+    "**Forgetting that the final partial packet still costs a full slot.** $N_{pkt}$ is a ceiling, so a message one bit over a multiple of the packet size costs a whole extra transmission time.",
+    "**Ignoring header overhead when comparing packet sizes.** Smaller packets reduce store-and-forward delay and loss impact but raise the header fraction. A 40-byte header on a 64-byte packet is 38% overhead; on a 1500-byte packet it is 2.6%."
+  ],
+  "refs": [
+    "[[14_Multiplexing_FDM,_TDM,_T1_and_E1]]",
+    "[[12_Routing_Algorithms_Distance_Vector_and_Link_State]]",
+    "[[13_TCP_vs_UDP_and_Port_Numbers]]",
+    "[[05_HDLC_and_PPP]]"
+  ],
+  "prereqs": ["[[01_OSI_Seven-Layer_Model]]"]
+}
