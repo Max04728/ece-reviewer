@@ -10,6 +10,7 @@ build/
 ├── payload/               the CONTENT — one JSON per topic
 │   └── <part>/<area>/<NN_Topic_Slug>.json
 ├── build-stubs.mjs        model → all stubs + MOCs
+├── build-part-mocs.mjs    model → the 4 part MOCs ONLY (non-destructive)
 ├── build-notes.mjs        payload + model → rendered notes
 ├── build-meta.mjs         vault → PROGRESS/MANIFEST/CROSSLINKS/dashboard
 ├── build-templates.mjs    renderer → _meta/TEMPLATE_*
@@ -17,8 +18,27 @@ build/
 ├── build-drills.mjs       problem records → Sets/ drills (P6)
 ├── check-links.mjs        every wikilink resolves?
 ├── check-widgets.mjs      widget syntax + asset paths
+├── assemble-crash-review.mjs  parts → a crash-review note (guarded; --course math|ee)
+├── check-crash-review.mjs     post-write checks for both crash-review notes
+├── verify-crash-review.mjs    independent numeric spot-checks (Mathematics sheet)
+├── verify-electronics-review.mjs  independent numeric spot-checks (Electronics sheet)
+├── scan-pipe-math.mjs         table-breaking "|" inside inline maths
+├── check-lvert-spacing.mjs    \lvert/\rvert missing a delimiter before a letter
+├── verify-worker-claims.mjs   recomputes worker-reported content defects
 └── verify.mjs             ALL GUARDS — run this
 ```
+
+> The two crash-review sheets are **hand-authored notes**, not rendered from payloads. They are
+> declared in `PART_NOTES` (`vault.mjs`) so the part MOC links them under **Review Sheets**, and
+> the renderer checks the file exists before emitting the link. `assemble-crash-review.mjs` is a
+> one-shot rebuilder whose part files live in a temporary directory, so it fails safe (writes
+> nothing) once that directory is gone; edit the notes directly and re-run
+> `node build/check-crash-review.mjs` to verify them.
+
+> `build-stubs.mjs` rewrites all 408 topic notes. When only a part MOC changed — e.g. a
+> `PART_NOTES` review-sheet link in `vault.mjs` — run `build-part-mocs.mjs` instead: it writes
+> 4 files and touches no note.
+
 
 ## Data flow
 

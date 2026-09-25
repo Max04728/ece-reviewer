@@ -25,7 +25,8 @@
 // Tier controls how much of the payload is rendered; missing keys degrade gracefully,
 // so a T3 payload that only carries `formulas` still renders a valid note.
 
-import { pad } from './vault.mjs';
+import { existsSync } from 'node:fs';
+import { pad, PART_NOTES, partNotePath } from './vault.mjs';
 import { widgetFor, WIDGET_EMBED_SIZE } from './widget-map.mjs';
 import { formulaStyleFor, promotesInlineFormulas, hoistInlineFormulas, givensStyleFor } from './formula-layout.mjs';
 
@@ -330,6 +331,13 @@ export function renderPartMOC(part, partName, areas) {
         `| [[${a.area}/${a.moc}\\|${a.area.replace(/^\d+_/, '').replace(/_/g, ' ')}]] | ${a.topics.length} |`
     )
     .join('\n');
+  // Hand-authored notes declared in PART_NOTES are linked here so the link survives every
+  // re-render. The existence check keeps a deleted note from leaving a dangling wikilink.
+  const note = PART_NOTES[part];
+  const noteSection = note && existsSync(partNotePath(part, note))
+    ? `\n## Review Sheets\n\n| Sheet | Covers |\n| --- | --- |\n| [[${note.file}\\|${note.title}]] | ${note.desc} |\n`
+    : '';
+
   return `---
 title: ${yamlStr(partName)}
 part: ${yamlStr(part)}
@@ -338,7 +346,7 @@ updated: ${new Date().toISOString().slice(0, 10)}
 ---
 
 # ${partName} — MOC
-
+${noteSection}
 \`\`\`dataview
 TABLE WITHOUT ID area AS "Area", length(rows) AS "Topics"
 FROM "${part}"

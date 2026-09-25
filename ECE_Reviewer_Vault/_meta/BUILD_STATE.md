@@ -67,6 +67,44 @@ Machine-facing companion to `PROGRESS.md`. Read this first in a new session.
 4. **Embeds need the Embed HTML community plugin** (mnaoumov). The embed size is
    `WIDGET_EMBED_SIZE` in `widget-map.mjs`, shared by both renderers.
 
+### Added in the latest round — the Mathematics and Electronics crash reviews
+
+Two hand-authored, non-generated review sheets, one per part. Each is a **60-minute timed pass over
+all nine areas** of that part: formula tables, exam traps, checkbox recall with collapsible answers,
+worked drills, and Canon F-789SGA shortcuts.
+
+| Sheet | Size | Contents |
+| --- | --- | --- |
+| `01_Mathematics/_Math_Crash_Review.md` | 1058 lines | 9 blocks · 107 checkboxes · 104 wikilinks |
+| `02_Electronics_Engineering/_Electronics_Crash_Review.md` | 1033 lines | 9 blocks · 111 checkboxes · 114 wikilinks |
+
+- They are **hand-written, not rendered from a payload** — no `build/payload` entry and no generator
+  that overwrites them. Edit the notes directly.
+- Both are declared in `vault.mjs` as `PART_NOTES`, and `renderPartMOC` links them under a
+  **Review Sheets** heading, checking the file exists first so deleting a note cannot leave a
+  dangling wikilink.
+- **Regenerate the part MOCs with `node build/build-part-mocs.mjs`**, not `build-stubs.mjs` — the
+  latter rewrites all 408 topic notes to do the same files.
+- Verification: `node build/check-crash-review.mjs` (both sheets: structure, typography, maths
+  convention, link resolution, the 60-minute total), `verify-crash-review.mjs` and
+  `verify-electronics-review.mjs` for independent numeric spot-checks, and two style guards
+  (`scan-pipe-math.mjs` for a table-breaking `|` inside maths, `check-lvert-spacing.mjs` for a
+  `\lvert` missing its delimiter).
+- `assemble-crash-review.mjs --course math|ee` is a **one-shot rebuilder**: its part files live in a
+  temporary directory, so once that is gone it reports MISSING PART FILES and writes nothing.
+- Note count moved 605 → 606 → 607; `verify.mjs` still reports **ALL CHECKS PASSED**.
+
+**Content findings.** Ten workers drafted the blocks, recomputed their own arithmetic, and every
+claim was then independently re-checked before being recorded — which mattered repeatedly:
+**four claims were false, and the orchestrator's own verification was wrong three times.** The
+Mathematics items are rows 24–30 of `build/CONTENT_DEFECTS.md`; the Electronics items are rows
+31–42, with the rejected claims listed beneath each. Headline items: the Bode gain margin in
+`06_Control_Systems/10_Bode_Plots_and_Margins` P2 is `-18.4 dB` where direct evaluation gives
+**`-4.44 dB`** (a factor of 5); two K-map answers are **non-minimal** (2 literals suffice where the
+payload prints 3); and the two-port reciprocity condition in `04_Hybrid_and_Inverse_Hybrid_Parameters`
+is stated as `g12 = g21` where it must be **`g12 = -g21`**. All of rows 24–42 are
+**open — the owner decides**, per §5.
+
 ### Blind spots this build has exposed
 
 All of these were silent — no check reported any of them — and they matter more than the features:

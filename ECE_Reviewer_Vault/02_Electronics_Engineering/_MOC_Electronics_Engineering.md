@@ -2,10 +2,16 @@
 title: "Electronics Engineering"
 part: "02_Electronics_Engineering"
 type: moc
-updated: 2026-09-23
+updated: 2026-09-25
 ---
 
 # Electronics Engineering — MOC
+
+## Review Sheets
+
+| Sheet | Covers |
+| --- | --- |
+| [[_Electronics_Crash_Review\|Electronics Crash Review — Last Hour]] | Timed 60-minute pass over all nine Electronics areas |
 
 ```dataview
 TABLE WITHOUT ID area AS "Area", length(rows) AS "Topics"
