@@ -11,7 +11,7 @@ prereqs: ["[[01_Sinusoid,_RMS,_Average,_Form_and_Crest]]", "[[01_Complex_Numbers
 tags: ["ece", "electronics_engineering", "ac_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Phasors and Complex Impedance
@@ -32,7 +32,9 @@ is represented by $\mathbf{V} = V_m\angle\varphi$ — magnitude $V_m$, angle $\v
 $$i = I_m\cos(\omega t + \varphi)$$
 Its derivative is:
 $$di/dt = -\omega I_m\sin(\omega t+\varphi) = \omega I_m\cos(\omega t + \varphi + 90^\circ)$$
-which is the original phasor rotated by $+90^\circ$ and scaled by $\omega$ — exactly multiplication by $j\omega$. Integrating divides by $j\omega$. This one fact produces every impedance. The resistance is: $\mathbf{Z}_R = R$, the inductive reactance is:
+which is the original phasor rotated by $+90^\circ$ and scaled by $\omega$ — exactly multiplication by $j\omega$. Integrating divides by $j\omega$. This one fact produces every impedance. The resistance is:
+$$\mathbf{Z}_R = R$$
+the inductive reactance is:
 $$\mathbf{Z}_L = j\omega L$$
 and the capacitive reactance is:
 $$\mathbf{Z}_C = 1/(j\omega C) = -j/(\omega C)$$

@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "geas", "environmental_sci_and_ph_laws"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — PD 1586, EIS and ECC

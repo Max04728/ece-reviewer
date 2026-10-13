@@ -11,7 +11,7 @@ prereqs: ["[[03_Definite_Integrals_and_FTC]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 15 — Work and Hydrostatic Force
@@ -28,7 +28,10 @@ updated: 2026-09-23
 
 **Work to lift, pump or hoist.** When lifting an object — a cable, a bucket of water leaking as it rises, a chain, or liquid being pumped out of a tank — the force at height $y$ is the *weight of what remains to be lifted*, which changes as you go. Set up a coordinate system (usually $y$ measured from the bottom of the tank or from the ground), express both the weight and the distance it must still travel as functions of $y$, and integrate. These are the most common exam problems in the topic and the setup, not the integration, is the difficulty.
 
-**Hydrostatic force.** Pressure in a static fluid increases linearly with depth: $P = \rho g h$, where $h$ is the depth below the surface. The force on a horizontal strip of area $dA$ at depth $h$ is $dF = \rho g h\,dA$, so $F = \rho g\int h\,dA$. At a *constant* depth over a flat horizontal surface this reduces to $F = PA$, which is why only vertical or inclined plates need the integral. With the standard density of water $\rho = 1000\,\mathrm{kg/m^3}$ and $g = 9.81\,\mathrm{m/s^2}$, the product is $\gamma = 9810\,\mathrm{N/m^3}$.
+**Hydrostatic force.** Pressure in a static fluid increases linearly with depth: $P = \rho g h$, where $h$ is the depth below the surface. The force on a horizontal strip of area $dA$ at depth $h$ is:
+$$dF = \rho g h\,dA$$
+so $F = \rho g\int h\,dA$. At a *constant* depth over a flat horizontal surface this reduces to $F = PA$, which is why only vertical or inclined plates need the integral. With the standard density of water $\rho = 1000\,\mathrm{kg/m^3}$ and $g = 9.81\,\mathrm{m/s^2}$, the product is:
+$$\gamma = 9810\,\mathrm{N/m^3}$$
 
 **Setting up the hydrostatic integral.** Place the origin conveniently — often the top of the plate — and let $y$ increase downward. Then the depth is simply $h = y$, the strip's length is $L(y)$ (the plate's width at that depth), and $dA = L(y)\,dy$, so $F = \gamma\int y\,L(y)\,dy$ between the top and bottom of the plate. Two checks catch most errors: the width function must be the plate's horizontal extent at that depth, and the depth must be measured **from the fluid surface**, not from the plate's top if those differ. When the plate's top is submerged below the surface, $h = y + d$ where $d$ is the depth of the plate's top.
 

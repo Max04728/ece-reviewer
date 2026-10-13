@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Number Systems and Base Conversion
@@ -28,13 +28,19 @@ updated: 2026-09-23
 
 **Base $\to$ decimal is sum-of-weights; decimal $\to$ base is repeated division.** To convert $156_{10}$ to binary, divide repeatedly by 2 and collect remainders: $156/2=78$ r 0, $78/2=39$ r 0, $39/2=19$ r 1, $19/2=9$ r 1, $9/2=4$ r 1, $4/2=2$ r 0, $2/2=1$ r 0, $1/2=0$ r 1. Read the remainders **bottom-up**: $10011100_2$. The first remainder produced is the least significant bit; reading them top-down yields the reversed word, which is the single most common conversion error.
 
-**Binary, octal and hexadecimal are one conversion with different grouping.** Since $8=2^3$ and $16=2^4$, grouping the bits in threes or fours from the radix point converts directly. $10110110_2$ is $010\,110\,110 = 266_8$ and $1011\,0110 = \mathrm{B6}_{16}$. Hexadecimal exists because one hex digit is exactly four bits, so a 16-bit machine word is four hex digits and a byte is two. The powers-of-two table should be memorised at least to $2^{16}=65536$: $2^{10}=1024$, $2^{12}=4096$, $2^{15}=32768$, $2^{16}=65536$.
+**Binary, octal and hexadecimal are one conversion with different grouping.** Since $8=2^3$ and $16=2^4$, grouping the bits in threes or fours from the radix point converts directly. $10110110_2$ is:
+$$010\,110\,110 = 266_8$$
+and $1011\,0110 = \mathrm{B6}_{16}$. Hexadecimal exists because one hex digit is exactly four bits, so a 16-bit machine word is four hex digits and a byte is two. The powers-of-two table should be memorised at least to $2^{16}=65536$: $2^{10}=1024$, $2^{12}=4096$, $2^{15}=32768$, $2^{16}=65536$.
 
 **Fractions use the mirror-image algorithm.** For the fractional part, multiply by the base repeatedly and read the integer parts **top-down**:
 $$0.6875\times2=1.375\to1$$
 
 $$0.375\times2=0.75\to0$$
-$0.75\times2=1.5\to1$; $0.5\times2=1.0\to1$, giving $0.1011_2$. A decimal fraction terminates in binary only if it is a sum of negative powers of two; $0.1_{10}$ repeats forever. With $k$ fractional bits the resolution is $2^{-k}$, so 8 fractional bits resolve to about 0.0039 and 10 bits to about 0.00098.
+
+$$0.75\times2=1.5\to1$$
+
+$$0.5\times2=1.0\to1$$
+giving $0.1011_2$. A decimal fraction terminates in binary only if it is a sum of negative powers of two; $0.1_{10}$ repeats forever. With $k$ fractional bits the resolution is $2^{-k}$, so 8 fractional bits resolve to about 0.0039 and 10 bits to about 0.00098.
 
 **Counting what a word can hold.** An $n$-bit unsigned word has $2^n$ distinct patterns, ranging from $0$ to $2^n-1$. One byte therefore holds $0$ to $255$, and 10 bits hold $0$ to $1023$. This is why the number of bits needed for a decimal value $N$ is $\lceil \log_2(N+1)\rceil$: $1000$ needs 10 bits because $2^9=512<1000\le1024=2^{10}$. When a value does not fit, you get truncation, not saturation — the high bits silently disappear.
 

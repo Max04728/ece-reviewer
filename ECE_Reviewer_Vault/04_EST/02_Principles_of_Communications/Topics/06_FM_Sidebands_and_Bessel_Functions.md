@@ -11,7 +11,7 @@ prereqs: ["[[05_FM_and_PM_Fundamentals]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — FM Sidebands and Bessel Functions
@@ -32,11 +32,17 @@ Here $J_n(\beta)$ is the Bessel function of the first kind of order $n$ and argu
 $$\sum_{n=-\infty}^{\infty}J_n^2(\beta) = 1$$
 for every $\beta$. That identity proves the **total power is constant** at $A_c^2/2$ no matter how the signal is modulated; FM is a constant-envelope, constant-power modulation. (3) For small $\beta$, $J_0\approx1$, $J_1\approx\beta/2$ and higher orders are negligible, which recovers the narrowband FM picture of a carrier plus two sidebands like AM. (4) For large $\beta$, $J_n$ is negligible for $n > \beta$, which is the origin of the $\beta+1$ significant-sideband rule.
 
-**Carrier nulls measure the deviation.** Because $J_0(\beta)$ oscillates and passes through zero, the *carrier* disappears entirely at $\beta = 2.405, 5.520, 8.654, \dots$ (the zeros of $J_0$). This gives a laboratory method that needs no spectrum analyser calibration: with a known modulating frequency $f_m$, adjust the deviation until the carrier nulls, and the first null gives $\Delta f = 2.405 f_m$. The second null gives $\Delta f = 5.52 f_m$, the third $8.654 f_m$. Zeros of $J_1$ at $\beta = 3.832, 7.016$ similarly null the first-order sidebands, and $J_2$ nulls at $5.136, 8.417$. Do not jump to $2.405$ for a later null — each order and each zero has its own constant.
+**Carrier nulls measure the deviation.** Because $J_0(\beta)$ oscillates and passes through zero, the *carrier* disappears entirely at $\beta = 2.405, 5.520, 8.654, \dots$ (the zeros of $J_0$). This gives a laboratory method that needs no spectrum analyser calibration: with a known modulating frequency $f_m$, adjust the deviation until the carrier nulls, and the first null gives:
+$$\Delta f = 2.405 f_m$$
+The second null gives:
+$$\Delta f = 5.52 f_m$$
+the third $8.654 f_m$. Zeros of $J_1$ at $\beta = 3.832, 7.016$ similarly null the first-order sidebands, and $J_2$ nulls at $5.136, 8.417$. Do not jump to $2.405$ for a later null — each order and each zero has its own constant.
 
 **Amplitudes are magnitudes with signs.** A tabulated $J_n$ may be negative — for example $J_0(5) = -0.178$ and $J_1(5) = -0.328$. The negative sign means that sideband is transmitted 180 degrees out of phase, which matters when you add phasors (for example to find the envelope of a narrowband FM signal or to design a filter) but does not change its *power*, which depends on $J_n^2$. Consequently the power in the pair of sidebands at $f_c\pm nf_m$ is $2P_c J_n^2(\beta)$ with $P_c = A_c^2/(2R)$, and the sum over all $n$ of those powers is exactly $P_c$.
 
-**Significant sidebands and bandwidth.** In principle the bandwidth is infinite, but $|J_n(\beta)|$ falls rapidly once $n$ exceeds $\beta$. The usual engineering rule is that the number of **significant** sidebands on each side is $n_{max} \approx \beta + 1$ for $\beta \gtrsim 1$ (and $n_{max} = 1$ for narrowband FM), so the transmission bandwidth is as follows;
+**Significant sidebands and bandwidth.** In principle the bandwidth is infinite, but $|J_n(\beta)|$ falls rapidly once $n$ exceeds $\beta$. The usual engineering rule is that the number of **significant** sidebands on each side is:
+$$n_{max} \approx \beta + 1$$
+for $\beta \gtrsim 1$ (and $n_{max} = 1$ for narrowband FM), so the transmission bandwidth is as follows;
 $$BW = 2n_{max}f_m \approx 2(\beta+1)f_m = 2(\Delta f + f_m)$$
 This is Carson's rule, which is the subject of [[07_Carson’s_Rule_and_FM_Bandwidth]]. For $\beta = 1$ the Bessel table itself shows where the rule comes from: $J_0 = 0.765$, $J_1 = 0.440$, $J_2 = 0.115$, $J_3 = 0.020$, and the terms beyond order 3 are already below 1 percent of the carrier.
 

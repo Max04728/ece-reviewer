@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Simple and Compound Interest
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **Simple interest: one base, straight-line growth.** Interest is charged only on the original principal $P$ for the whole term, so $I = Pin$ and the future worth is $F = P(1+in)$. The rate $i$ and the number of periods $n$ must be expressed in the same time unit: with an annual rate, $n$ is in years, so a 9-month term is $n = 0.75$. Simple interest is the convention for short-term notes, bank discounting of promissory notes, and any transaction shorter than one compounding period.
 
-**Compound interest: interest on interest.** At the end of every period the balance is multiplied by $(1+i)$, so after $n$ periods the balance is $F = P(1+i)^n = P(F/P,i,n)$. That factor is a geometric progression, not a straight line: growth in pesos accelerates because the interest credited in every earlier period is itself earning interest. The reciprocal $P = F(1+i)^{-n} = F(P/F,i,n)$ is the single-payment present-worth factor — the same equation read backwards. That is why a single-lump problem can be worked with either factor, provided you know which end of the timeline you are standing on.
+**Compound interest: interest on interest.** At the end of every period the balance is multiplied by $(1+i)$, so after $n$ periods the balance is:
+$$F = P(1+i)^n = P(F/P,i,n)$$
+That factor is a geometric progression, not a straight line: growth in pesos accelerates because the interest credited in every earlier period is itself earning interest. The reciprocal $P = F(1+i)^{-n} = F(P/F,i,n)$ is the single-payment present-worth factor — the same equation read backwards. That is why a single-lump problem can be worked with either factor, provided you know which end of the timeline you are standing on.
 
 **Work inside the compounding period, or convert the rate — never mix the two.** If compounding occurs $m$ times a year at nominal rate $r$, the rate per period is $i = r/m$ and the number of periods is $n = mt$, giving $F = P(1+r/m)^{mt}$. If instead the problem states an effective annual rate $i$, keep $n$ in years and use $F = P(1+i)^n$ directly. The reliable check is that $i$ and $n$ always describe the same period; a monthly rate paired with an annual period count is the single largest source of wrong answers in this topic.
 

@@ -11,7 +11,7 @@ prereqs: ["[[03_Framing_and_Flow_Control]]"]
 tags: ["ece", "est", "data_communications_and_networking"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — MAC Protocols and Ethernet
@@ -34,7 +34,9 @@ updated: 2026-09-23
 
 **Binary exponential backoff.** After the $n$-th collision a station picks a random slot from $0$ to $2^n - 1$ and waits that many slot times before trying again, with $n$ capped (commonly at 10) and the retry count capped at 16 before the frame is dropped. The window doubles with each collision, which dramatically reduces the chance of repeated collisions among many stations while keeping the delay low when few are contending. It is also why Ethernet's delay is not bounded — a property that makes it unsuitable for hard real-time traffic without additional mechanisms.
 
-**Ethernet frame format and efficiency.** An Ethernet (DIX) frame is 7 bytes of preamble, 1 byte of start frame delimiter, 6 bytes of destination MAC, 6 of source MAC, 2 of type/length, 46 to 1500 bytes of payload, and 4 bytes of FCS. Layer-2 overhead excluding the preamble is 18 bytes, so on a full 1500-byte payload the efficiency is $1500/1518 = 98.8\%$; on a minimum 46-byte payload with padding it is only $46/64 = 71.9\%$. The 802.1Q VLAN tag inserts 4 more bytes and raises the maximum frame to 1522.
+**Ethernet frame format and efficiency.** An Ethernet (DIX) frame is 7 bytes of preamble, 1 byte of start frame delimiter, 6 bytes of destination MAC, 6 of source MAC, 2 of type/length, 46 to 1500 bytes of payload, and 4 bytes of FCS. Layer-2 overhead excluding the preamble is 18 bytes, so on a full 1500-byte payload the efficiency is:
+$$1500/1518 = 98.8\%$$
+on a minimum 46-byte payload with padding it is only $46/64 = 71.9\%$. The 802.1Q VLAN tag inserts 4 more bytes and raises the maximum frame to 1522.
 
 ## Formulas
 

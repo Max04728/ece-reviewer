@@ -11,7 +11,7 @@ prereqs: ["[[05_Extrema,_Concavity_and_Inflection]]"]
 tags: ["ece", "mathematics", "differential_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Optimization Problems

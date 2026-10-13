@@ -11,7 +11,7 @@ prereqs: ["[[08_Sampling_Theorem_and_Aliasing]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Anti-Aliasing Filters
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **Deriving the stopband edge.** Suppose the wanted band is $[0, f_p]$ and the converter's dynamic range is $A$ dB (a 12-bit converter has $6.02n+1.76 \approx 74\ \mathrm{dB}$). Any input at $f_{stop} = f_s - f_p$ folds exactly onto $f_p$, so the filter must be $A$ dB down by $f_s - f_p$. The transition band is therefore $f_p \to f_s - f_p$, and its width relative to the passband is what sets the filter's difficulty: a wide transition band (large oversampling ratio) means a gentle, cheap filter; a narrow one means a high-order filter or a different sampling scheme.
 
-**Order from the roll-off requirement.** An $n$-th order lowpass rolls off at $20n\ \mathrm{dB}$ per decade ($6n\ \mathrm{dB}$ per octave) well above cutoff. Solving for the order gives $n \ge \dfrac{A}{20\log_{10}(f_{stop}/f_{pass})}$, evaluated with the *actual* attenuations at the two edges rather than the asymptotic slope when accuracy matters. For a Butterworth response, $|H(f)| = 1/\sqrt{1+(f/f_c)^{2n}}$, so the order can also be found directly from the passband and stopband specifications without the decade approximation. The order result is what makes oversampling attractive: at $f_s = 10\ \mathrm{kHz}$ with $f_p = 4\ \mathrm{kHz}$ the ratio is only 1.5 and the order is huge; at $4\times$ oversampling the ratio is 9 and the order drops by a factor of about five.
+**Order from the roll-off requirement.** An $n$-th order lowpass rolls off at $20n\ \mathrm{dB}$ per decade ($6n\ \mathrm{dB}$ per octave) well above cutoff. The order follows from:
+$$n \ge \dfrac{A}{20\log_{10}(f_{stop}/f_{pass})}$$
+Evaluate it with the *actual* attenuations at the two edges rather than the asymptotic slope when accuracy matters. For a Butterworth response, $|H(f)| = 1/\sqrt{1+(f/f_c)^{2n}}$, so the order can also be found directly from the passband and stopband specifications without the decade approximation. The order result is what makes oversampling attractive: at $f_s = 10\ \mathrm{kHz}$ with $f_p = 4\ \mathrm{kHz}$ the ratio is only 1.5 and the order is huge; at $4\times$ oversampling the ratio is 9 and the order drops by a factor of about five.
 
 **The second half of the job: the reconstruction filter.** The digital-to-analog side has the mirror-image problem. A DAC output contains images of the baseband at $f_s - f_p, f_s + f_p, \dots$, which must be removed by an analog **anti-imaging (smoothing) filter** with the same passband edge and stopband edge. Systems that use a zero-order-hold DAC add the same $\mathrm{sinc}(f\tau)$ aperture droop discussed in [[09_Sampling_Types_and_Aperture_Effect]], so the reconstruction filter is often paired with a compensating response. Oversampling helps here for the same reason: images move far from the baseband, and a gentle analog filter suffices.
 

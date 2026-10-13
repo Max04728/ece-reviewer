@@ -1,0 +1,23 @@
+{
+  "note": "Repairs for the 3 sites where the mechanical colon pass stranded a unit. Each removes only the colon that pass inserted, returning the site to its pre-pass inline state; no formula changes.",
+  "rewrites": [
+    {
+      "file": "build/payload/01_Mathematics/05_Electromagnetics/20_Waves_in_Lossy_Media_and_Skin_Depth.json",
+      "entry": 3,
+      "find": "at 1 MHz is: $2\\pi\\delta_s \\approx 415\\ \\mu$m while",
+      "replace": "at 1 MHz is $2\\pi\\delta_s \\approx 415\\ \\mu$m while"
+    },
+    {
+      "file": "build/payload/01_Mathematics/05_Electromagnetics/20_Waves_in_Lossy_Media_and_Skin_Depth.json",
+      "entry": 4,
+      "find": "H/m give: $\\delta_s = 66.1\\ \\mu$m and",
+      "replace": "H/m give $\\delta_s = 66.1\\ \\mu$m and"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/14_Optoelectronics_and_Solar_Cells.json",
+      "entry": 1,
+      "find": "threshold wavelength is: $\\lambda_c=\\frac{1240}{E_g(\\mathrm{eV})}$ nm",
+      "replace": "threshold wavelength is $\\lambda_c=\\frac{1240}{E_g(\\mathrm{eV})}$ nm"
+    }
+  ]
+}

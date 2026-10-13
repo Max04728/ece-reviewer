@@ -1,0 +1,72 @@
+{
+  "area": "03_GEAS/03_Materials_Science",
+  "note": "Ledger for the 13 residual Core Concept inline-formula sites. Prose and punctuation only; every entry keeps its ordered list of $...$ formulas unchanged. Idempotent: a re-run reports DONE for anything already applied.",
+  "rewrites": [
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/02_Atomic_Packing_Factor_and_Density.json",
+      "entry": 1,
+      "find": "**APF is a ratio, so it is dimensionless and unit-free.** $\\mathrm{APF} = \\dfrac{n\\left(\\frac{4}{3}\\pi R^3\\right)}{V_c}$.",
+      "replace": "**APF is a ratio, so it is dimensionless and unit-free.** The volume fraction the atoms occupy is: $\\mathrm{APF} = \\dfrac{n\\left(\\frac{4}{3}\\pi R^3\\right)}{V_c}$."
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/03_Miller_Indices.json",
+      "entry": 4,
+      "find": "The same quadratic form gives the angle between two planes, $\\cos\\theta = \\dfrac{h_1h_2+k_1k_2+l_1l_2}{\\sqrt{h_1^2+k_1^2+l_1^2}\\sqrt{h_2^2+k_2^2+l_2^2}}$.",
+      "replace": "The same quadratic form gives the angle between two planes: $\\cos\\theta = \\dfrac{h_1h_2+k_1k_2+l_1l_2}{\\sqrt{h_1^2+k_1^2+l_1^2}\\sqrt{h_2^2+k_2^2+l_2^2}}$."
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/05_Stress,_Strain_and_Mechanical_Properties.json",
+      "entry": 4,
+      "find": "Ductility is quantified as percent elongation, $\\mathrm{EL} = \\frac{L_f-L_0}{L_0}\\times100$, and percent reduction in area, $\\mathrm{RA} = \\frac{A_0-A_f}{A_0}\\times100$.",
+      "replace": "The percent elongation is: $\\mathrm{EL} = \\frac{L_f-L_0}{L_0}\\times100$. The percent reduction in area is: $\\mathrm{RA} = \\frac{A_0-A_f}{A_0}\\times100$."
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/05_Stress,_Strain_and_Mechanical_Properties.json",
+      "entry": 5,
+      "find": "Modulus of resilience is the energy stored per unit volume in the elastic range, $u_r = \\frac{1}{2}\\sigma_y\\epsilon_y = \\dfrac{\\sigma_y^2}{2E}$ — the triangle",
+      "replace": "Modulus of resilience is the energy stored per unit volume in the elastic range: $u_r = \\frac{1}{2}\\sigma_y\\epsilon_y = \\dfrac{\\sigma_y^2}{2E}$. It is the triangle"
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/07_Energy_Bands_and_Classification.json",
+      "entry": 3,
+      "find": "For silicon at 300 K, $n_i \\approx 1.0\\times10^{10}\\ \\mathrm{cm^{-3}}$ — one carrier",
+      "replace": "For silicon at 300 K the intrinsic concentration is: $n_i \\approx 1.0\\times10^{10}\\ \\mathrm{cm^{-3}}$. That is one carrier"
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/08_Fermi_Level.json",
+      "entry": 2,
+      "find": "with the parabolic density of states gives $E_F = \\dfrac{h^2}{8m}\\left(\\dfrac{3N}{\\pi V}\\right)^{2/3}$.",
+      "replace": "with the parabolic density of states gives the free-electron result. The Fermi energy is: $E_F = \\dfrac{h^2}{8m}\\left(\\dfrac{3N}{\\pi V}\\right)^{2/3}$."
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/08_Fermi_Level.json",
+      "entry": 3,
+      "find": "The exact expression is: $E_F = \\dfrac{E_c+E_v}{2} + \\dfrac{kT}{2}\\ln\\dfrac{N_v}{N_c}$. the second term is the reason",
+      "replace": "The exact expression comes from charge neutrality. $E_F = \\dfrac{E_c+E_v}{2} + \\dfrac{kT}{2}\\ln\\dfrac{N_v}{N_c}$. The second term is the reason"
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/09_Dielectric_Properties_and_Breakdown.json",
+      "entry": 2,
+      "find": "The absolute permittivity is $\\varepsilon = \\varepsilon_r\\varepsilon_0$ with $\\varepsilon_0 = 8.854\\times10^{-12}\\ \\mathrm{F/m}$.",
+      "replace": "The absolute permittivity is: $\\varepsilon = \\varepsilon_r\\varepsilon_0$. The free-space value is: $\\varepsilon_0 = 8.854\\times10^{-12}\\ \\mathrm{F/m}$."
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/09_Dielectric_Properties_and_Breakdown.json",
+      "entry": 3,
+      "find": "The loss tangent $\\tan\\delta = \\dfrac{1}{\\omega C R_p} = \\dfrac{\\varepsilon''}{\\varepsilon'}$ is the ratio of the energy lost per cycle to the energy stored per cycle.",
+      "replace": "The loss tangent is the ratio of the energy lost per cycle to the energy stored per cycle: $\\tan\\delta = \\dfrac{1}{\\omega C R_p} = \\dfrac{\\varepsilon''}{\\varepsilon'}$."
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/10_Magnetic_Properties_and_Hysteresis.json",
+      "entry": 5,
+      "find": "which for iron happens near $B_s \\approx 2.2\\ \\mathrm{T}$ corresponding to $M_s \\approx 1.75\\times10^{6}\\ \\mathrm{A/m}$. A quick check of that value from atomic data: iron has",
+      "replace": "which for iron happens near $B_s \\approx 2.2\\ \\mathrm{T}$, a saturation magnetisation of: $M_s \\approx 1.75\\times10^{6}\\ \\mathrm{A/m}$. A quick check of that value from atomic data. Iron has"
+    },
+    {
+      "file": "build/payload/03_GEAS/03_Materials_Science/10_Magnetic_Properties_and_Hysteresis.json",
+      "entry": 5,
+      "find": "so $M_s = 2.22\\mu_B \\times 8.49\\times10^{28} = 1.75\\times10^{6}\\ \\mathrm{A/m}$ and $\\mu_0M_s = 2.2\\ \\mathrm{T}$.",
+      "replace": "so the saturation magnetisation is: $M_s = 2.22\\mu_B \\times 8.49\\times10^{28} = 1.75\\times10^{6}\\ \\mathrm{A/m}$, which gives $\\mu_0M_s = 2.2\\ \\mathrm{T}$."
+    }
+  ]
+}

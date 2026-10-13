@@ -11,7 +11,7 @@ prereqs: ["[[09_Sky_Wave_and_Ionospheric_Layers]]"]
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Critical Frequency, MUF and Skip Distance
@@ -26,9 +26,13 @@ updated: 2026-09-23
 
 **Critical frequency is a vertical-incidence ceiling.** Each layer has a maximum electron density $N_{\max}$ and therefore a critical frequency $f_c = 9\sqrt{N_{\max}}$, the highest frequency the layer returns to a transmitter directly below it. Ionosondes report it per layer as $f_oF2$, $f_oF1$ and $f_oE$. The value is a property of the layer at the reflection point, not of the circuit: two different paths that share an F2 reflection point share the same $f_c$, and the layer with the highest $f_c$ sets the ceiling for the whole circuit. Frequencies above $f_c$ sent vertically are not returned at all - they penetrate the layer and are lost to space.
 
-**The secant law: obliquity buys frequency.** A vertical ray reflects where the plasma frequency reaches $f$. A ray tilted by $\theta_i$ from the vertical travels a longer slant path, and a Snell's-law argument in a horizontally stratified plasma shows that it turns over where $f\cos\theta_i = f_p$. So the highest frequency the layer can return at that incidence angle is $\mathrm{MUF} = f_c\sec\theta_i$. Everything about MUF follows from this one relation: at vertical incidence ($\theta_i = 0$) the MUF collapses to $f_c$; as the ray becomes shallower the secant grows without bound, which is why long DX paths support higher frequencies than short ones. The derivation assumes a flat, horizontally uniform, isotropic layer, so it degrades near the magnetic equator, on very long paths where earth curvature matters, and wherever the geomagnetic field splits the wave into ordinary and extraordinary components (the extraordinary critical frequency $f_xF2$ is the higher of the two).
+**The secant law: obliquity buys frequency.** A vertical ray reflects where the plasma frequency reaches $f$. A ray tilted by $\theta_i$ from the vertical travels a longer slant path, and a Snell's-law argument in a horizontally stratified plasma shows that it turns over where $f\cos\theta_i = f_p$. So the highest frequency the layer can return at that incidence angle is:
+$$\mathrm{MUF} = f_c\sec\theta_i$$
+Everything about MUF follows from this one relation: at vertical incidence ($\theta_i = 0$) the MUF collapses to $f_c$; as the ray becomes shallower the secant grows without bound, which is why long DX paths support higher frequencies than short ones. The derivation assumes a flat, horizontally uniform, isotropic layer, so it degrades near the magnetic equator, on very long paths where earth curvature matters, and wherever the geomagnetic field splits the wave into ordinary and extraordinary components (the extraordinary critical frequency $f_xF2$ is the higher of the two).
 
-**Skip distance.** With virtual height $h'$ and incidence angle $\theta_i$, the ray rises a horizontal distance $h'\tan\theta_i$ and descends the same amount, so the ground range of one hop is $D = 2h'\tan\theta_i$. For a fixed working frequency, the layer returns only those rays with $\cos\theta_i \le f_c/f$, that is $\theta_i \ge \arccos(f_c/f)$; steeper (more vertical) rays penetrate. Since range grows with $\theta_i$, the *smallest* returning distance comes from the smallest permitted angle:
+**Skip distance.** With virtual height $h'$ and incidence angle $\theta_i$, the ray rises a horizontal distance $h'\tan\theta_i$ and descends the same amount, so the ground range of one hop is:
+$$D = 2h'\tan\theta_i$$
+For a fixed working frequency, the layer returns only those rays with $\cos\theta_i \le f_c/f$, that is $\theta_i \ge \arccos(f_c/f)$; steeper (more vertical) rays penetrate. Since range grows with $\theta_i$, the *smallest* returning distance comes from the smallest permitted angle:
 $$D_{\mathrm{skip}} = 2h'\sqrt{(f/f_c)^{2}-1}$$
 Everything closer than that - but beyond the reach of the ground wave - is the silent **skip zone**. Raising the frequency at fixed $h'$ pushes the skip distance out; lowering it to $f_c$ collapses the skip distance to zero so the sky wave returns everywhere, which is the short-skip condition.
 

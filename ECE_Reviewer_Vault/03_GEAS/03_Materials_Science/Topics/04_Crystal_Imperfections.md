@@ -11,7 +11,7 @@ prereqs: ["[[01_Crystal_Structures_and_Unit_Cells]]"]
 tags: ["ece", "geas", "materials_science"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Crystal Imperfections

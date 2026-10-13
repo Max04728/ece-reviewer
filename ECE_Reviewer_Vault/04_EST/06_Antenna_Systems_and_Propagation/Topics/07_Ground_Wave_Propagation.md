@@ -11,7 +11,7 @@ prereqs: ["[[04_Marconi,_Folded_Dipole,_Yagi-Uda]]", "[[01_Antenna_Parameters_Di
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Ground Wave Propagation
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Ground conductivity is the dominant design variable.** The attenuation depends on frequency $f$, ground conductivity $\sigma$ and permittivity $\varepsilon$. The conductivity spread across real terrain is enormous: sea water is $4$ to $5\ \mathrm{S/m}$, good agricultural soil about $10^{-2}\ \mathrm{S/m}$, and dry sand or rock $10^{-3}$ to $10^{-4}\ \mathrm{S/m}$ — a range of four orders of magnitude. Since the loss falls as conductivity rises, a coastal station can deliver *several times* the field at a given distance over sea water that it manages over dry sand, which is why broadcast coverage maps have the coastline drawn on them and why a station's service area looks nothing like a circle. The practical rule for exam work: the field falls as $1/d$ in free space, but near the ground it decays faster, approaching $1/d^2$ over poor ground at the frequencies where loss is heavy.
 
-**The field equations, and the one that has the $\sqrt{P}$ in it.** The free-space field at distance $d$ from a radiating system is $E = \sqrt{30\,\mathrm{EIRP}}/d$ with $\mathrm{EIRP} = P_t D$. In the mixed units broadcast engineers use this takes the form:
+**The field equations, and the one that has the $\sqrt{P}$ in it.** The free-space field at distance $d$ from a radiating system is:
+$$E = \sqrt{30\,\mathrm{EIRP}}/d$$
+with $\mathrm{EIRP} = P_t D$. In the mixed units broadcast engineers use this takes the form:
 $$E(\mathrm{mV/m}) = 173\sqrt{\mathrm{EIRP}(\mathrm{kW})}/d(\mathrm{km})$$
 It works because $\sqrt{30\times10^{3}}/10^{3} = 173$ — and **that $173$ is the isotropic constant, so it must be fed EIRP, never the transmitter power**. A quarter-wave monopole over a perfect ground has $D = 3.28$, so its practical form is $314\sqrt{P_t(\mathrm{kW})}/d(\mathrm{km})$, where $314 = 173\sqrt{3.28}$; feeding bare transmitter power to the $173$ understates a monopole's field by $\sqrt{3.28} = 1.81$, a $5.15\ \mathrm{dB}$ error. The real earth multiplies the correct free-space value by an attenuation factor $A$ from the Sommerfeld-Norton solution, $E = E_0 A$, with $A$ between roughly $0.1$ and $1$ and decreasing with distance, frequency and worsening conductivity. Note what the $\sqrt{P}$ does: **field strength scales as the square root of radiated power**, so to double the field at a fixed distance you must quadruple the power, which is $+6\ \mathrm{dB}$ for a factor of two in field. Equivalently, since $E \propto \sqrt{P}/d$, doubling the power extends the range by only $\sqrt{2} = 1.41$, and quadrupling it doubles the range. Range increases painfully slowly with transmitter power — the reason AM stations chase conductivity and antenna height instead.
 

@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "geas", "environmental_sci_and_ph_laws"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Ecosystems and Energy Flow
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Ecological pyramids.** A pyramid of **numbers** can invert (one tree supports many insects); a pyramid of **biomass** can invert in the ocean (phytoplankton turn over too fast to accumulate mass); a pyramid of **energy** can never invert, because the second law of thermodynamics forbids it. This is a favourite one-line exam discriminator.
 
-**Population growth and carrying capacity.** Exponential growth follows $\frac{dN}{dt}=rN$. Logistic growth follows:
+**Population growth and carrying capacity.** Exponential growth follows:
+$$\frac{dN}{dt}=rN$$
+Logistic growth follows:
 $$\frac{dN}{dt}=rN\left(1-\frac{N}{K}\right)$$
 whose maximum growth rate occurs at $N=K/2$ (the inflection point, and the basis of maximum sustainable yield). Carrying capacity $K$ is set by limiting factors — food, water, space, light, dissolved oxygen, nutrients — and can be reduced by pollution or habitat loss.
 

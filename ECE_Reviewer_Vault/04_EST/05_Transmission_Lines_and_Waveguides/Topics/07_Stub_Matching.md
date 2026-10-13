@@ -11,7 +11,7 @@ prereqs: ["[[04_Reflection_Coefficient_and_VSWR]]", "[[05_Input_Impedance_and_Qu
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Stub Matching
@@ -28,13 +28,19 @@ updated: 2026-09-23
 $$Z_{\mathrm{in}}(d) = Z_0(Z_L + jZ_0\tan\beta d)/(Z_0 + jZ_L\tan\beta d)$$
 or, equivalently, by rotating $\Gamma_L$ around the constant-$|\Gamma|$ circle until it crosses the $g = 1$ circle. The whole procedure is a Smith-chart construction: constant-VSWR circle, $g = 1$ intersections, read $d$, read $b$, convert $b$ to a stub length.
 
-**Closed-form algebra for a resistive load.** For $z_L = r$ (real), write $t = \tan\beta d$. Then $y_{\mathrm{in}} = (1 + jrt)/(r + jt)$ gives $g = r(1+t^{2})/(r^{2}+t^{2})$ and $b = t(r^{2}-1)/(r^{2}+t^{2})$. Setting $g = 1$ collapses to $t^{2} = r$, so the two crossings are at $\tan\beta d = \pm\sqrt{r}$ — a clean result worth memorising. At the crossing the line susceptance is $b = \pm(r-1)/\sqrt{r}$, so a short-circuited stub must satisfy $\cot\beta l = (r-1)/\sqrt{r}$ on the first branch. Two solutions always exist, and they sit at $d$ and $\lambda/2 - d$; which one is 'better' depends on whether you are optimising the position or the stub length, not on a fixed rule.
+**Closed-form algebra for a resistive load.** For $z_L = r$ (real), write $t = \tan\beta d$. Then $y_{\mathrm{in}} = (1 + jrt)/(r + jt)$ gives:
+$$g = r(1+t^{2})/(r^{2}+t^{2})$$
+and $b = t(r^{2}-1)/(r^{2}+t^{2})$. Setting $g = 1$ collapses to $t^{2} = r$, so the two crossings are at $\tan\beta d = \pm\sqrt{r}$ — a clean result worth memorising. At the crossing the line susceptance is:
+$$b = \pm(r-1)/\sqrt{r}$$
+so a short-circuited stub must satisfy $\cot\beta l = (r-1)/\sqrt{r}$ on the first branch. Two solutions always exist, and they sit at $d$ and $\lambda/2 - d$; which one is 'better' depends on whether you are optimising the position or the stub length, not on a fixed rule.
 
 **The stub formulas.** A short-circuited stub of length $l$ has $Z_{\mathrm{stub}} = jZ_0\tan\beta l$, hence $Y_{\mathrm{stub}} = -jY_0\cot\beta l$; an open-circuited stub has $Y_{\mathrm{stub}} = +jY_0\tan\beta l$. The two curves are the same function shifted by $\lambda/4$: a shorted stub $\lambda/4$ longer than another behaves exactly like the open stub of the shorter length. That is why a susceptance of $+jY_0$ is produced by a $0.125\lambda$ open stub *or* a $0.375\lambda$ shorted stub. In practice the shorted stub is preferred at high power (an open stub radiates and its fringing capacitance is unsteady) but it provides a DC path to ground, so it cannot be used across a bias line; the open stub is used in microstrip where a via is expensive, at the cost of radiation and a length that depends on the fringing field.
 
 **Why a stub cannot fix a real load in place.** At the load plane of a purely resistive load the admittance is real, $b = 0$. A shunt stub adds only susceptance and the conductance stays at $g = Z_0/Z_L$, which equals 1 only if the load is already matched. So a shunt shorted stub placed directly across a 100 $\Omega$ load on a 50 $\Omega$ line makes things worse (it adds a reactance to a real admittance) — the line length $d$ is not optional, it is the mechanism that converts the load's real admittance into $g = 1$. A series stub plays the dual role: it adds reactance, so it must be placed where the line impedance has $r = 1$ (the $r = 1$ circle) and then cancels the leftover reactance.
 
-**Narrowband, and how it fails.** Both $d$ and $l$ are *physical* lengths, so when the frequency rises both electrical lengths grow in proportion: a design with $d = l = 0.152\lambda_0$ presents $\beta d = \beta l = 65.7^{\circ}$ at $1.2f_0$. The required susceptance, $\cot 54.7^{\circ} = 0.707$, becomes $\cot 65.7^{\circ} = 0.452$ — the stub supplies only 61% of what the line needs, the residual susceptance is $+j0.0059\ \mathrm{S}$ and the VSWR climbs from 1.00 to 1.46. Wider bandwidth needs two or more stubs, or a tapered/multisection transformer. Finally, every stub formula here assumes a lossless line and an ideal short or open; a real short has inductance, a real open has fringing capacitance, and at millimetre wavelengths both shift the effective length by enough to matter.
+**Narrowband, and how it fails.** Both $d$ and $l$ are *physical* lengths, so when the frequency rises both electrical lengths grow in proportion: a design with $d = l = 0.152\lambda_0$ presents $\beta d = \beta l = 65.7^{\circ}$ at $1.2f_0$. The required susceptance, $\cot 54.7^{\circ} = 0.707$, becomes:
+$$\cot 65.7^{\circ} = 0.452$$
+— the stub supplies only 61% of what the line needs, the residual susceptance is $+j0.0059\ \mathrm{S}$ and the VSWR climbs from 1.00 to 1.46. Wider bandwidth needs two or more stubs, or a tapered/multisection transformer. Finally, every stub formula here assumes a lossless line and an ideal short or open; a real short has inductance, a real open has fringing capacitance, and at millimetre wavelengths both shift the effective length by enough to matter.
 
 ## Formulas
 

@@ -11,7 +11,7 @@ prereqs: ["[[10_Central_Limit_Theorem]]", "[[08_Normal_Distribution_and_Z_Scores
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Confidence Intervals
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **The general form.** Every interval is built as:
 $$\mathrm{estimate}\ \pm\ (\mathrm{critical\ value})\times(\mathrm{standard\ error})$$
-The estimate is $\bar x$ or $\hat p$; the standard error is $\frac{\sigma}{\sqrt n}$, $\frac{s}{\sqrt n}$ or $\sqrt{\frac{\hat p(1-\hat p)}{n}}$; the critical value comes from the sampling distribution. The half-width is called the *margin of error*.
+The estimate is $\bar x$ or $\hat p$; the standard error is:
+$$\frac{\sigma}{\sqrt n}$$
+$\frac{s}{\sqrt n}$ or $\sqrt{\frac{\hat p(1-\hat p)}{n}}$; the critical value comes from the sampling distribution. The half-width is called the *margin of error*.
 
 **What '95% confident' actually means.** If you repeated the sampling procedure many times and built an interval each time, 95% of those intervals would contain the true parameter. It is **not** 'there is a 95% probability that $\mu$ lies in this interval' — once computed, the interval either contains $\mu$ or it does not. This interpretation is a favourite conceptual question and the wording matters.
 

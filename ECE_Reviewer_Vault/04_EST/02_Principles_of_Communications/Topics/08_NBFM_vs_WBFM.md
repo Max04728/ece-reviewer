@@ -11,7 +11,7 @@ prereqs: ["[[07_Carson’s_Rule_and_FM_Bandwidth]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — NBFM vs WBFM

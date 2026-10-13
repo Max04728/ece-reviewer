@@ -11,7 +11,7 @@ prereqs: ["[[01_Simple_and_Compound_Interest]]"]
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Nominal vs Effective Rates
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Two legal ways to work a problem.** Keep everything in the compounding period — rate $i = r/m$ over $n = mt$ periods — or convert once to an effective rate per payment period and use years. Both give identical future worths, and examiners accept either. What is never acceptable is mixing the two: a nominal annual rate multiplied by a term in years silently assumes annual compounding and understates the answer.
 
-**Rates when the payment period is longer than the compounding period.** If payments are annual but interest compounds quarterly, the rate to use for the annual payment is the effective annual rate $i = (1+0.12/4)^4 - 1 = 12.55\%$, obtained by setting $m$ equal to the number of compounding periods *per payment period*. For biennial payments the same logic gives $(1.03)^8 - 1 = 26.68\%$. This is the conversion that annuity, capitalized-cost and bond problems depend on.
+**Rates when the payment period is longer than the compounding period.** If payments are annual but interest compounds quarterly, the rate to use for the annual payment is the effective annual rate $i = (1+0.12/4)^4 - 1 = 12.55\%$, obtained by setting $m$ equal to the number of compounding periods *per payment period*. For biennial payments the same logic gives:
+$$(1.03)^8 - 1 = 26.68\%$$
+This is the conversion that annuity, capitalized-cost and bond problems depend on.
 
 ## Formulas
 

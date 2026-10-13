@@ -11,7 +11,7 @@ prereqs: ["[[05_FM_and_PM_Fundamentals]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Carson’s Rule and FM Bandwidth
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Carson's rule says the bandwidth is twice the sum of the deviation and the highest modulating frequency: the carrier wanders over twice the deviation, and each of those instantaneous frequencies carries sidebands out to fm.
 
-**The rule and where it comes from.** Carson's rule states $BW = 2(\Delta f + f_m)$ for a single tone, or $BW = 2(\Delta f + f_{m(max)})$ for a general message: twice the sum of the *peak deviation* and the *highest modulating frequency*. It is not an exact result — the true spectrum is infinite — but it is an engineering bandwidth that contains about 98 percent of the total power, which is why every regulatory and design calculation uses it. The rule can be read directly off the Bessel analysis: the number of significant sidebands on each side is $n_{max}\approx\beta+1$, which gives the same result:
+**The rule and where it comes from.** Carson's rule states $BW = 2(\Delta f + f_m)$ for a single tone, or $BW = 2(\Delta f + f_{m(max)})$ for a general message: twice the sum of the *peak deviation* and the *highest modulating frequency*. It is not an exact result — the true spectrum is infinite — but it is an engineering bandwidth that contains about 98 percent of the total power, which is why every regulatory and design calculation uses it. The rule can be read directly off the Bessel analysis: the number of significant sidebands on each side is:
+$$n_{max}\approx\beta+1$$
+which gives the same result:
 $$BW = 2n_{max}f_m = 2(\beta+1)f_m = 2(\Delta f+f_m)$$
 This matches Carson exactly.
 

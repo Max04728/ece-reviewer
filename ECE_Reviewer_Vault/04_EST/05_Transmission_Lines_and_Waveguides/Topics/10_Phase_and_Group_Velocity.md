@@ -11,7 +11,7 @@ prereqs: ["[[09_Cutoff_Frequency_and_Guide_Wavelength]]"]
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Phase and Group Velocity
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A pure sine wave has only a phase velocity — the speed at which a crest slides along. A real signal is a packet of many frequencies, and the packet itself travels at the group velocity, which is also the speed of energy and information. In free space the two coincide; in a waveguide they do not.
 
-**Two definitions, two different questions.** The phase velocity is the speed at which a point of constant phase moves: $v_p = \omega/\beta$, where $\beta$ is the phase constant in radians per metre. The group velocity is the speed at which the *envelope* of a modulated wave moves:
+**Two definitions, two different questions.** The phase velocity is the speed at which a point of constant phase moves:
+$$v_p = \omega/\beta$$
+where $\beta$ is the phase constant in radians per metre. The group velocity is the speed at which the *envelope* of a modulated wave moves:
 $$v_g = d\omega/d\beta$$
 The distinction only becomes visible when $\beta$ is a nonlinear function of $\omega$. If $\beta$ is proportional to $\omega$ — a straight line through the origin — then $d\omega/d\beta = \omega/\beta$ and the two velocities are identical. That is precisely the TEM case.
 
@@ -40,7 +42,9 @@ and $v_g = c\sqrt{1-(f_c/f)^2} < c$, with the beautiful and exam-critical produc
 
 **Behaviour near and below cutoff.** As $f \to f_c^{+}$ the factor $\sqrt{1-(f_c/f)^2} \to 0$, so $v_g \to 0$ and $v_p \to \infty$. The guide becomes infinitely dispersive: a pulse spread across even a modest bandwidth arrives smeared beyond recognition, and the group delay per metre $1/v_g$ blows up. For $f < f_c$ there is no propagation at all — the mode is evanescent and $\beta$ is imaginary, so neither velocity is meaningful (the field simply decays as $e^{-\alpha z}$). Practical systems therefore operate well clear of cutoff, typically 20 % or more above $f_c$, which is exactly where $v_g$ is still close to $c$.
 
-**Useful equivalent forms and the delay budget.** Since $v_p v_g = c^2$ you can always get the group velocity from the phase velocity, $v_g = c^2/v_p$. Substituting the guide-wavelength expression gives $v_g = c\,\lambda_0/\lambda_g$, which is the form to use when a problem hands you wavelengths. The group delay per unit length is $\tau' = 1/v_g$, always larger inside a guide than the free-space value $1/c$. For WR-90 at 10 GHz, $v_g = 2.264\times10^{8}\ \mathrm{m/s}$ so a 10 m run delays a pulse by 44.2 ns against 33.3 ns in free space — an extra 10.8 ns, equivalent to 3.25 m of extra free-space path. That difference is not negligible in a timing or ranging budget.
+**Useful equivalent forms and the delay budget.** Since $v_p v_g = c^2$ you can always get the group velocity from the phase velocity, $v_g = c^2/v_p$. Substituting the guide-wavelength expression gives:
+$$v_g = c\,\lambda_0/\lambda_g$$
+which is the form to use when a problem hands you wavelengths. The group delay per unit length is $\tau' = 1/v_g$, always larger inside a guide than the free-space value $1/c$. For WR-90 at 10 GHz, $v_g = 2.264\times10^{8}\ \mathrm{m/s}$ so a 10 m run delays a pulse by 44.2 ns against 33.3 ns in free space — an extra 10.8 ns, equivalent to 3.25 m of extra free-space path. That difference is not negligible in a timing or ranging budget.
 
 ## Formulas
 

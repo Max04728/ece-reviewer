@@ -11,7 +11,7 @@ prereqs: ["[[03_Instrumentation_and_Difference_Amplifiers]]", "[[07_Thevenin_and
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Temperature Sensors
@@ -24,7 +24,11 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Temperature is inferred from something that changes with it: the resistance of a metal, the voltage across a junction of two dissimilar metals, the resistance of a ceramic, or the bandgap of a transistor. Each mechanism has a different sensitivity, linearity and range, and the exam question is always which one fits the application.
 
-**RTDs and the platinum standard.** A resistance temperature detector uses the positive temperature coefficient of a metal; platinum is universal because it is stable, chemically inert and nearly linear. A Pt100 is $100\ \mathrm{\Omega}$ at $0\ ^\circ\mathrm{C}$ with $\alpha = 0.00385\ \mathrm{\Omega/\Omega/^\circ C}$, so its sensitivity is $\alpha R_0 = 0.385\ \mathrm{\Omega/^\circ C}$; a Pt1000 uses the same $\alpha$ but gives $3.85\ \mathrm{\Omega/^\circ C}$, which is easier to resolve but more prone to self-heating. Over a narrow range $R = R_0(1+\alpha T)$ is adequate, but the response is genuinely quadratic and the Callendar–Van Dusen polynomial is the standard:
+**RTDs and the platinum standard.** A resistance temperature detector uses the positive temperature coefficient of a metal; platinum is universal because it is stable, chemically inert and nearly linear. A Pt100 is $100\ \mathrm{\Omega}$ at $0\ ^\circ\mathrm{C}$ with the temperature coefficient:
+$$\alpha = 0.00385\ \mathrm{\Omega/\Omega/^\circ C}$$
+and the sensitivity that follows:
+$$\alpha R_0 = 0.385\ \mathrm{\Omega/^\circ C}$$
+a Pt1000 uses the same $\alpha$ but gives $3.85\ \mathrm{\Omega/^\circ C}$, which is easier to resolve but more prone to self-heating. Over a narrow range $R = R_0(1+\alpha T)$ is adequate, but the response is genuinely quadratic and the Callendar–Van Dusen polynomial is the standard:
 $$R(T) = R_0[1+AT+BT^2+C(T-100)T^3]$$
 with $A = 3.9083\times10^{-3}$, $B = -5.775\times10^{-7}$ and $C$ used only below $0\ ^\circ\mathrm{C}$. At $150\ ^\circ\mathrm{C}$ the linear formula already reads $1.1\ ^\circ\mathrm{C}$ high, which is far larger than the sensor's own accuracy class.
 
@@ -32,7 +36,9 @@ with $A = 3.9083\times10^{-3}$, $B = -5.775\times10^{-7}$ and $C$ used only belo
 
 **Thermistors and IC sensors.** An NTC thermistor is a semiconductor oxide whose resistance falls steeply with temperature:
 $$R(T) = R_{25}\exp[\beta(1/T - 1/T_{25})]$$
-with $T$ in kelvin and $\beta$ around 3500 K, or the more accurate Steinhart–Hart form $1/T = A + B\ln R + C(\ln R)^3$. The sensitivity is $\alpha = -\beta/T^2$, about $-3.9\%/^\circ\mathrm{C}$ at room temperature — ten times an RTD's — but the response is strongly nonlinear, so linear interpolation across a wide range fails badly and a lookup table or the beta equation is mandatory. IC sensors such as the LM35 exploit the predictable $V_{BE}$ of a transistor: $10\ \mathrm{mV/^\circ C}$ with $0\ \mathrm{V}$ at $0\ ^\circ\mathrm{C}$, giving excellent linearity and a ratiometric output, but a limited range (typically $-55$ to $+150\ ^\circ\mathrm{C}$) and a need for a negative supply or a pull-down to read below zero.
+with $T$ in kelvin and $\beta$ around 3500 K, or the more accurate Steinhart–Hart form $1/T = A + B\ln R + C(\ln R)^3$. The sensitivity is:
+$$\alpha = -\beta/T^2$$
+about $-3.9\%/^\circ\mathrm{C}$ at room temperature — ten times an RTD's — but the response is strongly nonlinear, so linear interpolation across a wide range fails badly and a lookup table or the beta equation is mandatory. IC sensors such as the LM35 exploit the predictable $V_{BE}$ of a transistor: $10\ \mathrm{mV/^\circ C}$ with $0\ \mathrm{V}$ at $0\ ^\circ\mathrm{C}$, giving excellent linearity and a ratiometric output, but a limited range (typically $-55$ to $+150\ ^\circ\mathrm{C}$) and a need for a negative supply or a pull-down to read below zero.
 
 **Choosing between them.** The choice is driven by range, accuracy, linearity, sensitivity, cost and environment. An RTD wins on accuracy and stability over $-200$ to $+600\ ^\circ\mathrm{C}$; a thermocouple wins on range, ruggedness and speed, and is the only practical choice above $600\ ^\circ\mathrm{C}$ or for a tiny contact; a thermistor wins on sensitivity, size and cost for narrow-range control loops such as a thermostat; an IC sensor wins on linearity and interface simplicity at board level. A useful comparison in round numbers: an RTD gives $0.385\ \mathrm{\Omega/^\circ C}$ and a measurement uncertainty of a few tenths of a degree, a type K gives $41\ \mu\mathrm{V/^\circ C}$ with an uncertainty of one to three degrees, and a thermistor gives $-3.9\%/^\circ\mathrm{C}$.
 

@@ -11,7 +11,7 @@ prereqs: ["[[02_PN_Junction_and_Depletion_Region]]", "[[04_Diode_Models_and_Load
 tags: ["ece", "electronics_engineering", "semiconductor_devices"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — BJT Structure and Operating Regions

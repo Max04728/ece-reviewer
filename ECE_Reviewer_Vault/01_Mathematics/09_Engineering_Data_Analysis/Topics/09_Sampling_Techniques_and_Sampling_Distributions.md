@@ -11,7 +11,7 @@ prereqs: ["[[01_Central_Tendency]]", "[[02_Dispersion,_Variance,_SD,_IQR_and_CV]
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Sampling Techniques and Sampling Distributions

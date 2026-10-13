@@ -11,7 +11,7 @@ prereqs: ["[[03_Instrumentation_and_Difference_Amplifiers]]", "[[02_Phasors_and_
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Position Sensors: LVDT, Hall, Encoders
@@ -28,7 +28,11 @@ updated: 2026-09-23
 
 **Hall-effect sensors.** A current $I$ through a thin plate in a magnetic flux density $B$ deflects the charge carriers, and the resulting transverse voltage is $V_H = IB/(ntq)$, or $V_H = R_HIB/t$ with the Hall coefficient $R_H = 1/(nq)$. The sensitivity is set by the carrier concentration and the thickness: a thin, lightly doped semiconductor gives tens of millivolts, which is why Hall elements are made in InSb, GaAs or silicon with an on-chip amplifier. As a position sensor the Hall element is usually combined with a moving permanent magnet, so it measures flux density rather than displacement directly; air-gap variation, magnet temperature drift and the device's own threshold spread all appear as position error, and a ratiometric supply or a differential pair of elements is used to cancel them. Their great strengths are that they are non-contact, work at high speed and are cheap, which makes them the standard choice for gear-tooth speed sensing and end-of-travel detection.
 
-**Incremental encoders and quadrature.** An incremental optical encoder has a slotted disk, a light source and a photodetector, and produces a pulse train whose frequency is proportional to speed; a second channel displaced by $90^\circ$ gives direction, and decoding both edges of both channels (×4 quadrature) multiplies the resolution by four. An encoder specified at 1000 pulses per revolution (PPR) therefore yields $CPR = 4 \times 1000 = 4000$ counts per revolution with a ×4 decoder, and $360/4000 = 0.09^\circ$ per count. Mounted on a 5 mm-pitch leadscrew, one count is $5\ \mathrm{mm}/4000 = 1.25\ \mu\mathrm{m}$ of linear travel. The ×4 trick multiplies the count rate as well as the resolution, so the counter's maximum input frequency can become the limiting specification at high speed, and an incremental encoder has no memory: after a power loss the position is unknown and a homing sequence is required.
+**Incremental encoders and quadrature.** An incremental optical encoder has a slotted disk, a light source and a photodetector, and produces a pulse train whose frequency is proportional to speed; a second channel displaced by $90^\circ$ gives direction, and decoding both edges of both channels (×4 quadrature) multiplies the resolution by four. An encoder specified at 1000 pulses per revolution (PPR) therefore yields:
+$$CPR = 4 \times 1000 = 4000$$
+counts per revolution with a ×4 decoder, and $360/4000 = 0.09^\circ$ per count. Mounted on a 5 mm-pitch leadscrew, one count is a linear travel of:
+$$5\ \mathrm{mm}/4000 = 1.25\ \mu\mathrm{m}$$
+The ×4 trick multiplies the count rate as well as the resolution, so the counter's maximum input frequency can become the limiting specification at high speed, and an incremental encoder has no memory: after a power loss the position is unknown and a homing sequence is required.
 
 **Absolute encoders and Gray code.** An absolute encoder puts a unique code pattern on the disk, so its output is the position itself and no homing is needed. A single-turn 12-bit absolute encoder resolves $360/2^{12} = 0.088^\circ$; adding turns-counting bits makes it multi-turn. The code is Gray rather than binary because only one bit changes between adjacent positions: reading a binary disk mid-transition (0111 to 1000, where four bits change) can produce a completely wrong value, while a Gray-coded disk can be at most one count in error. Encoder accuracy and resolution are separate specifications — resolution is the smallest step the electronics can report, while accuracy is how close the reported position is to the true one, and mechanical errors such as disk eccentricity, coupling runout and interpolation error set the latter.
 

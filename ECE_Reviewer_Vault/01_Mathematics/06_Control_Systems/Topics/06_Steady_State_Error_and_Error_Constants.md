@@ -11,7 +11,7 @@ prereqs: ["[[02_Block_Diagram_Reduction]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Steady State Error and Error Constants
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Steady-state error is what is left at the summing junction after all the transients have died. It is set by how much gain the loop has at zero frequency — a constant for a step, a $1/s$ factor for a ramp, a $1/s^2$ factor for a parabola.
 
-**Where the error comes from.** With negative feedback and reference $R$, the signal at the summing junction is $E=\dfrac{R}{1+G(s)H(s)}$. The final value theorem gives the steady-state value:
+**Where the error comes from.** With negative feedback and reference $R$, the signal at the summing junction is:
+$$E=\dfrac{R}{1+G(s)H(s)}$$
+The final value theorem gives the steady-state value:
 $$e_{ss}=\lim_{s\to0}sE(s)=\lim_{s\to0}\dfrac{sR(s)}{1+G(s)H(s)}$$
 The initial-value/final-value machinery is the only tool needed, and it applies to the *actual* error at the comparator — not automatically to $r-y$ when $H\neq1$.
 
@@ -34,7 +36,9 @@ The initial-value/final-value machinery is the only tool needed, and it applies 
 
 **Validity requires stability.** The final value theorem gives the limit of $e(t)$ only if $sE(s)$ has all poles in the left half plane. If the closed loop is unstable, the algebra still produces a finite number and that number is a lie. Always run Routh-Hurwitz on the characteristic equation before quoting $e_{ss}$ — a board question that gives you a gain and asks for error often hides an unstable gain.
 
-**Non-unity feedback.** With $H\neq1$ every constant is still built from $G(s)H(s)$, so the comparator error for a unit step is $\dfrac{1}{1+K_p}$ with $K_p=\lim_{s\to0}G(s)H(s)$ — not $G(0)$. The output itself then follows from $y(\infty)=\dfrac{G(0)}{1+G(0)H(0)}$, and $r-y(\infty)$ is a *different* number from the comparator error whenever $H(0)\neq1$. Read the question to see which one it wants.
+**Non-unity feedback.** With $H\neq1$ every constant is still built from $G(s)H(s)$, so the comparator error for a unit step is:
+$$\dfrac{1}{1+K_p}$$
+with $K_p=\lim_{s\to0}G(s)H(s)$ — not $G(0)$. The output itself then follows from $y(\infty)=\dfrac{G(0)}{1+G(0)H(0)}$, and $r-y(\infty)$ is a *different* number from the comparator error whenever $H(0)\neq1$. Read the question to see which one it wants.
 
 **Disturbances.** A disturbance entering at the plant input produces $Y=\dfrac{G_d(s)}{1+G(s)H(s)}D(s)$. The same machinery applies, but the location of the disturbance relative to any integrator is what determines whether it is rejected: an integrator *upstream* of the disturbance entry point drives the steady output contribution to zero.
 

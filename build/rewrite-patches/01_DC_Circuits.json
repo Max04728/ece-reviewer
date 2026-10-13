@@ -1,0 +1,96 @@
+{
+  "area": "02_Electronics_Engineering/01_DC_Circuits",
+  "note": "Area ledger for 13 residual 40+ char inline-formula sites. Recipe: give each equation a real lead-in clause ending in `:` or `.` so formula-layout.mjs can hoist it. Prose and punctuation only; the ordered $...$ formula list of every touched entry is unchanged.",
+  "rewrites": [
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/02_KCL,_KVL,_Series_and_Parallel_Reduction.json",
+      "entry": 1,
+      "find": "**KCL — the node law.** At any node, $\\sum i_{\\mathrm{in}} = \\sum i_{\\mathrm{out}}$, or equivalently",
+      "replace": "**KCL — the node law.** At any node: $\\sum i_{\\mathrm{in}} = \\sum i_{\\mathrm{out}}$, or equivalently"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/03_Delta-Wye_Transformations.json",
+      "entry": 2,
+      "find": "divided by the sum of all three delta resistors, so $R_a = \\frac{R_{ab}R_{ca}}{R_{ab}+R_{bc}+R_{ca}}$ with the other two legs",
+      "replace": "divided by the sum of all three delta resistors. The result is: $R_a = \\frac{R_{ab}R_{ca}}{R_{ab}+R_{bc}+R_{ca}}$, with the other two legs"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/03_Delta-Wye_Transformations.json",
+      "entry": 2,
+      "find": "divided by the wye leg *opposite* it, $R_{ab} = \\frac{R_aR_b+R_bR_c+R_cR_a}{R_c}$ —",
+      "replace": "divided by the wye leg *opposite* it. The result is: $R_{ab} = \\frac{R_aR_b+R_bR_c+R_cR_a}{R_c}$ —"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/03_Delta-Wye_Transformations.json",
+      "entry": 3,
+      "find": "must still give the same answer, which makes it a free self-check, since the equivalence guarantees $R_a + R_b = R_{ab} \\parallel (R_{bc}+R_{ca})$.",
+      "replace": "must still give the same answer, which makes it a free self-check. The equivalence guarantees: $R_a + R_b = R_{ab} \\parallel (R_{bc}+R_{ca})$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/04_Mesh_Analysis_and_Supermesh.json",
+      "entry": 2,
+      "find": "This gives the standard form $R_{kk} i_k - \\sum_{j\\neq k} R_{kj} i_j = \\sum v_k$, which is symmetric",
+      "replace": "This gives the standard form. $R_{kk} i_k - \\sum_{j\\neq k} R_{kj} i_j = \\sum v_k$, which is symmetric"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/05_Nodal_Analysis_and_Supernodes.json",
+      "entry": 2,
+      "find": "Collecting terms gives the standard form $G_{aa}v_a - \\sum_{b\\neq a} G_{ab}v_b = I_a$, where the self-conductance",
+      "replace": "Collecting terms gives the standard form. $G_{aa}v_a - \\sum_{b\\neq a} G_{ab}v_b = I_a$, where the self-conductance"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/11_First_Order_RC_and_RL_Transients.json",
+      "entry": 1,
+      "find": "Any single-energy-storage circuit obeys $x(t) = x(\\infty) + \\left[x(0^+) - x(\\infty)\\right]e^{-t/\\tau}$, where",
+      "replace": "Any single-energy-storage circuit obeys this law: $x(t) = x(\\infty) + \\left[x(0^+) - x(\\infty)\\right]e^{-t/\\tau}$, where"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/11_First_Order_RC_and_RL_Transients.json",
+      "entry": 4,
+      "find": "giving $x(t) = x(\\infty)\\left(1 - e^{-t/\\tau}\\right)$; a discharge",
+      "replace": "The result is: $x(t) = x(\\infty)\\left(1 - e^{-t/\\tau}\\right)$; a discharge"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/11_First_Order_RC_and_RL_Transients.json",
+      "entry": 4,
+      "find": "the same formula with $x(0^+) = 0$, The result is:",
+      "replace": "the same formula with $x(0^+) = 0$. The result is:"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/11_First_Order_RC_and_RL_Transients.json",
+      "entry": 4,
+      "find": "a discharge to zero is the same formula with $x(\\infty) = 0$, giving $x(t) = x(0^+)e^{-t/\\tau}$.",
+      "replace": "a discharge to zero is the same formula with $x(\\infty) = 0$. The result is: $x(t) = x(0^+)e^{-t/\\tau}$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/11_First_Order_RC_and_RL_Transients.json",
+      "entry": 4,
+      "find": "To invert for time, use $t = \\tau\\ln\\!\\left[\\dfrac{x(0^+)-x(\\infty)}{x(t)-x(\\infty)}\\right]$, which for a 0-to-100% step",
+      "replace": "To invert for time: $t = \\tau\\ln\\!\\left[\\dfrac{x(0^+)-x(\\infty)}{x(t)-x(\\infty)}\\right]$, which for a 0-to-100% step"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/12_Second_Order_RLC_Natural_Response.json",
+      "entry": 1,
+      "find": "KVL around the loop gives $L\\dfrac{di}{dt} + Ri + \\dfrac{1}{C}\\int i\\,dt = 0$; differentiating once yields",
+      "replace": "KVL around the loop gives: $L\\dfrac{di}{dt} + Ri + \\dfrac{1}{C}\\int i\\,dt = 0$; differentiating once yields"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/12_Second_Order_RLC_Natural_Response.json",
+      "entry": 1,
+      "find": "differentiating once yields $\\dfrac{d^2i}{dt^2} + \\dfrac{R}{L}\\dfrac{di}{dt} + \\dfrac{1}{LC}i = 0$. Proposing",
+      "replace": "differentiating once yields: $\\dfrac{d^2i}{dt^2} + \\dfrac{R}{L}\\dfrac{di}{dt} + \\dfrac{1}{LC}i = 0$. Proposing"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/12_Second_Order_RLC_Natural_Response.json",
+      "entry": 3,
+      "find": "The roots are $s_{1,2} = -\\alpha \\pm \\sqrt{\\alpha^2 - \\omega_0^2}$.",
+      "replace": "The roots are: $s_{1,2} = -\\alpha \\pm \\sqrt{\\alpha^2 - \\omega_0^2}$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/01_DC_Circuits/12_Second_Order_RLC_Natural_Response.json",
+      "entry": 5,
+      "find": "(or $dv/dt(0^+)$ from $i_L(0^+)$): for a series loop, $L\\,di/dt\\big|_{0^+} = -v_C(0^+) - Ri(0^+)$.",
+      "replace": "(or $dv/dt(0^+)$ from $i_L(0^+)$); for a series loop: $L\\,di/dt\\big|_{0^+} = -v_C(0^+) - Ri(0^+)$."
+    }
+  ]
+}

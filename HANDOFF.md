@@ -60,12 +60,22 @@ Current state, verified at the time of writing:
 | Topic notes / payloads | 408 / 408 |
 | Files / wikilinks / widgets | 605 / 4929 (0 broken) / 83 |
 | Calculator blocks | 931, across 213 payloads, 16 of 31 areas |
-| Core Concept spacing sites remaining | **129**, across 9 areas |
+| Core Concept spacing sites remaining | **0** — all 31 areas clean |
 | Core Concept render artefacts | 0 `$$$`, 0 unbalanced `$`, 0 orphan fragments, 0 stranded units |
 
 ---
 
-## 3. Workstream A — Core Concept prose spacing (129 sites, 9 areas left)
+## 3. Workstream A — Core Concept prose spacing — ✅ **COMPLETE (0 sites left, all 31 areas clean)**
+
+> Finished. `587 → 129 → 0`. Do **not** re-run the recipe below against the vault: there is nothing
+> left to fix, and the "9 areas left" table further down is historical, not a worklist.
+> The pass was completed with two tools added to `build/`, which supersede the 66 KB worklist:
+> `node build/show-sites.mjs --area "<Part/Area>"` (that area's sites, decoded and patch-ready) and
+> `node build/apply-rewrites.mjs --report|--apply <patch.json>` (applies decoded-prose rewrites,
+> owns all JSON escaping, and rejects any rewrite that changes an entry's `$...$` formula list).
+> Read `_meta/BUILD_STATE.md` open item 1 for the completion evidence, the tooling contract, and one
+> **open stylistic question for the owner** about sentences that continue after a hoisted display —
+> measured at 381 sites, so do not "fix" it without a decision.
 
 ### Background
 

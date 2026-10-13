@@ -11,7 +11,7 @@ prereqs: ["[[01_Limits,_Continuity_and_L_Hopital]]", "[[02_Differentiation_Rules
 tags: ["ece", "mathematics", "differential_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Rolle’s and Mean Value Theorems

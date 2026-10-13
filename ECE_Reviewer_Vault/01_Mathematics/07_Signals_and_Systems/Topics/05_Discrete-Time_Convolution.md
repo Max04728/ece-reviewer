@@ -11,7 +11,7 @@ prereqs: ["[[03_System_Properties_and_LTI]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Discrete-Time Convolution
@@ -34,7 +34,9 @@ Compared with the CT integral, the flip-and-slide picture is identical but the '
 $$y[n]=x[n]*h[n]\leftrightarrow Y(z)=X(z)H(z)$$
 This reduces DT convolution to multiplying two polynomials in $z^{-1}$. For finite sequences this gives the values directly: write $x[n]$ as coefficients of $X(z)$, $h[n]$ as coefficients of $H(z)$, multiply, and read the coefficient of $z^{-n}$ as $y[n]$. This is faster and less error-prone than the sum for short sequences.
 
-**Standard pairs.** $x[n]*\delta[n-k]=x[n-k]$ (pure shift). $u[n]*u[n]=(n+1)u[n]$ — the DT analogue of $tu(t)$ carries the extra $+1$ because the sum $\sum_{k=0}^{n}1$ has $n+1$ terms.
+**Standard pairs.** $x[n]*\delta[n-k]=x[n-k]$ (pure shift).
+$$u[n]*u[n]=(n+1)u[n]$$
+— the DT analogue of $tu(t)$ carries the extra $+1$ because the sum $\sum_{k=0}^{n}1$ has $n+1$ terms.
 $$a^{n}u[n]*u[n]=\dfrac{1-a^{n+1}}{1-a}u[n]$$
 for $a\neq1$, which is the step response of a one-pole system and settles at $\dfrac{1}{1-a}$. Convolution with $\delta[n]$ is the identity.
 

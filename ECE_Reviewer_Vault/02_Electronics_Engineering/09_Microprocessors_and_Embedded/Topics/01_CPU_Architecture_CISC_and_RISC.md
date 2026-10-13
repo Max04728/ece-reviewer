@@ -11,7 +11,7 @@ prereqs: ["[[02_Registers,_Buses_and_Memory_Organization]]"]
 tags: ["ece", "electronics_engineering", "microprocessors_and_embedded"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — CPU Architecture: CISC and RISC

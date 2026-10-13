@@ -11,7 +11,7 @@ prereqs: ["[[09_Redox_and_Galvanic_Cells]]"]
 tags: ["ece", "geas", "general_chemistry"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Battery Chemistries

@@ -11,7 +11,7 @@ prereqs: ["[[01_Simple_and_Compound_Interest]]", "[[02_Nominal_vs_Effective_Rate
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Ordinary Annuity and Annuity Due

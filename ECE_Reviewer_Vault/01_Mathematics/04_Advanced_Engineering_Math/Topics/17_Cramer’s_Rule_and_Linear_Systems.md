@@ -11,7 +11,7 @@ prereqs: ["[[16_Matrices,_Determinants,_Rank_and_Inversion]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 17 — Cramer’s Rule and Linear Systems
@@ -24,9 +24,13 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Cramer's rule is the definition of a solution turned inside out: replacing one column of $A$ by the constant vector asks what coefficient multiplying that column would reproduce $\mathbf{b}$ on its own. When the determinant vanishes the columns are dependent, and rank is the tool that says whether the system then has no solution or infinitely many.
 
-**Cramer's rule and why it works.** For $A\mathbf{x}=\mathbf{b}$ with $A$ square and $\det A\neq0$, the unique solution is $x_i = \dfrac{\det(A_i)}{\det A}$, where $A_i$ is $A$ with its $i$-th column replaced by $\mathbf{b}$ and every other column untouched. The proof is one line of column algebra. The product is:
+**Cramer's rule and why it works.** For $A\mathbf{x}=\mathbf{b}$ with $A$ square and $\det A\neq0$, the unique solution is:
+$$x_i = \dfrac{\det(A_i)}{\det A}$$
+where $A_i$ is $A$ with its $i$-th column replaced by $\mathbf{b}$ and every other column untouched. The proof is one line of column algebra. The product is:
 $$A[\mathbf{e}_1\ \cdots\ \mathbf{x}\ \cdots\ \mathbf{e}_n]$$
-and its columns are $(\mathbf{a}_1,\ldots,\mathbf{b},\ldots,\mathbf{a}_n)$, because $A\mathbf{x}=\mathbf{b}$ and $A\mathbf{e}_j=\mathbf{a}_j$. Taking determinants and using linearity in that single column gives $\det(A)\,x_i = \det(A_i)$. Two operational consequences follow directly. First, the constant column goes into column $i$ with no sign change — the only sign in Cramer's rule is the sign of the determinant itself. Second, the rule needs $\det A\neq0$; when the determinant vanishes the rule does not return infinity, it returns nothing, and any finite value obtained by continuing the arithmetic is fabricated.
+and its columns are $(\mathbf{a}_1,\ldots,\mathbf{b},\ldots,\mathbf{a}_n)$, because $A\mathbf{x}=\mathbf{b}$ and $A\mathbf{e}_j=\mathbf{a}_j$. Taking determinants and using linearity in that single column gives:
+$$\det(A)\,x_i = \det(A_i)$$
+Two operational consequences follow directly. First, the constant column goes into column $i$ with no sign change — the only sign in Cramer's rule is the sign of the determinant itself. Second, the rule needs $\det A\neq0$; when the determinant vanishes the rule does not return infinity, it returns nothing, and any finite value obtained by continuing the arithmetic is fabricated.
 
 **The homogeneous case is the singularity condition.** For $A\mathbf{x}=\mathbf{0}$ the zero vector is always a solution, so the only question is whether a *non-trivial* solution exists. It does exactly when $\det A = 0$, because a non-zero $\mathbf{x}$ in the null space is precisely a linear dependence among the columns. This one statement answers the parameter questions that dominate the topic — 'find $k$ so the system has a non-zero solution', 'find $k$ so the matrix is singular', 'for which $\lambda$ does $A\mathbf{x}=\lambda\mathbf{x}$ have a non-zero solution' — and it is also the eigenvalue condition in disguise. When $\det A = 0$ the non-trivial solutions form the null space, whose dimension is $n-\mathrm{rank}(A)$; for a $3\times3$ matrix of rank 2 that is one free variable, so the solution set is a line through the origin, written by choosing one parameter and expressing the other variables in terms of it.
 

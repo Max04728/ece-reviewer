@@ -11,7 +11,7 @@ prereqs: ["[[03_Definite_Integrals_and_FTC]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Plane Areas Cartesian
@@ -24,11 +24,15 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Area between curves is the integral of (upper curve minus lower curve). Most of the work is deciding which is on top where, and that question is answered by finding the intersections first.
 
-**The formula and its precondition.** For continuous $f$ and $g$ with $f(x)\geq g(x)$ on $[a,b]$, the area between them is $\int_a^b [f(x)-g(x)]\,dx$. The condition that one curve stays above the other is essential: if they cross inside the interval, the difference changes sign and the integral no longer measures area. **Always find the intersection points first** and split the interval there.
+**The formula and its precondition.** For continuous $f$ and $g$ with $f(x)\geq g(x)$ on $[a,b]$, the area between them is:
+$$\int_a^b [f(x)-g(x)]\,dx$$
+The condition that one curve stays above the other is essential: if they cross inside the interval, the difference changes sign and the integral no longer measures area. **Always find the intersection points first** and split the interval there.
 
 **Getting the limits right.** There are two situations. If the limits are given, use them but still check whether the curves cross inside. If the limits are not given, they *are* the intersection points: solve $f(x) = g(x)$, and the outermost solutions become the bounds of integration. A question saying 'the region enclosed by' always implies the intersections are the limits.
 
-**Integrating with respect to y.** When the curves are better described as functions of $y$ — a parabola opening sideways, for instance — integrate $\int_c^d [x_{\mathrm{right}}(y) - x_{\mathrm{left}}(y)]\,dy$. This is not a different method, just the same idea with the roles of the axes exchanged. Choosing the axis wisely can turn a problem that needs three separate integrals into a single one, which is the main exam advantage.
+**Integrating with respect to y.** When the curves are better described as functions of $y$ — a parabola opening sideways, for instance — the area is:
+$$\int_c^d [x_{\mathrm{right}}(y) - x_{\mathrm{left}}(y)]\,dy$$
+This is not a different method, just the same idea with the roles of the axes exchanged. Choosing the axis wisely can turn a problem that needs three separate integrals into a single one, which is the main exam advantage.
 
 **Vertical strips versus horizontal strips.** The choice corresponds exactly to whether you integrate in $x$ or in $y$. Vertical strips (integrating $x$) require the top-bottom relationship to hold across the whole interval; horizontal strips (integrating $y$) require left-right. Whichever relationship is simpler usually determines the better choice.
 

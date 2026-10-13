@@ -11,7 +11,7 @@ prereqs: ["[[07_Laplace_Transform_Pairs]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — System Modeling and Transfer Functions
@@ -40,7 +40,9 @@ The **poles** $p_i$ are the roots of the denominator and are the natural modes o
 
 **Properness.** If $m\le n$ the transfer function is *proper* (realizable); if $m<n$ it is *strictly proper*, which means $G(\infty)=0$ and the step response is continuous from zero. If $m>n$ it is *improper* — it would differentiate the input, which is unrealizable with finite hardware, so an exam answer that comes out improper signals an algebra error.
 
-**DC gain and the physical route.** $G(0)=b_0/a_0$ is the steady-state output per unit constant input (when the system is stable), because at $s=0$ every derivative term dies. For a physical system the fastest route is often the impedance/force balance: mass-spring-damper $m\ddot{x}+b\dot{x}+kx=F$ gives $G=1/(ms^2+bs+k)$; the series RLC with the capacitor voltage as output gives:
+**DC gain and the physical route.** $G(0)=b_0/a_0$ is the steady-state output per unit constant input (when the system is stable), because at $s=0$ every derivative term dies. For a physical system the fastest route is often the impedance/force balance: mass-spring-damper $m\ddot{x}+b\dot{x}+kx=F$ gives:
+$$G=1/(ms^2+bs+k)$$
+the series RLC with the capacitor voltage as output gives:
 $$G=(1/LC)/\left(s^2+\frac{R}{L}s+\frac{1}{LC}\right)$$
 Normalise the leading coefficient to 1 to read $\omega_n$ and $\zeta$ straight off.
 

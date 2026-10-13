@@ -11,7 +11,7 @@ prereqs: ["[[06_FSPL_and_Friis_Transmission_Equation]]", "[[05_Parabolic_Reflect
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — Satellite Orbits, Transponders and G/T
@@ -38,7 +38,9 @@ where $\psi$ is the central angle between the station and the sub-satellite poin
 
 **The transponder is a receiver–translator–transmitter.** A *bent-pipe* transponder receives the uplink band, shifts it in frequency to the downlink band and amplifies it — it does not demodulate. Band pairs are 6/4 GHz (C-band, classic 36 MHz transponder bandwidth), 14/12 GHz (Ku, often 54 or 72 MHz) and 30/20 GHz (Ka). Spectrum is reused by transmitting orthogonal (horizontal/vertical or left/right circular) polarisations on the same frequency and by shaping spot beams that illuminate disjoint patches of Earth. The output stage is a TWTA (or SSPA) whose saturation point is the design dilemma: drive it hard for maximum downlink EIRP and intermodulation products between multiple carriers splatter into neighbouring channels, so multi-carrier operation backs the tube off several dB from saturation, trading power for linearity.
 
-**G/T and the link equation are the figure of merit and the budget.** The receive side is summarised by $G/T = G_r - 10\log_{10}T_{sys}$ in dB/K — a big dish is worth nothing if its system temperature is high, and G/T, not gain alone, appears in the link. The carrier-to-noise-density ratio follows from $C/N_0 = EIRP - L_{fs} + G/T + 228.6$ (the constant is $-10\log_{10}k$ with $k = 1.38\times10^{-23}\ \mathrm{J/K}$), and dividing by the noise bandwidth gives $C/N = C/N_0 - 10\log_{10}B$. A link closes when the computed $C/N$ (or $E_b/N_0$) exceeds the modem threshold with margin; uplink and downlink degrade together, so they are combined reciprocally rather than added in dB.
+**G/T and the link equation are the figure of merit and the budget.** The receive side is summarised by $G/T = G_r - 10\log_{10}T_{sys}$ in dB/K — a big dish is worth nothing if its system temperature is high, and G/T, not gain alone, appears in the link. The carrier-to-noise-density ratio follows from $C/N_0 = EIRP - L_{fs} + G/T + 228.6$ (the constant is $-10\log_{10}k$ with $k = 1.38\times10^{-23}\ \mathrm{J/K}$), and dividing by the noise bandwidth gives:
+$$C/N = C/N_0 - 10\log_{10}B$$
+A link closes when the computed $C/N$ (or $E_b/N_0$) exceeds the modem threshold with margin; uplink and downlink degrade together, so they are combined reciprocally rather than added in dB.
 
 ## Formulas
 

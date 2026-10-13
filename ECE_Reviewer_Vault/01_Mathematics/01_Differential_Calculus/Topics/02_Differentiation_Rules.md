@@ -12,7 +12,7 @@ tags: ["ece", "mathematics", "differential_calculus"]
 status: not-started
 confidence: 0
 last_reviewed: 2026-09-24
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Differentiation Rules
@@ -27,7 +27,9 @@ updated: 2026-09-23
 
 **The core rules, all of them.** Power:
 $$\frac{d}{dx}x^n = nx^{n-1}$$
-for every real $n$. Product: $(uv)' = u'v + uv'$. Quotient:
+for every real $n$. Product:
+$$(uv)' = u'v + uv'$$
+Quotient:
 $$\left(\frac{u}{v}\right)' = \frac{u'v - uv'}{v^2}$$
 Chain:
 $$\frac{d}{dx}f(g(x)) = f'(g(x))g'(x)$$
@@ -39,7 +41,9 @@ Everything else — implicit, parametric, logarithmic, inverse-trig — is one o
 $$f'(g(h(x)))\cdot g'(h(x))\cdot h'(x)$$
 Forgetting a factor is the single most common exam error. A reliable check when time allows: count the function layers and confirm the answer has that many multiplicative factors.
 
-**Implicit differentiation.** When $y$ is defined by an equation rather than solved for, differentiate both sides with respect to $x$ and treat $y$ as a function of $x$, so every $y$-term picks up a $\frac{dy}{dx}$ by the chain rule. Example: $x^2+y^2=25$ gives $2x + 2y\frac{dy}{dx} = 0$, so $\frac{dy}{dx} = -x/y$. Substituting the point gives the slope directly — no need to solve for $y$ first, which is exactly why implicit form is used when solving is hard.
+**Implicit differentiation.** When $y$ is defined by an equation rather than solved for, differentiate both sides with respect to $x$ and treat $y$ as a function of $x$, so every $y$-term picks up a $\frac{dy}{dx}$ by the chain rule. Example: $x^2+y^2=25$ gives:
+$$2x + 2y\frac{dy}{dx} = 0$$
+so $\frac{dy}{dx} = -x/y$. Substituting the point gives the slope directly — no need to solve for $y$ first, which is exactly why implicit form is used when solving is hard.
 
 **Parametric differentiation and the second derivative trap.** For $x = f(t)$, $y = g(t)$:
 $$\frac{dy}{dx} = \frac{dy/dt}{dx/dt}$$

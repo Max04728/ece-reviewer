@@ -11,7 +11,7 @@ prereqs: ["[[12_Biot-Savart_Law]]", "[[04_Coulomb’s_Law_and_E_Field]]"]
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 16 — Magnetic Forces, Torque and Lorentz
@@ -34,9 +34,13 @@ The electric term does work ($W=q\int\mathbf{E}\cdot d\mathbf{l}$, independent o
 $$d\mathbf{F}=I\,d\mathbf{l}\times\mathbf{B}$$
 and for a straight wire in a uniform field $\mathbf{F}=I\mathbf{L}\times\mathbf{B}$ with magnitude $ILB\sin\theta$. Two consequences follow immediately. First, a closed loop in a *uniform* field has zero net force - the forces on opposite sides cancel - but not zero torque, because the lines of action are offset. With magnetic dipole moment $\mathbf{m}=NIA\,\mathbf{a}_n$ (direction from the right-hand rule around the current), the torque it feels is:
 $$\boldsymbol{\tau}=\mathbf{m}\times\mathbf{B}$$
-magnitude $mB\sin\theta$, and it vanishes when $\mathbf{m}$ is parallel or antiparallel to $\mathbf{B}$. The stable equilibrium is $\mathbf{m}\parallel\mathbf{B}$, exactly like an electric dipole. Second, applying the force law to two long parallel wires a distance $d$ apart, separated by a field $B=\mu_0I_1/(2\pi d)$, gives $F/L=\mu_0I_1I_2/(2\pi d)$: currents in the **same** direction attract, opposite currents repel. The force per unit length is the basis of the old definition of the ampere and a favourite board question because students reverse the rule.
+magnitude $mB\sin\theta$, and it vanishes when $\mathbf{m}$ is parallel or antiparallel to $\mathbf{B}$. The stable equilibrium is $\mathbf{m}\parallel\mathbf{B}$, exactly like an electric dipole. Second, applying the force law to two long parallel wires a distance $d$ apart, separated by a field $B=\mu_0I_1/(2\pi d)$, gives:
+$$F/L=\mu_0I_1I_2/(2\pi d)$$
+currents in the **same** direction attract, opposite currents repel. The force per unit length is the basis of the old definition of the ampere and a favourite board question because students reverse the rule.
 
-**The Hall effect and the right-hand rules.** Put a current-carrying slab of thickness $t$ in a transverse field $\mathbf{B}$. The magnetic force pushes the drifting carriers to one face, charge piles up until the resulting transverse electric field exerts an equal and opposite force, and the equilibrium condition $qE_H=qvB$ fixes the Hall field. Since the current density is $J=nqv$ and $I=Jwt$, the measured transverse voltage is $V_H=E_Hw=IB/(nqt)$ - independent of the width $w$ and of the drift velocity, and inversely proportional to the carrier density. Because the sign of $V_H$ follows the sign of the carrier charge, the Hall effect identifies whether conduction is by electrons or holes; a large $V_H$ signals a small $n$. For the right-hand rules, keep them separate: for a force, point the fingers of the right hand along $\mathbf{v}$ (or $I\mathbf{L}$) and curl them into $\mathbf{B}$; the thumb gives the force on a *positive* carrier (reverse it for an electron). For the torque, curl the fingers of the right hand around the loop current to get $\mathbf{m}$, then apply:
+**The Hall effect and the right-hand rules.** Put a current-carrying slab of thickness $t$ in a transverse field $\mathbf{B}$. The magnetic force pushes the drifting carriers to one face, charge piles up until the resulting transverse electric field exerts an equal and opposite force, and the equilibrium condition $qE_H=qvB$ fixes the Hall field. Since the current density is $J=nqv$ and $I=Jwt$, the measured transverse voltage is:
+$$V_H=E_Hw=IB/(nqt)$$
+- independent of the width $w$ and of the drift velocity, and inversely proportional to the carrier density. Because the sign of $V_H$ follows the sign of the carrier charge, the Hall effect identifies whether conduction is by electrons or holes; a large $V_H$ signals a small $n$. For the right-hand rules, keep them separate: for a force, point the fingers of the right hand along $\mathbf{v}$ (or $I\mathbf{L}$) and curl them into $\mathbf{B}$; the thumb gives the force on a *positive* carrier (reverse it for an electron). For the torque, curl the fingers of the right hand around the loop current to get $\mathbf{m}$, then apply:
 $$\boldsymbol{\tau}=\mathbf{m}\times\mathbf{B}$$
 For the field of a wire, thumb along the current, fingers curl with $\mathbf{B}$.
 

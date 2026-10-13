@@ -11,7 +11,7 @@ prereqs: ["[[02_Secondary_Constants_Z0_and_Gamma]]", "[[04_Reflection_Coefficien
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Input Impedance and Quarter-Wave Transformer
@@ -34,7 +34,9 @@ Both routes are exact on a lossless line and give identical answers; $\Gamma$ is
 
 **The three landmark lengths.** At $l = \lambda/2$, $\tan\beta l = 0$, so $Z_{\mathrm{in}} = Z_L$: a half-wave line is transparent and merely repeats whatever it is terminated in. At $l = \lambda/4$, $\tan\beta l \to \infty$ and the formula collapses to $Z_{\mathrm{in}} = Z_0^{2}/Z_L$: the quarter-wave section *inverts* the load, turning 100 $\Omega$ into 25 $\Omega$ on a 50 $\Omega$ line. At $l = \lambda/8$, $\beta l = 45^{\circ}$ and $\tan\beta l = 1$, a pure $90^{\circ}$ rotation that is neither a repeat nor an inversion. The limiting terminations follow the same pattern: a shorted line looks like $jZ_0\tan\beta l$ and an open line like $-jZ_0\cot\beta l$, so a $\lambda/4$ short is an open circuit at the input and a $\lambda/4$ open is a short — the basis of the RF bias tee and the DC return.
 
-**Designing the transformer.** A quarter-wave section of characteristic impedance $Z_0'$ inserted between a main line $Z_0$ and a real load $Z_L$ presents $Z_{\mathrm{in}} = Z_0'^{2}/Z_L$ to the main line. Matching means $Z_0'^{2}/Z_L = Z_0$, hence $Z_0' = \sqrt{Z_0 Z_L}$ — the **geometric** mean. A 75 $\Omega$ line into a 300 $\Omega$ antenna needs a section impedance of:
+**Designing the transformer.** A quarter-wave section of characteristic impedance $Z_0'$ inserted between a main line $Z_0$ and a real load $Z_L$ presents $Z_{\mathrm{in}} = Z_0'^{2}/Z_L$ to the main line. Matching means:
+$$Z_0'^{2}/Z_L = Z_0$$
+hence $Z_0' = \sqrt{Z_0 Z_L}$ — the **geometric** mean. A 75 $\Omega$ line into a 300 $\Omega$ antenna needs a section impedance of:
 $$Z_0' = \sqrt{22\,500} = 150\ \Omega$$
 The section is $\lambda/4$ long, which is a physical length given by:
 $$l = v/(4f_0) = c/(4f_0\sqrt{\varepsilon_r})$$

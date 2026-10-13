@@ -11,7 +11,7 @@ prereqs: ["[[07_Active_Filter_Responses]]", "[[02_Phasors_and_Complex_Impedance]
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Sallen-Key Filter Design
@@ -24,11 +24,17 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Two resistors and two capacitors around one op-amp place a complex pole pair. The resistor and capacitor products set how far the poles sit from the origin, while the amplifier gain decides how close together their angles are — that angle is the Q, and pushing it too far makes the filter ring.
 
-**The topology and the two design equations.** The Sallen-Key low-pass is a unity-gain (or gain-K) amplifier with $R_1$, $R_2$ in series into the non-inverting input, $C_2$ from the midpoint to ground and $C_1$ from the output back to the midpoint — positive feedback through $C_1$ is what creates the complex poles. The transfer function has the standard second-order denominator $s^2R_1R_2C_1C_2 + s\left[R_1C_2 + R_2C_2 + R_1C_1(1-K)\right] + 1$, so $f_0 = 1/(2\pi\sqrt{R_1R_2C_1C_2})$ and $Q = \sqrt{R_1R_2C_1C_2}/\left[R_1C_2+R_2C_2+R_1C_1(1-K)\right]$. Every design problem in this topic is those two equations solved for two unknowns.
+**The topology and the two design equations.** The Sallen-Key low-pass is a unity-gain (or gain-K) amplifier with $R_1$, $R_2$ in series into the non-inverting input, $C_2$ from the midpoint to ground and $C_1$ from the output back to the midpoint — positive feedback through $C_1$ is what creates the complex poles. The transfer function has the standard second-order denominator $s^2R_1R_2C_1C_2 + s\left[R_1C_2 + R_2C_2 + R_1C_1(1-K)\right] + 1$. The two design equations are:
+$$f_0 = 1/(2\pi\sqrt{R_1R_2C_1C_2})$$
+
+$$Q = \sqrt{R_1R_2C_1C_2}/\left[R_1C_2+R_2C_2+R_1C_1(1-K)\right]$$
+Every design problem in this topic is those two equations solved for two unknowns.
 
 **The trap that defines the topic.** Set $R_1 = R_2 = R$, $C_1 = C_2 = C$ and $K = 1$ — the obvious, tidy choice — and the denominator collapses to $s^2R^2C^2 + 3sRC + 1$, giving $Q = 1/3 - K$ evaluated at $K = 1$: that is, $Q = 0.5$. The equal-component unity-gain Sallen-Key is *overdamped*, not Butterworth. Its response at $f_0$ is $Q = 0.5$, which is $-6\ \mathrm{dB}$, and its $-3\ \mathrm{dB}$ point is at $0.6436f_0$. There are two standard repairs: keep $K = 1$ and make $C_1/C_2 = 4Q^2$ (so $C_1 = 2C_2$ for Butterworth), or keep equal components and set the gain to $K = 3 - 1/Q$, which is $K = 1.586$ for Butterworth.
 
-**The gain-K version and its knife edge.** For equal resistors and equal capacitors the relation is simply $Q = 1/(3-K)$ with $K = 1 + R_b/R_a$. That is an extremely direct design lever — but it also shows the danger: as $K$ approaches 3 the denominator approaches zero and Q diverges, so at $K = 3$ exactly the stage oscillates at $f_0$ and above 3 it latches to a rail because the feedback has become net positive. Because the same formula makes Q hypersensitive to gain, the fractional sensitivity is $\Delta Q/Q = \varepsilon\,QK$ for a fractional gain error $\varepsilon$: a 1% resistor error costs about 1.1% of Q at $Q = 0.707$ but 14% of Q at $Q = 5$. High-Q Sallen-Key stages therefore need 1% resistors, trimmers, or a different topology.
+**The gain-K version and its knife edge.** For equal resistors and equal capacitors the relation is simply $Q = 1/(3-K)$ with $K = 1 + R_b/R_a$. That is an extremely direct design lever — but it also shows the danger: as $K$ approaches 3 the denominator approaches zero and Q diverges, so at $K = 3$ exactly the stage oscillates at $f_0$ and above 3 it latches to a rail because the feedback has become net positive. Because the same formula makes Q hypersensitive to gain, the fractional sensitivity is:
+$$\Delta Q/Q = \varepsilon\,QK$$
+for a fractional gain error $\varepsilon$: a 1% resistor error costs about 1.1% of Q at $Q = 0.707$ but 14% of Q at $Q = 5$. High-Q Sallen-Key stages therefore need 1% resistors, trimmers, or a different topology.
 
 **Choosing a response.** The Q value *is* the response family for a second-order section. Butterworth ($Q = 0.7071$) is maximally flat in magnitude with a $-3\ \mathrm{dB}$ point exactly at $f_0$; Bessel ($Q = 0.5774$) has the flattest group delay and the cleanest step response but a slower initial roll-off; Chebyshev trades a passband ripple for a steeper skirt and needs $Q = 0.864$ at 0.5 dB ripple, $0.957$ at 1 dB and $1.305$ at 3 dB. Higher-order filters are cascades of second-order sections (plus one first-order section for odd orders) whose Q values come from a normalized table, and the sections are ordered so that the lowest-Q stage comes first to preserve dynamic range.
 

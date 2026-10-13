@@ -11,7 +11,7 @@ prereqs: ["[[01_Central_Tendency]]"]
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Dispersion, Variance, SD, IQR and CV

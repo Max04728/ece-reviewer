@@ -11,7 +11,7 @@ prereqs: ["[[01_System_Modeling_and_Transfer_Functions]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — State Space Representation Basics
@@ -26,13 +26,21 @@ updated: 2026-09-23
 
 **The model.** For $n$ state variables the state equation is:
 $$\dot{\mathbf{x}}=A\mathbf{x}+B\mathbf{u}$$
-The output equation is $y=C\mathbf{x}+D\mathbf{u}$, with $A$ ($n\times n$), $B$ ($n\times p$), $C$ ($q\times n$) and $D$ ($q\times p$). The number of states equals the order of the system, and the state variables themselves are a modelling choice — they need not be physical quantities, only a minimal set that determines the future given the input.
+The output equation is:
+$$y=C\mathbf{x}+D\mathbf{u}$$
+with $A$ ($n\times n$), $B$ ($n\times p$), $C$ ($q\times n$) and $D$ ($q\times p$). The number of states equals the order of the system, and the state variables themselves are a modelling choice — they need not be physical quantities, only a minimal set that determines the future given the input.
 
-**Transfer function from state space.** Laplace-transform with zero initial conditions: $sX=AX+BU$ gives $X=(sI-A)^{-1}BU$, so $G(s)=C(sI-A)^{-1}B+D$. The inverse is $\dfrac{\mathrm{adj}(sI-A)}{\det(sI-A)}$, so the denominator of every entry of $G(s)$ is $\det(sI-A)$ — the characteristic polynomial. Its roots are the eigenvalues of $A$ and the **open-loop poles** of the system. Numerator roots can cancel poles, which is exactly the signature of a mode that is uncontrollable or unobservable.
+**Transfer function from state space.** Laplace-transform with zero initial conditions: $sX=AX+BU$ gives:
+$$X=(sI-A)^{-1}BU$$
+so $G(s)=C(sI-A)^{-1}B+D$. The inverse is:
+$$\dfrac{\mathrm{adj}(sI-A)}{\det(sI-A)}$$
+so the denominator of every entry of $G(s)$ is $\det(sI-A)$ — the characteristic polynomial. Its roots are the eigenvalues of $A$ and the **open-loop poles** of the system. Numerator roots can cancel poles, which is exactly the signature of a mode that is uncontrollable or unobservable.
 
 **Phase-variable (controllable canonical) form.** Write the transfer function as:
 $$G(s)=\dfrac{b_{n-1}s^{n-1}+\dots+b_0}{s^n+a_{n-1}s^{n-1}+\dots+a_0}$$
-The companion realisation is $A$ with a superdiagonal of ones and the last row $-a_0,-a_1,\dots,-a_{n-1}$; $B=[0,\dots,0,1]^T$;
+The companion realisation is $A$ with a superdiagonal of ones and the last row $-a_0,-a_1,\dots,-a_{n-1}$;
+$$B=[0,\dots,0,1]^T$$
+
 $$C=[b_0,b_1,\dots,b_{n-1}]$$
 $D=0$ for a strictly proper transfer function. Reading and writing this form is a reliable board item because it is purely mechanical.
 
@@ -44,7 +52,9 @@ The system is controllable iff $\mathrm{rank}\,\mathcal{C}=n$ and observable iff
 
 **Why singular values of A alone are not enough.** If an uncontrollable mode happens to be unstable, the plant is open-loop unstable and no state feedback can stabilise it — the pole is 'uncontrollable'. Similarly an unobservable unstable mode makes the plant undetectable, and any observer-based controller will fail. Board problems ask you to pair the eigenvalue test with the rank test for exactly this reason.
 
-**Equivalent realisations.** A change of state variables $\bar{\mathbf{x}}=P\mathbf{x}$ gives $\bar{A}=PAP^{-1}$, $\bar{B}=PB$, $\bar{C}=CP^{-1}$, $\bar{D}=D$. Eigenvalues, transfer function, controllability and observability are all invariant; the individual matrix entries are not. Two realisations with the same $G(s)$ are equivalent only if both are minimal (fully controllable and observable).
+**Equivalent realisations.** A change of state variables $\bar{\mathbf{x}}=P\mathbf{x}$ gives:
+$$\bar{A}=PAP^{-1}$$
+$\bar{B}=PB$, $\bar{C}=CP^{-1}$, $\bar{D}=D$. Eigenvalues, transfer function, controllability and observability are all invariant; the individual matrix entries are not. Two realisations with the same $G(s)$ are equivalent only if both are minimal (fully controllable and observable).
 
 ## Formulas
 

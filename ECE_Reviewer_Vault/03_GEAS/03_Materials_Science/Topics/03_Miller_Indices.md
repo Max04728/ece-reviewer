@@ -11,7 +11,7 @@ prereqs: ["[[01_Crystal_Structures_and_Unit_Cells]]"]
 tags: ["ece", "geas", "materials_science"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Miller Indices
@@ -30,9 +30,13 @@ updated: 2026-09-23
 
 **Directions: coordinates, not reciprocals.** A direction $[uvw]$ is the vector $u\mathbf{a} + v\mathbf{b} + w\mathbf{c}$ between two lattice points. Subtract the tail coordinates from the head coordinates, clear fractions, reduce to the smallest integers, and wrap the result in square brackets. The notation is deliberate and examinable: **round brackets $(hkl)$ for a plane, square brackets $[uvw]$ for a direction, curly braces $\{hkl\}$ for the family of all planes equivalent by symmetry, and angle brackets $\langle uvw\rangle$ for the family of equivalent directions.** In a cubic crystal $[hkl]$ is exactly perpendicular to $(hkl)$, which is why the two notations can be confused without consequence in cubic work — but in a non-cubic crystal that perpendicularity fails, and the identity must not be assumed.
 
-**Interplanar spacing and the angle between planes.** For a cubic crystal, the perpendicular distance between adjacent $(hkl)$ planes is $d_{hkl} = \dfrac{a}{\sqrt{h^2+k^2+l^2}}$. Higher indices mean closer planes:
+**Interplanar spacing and the angle between planes.** For a cubic crystal, the perpendicular distance between adjacent $(hkl)$ planes is:
+$$d_{hkl} = \dfrac{a}{\sqrt{h^2+k^2+l^2}}$$
+Higher indices mean closer planes:
 $$d_{111} = a/\sqrt{3}$$
-is larger than $d_{210} = a/\sqrt{5}$. The same quadratic form gives the angle between two planes, $\cos\theta = \dfrac{h_1h_2+k_1k_2+l_1l_2}{\sqrt{h_1^2+k_1^2+l_1^2}\sqrt{h_2^2+k_2^2+l_2^2}}$. **Both formulas are cubic-only.** In a tetragonal cell the denominators carry $1/a^2$, $1/b^2$, $1/c^2$ and the clean square root disappears — quoting $a/\sqrt{h^2+k^2+l^2}$ for a non-cubic crystal is a guaranteed wrong answer.
+is larger than $d_{210} = a/\sqrt{5}$. The same quadratic form gives the angle between two planes:
+$$\cos\theta = \dfrac{h_1h_2+k_1k_2+l_1l_2}{\sqrt{h_1^2+k_1^2+l_1^2}\sqrt{h_2^2+k_2^2+l_2^2}}$$
+**Both formulas are cubic-only.** In a tetragonal cell the denominators carry $1/a^2$, $1/b^2$, $1/c^2$ and the clean square root disappears — quoting $a/\sqrt{h^2+k^2+l^2}$ for a non-cubic crystal is a guaranteed wrong answer.
 
 **Why indices matter: slip and density.** Plastic deformation in metals happens by slip on close-packed planes in close-packed directions. The planar density (atoms per unit area) is highest on close-packed planes and the linear density (atoms per unit length) is highest along close-packed directions, and slip chooses the pairing that minimises the slip distance. FCC has four $\{111\}$ planes, each containing three $\langle 110\rangle$ directions, giving $4\times3 = 12$ slip systems — the reason FCC metals such as copper and aluminium are ductile. HCP has only three effective slip systems at room temperature (the basal $(0001)$ plane), so magnesium and zinc are relatively brittle. BCC has no truly close-packed plane but slips on $\{110\}\langle 111\rangle$ with 12 systems as well, plus additional pencil-glide systems at higher temperature.
 

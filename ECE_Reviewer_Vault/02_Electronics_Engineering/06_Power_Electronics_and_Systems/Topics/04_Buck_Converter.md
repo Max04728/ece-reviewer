@@ -11,7 +11,7 @@ prereqs: ["[[11_First_Order_RC_and_RL_Transients]]", "[[02_KCL,_KVL,_Series_and_
 tags: ["ece", "electronics_engineering", "power_electronics_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Buck Converter
@@ -28,11 +28,19 @@ updated: 2026-09-23
 $$(V_{in}-V_o)DT_s+(-V_o)(1-D)T_s=0$$
 which expands to $V_{in}D-V_oD-V_o+V_oD=0$ and leaves $V_o=DV_{in}$. The duty ratio $D=t_{on}/T_s=t_{on}f_s$ must lie between 0 and 1, so the buck converter's output is always less than its input — an unavoidable consequence of the switch being in series with the source.
 
-**Ripple current comes from the on-time voltage across $L$.** While the switch is on the inductor voltage is $V_{in}-V_o=V_{in}(1-D)$, so the current ramps up linearly at $(V_{in}-V_o)/L$ for a time $DT_s$, giving $\Delta I_L=\dfrac{(V_{in}-V_o)D}{Lf_s}=\dfrac{V_o(1-D)}{Lf_s}$ — the two forms are identical because $V_{in}-V_o=V_o(1-D)/D$. Two consequences follow immediately: the ripple is *independent of load* (only $D$, $L$ and $f$ appear), and the inductor is chosen by the ripple specification, not by the average current. Raising $f_s$ or $L$ shrinks the ripple, which is why modern converters run at hundreds of kilohertz and use small ferrite-cored inductors.
+**Ripple current comes from the on-time voltage across $L$.** While the switch is on the inductor voltage is:
+$$V_{in}-V_o=V_{in}(1-D)$$
+so the current ramps up linearly at $(V_{in}-V_o)/L$ for a time $DT_s$. The ripple current is therefore:
+$$\Delta I_L=\dfrac{(V_{in}-V_o)D}{Lf_s}=\dfrac{V_o(1-D)}{Lf_s}$$
+The two forms are identical because $V_{in}-V_o=V_o(1-D)/D$. Two consequences follow immediately: the ripple is *independent of load* (only $D$, $L$ and $f$ appear), and the inductor is chosen by the ripple specification, not by the average current. Raising $f_s$ or $L$ shrinks the ripple, which is why modern converters run at hundreds of kilohertz and use small ferrite-cored inductors.
 
-**The output capacitor integrates the triangular ripple.** The capacitor carries the AC part of $i_L$; the charge it absorbs each half-cycle is the area of the triangular ripple above and below the average, which evaluates to $\Delta V_o=\dfrac{\Delta I_L}{8f_sC}$. The important structural point is that there is no $D$ here (unlike the boost), because in a buck the capacitor is fed by the inductor continuously — the switch only sets the average voltage, while the inductor delivers current to the output in both intervals. Substituting $\Delta I_L$ gives $\Delta V_o=\dfrac{V_o(1-D)}{8LCf_s^2}$, so the output ripple falls with the *square* of frequency, which is why a $100\ \mathrm{kHz}$ converter with a $100\ \mu\mathrm{H}$/ $100\ \mu\mathrm{F}$ filter reaches millivolt ripple.
+**The output capacitor integrates the triangular ripple.** The capacitor carries the AC part of $i_L$; the charge it absorbs each half-cycle is the area of the triangular ripple above and below the average, which evaluates to $\Delta V_o=\dfrac{\Delta I_L}{8f_sC}$. The important structural point is that there is no $D$ here (unlike the boost), because in a buck the capacitor is fed by the inductor continuously — the switch only sets the average voltage, while the inductor delivers current to the output in both intervals. Substituting $\Delta I_L$ gives:
+$$\Delta V_o=\dfrac{V_o(1-D)}{8LCf_s^2}$$
+so the output ripple falls with the *square* of frequency, which is why a $100\ \mathrm{kHz}$ converter with a $100\ \mu\mathrm{H}$/ $100\ \mu\mathrm{F}$ filter reaches millivolt ripple.
 
-**The CCM/DCM boundary, and where the ideal ratio fails.** The converter stays in CCM only while the inductor current never reaches zero, i.e. while the average inductor current $I_L=I_o=V_o/R$ exceeds half the ripple. Setting $I_o=\Delta I_L/2$ gives the boundary inductance $L_{min}=\dfrac{(1-D)R}{2f_s}$, and the boundary current for a fixed inductor is $I_{OB}=\dfrac{V_o(1-D)}{2Lf_s}$. Below that current (light load, or a high $D$ with a small $L$) the diode current reaches zero before the cycle ends, the inductor voltage is no longer clamped to $-V_o$ for the whole off-time, and $V_o$ rises *above* $DV_{in}$ — which is why a lightly loaded buck regulated by open-loop duty ratio will not hold its output down, and why real regulators close the loop on the output. Device stresses are simple and worth memorising: the off-state switch sees the full $V_{in}$, the diode blocks $V_{in}$ in reverse, the switch average current is $DI_o$, and the diode average current is $(1-D)I_o$.
+**The CCM/DCM boundary, and where the ideal ratio fails.** The converter stays in CCM only while the inductor current never reaches zero, i.e. while the average inductor current $I_L=I_o=V_o/R$ exceeds half the ripple. Setting $I_o=\Delta I_L/2$ gives the boundary inductance $L_{min}=\dfrac{(1-D)R}{2f_s}$, and the boundary current for a fixed inductor is:
+$$I_{OB}=\dfrac{V_o(1-D)}{2Lf_s}$$
+Below that current (light load, or a high $D$ with a small $L$) the diode current reaches zero before the cycle ends, the inductor voltage is no longer clamped to $-V_o$ for the whole off-time, and $V_o$ rises *above* $DV_{in}$ — which is why a lightly loaded buck regulated by open-loop duty ratio will not hold its output down, and why real regulators close the loop on the output. Device stresses are simple and worth memorising: the off-state switch sees the full $V_{in}$, the diode blocks $V_{in}$ in reverse, the switch average current is $DI_o$, and the diode average current is $(1-D)I_o$.
 
 ## Formulas
 

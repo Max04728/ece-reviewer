@@ -11,7 +11,7 @@ prereqs: ["[[01_Antenna_Parameters_Directivity,_Gain,_EIRP]]", "[[02_Radiation_R
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Parabolic Reflector Antennas
@@ -28,7 +28,9 @@ updated: 2026-09-23
 $$G_\mathrm{dBi} = 10\log_{10}\eta_\mathrm{ap} + 20\log_{10}(\pi D/\lambda)$$
 The $20$ sits in front of the diameter term because it is squared. Typical aperture efficiency is $0.55$ to $0.70$, and $0.55$ to $0.65$ for a front-fed dish, because the feed blocks part of the aperture, spills some power past the rim, and the aperture is not uniformly illuminated.
 
-**The physical aperture, the effective aperture, and the identity that ties them.** The geometric mouth area is $A_\mathrm{phys} = \pi D^2/4$, but the dish behaves like a smaller uniformly illuminated aperture of area $A_e = \eta_\mathrm{ap}\pi D^2/4$ — the *effective* aperture, which is the number that matters for the Friis transmission equation and for the radar range equation. Substituting $A_e$ into the universal relation $G = 4\pi A_e/\lambda^2$ reproduces the dish gain formula exactly, which is the cleanest way to remember it:
+**The physical aperture, the effective aperture, and the identity that ties them.** The geometric mouth area is:
+$$A_\mathrm{phys} = \pi D^2/4$$
+but the dish behaves like a smaller uniformly illuminated aperture of area $A_e = \eta_\mathrm{ap}\pi D^2/4$ — the *effective* aperture, which is the number that matters for the Friis transmission equation and for the radar range equation. Substituting $A_e$ into the universal relation $G = 4\pi A_e/\lambda^2$ reproduces the dish gain formula exactly, which is the cleanest way to remember it:
 $$G = 4\pi A_e/\lambda^2$$
 is the definition, and the dish simply tells you what $A_e$ is. It also gives the standard sanity check — if a claimed gain implies an effective aperture larger than the physical dish, the claim is wrong, since $\eta_\mathrm{ap} \le 1$ by construction. A useful exam shortcut falls straight out of the algebra:
 $$A_e = G\lambda^2/4\pi$$
@@ -36,7 +38,9 @@ so you can go from a gain in dBi and a frequency to an area without ever touchin
 
 **Beamwidth, and why the constant is worth stating.** The half-power beamwidth of a uniformly illuminated circular aperture is given in degrees by:
 $$\theta_\mathrm{HPBW} \approx 70\lambda/D$$
-The first-null beamwidth between nulls is $\approx 140\lambda/D$ — the nulls are exactly twice as far out as the half-power points, which is a useful consistency check. Different texts quote $70$, $70.5$ or $75$ depending on the assumed illumination taper, so state which one you used rather than agonising over the constant; the $\lambda/D$ scaling is the part that carries marks. The consequence for exam arithmetic is dramatic: at fixed frequency, doubling the dish diameter halves the beamwidth, and at fixed diameter, doubling the frequency also halves it, because $\lambda$ halves. This is why deep-space antennas are enormous and why the same dish gets sharper as you push to higher frequencies.
+The first-null beamwidth between nulls is:
+$$\approx 140\lambda/D$$
+— the nulls are exactly twice as far out as the half-power points, which is a useful consistency check. Different texts quote $70$, $70.5$ or $75$ depending on the assumed illumination taper, so state which one you used rather than agonising over the constant; the $\lambda/D$ scaling is the part that carries marks. The consequence for exam arithmetic is dramatic: at fixed frequency, doubling the dish diameter halves the beamwidth, and at fixed diameter, doubling the frequency also halves it, because $\lambda$ halves. This is why deep-space antennas are enormous and why the same dish gets sharper as you push to higher frequencies.
 
 **$f/D$ and the feed: the mechanical trade behind every dish design.** The ratio of focal length to diameter sets the geometry. A *deep* dish (low $f/D$) is compact and easy to mount, but the feed sees a wide angle, so it spills more power past the rim and the cross-polar response degrades; $f/D = 0.25$ is the practical minimum because the focal point must lie outside the dish mouth for the feed to be physically placed without blocking the aperture, and most production dishes sit around $f/D = 0.3$ to $0.4$. A shallow dish (high $f/D$) has a focal point far out in front, which needs a long support structure and a feed that does not block the aperture. The three standard feed arrangements follow from this: the **focal-point feed**, simplest but its blockage and spillover cap efficiency at about $0.55$ to $0.65$; the **Cassegrain** system, which puts a small hyperbolic subreflector near the focus so the feed can sit at the dish vertex, shortening the feed run and cutting the spillover that misses the subreflector; and the **Gregorian**, which uses an *elliptical* subreflector and images the feed more cleanly at the cost of a larger subreflector and therefore more blockage.
 

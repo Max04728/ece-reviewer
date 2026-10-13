@@ -11,7 +11,7 @@ prereqs: ["[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]", "[[06_Small-Signal_r
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Op-Amp Fundamentals and Real Parameters
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **What the ideal model buys you.** An ideal op-amp is five infinities and one zero: infinite open-loop gain $A_{ol}$, infinite input resistance, infinite CMRR and PSRR, infinite bandwidth and slew rate, and zero output resistance, offset and bias current. Almost all of that is bookkeeping, because closed-loop analysis needs only two rules: with negative feedback the differential input is driven to zero, so $V_+ = V_-$, and no current flows into either input, so $I_+ = I_- = 0$. Those two rules are what let $R_1$ and $R_f$ alone set the gain. Every real parameter in this note is a correction term on those two rules.
 
-**Finite $A_{ol}$ and loop gain.** The exact closed-loop gain is $A_{CL} = A_{ol}/(1 + A_{ol}\beta)$, where $\beta$ is the fraction of the output fed back to the inverting input: for the non-inverting amplifier $\beta = R_1/(R_1+R_f)$. The product $A_{ol}\beta$ is the *loop gain*, and it is the single number that governs gain accuracy, closed-loop output impedance and distortion. Gain error is approximately $1/(A_{ol}\beta) = (1+R_f/R_1)/A_{ol}$, so a $\times 1$ follower built on $A_{ol} = 10^5$ is accurate to 0.001%, while a $\times 1000$ stage would be accurate only to 0.1% *if* the op-amp still had $10^5$ at that frequency. It does not: the dominant pole rolls $A_{ol}$ off at 20 dB/decade, so a 100 dB DC figure is down to roughly 60 dB by 1 kHz on a 741.
+**Finite $A_{ol}$ and loop gain.** The exact closed-loop gain is:
+$$A_{CL} = A_{ol}/(1 + A_{ol}\beta)$$
+where $\beta$ is the fraction of the output fed back to the inverting input: for the non-inverting amplifier $\beta = R_1/(R_1+R_f)$. The product $A_{ol}\beta$ is the *loop gain*, and it is the single number that governs gain accuracy, closed-loop output impedance and distortion. Gain error is approximately $1/(A_{ol}\beta) = (1+R_f/R_1)/A_{ol}$, so a $\times 1$ follower built on $A_{ol} = 10^5$ is accurate to 0.001%, while a $\times 1000$ stage would be accurate only to 0.1% *if* the op-amp still had $10^5$ at that frequency. It does not: the dominant pole rolls $A_{ol}$ off at 20 dB/decade, so a 100 dB DC figure is down to roughly 60 dB by 1 kHz on a 741.
 
 **Gain-bandwidth product.** Because a compensated op-amp behaves as a single-pole system, the product of gain and bandwidth is constant above the dominant pole:
 $$GBW = A_{CL}\,f_{-3\,\mathrm{dB}}$$

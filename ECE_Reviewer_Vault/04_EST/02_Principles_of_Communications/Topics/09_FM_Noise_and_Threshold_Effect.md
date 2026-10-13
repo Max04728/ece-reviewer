@@ -11,7 +11,7 @@ prereqs: ["[[05_FM_and_PM_Fundamentals]]", "[[05_SNR,_Noise_Factor_and_Noise_Fig
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — FM Noise and Threshold Effect

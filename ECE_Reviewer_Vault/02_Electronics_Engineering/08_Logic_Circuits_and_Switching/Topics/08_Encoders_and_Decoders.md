@@ -11,7 +11,7 @@ prereqs: ["[[05_SOP,_POS,_Minterms_and_Maxterms]]", "[[04_Boolean_Algebra_and_De
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Encoders and Decoders
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A decoder is a binary-to-one-of-many translator: it turns a code into a single active wire. An encoder runs the mirror image, turning whichever input is active into its binary code. Together they are the address decoders and interrupt controllers of every processor.
 
-**The decoder.** An $n$-to-$2^n$ decoder asserts exactly one output, the one whose index equals the binary value on the select inputs. With an enable input the behaviour generalises: $Y_i = E\cdot m_i$, where $m_i$ is the minterm of the select variables. The 2-to-4 and 3-to-8 decoders are the standard sizes; the 3-to-8 74LS138 is the classic part. Its outputs are **active-low**, so the selected output goes to 0 and the rest stay at 1, and it has three enables (two active-low, one active-high) which makes it easy to expand by combining decoders.
+**The decoder.** An $n$-to-$2^n$ decoder asserts exactly one output, the one whose index equals the binary value on the select inputs. With an enable input the behaviour generalises:
+$$Y_i = E\cdot m_i$$
+where $m_i$ is the minterm of the select variables. The 2-to-4 and 3-to-8 decoders are the standard sizes; the 3-to-8 74LS138 is the classic part. Its outputs are **active-low**, so the selected output goes to 0 and the rest stay at 1, and it has three enables (two active-low, one active-high) which makes it easy to expand by combining decoders.
 
 **A decoder plus an OR gate is a function generator.** Because output $i$ is exactly the minterm $m_i$ of the select variables, ORing the outputs listed in $\sum m(\cdot)$ realises any function of those variables in one gate level:
 $$F = \sum_{i\in S} Y_i$$

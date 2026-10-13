@@ -11,7 +11,7 @@ prereqs: ["[[03_Sequences_and_Convergence_Tests]]", "[[05_Trigonometric_Integral
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Fourier Series Trigonometric and Exponential
@@ -42,7 +42,9 @@ for $n\neq m$ and $\frac{T}{2}$ for $n=m$. That surviving $\frac{T}{2}$ is preci
 $$f(t) = \sum_{n=-\infty}^{\infty} c_n e^{jn\omega_0 t}$$
 Its coefficients are:
 $$c_n = \frac{1}{T}\int_T f(t)e^{-jn\omega_0t}\,dt$$
-Negative frequencies appear as a mathematical convenience: a real cosine is $\frac{1}{2}(e^{j\theta}+e^{-j\theta})$, so a single cosine at $n\omega_0$ is two exponential terms, one at $+n\omega_0$ and one at $-n\omega_0$. This is why the exponential spectrum is two-sided while the trigonometric spectrum is one-sided.
+Negative frequencies appear as a mathematical convenience: a real cosine is:
+$$\frac{1}{2}(e^{j\theta}+e^{-j\theta})$$
+so a single cosine at $n\omega_0$ is two exponential terms, one at $+n\omega_0$ and one at $-n\omega_0$. This is why the exponential spectrum is two-sided while the trigonometric spectrum is one-sided.
 
 **Converting between the forms.** For $n > 0$:
 $$c_n = \frac{1}{2}(a_n - jb_n)$$

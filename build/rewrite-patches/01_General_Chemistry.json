@@ -1,0 +1,90 @@
+{
+  "area": "03_GEAS/01_General_Chemistry",
+  "note": "Every residual 40+ char Core Concept site in this area, 8 payloads. Prose and punctuation only: a lead-in clause was added so each equation begins a clause. Run twice: the first pass fixed one site and pushed a neighbour (04_Mole concept[2]) into residual state, which the second pass fixed.",
+  "rewrites": [
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/01_Atomic_Structure_and_Configurations.json",
+      "entry": 2,
+      "find": "Molar mass is the same number in $\\mathrm{g/mol}$, because $N_A \\times 1\\ \\mathrm{u} = 1.000\\ \\mathrm{g/mol}$; that identity is what lets you cross",
+      "replace": "Molar mass is the same number in $\\mathrm{g/mol}$ — the bridge is: $N_A \\times 1\\ \\mathrm{u} = 1.000\\ \\mathrm{g/mol}$. That identity is what lets you cross"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/01_Atomic_Structure_and_Configurations.json",
+      "entry": 5,
+      "find": "For the conversion, joules to electron-volts is: $1\\ \\mathrm{eV} = 1.602\\times10^{-19}\\ \\mathrm{J}$, before comparing",
+      "replace": "For the conversion, joules to electron-volts is: $1\\ \\mathrm{eV} = 1.602\\times10^{-19}\\ \\mathrm{J}$. Compare"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/04_Mole_Concept_and_Stoichiometry.json",
+      "entry": 2,
+      "find": "Write the unit with every number — $\\mathrm{g} \\div (\\mathrm{g/mol}) = \\mathrm{mol}$ is the check that rejects",
+      "replace": "Write the unit with every number. The unit check is: $\\mathrm{g} \\div (\\mathrm{g/mol}) = \\mathrm{mol}$, and it rejects"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/04_Mole_Concept_and_Stoichiometry.json",
+      "entry": 4,
+      "find": "The molecular formula is $(\\mathrm{empirical})_n$ with $n = M_{\\mathrm{molar}}/M_{\\mathrm{empirical}}$, an integer.",
+      "replace": "The molecular formula is $(\\mathrm{empirical})_n$, and the multiplier is: $n = M_{\\mathrm{molar}}/M_{\\mathrm{empirical}}$, an integer."
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/05_Limiting_Reagents_and_Yield.json",
+      "entry": 1,
+      "find": "Comparing raw mole counts does not: in $\\mathrm{N_2} + 3\\mathrm{H_2} \\to 2\\mathrm{NH_3}$, $5.00\\ \\mathrm{mol}$",
+      "replace": "Comparing raw mole counts does not: for example, the ammonia synthesis is: $\\mathrm{N_2} + 3\\mathrm{H_2} \\to 2\\mathrm{NH_3}$, $5.00\\ \\mathrm{mol}$"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/06_Solutions_and_Concentration_Units.json",
+      "entry": 2,
+      "find": "Parts per million is a mass ratio, $10^6 \\times m_{\\mathrm{solute}}/m_{\\mathrm{solution}}$; for dilute aqueous solutions",
+      "replace": "Parts per million is a mass ratio. It is: $10^6 \\times m_{\\mathrm{solute}}/m_{\\mathrm{solution}}$. For dilute aqueous solutions"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/06_Solutions_and_Concentration_Units.json",
+      "entry": 4,
+      "find": "The single expression $M = 10(\\%w/w)\\rho/M_{\\mathrm{solute}}$ handles it, with $\\rho$ in g/mL",
+      "replace": "The single expression that handles it is: $M = 10(\\%w/w)\\rho/M_{\\mathrm{solute}}$, with $\\rho$ in g/mL"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/07_Chemical_Equilibrium_and_Le_Chatelier.json",
+      "entry": 2,
+      "find": "$R = 0.08206\\ \\mathrm{L\\,atm\\,mol^{-1}K^{-1}}$, when $K_p$ is in atmospheres.",
+      "replace": "$R = 0.08206\\ \\mathrm{L\\,atm\\,mol^{-1}K^{-1}}$ when $K_p$ is in atmospheres."
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/08_pH,_pOH_and_Buffers.json",
+      "entry": 2,
+      "find": "Start from: $K_a = [\\mathrm{H^+}][\\mathrm{A^-}]/[\\mathrm{HA}]$. Assume",
+      "replace": "Write the equilibrium expression as: $K_a = [\\mathrm{H^+}][\\mathrm{A^-}]/[\\mathrm{HA}]$. Assume"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/08_pH,_pOH_and_Buffers.json",
+      "entry": 4,
+      "find": "Henderson-Hasselbalch, $\\mathrm{pH} = \\mathrm{p}K_a + \\log([\\mathrm{A^-}]/[\\mathrm{HA}])$, is the whole topic.",
+      "replace": "Henderson-Hasselbalch is the whole topic: $\\mathrm{pH} = \\mathrm{p}K_a + \\log([\\mathrm{A^-}]/[\\mathrm{HA}])$."
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/09_Redox_and_Galvanic_Cells.json",
+      "entry": 2,
+      "find": "The cell potential is: $E^\\circ_{cell} = E^\\circ_{cathode} - E^\\circ_{anode}$, where both values are taken from the table as written (reductions). Equivalently is: $E^\\circ_{cell} = E^\\circ_{reduction} + E^\\circ_{oxidation}$, with the oxidation potential sign-flipped.",
+      "replace": "The cell potential is: $E^\\circ_{cell} = E^\\circ_{cathode} - E^\\circ_{anode}$, where both values are taken from the table as written (reductions). An equivalent form is: $E^\\circ_{cell} = E^\\circ_{reduction} + E^\\circ_{oxidation}$, with the oxidation potential sign-flipped."
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/09_Redox_and_Galvanic_Cells.json",
+      "entry": 4,
+      "find": "For $\\mathrm{MnO_4^-} + 5\\mathrm{Fe^{2+}} + 8\\mathrm{H^+} \\to \\mathrm{Mn^{2+}} + 5\\mathrm{Fe^{3+}} + 4\\mathrm{H_2O}$ the electron count is 5",
+      "replace": "The electron count comes from: $\\mathrm{MnO_4^-} + 5\\mathrm{Fe^{2+}} + 8\\mathrm{H^+} \\to \\mathrm{Mn^{2+}} + 5\\mathrm{Fe^{3+}} + 4\\mathrm{H_2O}$. Here the count is 5"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/10_Nernst_Equation_and_Faraday’s_Laws.json",
+      "entry": 2,
+      "find": "with pure solids and liquids omitted entirely. For the cell reaction: $\\mathrm{Zn}(s) + \\mathrm{Cu^{2+}} \\to \\mathrm{Zn^{2+}} + \\mathrm{Cu}(s)$. The quotient is:",
+      "replace": "with pure solids and liquids omitted entirely. For the cell reaction: $\\mathrm{Zn}(s) + \\mathrm{Cu^{2+}} \\to \\mathrm{Zn^{2+}} + \\mathrm{Cu}(s)$, the quotient is:"
+    },
+    {
+      "file": "build/payload/03_GEAS/01_General_Chemistry/10_Nernst_Equation_and_Faraday’s_Laws.json",
+      "entry": 5,
+      "find": "Current efficiency is $\\eta = m_{actual}/m_{theoretical}\\times100$, and every Faraday calculation",
+      "replace": "Current efficiency is: $\\eta = m_{actual}/m_{theoretical}\\times100$, and every Faraday calculation"
+    }
+  ]
+}

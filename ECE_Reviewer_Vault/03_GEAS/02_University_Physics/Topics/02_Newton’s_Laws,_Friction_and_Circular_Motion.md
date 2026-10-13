@@ -11,7 +11,7 @@ prereqs: ["[[01_Kinematics_1D_and_2D]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Newton’s Laws, Friction and Circular Motion
@@ -28,17 +28,25 @@ updated: 2026-09-23
 
 **$\sum F = m\vec{a}$ is a vector equation, so it is two scalar equations.** Resolve everything into the chosen axes and write $\sum F_x = ma_x$ and $\sum F_y = ma_y$ separately. The single most common mechanical error is to assume the normal force equals the weight. It does *not*: on an incline $N = mg\cos\theta$; in an accelerating elevator $N = m(g+a)$; and if a rope pulls upward on a crate at an angle, $N = mg - T\sin\theta$. Every one of those changes the friction force, because friction is $\mu N$.
 
-**Static and kinetic friction are different physics.** Kinetic friction opposes sliding with a fixed magnitude: $f_k = \mu_k N$. Static friction is *reactive*: it takes whatever value (up to $f_{s,max} = \mu_s N$) is needed to prevent sliding, so $f_s = F_{applied}$ for a gentle push, and it only equals $\mu_s N$ at the instant motion is about to begin. Boards test this with 'the minimum force needed to start it moving' (that is $\mu_s N$) followed by 'the acceleration once it moves under that same force' (that uses $\mu_k$, and the answer is $a = (\mu_s - \mu_k)g$, independent of mass).
+**Static and kinetic friction are different physics.** Kinetic friction opposes sliding with a fixed magnitude: $f_k = \mu_k N$. Static friction is *reactive*: it takes whatever value (up to $f_{s,max} = \mu_s N$) is needed to prevent sliding, so $f_s = F_{applied}$ for a gentle push, and it only equals $\mu_s N$ at the instant motion is about to begin. Boards test this with 'the minimum force needed to start it moving' (that is $\mu_s N$) followed by 'the acceleration once it moves under that same force' (that uses $\mu_k$, and the answer is:
+$$a = (\mu_s - \mu_k)g$$
+independent of mass).
 
-**Inclines: the two-axis split and the angle of repose.** Tilting the axes puts the component $mg\sin\theta$ along the slope (pulling the block down) and $mg\cos\theta$ into the surface (setting $N$). With kinetic friction the acceleration down the slope is $a = g(\sin\theta - \mu_k\cos\theta)$, which can be negative - then the block does not slide at all, it is held by static friction. At the critical angle $\tan\theta_s = \mu_s$ (the angle of repose) the block is on the verge of sliding; that is the fastest way to *measure* a coefficient of static friction in a lab question.
+**Inclines: the two-axis split and the angle of repose.** Tilting the axes puts the component $mg\sin\theta$ along the slope (pulling the block down) and $mg\cos\theta$ into the surface (setting $N$). With kinetic friction the acceleration down the slope is:
+$$a = g(\sin\theta - \mu_k\cos\theta)$$
+which can be negative - then the block does not slide at all, it is held by static friction. At the critical angle $\tan\theta_s = \mu_s$ (the angle of repose) the block is on the verge of sliding; that is the fastest way to *measure* a coefficient of static friction in a lab question.
 
 **Circular motion: the net force points to the centre, and it is supplied by something real.** 'Centripetal force' is a *role*, not a new force. The equation is:
 $$\sum F_{toward\ centre} = \frac{mv^2}{r}$$
 Identify what plays that role: friction on a flat curve, the horizontal component of the normal force on a banked curve, tension at the bottom of a vertical circle, gravity at the top of a loop. Drawing a separate arrow labelled 'centripetal force' alongside the real forces double-counts it and makes the tension come out roughly twice too large.
 
-**Vertical circles and the tension limits.** At the top of a vertical circle both the tension and gravity point inward, so $T + mg = \frac{mv^2}{r}$ gives $T = \frac{mv^2}{r} - mg$; the string stays taut only while $T \ge 0$, which sets a minimum speed $v_{min} = \sqrt{gr}$. At the bottom both reversed, so $T = \frac{mv^2}{r} + mg$ - the string is always under more tension at the bottom. This is why a bucket of water can be swung overhead at speed but spills if you slow down near the top. Banked curves work the same way: the designers pick the banking so that $\tan\theta = \frac{v^2}{rg}$ needs no friction at all at the design speed.
+**Vertical circles and the tension limits.** At the top of a vertical circle both the tension and gravity point inward, so $T + mg = \frac{mv^2}{r}$ gives:
+$$T = \frac{mv^2}{r} - mg$$
+the string stays taut only while $T \ge 0$, which sets a minimum speed $v_{min} = \sqrt{gr}$. At the bottom both reversed, so $T = \frac{mv^2}{r} + mg$ - the string is always under more tension at the bottom. This is why a bucket of water can be swung overhead at speed but spills if you slow down near the top. Banked curves work the same way: the designers pick the banking so that $\tan\theta = \frac{v^2}{rg}$ needs no friction at all at the design speed.
 
-**Connected bodies: one acceleration, one tension per string.** Objects joined by an inextensible string share the magnitude of the acceleration, so you may write a separate $\sum F = ma$ for each mass and add the equations to eliminate $T$. In an Atwood machine that gives $a = \frac{(m_1-m_2)g}{m_1+m_2}$ and $T = \frac{2m_1m_2g}{m_1+m_2}$. The tension is *not* either weight: for a 4 kg and 6 kg pair, $T = 47.1\ \mathrm{N}$ while the lighter block weighs 39.2 N. Assuming $T = m_1g$ makes the acceleration come out zero, which is the giveaway that the assumption is wrong.
+**Connected bodies: one acceleration, one tension per string.** Objects joined by an inextensible string share the magnitude of the acceleration, so you may write a separate $\sum F = ma$ for each mass and add the equations to eliminate $T$. In an Atwood machine that gives:
+$$a = \frac{(m_1-m_2)g}{m_1+m_2}$$
+and $T = \frac{2m_1m_2g}{m_1+m_2}$. The tension is *not* either weight: for a 4 kg and 6 kg pair, $T = 47.1\ \mathrm{N}$ while the lighter block weighs 39.2 N. Assuming $T = m_1g$ makes the acceleration come out zero, which is the giveaway that the assumption is wrong.
 
 ## Derivation
 

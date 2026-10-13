@@ -11,7 +11,7 @@ prereqs: ["[[01_System_Modeling_and_Transfer_Functions]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Routh-Hurwitz Criterion
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **The necessary condition first.** For a polynomial with real coefficients, every root has a negative real part only if all coefficients are present and of the same sign. A zero coefficient (other than the leading one) or a missing power is an instant 'not stable'. This test is fast but *not sufficient*: $s^3+s^2+2s+8$ has all coefficients positive yet is unstable.
 
-**Building the array.** Write the coefficients in two rows — the even-indexed powers in the first row, the odd-indexed in the second — then generate each following row by cross-multiplication from the two rows above it: if the upper row is $a_1,a_2,a_3,\dots$ and the row below it is $b_1,b_2,b_3,\dots$, then the next row is $c_i=\dfrac{b_1a_{i+1}-a_1b_{i+1}}{b_1}$. Continue until the $s^0$ row. **Then count sign changes down the first column**: each sign change is one closed-loop pole in the right half plane. Poles exactly on the $j\omega$ axis produce no sign change, which is why marginal stability shows up as a zero entry rather than a sign change.
+**Building the array.** Write the coefficients in two rows — the even-indexed powers in the first row, the odd-indexed in the second — then generate each following row by cross-multiplication from the two rows above it: if the upper row is $a_1,a_2,a_3,\dots$ and the row below it is $b_1,b_2,b_3,\dots$, then the next row is:
+$$c_i=\dfrac{b_1a_{i+1}-a_1b_{i+1}}{b_1}$$
+Continue until the $s^0$ row. **Then count sign changes down the first column**: each sign change is one closed-loop pole in the right half plane. Poles exactly on the $j\omega$ axis produce no sign change, which is why marginal stability shows up as a zero entry rather than a sign change.
 
 **Low-order shortcuts worth memorising.** For $s^2+a_1s+a_0$: stable iff $a_1>0$ and $a_0>0$. For $s^3+a_2s^2+a_1s+a_0$: stable iff all coefficients are positive **and** $a_2a_1>a_0$. For $s^4+a_3s^3+a_2s^2+a_1s+a_0$: additionally $a_1(a_3a_2-a_1)>a_3^2a_0$. These are the Routh conditions written out, and they are what board questions actually expect you to apply to a symbolic $K$.
 

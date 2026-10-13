@@ -11,7 +11,7 @@ prereqs: ["[[13_Ampere’s_Circuital_Law]]", "[[15_Inductance_from_Geometry_and_
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 17 — Faraday’s Law and Motional EMF
@@ -34,7 +34,9 @@ which for a straight rod of length $l$ moving with speed $v$ perpendicular to a 
 
 **Differential form, the surface that matters, and the voltage-current relation.** By Stokes' theorem the integral law takes the differential form:
 $$\nabla\times\mathbf{E}=-\dfrac{\partial\mathbf{B}}{\partial t}$$
-In words, a time-varying magnetic field is a source of curl in $\mathbf{E}$. A crucial detail follows from the surface integral itself - the flux must be computed through the *actual* surface bounded by the actual path. Different surfaces with the same rim give the same flux only when $\nabla\cdot\mathbf{B}=0$ holds everywhere on the closed surface they form, so a moving or deforming loop must be integrated at each instant, and a loop that changes its orientation changes $\Phi_B$ even if both $B$ and the area are constant. The circuit-level consequences are the two laws an ECE student already knows: $v=L\dfrac{di}{dt}$ for self-inductance and $v_2=M\dfrac{di_1}{dt}$ for mutual inductance, both special cases of Faraday's law with $\lambda=Li$ or $\lambda=Mi_1$. A rotating $N$-turn loop of area $A$ turning at $\omega$ in a uniform field has $\Phi_B=BA\cos\omega t$ and therefore $\mathcal{E}=NBA\omega\sin\omega t$, with peak value $NBA\omega$, giving the sinusoid that every AC generator produces.
+In words, a time-varying magnetic field is a source of curl in $\mathbf{E}$. A crucial detail follows from the surface integral itself - the flux must be computed through the *actual* surface bounded by the actual path. Different surfaces with the same rim give the same flux only when $\nabla\cdot\mathbf{B}=0$ holds everywhere on the closed surface they form, so a moving or deforming loop must be integrated at each instant, and a loop that changes its orientation changes $\Phi_B$ even if both $B$ and the area are constant. The circuit-level consequences are the two laws an ECE student already knows:
+$$v=L\dfrac{di}{dt}$$
+for self-inductance and $v_2=M\dfrac{di_1}{dt}$ for mutual inductance, both special cases of Faraday's law with $\lambda=Li$ or $\lambda=Mi_1$. A rotating $N$-turn loop of area $A$ turning at $\omega$ in a uniform field has $\Phi_B=BA\cos\omega t$ and therefore $\mathcal{E}=NBA\omega\sin\omega t$, with peak value $NBA\omega$, giving the sinusoid that every AC generator produces.
 
 **Where the simple formulas fail: eddy currents and geometry.** Faraday's law applies to every closed path, including paths inside a solid conductor. A changing flux through a metal block drives circulating *eddy* currents whose $I^2R$ heating is the basis of induction furnaces and the reason transformer cores are laminated: laminations cut the available paths, raise $R$, and cut the loss. Eddy currents also produce a braking force on a conductor moving through a field, again by Lenz. Two further geometric traps are worth naming. First, $\mathcal{E}=Blv$ requires $\mathbf{B}$, the rod and the velocity to be mutually perpendicular and the rod to be part of a closed circuit; an open rod still develops a potential *difference* $Blv$ between its ends but no current and no steady power. Second, only the flux change *linked* by the circuit counts - a coil on one leg of a core may link only part of the total flux, and a rod sliding parallel to $\mathbf{B}$ links no change at all and generates nothing.
 

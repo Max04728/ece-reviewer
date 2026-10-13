@@ -11,7 +11,7 @@ prereqs: ["[[04_RA_7925_Telecom_Policy_and_Carriers]]"]
 tags: ["ece", "geas", "ece_laws_and_professional_ethics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — NTC Mandates and Regulations

@@ -11,7 +11,7 @@ prereqs: ["[[02_Newton’s_Laws,_Friction_and_Circular_Motion]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Fluid Statics: Pascal and Archimedes

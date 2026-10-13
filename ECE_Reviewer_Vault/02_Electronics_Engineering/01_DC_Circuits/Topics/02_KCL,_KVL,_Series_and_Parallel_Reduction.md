@@ -11,7 +11,7 @@ prereqs: ["[[01_Circuit_Variables,_Ohm’s_Law_and_Signs]]"]
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — KCL, KVL, Series and Parallel Reduction
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > KCL is charge conservation at a junction: charge cannot pile up at a node, so whatever flows in must flow out. KVL is energy conservation around a closed path: you return to the same potential, so the signed voltage rises and drops must cancel.
 
-**KCL — the node law.** At any node, $\sum i_{\mathrm{in}} = \sum i_{\mathrm{out}}$, or equivalently $\sum i = 0$ with entering currents taken positive. It is charge conservation under the lumped-circuit assumption: no node stores charge. KCL holds for *every* node and for any closed surface (a supernode) drawn through the circuit, which is exactly why nodal analysis and supernodes work.
+**KCL — the node law.** At any node:
+$$\sum i_{\mathrm{in}} = \sum i_{\mathrm{out}}$$
+or equivalently $\sum i = 0$ with entering currents taken positive. It is charge conservation under the lumped-circuit assumption: no node stores charge. KCL holds for *every* node and for any closed surface (a supernode) drawn through the circuit, which is exactly why nodal analysis and supernodes work.
 
 **KVL — the loop law.** Around any closed path, $\sum v = 0$, where a rise is positive and a drop is negative (or the reverse, consistently). It is energy conservation: the work done moving a unit charge around a closed loop is zero. The loop does not have to be a physical mesh — any closed path through the network gives a valid equation.
 

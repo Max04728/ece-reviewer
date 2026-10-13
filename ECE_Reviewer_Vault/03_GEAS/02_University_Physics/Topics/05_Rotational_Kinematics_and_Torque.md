@@ -11,7 +11,7 @@ prereqs: ["[[01_Kinematics_1D_and_2D]]", "[[02_Newton’s_Laws,_Friction_and_Cir
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Rotational Kinematics and Torque
@@ -38,7 +38,9 @@ for angular velocity:
 $$1\ \mathrm{rpm} = \frac{2\pi}{60} = 0.1047\ \mathrm{rad/s}$$
 A wheel at $1800\ \mathrm{rpm}$ turns at $188.5\ \mathrm{rad/s}$, and its rim moves at $v = \omega r$. Mixing rpm into $\omega = \omega_0 + \alpha t$ is dimensionally invisible but wrong by a factor of $\frac{2\pi}{60}$.
 
-**Torque is the lever-arm idea made precise: $\tau = rF\sin\theta$.** Here $r$ is the distance from the axis to the point of application, $F$ the force magnitude, and $\theta$ the angle between the position vector and the force. Equivalently $\tau = F d_{\perp}$, where $d_{\perp} = r\sin\theta$ is the perpendicular distance from the axis to the force's line of action. Consequences boards test: a force directed straight at (or away from) the axis has $\theta = 180^\circ$ or $0^\circ$ and produces zero torque; the same force on a longer wrench gives more torque; and the sign of the torque is set by the direction of rotation it tends to produce (counter-clockwise positive by convention).
+**Torque is the lever-arm idea made precise:
+$$\tau = rF\sin\theta$$
+** Here $r$ is the distance from the axis to the point of application, $F$ the force magnitude, and $\theta$ the angle between the position vector and the force. Equivalently $\tau = F d_{\perp}$, where $d_{\perp} = r\sin\theta$ is the perpendicular distance from the axis to the force's line of action. Consequences boards test: a force directed straight at (or away from) the axis has $\theta = 180^\circ$ or $0^\circ$ and produces zero torque; the same force on a longer wrench gives more torque; and the sign of the torque is set by the direction of rotation it tends to produce (counter-clockwise positive by convention).
 
 **Moment of inertia is rotational mass, and it depends on where the mass sits.** $I = \sum m_ir_i^2$, so the same total mass gives a much larger $I$ when it is far from the axis. Memorise the standard results: point mass $mr^2$; thin hoop or ring about its centre $MR^2$; solid disk or cylinder about its centre $\frac{1}{2}MR^2$; solid sphere about a diameter $\frac{2}{5}MR^2$; thin rod about its centre $\frac{1}{12}ML^2$ and about one end $\frac{1}{3}ML^2$. A hoop and a disk of the same mass and radius have $I$ in the ratio 2:1, which is why the hoop is harder to spin up and rolls down an incline more slowly.
 

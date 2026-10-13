@@ -11,7 +11,7 @@ prereqs: ["[[03_Framing_and_Flow_Control]]"]
 tags: ["ece", "est", "data_communications_and_networking"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — ARQ: Stop-and-Wait, GBN, Selective Repeat
@@ -28,9 +28,13 @@ updated: 2026-09-23
 
 **The parameter that governs everything.** Define $a = T_p/T_t$, the ratio of one-way propagation delay to frame transmission time. A frame and its acknowledgement together consume one round trip $2T_p$ of idle time, so a stop-and-wait sender is busy for $T_t$ out of every $T_t + 2T_p$ seconds. Dividing through gives the stop-and-wait utilisation $U = \dfrac{1}{1+2a}$. The interpretation is direct: $a$ is approximately the number of additional frames that could have been transmitted during the propagation delay, so a link with $a = 10$ is wasting 95% of its capacity under stop-and-wait.
 
-**Sliding window closes the gap.** With a window of $N$ frames the sender keeps the pipe full, and the utilisation becomes $U = \dfrac{N}{1+2a}$ for $N < 1+2a$, saturating at $U = 1$ once $N \geq 1+2a$. The window needed for full utilisation is therefore $N_{min} = 1 + 2a$ — the classic *bandwidth-delay product* result. It is why long-delay links (satellite, intercontinental fibre) need large windows and short-delay links (LANs) need only a handful. Same formula for Go-Back-N and Selective Repeat at the utilisation level; the difference shows up in *how much* is retransmitted when a frame is lost.
+**Sliding window closes the gap.** With a window of $N$ frames the sender keeps the pipe full, and the utilisation becomes:
+$$U = \dfrac{N}{1+2a}$$
+for $N < 1+2a$, saturating at $U = 1$ once $N \geq 1+2a$. The window needed for full utilisation is therefore $N_{min} = 1 + 2a$ — the classic *bandwidth-delay product* result. It is why long-delay links (satellite, intercontinental fibre) need large windows and short-delay links (LANs) need only a handful. Same formula for Go-Back-N and Selective Repeat at the utilisation level; the difference shows up in *how much* is retransmitted when a frame is lost.
 
-**Error probability changes the picture.** With a frame error probability $P$, stop-and-wait becomes $U = \dfrac{1-P}{1+2a}$, because a fraction $P$ of transmissions are wasted. For Go-Back-N the penalty is much worse: one error forces up to $N$ retransmissions, and the utilisation falls to:
+**Error probability changes the picture.** With a frame error probability $P$, stop-and-wait becomes:
+$$U = \dfrac{1-P}{1+2a}$$
+because a fraction $P$ of transmissions are wasted. For Go-Back-N the penalty is much worse: one error forces up to $N$ retransmissions, and the utilisation falls to:
 $$U \approx \dfrac{N(1-P)}{(1+2a)(1 + (N-1)P)}$$
 Selective Repeat keeps $U \approx \dfrac{N(1-P)}{1+2a}$, since only the errored frame is repeated. This is the quantitative reason SR is worth its complexity on error-prone, high-delay links such as satellite channels, and why GBN is preferred on short reliable links where its simpler receiver wins.
 

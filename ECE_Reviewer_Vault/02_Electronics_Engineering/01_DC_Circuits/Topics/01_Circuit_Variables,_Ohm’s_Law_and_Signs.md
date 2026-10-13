@@ -11,7 +11,7 @@ prereqs: ["[[06_Electric_Potential_and_Gradient]]"]
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Circuit Variables, Ohm’s Law and Signs
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Charge in motion is current, and voltage is the energy each unit of charge gains or loses on its way around the loop; a resistor simply converts that energy to heat at a rate fixed by Ohm's law. Every sign in circuit analysis comes from one bookkeeping choice — whether the current reference arrow points into or out of the element's + terminal.
 
-**The four variables, in order.** Charge $q$ (coulomb) is the primitive quantity; current is its time rate of change, $i = \frac{dq}{dt}$, so one ampere is one coulomb per second and $q(t) = q(t_0) + \int_{t_0}^{t} i\,d\tau$. Voltage is energy per unit charge, $v = \frac{dw}{dq}$, which is why a voltage always exists *between* two points and never *at* a point: $v_{ab} = v_a - v_b$ is the potential of $a$ measured with respect to $b$, so $v_{ba} = -v_{ab}$. Power is the rate of energy transfer, $p = \frac{dw}{dt} = vi$, and energy is its integral, $w = \int p\,dt$. Conventional current is the flow of *positive* charge and therefore points opposite to electron drift inside a metal; the physics is unchanged because every law you use is written for conventional current.
+**The four variables, in order.** Charge $q$ (coulomb) is the primitive quantity; current is its time rate of change, $i = \frac{dq}{dt}$, so one ampere is one coulomb per second and $q(t) = q(t_0) + \int_{t_0}^{t} i\,d\tau$. Voltage is energy per unit charge, $v = \frac{dw}{dq}$, which is why a voltage always exists *between* two points and never *at* a point:
+$$v_{ab} = v_a - v_b$$
+is the potential of $a$ measured with respect to $b$, so $v_{ba} = -v_{ab}$. Power is the rate of energy transfer, $p = \frac{dw}{dt} = vi$, and energy is its integral, $w = \int p\,dt$. Conventional current is the flow of *positive* charge and therefore points opposite to electron drift inside a metal; the physics is unchanged because every law you use is written for conventional current.
 
 **Ohm's law, conductance, and the passive sign convention.** For a linear resistor $v = iR$, equivalently $i = Gv$ with conductance $G = 1/R$ in siemens. Resistance is geometry plus material, $R = \rho L/A$, so a long thin conductor has more resistance than a short fat one and a hot filament has more than a cold one; Ohm's law is a property of a *device*, not a law of nature, and it fails for diodes, filaments and anything whose $v$-$i$ curve is not a straight line through the origin. The sign of power is decided before any arithmetic: choose a current reference arrow and a voltage polarity, then apply the **passive sign convention** — if the reference current enters the $+$ terminal, then $p = vi$ is the power *absorbed*. A positive result means the element consumes energy (a resistor always does) and a negative result means it actually delivers $|p|$. An element is therefore classified as a source or a load by the sign of its power, not by its symbol: a battery being charged has $p > 0$ and absorbs.
 

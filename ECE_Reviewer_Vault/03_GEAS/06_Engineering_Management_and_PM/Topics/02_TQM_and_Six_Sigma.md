@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "geas", "engineering_management_and_pm"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — TQM and Six Sigma

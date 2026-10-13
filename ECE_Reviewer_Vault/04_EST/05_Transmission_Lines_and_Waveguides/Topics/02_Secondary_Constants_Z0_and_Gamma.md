@@ -11,7 +11,7 @@ prereqs: ["[[01_Primary_Constants_R,_L,_G,_C]]"]
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Secondary Constants Z0 and Gamma
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A wave travelling down a line settles into a fixed ratio of voltage to current — that ratio is $Z_0$ — while its amplitude decays and its phase rotates at the rates $\alpha$ and $\beta$ per metre. $Z_0$ and $\gamma$ are the secondary constants because they are what the line *does*, derived from what the line *is*.
 
-**Where the two formulas come from.** The telegrapher's equations for a line section are $dV/dz = -zI$ and $dI/dz = -yV$ with $z = R + j\omega L$ and $y = G + j\omega C$ per metre. Eliminating $I$ gives $d^{2}V/dz^{2} = zy\,V$, whose solutions are $e^{\mp\gamma z}$. The propagation constant itself is:
+**Where the two formulas come from.** The telegrapher's equations for a line section are $dV/dz = -zI$ and $dI/dz = -yV$ with $z = R + j\omega L$ and $y = G + j\omega C$ per metre. Eliminating $I$ gives:
+$$d^{2}V/dz^{2} = zy\,V$$
+whose solutions are $e^{\mp\gamma z}$. The propagation constant itself is:
 $$\gamma = \sqrt{zy} = \sqrt{(R+j\omega L)(G+j\omega C)}$$
 Substituting a single forward wave back fixes the voltage-to-current ratio:
 $$Z_0 = z/\gamma = \sqrt{z/y} = \sqrt{(R+j\omega L)/(G+j\omega C)}$$

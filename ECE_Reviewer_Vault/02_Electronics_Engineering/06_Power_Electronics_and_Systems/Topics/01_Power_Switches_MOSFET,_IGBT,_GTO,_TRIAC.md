@@ -11,7 +11,7 @@ prereqs: ["[[12_MOSFET_Types_and_Regions]]", "[[04_Diode_Models_and_Load_Line]]"
 tags: ["ece", "electronics_engineering", "power_electronics_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Power Switches: MOSFET, IGBT, GTO, TRIAC

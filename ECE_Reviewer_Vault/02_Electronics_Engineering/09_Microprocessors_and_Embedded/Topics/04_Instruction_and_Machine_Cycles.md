@@ -11,7 +11,7 @@ prereqs: ["[[02_Registers,_Buses_and_Memory_Organization]]"]
 tags: ["ece", "electronics_engineering", "microprocessors_and_embedded"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Instruction and Machine Cycles
@@ -32,7 +32,9 @@ updated: 2026-09-23
 
 **Pipelining.** Instead of finishing one instruction before starting the next, a $k$-stage pipeline overlaps them. Once the pipe is full it retires one instruction per clock, so $N$ instructions take $k + (N - 1)$ clocks instead of $Nk$. The clock period is set by the *slowest* stage plus latch overhead, not by the sum of the stages, so the ideal speedup is the number of stages — and it is never reached, because of hazards. Structural hazards are resource conflicts, data hazards are a result needed before it is ready (fixed by forwarding or a stall), and control hazards are branches that invalidate already-fetched instructions.
 
-**Performance bookkeeping.** Execution time is $T_{CPU} = IC \times CPI \times T_{clk}$. A pipelined CPU has an ideal $CPI = 1$, but branch penalties, load-use stalls and cache misses push the measured CPI well above 1. Slow memory inserts *wait states*, each one adding a whole clock to the bus cycle, so a 150 ns access on a 50 ns clock costs three clocks (150 ns), not two and a half.
+**Performance bookkeeping.** Execution time is:
+$$T_{CPU} = IC \times CPI \times T_{clk}$$
+A pipelined CPU has an ideal $CPI = 1$, but branch penalties, load-use stalls and cache misses push the measured CPI well above 1. Slow memory inserts *wait states*, each one adding a whole clock to the bus cycle, so a 150 ns access on a 50 ns clock costs three clocks (150 ns), not two and a half.
 
 ## Formulas
 

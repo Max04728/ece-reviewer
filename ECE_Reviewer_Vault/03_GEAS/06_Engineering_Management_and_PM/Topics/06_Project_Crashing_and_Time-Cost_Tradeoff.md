@@ -11,7 +11,7 @@ prereqs: ["[[05_Network_Passes,_Float_and_Critical_Path]]"]
 tags: ["ece", "geas", "engineering_management_and_pm"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Project Crashing and Time-Cost Tradeoff
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Crashing buys time with money at a fixed price per day — the cost slope. Since indirect cost falls as the project shortens, the optimum is where the next cheapest day of crashing costs more than the day of overhead it saves.
 
-**Cost slope and the crashing rule.** Every activity has a **normal point** (normal time $T_n$, normal cost $C_n$) and a **crash point** (the shortest feasible time $T_c$ and its higher cost $C_c$). The **crash cost per period** is $\dfrac{C_c - C_n}{T_n - T_c}$, the price of buying one period on that activity; the maximum time that can be bought is $T_n - T_c$. Crashing is only ever applied to activities **on the critical path**, and among those you always buy the cheapest slope first, because shortening a non-critical activity changes nothing but the cost.
+**Cost slope and the crashing rule.** Every activity has a **normal point** (normal time $T_n$, normal cost $C_n$) and a **crash point** (the shortest feasible time $T_c$ and its higher cost $C_c$). The **crash cost per period** is:
+$$\dfrac{C_c - C_n}{T_n - T_c}$$
+the price of buying one period on that activity; the maximum time that can be bought is $T_n - T_c$. Crashing is only ever applied to activities **on the critical path**, and among those you always buy the cheapest slope first, because shortening a non-critical activity changes nothing but the cost.
 
 **Why the procedure is iterative, not a single calculation.** The moment you crash an activity, the network changes: a **new critical path** can appear, a near-critical path can run out of float, and if two critical paths exist in parallel then shortening the project by one period requires shortening **both** paths, so the effective cost slope is the sum of the cheapest slope on each parallel path. The stopping rule comes from the cost side: keep crashing while the marginal slope is **less than the indirect (overhead) cost per period**, and stop as soon as the next available slope exceeds it. Total cost is direct cost plus indirect cost:
 $$C = C_{\mathrm{direct}} + r_{\mathrm{indirect}} \times T$$

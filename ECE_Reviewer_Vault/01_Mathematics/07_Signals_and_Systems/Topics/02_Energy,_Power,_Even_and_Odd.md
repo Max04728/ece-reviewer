@@ -11,7 +11,7 @@ prereqs: ["[[01_Signal_Classification_and_Operations]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Energy, Power, Even and Odd
@@ -38,7 +38,9 @@ $$\lim_{N\to\infty}\dfrac{1}{2N+1}\sum_{-N}^{N}\lvert x[n]\rvert^2$$
 
 **Even and odd parts.** Every signal splits uniquely:
 $$x_e(t)=\dfrac{x(t)+x(-t)}{2}$$
-and $x_o(t)=\dfrac{x(t)-x(-t)}{2}$, with $x=x_e+x_o$. The decomposition is only meaningful over a symmetric domain, so for a causal signal you must write the mirrored half explicitly: $x(t)=e^{-t}u(t)$ has mirror $e^{t}u(-t)$. Products follow sign rules: even$\times$even and odd$\times$odd are even, even$\times$odd is odd. The practical payoff is that the integral of an odd function over symmetric limits is exactly zero, which kills half the terms in Fourier and convolution problems.
+and $x_o(t)=\dfrac{x(t)-x(-t)}{2}$, with $x=x_e+x_o$. The decomposition is only meaningful over a symmetric domain, so for a causal signal you must write the mirrored half explicitly:
+$$x(t)=e^{-t}u(t)$$
+has mirror $e^{t}u(-t)$. Products follow sign rules: even$\times$even and odd$\times$odd are even, even$\times$odd is odd. The practical payoff is that the integral of an odd function over symmetric limits is exactly zero, which kills half the terms in Fourier and convolution problems.
 
 **Useful standard results.** $e^{-at}u(t)$ has $E=1/(2a)$ for $a>0$. $a^{n}u[n]$ has $E=1/(1-\lvert a\rvert^2)$ for $\lvert a\rvert<1$. The unit step is a power signal with $P=1/2$ and $E=\infty$. A rectangular pulse of height $A$ and width $W$ has $E=A^2W$ and $P=0$. A constant $A$ over all time has $P=A^2$.
 

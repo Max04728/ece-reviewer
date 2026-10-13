@@ -11,7 +11,7 @@ prereqs: ["[[04_Boolean_Algebra_and_De_Morgan]]"]
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Latches and Flip-Flops
@@ -24,7 +24,11 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Two cross-coupled NOR or NAND gates have two stable states, so the circuit remembers which input was pulsed last. Adding a clock turns that memory into a device that either follows its input (latch) or samples it in an instant (flip-flop).
 
-**The SR latch is the primitive.** Cross-couple two NOR gates: the output of each feeds back into the other. Setting $S=1$ forces $Q=1$; setting $R=1$ forces $Q=0$; with $S=R=0$ the feedback holds whatever state was last written. The characteristic equation is $Q^+ = S + \bar R Q$ with the constraint $SR = 0$. A NAND-based latch works with inverted inputs and the opposite constraint: $Q^+ = \bar S + R Q$ with $\bar S\,\bar R \neq 1$, meaning at least one input must be high. Confusing the two conventions is the single most common SR-latch error.
+**The SR latch is the primitive.** Cross-couple two NOR gates: the output of each feeds back into the other. Setting $S=1$ forces $Q=1$; setting $R=1$ forces $Q=0$; with $S=R=0$ the feedback holds whatever state was last written. The characteristic equation is:
+$$Q^+ = S + \bar R Q$$
+with the constraint $SR = 0$. A NAND-based latch works with inverted inputs and the opposite constraint:
+$$Q^+ = \bar S + R Q$$
+with $\bar S\,\bar R \neq 1$, meaning at least one input must be high. Confusing the two conventions is the single most common SR-latch error.
 
 **The forbidden state.** On a NOR latch, $S=R=1$ drives both outputs to 0, which violates the $Q$ and $\bar Q$ complement relationship. Worse, if both inputs return to 0 at the same instant the cross-coupled pair races and settles unpredictably — whichever gate is faster wins. On a NAND latch the forbidden input is $S=R=0$ (both asserted low), which drives both outputs to 1. The problem is not the simultaneous assertion itself but the unpredictable resolution when it is released.
 

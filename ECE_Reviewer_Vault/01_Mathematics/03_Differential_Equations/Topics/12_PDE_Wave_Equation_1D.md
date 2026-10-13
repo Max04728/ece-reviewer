@@ -11,7 +11,7 @@ prereqs: ["[[11_Fourier_Series_Trigonometric_and_Exponential]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — PDE Wave Equation 1D
@@ -26,16 +26,22 @@ updated: 2026-09-23
 
 **The problem.** For a uniform string of length $L$ under tension $T$ with linear density $\mu$, transverse displacement $u(x,t)$ satisfies $u_{tt} = c^2u_{xx}$ with wave speed $c = \sqrt{T/\mu}$, on $0<x<L$, $t>0$. A well-posed problem needs two boundary conditions (here the pinned ends $u(0,t)=u(L,t)=0$) and two initial conditions (the initial shape $u(x,0)=f(x)$ and the initial velocity $u_t(x,0)=g(x)$). The PDE alone has infinitely many solutions; the auxiliary conditions select one, and getting their roles right is the whole skill.
 
-**Separation of variables and the sign of the constant.** Substitute $u = X(x)T(t)$ into $u_{tt}=c^2u_{xx}$ and divide by $c^2XT$ to get $\frac{T''}{c^2T} = \frac{X''}{X}$. The left side depends only on $t$ and the right only on $x$, so both must equal a common constant. Choosing that constant as $-\lambda$ (negative) is forced by the boundary conditions: it gives $X''+\lambda X = 0$, whose solutions are sines and cosines that can vanish at two distinct points $0$ and $L$. The positive choice is different:
+**Separation of variables and the sign of the constant.** Substitute $u = X(x)T(t)$ into $u_{tt}=c^2u_{xx}$ and divide by $c^2XT$ to get $\frac{T''}{c^2T} = \frac{X''}{X}$. The left side depends only on $t$ and the right only on $x$, so both must equal a common constant. Choosing that constant as $-\lambda$ (negative) is forced by the boundary conditions: it gives:
+$$X''+\lambda X = 0$$
+whose solutions are sines and cosines that can vanish at two distinct points $0$ and $L$. The positive choice is different:
 $$X = Ae^{\sqrt{\lambda}x}+Be^{-\sqrt{\lambda}x}$$
 This vanishes at both ends only for $A=B=0$ — the trivial solution. This is *why* a vibrating string has discrete frequencies at all.
 
-**The eigenvalue problem and the modes.** With $X(0)=X(L)=0$, nontrivial solutions exist only for $\lambda_n = (n\pi/L)^2$, $n = 1,2,3,\dots$, with $X_n(x) = \sin\frac{n\pi x}{L}$. The corresponding time equation $T''+\frac{n^2\pi^2c^2}{L^2}T = 0$ oscillates at $\omega_n = \frac{n\pi c}{L}$ rad/s, i.e. $f_n = \frac{nc}{2L}$ Hz. Mode $n$ has $n$ half-wavelengths across the string, $n-1$ interior nodes, and a nodal set that never moves. The fact that the spatial eigenfunctions are orthogonal is what makes the coefficients extractable one at a time rather than by solving a coupled system:
+**The eigenvalue problem and the modes.** With $X(0)=X(L)=0$, nontrivial solutions exist only for $\lambda_n = (n\pi/L)^2$, $n = 1,2,3,\dots$, with $X_n(x) = \sin\frac{n\pi x}{L}$. The corresponding time equation $T''+\frac{n^2\pi^2c^2}{L^2}T = 0$ oscillates at $\omega_n = \frac{n\pi c}{L}$ rad/s, i.e.
+$$f_n = \frac{nc}{2L}$$
+Hz. Mode $n$ has $n$ half-wavelengths across the string, $n-1$ interior nodes, and a nodal set that never moves. The fact that the spatial eigenfunctions are orthogonal is what makes the coefficients extractable one at a time rather than by solving a coupled system:
 $$\int_0^L\sin\frac{m\pi x}{L}\sin\frac{n\pi x}{L}dx = \frac{L}{2}\delta_{mn}$$
 
 **The series solution and the coefficient formulas.** Superposing the modes gives the series solution:
 $$u(x,t) = \sum_{n=1}^{\infty}\left(A_n\cos\frac{n\pi ct}{L}+B_n\sin\frac{n\pi ct}{L}\right)\sin\frac{n\pi x}{L}$$
-Setting $t=0$ gives $f(x) = \sum A_n\sin\frac{n\pi x}{L}$, so $A_n$ is a Fourier sine coefficient:
+Setting $t=0$ gives:
+$$f(x) = \sum A_n\sin\frac{n\pi x}{L}$$
+so $A_n$ is a Fourier sine coefficient:
 $$A_n = \frac{2}{L}\int_0^L f(x)\sin\frac{n\pi x}{L}dx$$
 Differentiating with respect to $t$ and setting $t=0$ gives the velocity series:
 $$g(x) = \sum \frac{n\pi c}{L}B_n\sin\frac{n\pi x}{L}$$

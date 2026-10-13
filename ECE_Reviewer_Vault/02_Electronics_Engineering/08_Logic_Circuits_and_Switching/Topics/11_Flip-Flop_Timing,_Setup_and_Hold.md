@@ -11,7 +11,7 @@ prereqs: ["[[10_Latches_and_Flip-Flops]]"]
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Flip-Flop Timing, Setup and Hold

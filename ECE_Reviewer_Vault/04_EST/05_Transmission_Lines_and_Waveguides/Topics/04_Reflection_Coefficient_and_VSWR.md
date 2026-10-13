@@ -11,7 +11,7 @@ prereqs: ["[[02_Secondary_Constants_Z0_and_Gamma]]"]
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Reflection Coefficient and VSWR
@@ -34,7 +34,9 @@ A VSWR of $2$ gives $|\Gamma| = 1/3$, a return loss of $9.54$ dB, a reflected-po
 
 **The reflection coefficient rotates as you walk down the line.** On a lossless line its magnitude is the same at every plane and only the phase changes: $$\Gamma(l) = \Gamma_L\,e^{-2j\beta l},$$ with $l$ measured from the load toward the generator and $\beta = 2\pi/\lambda$. The impedance at any plane then follows from $$Z(l) = Z_0\,\frac{1 + \Gamma(l)}{1 - \Gamma(l)}.$$ This one pair of relations is the entire basis of the Smith chart: the chart *is* the $\Gamma$ plane with an impedance grid drawn over it, and moving along the line is rotation about the centre. Note the factor of $2$ in the exponent — a full $360^\circ$ revolution corresponds to $\lambda/2$, not $\lambda$.
 
-**Where the simple picture fails.** These relations assume a single discontinuity on a uniform, lossless line with a real $Z_0$. On a lossy line $|\Gamma|$ decays as $e^{-2\alpha l}$, so the VSWR measured at the generator is optimistic and says nothing directly about the load — the load-side value must be recovered by rotating the loss back in. With several discontinuities the reflections re-reflect and a single VSWR no longer describes the line at all. Complex $Z_0$ (a lossy line at low frequency) makes the load formula itself awkward. And VSWR is not an efficiency: $\mathrm{VSWR} = 1.5$ wastes only $4\%$ of the power, yet the standing wave can still raise the voltage at a transmitter output stage past its breakdown rating.
+**Where the simple picture fails.** These relations assume a single discontinuity on a uniform, lossless line with a real $Z_0$. On a lossy line $|\Gamma|$ decays as $e^{-2\alpha l}$, so the VSWR measured at the generator is optimistic and says nothing directly about the load — the load-side value must be recovered by rotating the loss back in. With several discontinuities the reflections re-reflect and a single VSWR no longer describes the line at all. Complex $Z_0$ (a lossy line at low frequency) makes the load formula itself awkward. And VSWR is not an efficiency:
+$$\mathrm{VSWR} = 1.5$$
+wastes only $4\%$ of the power, yet the standing wave can still raise the voltage at a transmitter output stage past its breakdown rating.
 
 ## Derivation
 

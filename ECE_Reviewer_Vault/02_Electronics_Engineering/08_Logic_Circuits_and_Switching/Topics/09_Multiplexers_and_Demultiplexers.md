@@ -11,7 +11,7 @@ prereqs: ["[[05_SOP,_POS,_Minterms_and_Maxterms]]"]
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Multiplexers and Demultiplexers
@@ -32,7 +32,9 @@ A 4:1 mux has two select lines and four data inputs, and in general $N = 2^n$ da
 
 **Implementing a function with a mux, step by step.** Choose which variables drive the selects — normally the ones appearing most often. Build the truth-table column of the remaining variable for each select code. If the residual column is constant, tie the data input to $V_{CC}$ or ground; if it is $C$, tie it to the signal $C$; if it is $\bar C$, invert $C$. Overlapping covers and unmapped combinations appear as don't-care ties, which is why mux realisations often use fewer gates than a discrete SOP network.
 
-**The demultiplexer.** A 1-to-$2^n$ demux sends its single data input to the output selected by the select lines: $Y_i = D\cdot m_i$, with all other outputs held at their inactive level. It is the exact inverse of a mux, and a decoder is a demux with the data input permanently tied to the active level. Cascading muxes and demuxes over a link is the standard architecture for serialising parallel data (mux at the transmitter, demux at the receiver) and for time-division multiplexing, where several sources share one channel by taking turns.
+**The demultiplexer.** A 1-to-$2^n$ demux sends its single data input to the output selected by the select lines:
+$$Y_i = D\cdot m_i$$
+with all other outputs held at their inactive level. It is the exact inverse of a mux, and a decoder is a demux with the data input permanently tied to the active level. Cascading muxes and demuxes over a link is the standard architecture for serialising parallel data (mux at the transmitter, demux at the receiver) and for time-division multiplexing, where several sources share one channel by taking turns.
 
 **Loading, propagation and fan-out.** A mux adds propagation delay, and wide muxes are built as trees: an $N$:1 mux from 2:1 stages has $\lceil \log_2 N\rceil$ levels of delay, but a single-level $N$-input mux is one wide gate with large capacitance. The driving gate must be able to supply the total input current of every load: the DC fan-out is $\min(I_{OH}/I_{IH},\, I_{OL}/I_{IL})$, so a mux output feeding many data inputs can fail on the HIGH side even when the LOW side looks fine. Unused data inputs must be tied to a defined level — an unconnected CMOS mux input floats and can cause cross-conduction current and a wrong output.
 

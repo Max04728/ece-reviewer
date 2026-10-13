@@ -1,0 +1,96 @@
+{
+  "area": "02_Electronics_Engineering/04_Semiconductor_Devices",
+  "note": "Area ledger. The first two were applied in the one-note trial and now report DONE (idempotent re-run). The rest fix the remaining 14 sites. Re-run --report before declaring the area done.",
+  "rewrites": [
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+      "entry": 2,
+      "find": "No wires are attached and no net current flows, so for electrons $J_n = q\\mu_n n E + qD_n\\frac{dn}{dx} = 0$.",
+      "replace": "No wires are attached and no net current flows, so the electron current is zero: $J_n = q\\mu_n n E + qD_n\\frac{dn}{dx} = 0$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/02_PN_Junction_and_Depletion_Region.json",
+      "entry": 5,
+      "find": "For silicon $\\varepsilon_{Si} = 11.8\\,\\varepsilon_0 = 1.045\\times10^{-12}\\ \\mathrm{F/cm}$, $n_i = 1.5\\times10^{10}\\ \\mathrm{cm^{-3}}$ at 300 K, and $V_T = kT/q = 25.9\\ \\mathrm{mV}$ at 300 K (use $26\\ \\mathrm{mV}$ for exam work).",
+      "replace": "At 300 K the permittivity of silicon is: $\\varepsilon_{Si} = 11.8\\,\\varepsilon_0 = 1.045\\times10^{-12}\\ \\mathrm{F/cm}$. The intrinsic concentration at 300 K is: $n_i = 1.5\\times10^{10}\\ \\mathrm{cm^{-3}}$. The thermal voltage is $V_T = kT/q = 25.9\\ \\mathrm{mV}$ at 300 K (use $26\\ \\mathrm{mV}$ for exam work)."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/01_Intrinsic,_Extrinsic_and_Carrier_Transport.json",
+      "entry": 1,
+      "find": "At 300 K silicon has $n_i = 1.5\\times10^{10}\\ \\mathrm{cm^{-3}}$ and germanium about $2.4\\times10^{13}\\ \\mathrm{cm^{-3}}$,",
+      "replace": "At 300 K the intrinsic concentration in silicon is: $n_i = 1.5\\times10^{10}\\ \\mathrm{cm^{-3}}$, against about $2.4\\times10^{13}\\ \\mathrm{cm^{-3}}$ in germanium,"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/03_Diode_Characteristics_and_Shockley.json",
+      "entry": 1,
+      "find": "the resulting diffusion current is $I_D = I_S\\left(e^{V_D/(nV_T)} - 1\\right)$.",
+      "replace": "the resulting diffusion current is: $I_D = I_S\\left(e^{V_D/(nV_T)} - 1\\right)$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge.json",
+      "entry": 3,
+      "find": "this becomes $r = \\sqrt{(V_{rms}/V_{dc})^2 - 1} = \\sqrt{F^2 - 1}$, where $F = V_{rms}/V_{dc}$ is the form factor.",
+      "replace": "this becomes: $r = \\sqrt{(V_{rms}/V_{dc})^2 - 1} = \\sqrt{F^2 - 1}$, where $F = V_{rms}/V_{dc}$ is the form factor."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/06_Filters,_Ripple_Factor_and_PIV.json",
+      "entry": 1,
+      "find": "Since $I_{dc} \\approx V_{dc}/R_L \\approx V_m/R_L$, this becomes $V_{r(pp)} = V_m/(f_rR_LC)$:",
+      "replace": "Since the dc load current is: $I_{dc} \\approx V_{dc}/R_L \\approx V_m/R_L$, this becomes $V_{r(pp)} = V_m/(f_rR_LC)$:"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/06_Filters,_Ripple_Factor_and_PIV.json",
+      "entry": 2,
+      "find": "so $r = I_{dc}/(f_rC\\cdot2\\sqrt{3}\\,V_{dc}) = 1/(2\\sqrt{3}f_rR_LC)$, and for a full-wave",
+      "replace": "so the ripple factor is: $r = I_{dc}/(f_rC\\cdot2\\sqrt{3}\\,V_{dc}) = 1/(2\\sqrt{3}f_rR_LC)$, and for a full-wave"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/07_Clippers,_Clampers_and_Multipliers.json",
+      "entry": 4,
+      "find": "adds them, $V_{out} \\approx 2(V_m - V_D) = 2V_m - 2V_D$.",
+      "replace": "adds them to give: $V_{out} \\approx 2(V_m - V_D) = 2V_m - 2V_D$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/11_JFET_Characteristics_and_Pinch-Off.json",
+      "entry": 2,
+      "find": "smaller than the pinch-off boundary $V_{DS(sat)}=V_{GS}-V_{GS(off)}=V_{GS}+V_P$.",
+      "replace": "smaller than the pinch-off boundary: $V_{DS(sat)}=V_{GS}-V_{GS(off)}=V_{GS}+V_P$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/11_JFET_Characteristics_and_Pinch-Off.json",
+      "entry": 3,
+      "find": "The Shockley equation $I_D=I_{DSS}\\left(1-\\frac{|V_{GS}|}{V_P}\\right)^{2}$ is a parabola on the transfer curve,",
+      "replace": "The Shockley equation is: $I_D=I_{DSS}\\left(1-\\frac{|V_{GS}|}{V_P}\\right)^{2}$, a parabola on the transfer curve,"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/12_MOSFET_Types_and_Regions.json",
+      "entry": 3,
+      "find": "the triode current is $I_D=k\\left[2(V_{GS}-V_T)V_{DS}-V_{DS}^{2}\\right]$ and the saturation current is",
+      "replace": "the triode current is: $I_D=k\\left[2(V_{GS}-V_T)V_{DS}-V_{DS}^{2}\\right]$ and the saturation current is"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/12_MOSFET_Types_and_Regions.json",
+      "entry": 3,
+      "find": "so the on-resistance is $r_{DS(on)}=1/\\left[2k(V_{GS}-V_T)\\right]$, which falls",
+      "replace": "so the on-resistance is: $r_{DS(on)}=1/\\left[2k(V_{GS}-V_T)\\right]$, which falls"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/12_MOSFET_Types_and_Regions.json",
+      "entry": 4,
+      "find": "raises the threshold, $V_T=V_{T0}+\\gamma\\left(\\sqrt{2\\phi_F+V_{SB}}-\\sqrt{2\\phi_F}\\right)$, so a stacked device",
+      "replace": "raises the threshold: $V_T=V_{T0}+\\gamma\\left(\\sqrt{2\\phi_F+V_{SB}}-\\sqrt{2\\phi_F}\\right)$, so a stacked device"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/13_Thyristors_UJT,_SCR,_DIAC,_TRIAC.json",
+      "entry": 3,
+      "find": "the average current is $I_{avg}=\\frac{I_p}{2\\pi}\\left(1+\\cos\\alpha\\right)$ and the rms current is $I_{rms}=I_p\\sqrt{\\frac{\\pi-\\alpha}{4\\pi}+\\frac{\\sin2\\alpha}{8\\pi}}$ with",
+      "replace": "the average current is: $I_{avg}=\\frac{I_p}{2\\pi}\\left(1+\\cos\\alpha\\right)$, and the rms current is: $I_{rms}=I_p\\sqrt{\\frac{\\pi-\\alpha}{4\\pi}+\\frac{\\sin2\\alpha}{8\\pi}}$, with"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/04_Semiconductor_Devices/14_Optoelectronics_and_Solar_Cells.json",
+      "entry": 1,
+      "find": "and in engineering units $E(\\mathrm{eV})=\\frac{1240}{\\lambda(\\mathrm{nm})}$, because",
+      "replace": "and in engineering units the energy is: $E(\\mathrm{eV})=\\frac{1240}{\\lambda(\\mathrm{nm})}$, because"
+    }
+  ]
+}

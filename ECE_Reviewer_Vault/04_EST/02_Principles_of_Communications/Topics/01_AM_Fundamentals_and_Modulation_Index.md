@@ -11,7 +11,7 @@ prereqs: ["[[01_Time_vs_Frequency_and_Line_Spectra]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — AM Fundamentals and Modulation Index
@@ -38,9 +38,13 @@ Applying it gives:
 $$s(t) = A_c\cos\omega_c t + \tfrac{mA_c}{2}\cos(\omega_c-\omega_m)t + \tfrac{mA_c}{2}\cos(\omega_c+\omega_m)t$$
 The result is the carrier unchanged, plus a **lower sideband (LSB)** at $f_c-f_m$ and an **upper sideband (USB)** at $f_c+f_m$, each with peak amplitude $mA_c/2$. All the information lives in those two sidebands; the carrier conveys nothing and is there only to make envelope detection possible. This is why removing the carrier (DSB-SC) and then one sideband (SSB) is attractive — see [[03_DSB-SC_and_SSB-SC]] — and why plain AM is the least power-efficient analogue scheme: at best one third of the transmitted power carries information.
 
-**Power: the $1+m^2/2$ budget.** For a carrier of amplitude $A_c$ across a resistance $R$, $P_c = A_c^2/(2R)$; the two sidebands together carry $P_c m^2/2$, so each carries $P_c m^2/4$ and the total is $P_t = P_c\left(1+\frac{m^2}{2}\right)$. The efficiency (the fraction of transmitted power that is information) is therefore as follows:
+**Power: the $1+m^2/2$ budget.** For a carrier of amplitude $A_c$ across a resistance $R$, $P_c = A_c^2/(2R)$; the two sidebands together carry $P_c m^2/2$, so each carries $P_c m^2/4$ and the total is:
+$$P_t = P_c\left(1+\frac{m^2}{2}\right)$$
+The efficiency (the fraction of transmitted power that is information) is therefore as follows:
 $$\eta = \dfrac{m^2/2}{1+m^2/2} = \dfrac{m^2}{2+m^2}$$
-The result is monotonic in $m$ and reaches its maximum of $1/3$ only at $m = 1$. Note how sharp the penalty is for under-modulation: at $m = 0.5$ the efficiency is $0.25/2.25 = 11.1$ percent, so a 100 percent-modulated transmitter is three times as efficient as a half-modulated one with the same carrier. All the power formulas assume the same load resistance and the same $A_c$; comparing a modulated and an unmodulated case with different load resistances is a classic trap.
+The result is monotonic in $m$ and reaches its maximum of $1/3$ only at $m = 1$. Note how sharp the penalty is for under-modulation: at $m = 0.5$ the efficiency is:
+$$0.25/2.25 = 11.1$$
+percent, so a 100 percent-modulated transmitter is three times as efficient as a half-modulated one with the same carrier. All the power formulas assume the same load resistance and the same $A_c$; comparing a modulated and an unmodulated case with different load resistances is a classic trap.
 
 **Overmodulation: the failure mode.** If $m>1$ the bracket $1+m\cos\omega_m t$ goes negative for part of each cycle. The instantaneous envelope then passes through zero and the RF phase reverses by 180 degrees, but an envelope detector's diode blocks the negative excursion, so the recovered waveform is a flattened, rectified version of the message with strong harmonic distortion. In the frequency domain the message is no longer a single tone: sidebands appear at multiples of $f_m$ (splatter), and the occupied bandwidth is much greater than $2f_m$ — overmodulation is an interference crime, not just a fidelity problem. Worse, the usual measurement formula $m = (E_{max}-E_{min})/(E_{max}+E_{min})$ is *invalid* for $m>1$: because the detector only sees $|1+m\cos|$, the measured extremes give an apparent index below 1 even when the transmitter is heavily overmodulated.
 

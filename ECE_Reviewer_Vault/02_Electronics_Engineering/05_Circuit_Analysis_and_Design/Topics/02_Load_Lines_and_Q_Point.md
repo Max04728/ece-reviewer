@@ -11,7 +11,7 @@ prereqs: ["[[01_BJT_DC_Biasing_Configurations]]", "[[09_BJT_Structure_and_Operat
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Load Lines and Q Point
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **The DC load line comes from KVL, not from the transistor.** Write the collector-emitter loop of a CE stage:
 $$V_{CC} = I_C R_C + V_{CE} + I_E R_E$$
-With $I_E \approx I_C$ this is $V_{CE} = V_{CC} - I_C(R_C + R_E)$ — a straight line on the $i_C$–$v_{CE}$ plane with slope $-1/(R_C+R_E)$. Its two easy points are the axis intercepts: set $V_{CE}=0$ to get the saturation current $I_{C(sat)} = V_{CC}/(R_C+R_E)$, and set $I_C=0$ to get the cutoff voltage $V_{CE(cutoff)} = V_{CC}$. Note that $R_E$ stays in this line even when a bypass capacitor is fitted: a capacitor is an AC short, but the DC bias current still flows through $R_E$, so the DC line always uses the total $R_C + R_E$.
+With $I_E \approx I_C$ this is:
+$$V_{CE} = V_{CC} - I_C(R_C + R_E)$$
+— a straight line on the $i_C$–$v_{CE}$ plane with slope $-1/(R_C+R_E)$. Its two easy points are the axis intercepts: set $V_{CE}=0$ to get the saturation current $I_{C(sat)} = V_{CC}/(R_C+R_E)$, and set $I_C=0$ to get the cutoff voltage $V_{CE(cutoff)} = V_{CC}$. Note that $R_E$ stays in this line even when a bypass capacitor is fitted: a capacitor is an AC short, but the DC bias current still flows through $R_E$, so the DC line always uses the total $R_C + R_E$.
 
 **The quiescent point is where the line meets the device.** The external circuit can be anywhere on the line and the device can be anywhere on its characteristic $i_C = f(v_{CE}, i_B)$; the operating point is the single intersection with the curve for the base current $I_{BQ}$ that the bias network actually supplies. It can be found graphically (draw the line, take the curve for $I_{BQ}$) or analytically (compute $I_{CQ}$ from the base circuit, then $V_{CEQ} = V_{CC} - I_{CQ}(R_C+R_E)$ and read the point off the line). The analytic route is faster and is what the exam expects; the graphical route is the sanity check. A point is well placed when it sits near the middle of the DC line, far enough from both saturation and cutoff that a signal has room to move.
 

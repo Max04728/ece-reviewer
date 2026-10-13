@@ -130,26 +130,117 @@ All of these were silent — no check reported any of them — and they matter m
 
 ### Open items — carry these forward
 
-1. **A prose-spacing pass on Core Concept math is IN PROGRESS and PAUSED.** The hoisting rule
+1. **Core Concept prose spacing is COMPLETE — 0 residual sites vault-wide.** The hoisting rule
    deliberately leaves substantial inline formulas mid-sentence; of those, **587 were 40+ characters**
    — real equations buried in prose. The owner asked for all 587 to be fixed by **rewriting the
    payload prose** so each equation begins a clause (and the layout rule then hoists it), not by
-   loosening the rule. Progress: **587 → 129 sites, 22 of 31 areas clean.** Nine areas were never
-   assigned and are the remaining work:
-   `02_Electronics_Engineering/04_Semiconductor_Devices` (17),
-   `01_Mathematics/02_Integral_Calculus` (16),
-   `02_Electronics_Engineering/07_Industrial_Automation_and_Sensors` (16),
-   `03_GEAS/01_General_Chemistry` (15),
-   `04_EST/01_Signals_Spectra_and_Noise` (14),
-   `02_Electronics_Engineering/01_DC_Circuits` (13),
-   `03_GEAS/03_Materials_Science` (13),
-   `04_EST/03_Digital_Communications` (13),
-   `02_Electronics_Engineering/06_Power_Electronics_and_Systems` (12).
-   The authoritative worklist is `build/concept-spacing-worklist.md`; per-area progress is
-   `node build/audit-concept-formulas.mjs --area "<Part/Area>"`, which exits 1 until that area is
-   clean and writes no shared file (so several areas can be worked at once).
+   loosening the rule. Progress: **587 → 129 → 0; all 31 areas clean.**
+   Evidence at completion: `build/concept-spacing-worklist.md` holds **0** entries; the audit reports
+   **906** hoisted clause-start formulas (up from 774), 0 `$$$` artefacts, 0 unbalanced `$`, 0 orphan
+   continuation fragments, 0 stranded units; `build-notes.mjs --validate` = 408 payloads;
+   `build-notes.mjs` = 408 rendered, 0 stubs; `build/verify.mjs` = ALL CHECKS PASSED.
    **Do not loosen `CONCEPT_PROMOTE_*` to force the breaks**: that is what produced 439 one-word
    fragments and an ungrammatical join on the first attempt.
+   **Tooling built for this pass — use it instead of the 66 KB worklist:**
+   - `node build/show-sites.mjs --summary` — residual count per area, writes nothing.
+   - `node build/show-sites.mjs --area "<Part/Area>" [--limit N]` — that area's sites, decoded and
+     ready to paste into a patch. Its counts were verified equal to `audit-concept-formulas.mjs --area`.
+   - `node build/apply-rewrites.mjs --report|--apply build/rewrite-patches/<Area>.json` — applies
+     **decoded-prose** rewrites (it owns all JSON escaping, so nobody hand-writes `\\frac`), splices
+     raw bytes (the payloads are hand-formatted; re-serializing matched only 3 of 408), and REJECTS a
+     rewrite that changes an entry's ordered `$...$` formula list, so "prose and punctuation only" is
+     enforced mechanically. Re-running a ledger reports `DONE`, never drift.
+   - Worker brief `build/WORKER_BRIEF_spacing.md`; per-area ledgers `build/rewrite-patches/`;
+     per-area reports `build/reports/`.
+   **Open question for the owner — not a regression, deliberately not fixed unilaterally.** The
+   transform's normal output lets a sentence continue after a hoisted display, e.g. `…closer planes:`
+   `$$d_{111} = a/\sqrt{3}$$` `is larger than $d_{210} = a/\sqrt{5}$.` A measurement over all 408
+   payloads found **381** such continuations across 193 payloads (257 of them 40+ chars). Most read
+   correctly (`$$… = nx^{n-1}$$ for every real $n$.`), but some are predicate fragments with no
+   subject. The audit counts **0** orphans here by its own definition, so it cannot size this class —
+   do not read its zero as proof that none exist. Tightening the rule (formula must be followed by a
+   sentence end) would rewrite ~380 sites; that is an owner decision, not a cleanup.
+   **Follow-on readability phase — one payload trialled, OWNER DECISION PENDING.**
+   - **Math styling now exists.** `Assets/snippets.css` (source of truth, mirrored by
+     `build/sync-snippet.mjs`, checked by `verify.mjs` 6d) gained an inline/display math section:
+     inline maths gets a faint chip, paragraphs get `line-height: 1.75` so tall inline maths stops
+     colliding with adjacent lines, and `$$` blocks get an accent rule, padding and horizontal
+     scroll. Before this there were **no math rules in the file at all** — nothing distinguished an
+     equation from prose in Obsidian's reading view. Every rule is scoped to `.markdown-rendered`
+     because the same file is `<link>`ed inside the widget iframes.
+   - **`\displaystyle` on tall INLINE maths** (`build/apply-displaystyle.mjs`): MathJax renders an
+     inline fraction/root/integral at roughly half size. The tool prefixes such formulas with
+     `\displaystyle` so they render full size while remaining inline. It targets only formulas that
+     render inline, so block structure cannot change — verified: hoisted 906, MID-SENTENCE 1582,
+     `$$` blocks 934 were all identical before and after. Targets 418 formulas in 166 payloads;
+     it skips `\dfrac`/`\tfrac` (already full size / deliberately small).
+     **Status: applied to exactly ONE payload** for review —
+     `01_Mathematics/03_Differential_Equations/11_RLC_Circuit_Transients.json` (7 formulas), whose
+     note is `.../Topics/11_RLC_Circuit_Transients.md`. The other 165 payloads were reverted exactly.
+   - **Exact revert needs a pre-pass tree.** 95 authorial `\displaystyle` occurrences already existed
+     before the pass, so a rule-based strip would corrupt them. `build/revert-displaystyle.mjs`
+     compares against a HEAD worktree and reverts a body ONLY when it is HEAD's plus the prefix, and
+     verifies every body round-trips. Its count matched the forward pass exactly (418 prefixes,
+     166 payloads, 0 skipped). Recreate the reference worktree with:
+     `git worktree add --detach build/_head 6be5f84` (the pre-pass commit).
+   - **Lowering the display threshold** — `build/check-promote.mjs --min N`. Hoisting is a renderer
+     rule (`CONCEPT_PROMOTE_MIN`, currently **20**), so "every equation over ~15 characters gets its
+     own line" is a ONE-CONSTANT change plus a re-render, with no payload editing. Measured at
+     `--min 15`: **71** equations would newly get their own line, and nothing else would change.
+     The other **2283** equation-like inline formulas are MID-SENTENCE and must NOT be auto-promoted
+     — that is precisely the documented 439-fragment failure; they need prose rewrites (the
+     Workstream A recipe) or `\displaystyle`. `--apply` writes the constant.
+   - **The audit's length metric now ignores a leading `\displaystyle`** in both
+     `audit-concept-formulas.mjs` and `show-sites.mjs` (kept identical): the directive is formatting
+     and adds no reading burden, so counting it would have inflated the 40+ worklist by ~250 phantom
+     sites. Only `\displaystyle` is stripped; `\dfrac`/`\tfrac` stay counted.
+   **READABILITY PHASE — current state (this SUPERSEDES the bullets above).**
+   - **The math CSS styling was REVERTED.** The owner reviewed a rendered note and judged the
+     chip/boxing too busy. `Assets/snippets.css` is now **byte-identical to HEAD** (verified with
+     `git diff`), the `.obsidian` mirror matches, and the rules are parked verbatim in
+     `build/math-styling.section.css`. `node build/toggle-math-css.mjs --on|--off|--status` swaps
+     them in and out — content-based on purpose, because a RUNNING Obsidian caches
+     `enabledCssSnippets` in memory and rewrites it on the next settings save, while snippet CONTENT
+     is live-reloaded.
+   - **`\displaystyle` is applied NOWHERE.** The RLC trial was reverted exactly, so the tree holds
+     only the 95 pre-existing authorial occurrences. `02_Z_and_Y_Parameters` was tried as a trial
+     note and has **0** tall formulas — its maths is flat `z`/`y` relations written with inline
+     slashes (`$z_{11} = V_1/I_1$`), so `\displaystyle` cannot help it by construction.
+   - **The display threshold was LOWERED: `CONCEPT_PROMOTE_MIN` 20 -> 15** (one constant in
+     `build/formula-layout.mjs`). The owner's complaint is crowding, not glyph size, so the lever is
+     to give short-but-real equations their own line. Measured effect: hoisted clause-start formulas
+     906 -> 986, rendered `$$` blocks 934 -> 1014, with 0 new stranded units and 0 orphan fragments;
+     worklist still 0; `verify.mjs` green. Preview any threshold with
+     `node build/check-promote.mjs --min N` (and `--payload <fragment>` for a single note).
+     The audit's residual length bands are now DERIVED from the threshold instead of hard-coded at
+     20 — they had gone stale and were reporting 15-19 char formulas inside a "20-29" row.
+   - **Prose separation started, one paragraph only.** `build/rewrite-patches/02_Z_and_Y_Parameters.json`
+     rewrites concept 1 of that note so every equation is introduced by a lead-in clause and gets its
+     own line. **Two clause seams created by the first pass were caught by reading the RENDERED note
+     and repaired** (a missing period, and a comma splice before a capitalised clause) — the applier
+     cannot see prose seams, so always re-read the rendered output after this kind of edit.
+     Concepts 2, 3 and 4 of that note are NOT yet done.
+   - **Gotcha for future prose rewrites:** `apply-rewrites.mjs` rejects a `find` containing no `$`
+     ("find contains no $"), so a pure prose seam repair must be bundled with a nearby formula.
+   - **MECHANICAL COLON PASS — DONE: 345 equations moved onto their own line at zero model cost.**
+     `build/apply-colon-pass.mjs` inserts a single `:` after a copula or reporting verb when an
+     equation follows it (`the ... is $z_{11}$` -> `the ... is: $z_{11}$`), which makes the formula
+     begin a clause so the renderer hoists it. 348 inserted, 3 reverted. It REFUSES transitive verbs
+     (`satisfies: $x$` is wrong) and reports every site it declines. Measured effect: hoisted
+     clause-start formulas 986 -> 1331, rendered `$$` blocks 1014 -> 1359, across 198 payloads.
+     **It stranded 3 units on its first run** (`m`, `m`, `nm`) because the original guard only
+     checked for a CAPITALISED next word. The guard now reuses the audit's own `UNIT_TOKEN` regex, so
+     a re-run reports those sites as `would strand unit` instead of inserting. The repairs (removing
+     the 3 colons that run had added) are in `build/rewrite-patches/colon-pass-repairs.json`, and the
+     audit is back to **0 stranded units**. LESSON: a mechanical pass must use the SAME vocabulary as
+     the checker that will judge it, or it manufactures exactly the defects that checker looks for.
+   - **Remaining prose work, measured after the colon pass** (`node build/spacing-queue.mjs`):
+     **342 notes / 953 paragraphs / 1929 formulas**. The tall-only subset — anything containing a
+     fraction, root or integral, i.e. the formulas that render at half size and look worst — is
+     **185 notes / 351 paragraphs / 525 formulas**. The full-scope distribution is FLAT (the worst
+     note has only 7 paragraphs; the top 50 notes hold just 24% of it), so prioritising saves little
+     on the full scope, whereas tall-only IS concentrated (top 50 notes = 45%) and is the best ROI.
+     Rough cost: ~15-20k tokens per note, so ~2-3M tokens tall-only, ~5-7M for everything.
 2. **Five worker claims were checked and rejected during that pass** — a lookbehind regex
    "undercount" (measured: 0 of 11,426), a Miller-theorem factor of 10^3 (the note is right), a
    Fresnel ⊥/∥ label swap (labels correct), an `Q = I^2X` sign "error" (the sign is the physics), and

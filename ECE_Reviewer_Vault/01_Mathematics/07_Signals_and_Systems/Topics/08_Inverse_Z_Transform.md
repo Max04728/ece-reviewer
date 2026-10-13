@@ -11,7 +11,7 @@ prereqs: ["[[07_Z_Transform_Theorems_and_Pairs]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Inverse Z Transform

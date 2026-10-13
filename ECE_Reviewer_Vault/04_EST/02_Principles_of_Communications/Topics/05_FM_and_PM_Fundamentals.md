@@ -11,7 +11,7 @@ prereqs: ["[[01_AM_Fundamentals_and_Modulation_Index]]", "[[01_Time_vs_Frequency
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — FM and PM Fundamentals
@@ -46,7 +46,9 @@ Its **modulation index** is defined as:
 $$\beta = \dfrac{k_f A_m}{f_m} = \dfrac{\Delta f}{f_m}$$
 Here $\Delta f = k_f A_m$ is the **peak frequency deviation**. PM gives this:
 $$s(t) = A_c\cos\left(\omega_c t + m_p\cos\omega_m t\right)$$
-With $m_p = k_p A_m$ radians, its equivalent peak deviation is $\Delta f = m_p f_m$. Both indices equal the peak phase deviation in radians (for FM, $\beta$ is literally the peak of the $\sin$ term), and both are dimensionless. For FM the deviation depends only on the message *amplitude*; for PM the deviation grows in proportion to message *frequency* as well.
+With $m_p = k_p A_m$ radians, its equivalent peak deviation is:
+$$\Delta f = m_p f_m$$
+Both indices equal the peak phase deviation in radians (for FM, $\beta$ is literally the peak of the $\sin$ term), and both are dimensionless. For FM the deviation depends only on the message *amplitude*; for PM the deviation grows in proportion to message *frequency* as well.
 
 **The distinction that exam questions exploit.** Feed the same tone through an FM and a PM transmitter at two different message frequencies and the difference is stark. FM holds $\Delta f$ constant, so $\beta = \Delta f/f_m$ falls as the tone rises: at a low tone the index is large (wideband) and at a high tone it is small (narrowband). PM holds the index constant, so $\Delta f = m_p f_m$ *rises* with the tone. Consequently FM's bandwidth is roughly constant for a constant-amplitude message while PM's bandwidth grows with the derivative of the message. This is why FM is the practical choice for high-fidelity audio and why a phase modulator used for FM must be preceded by an integrator to correct the frequency response.
 

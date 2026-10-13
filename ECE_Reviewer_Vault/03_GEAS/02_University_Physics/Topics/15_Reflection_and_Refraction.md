@@ -11,7 +11,7 @@ prereqs: ["[[13_SHM_and_Waves]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 15 — Reflection and Refraction
@@ -33,9 +33,13 @@ $$n_1\sin\theta_1 = n_2\sin\theta_2$$
 $$\lambda_n = \lambda_0/n$$
 This is the fact that separates refraction from Doppler and from scattering, and it is why a red laser stays red underwater even though its wavelength changes by $33\%$.
 
-**Total internal reflection has two preconditions.** The ray must run from the denser medium to the less dense one ($n_1 > n_2$), and the incidence angle must exceed the critical angle $\theta_c = \sin^{-1}(n_2/n_1)$. At $\theta_c$ the refracted ray grazes along the interface at $90^\circ$; beyond it there is no transmitted ray at all, so the energy is entirely reflected. Water-to-air gives $\theta_c = 48.8^\circ$, glass-to-air about $41.8^\circ$. Reversed direction — air into glass — never gives total internal reflection, no matter how grazing the incidence, which is the single check the board tests.
+**Total internal reflection has two preconditions.** The ray must run from the denser medium to the less dense one ($n_1 > n_2$), and the incidence angle must exceed the critical angle $\theta_c = \sin^{-1}(n_2/n_1)$. At $\theta_c$ the refracted ray grazes along the interface at $90^\circ$; beyond it there is no transmitted ray at all, so the energy is entirely reflected. Water-to-air gives:
+$$\theta_c = 48.8^\circ$$
+glass-to-air about $41.8^\circ$. Reversed direction — air into glass — never gives total internal reflection, no matter how grazing the incidence, which is the single check the board tests.
 
-**Apparent position is a construction problem, and the simple formula has an assumption.** For an object seen from **directly above** a plane interface, the apparent depth is $h' = h(n_2/n_1)$ with $n_2$ the medium of the **observer**. For an observer in air looking down into water, $h' = h/n_{water}$, so a $3.00\ \mathrm{m}$ pool looks $2.26\ \mathrm{m}$ deep. Off-axis viewing needs Snell's law twice and gives a different (and angle-dependent) result, so the shortcut only applies near the normal.
+**Apparent position is a construction problem, and the simple formula has an assumption.** For an object seen from **directly above** a plane interface, the apparent depth is:
+$$h' = h(n_2/n_1)$$
+with $n_2$ the medium of the **observer**. For an observer in air looking down into water, $h' = h/n_{water}$, so a $3.00\ \mathrm{m}$ pool looks $2.26\ \mathrm{m}$ deep. Off-axis viewing needs Snell's law twice and gives a different (and angle-dependent) result, so the shortcut only applies near the normal.
 
 **A ray through a parallel slab comes out parallel but displaced.** The two refractions at a glass plate cancel in direction, not in position: the emerging ray is shifted sideways by the displacement:
 $$d = t\sin(\theta_1-\theta_2)/\cos\theta_2$$

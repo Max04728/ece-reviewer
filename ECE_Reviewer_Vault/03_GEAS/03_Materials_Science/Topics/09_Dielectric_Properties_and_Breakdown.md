@@ -11,7 +11,7 @@ prereqs: ["[[07_Energy_Bands_and_Classification]]"]
 tags: ["ece", "geas", "materials_science"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Dielectric Properties and Breakdown
@@ -26,11 +26,19 @@ updated: 2026-09-23
 
 **Four polarisation mechanisms, each with its own frequency ceiling.** **Electronic** polarisation is the displacement of the electron cloud relative to the nucleus; it is present in every material, is essentially instantaneous, and follows fields up to about $10^{15}\ \mathrm{Hz}$ (the ultraviolet). **Ionic** polarisation is the relative shift of cations and anions in an ionic crystal such as NaCl or mica; it is slower and dies out around $10^{13}\ \mathrm{Hz}$ (infrared). **Dipolar (orientational)** polarisation is the rotation of permanent molecular dipoles such as water; it is much slower because whole molecules must turn, contributing strongly up to about $10^{9}\ \mathrm{Hz}$ (microwave). **Interfacial (space-charge)** polarisation is the pile-up of charge at grain boundaries and electrode interfaces; it is the slowest of all, dominating only at low frequencies and often bringing large losses with it. The exam-relevant consequence is that a dielectric's permittivity is a *function of frequency*: water has $\varepsilon_r \approx 80$ at DC and only about 2 at optical frequencies, which is exactly why microwave ovens heat food (the dipoles follow at 2.45 GHz) while visible light passes through.
 
-**Permittivity, dielectric constant and what they actually do to a capacitor.** The absolute permittivity is $\varepsilon = \varepsilon_r\varepsilon_0$ with $\varepsilon_0 = 8.854\times10^{-12}\ \mathrm{F/m}$. Filling a parallel-plate capacitor with a dielectric multiplies its capacitance by $\varepsilon_r$:
+**Permittivity, dielectric constant and what they actually do to a capacitor.** The absolute permittivity is:
+$$\varepsilon = \varepsilon_r\varepsilon_0$$
+The free-space value is:
+$$\varepsilon_0 = 8.854\times10^{-12}\ \mathrm{F/m}$$
+Filling a parallel-plate capacitor with a dielectric multiplies its capacitance by $\varepsilon_r$:
 $$C = \dfrac{\varepsilon_r\varepsilon_0A}{d}$$
 The physical origin is that the induced surface charge partially cancels the applied charge, so the field inside drops by $\varepsilon_r$ for the same free charge, and therefore the voltage drops — and since $C = Q/V$, capacitance rises. For a fixed *voltage* source, the extra charge the supply must deliver is the extra capacitance; for an isolated charged capacitor, inserting a dielectric lowers the stored energy by the factor $\varepsilon_r$ and pulls the plates together. **The dielectric strength is an entirely separate property from $\varepsilon_r$** — a material can have a high permittivity and a low breakdown field, and vice versa.
 
-**Dielectric loss and the loss tangent.** A real dielectric is not a perfect insulator, and its polarisation cannot follow the field instantaneously, so the current leads the voltage by $(90^\circ - \delta)$ instead of $90^\circ$. The loss tangent $\tan\delta = \dfrac{1}{\omega C R_p} = \dfrac{\varepsilon''}{\varepsilon'}$ is the ratio of the energy lost per cycle to the energy stored per cycle. It is small for a good insulator (polystyrene about $2\times10^{-4}$, PTFE about $2\times10^{-4}$) and large for a lossy one (water at microwave frequencies about 0.1, some ceramics at high temperature above 1). Power dissipated in a capacitor under sinusoidal excitation is $P = V^2\omega C\tan\delta$, so loss matters most at high frequency, high voltage and high capacitance. The loss also produces heating, which raises $\tan\delta$ further — the classic thermal-runaway mechanism in a high-voltage cable or a power capacitor.
+**Dielectric loss and the loss tangent.** A real dielectric is not a perfect insulator, and its polarisation cannot follow the field instantaneously, so the current leads the voltage by $(90^\circ - \delta)$ instead of $90^\circ$. The loss tangent is the ratio of the energy lost per cycle to the energy stored per cycle:
+$$\tan\delta = \dfrac{1}{\omega C R_p} = \dfrac{\varepsilon''}{\varepsilon'}$$
+It is small for a good insulator (polystyrene about $2\times10^{-4}$, PTFE about $2\times10^{-4}$) and large for a lossy one (water at microwave frequencies about 0.1, some ceramics at high temperature above 1). Power dissipated in a capacitor under sinusoidal excitation is:
+$$P = V^2\omega C\tan\delta$$
+so loss matters most at high frequency, high voltage and high capacitance. The loss also produces heating, which raises $\tan\delta$ further — the classic thermal-runaway mechanism in a high-voltage cable or a power capacitor.
 
 **Breakdown: what actually fails, and why thin samples fail sooner.** Breakdown occurs when the field exceeds the **dielectric strength** $E_{bd}$ and a conducting path forms. Three mechanisms matter. **Intrinsic/electronic** breakdown is avalanche ionisation of the lattice, giving the highest theoretical strength and depending only on the material. **Thermal** breakdown is the runaway where loss heating outpaces heat removal, so it depends on frequency, ambient temperature and how the sample is mounted. **Discharge** breakdown is partial discharge in voids and at edges, which erodes the material gradually and is the practical failure mode of high-voltage insulation. Practical strength also falls as the sample gets thinner (a 1 mm sheet of a polymer is much weaker per unit length than a 0.1 mm film), falls with temperature, and falls with moisture. Typical values to carry into an exam: air $3\ \mathrm{MV/m}$, transformer oil $12\ \mathrm{MV/m}$, polyethylene $20\ \mathrm{MV/m}$, mica $50\ \mathrm{MV/m}$, and the ceramic barium titanate about $5$–$10\ \mathrm{MV/m}$ despite its very high $\varepsilon_r$.
 

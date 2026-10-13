@@ -11,7 +11,7 @@ prereqs: ["[[02_Power_Spectral_Density]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — Information Theory and Entropy
@@ -24,13 +24,23 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Information is surprise. A message you expected carries almost nothing; a message that was very unlikely carries a lot. Entropy is the average surprise per symbol, and no code can, on average, use fewer bits than that.
 
-**Self-information.** The information content of a single event of probability $p$ is $I = \log_2(1/p)$ bits. The logarithm is forced by three requirements: information must be non-negative, an event with $p = 1$ must carry zero information, and the information from two independent events must add while their probabilities multiply. Only a logarithm turns multiplication into addition. A fair coin's outcome carries exactly 1 bit; an event with probability $1/256$ carries 8 bits, which is why a uniformly random byte carries 8 bits.
+**Self-information.** The information content of a single event of probability $p$ is:
+$$I = \log_2(1/p)$$
+bits. The logarithm is forced by three requirements: information must be non-negative, an event with $p = 1$ must carry zero information, and the information from two independent events must add while their probabilities multiply. Only a logarithm turns multiplication into addition. A fair coin's outcome carries exactly 1 bit; an event with probability $1/256$ carries 8 bits, which is why a uniformly random byte carries 8 bits.
 
-**Entropy.** The *average* information per source symbol is the entropy $H = \sum_i p_i \log_2(1/p_i) = -\sum_i p_i \log_2 p_i$ bits per symbol. It is maximized when all $N$ symbols are equally likely, giving $H_{max} = \log_2 N$, and it is zero when one symbol has probability 1 (the source is deterministic and carries no information). Entropy measures the source's *irreducible* content: it is the average number of yes/no questions needed to identify a symbol, and Shannon's source coding theorem says no lossless code can beat it on average.
+**Entropy.** The *average* information per source symbol is the entropy, in bits per symbol:
+$$H = \sum_i p_i \log_2(1/p_i) = -\sum_i p_i \log_2 p_i$$
+It is maximized when all $N$ symbols are equally likely, giving $H_{max} = \log_2 N$, and it is zero when one symbol has probability 1 (the source is deterministic and carries no information). Entropy measures the source's *irreducible* content: it is the average number of yes/no questions needed to identify a symbol, and Shannon's source coding theorem says no lossless code can beat it on average.
 
-**Working with the numbers.** Two conventions dominate calculations. For probabilities that are powers of two the arithmetic is exact: a source with probabilities $1/2, 1/4, 1/8, 1/8$ has $H = 0.5(1) + 0.25(2) + 0.125(3) + 0.125(3) = 1.75$ bits. For general probabilities you need base conversion, $\log_2 p = \ln p/\ln 2 = 3.3219\log_{10} p$, and it is worth remembering $\log_2 3 = 1.585$, $\log_2 10 = 3.322$ and $\log_2 e = 1.443$. Binary entropy for a two-symbol source peaks at 1 bit when $p = 0.5$ and falls symmetrically to 0 at both extremes.
+**Working with the numbers.** Two conventions dominate calculations. For probabilities that are powers of two the arithmetic is exact: a source with probabilities $1/2, 1/4, 1/8, 1/8$ has an entropy in bits of:
+$$H = 0.5(1) + 0.25(2) + 0.125(3) + 0.125(3) = 1.75$$
+For general probabilities you need base conversion:
+$$\log_2 p = \ln p/\ln 2 = 3.3219\log_{10} p$$
+and it is worth remembering $\log_2 3 = 1.585$, $\log_2 10 = 3.322$ and $\log_2 e = 1.443$. Binary entropy for a two-symbol source peaks at 1 bit when $p = 0.5$ and falls symmetrically to 0 at both extremes.
 
-**Information rate and coding efficiency.** If the source emits $r_s$ symbols per second, the information rate is $R = H \cdot r_s$ bits per second. When a code assigns an average of $L$ bits per symbol, the coding efficiency is $\eta = H/L$, bounded above by 1, and the *redundancy* is $1 - \eta$. Huffman and Shannon–Fano codes are both constructed from the symbol probabilities — Huffman is optimal for a given symbol set and always achieves $H \leq L < H+1$ — while fixed-length coding of $N$ symbols uses $\lceil\log_2 N\rceil$ bits and wastes $\lceil\log_2 N\rceil - H$ bits per symbol. That waste is the compression opportunity.
+**Information rate and coding efficiency.** If the source emits $r_s$ symbols per second, the information rate is:
+$$R = H \cdot r_s$$
+bits per second. When a code assigns an average of $L$ bits per symbol, the coding efficiency is $\eta = H/L$, bounded above by 1, and the *redundancy* is $1 - \eta$. Huffman and Shannon–Fano codes are both constructed from the symbol probabilities — Huffman is optimal for a given symbol set and always achieves $H \leq L < H+1$ — while fixed-length coding of $N$ symbols uses $\lceil\log_2 N\rceil$ bits and wastes $\lceil\log_2 N\rceil - H$ bits per symbol. That waste is the compression opportunity.
 
 **Why entropy matters to a communications engineer.** It sets the floor for source coding (how few bits the data can be squeezed into) just as Shannon's channel capacity sets the ceiling for channel coding (how many bits the channel can carry reliably). Compression plus error control is the whole architecture of a modern link: remove the redundancy the source does not need, then add back the redundancy the channel does need. Entropy also appears in mutual information $I(X;Y) = H(X) - H(X|Y)$, which is maximized — and equals capacity — when the input distribution is chosen correctly.
 

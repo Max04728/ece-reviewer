@@ -11,7 +11,7 @@ prereqs: ["[[07_Laplace_Transform_Pairs]]", "[[08_Shifting_Theorems_and_Properti
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Inverse Laplace and Partial Fractions
@@ -28,7 +28,9 @@ updated: 2026-09-23
 $$s^{2} + 2as + (a^{2}+b^{2}) = (s+a)^{2} + b^{2}$$
 after which the numerator is rewritten as a multiple of $(s+a)$ plus a constant, because only those two shapes have table entries.
 
-**The residue shortcut is the fastest correct method for simple poles.** If $F(s) = N(s)/D(s)$ has simple zeros of $D$ at $-p_k$, the coefficient of $1/(s+p_k)$ is $A_k = (s+p_k)F(s)$ evaluated at $s = -p_k$, which for a product denominator equals $N(-p_k)/D'(-p_k)$. This is a one-line evaluation that never needs simultaneous equations, and it is exactly the residue of $F$ at that pole. It fails for repeated poles: the coefficient of the highest power $(s+p_k)^{-m}$ still uses the same multiplication trick, but every lower power needs a successive derivative of that product, which is where most board-exam algebra errors are born.
+**The residue shortcut is the fastest correct method for simple poles.** If $F(s) = N(s)/D(s)$ has simple zeros of $D$ at $-p_k$, the coefficient of $1/(s+p_k)$ is:
+$$A_k = (s+p_k)F(s)$$
+evaluated at $s = -p_k$, which for a product denominator equals $N(-p_k)/D'(-p_k)$. This is a one-line evaluation that never needs simultaneous equations, and it is exactly the residue of $F$ at that pole. It fails for repeated poles: the coefficient of the highest power $(s+p_k)^{-m}$ still uses the same multiplication trick, but every lower power needs a successive derivative of that product, which is where most board-exam algebra errors are born.
 
 **Improper fractions must be divided before anything else.** Partial fractions are only valid for a strictly proper rational function, so when the numerator degree is greater than or equal to the denominator degree, do the polynomial long division first and invert the polynomial part separately. A surviving constant inverts to a Dirac impulse $\delta(t)$ and a surviving $s$ to $\delta'(t)$, terms that are silently dropped when the decomposition is started too early; the initial-value check $f(0^{+}) = \lim_{s\to\infty}sF(s)$ catches that omission in one line. When $F$ arrives as a product of two known transforms, the convolution theorem converts the inversion into one integral instead of an algebraic decomposition, and it is the only practical route when the factors are not polynomials in a convenient form.
 

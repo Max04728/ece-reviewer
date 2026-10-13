@@ -11,7 +11,7 @@ prereqs: ["[[01_Antiderivatives_and_Standard_Forms]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Partial Fractions

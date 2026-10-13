@@ -11,7 +11,7 @@ prereqs: ["[[10_BPSK_and_QPSK]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — Matched Filter and Optimum Detection
@@ -28,11 +28,15 @@ updated: 2026-09-23
 
 **The matched filter response.** For a known signal $s(t)$ of finite duration $T$ in white noise of two-sided density $N_0/2$, the filter that maximizes output SNR at $t = T$ has impulse response $h(t) = s(T - t)$ — a time-reversed, delayed copy of the signal. Its frequency response is the complex conjugate of the signal spectrum, $H(f) = S^*(f)e^{-j2\pi f T}$, which is where the name comes from. The filter is therefore *matched* to the pulse shape, not chosen for bandwidth.
 
-**The peak SNR result.** With matched filtering the output at the sampling instant equals the signal energy $E = \int_0^T s^2(t)\,dt$, and the maximum achievable output signal-to-noise ratio is $\mathrm{SNR}_{max} = \dfrac{2E}{N_0}$. Two consequences matter: the SNR depends only on the *energy* of the pulse, not on its shape or duration, and it degrades gracefully with noise density. Doubling the pulse energy raises the output SNR by 3 dB, which is exactly what one expects.
+**The peak SNR result.** With matched filtering the output at the sampling instant equals the signal energy $E = \int_0^T s^2(t)\,dt$, and the maximum achievable output signal-to-noise ratio is:
+$$\mathrm{SNR}_{max} = \dfrac{2E}{N_0}$$
+Two consequences matter: the SNR depends only on the *energy* of the pulse, not on its shape or duration, and it degrades gracefully with noise density. Doubling the pulse energy raises the output SNR by 3 dB, which is exactly what one expects.
 
 **Integrate-and-dump as the practical case.** For a rectangular pulse of amplitude $A$ and duration $T$, the matched filter is a simple integrator over one symbol period followed by a reset — an *integrate-and-dump* detector. Its output at the end of the symbol is $AT$, so a comparator against a threshold at zero decides between $+A$ and $-A$ signalling. It is the cheapest possible matched filter and appears in every textbook BER derivation.
 
-**From SNR to BER.** In antipodal signalling the decision statistic is Gaussian with mean $\pm E$ and variance $N_0E/2$, so the decision is wrong when the noise exceeds $E$ in magnitude. Evaluating that tail gives $P_e = Q\!\left(\sqrt{2E_b/N_0}\right)$ — the BPSK result, now justified from the receiver's point of view: the matched filter is *why* BPSK achieves that curve, and any other filter does worse. For orthogonal signalling such as non-coherent FSK, the corresponding expression loses roughly 3 dB.
+**From SNR to BER.** In antipodal signalling the decision statistic is Gaussian with mean $\pm E$ and variance $N_0E/2$, so the decision is wrong when the noise exceeds $E$ in magnitude. Evaluating that tail gives:
+$$P_e = Q\!\left(\sqrt{2E_b/N_0}\right)$$
+— the BPSK result, now justified from the receiver's point of view: the matched filter is *why* BPSK achieves that curve, and any other filter does worse. For orthogonal signalling such as non-coherent FSK, the corresponding expression loses roughly 3 dB.
 
 **What to watch for in exam questions.** The matched filter is a *receiver* concept: it does not change the transmitted spectrum or bandwidth, so questions that ask about occupied bandwidth are answered by the pulse shape, not the filter. The peak SNR $2E/N_0$ is often confused with $E/N_0$, a factor-of-2 (3 dB) error, and the dependence on $N_0$ rather than $N_0/2$ is a persistent slip. Note also that $2E/N_0$ is a *power* ratio, so the dB conversion uses the 10-log form.
 

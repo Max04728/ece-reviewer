@@ -11,7 +11,7 @@ prereqs: ["[[01_Separation_of_Variables]]", "[[02_Algebraic_Substitution]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Homogeneous Equations and Substitutions
@@ -30,7 +30,11 @@ and $N(tx,ty)=t^{n}N(x,y)$. Dividing by $x^{n}$ then leaves a right-hand side th
 $$\frac{dy}{dx}=f\!\left(\frac{y}{x}\right)$$
 Equivalently, every term must have the same total degree in $x$ and $y$ — $x^2+y^2$ and $xy$ both have degree 2, so $\frac{dy}{dx}=\frac{x^2+y^2}{2xy}$ is homogeneous.
 
-**The substitution and the derivative that goes with it.** Put $y=vx$, so $v=y/x$ is the new unknown. Differentiating the product gives $\frac{dy}{dx}=v+x\frac{dv}{dx}$. Substituting into $\frac{dy}{dx}=f(v)$ gives $x\frac{dv}{dx}=f(v)-v$, which is **separable** in $v$ and $x$:
+**The substitution and the derivative that goes with it.** Put $y=vx$, so $v=y/x$ is the new unknown. Differentiating the product gives:
+$$\frac{dy}{dx}=v+x\frac{dv}{dx}$$
+Substituting into $\frac{dy}{dx}=f(v)$ gives:
+$$x\frac{dv}{dx}=f(v)-v$$
+which is **separable** in $v$ and $x$:
 $$\frac{dv}{f(v)-v}=\frac{dx}{x}$$
 This is the whole method — homogeneity guarantees that $x$ cancels out of the right-hand side, leaving the two variables separated.
 

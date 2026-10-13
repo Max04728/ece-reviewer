@@ -11,7 +11,7 @@ prereqs: ["[[01_Number_Systems_and_Base_Conversion]]"]
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Codes: BCD, Gray, ASCII, Parity
@@ -30,7 +30,9 @@ Ten of the sixteen four-bit patterns are legal; $1010$ through $1111$ are **inva
 
 **Gray code is unweighted and unit-distance.** Only one bit changes between consecutive codewords, so a mechanical or asynchronous transition can never produce a wildly wrong intermediate pattern. Binary $\to$ Gray is an XOR of adjacent bits:
 $$g_i = b_i\oplus b_{i+1}$$
-with the top bit copied, so $101101_2 \to 111011_{Gray}$. Gray $\to$ binary runs the same recurrence downward from the MSB: $b_{n-1}=g_{n-1}$ and $b_i = b_{i+1}\oplus g_i$, recovering $101101$. Gray code is used for rotary encoders, Karnaugh-map cell ordering, and asynchronous FIFO pointers. It is **not** a weighted code, so you cannot assign place values to its bits.
+with the top bit copied, so $101101_2 \to 111011_{Gray}$. Gray $\to$ binary runs the same recurrence downward from the MSB:
+$$b_{n-1}=g_{n-1}$$
+and $b_i = b_{i+1}\oplus g_i$, recovering $101101$. Gray code is used for rotary encoders, Karnaugh-map cell ordering, and asynchronous FIFO pointers. It is **not** a weighted code, so you cannot assign place values to its bits.
 
 **ASCII essentials.** Standard ASCII is a 7-bit code giving 128 characters; the eighth bit is usually parity or zero. Three anchor values carry most exam questions: the digits start at $\mathrm{'0'} = 0\times30 = 48$, uppercase letters start at $\mathrm{'A'} = 0\times41 = 65$, and lowercase letters start at $\mathrm{'a'} = 0\times61 = 97$. The uppercase and lowercase alphabets are separated by exactly $0\times20 = 32$, i.e. bit 5, so case conversion is a single bit flip. Control characters occupy $0\times00$–$0\times1\mathrm{F}$.
 

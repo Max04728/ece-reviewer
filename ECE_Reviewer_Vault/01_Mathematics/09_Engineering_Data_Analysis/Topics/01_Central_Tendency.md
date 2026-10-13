@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Central Tendency
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **Skew pulls the mean, not the median.** In a right-skewed (positively skewed) distribution a few large values drag the mean above the median: mean > median > mode. In a left-skewed distribution the few small values pull the mean below the median: mean < median < mode. The median is *resistant* to outliers; the mean is not. That single fact decides which average a question wants when it says 'typical' for income, house prices, or failure times.
 
-**Weighted and grouped data.** When observations carry different weights or arrive as a frequency table, the mean becomes $\bar x=\frac{\sum f_i x_i}{\sum f_i}$, where $x_i$ is the class midpoint for grouped data. The shortcut mean, with $d_i=x_i-A$ for a convenient assumed mean $A$, keeps the arithmetic small and is the form most textbooks present:
+**Weighted and grouped data.** When observations carry different weights or arrive as a frequency table, the mean becomes:
+$$\bar x=\frac{\sum f_i x_i}{\sum f_i}$$
+where $x_i$ is the class midpoint for grouped data. The shortcut mean, with $d_i=x_i-A$ for a convenient assumed mean $A$, keeps the arithmetic small and is the form most textbooks present:
 $$\bar x = A + \frac{\sum f_i d_i}{\sum f_i}$$
 
 **Median and mode for grouped data.** For grouped data the median is found by interpolation in the median class:

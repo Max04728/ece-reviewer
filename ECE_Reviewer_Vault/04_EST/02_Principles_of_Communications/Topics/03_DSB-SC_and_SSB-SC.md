@@ -11,7 +11,7 @@ prereqs: ["[[02_AM_Spectrum,_Bandwidth_and_Power]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — DSB-SC and SSB-SC
@@ -24,9 +24,13 @@ updated: 2026-09-23
 > [!tip] Intuition
 > The AM spectrum wastes a carrier that carries no information and duplicates the message in a mirrored sideband. Delete the carrier and you get DSB-SC; delete one sideband as well and you get SSB — half the bandwidth for a quarter of the power.
 
-**DSB-SC: keep both sidebands, kill the carrier.** Double-sideband suppressed carrier is $s(t) = A_c\,m(t)\cos\omega_c t$ — a plain product of the message and the carrier, with no DC term. The spectrum is the AM spectrum minus the carrier line: two sidebands, each with the full message spectrum, and nothing at $f_c$. The bandwidth is still $2W$. The point of deleting the carrier is power: at $m=1$ plain AM transmits $1.5P_c$ to deliver $0.5P_c$ of information, while DSB-SC transmits exactly that $0.5P_c$ — a 4.77 dB saving at equal information power. The price is demodulation: with no carrier in the received signal, the envelope is $|m(t)|$, so a diode detector rectifies and folds the message instead of recovering it.
+**DSB-SC: keep both sidebands, kill the carrier.** Double-sideband suppressed carrier is:
+$$s(t) = A_c\,m(t)\cos\omega_c t$$
+— a plain product of the message and the carrier, with no DC term. The spectrum is the AM spectrum minus the carrier line: two sidebands, each with the full message spectrum, and nothing at $f_c$. The bandwidth is still $2W$. The point of deleting the carrier is power: at $m=1$ plain AM transmits $1.5P_c$ to deliver $0.5P_c$ of information, while DSB-SC transmits exactly that $0.5P_c$ — a 4.77 dB saving at equal information power. The price is demodulation: with no carrier in the received signal, the envelope is $|m(t)|$, so a diode detector rectifies and folds the message instead of recovering it.
 
-**DSB-SC detection and generation.** Detection requires a **product detector**: multiply the received signal by a locally generated carrier of the same frequency and phase, then lowpass. If the local carrier is $\cos(\omega_c t+\phi)$, the output is $\tfrac{1}{2}m(t)\cos\phi$ plus a double-frequency term that the lowpass removes. A phase error therefore scales the output by $\cos\phi$ and, at $\phi = 90^\circ$, destroys it entirely (the **quadrature null**); a frequency error makes the output fade in and out at the difference frequency. Generation is by a **balanced modulator**, typically two AM modulators driven in antiphase so that the carrier cancels at the output, or a ring modulator, which is the same idea implemented with diodes and a transformer. Carrier suppression of 40–50 dB is routine, which is why the residual carrier in a real DSB-SC signal is measured in milliwatts.
+**DSB-SC detection and generation.** Detection requires a **product detector**: multiply the received signal by a locally generated carrier of the same frequency and phase, then lowpass. If the local carrier is $\cos(\omega_c t+\phi)$, the output is:
+$$\tfrac{1}{2}m(t)\cos\phi$$
+plus a double-frequency term that the lowpass removes. A phase error therefore scales the output by $\cos\phi$ and, at $\phi = 90^\circ$, destroys it entirely (the **quadrature null**); a frequency error makes the output fade in and out at the difference frequency. Generation is by a **balanced modulator**, typically two AM modulators driven in antiphase so that the carrier cancels at the output, or a ring modulator, which is the same idea implemented with diodes and a transformer. Carrier suppression of 40–50 dB is routine, which is why the residual carrier in a real DSB-SC signal is measured in milliwatts.
 
 **SSB-SC: one sideband only.** Since the upper and lower sidebands carry identical information, transmitting only one halves the bandwidth to $W$ and halves the power again to $P_c m^2/4$ at $m=1$. Relative to 100 percent AM, SSB therefore needs a quarter of the power (an 83.3 percent saving, 7.78 dB) and half the bandwidth. This double saving is why SSB is the standard voice mode for HF radio, marine and aeronautical service, and point-to-point links: it packs twice as many channels into a band and concentrates the transmitter's power into the one sideband that will actually be received. The peak-to-average ratio of an SSB signal is high (voice peaks greatly exceed the average), so SSB transmitters are rated in **peak envelope power (PEP)** and must use linear amplifiers.
 

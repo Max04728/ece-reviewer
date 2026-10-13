@@ -11,7 +11,7 @@ prereqs: ["[[06_Poisson_and_Hypergeometric_Distributions]]"]
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Uniform and Exponential Distributions
@@ -26,13 +26,23 @@ updated: 2026-09-23
 
 **Uniform distribution.** Over $[a,b]$ the density is the constant $f(x)=\frac{1}{b-a}$, and probability is simply length over total length:
 $$P(c<X<d)=\frac{d-c}{b-a}$$
-The mean is the interval midpoint $\frac{a+b}{2}$ and the variance is $\frac{(b-a)^{2}}{12}$. The $1/12$ catches people out — it is not $1/2$ or $1/4$.
+The mean is the interval midpoint $\frac{a+b}{2}$ and the variance is:
+$$\frac{(b-a)^{2}}{12}$$
+The $1/12$ catches people out — it is not $1/2$ or $1/4$.
 
-**Exponential distribution.** With mean $\beta$, the density is $f(x)=\frac{1}{\beta}e^{-x/\beta}$ for $x\ge0$, or equivalently $f(x)=\lambda e^{-\lambda x}$ with rate $\lambda=\frac{1}{\beta}$. The CDF is $F(x)=1-e^{-x/\beta}$, so $P(X>x)=e^{-x/\beta}$ and the survival probability is the *only* thing you need to compute. Mean $=\beta$, variance $=\beta^{2}$, standard deviation $=\beta$ — the mean and standard deviation are equal, which is a quick identification test.
+**Exponential distribution.** With mean $\beta$, the density is:
+$$f(x)=\frac{1}{\beta}e^{-x/\beta}$$
+for $x\ge0$, or equivalently $f(x)=\lambda e^{-\lambda x}$ with rate $\lambda=\frac{1}{\beta}$. The CDF is:
+$$F(x)=1-e^{-x/\beta}$$
+so $P(X>x)=e^{-x/\beta}$ and the survival probability is the *only* thing you need to compute. Mean $=\beta$, variance $=\beta^{2}$, standard deviation $=\beta$ — the mean and standard deviation are equal, which is a quick identification test.
 
 **The memoryless property.** $P(X>s+t\mid X>s)=P(X>t)=e^{-t/\beta}$. Used components are not 'due' for failure; the remaining life has the same distribution as a new component's life. This is exactly the geometric distribution translated to continuous time, and it is the reason exponential models are used for random (not wear-out) failures.
 
-**Percentiles and the median.** Solve $F(x)=p$: $x_p=-\beta\ln(1-p)$. The median is $\beta\ln2\approx0.693\beta$, always below the mean — a signature of the right skew. The 90th percentile is $2.303\beta$, the 95th is $3.0\beta$, and the 63.2nd percentile is $\beta$ itself.
+**Percentiles and the median.** Solve $F(x)=p$:
+$$x_p=-\beta\ln(1-p)$$
+The median is:
+$$\beta\ln2\approx0.693\beta$$
+always below the mean — a signature of the right skew. The 90th percentile is $2.303\beta$, the 95th is $3.0\beta$, and the 63.2nd percentile is $\beta$ itself.
 
 **Relation to the Poisson.** If events occur as a Poisson process with rate $\lambda$ events per unit time, the *count* in a fixed interval is Poisson$(\lambda t)$ and the *waiting time* between events is exponential with mean $1/\lambda$. The two distributions are the same process viewed two ways, and exam questions frequently mix them in one problem.
 

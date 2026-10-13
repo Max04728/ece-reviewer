@@ -11,7 +11,7 @@ prereqs: ["[[09_FM_Noise_and_Threshold_Effect]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Pre-Emphasis and De-Emphasis
@@ -24,13 +24,17 @@ updated: 2026-09-23
 > [!tip] Intuition
 > The noise at an FM discriminator output gets louder as the audio frequency rises, so broadcasters turn the treble UP before transmitting and turn it back DOWN after receiving. The audio comes back exactly as it was, but the treble noise that arrived with it is now attenuated.
 
-**The problem the networks solve.** FM's post-discriminator noise density rises as $f^2$ (triangular noise), so the signal-to-noise ratio near the top of the audio band is far worse than near the bottom — the noise power in the full $0$–$15\ \mathrm{kHz}$ band is $(15/1)^3 = 3375$ times that of the first kilohertz. Simply filtering off the treble at the receiver would fix the noise but also remove the music. Pre-emphasis and de-emphasis exploit the fact that the *audio spectrum is not flat*: a modest boost of the treble at the transmitter can be undone exactly at the receiver, and the noise that accompanied the boosted treble is cut down with it.
+**The problem the networks solve.** FM's post-discriminator noise density rises as $f^2$ (triangular noise), so the signal-to-noise ratio near the top of the audio band is far worse than near the bottom — the noise power in the full $0$–$15\ \mathrm{kHz}$ band is:
+$$(15/1)^3 = 3375$$
+times that of the first kilohertz. Simply filtering off the treble at the receiver would fix the noise but also remove the music. Pre-emphasis and de-emphasis exploit the fact that the *audio spectrum is not flat*: a modest boost of the treble at the transmitter can be undone exactly at the receiver, and the noise that accompanied the boosted treble is cut down with it.
 
 **The networks.** Pre-emphasis is a simple RC high-pass in the transmitter's audio path whose response is flat below $f_c = \frac{1}{2\pi\tau}$ and rises at 6 dB per octave above it. De-emphasis is the mirror image: an RC low-pass in the receiver with the *same* time constant, flat below $f_c$ and falling at 6 dB per octave above it. The two responses multiply to a constant, so the recovered audio is flat — but the noise, which entered the channel after the pre-emphasis, only sees the de-emphasis roll-off. The standard time constants are $75\ \mu\mathrm{s}$ (the Americas and Korea, corner at $2.12\ \mathrm{kHz}$), $50\ \mu\mathrm{s}$ (ITU/Europe, corner at $3.18\ \mathrm{kHz}$) and $25\ \mu\mathrm{s}$ for a few services. Mismatched time constants at the two ends colour the audio: a receiver with $50\ \mu\mathrm{s}$ de-emphasis on a $75\ \mu\mathrm{s}$ transmission sounds thin and bright.
 
 **How much SNR is recovered.** Integrating the triangular noise with and without the de-emphasis response over $0$–$f_m$ gives the improvement factor as this ratio:
 $$\dfrac{f_m^3/3}{f_c^2\left[f_m-f_c\arctan(f_m/f_c)\right]}$$
-For $75\ \mu\mathrm{s}$ and $f_m = 15\ \mathrm{kHz}$ the numbers are $f_c = 2.12\ \mathrm{kHz}$ and the ratio comes to about $20.9$, i.e. **13.2 dB** — which is why a practical broadcast FM receiver's quoted SNR is so much better than the flat $1.5\beta^2$ estimate. Because de-emphasis attenuates 15 kHz by about 17 dB relative to the flat region, and the noise density at 15 kHz is 225 times (23.5 dB) that at 1 kHz, the trade is strongly favourable for FM.
+For $75\ \mu\mathrm{s}$ and $f_m = 15\ \mathrm{kHz}$ the numbers are:
+$$f_c = 2.12\ \mathrm{kHz}$$
+and the ratio comes to about $20.9$, i.e. **13.2 dB** — which is why a practical broadcast FM receiver's quoted SNR is so much better than the flat $1.5\beta^2$ estimate. Because de-emphasis attenuates 15 kHz by about 17 dB relative to the flat region, and the noise density at 15 kHz is 225 times (23.5 dB) that at 1 kHz, the trade is strongly favourable for FM.
 
 **The cost: deviation headroom.** Pre-emphasis is not free. Boosting a 15 kHz component by 17 dB multiplies its amplitude by about 7.1, and since $\Delta f = k_fA_m$, the same treble content that produced 10 kHz of deviation flat now produces 71 kHz. Broadcasters therefore must back off the average audio level, or let a deviation limiter clip the boosted treble — which is why FM processors carefully combine pre-emphasis with limiting and why programme material with a lot of high-frequency energy (cymbals, sibilance) cannot reach the same loudness as bass-heavy material. The pre-emphasis network also raises the noise floor of the transmitter's own audio path at high frequency, so the audio chain must be quiet enough to survive the boost.
 

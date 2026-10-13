@@ -11,7 +11,7 @@ prereqs: ["[[04_Mole_Concept_and_Stoichiometry]]"]
 tags: ["ece", "geas", "general_chemistry"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Solutions and Concentration Units
@@ -26,11 +26,19 @@ updated: 2026-09-23
 
 **Molarity is the working unit and it is temperature-dependent.** $M = n/V_{\mathrm{solution}}$ in litres. Because a solution expands when heated, its volume — and therefore its molarity — drifts with temperature, which is why volumetric glassware is calibrated at 20 °C or 25 °C. Molality avoids this by weighing the solvent instead, so all colligative data (freezing-point depression, boiling-point elevation, vapour-pressure lowering) is tabulated in molality. A 1.00 M aqueous solution is not 1.00 m unless the solution happens to weigh exactly 1.000 kg per litre, and for a concentrated solute it does not.
 
-**The percent family and ppm.** Mass percent, $\%w/w$, divides solute mass by SOLUTION mass: a 20.0% glucose solution is 20.0 g glucose in 100.0 g of solution, which means only 80.0 g of water. Volume percent, $\%v/v$, is used for liquid-in-liquid mixtures such as 95% ethanol. Mass-volume percent, $\%w/v$, is grams of solute per 100 mL of solution and is common in clinical contexts. Parts per million is a mass ratio, $10^6 \times m_{\mathrm{solute}}/m_{\mathrm{solution}}$; for dilute aqueous solutions 1 ppm is numerically equal to 1 mg/L because 1 L of water weighs about 1 kg, but that equivalence fails the moment the solvent is not water.
+**The percent family and ppm.** Mass percent, $\%w/w$, divides solute mass by SOLUTION mass: a 20.0% glucose solution is 20.0 g glucose in 100.0 g of solution, which means only 80.0 g of water. Volume percent, $\%v/v$, is used for liquid-in-liquid mixtures such as 95% ethanol. Mass-volume percent, $\%w/v$, is grams of solute per 100 mL of solution and is common in clinical contexts. Parts per million is a mass ratio. It is:
+$$10^6 \times m_{\mathrm{solute}}/m_{\mathrm{solution}}$$
+For dilute aqueous solutions 1 ppm is numerically equal to 1 mg/L because 1 L of water weighs about 1 kg, but that equivalence fails the moment the solvent is not water.
 
-**Mole fraction and normality.** Mole fraction $X_A = n_A/(n_A+n_B)$ is dimensionless and sums to 1 over all components; it is what Raoult's law and Dalton's law want. Normality is molarity scaled by the number of reactive equivalents per formula unit: $N = M \times n_{eq}$, where $n_{eq}$ counts $\mathrm{H^+}$ donated by an acid, $\mathrm{OH^-}$ donated by a base, or electrons exchanged in a redox reaction. That last case is why normality is treacherous — a single bottle of $\mathrm{KMnO_4}$ is 5 N per molar in acid medium but 3 N per molar in neutral or basic medium, so normality is a property of the reaction, not of the solution.
+**Mole fraction and normality.** Mole fraction $X_A = n_A/(n_A+n_B)$ is dimensionless and sums to 1 over all components; it is what Raoult's law and Dalton's law want. Normality is molarity scaled by the number of reactive equivalents per formula unit:
+$$N = M \times n_{eq}$$
+where $n_{eq}$ counts $\mathrm{H^+}$ donated by an acid, $\mathrm{OH^-}$ donated by a base, or electrons exchanged in a redox reaction. That last case is why normality is treacherous — a single bottle of $\mathrm{KMnO_4}$ is 5 N per molar in acid medium but 3 N per molar in neutral or basic medium, so normality is a property of the reaction, not of the solution.
 
-**Dilution, mixing, and the density bridge.** Dilution conserves moles, so $M_1V_1 = M_2V_2$ — the volume units cancel, meaning mL may be used on both sides as long as they match. Mixing two solutions of the same solute gives $M_f = (M_1V_1+M_2V_2)/(V_1+V_2)$, which assumes volumes are additive; real solutions contract slightly but the exam ignores it. Converting $\%w/w$ to molarity needs the density, because the percentage is per 100 g while molarity is per litre. The single expression $M = 10(\%w/w)\rho/M_{\mathrm{solute}}$ handles it, with $\rho$ in g/mL — and it is the formula that turns '98% sulfuric acid' into 18.4 M rather than a naive 10 M.
+**Dilution, mixing, and the density bridge.** Dilution conserves moles, so $M_1V_1 = M_2V_2$ — the volume units cancel, meaning mL may be used on both sides as long as they match. Mixing two solutions of the same solute gives:
+$$M_f = (M_1V_1+M_2V_2)/(V_1+V_2)$$
+which assumes volumes are additive; real solutions contract slightly but the exam ignores it. Converting $\%w/w$ to molarity needs the density, because the percentage is per 100 g while molarity is per litre. The single expression that handles it is:
+$$M = 10(\%w/w)\rho/M_{\mathrm{solute}}$$
+with $\rho$ in g/mL — and it is the formula that turns '98% sulfuric acid' into 18.4 M rather than a naive 10 M.
 
 **Preparation is part of the definition.** 'Dilute to 250.0 mL in a volumetric flask' and 'add 250.0 mL of water' produce different concentrations, because the solute occupies volume. The board tests this wording directly: a molarity problem that says 'dissolved in 250 mL of water' expects you to notice that the solution volume is larger than 250 mL and that the item is therefore unanswerable as stated, or it expects you to use the stated solution volume. Read the sentence, not the number.
 

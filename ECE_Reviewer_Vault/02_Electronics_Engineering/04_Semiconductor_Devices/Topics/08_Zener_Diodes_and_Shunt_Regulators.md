@@ -11,7 +11,7 @@ prereqs: ["[[04_Diode_Models_and_Load_Line]]", "[[07_Thevenin_and_Norton_Equival
 tags: ["ece", "electronics_engineering", "semiconductor_devices"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Zener Diodes and Shunt Regulators

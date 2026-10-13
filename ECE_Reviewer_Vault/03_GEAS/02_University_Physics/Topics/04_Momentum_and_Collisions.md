@@ -11,7 +11,7 @@ prereqs: ["[[02_Newton’s_Laws,_Friction_and_Circular_Motion]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Momentum and Collisions
@@ -30,11 +30,15 @@ Momentum is a vector, so a rebound changes the sign and the change is much large
 $$\Delta p = (0.145)(50 + 40) = 13.05\ \mathrm{kg\cdot m/s}$$
 This is not $(0.145)(10) = 1.45$. The same impulse delivered over a shorter contact time is a larger force, which is why airbags and crumple zones extend $\Delta t$: the momentum change is fixed by the crash, only the force is negotiable.
 
-**Conservation of momentum is a statement about an isolated system.** When no net *external* force acts, total momentum is constant: $\sum m_i\vec{v}_i$ before equals after. Internal forces - the collision itself - always cancel in pairs. Gravity and friction are external and spoil the conservation, so the rule is applied only during the brief collision, or along a direction (say horizontal) in which no external force acts. Momentum is conserved in *every* collision, elastic or not; only kinetic energy is selective.
+**Conservation of momentum is a statement about an isolated system.** When no net *external* force acts, total momentum is constant:
+$$\sum m_i\vec{v}_i$$
+before equals after. Internal forces - the collision itself - always cancel in pairs. Gravity and friction are external and spoil the conservation, so the rule is applied only during the brief collision, or along a direction (say horizontal) in which no external force acts. Momentum is conserved in *every* collision, elastic or not; only kinetic energy is selective.
 
 **Perfectly inelastic means they stick, and kinetic energy always drops.** The combined body moves at $v' = \frac{m_1v_1 + m_2v_2}{m_1 + m_2}$. The kinetic energy lost is:
 $$\Delta KE = \frac{1}{2}\frac{m_1m_2}{m_1+m_2}(v_1-v_2)^2$$
-This is the magnitude, signed negative when it is written as an energy loss, and it depends on the *relative* speed. In the special case of a moving mass striking a stationary one, the fraction lost is $\frac{m_2}{m_1+m_2}$, so an equal-mass sticking collision throws away exactly half the kinetic energy. That lost energy went into deformation, sound and heat - it is not 'missing'.
+This is the magnitude, signed negative when it is written as an energy loss, and it depends on the *relative* speed. In the special case of a moving mass striking a stationary one, the fraction lost is:
+$$\frac{m_2}{m_1+m_2}$$
+so an equal-mass sticking collision throws away exactly half the kinetic energy. That lost energy went into deformation, sound and heat - it is not 'missing'.
 
 **Elastic collisions conserve both momentum and kinetic energy, and that extra equation is what you solve.** For 1D motion with $v_2$ initially zero:
 $$v_1' = \frac{m_1-m_2}{m_1+m_2}v_1$$

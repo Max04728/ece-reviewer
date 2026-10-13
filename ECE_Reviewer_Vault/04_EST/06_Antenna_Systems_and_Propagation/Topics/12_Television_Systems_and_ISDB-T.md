@@ -11,7 +11,7 @@ prereqs: ["[[06_FSPL_and_Friis_Transmission_Equation]]", "[[08_Space_Wave_and_Ra
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Television Systems and ISDB-T
@@ -32,7 +32,9 @@ Of those parts, 13 are active segments (nominal 432 kHz each) and the remainder 
 $$13 \times 428.6\ \mathrm{kHz} = 5.57\ \mathrm{MHz}$$
 not 6 MHz. Each segment independently chooses QPSK, 16-QAM or 64-QAM and a convolutional inner code rate (1/2, 2/3, 3/4, 5/6, 7/8) with an outer Reed–Solomon code, and the parameters can differ segment by segment — that layered structure is the whole point of the standard. **1seg** is the centre segment (segment 0), roughly 430 kHz wide, using DQPSK for a rugged partial-reception mode aimed at handheld and mobile receivers; the remaining 12 segments carry HDTV/SDTV. An OFDM guard interval of 1/4, 1/8, 1/16 or 1/32 of the useful symbol (1/8 typical) absorbs multipath echoes. Video is an MPEG-2 transport stream carrying H.264/AVC; audio is AAC.
 
-**The NTSC-M analog reference.** 525 lines per frame, 2:1 interlace, 60 fields/s, 30 frames/s (29.97 in colour), giving a horizontal line rate of $525 \times 29.97 = 15734\ \mathrm{Hz}$. Video is limited to 4.2 MHz and transmitted as **vestigial sideband** (VSB) in a 6 MHz channel, with a 1.25 MHz vestige retained below the picture carrier; the FM aural carrier sits 4.5 MHz above the picture carrier. VHF-low channel 2 occupies 54–60 MHz (picture carrier 55.25 MHz), so the picture carrier of channel $n$ on VHF-low is $f_v = 55.25 + 6(n-2)\ \mathrm{MHz}$; channel 7 is 174–180 MHz, channel 13 is 210–216 MHz, and UHF channel 14 is 470–476 MHz. PAL/CCIR (625 lines, 50 fields/s, 5.0–6.0 MHz video) uses 8 MHz channels — never mix the two line/field counts in one problem. Coverage questions then reuse the Friis machinery, starting from the wavelength:
+**The NTSC-M analog reference.** 525 lines per frame, 2:1 interlace, 60 fields/s, 30 frames/s (29.97 in colour), giving a horizontal line rate of $525 \times 29.97 = 15734\ \mathrm{Hz}$. Video is limited to 4.2 MHz and transmitted as **vestigial sideband** (VSB) in a 6 MHz channel, with a 1.25 MHz vestige retained below the picture carrier; the FM aural carrier sits 4.5 MHz above the picture carrier. VHF-low channel 2 occupies 54–60 MHz (picture carrier 55.25 MHz), so the picture carrier of channel $n$ on VHF-low is:
+$$f_v = 55.25 + 6(n-2)\ \mathrm{MHz}$$
+channel 7 is 174–180 MHz, channel 13 is 210–216 MHz, and UHF channel 14 is 470–476 MHz. PAL/CCIR (625 lines, 50 fields/s, 5.0–6.0 MHz video) uses 8 MHz channels — never mix the two line/field counts in one problem. Coverage questions then reuse the Friis machinery, starting from the wavelength:
 $$\lambda(\mathrm{m}) = 300/f(\mathrm{MHz})$$
 The free-space loss at VHF/UHF then follows.
 

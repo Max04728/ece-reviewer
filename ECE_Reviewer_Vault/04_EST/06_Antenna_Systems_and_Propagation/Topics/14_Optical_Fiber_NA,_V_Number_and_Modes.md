@@ -11,7 +11,7 @@ prereqs: ["[[08_Waveguide_TE_and_TM_Modes]]", "[[09_Cutoff_Frequency_and_Guide_W
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — Optical Fiber NA, V Number and Modes
@@ -30,7 +30,11 @@ updated: 2026-09-23
 
 **The V number (normalized frequency) controls the mode count.** It is defined as $V = (2\pi a/\lambda)NA$, where $a$ is the **core radius**, not the diameter, and $\lambda$ is the **free-space** wavelength (not $\lambda/n_1$). V is dimensionless: it measures the core radius in units of wavelength scaled by the funnel's light-gathering power. A fat core, a short wavelength or a large NA all raise V. The single-mode condition is $V < 2.405$, the first zero of the Bessel function $J_0$: below that value only the fundamental $LP_{01}$ mode is guided. Turning the inequality around gives the single-mode cutoff wavelength $\lambda_c = 2\pi a NA/2.405$ — the fiber is single-mode for $\lambda > \lambda_c$ (longer wavelength, smaller V) and multimode below it. That is why 1310 nm and 1550 nm operation is single-mode in a standard 8–10 µm core while 850 nm operation in the same fiber would not be.
 
-**Counting modes.** For a step-index fiber with V well above cutoff, the number of guided modes (counting both polarisations) is $M \approx V^2/2$; for a parabolic graded-index profile it is $M \approx V^2/4$, which is the general result $M \approx (V^2/2)\,\alpha/(\alpha+2)$ with $\alpha = 2$ for graded and $\alpha \to \infty$ for step. The count matters because each mode travels a slightly different path length and arrives at a different time: $M$ is the direct driver of modal dispersion, and cutting it by a factor of four (graded versus step index) is precisely why graded-index multimode fiber supports orders of magnitude more bandwidth over the same distance.
+**Counting modes.** For a step-index fiber with V well above cutoff, the number of guided modes (counting both polarisations) is:
+$$M \approx V^2/2$$
+for a parabolic graded-index profile it is:
+$$M \approx V^2/4$$
+which is the general result $M \approx (V^2/2)\,\alpha/(\alpha+2)$ with $\alpha = 2$ for graded and $\alpha \to \infty$ for step. The count matters because each mode travels a slightly different path length and arrives at a different time: $M$ is the direct driver of modal dispersion, and cutting it by a factor of four (graded versus step index) is precisely why graded-index multimode fiber supports orders of magnitude more bandwidth over the same distance.
 
 **Where the model breaks.** The V-number formulas assume a weakly guiding fiber ($n_1 \approx n_2$, small $\Delta$), a straight fiber and an infinite cladding. A large $\Delta$ (high-NA, hard-clad plastic fiber) invalidates the small-$\Delta$ NA approximation. Tight bends and microbends convert core modes to cladding/radiation modes, so a fiber can meet its V-number single-mode condition and still leak. And at $V$ just below 2.405 the fiber is not "single-mode with margin" — it is on the edge, where bend loss and splicing tolerances are worst.
 

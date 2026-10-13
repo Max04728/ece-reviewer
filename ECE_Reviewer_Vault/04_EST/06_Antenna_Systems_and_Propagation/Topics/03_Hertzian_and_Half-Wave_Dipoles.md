@@ -11,7 +11,7 @@ prereqs: ["[[01_Antenna_Parameters_Directivity,_Gain,_EIRP]]", "[[02_Radiation_R
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Hertzian and Half-Wave Dipoles
@@ -34,13 +34,19 @@ A resistance of a fraction of an ohm in series with even $1\ \Omega$ of conducto
 
 **The half-wave dipole and why $l = 0.475\lambda$, not $0.5\lambda$.** On a real centre-fed element the current must fall to zero at each open end, so it follows a half sinusoid and is maximum at the feed. Recomputing the radiation integral with that sinusoidal current changes the numbers:
 $$R_\mathrm{rad} = 73\ \Omega$$
-and $D = 1.64 = 2.15\ \mathrm{dBi}$, slightly more directive than the Hertzian $1.5$ because the tapered current effectively weights the middle of the element where the contributions add most usefully. The feed impedance is $Z = 73 + j42.5\ \Omega$ at *exactly* $\lambda/2$ — it is not resonant there, because a thick cylinder does not behave like an ideal thin wire. Resonance (zero reactance) occurs near $0.475\lambda$, so the practical cut length is about $0.48\lambda$. The rule of thumb: fatter wire or tubing pulls the resonant length down toward $0.47\lambda$, thinner wire pushes it up toward a full $0.5\lambda$.
+and $D = 1.64 = 2.15\ \mathrm{dBi}$, slightly more directive than the Hertzian $1.5$ because the tapered current effectively weights the middle of the element where the contributions add most usefully. The feed impedance is:
+$$Z = 73 + j42.5\ \Omega$$
+at *exactly* $\lambda/2$ — it is not resonant there, because a thick cylinder does not behave like an ideal thin wire. Resonance (zero reactance) occurs near $0.475\lambda$, so the practical cut length is about $0.48\lambda$. The rule of thumb: fatter wire or tubing pulls the resonant length down toward $0.47\lambda$, thinner wire pushes it up toward a full $0.5\lambda$.
 
 **Getting the length from the frequency.** The design chain is fixed: $\lambda = c/f$, then $l = 0.475\lambda = 0.475c/f$ for a resonant half-wave element. At $100\ \mathrm{MHz}$, $\lambda = 3\ \mathrm{m}$ and the cut length is $1.425\ \mathrm{m}$ — a nominal half-wave of $1.5\ \mathrm{m}$ shortened by the end effect. Exam questions frequently quote the naive $\lambda/2 = 1.5\ \mathrm{m}$ and expect you to catch the $0.475$ factor; the acronym some reviewers use for it ($K$) is a memorisation aid, not physics.
 
-**Far field, power density and the $377\ \Omega$ link.** The far field of any dipole is transverse, and in free space it is tied to the power density by $S = E^2/\eta_0$ with $\eta_0 = 377\ \Omega$. For a half-wave dipole the peak far field is $E = 60 I_0 F(\theta)/d$ with $I_0$ the *loop* (maximum) current; the pattern factor is:
+**Far field, power density and the $377\ \Omega$ link.** The far field of any dipole is transverse, and in free space it is tied to the power density by $S = E^2/\eta_0$ with $\eta_0 = 377\ \Omega$. For a half-wave dipole the peak far field is:
+$$E = 60 I_0 F(\theta)/d$$
+with $I_0$ the *loop* (maximum) current; the pattern factor is:
 $$F(\theta) = \cos(\tfrac{\pi}{2}\cos\theta)/\sin\theta$$
-It peaks at $1$ — note there is **no** $\pi$ here, because $\eta_0/(2\pi) = 377/2\pi = 60$ exactly; for the Hertzian dipole it is $E = 60\pi I_0 l \sin\theta/(\lambda d)$, where the $\pi$ *does* appear because the short-dipole far field carries an extra $\beta = 2\pi/\lambda$. Use those when the problem *gives* a current. When it gives power instead, use $E = \sqrt{30 P_t D}/d$ — for a half-wave dipole, $E = \sqrt{60P_t}/d$ — since the current then has to be derived from the power relation:
+It peaks at $1$ — note there is **no** $\pi$ here, because $\eta_0/(2\pi) = 377/2\pi = 60$ exactly; for the Hertzian dipole it is:
+$$E = 60\pi I_0 l \sin\theta/(\lambda d)$$
+where the $\pi$ *does* appear because the short-dipole far field carries an extra $\beta = 2\pi/\lambda$. Use those when the problem *gives* a current. When it gives power instead, use $E = \sqrt{30 P_t D}/d$ — for a half-wave dipole, $E = \sqrt{60P_t}/d$ — since the current then has to be derived from the power relation:
 $$P_\mathrm{rad} = \tfrac{1}{2}I_0^2R_\mathrm{rad}$$
 A slip in that factor of two is the classic error. Every one of these must agree with $S = P_t D/(4\pi d^2)$; if it does not, you have mixed $I_0$ conventions. Finally, all of it is far-field only, roughly $d \gg \lambda$ and $d > 2D^2/\lambda$: the $73\ \Omega$ and $1.64$ figures themselves assume a *thin* element in free space, fed at the exact centre, with no ground plane or mast nearby — bring metal close and the mutual impedance shifts the resistance and reactance, and thicken the element and the resonance moves.
 

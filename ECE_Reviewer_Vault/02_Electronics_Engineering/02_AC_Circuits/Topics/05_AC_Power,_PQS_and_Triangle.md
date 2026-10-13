@@ -11,7 +11,7 @@ prereqs: ["[[02_Phasors_and_Complex_Impedance]]", "[[01_Sinusoid,_RMS,_Average,_
 tags: ["ece", "electronics_engineering", "ac_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — AC Power, PQS and Triangle

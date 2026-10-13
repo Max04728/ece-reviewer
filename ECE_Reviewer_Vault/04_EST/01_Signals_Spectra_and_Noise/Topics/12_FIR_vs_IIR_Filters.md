@@ -11,7 +11,7 @@ prereqs: ["[[11_DFT_and_FFT]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — FIR vs IIR Filters
@@ -24,17 +24,27 @@ updated: 2026-09-23
 > [!tip] Intuition
 > An FIR filter is a weighted moving average: it can only forget, so it can never blow up, and a symmetric average delays every frequency by the same amount. An IIR filter feeds its own output back, which buys sharpness with far fewer taps but can ring, drift, or oscillate.
 
-**The structural difference.** An FIR filter computes $y[n] = \sum_{k=0}^{M} b_k x[n-k]$: the output depends only on present and past inputs, so its transfer function $H(z) = \sum_k b_k z^{-k}$ has all its poles at the origin and it is **unconditionally stable**. An IIR filter adds feedback, $y[n] = \sum_k b_k x[n-k] - \sum_k a_k y[n-k]$, giving $H(z) = \frac{\sum b_k z^{-k}}{1 + \sum a_k z^{-k}}$ with poles that must lie strictly inside the unit circle for stability. That single difference drives every other trade-off in this topic: feedback lets a few poles shape a sharp response, and it is exactly what makes the filter potentially unstable.
+**The structural difference.** An FIR filter computes $y[n] = \sum_{k=0}^{M} b_k x[n-k]$: the output depends only on present and past inputs, so its transfer function $H(z) = \sum_k b_k z^{-k}$ has all its poles at the origin and it is **unconditionally stable**. An IIR filter adds feedback:
+$$y[n] = \sum_k b_k x[n-k] - \sum_k a_k y[n-k]$$
+The resulting transfer function is:
+$$H(z) = \frac{\sum b_k z^{-k}}{1 + \sum a_k z^{-k}}$$
+with poles that must lie strictly inside the unit circle for stability. That single difference drives every other trade-off in this topic: feedback lets a few poles shape a sharp response, and it is exactly what makes the filter potentially unstable.
 
 **Linear phase: the FIR's unique selling point.** If the impulse response is symmetric, $h[n] = h[M-n]$ (or antisymmetric), the FIR has exactly linear phase and therefore a **constant group delay** of $(M)/2$ samples across the whole passband. No causal IIR filter has exactly linear phase; its group delay varies with frequency, which smears the shape of a pulse or a digital symbol. For audio mastering, pulse-shaping, radar matched filtering and any application where waveform fidelity matters, this makes the FIR the only choice, and it is the reason an FIR's high order is often accepted as the price of admission.
 
 **Order and cost: what feedback buys.** To meet the same magnitude specification, an IIR filter derived from an analog prototype (Butterworth, Chebyshev, elliptic) typically needs an order an order of magnitude or more smaller than an FIR. A concrete case: 60 dB of attenuation one fifth of an octave past the passband edge needs about 110 FIR taps but only about 38 poles for a Butterworth IIR, and about 7 for an elliptic — because the IIR places poles near the unit circle to create a sharp transition, while the FIR must build the same skirt from many zeros. The cost is paid in phase distortion, sensitivity to coefficient quantisation (poles close to the unit circle move easily and can even migrate outside it in fixed-point arithmetic), and the possibility of limit cycles and overflow oscillation.
 
-**Estimating the FIR length.** A specification gives a passband edge, a stopband edge, and a required attenuation $A$ in dB. The transition width is $\Delta f = f_{stop}-f_{pass}$, and the Kaiser/Hamming rule of thumb gives $N \approx \dfrac{A}{22\,\Delta f/f_s}$ taps for a Hamming-window design (the constant is about 14.36 for a Kaiser window when the passband ripple is small). Note how everything scales: a narrower transition band or a larger attenuation makes $N$ grow linearly, while the sampling rate dilutes the requirement because $\Delta f$ is measured relative to $f_s$. This is why decimating to the lowest workable rate before filtering is a standard trick — it cuts the required order directly.
+**Estimating the FIR length.** A specification gives a passband edge, a stopband edge, and a required attenuation $A$ in dB. The transition width is:
+$$\Delta f = f_{stop}-f_{pass}$$
+and the Kaiser/Hamming rule of thumb gives:
+$$N \approx \dfrac{A}{22\,\Delta f/f_s}$$
+taps for a Hamming-window design (the constant is about 14.36 for a Kaiser window when the passband ripple is small). Note how everything scales: a narrower transition band or a larger attenuation makes $N$ grow linearly, while the sampling rate dilutes the requirement because $\Delta f$ is measured relative to $f_s$. This is why decimating to the lowest workable rate before filtering is a standard trick — it cuts the required order directly.
 
 **Stability, quantisation and practical behaviour.** FIR filters are stable, have no feedback path to accumulate error, and (with symmetric coefficients) can implement exactly linear phase in fixed point. Their round-off error stays bounded and no limit cycles exist. IIR filters must be checked for pole locations after quantisation: a design with poles at $r = 0.999$ can land outside the unit circle when coefficients are rounded to 16 bits, and even inside they ring for a long time after a transient. Direct-form implementations of high-order IIR filters are numerically fragile, so second-order sections (biquads) in cascade are used in practice. The exam takeaway: choose IIR for cheap, sharp magnitude-only filtering where phase does not matter, and FIR when linear phase, guaranteed stability, or exact reproducibility matters.
 
-**Design routes and their fingerprints.** FIR designs come from windows (simple, predictable, needs high order), frequency sampling (convenient for arbitrary shapes, poor transition behaviour), and optimal equiripple methods (Parks-McClellan/Remez, minimum order for a given ripple, the standard CAD approach). IIR designs come from analog prototypes transformed by the bilinear transform $s = \frac{2}{T}\frac{1-z^{-1}}{1+z^{-1}}$, which maps the whole $j\Omega$ axis onto the unit circle and therefore avoids aliasing but warps frequency, so critical frequencies must be **pre-warped** with $\Omega = \frac{2}{T}\tan(\omega/2)$. Forgetting the pre-warp is the classic IIR design error: a specified 3 dB cutoff lands somewhere else, most visibly near Nyquist.
+**Design routes and their fingerprints.** FIR designs come from windows (simple, predictable, needs high order), frequency sampling (convenient for arbitrary shapes, poor transition behaviour), and optimal equiripple methods (Parks-McClellan/Remez, minimum order for a given ripple, the standard CAD approach). IIR designs come from analog prototypes transformed by the bilinear transform:
+$$s = \frac{2}{T}\frac{1-z^{-1}}{1+z^{-1}}$$
+which maps the whole $j\Omega$ axis onto the unit circle and therefore avoids aliasing but warps frequency, so critical frequencies must be **pre-warped** with $\Omega = \frac{2}{T}\tan(\omega/2)$. Forgetting the pre-warp is the classic IIR design error: a specified 3 dB cutoff lands somewhere else, most visibly near Nyquist.
 
 ## Formulas
 

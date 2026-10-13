@@ -11,7 +11,7 @@ prereqs: ["[[04_Mole_Concept_and_Stoichiometry]]", "[[06_Solutions_and_Concentra
 tags: ["ece", "geas", "general_chemistry"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Chemical Equilibrium and Le Chatelier
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **Equilibrium is dynamic, and $K$ is a ratio.** At equilibrium both reactions are still running at equal rates, so the macroscopic composition is static while the molecular traffic is not. The equilibrium constant is products over reactants, each raised to its balanced coefficient, with pure solids and pure liquids omitted because their activities are 1. That omission is not a convention you can skip: for $\mathrm{CaCO_3}(s) \rightleftharpoons \mathrm{CaO}(s) + \mathrm{CO_2}(g)$ the constant is simply $K_p = P_{\mathrm{CO_2}}$, and writing $1/[\mathrm{CaCO_3}]$ makes the expression unsolvable.
 
-**$K_c$ and $K_p$ differ by a pressure correction.** $K_p = K_c(RT)^{\Delta n}$ with $\Delta n$ the change in moles of GAS across the balanced equation, products minus reactants, and $R = 0.08206\ \mathrm{L\,atm\,mol^{-1}K^{-1}}$ when $K_p$ is in atmospheres. For ammonia synthesis $\Delta n = 2 - 4 = -2$, so $K_p$ is much smaller than $K_c$. Reversing the sign of $\Delta n$ inflates the answer by $(RT)^4$, which at 500 K is a factor of about $2.8\times10^6$ — large enough that the wrong sign is obvious once you sanity-check the magnitude.
+**$K_c$ and $K_p$ differ by a pressure correction.** $K_p = K_c(RT)^{\Delta n}$ with $\Delta n$ the change in moles of GAS across the balanced equation, products minus reactants. The gas constant here is:
+$$R = 0.08206\ \mathrm{L\,atm\,mol^{-1}K^{-1}}$$
+when $K_p$ is in atmospheres. For ammonia synthesis $\Delta n = 2 - 4 = -2$, so $K_p$ is much smaller than $K_c$. Reversing the sign of $\Delta n$ inflates the answer by $(RT)^4$, which at 500 K is a factor of about $2.8\times10^6$ — large enough that the wrong sign is obvious once you sanity-check the magnitude.
 
 **$Q$ versus $K$: the only reliable direction test.** The reaction quotient uses the same expression with the CURRENT concentrations. If $Q < K$ the reaction proceeds forward, if $Q > K$ it proceeds in reverse, and at $Q = K$ it is at equilibrium. The critical asymmetry: $Q$ changes continuously as the reaction proceeds, while $K$ changes only with temperature. Adding reactant, changing the volume or adding a catalyst does not touch $K$ — only the position of equilibrium, which is a $Q$-versus-$K$ statement.
 

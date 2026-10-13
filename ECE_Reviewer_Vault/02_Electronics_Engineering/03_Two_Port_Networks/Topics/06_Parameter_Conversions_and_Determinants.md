@@ -11,7 +11,7 @@ prereqs: ["[[01_Two-Port_Variables_and_Conventions]]", "[[02_Z_and_Y_Parameters]
 tags: ["ece", "electronics_engineering", "two_port_networks"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Parameter Conversions and Determinants

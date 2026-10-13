@@ -11,7 +11,7 @@ prereqs: ["[[04_Test_Signals_and_First_Order_Response]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Second Order Specifications
@@ -30,7 +30,9 @@ With a DC gain $K$ present, the numerator is instead $\dfrac{K\omega_n^2}{\dots}
 
 **The four regimes.** $\zeta=0$: undamped, poles on the $j\omega$ axis, sustained oscillation at $\omega_n$. $0<\zeta<1$: underdamped, complex poles $-\zeta\omega_n\pm j\omega_d$ with $\omega_d=\omega_n\sqrt{1-\zeta^2}$, damped ringing. $\zeta=1$: critically damped, a repeated real pole at $-\omega_n$, the fastest response with no overshoot. $\zeta>1$: overdamped, two real poles, sluggish and monotone. Only the underdamped case has the closed-form overshoot/peak-time results.
 
-**Percent overshoot depends only on $\zeta$.** The peak occurs at the first zero of the derivative, $t_p=\pi/\omega_d$, and the overshoot is $M_p=e^{-\pi\zeta/\sqrt{1-\zeta^2}}$. Note what is *absent*: $\omega_n$. Two systems with $\zeta=0.5$ and $\omega_n=2$ or $\omega_n=200$ have identical percent overshoot; they differ only in how fast they get there. This is the most exam-exploitable fact in the topic.
+**Percent overshoot depends only on $\zeta$.** The peak occurs at the first zero of the derivative, $t_p=\pi/\omega_d$, and the overshoot is:
+$$M_p=e^{-\pi\zeta/\sqrt{1-\zeta^2}}$$
+Note what is *absent*: $\omega_n$. Two systems with $\zeta=0.5$ and $\omega_n=2$ or $\omega_n=200$ have identical percent overshoot; they differ only in how fast they get there. This is the most exam-exploitable fact in the topic.
 
 **Peak time and rise time use $\omega_d$, not $\omega_n$.** $t_p=\pi/\omega_d$. The $10$-$90\%$ rise time is well approximated by $t_r\approx\dfrac{\pi-\beta}{\omega_d}$ with $\beta=\arccos\zeta$ (radians), and the common short form $t_r\approx\dfrac{1.8}{\omega_n}$ is accurate only near $\zeta=0.5$.
 

@@ -11,7 +11,7 @@ prereqs: ["[[05_AC_Power,_PQS_and_Triangle]]", "[[09_Balanced_Wye_and_Delta_Syst
 tags: ["ece", "electronics_engineering", "ac_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Three-Phase Power and Two-Wattmeter
@@ -51,7 +51,9 @@ $$Q_{3\phi} = \sqrt{3}\,(W_1-W_2)$$
 $$\tan\theta = \sqrt{3}\,\dfrac{W_1-W_2}{W_1+W_2}$$
 so the power factor is $\cos\theta$ with no need for the voltage or the current. This is the fastest three-phase exam route when only two readings are given.
 
-**The $0.5$ power-factor boundary.** At $\mathrm{pf} = 1$, $\theta = 0$ and both meters read the same value. As the load becomes more inductive, $W_1$ grows and $W_2$ shrinks; exactly at $\theta = 60^\circ$, i.e. $\mathrm{pf} = 0.5$ lagging, $\cos(30^\circ+60^\circ) = 0$ so $W_2$ reads zero. Below 0.5 lagging, $W_2$ reads **negative** and must be subtracted from $W_1$ — the meter has to be reversed to read it at all. Any total power assembled by adding the magnitudes in that region is wrong.
+**The $0.5$ power-factor boundary.** At $\mathrm{pf} = 1$, $\theta = 0$ and both meters read the same value. As the load becomes more inductive, $W_1$ grows and $W_2$ shrinks; exactly at $\theta = 60^\circ$, i.e.
+$$\mathrm{pf} = 0.5$$
+lagging, $\cos(30^\circ+60^\circ) = 0$ so $W_2$ reads zero. Below 0.5 lagging, $W_2$ reads **negative** and must be subtracted from $W_1$ — the meter has to be reversed to read it at all. Any total power assembled by adding the magnitudes in that region is wrong.
 
 **Total reactive power in a balanced system can be reconstructed from the two readings, but the two meters are not each measuring a phase.** They measure line-quantity combinations, so a single reading has no independent physical meaning as 'the power of phase A'. Only their sum and difference are useful.
 

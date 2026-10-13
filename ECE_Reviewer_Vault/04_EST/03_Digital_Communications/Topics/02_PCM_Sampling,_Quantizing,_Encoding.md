@@ -11,7 +11,7 @@ prereqs: ["[[08_Sampling_Theorem_and_Aliasing]]", "[[01_Pulse_Modulation_PAM,_PW
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — PCM: Sampling, Quantizing, Encoding
@@ -26,11 +26,15 @@ updated: 2026-09-23
 
 **The pipeline.** PCM converts an analog waveform into a serial bit stream in three steps. (1) *Sampling*: read the waveform every $T_s = 1/f_s$ seconds, with $f_s \geq 2f_m$ so the samples determine the waveform uniquely. (2) *Quantizing*: round each sample to the nearest of $L$ discrete levels spanning the peak-to-peak range $V_{pp}$. (3) *Encoding*: assign each level a unique $n$-bit binary code, which requires $L = 2^n$. Sampling is the only step that is exactly invertible; quantizing destroys information permanently.
 
-**Why quantization costs error, and how much.** If the levels are uniformly spaced by $q = V_{pp}/L$, rounding a sample to the nearest level is wrong by at most half a step: $|e_{max}| = q/2$. Within a step the error is essentially uniform, so its mean square value is $q^2/12$ and its rms value is $q/\sqrt{12}$. This is *granular* or quantization noise. It is deterministic given the input, but for a busy signal it behaves like additive white noise, which is why it can be treated as a noise power in SQNR calculations.
+**Why quantization costs error, and how much.** If the levels are uniformly spaced by $q = V_{pp}/L$, rounding a sample to the nearest level is wrong by at most half a step:
+$$|e_{max}| = q/2$$
+Within a step the error is essentially uniform, so its mean square value is $q^2/12$ and its rms value is $q/\sqrt{12}$. This is *granular* or quantization noise. It is deterministic given the input, but for a busy signal it behaves like additive white noise, which is why it can be treated as a noise power in SQNR calculations.
 
 **Bit rate and bandwidth.** With $n$ bits per sample and $f_s$ samples per second, the line rate is $R = n f_s$ bits per second. A binary PCM waveform is a baseband polar signal, so its minimum (Nyquist) bandwidth is half the bit rate, $B_{min} = R/2 = n f_s/2$; practical systems use $B \approx R$ once filtering and timing recovery are included. For a single voice channel $f_s = 8\ \mathrm{kHz}$ and $n = 8$ gives the universal $R = 64\ \mathrm{kbps}$ (DS0), needing at least $32\ \mathrm{kHz}$ of channel.
 
-**Signal-to-quantization-noise ratio.** Every added bit halves the step, quartering the noise power, so SQNR improves by $6.02\ \mathrm{dB}$ per bit. For a full-scale sinusoid the closed form is $\mathrm{SQNR}_{dB} = 6.02n + 1.76$. Two assumptions are baked in and examiners exploit both: the signal must be a *sine* (crest factor $\sqrt{2}$) and it must *fully load* the quantizer. A signal $20\log_{10} m$ dB below full scale (loading factor $m < 1$) loses exactly that many dB of SQNR.
+**Signal-to-quantization-noise ratio.** Every added bit halves the step, quartering the noise power, so SQNR improves by $6.02\ \mathrm{dB}$ per bit. For a full-scale sinusoid the closed form is:
+$$\mathrm{SQNR}_{dB} = 6.02n + 1.76$$
+Two assumptions are baked in and examiners exploit both: the signal must be a *sine* (crest factor $\sqrt{2}$) and it must *fully load* the quantizer. A signal $20\log_{10} m$ dB below full scale (loading factor $m < 1$) loses exactly that many dB of SQNR.
 
 **Why 8 bits is enough for voice, and what companding fixes.** Uniform 8-bit PCM gives about $50\ \mathrm{dB}$ SQNR at full scale, which meets the $\approx 30\ \mathrm{dB}$ intelligibility target for loud talkers. But a talker $40\ \mathrm{dB}$ down would only get $10\ \mathrm{dB}$ SQNR under a uniform quantizer, because the step size is fixed. Companding applies a logarithmic compression before quantization so the step is effectively small for small signals; that is the subject of the companding note.
 

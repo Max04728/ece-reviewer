@@ -11,7 +11,7 @@ prereqs: ["[[15_Reflection_and_Refraction]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 16 — Lenses and Mirrors
@@ -32,7 +32,9 @@ updated: 2026-09-23
 
 **The thin-lens maker equation is what links geometry to material.** $1/f = (n-1)\left(1/R_1 - 1/R_2\right)$ shows directly why a lens in water has a longer focal length: the factor $(n-1)$ falls from $0.50$ for glass in air to about $0.13$ for glass in water, roughly quadrupling $f$ and flattening the lens's power. The same equation explains why a biconvex lens becomes weakly diverging if it is immersed in a liquid of higher index than the glass.
 
-**Diopters are reciprocal metres, and they add for stacked lenses.** $P = 1/f$ with $f$ in **metres**, so $f = 40\ \mathrm{cm}$ is $P = +2.5\ \mathrm{D}$. For thin lenses in contact, $P_{total} = P_1 + P_2$, and for two separated by distance $d$, $P = P_1 + P_2 - dP_1P_2$. Correction items are solved by demanding that the lens map the desired object distance onto the defective near or far point, then converting to diopters.
+**Diopters are reciprocal metres, and they add for stacked lenses.** $P = 1/f$ with $f$ in **metres**, so $f = 40\ \mathrm{cm}$ is:
+$$P = +2.5\ \mathrm{D}$$
+For thin lenses in contact, $P_{total} = P_1 + P_2$, and for two separated by distance $d$, $P = P_1 + P_2 - dP_1P_2$. Correction items are solved by demanding that the lens map the desired object distance onto the defective near or far point, then converting to diopters.
 
 **Correction has a direction.** A myopic (nearsighted) eye focuses objects in front of the retina and cannot focus far things, so it needs a diverging lens with **negative** power. A hyperopic (farsighted) eye cannot focus nearby things and needs a converging lens with **positive** power. Getting the sign of the required power backwards is the classic lost mark, and it is detectable before any arithmetic: read the patient's complaint, decide diverging or converging, and check that your $P$ has the matching sign.
 

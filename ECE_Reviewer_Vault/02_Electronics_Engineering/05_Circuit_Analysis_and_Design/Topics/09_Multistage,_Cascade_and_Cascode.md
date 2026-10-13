@@ -11,7 +11,7 @@ prereqs: ["[[05_BJT_Small-Signal_h-Parameter_Model]]", "[[06_Small-Signal_re_Mod
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Multistage, Cascade and Cascode
@@ -34,7 +34,9 @@ Two stages of 40 dB each give 80 dB, which is $10^4$ in voltage ratio — this i
 
 **Interstage loading is the whole difficulty.** When you connect stage 2 to stage 1, stage 2's input resistance $R_{in2}$ appears in parallel with stage 1's collector (or drain) resistor. The fix is mechanical: compute stage 1 first, but replace $R_{C1}$ by $R_{L(eff)1} = R_{C1} \parallel R_{in2}$, and only then apply $A_{v1} = -g_{m1}R_{L(eff)1}$. Stage 2 in turn sees its own load $R_{C2} \parallel R_L$. Working backwards from the load is the reliable order: find the last stage's gain with the real load, then the second-to-last with the last stage's input resistance as its load, and so on. **Never compute the unloaded gain of every stage and multiply** — that is the classic way to overstate a two-stage gain by 6 dB.
 
-**The cascode: why the second stage's low input resistance is a feature, not a bug.** A cascode is a CE (or CS) stage whose collector (drain) feeds the emitter (source) of a CB (or CG) stage, with the CB base held at AC ground. Loading rule from the paragraph above would suggest disaster: the CB input resistance is $\approx 1/g_m$, a few tens of ohms, so the CE stage's collector load is tiny and its voltage gain collapses to about $A_{v1} \approx -g_m(1/g_m) = -1$. But that is exactly what is wanted. The Miller capacitance at the CE input is $C_{bc}(1 + |A_{v1}|)$, so with $|A_{v1}| \approx 1$ it becomes $C_{bc}(1+1) = 2C_{bc}$ instead of $C_{bc}(1 + g_mR_C)$, which at $g_mR_C = 114$ is $115C_{bc}$. The CE stage gives up almost all its gain, the CB stage (whose gain is $+g_mR_C$ and which suffers no Miller multiplication because its input is the low-resistance emitter) supplies it back, and the overall gain is essentially unchanged:
+**The cascode: why the second stage's low input resistance is a feature, not a bug.** A cascode is a CE (or CS) stage whose collector (drain) feeds the emitter (source) of a CB (or CG) stage, with the CB base held at AC ground. Loading rule from the paragraph above would suggest disaster: the CB input resistance is $\approx 1/g_m$, a few tens of ohms, so the CE stage's collector load is tiny and its voltage gain collapses to about $A_{v1} \approx -g_m(1/g_m) = -1$. But that is exactly what is wanted. The Miller capacitance at the CE input is $C_{bc}(1 + |A_{v1}|)$, so with $|A_{v1}| \approx 1$ it becomes:
+$$C_{bc}(1+1) = 2C_{bc}$$
+instead of $C_{bc}(1 + g_mR_C)$, which at $g_mR_C = 114$ is $115C_{bc}$. The CE stage gives up almost all its gain, the CB stage (whose gain is $+g_mR_C$ and which suffers no Miller multiplication because its input is the low-resistance emitter) supplies it back, and the overall gain is essentially unchanged:
 $$A_{v(cascode)} \approx -g_m R_C$$
 What you bought is bandwidth, and in an integrated circuit also the elimination of the feedback from output to input that would otherwise cause instability.
 

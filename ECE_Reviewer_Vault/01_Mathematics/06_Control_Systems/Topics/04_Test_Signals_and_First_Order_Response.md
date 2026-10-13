@@ -11,7 +11,7 @@ prereqs: ["[[01_System_Modeling_and_Transfer_Functions]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Test Signals and First Order Response
@@ -26,7 +26,11 @@ updated: 2026-09-23
 
 **The standard test signals.** Impulse $\delta(t)$ (the purest probe — the response *is* the impulse response), unit step $u(t)$ (the standard performance probe, because it mimics a sudden setpoint change), unit ramp $tu(t)$ (tests tracking of a moving reference), parabola $t^2u(t)/2$ (tests acceleration tracking), and the sinusoid (tests frequency response). Steady-state error constants are defined for exactly these inputs, which is why they matter beyond the maths.
 
-**Standard first-order form.** $G(s)=\dfrac{K}{\tau s+1}$, with a single pole at $s=-1/\tau$. Normalising to this form is mandatory before using any of the time-constant results: a pole at $s=-5$ means $\tau=0.2\ \mathrm{s}$, not $5\ \mathrm{s}$, and $G(s)=\dfrac{8}{s+4}$ is $\dfrac{2}{0.25s+1}$ with $K=2$, $\tau=0.25\ \mathrm{s}$.
+**Standard first-order form.** $G(s)=\dfrac{K}{\tau s+1}$, with a single pole at $s=-1/\tau$. Normalising to this form is mandatory before using any of the time-constant results: a pole at $s=-5$ means:
+$$\tau=0.2\ \mathrm{s}$$
+not $5\ \mathrm{s}$, and $G(s)=\dfrac{8}{s+4}$ is:
+$$\dfrac{2}{0.25s+1}$$
+with $K=2$, $\tau=0.25\ \mathrm{s}$.
 
 **Step response and the 63.2% rule.** $y(t)=K\left(1-e^{-t/\tau}\right)$. At $t=\tau$ the output has covered $1-e^{-1}=63.2\%$ of its final value; at $2\tau$, $86.5\%$; at $3\tau$, $95.0\%$; at $4\tau$, $98.2\%$. This is where the $2\%$ settling time $t_s\approx4\tau$ and the $5\%$ settling time $t_s\approx3\tau$ come from — they are band definitions, not physics.
 

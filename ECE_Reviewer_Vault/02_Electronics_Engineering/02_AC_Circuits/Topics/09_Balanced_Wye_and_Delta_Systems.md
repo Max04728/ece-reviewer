@@ -11,7 +11,7 @@ prereqs: ["[[02_Phasors_and_Complex_Impedance]]", "[[03_Delta-Wye_Transformation
 tags: ["ece", "electronics_engineering", "ac_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Balanced Wye and Delta Systems
@@ -30,7 +30,9 @@ updated: 2026-09-23
 $$I_a = I_{ab} - I_{ca} = I_p\left(1\angle 0^\circ - 1\angle 120^\circ\right) = \sqrt{3}\,I_p\angle -30^\circ$$
 so $I_L = \sqrt{3}\,I_{ph}$ and the line current lags the phase current by $30^\circ$. When a delta load must be analysed per phase, replace it with the wye equivalent $Z_Y = Z_\Delta/3$. The factor follows from matching line quantities: the same line voltage across a $Z_Y$ wye must give the same line current as the delta, and $\left(V_L/\sqrt{3}\right)/\left(Z_\Delta/3\right)$ equals $\sqrt{3}V_L/Z_\Delta$. Both the resistance and the reactance are divided by three and the impedance angle is untouched — a $30\angle 30^\circ\ \Omega$ delta is a $10\angle 30^\circ\ \Omega$ wye.
 
-**Per-phase analysis, the neutral, and when it breaks.** In a balanced system every phase carries the same current magnitude at the same angle $\theta = \angle Z_{ph}$, so a single phase can be solved against the per-phase voltage and the result replicated with $\pm 120^\circ$ rotations. The neutral current is $I_n = I_a + I_b + I_c$: three equal-magnitude phasors $120^\circ$ apart, which sum to identically zero. That is why a balanced four-wire load runs unchanged as a three-wire load, and why the per-phase equivalent is legitimate at all. Total power is the same number in either connection:
+**Per-phase analysis, the neutral, and when it breaks.** In a balanced system every phase carries the same current magnitude at the same angle $\theta = \angle Z_{ph}$, so a single phase can be solved against the per-phase voltage and the result replicated with $\pm 120^\circ$ rotations. The neutral current is:
+$$I_n = I_a + I_b + I_c$$
+three equal-magnitude phasors $120^\circ$ apart, which sum to identically zero. That is why a balanced four-wire load runs unchanged as a three-wire load, and why the per-phase equivalent is legitimate at all. Total power is the same number in either connection:
 $$3V_{ph}I_{ph}\cos\theta = \sqrt{3}\,V_L I_L\cos\theta$$
 and the two forms give the same number for wye and for delta, which makes a useful arithmetic check. The method fails as soon as balance is lost: an unbalanced four-wire load needs the neutral current with the neutral clamping the phase voltages, an unbalanced three-wire load shifts the neutral point so the per-phase voltages are no longer $V_L/\sqrt{3}$, triplen (3rd, 9th, ...) harmonic currents add in the neutral even when the fundamentals cancel, and a negative-sequence source reverses the sign of the $30^\circ$ shift without changing the $\sqrt{3}$.
 

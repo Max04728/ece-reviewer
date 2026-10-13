@@ -11,7 +11,7 @@ prereqs: ["[[03_Quantization_Noise_and_SQNR]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Companding: Mu-Law and A-Law
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Why logarithmic.** For SQNR to be constant in decibels across the whole amplitude range, the effective step must be proportional to the signal amplitude, $\Delta x \propto x$. Solving $dy/dx = k/x$ gives $y = k\ln x$ — a pure logarithm. A pure log is unbounded at zero, so both standards bend it into a linear segment near the origin. That single bend is the entire difference between the two curves.
 
-**Mu-law (North America and Japan).** $|y| = \dfrac{\ln(1 + \mu|x|)}{\ln(1+\mu)}$ with $\mu = 255$ for the 8-bit, 8 kHz DS0 channel. It is one continuous curve with no segment break, so there is no slope discontinuity to distort low-level signals. The subjective improvement over uniform 8-bit PCM for speech is roughly $24\ \mathrm{dB}$ — equivalent to about 4 extra bits.
+**Mu-law (North America and Japan).** The compression curve is:
+$$|y| = \dfrac{\ln(1 + \mu|x|)}{\ln(1+\mu)}$$
+with $\mu = 255$ for the 8-bit, 8 kHz DS0 channel. It is one continuous curve with no segment break, so there is no slope discontinuity to distort low-level signals. The subjective improvement over uniform 8-bit PCM for speech is roughly $24\ \mathrm{dB}$ — equivalent to about 4 extra bits.
 
 **A-law (Europe and international links).** $|y| = \dfrac{A|x|}{1+\ln A}$ for $|x| < 1/A$, and $|y| = \dfrac{1+\ln(A|x|)}{1+\ln A}$ for $1/A \leq |x| \leq 1$, with $A = 87.6$. It has an explicit linear segment for small signals, which makes it slightly easier to implement in early digital hardware and removes the mu-law curve's infinite slope at the origin. The penalty is a small slope discontinuity at $|x| = 1/A$.
 

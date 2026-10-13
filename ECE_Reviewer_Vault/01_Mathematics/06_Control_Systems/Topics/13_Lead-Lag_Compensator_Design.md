@@ -11,7 +11,7 @@ prereqs: ["[[10_Bode_Plots_and_Margins]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — Lead-Lag Compensator Design

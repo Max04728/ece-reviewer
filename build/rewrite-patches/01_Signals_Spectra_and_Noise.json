@@ -1,0 +1,83 @@
+{
+  "area": "04_EST/01_Signals_Spectra_and_Noise",
+  "rewrites": [
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/02_Power_Spectral_Density.json",
+      "entry": 3,
+      "find": "For a stationary random process the PSD is the Fourier transform of the autocorrelation function, $S_x(f) = \\int R_x(\\tau)e^{-j2\\pi f\\tau}d\\tau$.",
+      "replace": "For a stationary random process the PSD is the Fourier transform of the autocorrelation function: $S_x(f) = \\int R_x(\\tau)e^{-j2\\pi f\\tau}d\\tau$."
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/04_Shot,_Flicker_and_Transit-Time_Noise.json",
+      "entry": 5,
+      "find": "The classic numerical anchor: a $1\\ \\mathrm{k\\Omega}$ resistor at room temperature has $\\sqrt{4kTR} = 4.0\\ \\mathrm{nV/\\sqrt{Hz}}$; a device with",
+      "replace": "The classic numerical anchor is a $1\\ \\mathrm{k\\Omega}$ resistor at room temperature, whose noise density is: $\\sqrt{4kTR} = 4.0\\ \\mathrm{nV/\\sqrt{Hz}}$. A device with"
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+      "entry": 1,
+      "find": "In decibels, $\\mathrm{SNR_{dB}} = 10\\log_{10}(P_s/P_n)$; if the problem hands you rms voltages",
+      "replace": "In decibels the definition is: $\\mathrm{SNR_{dB}} = 10\\log_{10}(P_s/P_n)$. If the problem hands you rms voltages"
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+      "entry": 3,
+      "find": "so $S_i$ cancels out of the definition and $F = \\dfrac{N_o}{G N_i} = \\dfrac{N_o}{G k T_0 B}$.",
+      "replace": "so $S_i$ cancels out of the definition. What remains is: $F = \\dfrac{N_o}{G N_i} = \\dfrac{N_o}{G k T_0 B}$."
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/05_SNR,_Noise_Factor_and_Noise_Figure.json",
+      "entry": 6,
+      "find": "For stages in cascade the overall noise factor is $F = F_1 + \\dfrac{F_2-1}{G_1} + \\dfrac{F_3-1}{G_1G_2} + \\cdots$ where all gains are",
+      "replace": "For stages in cascade the overall noise factor is: $F = F_1 + \\dfrac{F_2-1}{G_1} + \\dfrac{F_3-1}{G_1G_2} + \\cdots$, where all gains are"
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/06_Equivalent_Noise_Temperature.json",
+      "entry": 4,
+      "find": "The Friis noise formula is algebraically identical in temperature, $T_e = T_{e1} + \\dfrac{T_{e2}}{G_1} + \\dfrac{T_{e3}}{G_1G_2} + \\cdots$, with gains as available power ratios.",
+      "replace": "The Friis noise formula is algebraically identical in temperature: $T_e = T_{e1} + \\dfrac{T_{e2}}{G_1} + \\dfrac{T_{e3}}{G_1G_2} + \\cdots$, with gains as available power ratios."
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/07_Friis_Cascaded_Noise_Formula.json",
+      "entry": 1,
+      "find": "**The formula.** For stages in cascade, $F = F_1 + \\dfrac{F_2-1}{G_1} + \\dfrac{F_3-1}{G_1G_2} + \\cdots$, where each $F_i$ is a dimensionless noise factor",
+      "replace": "**The formula.** For stages in cascade the overall noise factor is: $F = F_1 + \\dfrac{F_2-1}{G_1} + \\dfrac{F_3-1}{G_1G_2} + \\cdots$, where each $F_i$ is a dimensionless noise factor"
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/08_Sampling_Theorem_and_Aliasing.json",
+      "entry": 1,
+      "find": "which is the mathematical content of the sinc-interpolation formula $x(t) = \\sum_n x(nT_s)\\,\\mathrm{sinc}\\!\\left(\\frac{t-nT_s}{T_s}\\right)$.",
+      "replace": "which is the mathematical content of the sinc-interpolation formula: $x(t) = \\sum_n x(nT_s)\\,\\mathrm{sinc}\\!\\left(\\frac{t-nT_s}{T_s}\\right)$."
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/09_Sampling_Types_and_Aperture_Effect.json",
+      "entry": 4,
+      "find": "this gives a jitter-limited SNR of $\\mathrm{SNR} = -20\\log_{10}(2\\pi f\\,\\Delta t)$ — a bound that depends only on frequency and jitter, not on the number of bits or the aperture width.",
+      "replace": "the jitter-limited SNR is: $\\mathrm{SNR} = -20\\log_{10}(2\\pi f\\,\\Delta t)$. This bound depends only on frequency and jitter, not on the number of bits or the aperture width."
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/10_Anti-Aliasing_Filters.json",
+      "entry": 3,
+      "find": "Solving for the order gives $n \\ge \\dfrac{A}{20\\log_{10}(f_{stop}/f_{pass})}$, evaluated with the *actual* attenuations at the two edges",
+      "replace": "The order follows from: $n \\ge \\dfrac{A}{20\\log_{10}(f_{stop}/f_{pass})}$. Evaluate it with the *actual* attenuations at the two edges"
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/11_DFT_and_FFT.json",
+      "entry": 1,
+      "find": "the DFT returns $N$ complex bins, $X[k] = \\sum_{n=0}^{N-1} x[n]e^{-j2\\pi kn/N}$ for $k = 0,1,\\dots,N-1$.",
+      "replace": "the DFT returns $N$ complex bins: $X[k] = \\sum_{n=0}^{N-1} x[n]e^{-j2\\pi kn/N}$ for $k = 0,1,\\dots,N-1$."
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/12_FIR_vs_IIR_Filters.json",
+      "entry": 1,
+      "find": "An IIR filter adds feedback, $y[n] = \\sum_k b_k x[n-k] - \\sum_k a_k y[n-k]$, giving $H(z) = \\frac{\\sum b_k z^{-k}}{1 + \\sum a_k z^{-k}}$ with poles that must lie strictly inside the unit circle for stability.",
+      "replace": "An IIR filter adds feedback: $y[n] = \\sum_k b_k x[n-k] - \\sum_k a_k y[n-k]$. The resulting transfer function is: $H(z) = \\frac{\\sum b_k z^{-k}}{1 + \\sum a_k z^{-k}}$, with poles that must lie strictly inside the unit circle for stability."
+    },
+    {
+      "file": "build/payload/04_EST/01_Signals_Spectra_and_Noise/12_FIR_vs_IIR_Filters.json",
+      "entry": 6,
+      "find": "transformed by the bilinear transform $s = \\frac{2}{T}\\frac{1-z^{-1}}{1+z^{-1}}$, which maps the whole $j\\Omega$ axis",
+      "replace": "transformed by the bilinear transform: $s = \\frac{2}{T}\\frac{1-z^{-1}}{1+z^{-1}}$, which maps the whole $j\\Omega$ axis"
+    }
+  ]
+}

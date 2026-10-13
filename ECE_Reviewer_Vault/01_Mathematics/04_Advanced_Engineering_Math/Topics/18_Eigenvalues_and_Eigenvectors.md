@@ -11,7 +11,7 @@ prereqs: ["[[16_Matrices,_Determinants,_Rank_and_Inversion]]", "[[17_Cramer’s_
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 18 — Eigenvalues and Eigenvectors
@@ -24,7 +24,11 @@ updated: 2026-09-23
 > [!tip] Intuition
 > An eigenvector is a direction the matrix does not turn — it only stretches it, and the stretch factor is the eigenvalue. The characteristic equation finds those factors first, and the eigenvectors are then just null-space vectors of $A - \lambda I$.
 
-**The characteristic equation and the two free checks.** An eigenpair satisfies $A\mathbf{v} = \lambda\mathbf{v}$ with $\mathbf{v}\neq\mathbf{0}$, which rearranges to $(A - \lambda I)\mathbf{v} = \mathbf{0}$. That homogeneous system has a non-zero solution exactly when its coefficient matrix is singular, so the eigenvalues are the roots of the characteristic equation $\det(A - \lambda I) = 0$. For an $n\times n$ matrix this is a degree-$n$ polynomial in $\lambda$. Two coefficients are known before you expand anything, and they are the fastest way to catch an algebra slip: the coefficient of $\lambda^{n-1}$ gives $\mathrm{tr}(A) = \sum_i\lambda_i$ (the trace equals the sum of the eigenvalues) and the constant term gives $\det A = \prod_i\lambda_i$ (the determinant equals their product). If your eigenvalues do not add to the trace and multiply to the determinant, at least one is wrong even if the expansion looks tidy. For a triangular or diagonal matrix every root is immediate — the eigenvalues are the diagonal entries — because $A - \lambda I$ is still triangular and a triangular determinant is the product of its diagonal entries.
+**The characteristic equation and the two free checks.** An eigenpair satisfies $A\mathbf{v} = \lambda\mathbf{v}$ with $\mathbf{v}\neq\mathbf{0}$, which rearranges to $(A - \lambda I)\mathbf{v} = \mathbf{0}$. That homogeneous system has a non-zero solution exactly when its coefficient matrix is singular, so the eigenvalues are the roots of the characteristic equation $\det(A - \lambda I) = 0$. For an $n\times n$ matrix this is a degree-$n$ polynomial in $\lambda$. Two coefficients are known before you expand anything, and they are the fastest way to catch an algebra slip: the coefficient of $\lambda^{n-1}$ gives:
+$$\mathrm{tr}(A) = \sum_i\lambda_i$$
+(the trace equals the sum of the eigenvalues) and the constant term gives:
+$$\det A = \prod_i\lambda_i$$
+(the determinant equals their product). If your eigenvalues do not add to the trace and multiply to the determinant, at least one is wrong even if the expansion looks tidy. For a triangular or diagonal matrix every root is immediate — the eigenvalues are the diagonal entries — because $A - \lambda I$ is still triangular and a triangular determinant is the product of its diagonal entries.
 
 **Eigenvectors are null-space vectors, and the sign is free.** Once $\lambda$ is known, solve $(A - \lambda I)\mathbf{v} = \mathbf{0}$ by row reduction: the eigenvector is any non-zero vector in that null space, and it is only defined up to a non-zero scalar multiple, so $(1,1)$ and $(-2,-2)$ are the same eigenvector. Normalising or negating an eigenvector is never wrong; failing to row-reduce first and instead guessing is. Expect the null space of $A - \lambda I$ to have dimension at least 1 by construction. It may have dimension greater than 1 when $\lambda$ is a repeated root, which is exactly the situation that decides whether the matrix can be diagonalised. Verify each pair by multiplying: $A\mathbf{v}$ must come out as $\lambda\mathbf{v}$, and that multiplication is cheap enough to be mandatory in an exam.
 

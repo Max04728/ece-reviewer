@@ -1,7 +1,7 @@
 ---
 title: DATAVIEW_QUERIES
 type: meta
-updated: 2026-09-25
+updated: 2026-09-26
 ---
 
 # DATAVIEW queries

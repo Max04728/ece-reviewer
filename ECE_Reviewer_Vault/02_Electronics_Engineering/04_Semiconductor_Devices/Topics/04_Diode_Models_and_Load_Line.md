@@ -11,7 +11,7 @@ prereqs: ["[[03_Diode_Characteristics_and_Shockley]]", "[[07_Thevenin_and_Norton
 tags: ["ece", "electronics_engineering", "semiconductor_devices"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Diode Models and Load Line
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **Four models, four jobs.** (1) The **ideal diode** is a one-way switch: zero drop forward, open reverse. It answers 'is the diode on?' and is acceptable when the source is many volts so the drop is a small fraction — 10 V across 1 kohm gives 10 mA ideal against 9.3 mA practical, a 7% error. (2) The **practical (constant-drop) model** adds a 0.7 V battery for silicon (0.3 V Ge/Schottky, 2 V for a red LED, 3.4 V for a white one). It is the workhorse for bias and rectifier work. (3) The **piecewise-linear model** adds a bulk resistance $r_B$ in series with that battery, $V_D = V_{knee} + I_Dr_B$, which is essential once the current is large enough for the ohmic regions to matter. (4) The **small-signal (dynamic) model** replaces the diode by $r_d = nV_T/I_{DQ}$ about the operating point and is valid only for swings of a few millivolts.
 
-**The load line is just KVL drawn on the diode's axes.** For a source $V_{DD}$, a series resistor $R_L$ and a diode, KVL gives $V_{DD} = I_DR_L + V_D$, so $I_D = (V_{DD} - V_D)/R_L$ — a straight line with intercepts $(V_D = V_{DD}, I_D = 0)$ and $(V_D = 0, I_D = V_{DD}/R_L)$ and slope $-1/R_L$. Those two numbers are free and worth writing down first: the open-circuit end and the short-circuit end bracket every possible answer, so any computed current above $V_{DD}/R_L$ is instantly recognisable as wrong. The **Q point** is the intersection of that line with the device curve — nonlinear, so it is found graphically, by iteration, or by the constant-drop approximation.
+**The load line is just KVL drawn on the diode's axes.** For a source $V_{DD}$, a series resistor $R_L$ and a diode, KVL gives:
+$$V_{DD} = I_DR_L + V_D$$
+so $I_D = (V_{DD} - V_D)/R_L$ — a straight line with intercepts $(V_D = V_{DD}, I_D = 0)$ and $(V_D = 0, I_D = V_{DD}/R_L)$ and slope $-1/R_L$. Those two numbers are free and worth writing down first: the open-circuit end and the short-circuit end bracket every possible answer, so any computed current above $V_{DD}/R_L$ is instantly recognisable as wrong. The **Q point** is the intersection of that line with the device curve — nonlinear, so it is found graphically, by iteration, or by the constant-drop approximation.
 
 **Why the approximation is usually good enough — and when it is not.** Because the diode curve is nearly vertical once it turns on, the intersection is insensitive to small errors in the assumed drop: using 0.7 V where the true drop is 0.597 V understates the current by only about 1% when $R_L = 1\ \mathrm{k\Omega}$. Narrow the resistor and the load line steepens: at $R_L = 100\ \Omega$ the same 0.1 V error in the diode drop is a 1 mA error out of ~94 mA, and the $r_B$ term (0.2 V at 20 mA for a 10 ohm diode) becomes comparable to the knee itself. Conversely, when the signal is *smaller* than the knee voltage — a 50 mV sensor output driving a diode — the constant-drop model is useless because the diode never 'turns on' in that picture, while the real device is a perfectly linear 26 ohm resistor at 1 mA. Choosing the model is really the question 'is my signal big compared with 0.7 V, or small compared with 26 mV?'
 

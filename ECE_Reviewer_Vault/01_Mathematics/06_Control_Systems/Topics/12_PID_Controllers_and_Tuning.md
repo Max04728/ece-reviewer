@@ -11,7 +11,7 @@ prereqs: ["[[07_System_Types_and_Error_Analysis]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — PID Controllers and Tuning

@@ -11,7 +11,7 @@ prereqs: ["[[07_Hybrid-Pi_Model]]", "[[11_Frequency_Response_and_Bode_Plots]]"]
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Miller’s Theorem and High-Frequency Effects
@@ -24,9 +24,15 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A capacitor bridging the input and the output is a spy that reports the output back to the input: the input node must supply not only its own charging current but also the current the amplified output swing demands through that capacitor. If the output swings in the opposite direction by a factor $|A_v|$, the tiny bridging capacitor looks $(1+|A_v|)$ times larger from the input, and that inflated capacitance is what crushes the bandwidth of a common-emitter stage.
 
-**Miller's theorem: one impedance becomes two.** Whenever an impedance $Z$ connects node 1 to node 2 of a network, and the voltage gain between those two nodes is $A_v = V_2/V_1$, the impedance may be replaced by two grounded impedances: $Z_1 = Z/(1 - A_v)$ from node 1 to ground and $Z_2 = Z/(1 - 1/A_v)$ from node 2 to ground. The replacement is legitimate because the current drawn *through* $Z$ from node 1 is $i = (V_1 - V_2)/Z = V_1(1 - A_v)/Z$, which is exactly the current a grounded impedance $Z/(1-A_v)$ would draw from $V_1$. Nothing is approximated and no energy is created: the same current is merely re-routed to ground. The gain $A_v$ must be the gain measured with $Z$ already in place, because $Z$ loads both nodes; that is the single most common way the theorem is misapplied.
+**Miller's theorem: one impedance becomes two.** Whenever an impedance $Z$ connects node 1 to node 2 of a network, and the voltage gain between those two nodes is $A_v = V_2/V_1$, the impedance may be replaced by two grounded impedances:
+$$Z_1 = Z/(1 - A_v)$$
+from node 1 to ground and $Z_2 = Z/(1 - 1/A_v)$ from node 2 to ground. The replacement is legitimate because the current drawn *through* $Z$ from node 1 is:
+$$i = (V_1 - V_2)/Z = V_1(1 - A_v)/Z$$
+which is exactly the current a grounded impedance $Z/(1-A_v)$ would draw from $V_1$. Nothing is approximated and no energy is created: the same current is merely re-routed to ground. The gain $A_v$ must be the gain measured with $Z$ already in place, because $Z$ loads both nodes; that is the single most common way the theorem is misapplied.
 
-**The inverting-amplifier case is the one that matters.** For an inverting stage, $A_v = -|A_v|$, so $1 - A_v = 1 + |A_v|$ and the input-side equivalent becomes $C_{Mi} = C_f(1 + |A_v|)$ for a bridging capacitor. The output side uses $1 - 1/A_v = 1 + 1/|A_v|$, giving $C_{Mo} = C_f(1 + 1/|A_v|) \approx C_f$. The multiplication is therefore violently one-sided: a $2\ \mathrm{pF}$ collector-base capacitance on a stage with $A_v = -100$ appears as $C_{Mi} = 2(101) = 202\ \mathrm{pF}$ at the input, while at the output it appears as only $2.02\ \mathrm{pF}$. That asymmetry is why a CE stage's bandwidth is set by its input node and not by its collector node.
+**The inverting-amplifier case is the one that matters.** For an inverting stage, $A_v = -|A_v|$, so $1 - A_v = 1 + |A_v|$ and the input-side equivalent becomes:
+$$C_{Mi} = C_f(1 + |A_v|)$$
+for a bridging capacitor. The output side uses $1 - 1/A_v = 1 + 1/|A_v|$, giving $C_{Mo} = C_f(1 + 1/|A_v|) \approx C_f$. The multiplication is therefore violently one-sided: a $2\ \mathrm{pF}$ collector-base capacitance on a stage with $A_v = -100$ appears as $C_{Mi} = 2(101) = 202\ \mathrm{pF}$ at the input, while at the output it appears as only $2.02\ \mathrm{pF}$. That asymmetry is why a CE stage's bandwidth is set by its input node and not by its collector node.
 
 **Why the CE and CS stages lose their high-frequency response.** In a common-emitter stage the bridging element is $C_{bc}$ (the hybrid-pi $C_{\mu}$), and the multiplication factor is the stage's own gain, $1 + g_mR_L'$. With $g_m = 40\ \mathrm{mS}$ and $R_L' = 2\ \mathrm{k}\Omega$ the gain is $-80$ and $C_{\mu} = 3\ \mathrm{pF}$ becomes $243\ \mathrm{pF}$ at the base — larger than any capacitance the designer deliberately placed there. The dominant high-frequency pole is then $f_H = 1/(2\pi R_{th}C_{in})$ with $C_{in} = C_{\pi} + C_{bc}(1+g_mR_L')$ and $R_{th}$ the resistance seen at the input node (source resistance in parallel with the bias network and $r_{\pi}$). Because the multiplier contains the gain, and the gain falls as frequency rises, the Miller capacitance itself shrinks with frequency: the exact transfer function has a right-half-plane zero at $\omega = g_m/C_{bc}$ that stops the roll-off. The single-pole Miller model is still the right exam tool, but it is an approximation valid well below that zero.
 

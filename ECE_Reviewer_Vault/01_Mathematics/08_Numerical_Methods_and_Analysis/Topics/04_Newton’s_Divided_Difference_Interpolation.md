@@ -11,7 +11,7 @@ prereqs: ["[[05_Taylor_and_Maclaurin_Series]]"]
 tags: ["ece", "mathematics", "numerical_methods_and_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Newton’s Divided Difference Interpolation

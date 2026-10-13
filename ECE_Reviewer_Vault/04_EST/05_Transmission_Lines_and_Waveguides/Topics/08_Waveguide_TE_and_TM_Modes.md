@@ -11,7 +11,7 @@ prereqs: ["[[02_Secondary_Constants_Z0_and_Gamma]]"]
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Waveguide TE and TM Modes

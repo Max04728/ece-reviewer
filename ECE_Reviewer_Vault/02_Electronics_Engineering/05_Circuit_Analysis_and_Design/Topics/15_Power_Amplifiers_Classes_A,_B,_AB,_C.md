@@ -11,7 +11,7 @@ prereqs: ["[[02_Load_Lines_and_Q_Point]]", "[[09_BJT_Structure_and_Operating_Reg
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 15 — Power Amplifiers: Classes A, B, AB, C
@@ -30,7 +30,9 @@ updated: 2026-09-23
 $$P_{o(max)} = V_p^2/(2R_L) = V_{CC}^2/(8R_L)$$
 while the supply delivers $P_i = V_{CC}I_{CQ} = V_{CC}^2/(2R_L)$ regardless of signal, giving $\eta_{max} = 25\%$. Worse, the transistor dissipation $P_D = P_i - P_o - I_{CQ}^2R_L$ peaks at zero signal, where all the useful supply power is burned in the device, so the heatsink is sized for no-signal operation. If the load is coupled through a transformer or an inductor, the Q point moves to $V_{CEQ} = V_{CC}$ with $I_{CQ} = V_{CC}/R_L'$, the swing can reach $V_{CC}$ in each direction, and $P_{o(max)} = V_{CC}^2/(2R_L')$ against $P_i = V_{CC}^2/R_L'$, doubling the efficiency to $50\%$.
 
-**Class B push-pull power budget.** In the dual-supply emitter-follower arrangement each device conducts for half the cycle, so the load current is a full sine of peak $I_p = V_p/R_L$ while each supply delivers a half-sine of average $I_p/\pi$. With two supplies, $P_i = (2/\pi)I_pV_{CC}$, and the output is $P_o = V_p^2/(2R_L)$. The efficiency is therefore $\eta = P_o/P_i = (\pi/4)(V_p/V_{CC})$, which reaches $\pi/4 = 78.5\%$ only at the maximum undistorted swing $V_p = V_{CC}$; at half swing it is only $39.3\%$. The device dissipation is:
+**Class B push-pull power budget.** In the dual-supply emitter-follower arrangement each device conducts for half the cycle, so the load current is a full sine of peak $I_p = V_p/R_L$ while each supply delivers a half-sine of average $I_p/\pi$. With two supplies, $P_i = (2/\pi)I_pV_{CC}$, and the output is:
+$$P_o = V_p^2/(2R_L)$$
+The efficiency is therefore $\eta = P_o/P_i = (\pi/4)(V_p/V_{CC})$, which reaches $\pi/4 = 78.5\%$ only at the maximum undistorted swing $V_p = V_{CC}$; at half swing it is only $39.3\%$. The device dissipation is:
 $$P_D = P_i - P_o = (2/\pi)V_{CC}I_p - I_p^2R_L/2$$
 and differentiating with respect to $I_p$ shows the worst case at $I_p = 2V_{CC}/(\pi R_L)$, i.e.
 $$V_p = 2V_{CC}/\pi \approx 0.636V_{CC}$$

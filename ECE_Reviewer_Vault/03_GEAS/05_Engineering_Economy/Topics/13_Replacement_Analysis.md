@@ -11,7 +11,7 @@ prereqs: ["[[07_PW,_FW_and_AW_Methods]]", "[[10_Depreciation_SLM_and_SYD]]"]
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — Replacement Analysis

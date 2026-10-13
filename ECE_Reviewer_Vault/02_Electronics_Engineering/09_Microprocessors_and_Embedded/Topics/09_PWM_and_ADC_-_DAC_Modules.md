@@ -11,7 +11,7 @@ prereqs: ["[[08_GPIO_and_Timer_Peripherals]]"]
 tags: ["ece", "electronics_engineering", "microprocessors_and_embedded"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — PWM and ADC/DAC Modules

@@ -11,7 +11,7 @@ prereqs: ["[[03_Ordinary_Annuity_and_Annuity_Due]]", "[[01_Simple_and_Compound_I
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Arithmetic and Geometric Gradients
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A gradient is just a stack of shifted uniform series. Each increment sits one period later than the last, so the whole pattern can be priced once and for all by a single factor — no year-by-year discounting required.
 
-**Arithmetic gradient.** A series is arithmetic when each payment differs from the previous one by a fixed amount $G$. The standard form is $A_t = A + (t-1)G$ for $t = 1,\dots,n$: the base $A$ at the end of period 1 and the first increment $G$ only at the end of period 2. The gradient part alone is worth $A = G(A/G,i,n)$ as a uniform annual amount, where $(A/G,i,n) = 1/i - n/[(1+i)^n - 1]$, or $P = G(P/G,i,n)$ as a present worth, with the factor:
+**Arithmetic gradient.** A series is arithmetic when each payment differs from the previous one by a fixed amount $G$. The standard form is:
+$$A_t = A + (t-1)G$$
+for $t = 1,\dots,n$: the base $A$ at the end of period 1 and the first increment $G$ only at the end of period 2. The gradient part alone is worth $A = G(A/G,i,n)$ as a uniform annual amount, where $(A/G,i,n) = 1/i - n/[(1+i)^n - 1]$, or $P = G(P/G,i,n)$ as a present worth, with the factor:
 $$(P/G,i,n) = [(1+i)^n - in - 1]/[i^2(1+i)^n]$$
 Converting to an annual amount first and then multiplying by $(P/A,i,n)$ is the safer route because every term stays in units you can sanity-check.
 
@@ -34,7 +36,9 @@ Converting to an annual amount first and then multiplying by $(P/A,i,n)$ is the 
 $$A_t = A_1(1+g)^{t-1}$$
 with $g$ the growth rate. Discounting term by term gives a geometric series with ratio $(1+g)/(1+i)$, which sums to $P = A_1[1 - (1+g)^n(1+i)^{-n}]/(i-g)$ when $g \ne i$. Because the discounting explicitly deflates the growth, the growth rate may be positive, negative or larger than $i$ and the formula still applies; only the perpetuity version $P = A_1/(i-g)$ needs $g < i$.
 
-**The g = i special case.** When the growth rate equals the interest rate, the ratio $(1+g)/(1+i)$ equals 1 and the closed form divides by zero. The series itself is perfectly ordinary, however: each term discounted is $A_1(1+i)^{t-1}(1+i)^{-t} = A_1/(1+i)$, a constant, so the present worth is simply $P = nA_1/(1+i)$. Examiners use this because it separates candidates who substitute blindly from those who understand the derivation.
+**The g = i special case.** When the growth rate equals the interest rate, the ratio $(1+g)/(1+i)$ equals 1 and the closed form divides by zero. The series itself is perfectly ordinary, however: each term discounted is:
+$$A_1(1+i)^{t-1}(1+i)^{-t} = A_1/(1+i)$$
+a constant, so the present worth is simply $P = nA_1/(1+i)$. Examiners use this because it separates candidates who substitute blindly from those who understand the derivation.
 
 **Using gradients in PH board problems.** Gradients model rising maintenance, declining salvage, escalating fuel or power costs, and bond or lease payments with a step. As always, the rate $i$ is the MARR or the rate 'money is worth', payments are at end of period, and a gradient problem that states a first cost at time 0 simply adds that first cost to the discounted series.
 

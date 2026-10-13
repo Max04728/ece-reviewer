@@ -11,7 +11,7 @@ prereqs: ["[[08_Sampling_Theorem_and_Aliasing]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — DFT and FFT
@@ -24,7 +24,13 @@ updated: 2026-09-23
 > [!tip] Intuition
 > The DFT answers one question: how much of each of N equally spaced frequencies is in this finite record? It treats the record as one period of a periodic signal, so anything that does not fit an integer number of cycles gets smeared — that smear is leakage.
 
-**What the DFT computes.** For $N$ samples of a signal taken at $f_s$, the DFT returns $N$ complex bins, $X[k] = \sum_{n=0}^{N-1} x[n]e^{-j2\pi kn/N}$ for $k = 0,1,\dots,N-1$. Bin $k$ represents the frequency $f_k = k f_s/N$, so the **bin spacing** is $\Delta f = f_s/N$ and the total record duration is $T = N/f_s = 1/\Delta f$. Those two relations are the whole frequency-resolution story: the only way to resolve two closely spaced tones is to observe longer. For a real-valued signal the spectrum is conjugate-symmetric, so bins $k$ and $N-k$ carry the same information and only $k = 0 \dots N/2$ are unique — bin $0$ is DC and bin $N/2$ (when $N$ is even) is the Nyquist frequency.
+**What the DFT computes.** For $N$ samples of a signal taken at $f_s$, the DFT returns $N$ complex bins:
+$$X[k] = \sum_{n=0}^{N-1} x[n]e^{-j2\pi kn/N}$$
+for $k = 0,1,\dots,N-1$. Bin $k$ represents the frequency $f_k = k f_s/N$, so the **bin spacing** is:
+$$\Delta f = f_s/N$$
+and the total record duration is:
+$$T = N/f_s = 1/\Delta f$$
+Those two relations are the whole frequency-resolution story: the only way to resolve two closely spaced tones is to observe longer. For a real-valued signal the spectrum is conjugate-symmetric, so bins $k$ and $N-k$ carry the same information and only $k = 0 \dots N/2$ are unique — bin $0$ is DC and bin $N/2$ (when $N$ is even) is the Nyquist frequency.
 
 **The FFT is not a different transform.** The fast Fourier transform is an algorithm that computes exactly the same $X[k]$ with far fewer operations, exploiting the periodicity and symmetry of the twiddle factors to split the sum recursively. A direct DFT costs $N^2$ complex multiplications; a radix-2 FFT costs about $(N/2)\log_2 N$ complex multiplications, a speed advantage of $2N/\log_2 N$ that grows with $N$ — about 341x at $N = 4096$ and over 10,000x at $N = 10^6$. Radix-2 requires $N$ to be a power of two; real hardware and libraries handle other lengths with mixed-radix or Bluestein algorithms, but zero-padding to the next power of two is the common exam-level answer.
 

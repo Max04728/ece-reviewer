@@ -11,7 +11,7 @@ prereqs: ["[[07_Higher_Order_Homogeneous_Auxiliary_Equation]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Undetermined Coefficients
@@ -34,7 +34,9 @@ a sinusoidal forcing:
 $$\sin\beta x\to A\cos\beta x+B\sin\beta x$$
 with both terms always. Products of those families use the product of the trials, expanded. A sum of forcing terms is handled term by term (superposition), each with its own trial.
 
-**When the guess collapses: duplication.** If the trial already solves the homogeneous equation, then $L$ annihilates it and the left side is identically zero — no choice of constants can produce $g$. Concretely, for $y''+4y = 8\sin 2x$ the guess $A\cos 2x+B\sin 2x$ gives $L[y_p]=0\neq 8\sin 2x$; the homogeneous roots are $\pm 2i$, so $\sin 2x$ and $\cos 2x$ are already homogeneous solutions. The repair is the modification rule: multiply the whole trial by $x^s$, where $s$ is the multiplicity of the duplicated root ($s=1$ for a simple root, $s=2$ for a double root). Then $y_p = x(A\cos 2x+B\sin 2x) = -2x\cos 2x$ works, with the amplitude growing linearly in time — the algebraic signature of resonance.
+**When the guess collapses: duplication.** If the trial already solves the homogeneous equation, then $L$ annihilates it and the left side is identically zero — no choice of constants can produce $g$. Concretely, for $y''+4y = 8\sin 2x$ the guess $A\cos 2x+B\sin 2x$ gives:
+$$L[y_p]=0\neq 8\sin 2x$$
+the homogeneous roots are $\pm 2i$, so $\sin 2x$ and $\cos 2x$ are already homogeneous solutions. The repair is the modification rule: multiply the whole trial by $x^s$, where $s$ is the multiplicity of the duplicated root ($s=1$ for a simple root, $s=2$ for a double root). Then $y_p = x(A\cos 2x+B\sin 2x) = -2x\cos 2x$ works, with the amplitude growing linearly in time — the algebraic signature of resonance.
 
 **When the method fails.** Undetermined coefficients requires (i) constant coefficients and (ii) a forcing term whose derivatives span a finite-dimensional space. It handles $x^3$, $e^{-2x}$, $\sin 3x$, and products such as $x^2e^{-x}\cos 2x$. It cannot handle $\tan x$, $\sec x$, $\ln x$, $1/x$, $\sqrt{x}$, or $e^{x^2}$, because repeated differentiation generates infinitely many independent functions, so no finite trial can match them. Variable-coefficient equations are also out of scope. Those cases belong to variation of parameters.
 

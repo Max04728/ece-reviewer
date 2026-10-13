@@ -1,0 +1,107 @@
+{
+  "area": "01_Mathematics/02_Integral_Calculus",
+  "rewrites": [
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/01_Antiderivatives_and_Standard_Forms.json",
+      "entry": 4,
+      "find": "**Linearity lets you split.** $\\int [af(x) + bg(x)]\\,dx = a\\int f\\,dx + b\\int g\\,dx$.",
+      "replace": "**Linearity lets you split.** In symbols: $\\int [af(x) + bg(x)]\\,dx = a\\int f\\,dx + b\\int g\\,dx$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/05_Trigonometric_Integrals_and_Substitution.json",
+      "entry": 5,
+      "find": "for example $\\sin A\\cos B = \\frac{1}{2}[\\sin(A-B) + \\sin(A+B)]$, to convert the product",
+      "replace": "for example: $\\sin A\\cos B = \\frac{1}{2}[\\sin(A-B) + \\sin(A+B)]$. This converts the product"
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/07_Improper_Integrals.json",
+      "entry": 2,
+      "find": "**The definition, and why the limit matters.** $\\int_a^{\\infty} f(x)\\,dx = \\lim_{b\\to\\infty}\\int_a^b f(x)\\,dx$.",
+      "replace": "**The definition, and why the limit matters.** In symbols: $\\int_a^{\\infty} f(x)\\,dx = \\lim_{b\\to\\infty}\\int_a^b f(x)\\,dx$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/08_Average_Value_and_MVT_for_Integrals.json",
+      "entry": 1,
+      "find": "the average value is $f_{\\mathrm{avg}} = \\frac{1}{b-a}\\int_a^b f(x)\\,dx$.",
+      "replace": "the average value is: $f_{\\mathrm{avg}} = \\frac{1}{b-a}\\int_a^b f(x)\\,dx$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/09_Plane_Areas_Cartesian.json",
+      "entry": 3,
+      "find": "integrate $\\int_c^d [x_{\\mathrm{right}}(y) - x_{\\mathrm{left}}(y)]\\,dy$.",
+      "replace": "the area is: $\\int_c^d [x_{\\mathrm{right}}(y) - x_{\\mathrm{left}}(y)]\\,dy$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/10_Plane_Areas_Polar.json",
+      "entry": 1,
+      "find": "to $\\theta=\\beta$ is $A = \\frac{1}{2}\\int_{\\alpha}^{\\beta} r^2\\,d\\theta$.",
+      "replace": "to $\\theta=\\beta$ the area is: $A = \\frac{1}{2}\\int_{\\alpha}^{\\beta} r^2\\,d\\theta$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/10_Plane_Areas_Polar.json",
+      "entry": 2,
+      "find": "**Area between two polar curves.** $A = \\frac{1}{2}\\int_{\\alpha}^{\\beta}\\left(r_{\\mathrm{outer}}^2 - r_{\\mathrm{inner}}^2\\right)d\\theta$, where",
+      "replace": "**Area between two polar curves.** The formula is: $A = \\frac{1}{2}\\int_{\\alpha}^{\\beta}\\left(r_{\\mathrm{outer}}^2 - r_{\\mathrm{inner}}^2\\right)d\\theta$, where"
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/12_Volumes_by_Cylindrical_Shells.json",
+      "entry": 2,
+      "find": "**The shell formula.** $V = 2\\pi\\int_a^b (\\mathrm{radius})(\\mathrm{height})\\,dx$.",
+      "replace": "**The shell formula.** In symbols: $V = 2\\pi\\int_a^b (\\mathrm{radius})(\\mathrm{height})\\,dx$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/13_Arc_Length_and_Surface_Area.json",
+      "entry": 1,
+      "find": "By Pythagoras its length is $ds = \\sqrt{dx^2+dy^2} = \\sqrt{1+\\left(\\frac{dy}{dx}\\right)^2}\\,dx$.",
+      "replace": "By Pythagoras its length is: $ds = \\sqrt{dx^2+dy^2} = \\sqrt{1+\\left(\\frac{dy}{dx}\\right)^2}\\,dx$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/13_Arc_Length_and_Surface_Area.json",
+      "entry": 1,
+      "find": "Summing over the curve gives the arc length $L = \\int_a^b\\sqrt{1+\\left[f'(x)\\right]^2}\\,dx$.",
+      "replace": "Summing over the curve gives the arc length: $L = \\int_a^b\\sqrt{1+\\left[f'(x)\\right]^2}\\,dx$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/13_Arc_Length_and_Surface_Area.json",
+      "entry": 2,
+      "find": "given as $x = g(y)$, integrate $L = \\int_c^d\\sqrt{1+\\left(\\frac{dx}{dy}\\right)^2}\\,dy$.",
+      "replace": "given as $x = g(y)$, the arc length is: $L = \\int_c^d\\sqrt{1+\\left(\\frac{dx}{dy}\\right)^2}\\,dy$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/13_Arc_Length_and_Surface_Area.json",
+      "entry": 2,
+      "find": "the arc length is $L = \\int_{\\alpha}^{\\beta}\\sqrt{r^2 + \\left(\\frac{dr}{d\\theta}\\right)^2}\\,d\\theta$ — note the $r^2$ term,",
+      "replace": "the arc length is: $L = \\int_{\\alpha}^{\\beta}\\sqrt{r^2 + \\left(\\frac{dr}{d\\theta}\\right)^2}\\,d\\theta$. Note the $r^2$ term,"
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/13_Arc_Length_and_Surface_Area.json",
+      "entry": 2,
+      "find": "For parametric curves, $L = \\int\\sqrt{\\left(\\frac{dx}{dt}\\right)^2+\\left(\\frac{dy}{dt}\\right)^2}\\,dt$.",
+      "replace": "For parametric curves the arc length is: $L = \\int\\sqrt{\\left(\\frac{dx}{dt}\\right)^2+\\left(\\frac{dy}{dt}\\right)^2}\\,dt$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/13_Arc_Length_and_Surface_Area.json",
+      "entry": 4,
+      "find": "So about the $x$-axis, $S = 2\\pi\\int_a^b f(x)\\sqrt{1+[f'(x)]^2}\\,dx$; about the $y$-axis",
+      "replace": "So about the $x$-axis: $S = 2\\pi\\int_a^b f(x)\\sqrt{1+[f'(x)]^2}\\,dx$. About the $y$-axis"
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/14_Centroids_and_Pappus-Guldinus.json",
+      "entry": 2,
+      "find": "With vertical strips, $dA = (y_{\\mathrm{top}} - y_{\\mathrm{bot}})\\,dx$ and the strip's own centroid is at $y = \\frac{y_{\\mathrm{top}}+y_{\\mathrm{bot}}}{2}$.",
+      "replace": "With vertical strips the area element is: $dA = (y_{\\mathrm{top}} - y_{\\mathrm{bot}})\\,dx$. The strip's own centroid is at the height: $y = \\frac{y_{\\mathrm{top}}+y_{\\mathrm{bot}}}{2}$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/10_Plane_Areas_Polar.json",
+      "entry": 1,
+      "find": "to $\\theta=\\beta$ the area is: $A = \\frac{1}{2}\\int_{\\alpha}^{\\beta} r^2\\,d\\theta$.",
+      "replace": "to $\\theta=\\beta$ is: $A = \\frac{1}{2}\\int_{\\alpha}^{\\beta} r^2\\,d\\theta$."
+    },
+    {
+      "file": "build/payload/01_Mathematics/02_Integral_Calculus/10_Plane_Areas_Polar.json",
+      "entry": 2,
+      "find": "\\right)d\\theta$, where the outer curve is the one with the larger $r$ on the interval.",
+      "replace": "\\right)d\\theta$. The outer curve is the one with the larger $r$ on the interval."
+    }
+  ]
+}

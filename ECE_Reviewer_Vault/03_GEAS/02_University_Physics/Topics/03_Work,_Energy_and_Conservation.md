@@ -11,7 +11,7 @@ prereqs: ["[[02_Newton’s_Laws,_Friction_and_Circular_Motion]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Work, Energy and Conservation
@@ -32,9 +32,13 @@ Three special cases the boards love: a force perpendicular to the motion does ze
 $$W_{net} = \Delta KE = \frac{1}{2}mv^2 - \frac{1}{2}mv_0^2$$
 It holds for *any* net force, constant or not, one-dimensional or not, which is why it answers 'find the speed after...' problems without ever solving for $a$ or $t$. The price is that you must account for the work of *every* force, signs included. Stopping distance follows immediately from it: if friction is the only horizontal force, $\mu_k mg\,d = \frac{1}{2}mv_0^2$, so $d = \frac{v_0^2}{2\mu_k g}$ and the mass cancels.
 
-**Conservative versus non-conservative decides whether you may use $\frac{1}{2}mv^2 + mgh = $ constant.** Gravity and ideal springs are conservative: their work depends only on the endpoints, so they may be cashed in as potential energy and the mechanical energy is conserved. Friction, drag, applied pushes and tension from an external motor are non-conservative: their work depends on the path and cannot be stored as PE. The general statement that always works is $W_{nc} = \Delta KE + \Delta PE$, with $W_{nc}$ negative when friction removes mechanical energy. Setting $W_{nc} = 0$ on a rough surface is the single most frequent error in this topic.
+**Conservative versus non-conservative decides whether you may use $\frac{1}{2}mv^2 + mgh = $ constant.** Gravity and ideal springs are conservative: their work depends only on the endpoints, so they may be cashed in as potential energy and the mechanical energy is conserved. Friction, drag, applied pushes and tension from an external motor are non-conservative: their work depends on the path and cannot be stored as PE. The general statement that always works is:
+$$W_{nc} = \Delta KE + \Delta PE$$
+with $W_{nc}$ negative when friction removes mechanical energy. Setting $W_{nc} = 0$ on a rough surface is the single most frequent error in this topic.
 
-**Potential energy needs a reference level, and only differences are physical.** $PE = mgh$ with $h$ measured from wherever you declare zero - the table, the floor, the ground. Choose the lowest point of the motion so $h$ is never negative. Spring potential energy is $\frac{1}{2}kx^2$ with $x$ the deformation from the *natural* length, not the total length. Note that $\frac{1}{2}kx^2$ is always positive, whether the spring is compressed or stretched.
+**Potential energy needs a reference level, and only differences are physical.** $PE = mgh$ with $h$ measured from wherever you declare zero - the table, the floor, the ground. Choose the lowest point of the motion so $h$ is never negative. Spring potential energy is:
+$$\frac{1}{2}kx^2$$
+with $x$ the deformation from the *natural* length, not the total length. Note that $\frac{1}{2}kx^2$ is always positive, whether the spring is compressed or stretched.
 
 **Power is the rate of energy transfer, and average power is not peak power.** $P = \frac{W}{t}$ for a constant rate, and $P = Fv$ for a force moving at speed $v$ - the second form is why a car climbing a hill at constant speed needs a bigger engine than the same car on the flat, and why acceleration fades at high speed even with the throttle down. Watch the units:
 $$1\ \mathrm{hp} = 746\ \mathrm{W}$$

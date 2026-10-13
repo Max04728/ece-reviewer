@@ -11,7 +11,7 @@ prereqs: ["[[02_PCM_Sampling,_Quantizing,_Encoding]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Quantization Noise and SQNR
@@ -26,7 +26,13 @@ updated: 2026-09-23
 
 **Where the noise comes from.** Rounding each sample to the nearest of $L$ levels produces an error confined to one half-step: $|e| \leq q/2$. That error is deterministic, but for a signal that crosses many steps per cycle it decorrelates from the signal and is well modelled as additive noise of power $P_q = q^2/12$. This is the *granular* noise floor of any PCM link; it cannot be removed by filtering because it occupies the same band as the signal.
 
-**The 6.02n + 1.76 dB result.** For a sinusoid exactly filling the quantizer range, signal power is $V_{pp}^2/8$ and noise power is $V_{pp}^2/(12\cdot 2^{2n})$, so the power ratio is $1.5\cdot 2^{2n}$. In decibels this is $10\log_{10}1.5 + 20n\log_{10}2 = 1.76 + 6.02n$. Two facts make it usable in exams: every extra bit buys exactly $6.02\ \mathrm{dB}$, and the $1.76\ \mathrm{dB}$ is a *fixed offset from the sine's crest factor*, not a fudge factor. Landmarks worth memorising:
+**The 6.02n + 1.76 dB result.** For a sinusoid exactly filling the quantizer range, signal power is $V_{pp}^2/8$ and noise power is:
+$$V_{pp}^2/(12\cdot 2^{2n})$$
+so the power ratio is:
+$$1.5\cdot 2^{2n}$$
+In decibels this is:
+$$10\log_{10}1.5 + 20n\log_{10}2 = 1.76 + 6.02n$$
+Two facts make it usable in exams: every extra bit buys exactly $6.02\ \mathrm{dB}$, and the $1.76\ \mathrm{dB}$ is a *fixed offset from the sine's crest factor*, not a fudge factor. Landmarks worth memorising:
 $$n = 8 \Rightarrow 49.9\ \mathrm{dB}$$
 $n = 12 \Rightarrow 74.0\ \mathrm{dB}$, $n = 16 \Rightarrow 98.1\ \mathrm{dB}$.
 

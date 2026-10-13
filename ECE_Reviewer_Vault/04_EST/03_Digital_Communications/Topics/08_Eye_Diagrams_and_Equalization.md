@@ -11,7 +11,7 @@ prereqs: ["[[07_Inter-Symbol_Interference_and_Nyquist_Criterion]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Eye Diagrams and Equalization

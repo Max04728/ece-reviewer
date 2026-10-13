@@ -11,7 +11,7 @@ prereqs: ["[[03_Permutations_and_Combinations]]"]
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Probability Rules and Bayes

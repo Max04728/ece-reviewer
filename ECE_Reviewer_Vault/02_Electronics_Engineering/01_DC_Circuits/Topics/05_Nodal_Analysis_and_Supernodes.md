@@ -11,7 +11,7 @@ prereqs: ["[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]", "[[01_Circuit_Variab
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Nodal Analysis and Supernodes
@@ -28,11 +28,15 @@ updated: 2026-09-23
 
 **Writing the equations.** At node $a$, sum the currents *leaving* through every resistor and set that equal to the current injected by the sources:
 $$\sum_k (v_a - v_k)/R_{ak} = \sum I_{\mathrm{into\ }a}$$
-Collecting terms gives the standard form $G_{aa}v_a - \sum_{b\neq a} G_{ab}v_b = I_a$, where the self-conductance $G_{aa}$ is the sum of every conductance touching node $a$ and the mutual conductance $G_{ab}$ is the conductance directly between $a$ and $b$. The conductance matrix is symmetric and its diagonal is positive — a useful sanity check.
+Collecting terms gives the standard form.
+$$G_{aa}v_a - \sum_{b\neq a} G_{ab}v_b = I_a$$
+where the self-conductance $G_{aa}$ is the sum of every conductance touching node $a$ and the mutual conductance $G_{ab}$ is the conductance directly between $a$ and $b$. The conductance matrix is symmetric and its diagonal is positive — a useful sanity check.
 
 **Current sources and voltage sources are treated differently.** Ideal current sources contribute directly to the right-hand side: an arrow into the node is $+I$, an arrow out is $-I$. An ideal voltage source connected to the reference *removes* an unknown — that node voltage is simply the source value (with its polarity). An ideal voltage source floating between two non-reference nodes is the hard case and needs a supernode.
 
-**The supernode.** When a voltage source sits between two non-reference nodes, its current is unknown and cannot be written as a node-voltage difference. Draw a closed surface around the source and both of its nodes — that surface is a *supernode*. Write one KCL equation summing all currents leaving the supernode through the resistors (the source branch is inside the surface and its current cancels), then add the one algebraic constraint the source supplies: $v_a - v_b = V_s$ with the sign taken from the source's polarity. Two nodes, two equations.
+**The supernode.** When a voltage source sits between two non-reference nodes, its current is unknown and cannot be written as a node-voltage difference. Draw a closed surface around the source and both of its nodes — that surface is a *supernode*. Write one KCL equation summing all currents leaving the supernode through the resistors (the source branch is inside the surface and its current cancels), then add the one algebraic constraint the source supplies:
+$$v_a - v_b = V_s$$
+with the sign taken from the source's polarity. Two nodes, two equations.
 
 **Reference-node choice matters for arithmetic only.** Any node can be ground; the branch currents and voltages come out identical. Choosing the node with the most branches as the reference usually produces the smallest, cleanest system.
 

@@ -11,7 +11,7 @@ prereqs: ["[[03_DSB-SC_and_SSB-SC]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — VSB and AM Variants Comparison

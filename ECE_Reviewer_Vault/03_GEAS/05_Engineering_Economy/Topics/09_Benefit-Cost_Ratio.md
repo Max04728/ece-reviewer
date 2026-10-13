@@ -11,7 +11,7 @@ prereqs: ["[[07_PW,_FW_and_AW_Methods]]", "[[03_Ordinary_Annuity_and_Annuity_Due
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Benefit-Cost Ratio

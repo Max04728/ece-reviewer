@@ -77,7 +77,7 @@ export function promotesInlineFormulas(areaName, slug) {
 }
 
 /** Minimum length of the formula BODY (without the $ delimiters) to be worth its own line. */
-export const CONCEPT_PROMOTE_MIN = 20;
+export const CONCEPT_PROMOTE_MIN = 15;
 
 /** A formula that merely names a symbol has no operator and is never promoted. */
 export const CONCEPT_PROMOTE_OPERATOR =

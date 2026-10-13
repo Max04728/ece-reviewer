@@ -11,7 +11,7 @@ prereqs: ["[[18_Maxwell’s_Equations_and_Displacement_Current]]", "[[02_Gradien
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 19 — EM Wave Equations and Uniform Plane Waves
@@ -46,9 +46,13 @@ m/s, the number that defines the metre; in any material $v_p \le c$. The propaga
 
 **Uniform plane waves and the TEM condition.** A uniform plane wave has $\mathbf{E}$ and $\mathbf{H}$ of constant magnitude and fixed direction over every plane perpendicular to the direction of travel, and neither field has a component along that direction. Those two facts are the definition, and they make the wave *transverse electromagnetic* (TEM):
 $$\mathbf{E}\cdot\mathbf{a}_k = 0$$
-$\mathbf{H}\cdot\mathbf{a}_k = 0$, and $\mathbf{E}\times\mathbf{H}$ points along $\mathbf{a}_k$. The transversality is forced, not assumed: the divergence condition $\nabla\cdot\mathbf{E} = 0$ applied to a wave depending only on $z$ gives $\partial E_z/\partial z = 0$, and a non-zero uniform $E_z$ would be a static field, not a wave. A uniform plane wave in unbounded space is always TEM; guided waves in a hollow waveguide are not (they are TE or TM, with a longitudinal component), which is why waveguide impedance depends on frequency while a plane wave's intrinsic impedance does not.
+$\mathbf{H}\cdot\mathbf{a}_k = 0$, and $\mathbf{E}\times\mathbf{H}$ points along $\mathbf{a}_k$. The transversality is forced, not assumed: the divergence condition $\nabla\cdot\mathbf{E} = 0$ applied to a wave depending only on $z$ gives:
+$$\partial E_z/\partial z = 0$$
+and a non-zero uniform $E_z$ would be a static field, not a wave. A uniform plane wave in unbounded space is always TEM; guided waves in a hollow waveguide are not (they are TE or TM, with a longitudinal component), which is why waveguide impedance depends on frequency while a plane wave's intrinsic impedance does not.
 
-**Orthogonality, the H field and the intrinsic impedance.** Maxwell's curl equations force the triad: for propagation along $+\mathbf{a}_z$ with $\mathbf{E} = E_0\mathbf{a}_x$, Faraday's law gives $\mathbf{H} = (E_0/\eta)\mathbf{a}_y$, where $\eta = \sqrt{\mu/\varepsilon}$ is the intrinsic impedance. In general the magnetic field follows from the propagation direction:
+**Orthogonality, the H field and the intrinsic impedance.** Maxwell's curl equations force the triad: for propagation along $+\mathbf{a}_z$ with $\mathbf{E} = E_0\mathbf{a}_x$, Faraday's law gives:
+$$\mathbf{H} = (E_0/\eta)\mathbf{a}_y$$
+where $\eta = \sqrt{\mu/\varepsilon}$ is the intrinsic impedance. In general the magnetic field follows from the propagation direction:
 $$\mathbf{H} = (1/\eta)\,\mathbf{a}_k\times\mathbf{E}$$
 and the magnitudes are related by $E_0 = \eta H_0$. The cross product is doing real work:
 $$\mathbf{a}_z\times\mathbf{a}_x = \mathbf{a}_y$$

@@ -11,7 +11,7 @@ prereqs: ["[[07_Hybrid-Pi_Model]]", "[[10_Bode_Plots_and_Margins]]"]
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Frequency Response and Bode Plots
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Every capacitor in an amplifier is an open circuit at DC and a short circuit at high frequency, so each one carves a corner out of the gain curve. The flat plateau between the corners is the midband, and the width of that plateau is the bandwidth you can actually use.
 
-**One capacitor, one corner, and one formula.** Any single resistor-capacitor combination in the signal path produces a first-order response whose corner frequency is $f = \frac{1}{2\pi RC}$, where $R$ is the resistance seen by the capacitor with the source zeroed (voltage sources shorted) and $C$ is the capacitor itself. Below the corner the capacitor's reactance is large and it attenuates; above it the reactance is small and it passes. **Coupling and bypass capacitors create the low-frequency corners; the transistor's internal capacitances create the high-frequency corner.** The method never changes: identify the capacitor, find the Thevenin resistance across it, apply the formula. The only skill is getting $R$ right.
+**One capacitor, one corner, and one formula.** Any single resistor-capacitor combination in the signal path produces a first-order response whose corner frequency is:
+$$f = \frac{1}{2\pi RC}$$
+where $R$ is the resistance seen by the capacitor with the source zeroed (voltage sources shorted) and $C$ is the capacitor itself. Below the corner the capacitor's reactance is large and it attenuates; above it the reactance is small and it passes. **Coupling and bypass capacitors create the low-frequency corners; the transistor's internal capacitances create the high-frequency corner.** The method never changes: identify the capacitor, find the Thevenin resistance across it, apply the formula. The only skill is getting $R$ right.
 
 **The low-frequency end: three capacitors, three corners, one dominant.** The input coupling capacitor $C_{in}$ sees $R_s + R_{in}$; the output coupling capacitor $C_{out}$ sees $R_{out} + R_L$; the emitter bypass $C_E$ sees a small resistance:
 $$R_E \parallel \left(r_e + \frac{R_{th} + r_\pi}{\beta + 1}\right)$$

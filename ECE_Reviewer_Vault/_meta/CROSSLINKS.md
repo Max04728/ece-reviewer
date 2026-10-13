@@ -1,7 +1,7 @@
 ---
 title: CROSSLINKS
 type: meta
-updated: 2026-09-25
+updated: 2026-09-26
 ---
 
 # CROSSLINKS — cross-area prerequisite map

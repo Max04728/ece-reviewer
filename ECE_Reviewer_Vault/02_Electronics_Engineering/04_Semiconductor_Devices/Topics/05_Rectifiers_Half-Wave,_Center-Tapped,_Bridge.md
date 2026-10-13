@@ -11,7 +11,7 @@ prereqs: ["[[02_PN_Junction_and_Depletion_Region]]", "[[04_Diode_Models_and_Load
 tags: ["ece", "electronics_engineering", "semiconductor_devices"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Rectifiers: Half-Wave, Center-Tapped, Bridge
@@ -24,11 +24,19 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A rectifier is a one-way valve followed by a load. The diode passes one half of the sine (or steers both halves the same way through the load), so the load sees a pulsating DC whose average you compute by integrating one hump. Everything else — ripple, form factor, efficiency — is bookkeeping on that same hump.
 
-**The three topologies and what the load sees.** A *half-wave* rectifier passes one half-cycle and blocks the other, so the load voltage is $v_L = V_m\sin\omega t$ for $0<\omega t<\pi$ and zero otherwise. A *center-tapped full-wave* rectifier uses a transformer with a grounded center tap and two diodes; each diode conducts on alternate half-cycles through half of the secondary, so the load receives both humps and the peak applied to the load is the center-tap-to-end peak $V_m$ (half the total secondary peak). A *bridge* rectifier uses four diodes and no center tap; two diodes conduct on each half-cycle and the full secondary drives the load, so again the load sees both humps with peak $V_m$. The difference between the two full-wave circuits is not the load waveform — that is identical — but the diode count, the transformer, and the PIV.
+**The three topologies and what the load sees.** A *half-wave* rectifier passes one half-cycle and blocks the other, so the load voltage is:
+$$v_L = V_m\sin\omega t$$
+for $0<\omega t<\pi$ and zero otherwise. A *center-tapped full-wave* rectifier uses a transformer with a grounded center tap and two diodes; each diode conducts on alternate half-cycles through half of the secondary, so the load receives both humps and the peak applied to the load is the center-tap-to-end peak $V_m$ (half the total secondary peak). A *bridge* rectifier uses four diodes and no center tap; two diodes conduct on each half-cycle and the full secondary drives the load, so again the load sees both humps with peak $V_m$. The difference between the two full-wave circuits is not the load waveform — that is identical — but the diode count, the transformer, and the PIV.
 
-**The averages that matter.** For a sine hump of peak $V_m$, the average over a whole cycle is $V_{dc} = V_m/\pi = 0.318V_m$ for half-wave and $V_{dc} = 2V_m/\pi = 0.636V_m$ for full-wave. The rms values differ for a subtler reason: the half-wave load carries current only half the time, so $V_{rms} = V_m/2$; the full-wave load always carries current, so $V_{rms} = V_m/\sqrt{2}$ exactly as for an ordinary sinusoid. Notice that the full-wave $V_{rms}$ is $\sqrt{2}$ times its $V_{dc}$-to-$V_m$ ratio partner while the half-wave is not — this is the whole origin of the different ripple factors.
+**The averages that matter.** For a sine hump of peak $V_m$, the average over a whole cycle is:
+$$V_{dc} = V_m/\pi = 0.318V_m$$
+for half-wave and $V_{dc} = 2V_m/\pi = 0.636V_m$ for full-wave. The rms values differ for a subtler reason: the half-wave load carries current only half the time, so $V_{rms} = V_m/2$; the full-wave load always carries current, so $V_{rms} = V_m/\sqrt{2}$ exactly as for an ordinary sinusoid. Notice that the full-wave $V_{rms}$ is $\sqrt{2}$ times its $V_{dc}$-to-$V_m$ ratio partner while the half-wave is not — this is the whole origin of the different ripple factors.
 
-**Ripple factor and form factor.** Ripple factor is defined as $r = V_{ac}/V_{dc}$ where $V_{ac}$ is the rms of the AC component only. Since $V_{rms}^2 = V_{dc}^2 + V_{ac}^2$, this becomes $r = \sqrt{(V_{rms}/V_{dc})^2 - 1} = \sqrt{F^2 - 1}$, where $F = V_{rms}/V_{dc}$ is the form factor. Half-wave: $F = \pi/2 = 1.571$, so $r = 1.21$. Full-wave:
+**Ripple factor and form factor.** Ripple factor is defined as $r = V_{ac}/V_{dc}$ where $V_{ac}$ is the rms of the AC component only. Since $V_{rms}^2 = V_{dc}^2 + V_{ac}^2$, this becomes:
+$$r = \sqrt{(V_{rms}/V_{dc})^2 - 1} = \sqrt{F^2 - 1}$$
+where $F = V_{rms}/V_{dc}$ is the form factor. Half-wave:
+$$F = \pi/2 = 1.571$$
+so $r = 1.21$. Full-wave:
 $$F = \pi/(2\sqrt{2}) = 1.111$$
 so $r = 0.482$. The full-wave circuit is not marginally better — its ripple is less than half the half-wave ripple for the same peak voltage, which is why every practical supply is full-wave.
 
@@ -36,7 +44,9 @@ so $r = 0.482$. The full-wave circuit is not marginally better — its ripple is
 $$\eta = P_{dc}/P_{ac} = (V_{dc}/V_{rms})^2 = 1/F^2$$
 That gives a maximum of $4/\pi^2 = 40.6\%$ for half-wave and $8/\pi^2 = 81.2\%$ for full-wave with ideal diodes. Peak inverse voltage is a *rating* question, not a performance one: it is the largest reverse voltage that appears across a non-conducting diode. Half-wave: the diode blocks the full secondary, so $PIV = V_m$. Center-tap: when one diode conducts, the other sits at the far end of the *whole* secondary while its own cathode is held at the conducting peak, so it must block $2V_m$. Bridge: two diodes conduct in series and each non-conducting diode blocks only $V_m$. Underestimating PIV is how a rectifier works on the bench and dies in the field.
 
-**Real diodes and the filter capacitor.** A conducting silicon diode drops about 0.7 V, so replace $V_m$ by $V_m - V_D$ for a half-wave or center-tap circuit and by $V_m - 2V_D$ for a bridge, which has two diodes in the conduction path. A capacitor-input filter then holds the load up between humps: the ripple is $V_r \approx I_{dc}/(f_r C)$ with $f_r = f$ for half-wave and $f_r = 2f$ for full-wave, and the DC output is $V_m - V_r/2$, not $V_m$. Adding the capacitor also changes the PIV of a half-wave rectifier to $2V_m$, because the capacitor holds the cathode at $+V_m$ while the source swings to $-V_m$.
+**Real diodes and the filter capacitor.** A conducting silicon diode drops about 0.7 V, so replace $V_m$ by $V_m - V_D$ for a half-wave or center-tap circuit and by $V_m - 2V_D$ for a bridge, which has two diodes in the conduction path. A capacitor-input filter then holds the load up between humps: the ripple is:
+$$V_r \approx I_{dc}/(f_r C)$$
+with $f_r = f$ for half-wave and $f_r = 2f$ for full-wave, and the DC output is $V_m - V_r/2$, not $V_m$. Adding the capacitor also changes the PIV of a half-wave rectifier to $2V_m$, because the capacitor holds the cathode at $+V_m$ while the source swings to $-V_m$.
 
 ## Derivation
 

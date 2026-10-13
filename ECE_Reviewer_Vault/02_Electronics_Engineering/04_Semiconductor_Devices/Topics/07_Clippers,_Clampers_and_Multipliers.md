@@ -11,7 +11,7 @@ prereqs: ["[[04_Diode_Models_and_Load_Line]]", "[[10_Inductors,_Capacitors_and_E
 tags: ["ece", "electronics_engineering", "semiconductor_devices"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Clippers, Clampers and Multipliers
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Why RC must be long, and how it fails.** The capacitor must hold its charge between peaks, so the discharge time constant has to be far longer than the signal period: design for $RC \ge 10T$ (some texts use $RC \ge 100T$ for low droop). If RC is not long enough, C bleeds down through the resistor during the non-conducting interval and the clamp level sags — the output looks like a tilted, partly restored waveform rather than a clean dc-shifted copy. Two further limits are worth remembering: the clamper responds to the *extreme* value of the input, so a waveform with a changing amplitude or an asymmetrical duty cycle retimes the clamp level each cycle, and the diode drop biases the whole result (a 0.7 V drop shifts the clamp level by 0.7 V and therefore shifts every other point by the same 0.7 V). Practical clampers use the load resistor as the discharge path, so the load must be high enough impedance not to spoil $RC$.
 
-**Voltage multipliers: clamps and rectifiers stacked.** A voltage multiplier combines both ideas — each stage is a clamp that charges a capacitor to a peak and a rectifier that dumps that charge into the next capacitor in additive fashion. The half-wave (Villard cascade) doubler charges one capacitor to $V_m$ during one half cycle and stacks the source on top of it during the other, so the second capacitor charges to about $2V_m$; the full-wave (bridge-type) doubler charges two capacitors on alternate half cycles and adds them, $V_{out} \approx 2(V_m - V_D) = 2V_m - 2V_D$. Extending the cascade adds $2V_m$ per stage (or $V_m$ per stage in the simpler half-wave forms), giving triplers, quadruplers and beyond, with the output reduced by one diode drop per conducting diode:
+**Voltage multipliers: clamps and rectifiers stacked.** A voltage multiplier combines both ideas — each stage is a clamp that charges a capacitor to a peak and a rectifier that dumps that charge into the next capacitor in additive fashion. The half-wave (Villard cascade) doubler charges one capacitor to $V_m$ during one half cycle and stacks the source on top of it during the other, so the second capacitor charges to about $2V_m$; the full-wave (bridge-type) doubler charges two capacitors on alternate half cycles and adds them to give:
+$$V_{out} \approx 2(V_m - V_D) = 2V_m - 2V_D$$
+Extending the cascade adds $2V_m$ per stage (or $V_m$ per stage in the simpler half-wave forms), giving triplers, quadruplers and beyond, with the output reduced by one diode drop per conducting diode:
 $$V_{out} \approx nV_m - nV_D$$
 The critical rating is the diode **peak inverse voltage, which is $2V_m$ for each diode** in a multiplier — the capacitor voltage adds to the source voltage, so a diode in a 12 V-peak quadrupler must block 24 V even though the output is 45 V. Multipliers are also poorly regulated: the equivalent source resistance is roughly $n^{3}/(fC)$-like (it grows steeply with the number of stages), so the no-load output collapses under any real load, and they are used for CRT supplies, photomultipliers and electrostatic devices rather than for power.
 

@@ -11,7 +11,7 @@ prereqs: ["[[10_Plane_Areas_Polar]]"]
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Coordinate Systems and Vector Algebra
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A coordinate system is only a labelling choice. Pick the one whose unit vectors line up with the symmetry of the problem and the same physical field collapses from a three-term mess into a one-line expression.
 
-**A point is physical; its coordinates are not.** The same point is $P(3,4,5)$ in Cartesian, $P(5,\,53.13^\circ,\,5)$ in cylindrical and $P(7.071,\,45^\circ,\,53.13^\circ)$ in spherical. Conversion is mechanical: $\rho=\sqrt{x^2+y^2}$, $\phi=\mathrm{atan2}(y,x)$, $z=z$ going to cylindrical, and $r=\sqrt{x^2+y^2+z^2}$, $\theta=\arccos(z/r)$, $\phi=\mathrm{atan2}(y,x)$ going to spherical. The reverse maps are $x=\rho\cos\phi$, $y=\rho\sin\phi$ and $x=r\sin\theta\cos\phi$, $y=r\sin\theta\sin\phi$, $z=r\cos\theta$. Note the two angles: $\phi$ is the azimuth measured in the $xy$-plane from $+x$, while $\theta$ is the polar angle measured down from $+z$.
+**A point is physical; its coordinates are not.** The same point is $P(3,4,5)$ in Cartesian, $P(5,\,53.13^\circ,\,5)$ in cylindrical and $P(7.071,\,45^\circ,\,53.13^\circ)$ in spherical. Conversion is mechanical:
+$$\rho=\sqrt{x^2+y^2}$$
+$\phi=\mathrm{atan2}(y,x)$, $z=z$ going to cylindrical, and $r=\sqrt{x^2+y^2+z^2}$, $\theta=\arccos(z/r)$, $\phi=\mathrm{atan2}(y,x)$ going to spherical. The reverse maps are $x=\rho\cos\phi$, $y=\rho\sin\phi$ and $x=r\sin\theta\cos\phi$, $y=r\sin\theta\sin\phi$, $z=r\cos\theta$. Note the two angles: $\phi$ is the azimuth measured in the $xy$-plane from $+x$, while $\theta$ is the polar angle measured down from $+z$.
 
 **Vector algebra is geometry.** The dot product measures projection — it answers 'how much of $\mathbf{A}$ lies along $\mathbf{B}$', which is exactly what a work or flux integral needs:
 $$\mathbf{A}\cdot\mathbf{B}=\lvert\mathbf{A}\rvert\lvert\mathbf{B}\rvert\cos\theta$$

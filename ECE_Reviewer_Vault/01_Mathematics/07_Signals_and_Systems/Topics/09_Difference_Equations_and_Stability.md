@@ -11,7 +11,7 @@ prereqs: ["[[08_Inverse_Z_Transform]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Difference Equations and Stability
@@ -38,7 +38,9 @@ for $k\ge1$ — then solve algebraically and invert. The transfer function is:
 $$H(z)=\dfrac{\sum b_mz^{-m}}{\sum a_kz^{-k}}$$
 It is what remains when all initial conditions are zero, and its ROC tells you the causality/stability story.
 
-**Stability from the characteristic roots.** The characteristic equation comes from setting the input to zero: $\sum a_kz^{-k}=0$, which after multiplying by $z^{N}$ is a polynomial in $z$ whose roots are the poles. For a **causal** system, BIBO stability requires every pole strictly inside the unit circle, $\lvert p_i\rvert<1$. Poles on $\lvert z\rvert=1$ give marginal behaviour (a bounded natural response but an unbounded response to a resonant input); poles outside give an exponentially growing impulse response.
+**Stability from the characteristic roots.** The characteristic equation comes from setting the input to zero:
+$$\sum a_kz^{-k}=0$$
+which after multiplying by $z^{N}$ is a polynomial in $z$ whose roots are the poles. For a **causal** system, BIBO stability requires every pole strictly inside the unit circle, $\lvert p_i\rvert<1$. Poles on $\lvert z\rvert=1$ give marginal behaviour (a bounded natural response but an unbounded response to a resonant input); poles outside give an exponentially growing impulse response.
 
 **Second-order shortcut (Jury/triangle test).** For $z^2+a_1z+a_2=0$ the roots are both inside the unit circle iff $\lvert a_2\rvert<1$ **and** $\lvert a_1\rvert<1+a_2$. This is the DT mirror of the Routh condition for a second-order polynomial, and it is what board questions use for a symbolic coefficient. Complex-conjugate poles are stable whenever their radius $\sqrt{a_2}$ is less than 1, which is why $a_2$ alone is a *necessary* but not sufficient condition — the $a_1$ inequality rules out a pair of real poles straddling the unit circle.
 

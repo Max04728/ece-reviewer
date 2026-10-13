@@ -11,7 +11,7 @@ prereqs: ["[[01_Intrinsic,_Extrinsic_and_Carrier_Transport]]"]
 tags: ["ece", "electronics_engineering", "semiconductor_devices"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — PN Junction and Depletion Region
@@ -26,13 +26,21 @@ updated: 2026-09-23
 
 **What happens the instant p meets n.** Holes on the p side see a hole concentration of order $10^{17}\ \mathrm{cm^{-3}}$ against roughly $10^{3}\ \mathrm{cm^{-3}}$ on the n side, so they diffuse across; electrons do the same in the opposite direction. Every carrier that leaves exposes an immobile ionised dopant atom: negative acceptor ions left on the p side, positive donor ions on the n side. This space-charge layer is the **depletion region**. It is depleted of mobile carriers, so it acts as an insulator sandwiched between two conducting regions. Diffusion cannot run away because the exposed charge builds a field (pointing from the n side toward the p side) that drives a drift current back in the opposite direction.
 
-**At equilibrium drift exactly cancels diffusion.** No wires are attached and no net current flows, so for electrons $J_n = q\mu_n n E + qD_n\frac{dn}{dx} = 0$. Using Einstein's relation $D_n/\mu_n = V_T$ this integrates across the junction to the contact, or **built-in**, potential $$V_0 = V_T\ln\!\left(\frac{N_A N_D}{n_i^{2}}\right).$$ The barrier exists with the device sitting on the bench. You cannot read it with a voltmeter, because the probe contacts develop their own opposing contact potentials that cancel it almost exactly. Practical silicon junctions land between about 0.6 V and 0.9 V; the 0.7 V figure is a typical value, not a constant.
+**At equilibrium drift exactly cancels diffusion.** No wires are attached and no net current flows, so the electron current is zero:
+$$J_n = q\mu_n n E + qD_n\frac{dn}{dx} = 0$$
+Using Einstein's relation $D_n/\mu_n = V_T$ this integrates across the junction to the contact, or **built-in**, potential $$V_0 = V_T\ln\!\left(\frac{N_A N_D}{n_i^{2}}\right).$$ The barrier exists with the device sitting on the bench. You cannot read it with a voltmeter, because the probe contacts develop their own opposing contact potentials that cancel it almost exactly. Practical silicon junctions land between about 0.6 V and 0.9 V; the 0.7 V figure is a typical value, not a constant.
 
 **The depletion width, and how it splits.** Charge neutrality of the exposed charge requires $N_A x_p = N_D x_n$, so the lighter-doped side is the wider side — often by orders of magnitude. Solving Poisson's equation inside the depletion approximation gives a triangular field profile that peaks at the metallurgical junction, $$E_{max} = \frac{qN_D x_n}{\varepsilon} = \frac{qN_A x_p}{\varepsilon},\qquad V_0 = \tfrac{1}{2}E_{max}W,$$ and therefore $$W = \sqrt{\frac{2\varepsilon}{q}\left(\frac{1}{N_A}+\frac{1}{N_D}\right)V_0}.$$ For a one-sided $p^+n$ junction the acceptor term is negligible and $W\approx\sqrt{2\varepsilon V_0/(qN_D)}$ — the lightly doped side alone sets the width.
 
 **Bias moves the boundary.** Forward bias lowers the barrier to $V_0 - V$ and shrinks the depletion region, which is why a forward-biased junction conducts heavily. Reverse bias raises it to $V_0 + V_R$ and widens it. Since the exposed charge $Q = qN_D x_n A$ is fixed by the doping, the depletion region is a voltage-variable parallel-plate capacitor, $$C_j = \frac{\varepsilon A}{W} = \frac{C_{j0}}{\sqrt{1 - V/V_0}},$$ where $V$ is positive for forward bias. This is the varactor effect and the origin of the diode's reverse-bias capacitance. Under strong forward bias the depletion approximation fails: the injected carrier density exceeds the doping, the junction no longer looks like an insulator, and the forward capacitance is set by **diffusion** capacitance $C_D = \tau_T I_D/(nV_T)$ instead.
 
-**Where the exam numbers come from.** For silicon $\varepsilon_{Si} = 11.8\,\varepsilon_0 = 1.045\times10^{-12}\ \mathrm{F/cm}$, $n_i = 1.5\times10^{10}\ \mathrm{cm^{-3}}$ at 300 K, and $V_T = kT/q = 25.9\ \mathrm{mV}$ at 300 K (use $26\ \mathrm{mV}$ for exam work). Note that $n_i$ grows steeply with temperature — roughly doubling every 10 °C — so $V_0$ has a negative temperature coefficient of about 1.7 to 2 mV/°C, and a hot junction both widens $W$ and loses barrier height. Because $V_0$ depends on the *product* $N_A N_D$, and $W$ on the *sum of reciprocals*, the two quantities respond to doping in completely different ways.
+**Where the exam numbers come from.** At 300 K the permittivity of silicon is:
+$$\varepsilon_{Si} = 11.8\,\varepsilon_0 = 1.045\times10^{-12}\ \mathrm{F/cm}$$
+The intrinsic concentration at 300 K is:
+$$n_i = 1.5\times10^{10}\ \mathrm{cm^{-3}}$$
+The thermal voltage is:
+$$V_T = kT/q = 25.9\ \mathrm{mV}$$
+at 300 K (use $26\ \mathrm{mV}$ for exam work). Note that $n_i$ grows steeply with temperature — roughly doubling every 10 °C — so $V_0$ has a negative temperature coefficient of about 1.7 to 2 mV/°C, and a hot junction both widens $W$ and loses barrier height. Because $V_0$ depends on the *product* $N_A N_D$, and $W$ on the *sum of reciprocals*, the two quantities respond to doping in completely different ways.
 
 ## Derivation
 

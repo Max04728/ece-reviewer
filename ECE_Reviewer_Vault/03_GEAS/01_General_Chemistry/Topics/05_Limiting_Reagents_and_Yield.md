@@ -11,7 +11,7 @@ prereqs: ["[[04_Mole_Concept_and_Stoichiometry]]"]
 tags: ["ece", "geas", "general_chemistry"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Limiting Reagents and Yield
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Two reactants, one recipe. The limiting reagent is whichever one forces the other to stop early, and the test is a division: moles divided by that reactant's own coefficient. The smallest quotient is the number of times the recipe can run.
 
-**The method, and why the division works.** Convert every reactant to moles, divide each by its own balanced coefficient $\nu_i$, and the smallest quotient $n_i/\nu_i$ marks the limiting reagent. The quotient answers a physical question — how many complete batches of the reaction this reactant can support — so comparing quotients compares like with like. Comparing raw mole counts does not: in $\mathrm{N_2} + 3\mathrm{H_2} \to 2\mathrm{NH_3}$, $5.00\ \mathrm{mol}$ of $\mathrm{H_2}$ is more moles than $2.00\ \mathrm{mol}$ of $\mathrm{N_2}$ yet hydrogen is limiting because each batch of ammonia consumes three $\mathrm{H_2}$ for every one $\mathrm{N_2}$.
+**The method, and why the division works.** Convert every reactant to moles, divide each by its own balanced coefficient $\nu_i$, and the smallest quotient $n_i/\nu_i$ marks the limiting reagent. The quotient answers a physical question — how many complete batches of the reaction this reactant can support — so comparing quotients compares like with like. Comparing raw mole counts does not: for example, the ammonia synthesis is:
+$$\mathrm{N_2} + 3\mathrm{H_2} \to 2\mathrm{NH_3}$$
+$5.00\ \mathrm{mol}$ of $\mathrm{H_2}$ is more moles than $2.00\ \mathrm{mol}$ of $\mathrm{N_2}$ yet hydrogen is limiting because each batch of ammonia consumes three $\mathrm{H_2}$ for every one $\mathrm{N_2}$.
 
 **Everything downstream comes from the limiting reagent.** The theoretical yield is computed from the limiting reagent only, using the ordinary mass-to-mass chain. The leftover excess is initial minus consumed, where the consumed amount comes from the limiting reagent through the coefficient ratio — not from a subtraction of masses. And percent yield is actual over theoretical for the limiting reagent's product, times 100. Compute the theoretical yield from the excess reagent instead and you will routinely report yields above 100%, which is physically impossible and is the marker the examiner is looking for.
 

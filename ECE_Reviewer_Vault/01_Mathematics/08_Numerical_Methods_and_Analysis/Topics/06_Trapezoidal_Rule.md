@@ -11,7 +11,7 @@ prereqs: ["[[03_Definite_Integrals_and_FTC]]"]
 tags: ["ece", "mathematics", "numerical_methods_and_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Trapezoidal Rule
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Replace the curve with a chain of straight chords. Where the integrand is concave up the chords lie above the curve, so the trapezoidal rule overestimates; concave down and it underestimates.
 
-**One panel is just the average of the endpoint heights times the width.** Over $[x_0,x_1]$ with $h=x_1-x_0$, the area of the trapezoid is $\frac{h}{2}[f(x_0)+f(x_1)]$. This is exactly the integral of the linear Lagrange polynomial through the two endpoints, so the trapezoidal rule is exact for every straight line.
+**One panel is just the average of the endpoint heights times the width.** Over $[x_0,x_1]$ with $h=x_1-x_0$, the area of the trapezoid is:
+$$\frac{h}{2}[f(x_0)+f(x_1)]$$
+This is exactly the integral of the linear Lagrange polynomial through the two endpoints, so the trapezoidal rule is exact for every straight line.
 
 **Composite form: halve the endpoints, count the interior points in full.** Over $n$ equal panels of width $h=\frac{b-a}{n}$, the composite rule is:
 $$T_n=\frac{h}{2}\left[f_0+2f_1+2f_2+\cdots+2f_{n-1}+f_n\right]$$

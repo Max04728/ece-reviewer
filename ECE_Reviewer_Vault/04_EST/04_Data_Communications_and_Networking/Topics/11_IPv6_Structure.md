@@ -11,7 +11,7 @@ prereqs: ["[[09_IPv4_Addressing_and_Classes]]"]
 tags: ["ece", "est", "data_communications_and_networking"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — IPv6 Structure
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > IPv6 is not a bigger IPv4 — it is a simpler one. The address grew to 128 bits, but the header lost its checksum, its options field and its fragmentation duties, so routers do less work per packet even though each address is four times longer.
 
-**The address.** An IPv6 address is 128 bits, written as eight groups of four hexadecimal digits separated by colons, for example `2001:0db8:0000:0000:0000:ff00:0042:8329`. The address space is $2^{128} \approx 3.4\times10^{38}$ — about $7.9\times10^{28}$ times IPv4's $2^{32}$. The conventional split is a 64-bit network prefix and a 64-bit interface identifier, with `/48` site prefixes and `/64` subnet prefixes being the normal allocation units. A `/64` provides $2^{64}$ addresses per subnet, which is why IPv6 has no need for NAT.
+**The address.** An IPv6 address is 128 bits, written as eight groups of four hexadecimal digits separated by colons, for example `2001:0db8:0000:0000:0000:ff00:0042:8329`. The address space is:
+$$2^{128} \approx 3.4\times10^{38}$$
+— about $7.9\times10^{28}$ times IPv4's $2^{32}$. The conventional split is a 64-bit network prefix and a 64-bit interface identifier, with `/48` site prefixes and `/64` subnet prefixes being the normal allocation units. A `/64` provides $2^{64}$ addresses per subnet, which is why IPv6 has no need for NAT.
 
 **Abbreviation rules.** Two rules apply, and only two. (1) Leading zeros within any 16-bit group are dropped: `0db8` may be written `db8`, and `0000` becomes `0`. (2) One — and only one — run of consecutive all-zero groups may be replaced by a double colon `::`. Each rule may be applied independently to as many groups as you like, except that `::` may appear only once, because otherwise the length of the collapsed run would be ambiguous. `2001:0db8:0000:0000:0000:ff00:0042:8329` becomes `2001:db8::ff00:42:8329`.
 

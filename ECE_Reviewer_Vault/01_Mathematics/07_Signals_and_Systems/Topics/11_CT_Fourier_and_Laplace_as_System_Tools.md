@@ -11,7 +11,7 @@ prereqs: ["[[07_Laplace_Transform_Pairs]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — CT Fourier and Laplace as System Tools
@@ -38,7 +38,9 @@ and $\mathcal{L}\{y''\}=s^2Y(s)-sy(0)-y'(0)$ carry the state into the algebra, s
 
 **Energy bookkeeping.** Parseval's relation is:
 $$\displaystyle\int_{-\infty}^{\infty}\lvert x(t)\rvert^2dt=\dfrac{1}{2\pi}\int_{-\infty}^{\infty}\lvert X(j\omega)\rvert^2d\omega$$
-ends in a check that an energy computed in one domain agrees with the other. For a first-order low-pass with $H(s)=\dfrac{1}{1+\tau s}$, the $-3$ dB bandwidth is $\omega_c=1/\tau$ and the impulse response energy is:
+ends in a check that an energy computed in one domain agrees with the other. For a first-order low-pass with $H(s)=\dfrac{1}{1+\tau s}$, the $-3$ dB bandwidth is:
+$$\omega_c=1/\tau$$
+and the impulse response energy is:
 $$\int_0^\infty e^{-2t/\tau}dt/\tau^2 = 1/(2\tau)$$
 
 ## Formulas

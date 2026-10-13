@@ -11,7 +11,7 @@ prereqs: ["[[01_Time_vs_Frequency_and_Line_Spectra]]", "[[13_Fourier_Transform_P
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Sampling Theorem and Aliasing
@@ -24,13 +24,16 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Sampling multiplies the spectrum by an impulse train, which copies the whole spectrum at every multiple of the sampling frequency. If the copies overlap, the overlap is permanent: a high-frequency tone reappears as a lower-frequency tone that no filter can distinguish from a genuine one.
 
-**The theorem, stated precisely.** If a signal is band-limited so that it contains no frequency above $f_m$, it can be reconstructed exactly from samples taken at a rate $f_s \ge 2f_m$. Three quantities must never be confused: the **Nyquist rate** $2f_m$ is a property of the *signal*; the **Nyquist frequency** $f_s/2$ is a property of the *sampler*; the **Nyquist interval** $1/(2f_m)$ is the largest spacing between samples that still works. Reconstruction is exact in principle by passing the sample train through an ideal lowpass filter of bandwidth $f_s/2$, which is the mathematical content of the sinc-interpolation formula $x(t) = \sum_n x(nT_s)\,\mathrm{sinc}\!\left(\frac{t-nT_s}{T_s}\right)$.
+**The theorem, stated precisely.** If a signal is band-limited so that it contains no frequency above $f_m$, it can be reconstructed exactly from samples taken at a rate $f_s \ge 2f_m$. Three quantities must never be confused: the **Nyquist rate** $2f_m$ is a property of the *signal*; the **Nyquist frequency** $f_s/2$ is a property of the *sampler*; the **Nyquist interval** $1/(2f_m)$ is the largest spacing between samples that still works. Reconstruction is exact in principle by passing the sample train through an ideal lowpass filter of bandwidth $f_s/2$, which is the mathematical content of the sinc-interpolation formula:
+$$x(t) = \sum_n x(nT_s)\,\mathrm{sinc}\!\left(\frac{t-nT_s}{T_s}\right)$$
 
 **Why: the spectrum is replicated.** Sampling is multiplication by an impulse train, and the transform of an impulse train is another impulse train with spacing $f_s$. Multiplication in time is convolution in frequency, so the sampled spectrum is the original spectrum repeated at $0, \pm f_s, \pm 2f_s, \dots$ The original occupies $[-f_m, f_m]$; the nearest replica occupies $[f_s-f_m, f_s+f_m]$. These two do not overlap precisely when $f_s - f_m \ge f_m$, i.e. $f_s \ge 2f_m$. When $f_s < 2f_m$ the replicas overlap and high-frequency content lands inside the baseband where it cannot be removed — this is **aliasing**.
 
 **Computing an alias frequency.** A component at $f$ is folded into the first Nyquist zone by subtracting or adding integer multiples of $f_s$ until the result lies in $[0, f_s/2]$:
 $$f_{alias} = \left| f - n f_s \right|$$
-with $n$ chosen so that the result is at most $f_s/2$. For a component in the band $(f_s/2, f_s)$ the shortcut is $f_{alias} = f_s - f$. Aliasing is not a one-way street: two different input frequencies can fold onto the *same* output frequency, and once that has happened the samples carry no information that separates them. A 4.5 kHz tone and a 1.5 kHz tone sampled at 6 kHz produce identical sample sequences, so a 1.5 kHz reading could legitimately have come from a 1.5 kHz, 4.5 kHz, 7.5 kHz, ... input.
+with $n$ chosen so that the result is at most $f_s/2$. For a component in the band $(f_s/2, f_s)$ the shortcut is:
+$$f_{alias} = f_s - f$$
+Aliasing is not a one-way street: two different input frequencies can fold onto the *same* output frequency, and once that has happened the samples carry no information that separates them. A 4.5 kHz tone and a 1.5 kHz tone sampled at 6 kHz produce identical sample sequences, so a 1.5 kHz reading could legitimately have come from a 1.5 kHz, 4.5 kHz, 7.5 kHz, ... input.
 
 **Bandpass signals: the $2f_m$ rule is wasteful.** The theorem's condition concerns the *width* of the occupied band, not its highest frequency. A signal confined to $[f_L, f_H]$ with bandwidth $B = f_H - f_L$ can be sampled at $f_s \ge 2B$ provided the rate and the band position satisfy the bandpass-sampling (undersampling) conditions, because the replicas merely need to avoid *each other*, not avoid the origin. Undersampling is how a 100 MHz IF is digitised by a 20 MHz converter, and the same principle is why a bandpass signal at 100 MHz with 10 MHz of bandwidth needs only 20 MHz, not 200 MHz.
 

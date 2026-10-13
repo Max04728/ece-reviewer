@@ -11,7 +11,7 @@ prereqs: ["[[03_Thermal_and_Johnson_Noise]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Shot, Flicker and Transit-Time Noise
@@ -32,7 +32,9 @@ updated: 2026-09-23
 
 **Putting the four together.** Thermal noise ($4kTR$ densities) is present in every resistive element, needs no current, and is temperature-dependent. Shot noise needs DC current, is temperature-independent, and is white. Flicker noise needs current and a trap-rich material, is temperature- and process-dependent, and dominates near DC. Transit-time noise needs a high frequency relative to the device's transit time and dominates at the top of the band. Because the mechanisms are independent and uncorrelated, **their powers add**: the total rms noise current from shot and flicker together is $\sqrt{2qI_0B + KI^{m}\ln(f_2/f_1)}$, and adding a thermal contribution means adding its power too. When two mechanisms are equal, the total is only $\sqrt{2}$ times either one — an easy 3 dB milestone worth recognising.
 
-**Reading the datasheet.** A low-noise amplifier datasheet gives a voltage noise density in $\mathrm{nV/\sqrt{Hz}}$ (which is $\sqrt{S_v}$, not $S_v$), a current noise density in $\mathrm{pA/\sqrt{Hz}}$, and sometimes a $1/f$ corner. The noise figure quoted is normally measured in the white region, so extrapolating it down to DC overstates performance. The classic numerical anchor: a $1\ \mathrm{k\Omega}$ resistor at room temperature has $\sqrt{4kTR} = 4.0\ \mathrm{nV/\sqrt{Hz}}$; a device with $1\ \mathrm{nV/\sqrt{Hz}}$ is four times better in voltage terms (12 dB) but may still lose to the resistor's Johnson noise once source impedance is included.
+**Reading the datasheet.** A low-noise amplifier datasheet gives a voltage noise density in $\mathrm{nV/\sqrt{Hz}}$ (which is $\sqrt{S_v}$, not $S_v$), a current noise density in $\mathrm{pA/\sqrt{Hz}}$, and sometimes a $1/f$ corner. The noise figure quoted is normally measured in the white region, so extrapolating it down to DC overstates performance. The classic numerical anchor is a $1\ \mathrm{k\Omega}$ resistor at room temperature, whose noise density is:
+$$\sqrt{4kTR} = 4.0\ \mathrm{nV/\sqrt{Hz}}$$
+A device with $1\ \mathrm{nV/\sqrt{Hz}}$ is four times better in voltage terms (12 dB) but may still lose to the resistor's Johnson noise once source impedance is included.
 
 ## Formulas
 

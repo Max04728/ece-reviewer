@@ -11,7 +11,7 @@ prereqs: ["[[09_Modified_Euler_and_Heun’s_Method]]"]
 tags: ["ece", "mathematics", "numerical_methods_and_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Runge-Kutta 4th Order

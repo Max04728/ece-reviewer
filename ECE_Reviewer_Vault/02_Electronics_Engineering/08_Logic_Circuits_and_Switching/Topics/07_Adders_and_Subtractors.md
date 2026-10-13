@@ -11,7 +11,7 @@ prereqs: ["[[02_Signed_Arithmetic_and_Two’s_Complement]]", "[[04_Boolean_Algeb
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Adders and Subtractors

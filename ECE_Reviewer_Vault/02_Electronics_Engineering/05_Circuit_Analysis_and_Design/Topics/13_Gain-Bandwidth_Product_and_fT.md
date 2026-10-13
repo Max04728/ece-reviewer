@@ -11,7 +11,7 @@ prereqs: ["[[12_Miller’s_Theorem_and_High-Frequency_Effects]]", "[[07_Hybrid-P
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — Gain-Bandwidth Product and fT

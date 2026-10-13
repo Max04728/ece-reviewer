@@ -11,7 +11,7 @@ prereqs: ["[[03_Instrumentation_and_Difference_Amplifiers]]", "[[01_Op-Amp_Funda
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Signal Conditioning and DAQ

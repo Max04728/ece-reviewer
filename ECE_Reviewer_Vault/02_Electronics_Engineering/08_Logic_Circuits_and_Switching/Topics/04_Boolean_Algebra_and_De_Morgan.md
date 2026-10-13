@@ -11,7 +11,7 @@ prereqs: ["[[01_Number_Systems_and_Base_Conversion]]"]
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Boolean Algebra and De Morgan
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **De Morgan's two theorems.** $\overline{A+B} = \bar A\,\bar B$ and $\overline{A\,B} = \bar A + \bar B$. In words: break the bar and change the operator. The generalized form extends to any number of variables and to mixed expressions: complement each variable, exchange AND with OR, and complement the whole. This is the single most-used theorem in digital design because it converts between the AND-OR world you minimise in and the NAND-NAND or NOR-NOR world you build in.
 
-**Duality is not complementation.** The dual of an expression is formed by swapping AND with OR and swapping the constants 0 and 1, while leaving every variable **uncomplemented**. The dual of $A + BC = (A+B)(A+C)$ is $A(B+C) = AB + AC$, which is true. De Morgan, by contrast, complements variables. Confusing the two is the classic algebra error:
+**Duality is not complementation.** The dual of an expression is formed by swapping AND with OR and swapping the constants 0 and 1, while leaving every variable **uncomplemented**. The dual of $A + BC = (A+B)(A+C)$ is:
+$$A(B+C) = AB + AC$$
+which is true. De Morgan, by contrast, complements variables. Confusing the two is the classic algebra error:
 $$\overline{A+B} \neq \bar A + \bar B$$
 
 **Absorption and consensus remove redundant terms.** Absorption: $A + AB = A$ and $A(A+B) = A$, because the term $AB$ can never be true when $A$ is false. Consensus:

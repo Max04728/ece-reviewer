@@ -11,7 +11,7 @@ prereqs: ["[[14_Information_Theory_and_Entropy]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 16 — Error Control: Hamming and CRC

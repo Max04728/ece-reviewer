@@ -1,0 +1,83 @@
+{
+  "area": "02_Electronics_Engineering/07_Industrial_Automation_and_Sensors",
+  "rewrites": [
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/03_Instrumentation_and_Difference_Amplifiers.json",
+      "entry": 1,
+      "find": "Superposition gives the exact result $V_o = (1+R_2/R_1)\\frac{R_4}{R_3+R_4}V_2 - \\frac{R_2}{R_1}V_1$.",
+      "replace": "Superposition gives the exact result: $V_o = (1+R_2/R_1)\\frac{R_4}{R_3+R_4}V_2 - \\frac{R_2}{R_1}V_1$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/03_Instrumentation_and_Difference_Amplifiers.json",
+      "entry": 2,
+      "find": "the common-mode gain is $A_{cm} = (1+R_2/R_1)\\frac{R_4}{R_3+R_4} - \\frac{R_2}{R_1}$, which is zero",
+      "replace": "the common-mode gain is: $A_{cm} = (1+R_2/R_1)\\frac{R_4}{R_3+R_4} - \\frac{R_2}{R_1}$, which is zero"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/04_Integrators_and_Differentiators.json",
+      "entry": 1,
+      "find": "gives $V_o(t) = -\\frac{1}{RC}\\int_0^t V_i\\,dt + V_o(0)$, or in the frequency domain $V_o/V_i = -1/(j\\omega RC)$.",
+      "replace": "gives the time-domain result: $V_o(t) = -\\frac{1}{RC}\\int_0^t V_i\\,dt + V_o(0)$. In the frequency domain the transfer function is $V_o/V_i = -1/(j\\omega RC)$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/05_Comparators_and_Schmitt_Triggers.json",
+      "entry": 3,
+      "find": "The divider gives $V_+ = (V_oR_1 + V_{ref}R_2)/(R_1+R_2)$, so the two thresholds are $V_{UT} = (V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$ and $V_{LT} = (-V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$, a width of",
+      "replace": "The divider gives the corner at $V_+ = (V_oR_1 + V_{ref}R_2)/(R_1+R_2)$. The two thresholds are: $V_{UT} = (V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$; $V_{LT} = (-V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$. The width is"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/06_Precision_Rectifiers.json",
+      "entry": 1,
+      "find": "Deriving the residual error from $V_o + V_D = A_{ol}(V_i - V_o)$ gives $V_o = (A_{ol}V_i - V_D)/(1+A_{ol}) \\approx V_i - V_D/A_{ol}$.",
+      "replace": "The residual error follows from $V_o + V_D = A_{ol}(V_i - V_o)$: $V_o = (A_{ol}V_i - V_D)/(1+A_{ol}) \\approx V_i - V_D/A_{ol}$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/07_Active_Filter_Responses.json",
+      "entry": 2,
+      "find": "Two poles give the standard form $H(s) = K\\omega_0^2/(s^2 + (\\omega_0/Q)s + \\omega_0^2)$.",
+      "replace": "Two poles give the standard form: $H(s) = K\\omega_0^2/(s^2 + (\\omega_0/Q)s + \\omega_0^2)$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/08_Sallen-Key_Filter_Design.json",
+      "entry": 1,
+      "find": ", so $f_0 = 1/(2\\pi\\sqrt{R_1R_2C_1C_2})$ and $Q = \\sqrt{R_1R_2C_1C_2}/\\left[R_1C_2+R_2C_2+R_1C_1(1-K)\\right]$. Every design problem",
+      "replace": ". The two design equations are: $f_0 = 1/(2\\pi\\sqrt{R_1R_2C_1C_2})$; $Q = \\sqrt{R_1R_2C_1C_2}/\\left[R_1C_2+R_2C_2+R_1C_1(1-K)\\right]$. Every design problem"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/09_Temperature_Sensors.json",
+      "entry": 1,
+      "find": "with $\\alpha = 0.00385\\ \\mathrm{\\Omega/\\Omega/^\\circ C}$, so its sensitivity is $\\alpha R_0 = 0.385\\ \\mathrm{\\Omega/^\\circ C}$; a Pt1000",
+      "replace": "with the temperature coefficient: $\\alpha = 0.00385\\ \\mathrm{\\Omega/\\Omega/^\\circ C}$, and the sensitivity that follows: $\\alpha R_0 = 0.385\\ \\mathrm{\\Omega/^\\circ C}$; a Pt1000"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/10_Strain_Gauges_and_Wheatstone_Bridge.json",
+      "entry": 1,
+      "find": "— a 350 Ω gauge changes by only $350 \\times 2 \\times 0.001 = 0.7\\ \\mathrm{\\Omega}$, which is why the bridge",
+      "replace": "— a 350 Ω gauge changes by only: $350 \\times 2 \\times 0.001 = 0.7\\ \\mathrm{\\Omega}$. That is why the bridge"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/10_Strain_Gauges_and_Wheatstone_Bridge.json",
+      "entry": 2,
+      "find": "Two dividers driven from the same excitation produce $V_o = V_{ex}\\left(\\frac{R_3}{R_3+R_4} - \\frac{R_2}{R_1+R_2}\\right)$, which is zero when $R_1R_4 = R_2R_3$. A single active gauge in the bridge — the quarter-bridge configuration — unbalances it by $\\Delta R$ and produces $V_o = V_{ex}\\Delta R/(4R + 2\\Delta R) \\approx \\frac{V_{ex}}{4}GF\\varepsilon$. The factor of four",
+      "replace": "Two dividers are driven from the same excitation, and the output is: $V_o = V_{ex}\\left(\\frac{R_3}{R_3+R_4} - \\frac{R_2}{R_1+R_2}\\right)$. It is zero when $R_1R_4 = R_2R_3$. A single active gauge in the bridge — the quarter-bridge configuration — unbalances it by $\\Delta R$. The output is: $V_o = V_{ex}\\Delta R/(4R + 2\\Delta R) \\approx \\frac{V_{ex}}{4}GF\\varepsilon$. The factor of four"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/11_Position_Sensors_LVDT,_Hall,_Encoders.json",
+      "entry": 3,
+      "find": "one count is $5\\ \\mathrm{mm}/4000 = 1.25\\ \\mu\\mathrm{m}$ of linear travel.",
+      "replace": "one count is a linear travel of: $5\\ \\mathrm{mm}/4000 = 1.25\\ \\mu\\mathrm{m}$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/14_DAC_Architectures.json",
+      "entry": 2,
+      "find": "producing $I_o = (V_{ref}/R)(b_{n-1} + b_{n-2}/2 + \\cdots)$. It works",
+      "replace": "and the output current is: $I_o = (V_{ref}/R)(b_{n-1} + b_{n-2}/2 + \\cdots)$. It works"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/07_Industrial_Automation_and_Sensors/16_Ladder_Logic,_Timers_and_Counters.json",
+      "entry": 1,
+      "find": "with a normally-closed stop contact in series — $Q = (\\mathrm{Start} + Q)\\cdot\\overline{\\mathrm{Stop}}$ — and an interlock",
+      "replace": "with a normally-closed stop contact in series. The seal-in logic is: $Q = (\\mathrm{Start} + Q)\\cdot\\overline{\\mathrm{Stop}}$. An interlock"
+    }
+  ]
+}

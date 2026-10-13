@@ -11,7 +11,7 @@ prereqs: ["[[09_Thermal_Expansion_and_Calorimetry]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — First Law and Processes

@@ -11,7 +11,7 @@ prereqs: ["[[05_Rectifiers_Half-Wave,_Center-Tapped,_Bridge]]", "[[02_Phasors_an
 tags: ["ece", "electronics_engineering", "power_electronics_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — SCR Phase-Controlled Rectifiers
@@ -24,9 +24,17 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A phase-controlled rectifier is an uncontrolled rectifier with a deliberate delay: the thyristor blocks until the AC source has risen to whatever level you choose, so you control the delivered voltage by throwing away the first slice of every half-cycle. Average voltage therefore falls monotonically from the full uncontrolled value at $\alpha=0$ to zero at $\alpha=180^\circ$.
 
-**The firing-angle convention and why the average voltage has that cosine form.** With $v_s=V_m\sin\omega t$ and the SCR gated at $\alpha$, the load sees $v_s$ only from $\omega t=\alpha$ to $\pi$ (half-wave) or to $\pi+\alpha$ (full-wave). The average of a sine over the remaining conduction window is $V_{avg}=\dfrac{V_m}{2\pi}(1+\cos\alpha)$ for one SCR and $V_{avg}=\dfrac{V_m}{\pi}(1+\cos\alpha)$ for a bridge, because the bridge delivers *two* identical pulses per cycle. Both expressions contain the whole design story: at $\alpha=0$ the bracket is 2 and the half-wave value collapses to the familiar uncontrolled $V_m/\pi$ (and the bridge to $2V_m/\pi$), at $\alpha=90^\circ$ it is exactly 1 (half of full output), and at $\alpha=180^\circ$ it is 0. Angles are always in **degrees** on the board; the formula needs $\alpha$ in radians only inside $\sin(2\alpha)$-type RMS expressions, so convert deliberately and never mix.
+**The firing-angle convention and why the average voltage has that cosine form.** With $v_s=V_m\sin\omega t$ and the SCR gated at $\alpha$, the load sees $v_s$ only from $\omega t=\alpha$ to $\pi$ (half-wave) or to $\pi+\alpha$ (full-wave). The average of a sine over the remaining conduction window is:
+$$V_{avg}=\dfrac{V_m}{2\pi}(1+\cos\alpha)$$
+for one SCR and $V_{avg}=\dfrac{V_m}{\pi}(1+\cos\alpha)$ for a bridge, because the bridge delivers *two* identical pulses per cycle. Both expressions contain the whole design story: at $\alpha=0$ the bracket is 2 and the half-wave value collapses to the familiar uncontrolled $V_m/\pi$ (and the bridge to $2V_m/\pi$), at $\alpha=90^\circ$ it is exactly 1 (half of full output), and at $\alpha=180^\circ$ it is 0. Angles are always in **degrees** on the board; the formula needs $\alpha$ in radians only inside $\sin(2\alpha)$-type RMS expressions, so convert deliberately and never mix.
 
-**RMS is the waveform that sets heating, and it does not fall as fast as the average.** Because the average is over a shortened window, the form factor rises sharply as $\alpha$ increases: the same SCR that gives $V_{avg}=40.5\ \mathrm{V}$ at $\alpha=60^\circ$ has $V_{rms}=81.1\ \mathrm{V}$, a form factor near 2. This is why the load's $I^2R$ heating and the thyristor's own $I_{rms}^2R_{on}$ loss must use the RMS expressions $V_{rms}=V_m\sqrt{\dfrac{1}{2\pi}\left(\pi-\alpha+\dfrac{\sin 2\alpha}{2}\right)}$ for half-wave and $V_m\sqrt{\dfrac{1}{\pi}\left(\pi-\alpha+\dfrac{\sin2\alpha}{2}\right)}$ for the bridge, not the average. At $\alpha=0$ the bridge square root becomes $\sqrt{1}=1$, so $V_{rms}=V_m/\sqrt2=V_{s,rms}$: with no delay the load sees the entire sine, which is a useful sanity check.
+**RMS is the waveform that sets heating, and it does not fall as fast as the average.** Because the average is over a shortened window, the form factor rises sharply as $\alpha$ increases: the same SCR that gives:
+$$V_{avg}=40.5\ \mathrm{V}$$
+at $\alpha=60^\circ$ has $V_{rms}=81.1\ \mathrm{V}$, a form factor near 2. This is why the load's $I^2R$ heating and the thyristor's own $I_{rms}^2R_{on}$ loss must use the RMS expressions, not the average. For half-wave:
+$$V_{rms}=V_m\sqrt{\dfrac{1}{2\pi}\left(\pi-\alpha+\dfrac{\sin 2\alpha}{2}\right)}$$
+For the bridge:
+$$V_m\sqrt{\dfrac{1}{\pi}\left(\pi-\alpha+\dfrac{\sin2\alpha}{2}\right)}$$
+At $\alpha=0$ the bridge square root becomes $\sqrt{1}=1$, so $V_{rms}=V_m/\sqrt2=V_{s,rms}$: with no delay the load sees the entire sine, which is a useful sanity check.
 
 **Triggering and commutation.** The SCR is a latching device: a short gate pulse of a few tens of milliamperes (referenced to cathode) fires it, and it then stays on by itself until its anode current falls below the holding current $I_H$. In a line-commutated rectifier that happens naturally at the AC zero crossing, when the source voltage reverses and the current is forced to zero — this is **natural (line) commutation**, and it is why these circuits need no forced turn-off circuitry. The gate pulse must still be present at the right instant and, with an inductive load, must be either a wide pulse or a train of pulses, because the anode current may not have reached the latching current $I_L$ before a narrow pulse ends.
 

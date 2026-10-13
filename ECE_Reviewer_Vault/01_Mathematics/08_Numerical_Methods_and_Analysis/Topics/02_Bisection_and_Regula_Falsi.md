@@ -11,7 +11,7 @@ prereqs: ["[[01_Limits,_Continuity_and_L_Hopital]]"]
 tags: ["ece", "mathematics", "numerical_methods_and_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Bisection and Regula Falsi
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **Bisection halves the interval every time.** Compute the midpoint $c=\frac{a+b}{2}$; if $f(a)f(c)<0$ the root is in $[a,c]$, otherwise in $[c,b]$. Because the *root itself* is never used, convergence is guaranteed and the error is bounded by the half-width $(b-a)/2^{n}$ after $n$ steps. The price is speed: one binary digit per iteration, and roughly 10 iterations for every 3 decimal digits (since $2^{10}\approx10^{3}$).
 
-**Regula falsi replaces the midpoint with the chord intercept.** The false-position estimate is $c=\frac{a f(b)-b f(a)}{f(b)-f(a)}$, the point where the secant through $(a,f(a))$ and $(b,f(b))$ cuts the axis. For a smooth function the root is usually much closer to $c$ than to the midpoint, so early convergence is far faster than bisection.
+**Regula falsi replaces the midpoint with the chord intercept.** The false-position estimate is:
+$$c=\frac{a f(b)-b f(a)}{f(b)-f(a)}$$
+the point where the secant through $(a,f(a))$ and $(b,f(b))$ cuts the axis. For a smooth function the root is usually much closer to $c$ than to the midpoint, so early convergence is far faster than bisection.
 
 **The regula falsi stall is the exam trap.** If $f$ is convex over the bracket, one endpoint never leaves the interval; every new estimate crowds against the other end and the interval width shrinks geometrically but slowly (the stagnant endpoint approaches the root only linearly). On $f(x)=x^{3}-2x-5$ over $[2,3]$ the upper end stays at $b=3$ for every iteration. Modified false position (Illinois algorithm) halves the stagnant function value to break the stall.
 

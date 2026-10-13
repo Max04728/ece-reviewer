@@ -11,7 +11,7 @@ prereqs: ["[[01_RA_9292_Scope_of_Practice]]"]
 tags: ["ece", "geas", "ece_laws_and_professional_ethics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Titles: PECE, ECE, ECT and Seal

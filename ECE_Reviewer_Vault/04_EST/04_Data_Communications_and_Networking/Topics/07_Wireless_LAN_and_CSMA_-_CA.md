@@ -11,7 +11,7 @@ prereqs: ["[[06_MAC_Protocols_and_Ethernet]]"]
 tags: ["ece", "est", "data_communications_and_networking"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Wireless LAN and CSMA/CA

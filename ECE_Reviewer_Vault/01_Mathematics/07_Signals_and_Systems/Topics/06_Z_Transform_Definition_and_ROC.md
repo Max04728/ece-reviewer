@@ -11,7 +11,7 @@ prereqs: ["[[05_Discrete-Time_Convolution]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Z Transform Definition and ROC

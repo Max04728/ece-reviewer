@@ -11,7 +11,7 @@ prereqs: ["[[12_Hypothesis_Testing,_Z,_t_and_p_Errors]]"]
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — ANOVA and DOE
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > ANOVA asks whether several group means differ by comparing the variation *between* groups with the variation *within* groups. If the groups are really different, the between-group spread is large relative to the noise inside each group.
 
-**The variance decomposition.** Total variation splits exactly into two additive parts: $SS_T=SS_A+SS_W$, where $SS_A$ (between groups) measures how far each group mean sits from the grand mean and $SS_W$ (within groups, or error) measures the scatter inside each group. Degrees of freedom split the same way: $N-1=(a-1)+(N-a)$ with $a$ groups and $N$ total observations. This additive structure is the whole method.
+**The variance decomposition.** Total variation splits exactly into two additive parts: $SS_T=SS_A+SS_W$, where $SS_A$ (between groups) measures how far each group mean sits from the grand mean and $SS_W$ (within groups, or error) measures the scatter inside each group. Degrees of freedom split the same way:
+$$N-1=(a-1)+(N-a)$$
+with $a$ groups and $N$ total observations. This additive structure is the whole method.
 
 **The F statistic.** $F=\frac{MS_A}{MS_W}$ where $MS_A=\frac{SS_A}{a-1}$ and $MS_W=\frac{SS_W}{N-a}$. Under the null hypothesis the two mean squares estimate the same error variance, so $F$ is near 1. Large $F$ means the group means are spread further apart than random noise would explain. Reject $H_0$ when $F>F_{\alpha}(a-1,\,N-a)$. The F distribution is right-skewed and defined only for positive values.
 

@@ -1,0 +1,45 @@
+/* --------------------------------------------------- inline & display math -- */
+/* Maths is the content of these notes, so it has to be findable and legible in a dense
+   paragraph. Obsidian renders it with MathJax, which emits <mjx-container display="true"> for
+   a `$$` block and display="false" for inline `$...$`. Older builds used `.MathJax` /
+   `.math-block`, so both shapes are covered.
+
+   EVERY rule here is scoped to `.markdown-rendered` (the note reading view) on purpose: this
+   same file is <link>ed INSIDE the widget iframes, and a bare `p { ... }` rule would restyle
+   every widget. Keep the scope. */
+
+/* 1. Inline maths reads as a token rather than blending into the sentence: a faint chip the eye
+      can catch while scanning. `box-decoration-break` keeps the chip tidy if a formula wraps. */
+.markdown-rendered mjx-container[display="false"],
+.markdown-rendered .math-inline,
+.markdown-rendered span.math {
+  padding: 0 0.22em;
+  border-radius: 4px;
+  background: var(--background-secondary);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* 2. A full-size inline formula (the `\displaystyle` fractions, roots and integrals written by
+      `build/apply-displaystyle.mjs`) is TALLER than the surrounding text, so at the theme's
+      default line-height it collides with the lines above and below. This rule is what makes
+      that pass legible — do not remove one without the other. */
+.markdown-rendered p,
+.markdown-rendered li {
+  line-height: 1.75;
+}
+
+/* 3. A display block is an object, not a sentence: separate it from the prose, mark it with an
+      accent rule, and let an over-wide equation scroll horizontally instead of being clipped at
+      the pane edge. */
+.markdown-rendered mjx-container[display="true"],
+.markdown-rendered .math-block,
+.markdown-rendered div.math-block {
+  display: block;
+  margin: 0.85em 0;
+  padding: 0.5em 0.85em;
+  background: var(--background-secondary);
+  border-left: 3px solid var(--interactive-accent);
+  border-radius: 6px;
+  overflow-x: auto;
+}

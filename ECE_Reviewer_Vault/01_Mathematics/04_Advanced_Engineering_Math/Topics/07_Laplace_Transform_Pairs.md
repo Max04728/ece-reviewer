@@ -11,7 +11,7 @@ prereqs: ["[[03_Definite_Integrals_and_FTC]]", "[[07_Improper_Integrals]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Laplace Transform Pairs

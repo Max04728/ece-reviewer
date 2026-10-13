@@ -11,7 +11,7 @@ prereqs: ["[[04_Boolean_Algebra_and_De_Morgan]]"]
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — SOP, POS, Minterms and Maxterms
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Every truth table row where the output is 1 is one product term (a minterm); every row where it is 0 is one sum term (a maxterm). Canonical forms are the mechanical, unminimised transcriptions of the table.
 
-**Minterms are the 1s.** A minterm of $n$ variables is a product containing every variable exactly once, complemented where the variable is 0 in that row. For row $A=0,B=1,C=1$ the minterm is $\bar A B C$, and its index is the binary value of the row, $011 = 3$, written $m_3$. A minterm is 1 for exactly one row of the truth table and 0 everywhere else, so ORing the minterms of the 1-rows reproduces the function exactly: $F = \sum m(1,3,5,7)$. This is the canonical **SOP** form.
+**Minterms are the 1s.** A minterm of $n$ variables is a product containing every variable exactly once, complemented where the variable is 0 in that row. For row $A=0,B=1,C=1$ the minterm is $\bar A B C$, and its index is the binary value of the row, $011 = 3$, written $m_3$. A minterm is 1 for exactly one row of the truth table and 0 everywhere else, so ORing the minterms of the 1-rows reproduces the function exactly:
+$$F = \sum m(1,3,5,7)$$
+This is the canonical **SOP** form.
 
 **Maxterms are the 0s.** A maxterm of $n$ variables is a sum containing every variable exactly once, complemented where the variable is **1** in that row. For row $A=0,B=1,C=1$ the maxterm is $A + \bar B + \bar C$, index 3, written $M_3$. A maxterm is 0 for exactly one row, so ANDing the maxterms of the 0-rows reproduces the function:
 $$F = \prod M(0,2,4,6)$$

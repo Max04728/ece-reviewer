@@ -11,7 +11,7 @@ prereqs: ["[[04_Deferred_Annuities_and_Perpetuities]]", "[[02_Nominal_vs_Effecti
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Capitalized Cost

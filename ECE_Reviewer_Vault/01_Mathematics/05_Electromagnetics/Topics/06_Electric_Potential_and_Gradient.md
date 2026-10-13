@@ -11,7 +11,7 @@ prereqs: ["[[02_Gradient,_Divergence,_Curl_and_Laplacian]]", "[[05_Gauss_Law_and
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Electric Potential and Gradient
@@ -28,7 +28,9 @@ updated: 2026-09-23
 $$V_{AB}=V_A-V_B=\int_A^B\mathbf{E}\cdot d\mathbf{l}$$
 The integral is path-independent precisely because $\nabla\times\mathbf{E}=0$ in electrostatics, which is what allows a single-valued potential to exist. The reference point is arbitrary — only differences are physical — and the conventional choice is $V\to0$ at infinity, which requires all the charge to be at finite distance.
 
-**Computing V directly is usually easier than computing E.** Potential is a scalar, so superposition is ordinary algebraic addition with the sign of each charge carried through: $V=\sum_i kQ_i/r_i$ for point charges, and $\int dq/(4\pi\varepsilon_0 r)$ for a distribution. No components, no angles. The price is that $V$ must be found first and differentiated to get $\mathbf{E}$. For a point charge $V=kQ/r$; for a conducting sphere of radius $a$ the potential is $kQ/r$ outside and the constant $kQ/a$ throughout the interior, since the field inside a conductor is zero.
+**Computing V directly is usually easier than computing E.** Potential is a scalar, so superposition is ordinary algebraic addition with the sign of each charge carried through:
+$$V=\sum_i kQ_i/r_i$$
+for point charges, and $\int dq/(4\pi\varepsilon_0 r)$ for a distribution. No components, no angles. The price is that $V$ must be found first and differentiated to get $\mathbf{E}$. For a point charge $V=kQ/r$; for a conducting sphere of radius $a$ the potential is $kQ/r$ outside and the constant $kQ/a$ throughout the interior, since the field inside a conductor is zero.
 
 **The field is the negative gradient of potential.** $\mathbf{E}=-\nabla V$: the field points toward decreasing potential, its magnitude is the maximum rate of decrease per metre, and $\mathbf{E}$ is everywhere perpendicular to the equipotential surfaces. That perpendicularity has a practical consequence — a conductor's surface is an equipotential, so the field just outside it is normal to the surface. The minus sign is not bookkeeping: it is the statement that positive charges fall downhill in potential, exactly as masses fall in a gravitational potential.
 

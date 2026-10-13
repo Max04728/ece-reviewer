@@ -11,7 +11,7 @@ prereqs: ["[[03_System_Properties_and_LTI]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Continuous-Time Convolution

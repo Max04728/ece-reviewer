@@ -11,7 +11,7 @@ prereqs: ["[[02_Titles_PECE,_ECE,_ECT_and_Seal]]"]
 tags: ["ece", "geas", "ece_laws_and_professional_ethics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — RA 9292 Scope of Practice

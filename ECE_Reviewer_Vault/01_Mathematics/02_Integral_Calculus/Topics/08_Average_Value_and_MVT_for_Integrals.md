@@ -11,7 +11,7 @@ prereqs: ["[[03_Definite_Integrals_and_FTC]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Average Value and MVT for Integrals
@@ -24,11 +24,19 @@ updated: 2026-09-23
 > [!tip] Intuition
 > The average value of a function is the height of the rectangle with the same base that has the same area as the region under the curve. The Mean Value Theorem for Integrals guarantees the function actually attains that height somewhere.
 
-**Average value.** For $f$ continuous on $[a,b]$, the average value is $f_{\mathrm{avg}} = \frac{1}{b-a}\int_a^b f(x)\,dx$. Geometrically it is the height of a rectangle of width $b-a$ whose area equals the area under the curve. The division by $b-a$ is essential: the integral alone gives total area, not average height.
+**Average value.** For $f$ continuous on $[a,b]$, the average value is:
+$$f_{\mathrm{avg}} = \frac{1}{b-a}\int_a^b f(x)\,dx$$
+Geometrically it is the height of a rectangle of width $b-a$ whose area equals the area under the curve. The division by $b-a$ is essential: the integral alone gives total area, not average height.
 
-**Mean Value Theorem for Integrals.** If $f$ is continuous on $[a,b]$, there exists at least one $c$ in $(a,b)$ with $f(c) = f_{\mathrm{avg}}$, that is $f(c) = \frac{1}{b-a}\int_a^b f(x)\,dx$. This is the continuous analogue of 'in any finite list of numbers, some value is at least the average' — except continuity guarantees the function actually takes the average as a value, which is not automatic for arbitrary functions.
+**Mean Value Theorem for Integrals.** If $f$ is continuous on $[a,b]$, there exists at least one $c$ in $(a,b)$ with $f(c) = f_{\mathrm{avg}}$, that is:
+$$f(c) = \frac{1}{b-a}\int_a^b f(x)\,dx$$
+This is the continuous analogue of 'in any finite list of numbers, some value is at least the average' — except continuity guarantees the function actually takes the average as a value, which is not automatic for arbitrary functions.
 
-**Relationship to the MVT for derivatives.** The two theorems are the same statement seen from different sides. Define $F(x) = \int_a^x f(t)\,dt$. Applying the derivative MVT to $F$ on $[a,b]$ gives $F'(c) = \frac{F(b)-F(a)}{b-a}$ for some $c$. Since $F'(c) = f(c)$ by the FTC and $F(b)-F(a) = \int_a^b f$, this becomes $f(c) = \frac{1}{b-a}\int_a^b f$ — exactly the integral MVT. So continuity of $f$ is what makes the derivative MVT applicable to $F$.
+**Relationship to the MVT for derivatives.** The two theorems are the same statement seen from different sides. Define $F(x) = \int_a^x f(t)\,dt$. Applying the derivative MVT to $F$ on $[a,b]$ gives:
+$$F'(c) = \frac{F(b)-F(a)}{b-a}$$
+for some $c$. Since $F'(c) = f(c)$ by the FTC and $F(b)-F(a) = \int_a^b f$, this becomes:
+$$f(c) = \frac{1}{b-a}\int_a^b f$$
+— exactly the integral MVT. So continuity of $f$ is what makes the derivative MVT applicable to $F$.
 
 **Finding the guaranteed point.** Compute $f_{\mathrm{avg}}$, then solve $f(c) = f_{\mathrm{avg}}$ for $c$ and keep only solutions inside $(a,b)$. There may be more than one valid $c$; the theorem guarantees at least one. Problems often ask for *a* value, so reporting one correct interior solution is sufficient, though listing all of them is safer.
 

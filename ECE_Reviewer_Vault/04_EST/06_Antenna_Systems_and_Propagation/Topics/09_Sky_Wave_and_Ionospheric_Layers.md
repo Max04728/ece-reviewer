@@ -11,7 +11,7 @@ prereqs: ["[[07_Ground_Wave_Propagation]]"]
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Sky Wave and Ionospheric Layers
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > The ionosphere is a gas of free electrons, and a gas of free electrons has a refractive index below 1 - so a radio wave entering it bends away from the vertical, and enough bending turns the ray back to earth with no mirror involved anywhere.
 
-**Refraction, not reflection.** Solar ultraviolet and X-ray photons strip electrons from atoms in the upper atmosphere and leave a weakly ionised plasma. For a wave of frequency $f$ in a plasma of $N$ electrons per cubic metre the refractive index is $n = \sqrt{1-81N/f^{2}}$. Because $N>0$ the index is below unity, so the wave speeds up inside the plasma and bends *away from the vertical*; the bending accumulates as the ray climbs into denser ionisation until the ray turns over where $n \to 0$. The ionosphere is therefore a graded refracting medium with a frequency-dependent turning height, not a reflecting surface. Setting $n = 0$ defines the **plasma frequency** $f_p = 9\sqrt{N}$, and a wave of frequency $f$ sent straight up is returned only if $f \le f_p$ at the top of its trajectory. That last statement is the origin of the whole idea of a critical frequency, and later of the MUF.
+**Refraction, not reflection.** Solar ultraviolet and X-ray photons strip electrons from atoms in the upper atmosphere and leave a weakly ionised plasma. For a wave of frequency $f$ in a plasma of $N$ electrons per cubic metre the refractive index is:
+$$n = \sqrt{1-81N/f^{2}}$$
+Because $N>0$ the index is below unity, so the wave speeds up inside the plasma and bends *away from the vertical*; the bending accumulates as the ray climbs into denser ionisation until the ray turns over where $n \to 0$. The ionosphere is therefore a graded refracting medium with a frequency-dependent turning height, not a reflecting surface. Setting $n = 0$ defines the **plasma frequency** $f_p = 9\sqrt{N}$, and a wave of frequency $f$ sent straight up is returned only if $f \le f_p$ at the top of its trajectory. That last statement is the origin of the whole idea of a critical frequency, and later of the MUF.
 
 **The layers, from the bottom up.** **D** sits at about 60-90 km, exists only in daylight, and is far too thin to return HF - but its electrons collide constantly with neutral molecules, so it *absorbs* medium and high frequencies. That absorption is why AM broadcast sky wave is a night-time mode. **E** occupies roughly 100-120 km, is present by day, and returns HF over medium hops; dense sporadic-E patches can occasionally return VHF. **F1** at about 180-240 km appears only in daylight and is strongest in summer, while **F2** at 250-400 km carries the highest electron density and is the workhorse for long-haul HF. After sunset F1 disappears and the F region merges into a single layer whose height rises, leaving F2 as the only refracting layer on a night circuit.
 

@@ -11,7 +11,7 @@ prereqs: ["[[05_Rotational_Kinematics_and_Torque]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Angular Momentum and Rigid Bodies
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Angular momentum is rotational inertia in motion, and it is stubborn: with no external torque it cannot be created or destroyed, only redistributed. Pulling mass closer to the axis shrinks $I$, so $\omega$ must rise to keep $I\omega$ fixed - the figure skater's spin.
 
-**Angular momentum is $L = I\omega$ for a rigid body and $L = mvr\sin\theta$ for a point mass.** The two forms are the same idea; the second uses $r\sin\theta$, the perpendicular distance from the axis to the velocity line, because a particle moving directly toward or away from the axis carries no angular momentum about it. Units are $\mathrm{kg\cdot m^2/s}$ and $\omega$ must be in rad/s. As a vector, $\vec{L}$ points along the rotation axis, which is what makes a spinning bicycle wheel resist tilting.
+**Angular momentum is $L = I\omega$ for a rigid body and $L = mvr\sin\theta$ for a point mass.** The two forms are the same idea; the second uses $r\sin\theta$, the perpendicular distance from the axis to the velocity line, because a particle moving directly toward or away from the axis carries no angular momentum about it. Units are:
+$$\mathrm{kg\cdot m^2/s}$$
+and $\omega$ must be in rad/s. As a vector, $\vec{L}$ points along the rotation axis, which is what makes a spinning bicycle wheel resist tilting.
 
 **Conservation of angular momentum.** When the net external torque is zero the conserved quantity is:
 $$I_1\omega_1 = I_2\omega_2$$
@@ -34,7 +36,9 @@ a smaller $I$ at the same $L$ means *more* rotational kinetic energy; the skater
 
 **Torque is the rate of change of angular momentum:
 $$\tau = \frac{dL}{dt}$$
-or $\tau\Delta t = \Delta L$ for a constant torque.** This is the rotational twin of impulse-momentum and it is the fastest route when a torque acts for a known time: a $12\ \mathrm{N\cdot m}$ torque on $I = 3.0\ \mathrm{kg\cdot m^2}$ for 2.0 s delivers $24\ \mathrm{kg\cdot m^2/s}$ of angular momentum, which is $\omega = 8\ \mathrm{rad/s}$ from rest. Use the impulse form when time is given; use $\sum\tau = I\alpha$ when the geometry is given.
+or $\tau\Delta t = \Delta L$ for a constant torque.** This is the rotational twin of impulse-momentum and it is the fastest route when a torque acts for a known time: a $12\ \mathrm{N\cdot m}$ torque on $I = 3.0\ \mathrm{kg\cdot m^2}$ for 2.0 s delivers $24\ \mathrm{kg\cdot m^2/s}$ of angular momentum, which is:
+$$\omega = 8\ \mathrm{rad/s}$$
+from rest. Use the impulse form when time is given; use $\sum\tau = I\alpha$ when the geometry is given.
 
 **Rolling without slipping is translational *and* rotational motion at once.** The contact point is instantaneously at rest, so $v = R\omega$ holds, and a rolling body's total kinetic energy is:
 $$KE = \frac{1}{2}mv^2 + \frac{1}{2}I\omega^2$$
@@ -42,7 +46,9 @@ Substituting $\omega = \frac{v}{R}$ turns it into:
 $$KE = \frac{1}{2}mv^2\left(1 + \frac{I}{mR^2}\right)$$
 where the factor $\frac{I}{mR^2}$ is the shape's rotational signature: 0 for a sliding block, $\frac{1}{2}$ for a disk or cylinder, 1 for a hoop, $\frac{2}{5}$ for a solid sphere, $\frac{2}{3}$ for a hollow sphere.
 
-**That shape factor decides every rolling race.** Energy conservation down a ramp of height $h$ gives $v = \sqrt{\frac{2gh}{1 + I/(mR^2)}}$, so the object with the *smallest* $I/(mR^2)$ arrives first regardless of its mass or radius. A solid sphere ($\frac{2}{5}$) beats a disk ($\frac{1}{2}$), which beats a hoop (1) - and a frictionless sliding block beats them all at $\sqrt{2gh}$. Two balls of different mass but the same shape tie exactly, which is the counter-intuitive answer boards like to key.
+**That shape factor decides every rolling race.** Energy conservation down a ramp of height $h$ gives:
+$$v = \sqrt{\frac{2gh}{1 + I/(mR^2)}}$$
+so the object with the *smallest* $I/(mR^2)$ arrives first regardless of its mass or radius. A solid sphere ($\frac{2}{5}$) beats a disk ($\frac{1}{2}$), which beats a hoop (1) - and a frictionless sliding block beats them all at $\sqrt{2gh}$. Two balls of different mass but the same shape tie exactly, which is the counter-intuitive answer boards like to key.
 
 **When conservation does not apply.** $I\omega$ is constant only when no net *external* torque acts. A rolling ball slowed by friction, a spinning top falling over under gravity, and a wheel with an applied brake all have external torques and lose or gain angular momentum. The usual mistake is to conserve $L$ while a friction force or the weight of an overhanging mass is torquing the system; the fix is either to include the object supplying the torque in the system or to use $\tau\Delta t = \Delta L$.
 

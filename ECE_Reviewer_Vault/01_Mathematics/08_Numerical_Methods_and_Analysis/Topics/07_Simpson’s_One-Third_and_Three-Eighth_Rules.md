@@ -11,7 +11,7 @@ prereqs: ["[[03_Definite_Integrals_and_FTC]]"]
 tags: ["ece", "mathematics", "numerical_methods_and_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Simpson’s One-Third and Three-Eighth Rules
@@ -38,7 +38,9 @@ with $n$ divisible by 3. Interior nodes whose index is a multiple of 3 get weigh
 
 **The index conditions are not interchangeable.** One-third needs $n$ **even**; three-eighth needs $n$ **divisible by 3**. A common exam datum is $n=6$, which satisfies both — then either rule is legal and they give slightly different answers, since the underlying interpolants differ. If $n$ is odd and not divisible by 3, split the interval: apply the 3/8 rule to one three-panel block (or the 1/3 rule to as many two-panel blocks as possible) and the 1/3 rule to the remainder.
 
-**Why the order is $h^{4}$, not $h^{2}$.** Simpson's 1/3 rule is exact for every cubic, even though it is derived from a quadratic — the cubic term's error integrates to zero over a symmetric double panel. The panel error is $-\frac{h^{5}}{90}f^{(4)}(\xi)$. The composite error is:
+**Why the order is $h^{4}$, not $h^{2}$.** Simpson's 1/3 rule is exact for every cubic, even though it is derived from a quadratic — the cubic term's error integrates to zero over a symmetric double panel. The panel error is:
+$$-\frac{h^{5}}{90}f^{(4)}(\xi)$$
+The composite error is:
 $$-\frac{(b-a)h^{4}}{180}f^{(4)}(\xi)=-\frac{(b-a)^{5}}{180n^{4}}f^{(4)}(\xi)$$
 Halving $h$ divides the error by 16. The three-eighth rule shares the same $h^{4}$ order with a different constant.
 

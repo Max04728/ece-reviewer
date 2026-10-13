@@ -113,7 +113,17 @@ let regexUndercount = 0;
 const perNote = new Map();
 const residualSamples = [];
 /** How substantial are the formulas left mid-sentence? Drives whether extending the rule is worth it. */
-const residualByLen = { '20-29': 0, '30-39': 0, '40-59': 0, '60+': 0 };
+/**
+ * Length bands for the residual table. Anchored to CONCEPT_PROMOTE_MIN rather than hard-coded at
+ * 20, so the labels stay truthful when the display threshold moves (they were stale after it was
+ * lowered to 15, reporting 15-19 char formulas inside a "20-29" row).
+ */
+const LEN_LO = CONCEPT_PROMOTE_MIN;
+const BAND_A = `${LEN_LO}-${LEN_LO + 9}`;
+const BAND_B = `${LEN_LO + 10}-${LEN_LO + 19}`;
+const BAND_C = `${LEN_LO + 20}-${LEN_LO + 29}`;
+const BAND_D = `${LEN_LO + 30}+`;
+const residualByLen = { [BAND_A]: 0, [BAND_B]: 0, [BAND_C]: 0, [BAND_D]: 0 };
 const residualByOp = new Map();
 
 /** Every site the prose rewrite has to fix: a 40+ char equation sitting inside a sentence. */
@@ -162,11 +172,16 @@ for (const file of payloads) {
         residualSubstantial += 1;
         paraResidual += 1;
         noteResidual += 1;
-        const len = String(body).trim().length;
-        if (len < 30) residualByLen['20-29'] += 1;
-        else if (len < 40) residualByLen['30-39'] += 1;
-        else if (len < 60) residualByLen['40-59'] += 1;
-        else residualByLen['60+'] += 1;
+        // `\displaystyle` is a rendering directive written by `apply-displaystyle.mjs`, not equation
+        // content: it adds no reading burden, so it must not push a formula over the 40-char
+        // "buried in prose" bar. Without this, the displaystyle pass inflates the worklist by
+        // ~250 sites that no rewrite is wanted for. Nothing else is stripped — `\dfrac` and
+        // `\tfrac` are authorial content choices and stay counted.
+        const len = String(body).trim().replace(/^\\displaystyle\s+/, '').length;
+        if (len < LEN_LO + 10) residualByLen[BAND_A] += 1;
+        else if (len < LEN_LO + 20) residualByLen[BAND_B] += 1;
+        else if (len < LEN_LO + 30) residualByLen[BAND_C] += 1;
+        else residualByLen[BAND_D] += 1;
         if (residualSamples.length < 400) {
           residualSamples.push({ file, body: body.trim() });
         }

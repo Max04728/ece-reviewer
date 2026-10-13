@@ -11,7 +11,7 @@ prereqs: ["[[07_Fluid_Statics_Pascal_and_Archimedes]]", "[[03_Work,_Energy_and_C
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Fluid Dynamics: Continuity and Bernoulli

@@ -11,7 +11,7 @@ prereqs: ["[[06_Electric_Potential_and_Gradient]]"]
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Dipoles and Polarization
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **Torque, energy and force.** In a uniform field a dipole feels no net force, only a torque of magnitude $pE\sin\theta$ about the centre:
 $$\boldsymbol{\tau}=\mathbf{p}\times\mathbf{E}$$
-Its potential energy is $U=-\mathbf{p}\cdot\mathbf{E}$. The energy is minimised when $\mathbf{p}$ aligns with $\mathbf{E}$, which is why the torque always rotates the dipole toward alignment — the perpendicular position is the maximum-torque position, and the anti-aligned position is the unstable maximum-energy one. A *net force* requires a non-uniform field:
+Its potential energy is:
+$$U=-\mathbf{p}\cdot\mathbf{E}$$
+The energy is minimised when $\mathbf{p}$ aligns with $\mathbf{E}$, which is why the torque always rotates the dipole toward alignment — the perpendicular position is the maximum-torque position, and the anti-aligned position is the unstable maximum-energy one. A *net force* requires a non-uniform field:
 $$\mathbf{F}=(\mathbf{p}\cdot\nabla)\mathbf{E}$$
 so a dipole drifts toward the stronger field when it is aligned with it. This is the mechanism behind dielectrophoresis and why a charged rod attracts uncharged paper.
 

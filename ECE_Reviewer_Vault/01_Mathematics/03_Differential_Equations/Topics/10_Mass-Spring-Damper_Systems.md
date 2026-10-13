@@ -11,7 +11,7 @@ prereqs: ["[[09_Variation_of_Parameters]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Mass-Spring-Damper Systems
@@ -32,7 +32,9 @@ updated: 2026-09-23
 $$\ddot{x}+2\zeta\omega_n\dot{x}+\omega_n^2 x = F/m$$
 A system's qualitative behaviour therefore depends on the single dimensionless number $\zeta$ and the time scale $1/\omega_n$, not on $m$, $c$, $k$ individually — which is why exam problems state three numbers but ask one behavioural question.
 
-**The driven response.** For $F(t) = F_0\cos\omega t$ the steady state is $x_p = X\cos(\omega t-\phi)$, whose amplitude is:
+**The driven response.** For $F(t) = F_0\cos\omega t$ the steady state is:
+$$x_p = X\cos(\omega t-\phi)$$
+whose amplitude is:
 $$X = F_0/\sqrt{(k-m\omega^2)^2+(c\omega)^2}$$
 with a phase set by $\tan\phi = c\omega/(k-m\omega^2)$. The $c\omega$ term is what keeps the amplitude finite: at $\omega=\omega_n$ the denominator is $c\omega$, not zero, so an underdamped system resonates at a large but finite amplitude. The displacement peak actually occurs at $\omega_r = \omega_n\sqrt{1-2\zeta^2}$, below $\omega_n$, and no peak exists at all for $\zeta\ge 1/\sqrt{2}\approx0.707$. Infinite amplitude requires $c=0$.
 

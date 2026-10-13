@@ -11,7 +11,7 @@ prereqs: ["[[04_Power_Series_Radius_of_Convergence]]", "[[03_Sequences_and_Conve
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — Bessel Functions
@@ -40,11 +40,15 @@ The partner is:
 $$J_{\nu+1} = \frac{\nu}{x}J_\nu - J_\nu'$$
 The most-used special case is $J_0' = -J_1$, which follows at $\nu = 0$. Because these relations move only the order, a table of $J_0$ and $J_1$ values is enough to reach any higher integer order without evaluating a single integral.
 
-**Zeros become eigenvalues, and orthogonality carries a weight.** A clamped rim at $\rho = a$ imposes $J_\nu(ka) = 0$, so the permitted $k$ values are $k_n = \alpha_{\nu n}/a$ where $\alpha_{\nu n}$ is the $n$-th positive zero of $J_\nu$ — the eigenvalues come from the zeros, never from the value at the origin, where $J_0(0) = 1$ and $J_\nu(0) = 0$ for $\nu>0$. The eigenfunctions are orthogonal with respect to the weight $\rho$:
+**Zeros become eigenvalues, and orthogonality carries a weight.** A clamped rim at $\rho = a$ imposes $J_\nu(ka) = 0$, so the permitted $k$ values are:
+$$k_n = \alpha_{\nu n}/a$$
+where $\alpha_{\nu n}$ is the $n$-th positive zero of $J_\nu$ — the eigenvalues come from the zeros, never from the value at the origin, where $J_0(0) = 1$ and $J_\nu(0) = 0$ for $\nu>0$. The eigenfunctions are orthogonal with respect to the weight $\rho$:
 $$\int_0^{a}\rho J_\nu(\alpha_m\rho/a)J_\nu(\alpha_p\rho/a)d\rho$$
 vanishes for $m\neq p$ and equals $\frac{a^{2}}{2}J_{\nu+1}^{2}(\alpha_n)$ for $m = p$. The weight is not optional — Bessel's equation is self-adjoint only in the weighted Sturm-Liouville sense — so dropping it destroys the orthogonality that makes a Fourier-Bessel expansion possible, and the computed coefficients come out biased toward the outer part of the region.
 
-**The modified forms and the half-integer exception.** When the separation constant has the opposite sign, as in a decaying field below cutoff or heat flow along a fin, the equation becomes $x^{2}y'' + xy' - (x^{2}+\nu^{2})y = 0$ with solutions $I_\nu$ and $K_\nu$. These are monotone: $I_\nu$ grows exponentially, $K_\nu$ decays and is singular at the origin, and neither oscillates, so a modified problem has no zero-crossing eigenvalue structure at all. Finally, half-integer orders collapse to elementary functions, the cleanest being $J_{1/2}(x) = \sqrt{2/(\pi x)}\sin x$, so $J_{1/2}(\pi/2) = 2/\pi = 0.6366$; this lets a spherical-geometry problem be solved with ordinary sines instead of Bessel tables.
+**The modified forms and the half-integer exception.** When the separation constant has the opposite sign, as in a decaying field below cutoff or heat flow along a fin, the equation becomes:
+$$x^{2}y'' + xy' - (x^{2}+\nu^{2})y = 0$$
+with solutions $I_\nu$ and $K_\nu$. These are monotone: $I_\nu$ grows exponentially, $K_\nu$ decays and is singular at the origin, and neither oscillates, so a modified problem has no zero-crossing eigenvalue structure at all. Finally, half-integer orders collapse to elementary functions, the cleanest being $J_{1/2}(x) = \sqrt{2/(\pi x)}\sin x$, so $J_{1/2}(\pi/2) = 2/\pi = 0.6366$; this lets a spherical-geometry problem be solved with ordinary sines instead of Bessel tables.
 
 ## Formulas
 

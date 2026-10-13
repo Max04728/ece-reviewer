@@ -11,7 +11,7 @@ prereqs: ["[[05_SNR,_Noise_Factor_and_Noise_Figure]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Equivalent Noise Temperature
@@ -32,13 +32,21 @@ and $T_e = 0$ exactly when $F = 1$. The formula uses $T_0 = 290\ \mathrm{K}$ (th
 
 **Why the formalism exists.** $T_e$ is the natural language of low-noise design (radio astronomy, satellite links, cryogenic front ends) because the numbers are additive in the same way temperatures are, and because receivers there have noise figures so close to 0 dB that the dB differences are meaningless:
 $$\mathrm{NF}=0.1\ \mathrm{dB}$$
-is $T_e = 6.7\ \mathrm{K}$, $\mathrm{NF}=0.5\ \mathrm{dB}$ is $35\ \mathrm{K}$, and the difference between the two is a real, expensive engineering change. It also lets you combine a cold antenna with a warm receiver in one consistent quantity, which the noise-figure view cannot do without an extra correction.
+is:
+$$T_e = 6.7\ \mathrm{K}$$
+$\mathrm{NF}=0.5\ \mathrm{dB}$ is $35\ \mathrm{K}$, and the difference between the two is a real, expensive engineering change. It also lets you combine a cold antenna with a warm receiver in one consistent quantity, which the noise-figure view cannot do without an extra correction.
 
-**System noise temperature.** For a source at temperature $T_a$ feeding a receiver of equivalent noise temperature $T_e$ through a lossless connection, the total noise power available at the receiver input is $P_n = k(T_a+T_e)B$, so the relevant quantity is the **system noise temperature** $T_{sys} = T_a + T_e$. $T_a$ is the *source* or *antenna* noise temperature: for an antenna looking at cold sky it can be $10$–$50\ \mathrm{K}$, looking at the sun it can be thousands of kelvin, and looking at the ground it approaches $290\ \mathrm{K}$. $T_e$ is a property of the receiver alone. Confusing the two is the conceptual error this topic exists to prevent: a receiver with $T_e = 50\ \mathrm{K}$ connected to a $290\ \mathrm{K}$ antenna has a system temperature of $340\ \mathrm{K}$, not $50\ \mathrm{K}$.
+**System noise temperature.** For a source at temperature $T_a$ feeding a receiver of equivalent noise temperature $T_e$ through a lossless connection, the total noise power available at the receiver input is:
+$$P_n = k(T_a+T_e)B$$
+so the relevant quantity is the **system noise temperature** $T_{sys} = T_a + T_e$. $T_a$ is the *source* or *antenna* noise temperature: for an antenna looking at cold sky it can be $10$–$50\ \mathrm{K}$, looking at the sun it can be thousands of kelvin, and looking at the ground it approaches $290\ \mathrm{K}$. $T_e$ is a property of the receiver alone. Confusing the two is the conceptual error this topic exists to prevent: a receiver with $T_e = 50\ \mathrm{K}$ connected to a $290\ \mathrm{K}$ antenna has a system temperature of $340\ \mathrm{K}$, not $50\ \mathrm{K}$.
 
-**Cascading in temperature form.** The Friis noise formula is algebraically identical in temperature, $T_e = T_{e1} + \dfrac{T_{e2}}{G_1} + \dfrac{T_{e3}}{G_1G_2} + \cdots$, with gains as available power ratios. Temperature form is often easier to reason about: a $500\ \mathrm{K}$ second stage behind $20\ \mathrm{dB}$ of gain contributes only $5\ \mathrm{K}$, which makes the first-stage dominance obvious without any dB conversion. A lossy component is not exempt: a matched line at physical temperature $T_p$ with loss ratio $L$ has $T_e = T_p\left(1-\frac{1}{L}\right)$, so a $3\ \mathrm{dB}$ line ($L=2$) at room temperature contributes $145\ \mathrm{K}$. Note that at $T_p = T_0$ this makes $F = 1 + T_e/T_0 = L$, recovering the familiar 'noise figure equals loss' rule.
+**Cascading in temperature form.** The Friis noise formula is algebraically identical in temperature:
+$$T_e = T_{e1} + \dfrac{T_{e2}}{G_1} + \dfrac{T_{e3}}{G_1G_2} + \cdots$$
+with gains as available power ratios. Temperature form is often easier to reason about: a $500\ \mathrm{K}$ second stage behind $20\ \mathrm{dB}$ of gain contributes only $5\ \mathrm{K}$, which makes the first-stage dominance obvious without any dB conversion. A lossy component is not exempt: a matched line at physical temperature $T_p$ with loss ratio $L$ has $T_e = T_p\left(1-\frac{1}{L}\right)$, so a $3\ \mathrm{dB}$ line ($L=2$) at room temperature contributes $145\ \mathrm{K}$. Note that at $T_p = T_0$ this makes $F = 1 + T_e/T_0 = L$, recovering the familiar 'noise figure equals loss' rule.
 
-**Limits and traps in the metaphor.** $T_e$ is a *fictitious* temperature: a $169\ \mathrm{K}$ equivalent temperature does not mean the amplifier is physically cold, and a device cooled to $77\ \mathrm{K}$ still has a positive $T_e$. The conversion $F = 1+T_e/T_0$ is only valid for a source at $T_0$; with a cold source, the correct computation is $P_n = k(T_a + T_e)B$ rather than $F\,kT_0B$. Cascaded temperatures must use gain *ratios* (a $20\ \mathrm{dB}$ block divides by $100$, not by $20$), and a stage with loss has $G<1$, which *amplifies* the noise temperature of everything after it — the reason a lossy cable defeats a good LNA placed behind it.
+**Limits and traps in the metaphor.** $T_e$ is a *fictitious* temperature: a $169\ \mathrm{K}$ equivalent temperature does not mean the amplifier is physically cold, and a device cooled to $77\ \mathrm{K}$ still has a positive $T_e$. The conversion $F = 1+T_e/T_0$ is only valid for a source at $T_0$; with a cold source, the correct computation is:
+$$P_n = k(T_a + T_e)B$$
+rather than $F\,kT_0B$. Cascaded temperatures must use gain *ratios* (a $20\ \mathrm{dB}$ block divides by $100$, not by $20$), and a stage with loss has $G<1$, which *amplifies* the noise temperature of everything after it — the reason a lossy cable defeats a good LNA placed behind it.
 
 ## Formulas
 

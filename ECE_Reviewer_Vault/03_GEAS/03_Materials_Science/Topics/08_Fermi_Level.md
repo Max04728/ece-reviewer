@@ -11,7 +11,7 @@ prereqs: ["[[07_Energy_Bands_and_Classification]]"]
 tags: ["ece", "geas", "materials_science"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Fermi Level
@@ -26,9 +26,13 @@ updated: 2026-09-23
 
 **The distribution, and the one temperature that is exact.** $f(E) = \dfrac{1}{1+e^{(E-E_F)/kT}}$. At any temperature at all, $f(E_F) = 0.5$ — that is the definition of $E_F$ and the safest fact to quote. At $T = 0\ \mathrm{K}$ the function is a perfect step: $1$ below $E_F$, $0$ above, and $E_F$ coincides with the highest filled level. At 300 K the step is smeared over only a few $kT$ (about 0.1 eV), which is why the free-electron picture of a sharp Fermi sea survives at room temperature. Because the smearing is so narrow, a state 0.5 eV above $E_F$ has an occupancy of about $10^{-9}$ and a state 0.5 eV below is full to within $10^{-9}$ — the two decades either side of $E_F$ are the only ones where the distribution does anything interesting.
 
-**The Fermi energy of a metal is enormous, and that is the point.** Treating the conduction electrons as a free-electron gas, $N = \int_0^{E_F} g(E)\,dE$ with the parabolic density of states gives $E_F = \dfrac{h^2}{8m}\left(\dfrac{3N}{\pi V}\right)^{2/3}$. For copper ($8.5\times10^{22}$ electrons per cm³) this is about $7\ \mathrm{eV}$ — more than 250 times $kT$ at room temperature. So the electron gas in a metal is **degenerate**: almost all the thermally accessible action happens in a shell of width $\sim kT$ at the Fermi surface, and only a fraction $\sim T/T_F$ of the electrons can be excited. This single fact explains why the electronic heat capacity of a metal is about 100 times smaller than the classical Drude prediction, why it is linear in $T$ rather than constant, and why the Pauli paramagnetic susceptibility of conduction electrons is nearly temperature-independent.
+**The Fermi energy of a metal is enormous, and that is the point.** Treating the conduction electrons as a free-electron gas, $N = \int_0^{E_F} g(E)\,dE$ with the parabolic density of states gives the free-electron result. The Fermi energy is:
+$$E_F = \dfrac{h^2}{8m}\left(\dfrac{3N}{\pi V}\right)^{2/3}$$
+For copper ($8.5\times10^{22}$ electrons per cm³) this is about $7\ \mathrm{eV}$ — more than 250 times $kT$ at room temperature. So the electron gas in a metal is **degenerate**: almost all the thermally accessible action happens in a shell of width $\sim kT$ at the Fermi surface, and only a fraction $\sim T/T_F$ of the electrons can be excited. This single fact explains why the electronic heat capacity of a metal is about 100 times smaller than the classical Drude prediction, why it is linear in $T$ rather than constant, and why the Pauli paramagnetic susceptibility of conduction electrons is nearly temperature-independent.
 
-**Where the Fermi level sits in a pure semiconductor.** For an intrinsic semiconductor, charge neutrality forces $E_F$ to within about $kT$ of mid-gap. The exact expression is $E_F = \dfrac{E_c+E_v}{2} + \dfrac{kT}{2}\ln\dfrac{N_v}{N_c}$; the second term is the reason $E_F$ sits a touch *above* mid-gap in silicon, where the effective density of states in the conduction band is the larger. Mid-gap placement is not a law of nature — it is a consequence of $n = p$, and it holds only while the material is intrinsic.
+**Where the Fermi level sits in a pure semiconductor.** For an intrinsic semiconductor, charge neutrality forces $E_F$ to within about $kT$ of mid-gap. The exact expression comes from charge neutrality.
+$$E_F = \dfrac{E_c+E_v}{2} + \dfrac{kT}{2}\ln\dfrac{N_v}{N_c}$$
+The second term is the reason $E_F$ sits a touch *above* mid-gap in silicon, where the effective density of states in the conduction band is the larger. Mid-gap placement is not a law of nature — it is a consequence of $n = p$, and it holds only while the material is intrinsic.
 
 **Doping moves the Fermi level, and the mass-action law moves the other carrier.** Adding donors of concentration $N_D$ raises $n$ toward $N_D$ and pushes $E_F$ **up** toward the conduction band;
 $$E_F - E_i = kT\ln(n/n_i)$$

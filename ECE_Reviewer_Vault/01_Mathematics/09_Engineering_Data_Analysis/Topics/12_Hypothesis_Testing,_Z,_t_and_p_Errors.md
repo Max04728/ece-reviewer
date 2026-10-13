@@ -11,7 +11,7 @@ prereqs: ["[[11_Confidence_Intervals]]", "[[10_Central_Limit_Theorem]]"]
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Hypothesis Testing, Z, t and p Errors

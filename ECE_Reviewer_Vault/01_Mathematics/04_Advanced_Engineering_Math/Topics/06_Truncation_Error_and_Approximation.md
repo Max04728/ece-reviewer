@@ -11,7 +11,7 @@ prereqs: ["[[05_Taylor_and_Maclaurin_Series]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Truncation Error and Approximation
@@ -28,7 +28,9 @@ updated: 2026-09-23
 $$R_N(x) = f(x) - P_N(x) = \frac{f^{(N+1)}(c)}{(N+1)!}(x-a)^{N+1}$$
 for some $c$ between $a$ and $x$. This is the Lagrange remainder, and it is an *equality* with an unknown point $c$; to get a usable bound you replace $f^{(N+1)}(c)$ by its maximum magnitude $M$ on the interval. The bound $|R_N| \leq \frac{M|x-a|^{N+1}}{(N+1)!}$ is a worst case, so the true error is usually smaller — but only the bound is guaranteed.
 
-**Alternating series give a free, exact-in-form bound.** If the terms alternate, decrease in magnitude, and tend to zero, then the error from stopping after $N$ terms is bounded by the magnitude of the first omitted term: $|R_N| \leq b_{N+1}$. No derivative is needed and the bound is tight. This is why alternating series are the friendliest truncation problems: you can read the error straight off the next term, and the sign of the error is the sign of that term.
+**Alternating series give a free, exact-in-form bound.** If the terms alternate, decrease in magnitude, and tend to zero, then the error from stopping after $N$ terms is bounded by the magnitude of the first omitted term:
+$$|R_N| \leq b_{N+1}$$
+No derivative is needed and the bound is tight. This is why alternating series are the friendliest truncation problems: you can read the error straight off the next term, and the sign of the error is the sign of that term.
 
 **Choosing the number of terms.** To guarantee an error below a tolerance $\varepsilon$, solve the bound inequality. For an alternating series that means $b_{N+1} < \varepsilon$ — a one-line inequality in $N$. For the Lagrange form the condition is:
 $$\frac{M|x-a|^{N+1}}{(N+1)!} < \varepsilon$$

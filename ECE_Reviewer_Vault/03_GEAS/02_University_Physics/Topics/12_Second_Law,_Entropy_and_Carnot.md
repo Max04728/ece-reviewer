@@ -11,7 +11,7 @@ prereqs: ["[[11_First_Law_and_Processes]]", "[[09_Thermal_Expansion_and_Calorime
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Second Law, Entropy and Carnot
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **Two statements, one content.** Kelvin-Planck: no engine operating in a cycle can convert heat completely into work — some heat must be rejected to a cold reservoir. Clausius: no device can move heat from cold to hot with no work input. They are equivalent, and either one immediately forbids the two great perpetual-motion claims: a cyclic engine with $100\%$ efficiency, and a refrigerator with no plug. A board item phrased as 'is this possible?' is answered by checking one of these statements or by computing $\Delta S_{total} < 0$.
 
-**Efficiency and COP are different animals.** A heat engine's thermal efficiency is $\eta = W/Q_H = 1 - Q_C/Q_H$, always a number between 0 and 1. A refrigerator's coefficient of performance is $COP_R = Q_C/W$, which is *greater* than 1 for any useful refrigerator and typically 2 to 6 — a value between 0 and 1 signals that you inverted the ratio. A heat pump uses $COP_{HP} = Q_H/W = COP_R + 1$. Sliding between these three definitions is the most common lost point in the whole topic.
+**Efficiency and COP are different animals.** A heat engine's thermal efficiency is:
+$$\eta = W/Q_H = 1 - Q_C/Q_H$$
+always a number between 0 and 1. A refrigerator's coefficient of performance is $COP_R = Q_C/W$, which is *greater* than 1 for any useful refrigerator and typically 2 to 6 — a value between 0 and 1 signals that you inverted the ratio. A heat pump uses $COP_{HP} = Q_H/W = COP_R + 1$. Sliding between these three definitions is the most common lost point in the whole topic.
 
 **Carnot is the ceiling, and it is set only by the two temperatures.** $\eta_{Carnot} = 1 - T_C/T_H$ with absolute temperatures. Any real engine between the same reservoirs is worse; an engine claiming better is impossible. Note the two consequences the board exploits: (1) the same $\Delta T$ buys more efficiency at low $T_C$ than at high $T_H$ — going from $300$ to $400\ \mathrm{K}$ on the hot side beats going from $400$ to $500\ \mathrm{K}$; and (2) $\eta = 1$ requires $T_C = 0\ \mathrm{K}$, which is why no engine is perfect.
 

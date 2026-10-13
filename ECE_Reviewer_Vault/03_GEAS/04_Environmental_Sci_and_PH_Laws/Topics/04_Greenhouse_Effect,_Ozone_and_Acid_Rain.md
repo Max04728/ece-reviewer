@@ -11,7 +11,7 @@ prereqs: ["[[03_Air_Pollution_and_Criteria_Pollutants]]"]
 tags: ["ece", "geas", "environmental_sci_and_ph_laws"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Greenhouse Effect, Ozone and Acid Rain

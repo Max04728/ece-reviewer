@@ -11,7 +11,7 @@ prereqs: ["[[06_FSPL_and_Friis_Transmission_Equation]]"]
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Radar Range Equation and Microwave Links
@@ -36,7 +36,9 @@ so the whole expression collapses to:
 $$P_{\min}(\mathrm{dBm}) = -114 + 10\log_{10}B_{\mathrm{MHz}} + NF_{\mathrm{dB}} + (S/N)_{\min,\mathrm{dB}}$$
 Narrowing $B$ lowers $P_{\min}$ and extends range as $B^{-1/4}$ - but a narrower matched filter means a longer pulse, which coarsens range resolution. That trade is the central design conflict in radar.
 
-**Timing: PRF, pulse width and average power.** A pulsed radar cannot tell which transmitted pulse an echo belongs to, so echoes from beyond the **unambiguous range** $R_{un} = c/(2\,\mathrm{PRF})$ arrive after the next pulse has already gone out and are displayed at a false short range. The pulse width sets **range resolution**: two targets are separable when their echoes do not overlap, giving $\Delta R = c\tau/2$, again halved by the round trip. Duty cycle is $\tau\,\mathrm{PRF}$ and average power is $P_{av} = P_{peak}\tau\,\mathrm{PRF}$, so a long pulse is good for average power and reach but bad for resolution, and a high PRF is good for unambiguous velocity but bad for unambiguous range.
+**Timing: PRF, pulse width and average power.** A pulsed radar cannot tell which transmitted pulse an echo belongs to, so echoes from beyond the **unambiguous range** $R_{un} = c/(2\,\mathrm{PRF})$ arrive after the next pulse has already gone out and are displayed at a false short range. The pulse width sets **range resolution**: two targets are separable when their echoes do not overlap, giving $\Delta R = c\tau/2$, again halved by the round trip. Duty cycle is $\tau\,\mathrm{PRF}$ and average power is:
+$$P_{av} = P_{peak}\tau\,\mathrm{PRF}$$
+so a long pulse is good for average power and reach but bad for resolution, and a high PRF is good for unambiguous velocity but bad for unambiguous range.
 
 **Line-of-sight microwave links.** The link budget is the radar equation's one-way cousin:
 $$P_{rx} = P_{tx} + G_t + G_r - \mathrm{FSPL} - L_{\mathrm{misc}}$$

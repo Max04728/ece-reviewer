@@ -11,7 +11,7 @@ prereqs: ["[[09_FM_Noise_and_Threshold_Effect]]"]
 tags: ["ece", "est", "principles_of_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — AM vs FM Noise Comparison
@@ -30,7 +30,9 @@ The detector passes the noise through with the signal, so AM offers no improveme
 
 **FM's output SNR scales with $\beta^2$ — above threshold.** The standard single-tone result for the improvement is:
 $$\left(S/N\right)_o=\frac{3}{2}\beta^2\left(S/N\right)_i$$
-(texts differ in the input-bandwidth normalisation; the $\beta^2$ scaling is what matters). At the broadcast maximum of $\beta=5$ this is about 16 dB, and with de-emphasis counted it is closer to 29 dB. The improvement comes from the limiter stripping amplitude noise and from the fact that the message is carried in the zero crossings, but it is paid for in bandwidth: Carson's rule gives $BW=2(\Delta f+f_m)=2f_m(1+\beta)$ against AM's $2f_m$.
+(texts differ in the input-bandwidth normalisation; the $\beta^2$ scaling is what matters). At the broadcast maximum of $\beta=5$ this is about 16 dB, and with de-emphasis counted it is closer to 29 dB. The improvement comes from the limiter stripping amplitude noise and from the fact that the message is carried in the zero crossings, but it is paid for in bandwidth: Carson's rule gives:
+$$BW=2(\Delta f+f_m)=2f_m(1+\beta)$$
+against AM's $2f_m$.
 
 **The exchange is the point.** Doubling the deviation doubles the bandwidth (roughly) and quadruples the output SNR — 3 dB of spectrum for 6 dB of SNR, a 2:1 exchange rate in dB terms. This is the classic bandwidth-for-SNR trade of communication theory, and it is why the comparison must always state the two conditions: at *equal received carrier power* FM wins in SNR but loses badly in bandwidth; at *equal bandwidth* the advantage shrinks to whatever index fits, which for a voice channel in a 25 kHz land-mobile allocation is only about 6 dB (and for a channel barely wider than the audio, nothing at all).
 

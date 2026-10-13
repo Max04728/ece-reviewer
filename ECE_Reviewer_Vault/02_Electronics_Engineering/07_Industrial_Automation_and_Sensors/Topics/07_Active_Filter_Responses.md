@@ -11,7 +11,7 @@ prereqs: ["[[02_Phasors_and_Complex_Impedance]]", "[[11_First_Order_RC_and_RL_Tr
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Active Filter Responses
@@ -24,13 +24,21 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Every active filter is a set of poles placed in the s-plane. The pole distance from the origin sets the corner frequency, the angle sets the damping, and the number of poles sets how fast the response falls away. Once you can read a denominator, you can predict the Bode plot without simulating anything.
 
-**First-order shapes.** One resistor and one capacitor produce a single pole, and every first-order filter is the same response moved around the frequency axis: a low-pass is $H(s) = K/(1+s/\omega_c)$ with $\omega_c = 1/(RC)$, and a high-pass is $H(s) = K(s/\omega_c)/(1+s/\omega_c)$. At $f_c$ the magnitude is $0.707K$ — the famous $\mathrm{-3\ \mathrm{dB}}$ point — and the phase is $-45^\circ$ for the low-pass, approaching $0^\circ$ and $-90^\circ$ at the extremes. One pole means a roll-off of 20 dB per decade, which is 6 dB per octave; the two figures are often confused, and a factor of 3.3 error follows.
+**First-order shapes.** One resistor and one capacitor produce a single pole, and every first-order filter is the same response moved around the frequency axis: a low-pass is:
+$$H(s) = K/(1+s/\omega_c)$$
+with $\omega_c = 1/(RC)$, and a high-pass is:
+$$H(s) = K(s/\omega_c)/(1+s/\omega_c)$$
+At $f_c$ the magnitude is $0.707K$ — the famous $\mathrm{-3\ \mathrm{dB}}$ point — and the phase is $-45^\circ$ for the low-pass, approaching $0^\circ$ and $-90^\circ$ at the extremes. One pole means a roll-off of 20 dB per decade, which is 6 dB per octave; the two figures are often confused, and a factor of 3.3 error follows.
 
-**Second-order and the meaning of Q.** Two poles give the standard form $H(s) = K\omega_0^2/(s^2 + (\omega_0/Q)s + \omega_0^2)$. The damping ratio is $\zeta = 1/(2Q)$, so the same circuit can be described two ways and mixing them up is a classic error: Butterworth is $Q = 0.707$ *and* $\zeta = 0.707$, not $\zeta = 1.414$. The response at $f_0$ depends entirely on Q: for $Q = 0.5$ the magnitude is $Q = 0.5$ (that is $-6\ \mathrm{dB}$, well below the $-3\ \mathrm{dB}$ point), for $Q = 0.707$ it is exactly $-3\ \mathrm{dB}$, and for $Q > 0.707$ it *peaks* above the passband level.
+**Second-order and the meaning of Q.** Two poles give the standard form:
+$$H(s) = K\omega_0^2/(s^2 + (\omega_0/Q)s + \omega_0^2)$$
+The damping ratio is $\zeta = 1/(2Q)$, so the same circuit can be described two ways and mixing them up is a classic error: Butterworth is $Q = 0.707$ *and* $\zeta = 0.707$, not $\zeta = 1.414$. The response at $f_0$ depends entirely on Q: for $Q = 0.5$ the magnitude is $Q = 0.5$ (that is $-6\ \mathrm{dB}$, well below the $-3\ \mathrm{dB}$ point), for $Q = 0.707$ it is exactly $-3\ \mathrm{dB}$, and for $Q > 0.707$ it *peaks* above the passband level.
 
 **Peaking and ringing.** The peak exists only for $Q > 1/\sqrt2$, occurs at $f_p = f_0\sqrt{1-1/(2Q^2)}$ — slightly below $f_0$ — and has magnitude $M_p = Q/\sqrt{1-1/(4Q^2)}$, which is about $Q$ for large Q. A second-order low-pass with $Q = 5$ therefore peaks $14\ \mathrm{dB}$ above the DC gain at 0.99 $f_0$, and the same high Q produces a ringing step response with an overshoot of $\exp(-\pi\zeta/\sqrt{1-\zeta^2})$. Filter tables specify Q for exactly this reason: Butterworth is maximally flat in magnitude ($Q = 0.7071$), Bessel gives the flattest group delay but a slower transition ($Q = 0.5774$), and Chebyshev trades ripple for a steeper skirt (Q rising with ripple, 0.86 at 0.5 dB and 1.31 at 3 dB).
 
-**Band-pass, band-stop and the Bode picture.** A band-pass is described by its two $-3\ \mathrm{dB}$ edges: $f_0 = \sqrt{f_Lf_H}$ (the geometric, not arithmetic, centre), $BW = f_H - f_L$ and $Q = f_0/BW$. A narrow filter therefore has a high Q and a long settling time, and the standard band-pass has a peak gain of exactly K at $f_0$ — the Q formula that gives peak gain does not apply to it, only to the low-pass. A notch is the complement: the numerator zero pair $s^2+\omega_0^2$ cancels almost all of the response at $f_0$, and a high-Q notch is very narrow but takes many cycles to settle. On a Bode plot, magnitude slopes and phase shifts are linked: a first-order section contributes $0^\circ$ to $-90^\circ$ with $-45^\circ$ at $f_c$, and an $n$-pole filter approaches $-90n^\circ$.
+**Band-pass, band-stop and the Bode picture.** A band-pass is described by its two $-3\ \mathrm{dB}$ edges:
+$$f_0 = \sqrt{f_Lf_H}$$
+(the geometric, not arithmetic, centre), $BW = f_H - f_L$ and $Q = f_0/BW$. A narrow filter therefore has a high Q and a long settling time, and the standard band-pass has a peak gain of exactly K at $f_0$ — the Q formula that gives peak gain does not apply to it, only to the low-pass. A notch is the complement: the numerator zero pair $s^2+\omega_0^2$ cancels almost all of the response at $f_0$, and a high-Q notch is very narrow but takes many cycles to settle. On a Bode plot, magnitude slopes and phase shifts are linked: a first-order section contributes $0^\circ$ to $-90^\circ$ with $-45^\circ$ at $f_c$, and an $n$-pole filter approaches $-90n^\circ$.
 
 **What the ideal response ignores.** An op-amp's finite gain-bandwidth moves both $f_0$ and Q: the feedback that sets Q is itself frequency-dependent, so a Sallen-Key stage designed for $Q = 5$ can realize $Q = 3$ or $Q = 9$ depending on the op-amp. A practical design rule is $GBW \ge 100f_0Q$, which for a 10 kHz, $Q = 5$ stage demands 5 MHz — well beyond a 741. Component tolerance matters far more at high Q, because the sensitivity of Q to the gain-setting resistors grows with Q itself. And a filter designed from the asymptotes alone will be wrong at the corner: the $\mathrm{-3\ \mathrm{dB}}$ point of two cascaded buffered first-order sections is $0.6436f_c$, not $f_c$, and the cascade is already $-6\ \mathrm{dB}$ at $f_c$.
 

@@ -11,7 +11,7 @@ prereqs: ["[[11_Current_Density_and_Continuity]]", "[[12_Biot-Savart_Law]]", "[[
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — Ampere’s Circuital Law
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **The law and the symmetry it demands.** Ampere's circuital law in integral form is:
 $$\oint\mathbf{H}\cdot d\mathbf{l} = I_{\mathrm{enc}}$$
-where $I_{\mathrm{enc}}$ is the net free current through any surface bounded by the closed path; the point form is $\nabla\times\mathbf{H}=\mathbf{J}$. The reason the law is usable at all is symmetry: to replace the left side by $H\,L$ you must argue that $\lvert\mathbf{H}\rvert$ is constant along the path and everywhere tangential to it, which requires the current distribution to be invariant under the translations and rotations that slide the Amperian path along itself. The four workable symmetries are the infinite line current (cylindrical), the infinite current sheet (planar), the infinite solenoid and the toroid. A finite wire, a short coil, a partial arc or any point near a bend has none of them, and there $\oint\mathbf{H}\cdot d\mathbf{l}$ cannot be evaluated without already knowing $\mathbf{H}$. The law remains *true* for every closed path, but it carries no usable information, and Biot-Savart is the working tool. The second standing caveat is that the form above is the steady-current form: for time-varying fields the displacement current must be added.
+where $I_{\mathrm{enc}}$ is the net free current through any surface bounded by the closed path; the point form is:
+$$\nabla\times\mathbf{H}=\mathbf{J}$$
+The reason the law is usable at all is symmetry: to replace the left side by $H\,L$ you must argue that $\lvert\mathbf{H}\rvert$ is constant along the path and everywhere tangential to it, which requires the current distribution to be invariant under the translations and rotations that slide the Amperian path along itself. The four workable symmetries are the infinite line current (cylindrical), the infinite current sheet (planar), the infinite solenoid and the toroid. A finite wire, a short coil, a partial arc or any point near a bend has none of them, and there $\oint\mathbf{H}\cdot d\mathbf{l}$ cannot be evaluated without already knowing $\mathbf{H}$. The law remains *true* for every closed path, but it carries no usable information, and Biot-Savart is the working tool. The second standing caveat is that the form above is the steady-current form: for time-varying fields the displacement current must be added.
 
 **Cylindrical conductors: the enclosed-current arithmetic.** For a long straight conductor of radius $a$ carrying total current $I$ at uniform current density $J=I/(\pi a^{2})$, take a circular path of radius $\rho$ centred on the axis, on which $\mathbf{H}$ is azimuthal and constant. Outside ($\rho>a$) the path encloses all of $I$, so $H(2\pi\rho)=I$ and $H=\dfrac{I}{2\pi\rho}$, the infinite-wire result. Inside ($\rho<a$) the path encloses only the current within $\rho$, which is $I\rho^{2}/a^{2}$ because the density is uniform and the area scales as $\rho^{2}$; then $H(2\pi\rho)=I\rho^{2}/a^{2}$, giving $H=\dfrac{I\rho}{2\pi a^{2}}$ — linear in $\rho$, rising from 0 at the axis to $I/(2\pi a)$ at the surface. The two expressions agree exactly at $\rho=a$, which is the check to run: an inside formula that does not meet the outside formula at the surface is wrong. A useful corollary is that a narrow axial hole in such a conductor carries no field, because the enclosed current there is zero.
 

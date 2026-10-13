@@ -11,7 +11,7 @@ prereqs: ["[[09_Difference_Equations_and_Stability]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — System Response and Step Response
@@ -28,15 +28,21 @@ updated: 2026-09-23
 $$g(t)=\displaystyle\int_{-\infty}^{t}h(\tau)\,d\tau$$
 In discrete time it is:
 $$g[n]=\displaystyle\sum_{k=-\infty}^{n}h[k]$$
-Inverting the relation gives $h=\dfrac{dg}{dt}$ (CT) or $h[n]=g[n]-g[n-1]$ (DT). The final value of the step response is the DC gain, $H(0)$ or $H(1)$, because the step is a constant input held for ever. That single fact is a free check on every step-response answer.
+Inverting the relation gives:
+$$h=\dfrac{dg}{dt}$$
+(CT) or $h[n]=g[n]-g[n-1]$ (DT). The final value of the step response is the DC gain, $H(0)$ or $H(1)$, because the step is a constant input held for ever. That single fact is a free check on every step-response answer.
 
 **First-order CT response.** For $G(s)=\dfrac{K}{\tau s+1}$, $y(t)=K(1-e^{-t/\tau})$ with $\tau=1/\lvert p\rvert$. The sample values 63.2%, 86.5%, 95.0% and 98.2% at $t=\tau,2\tau,3\tau,4\tau$ are the origin of the $2\%$ settling time $4\tau$ and the $10$-$90\%$ rise time $2.2\tau$. A first-order system has no overshoot and no ringing: with one real pole the response is monotone.
 
 **First-order DT response.** For $y[n]=ay[n-1]+bx[n]$ the step response is:
 $$y[n]=\dfrac{b}{1-a}\left(1-a^{n+1}\right)u[n]$$
-settling at $\dfrac{b}{1-a}=H(1)$. Note the exponent $n+1$, not $n$: the running sum starts at $n=0$ and already contains one term. The **DT time constant** is $\tau=-\dfrac{1}{\ln\lvert a\rvert}$ samples — *not* $1/(1-a)$, which is the DC gain. The two agree only in the limit $a\to1$.
+settling at $\dfrac{b}{1-a}=H(1)$. Note the exponent $n+1$, not $n$: the running sum starts at $n=0$ and already contains one term. The **DT time constant** is:
+$$\tau=-\dfrac{1}{\ln\lvert a\rvert}$$
+samples — *not* $1/(1-a)$, which is the DC gain. The two agree only in the limit $a\to1$.
 
-**Transient and steady state.** Any stable response decomposes into a transient part (the natural modes, decaying for a stable system) plus a steady-state part (the particular solution, which for a constant input is the DC gain). For a DT first-order system the transient is $\dfrac{b}{1-a}a^{n+1}$-shaped; the settling time to a $2\%$ band is the smallest $n$ with $\lvert a\rvert^{n+1}\le0.02$, i.e.
+**Transient and steady state.** Any stable response decomposes into a transient part (the natural modes, decaying for a stable system) plus a steady-state part (the particular solution, which for a constant input is the DC gain). For a DT first-order system the transient is:
+$$\dfrac{b}{1-a}a^{n+1}$$
+-shaped; the settling time to a $2\%$ band is the smallest $n$ with $\lvert a\rvert^{n+1}\le0.02$, i.e.
 $$n\ge\dfrac{\ln0.02}{\ln\lvert a\rvert}-1$$
 
 **Second-order responses, briefly.** A CT second-order system's step response overshoots only when $0<\zeta<1$, peaking at $t_p=\pi/\omega_d$ and settling in about $4/(\zeta\omega_n)$; a DT second-order system with complex poles $re^{\pm j\theta}$ rings at $\theta$ radians per sample with an envelope decaying like $r^{n}$. In both cases the envelope decay rate is set by the real part of the pole ($-\zeta\omega_n$ in CT, $\ln r$ in DT), which is why settling time is a vertical-line specification in either plane.

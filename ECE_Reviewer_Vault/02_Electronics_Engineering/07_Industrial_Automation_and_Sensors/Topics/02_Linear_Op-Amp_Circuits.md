@@ -11,7 +11,7 @@ prereqs: ["[[01_Op-Amp_Fundamentals_and_Real_Parameters]]", "[[02_KCL,_KVL,_Seri
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Linear Op-Amp Circuits
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Input and output impedance consequences.** The inverting amplifier's input resistance is exactly $R_1$ — it is not the op-amp's input resistance at all — so a 10 kΩ $R_1$ presents a 10 kΩ load to the source, and any source resistance $R_s$ adds directly to $R_1$: the realized gain is $-R_f/(R_1+R_s)$. The non-inverting input resistance is the op-amp's own differential input resistance, bootstrapped by the feedback to hundreds of megohms, which is why the non-inverting stage and the voltage follower are used as buffers. At the output, feedback divides the open-loop output resistance by the loop gain, so tens of ohms becomes milliohms closed-loop; from then on the output current limit, not $R_{out}$, is what the designer must respect.
 
-**Summing and averaging.** Because the inverting node is a virtual ground, each input resistor of an inverting summer is effectively connected between its own source and ground. The inputs do not see one another, each source is loaded only by its own resistor, and superposition gives $V_o = -R_f(V_1/R_1 + V_2/R_2 + V_3/R_3)$ directly. Making all the input resistors equal and $R_f = R/3$ turns the same circuit into an averager. A non-inverting summer built by tying several resistors to $V_+$ does not have this property: the sources interact through the common node, their source impedances change the weights, and the average common-mode voltage is amplified along with the difference.
+**Summing and averaging.** Because the inverting node is a virtual ground, each input resistor of an inverting summer is effectively connected between its own source and ground. The inputs do not see one another, each source is loaded only by its own resistor, and superposition gives:
+$$V_o = -R_f(V_1/R_1 + V_2/R_2 + V_3/R_3)$$
+directly. Making all the input resistors equal and $R_f = R/3$ turns the same circuit into an averager. A non-inverting summer built by tying several resistors to $V_+$ does not have this property: the sources interact through the common node, their source impedances change the weights, and the average common-mode voltage is amplified along with the difference.
 
 **What the ideal formulas hide.** Every formula above assumes infinite $A_{ol}$, no source resistance, no output current limit and no saturation. In practice the noise gain $1+R_f/R_1$ sets the $-3\ \mathrm{dB}$ bandwidth through $f_{-3dB} = GBW/NG$ and multiplies the input offset voltage; the closed-loop output resistance is small only until the output current limit is reached; and a 741 clips about 1.5 V inside each rail. A stage designed for a gain of 100 to deliver 12 V from a 120 mV input on $\pm15\ \mathrm{V}$ rails is really a clipping circuit, and the correct exam answer is the clipped waveform.
 

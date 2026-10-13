@@ -11,7 +11,7 @@ prereqs: ["[[08_Switching_Circuit_vs_Packet]]"]
 tags: ["ece", "est", "data_communications_and_networking"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — Multiplexing: FDM, TDM, T1 and E1

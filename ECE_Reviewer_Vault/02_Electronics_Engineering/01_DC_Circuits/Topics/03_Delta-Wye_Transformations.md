@@ -11,7 +11,7 @@ prereqs: ["[[01_Circuit_Variables,_Ohm’s_Law_and_Signs]]", "[[02_KCL,_KVL,_Ser
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Delta-Wye Transformations
@@ -26,9 +26,15 @@ updated: 2026-09-23
 
 **Why two different networks can be identical.** A three-terminal resistor box is completely described to the outside world by three numbers — the resistance measured between each pair of terminals with the third terminal left open. A delta has three resistors and a wye has three resistors, so each has exactly three degrees of freedom, and the delta-to-wye formulas are simply the solution of the three equations that equate the pairwise terminal resistances. The wye's central node is internal: no external meter can reach it, which is why the two topologies are indistinguishable at the terminals even though one of them has an extra node. Because the equivalence is at the terminals only, the substitution is valid anywhere inside a larger network — the rest of the circuit connects to those three nodes and nothing else.
 
-**The formulas and their asymmetry.** Delta to wye: each wye leg is the product of the *two* delta resistors touching that node, divided by the sum of all three delta resistors, so $R_a = \frac{R_{ab}R_{ca}}{R_{ab}+R_{bc}+R_{ca}}$ with the other two legs by cyclic rotation; the common denominator is a computational convenience worth exploiting, and every wye leg comes out smaller than the delta resistors that produced it. Wye to delta: each delta resistor is the sum of all three pairwise products of the wye legs divided by the wye leg *opposite* it, $R_{ab} = \frac{R_aR_b+R_bR_c+R_cR_a}{R_c}$ — the denominator is the leg that is not part of the pair being built, and every delta resistor comes out larger than the wye legs. In the balanced case $R_a = R_b = R_c = R_Y$ and $R_{ab} = R_{bc} = R_{ca} = R_{\Delta}$ these collapse to $R_Y = R_{\Delta}/3$ and $R_{\Delta} = 3R_Y$.
+**The formulas and their asymmetry.** Delta to wye: each wye leg is the product of the *two* delta resistors touching that node, divided by the sum of all three delta resistors. The result is:
+$$R_a = \frac{R_{ab}R_{ca}}{R_{ab}+R_{bc}+R_{ca}}$$
+with the other two legs by cyclic rotation; the common denominator is a computational convenience worth exploiting, and every wye leg comes out smaller than the delta resistors that produced it. Wye to delta: each delta resistor is the sum of all three pairwise products of the wye legs divided by the wye leg *opposite* it. The result is:
+$$R_{ab} = \frac{R_aR_b+R_bR_c+R_cR_a}{R_c}$$
+— the denominator is the leg that is not part of the pair being built, and every delta resistor comes out larger than the wye legs. In the balanced case $R_a = R_b = R_c = R_Y$ and $R_{ab} = R_{bc} = R_{ca} = R_{\Delta}$ these collapse to $R_Y = R_{\Delta}/3$ and $R_{\Delta} = 3R_Y$.
 
-**When to reach for it, and when it is wasted effort.** Convert only when the three nodes of the delta (or wye) each carry at least one other connection, so that no two resistors share both terminals — that is exactly the situation in an unbalanced bridge. If one node of the delta is left dangling, the network is already a two-terminal series-parallel combination and the conversion route is longer; it must still give the same answer, which makes it a free self-check, since the equivalence guarantees $R_a + R_b = R_{ab} \parallel (R_{bc}+R_{ca})$. The arithmetic usually gets uglier after conversion (thirds, products over sums), so convert the delta whose nodes have the fewest external branches. Nothing in the derivation used the word 'resistor': replacing $R$ by $Z$ at a single frequency makes every formula valid for AC impedances, and the balanced result $Z_Y = Z_{\Delta}/3$ is what three-phase analysis leans on.
+**When to reach for it, and when it is wasted effort.** Convert only when the three nodes of the delta (or wye) each carry at least one other connection, so that no two resistors share both terminals — that is exactly the situation in an unbalanced bridge. If one node of the delta is left dangling, the network is already a two-terminal series-parallel combination and the conversion route is longer; it must still give the same answer, which makes it a free self-check. The equivalence guarantees:
+$$R_a + R_b = R_{ab} \parallel (R_{bc}+R_{ca})$$
+The arithmetic usually gets uglier after conversion (thirds, products over sums), so convert the delta whose nodes have the fewest external branches. Nothing in the derivation used the word 'resistor': replacing $R$ by $Z$ at a single frequency makes every formula valid for AC impedances, and the balanced result $Z_Y = Z_{\Delta}/3$ is what three-phase analysis leans on.
 
 ## Formulas
 

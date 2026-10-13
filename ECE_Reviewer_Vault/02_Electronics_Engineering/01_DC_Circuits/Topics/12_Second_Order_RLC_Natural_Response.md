@@ -11,7 +11,7 @@ prereqs: ["[[11_First_Order_RC_and_RL_Transients]]", "[[10_Inductors,_Capacitors
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Second Order RLC Natural Response
@@ -24,11 +24,19 @@ updated: 2026-09-23
 > [!tip] Intuition
 > An RLC circuit is an energy tug-of-war: the capacitor and inductor swap energy back and forth while the resistor bleeds it away. Damping is the score. If the resistor wins, the response crawls back to zero without oscillating; if the reactive pair wins, it rings at a frequency set by L and C; critical damping is the exact boundary.
 
-**Where the second-order equation comes from.** A source-free RLC loop has two energy-storage elements, so its describing equation is second order. For the series case, KVL around the loop gives $L\dfrac{di}{dt} + Ri + \dfrac{1}{C}\int i\,dt = 0$; differentiating once yields $\dfrac{d^2i}{dt^2} + \dfrac{R}{L}\dfrac{di}{dt} + \dfrac{1}{LC}i = 0$. Proposing $i = Ae^{st}$ turns it into the characteristic equation $s^2 + \dfrac{R}{L}s + \dfrac{1}{LC} = 0$, whose roots decide everything.
+**Where the second-order equation comes from.** A source-free RLC loop has two energy-storage elements, so its describing equation is second order. For the series case, KVL around the loop gives:
+$$L\dfrac{di}{dt} + Ri + \dfrac{1}{C}\int i\,dt = 0$$
+differentiating once yields:
+$$\dfrac{d^2i}{dt^2} + \dfrac{R}{L}\dfrac{di}{dt} + \dfrac{1}{LC}i = 0$$
+Proposing $i = Ae^{st}$ turns it into the characteristic equation $s^2 + \dfrac{R}{L}s + \dfrac{1}{LC} = 0$, whose roots decide everything.
 
-**The two numbers that matter.** Write the characteristic equation in the standard form $s^2 + 2\alpha s + \omega_0^2 = 0$. Then $\omega_0 = 1/\sqrt{LC}$ is the undamped natural frequency (rad/s) and $\alpha$ is the neper frequency (Np/s): $\alpha = R/(2L)$ for the series circuit and $\alpha = 1/(2RC)$ for the parallel circuit. The duality is the whole reason a series and a parallel RLC behave in opposite ways as $R$ grows: in series a large $R$ damps harder, in parallel a large $R$ damps less.
+**The two numbers that matter.** Write the characteristic equation in the standard form $s^2 + 2\alpha s + \omega_0^2 = 0$. Then $\omega_0 = 1/\sqrt{LC}$ is the undamped natural frequency (rad/s) and $\alpha$ is the neper frequency (Np/s):
+$$\alpha = R/(2L)$$
+for the series circuit and $\alpha = 1/(2RC)$ for the parallel circuit. The duality is the whole reason a series and a parallel RLC behave in opposite ways as $R$ grows: in series a large $R$ damps harder, in parallel a large $R$ damps less.
 
-**The discriminant decides the case.** The roots are $s_{1,2} = -\alpha \pm \sqrt{\alpha^2 - \omega_0^2}$. If $\alpha > \omega_0$ the roots are real and distinct and the circuit is **overdamped** — a sum of two decaying exponentials, no oscillation. If $\alpha = \omega_0$ the roots are real and repeated at $-\alpha$ and the circuit is **critically damped** — the fastest possible return to zero with no overshoot, with the form $(A + Bt)e^{-\alpha t}$. If $\alpha < \omega_0$ the roots are complex conjugates $-\alpha \pm j\omega_d$ with $\omega_d = \sqrt{\omega_0^2 - \alpha^2}$, and the circuit is **underdamped** — a damped sinusoid that rings and decays. If $\alpha = 0$ (no resistance, an ideal LC) the oscillation never decays: **undamped**.
+**The discriminant decides the case.** The roots are:
+$$s_{1,2} = -\alpha \pm \sqrt{\alpha^2 - \omega_0^2}$$
+If $\alpha > \omega_0$ the roots are real and distinct and the circuit is **overdamped** — a sum of two decaying exponentials, no oscillation. If $\alpha = \omega_0$ the roots are real and repeated at $-\alpha$ and the circuit is **critically damped** — the fastest possible return to zero with no overshoot, with the form $(A + Bt)e^{-\alpha t}$. If $\alpha < \omega_0$ the roots are complex conjugates $-\alpha \pm j\omega_d$ with $\omega_d = \sqrt{\omega_0^2 - \alpha^2}$, and the circuit is **underdamped** — a damped sinusoid that rings and decays. If $\alpha = 0$ (no resistance, an ideal LC) the oscillation never decays: **undamped**.
 
 **Writing the response.** Overdamped:
 $$x = A_1e^{s_1t} + A_2e^{s_2t}$$
@@ -38,7 +46,8 @@ Underdamped:
 $$x = e^{-\alpha t}(A_1\cos\omega_dt + A_2\sin\omega_dt)$$
 or equivalently $Be^{-\alpha t}\cos(\omega_dt + \theta)$. The two constants come from the two initial conditions, which for a circuit are the capacitor voltage $v_C(0)$ and the inductor current $i_L(0)$ — both are continuous, so their $0^-$ values carry over to $0^+$.
 
-**The initial conditions are where the marks are lost.** $v_C$ cannot jump (it would need infinite current) and $i_L$ cannot jump (it would need infinite voltage). Everything else can jump. To get the second constant, differentiate the assumed solution and use KVL/KCL at $t = 0^+$ to evaluate $di/dt(0^+)$ from $v_C(0^+)$ (or $dv/dt(0^+)$ from $i_L(0^+)$): for a series loop, $L\,di/dt\big|_{0^+} = -v_C(0^+) - Ri(0^+)$.
+**The initial conditions are where the marks are lost.** $v_C$ cannot jump (it would need infinite current) and $i_L$ cannot jump (it would need infinite voltage). Everything else can jump. To get the second constant, differentiate the assumed solution and use KVL/KCL at $t = 0^+$ to evaluate $di/dt(0^+)$ from $v_C(0^+)$ (or $dv/dt(0^+)$ from $i_L(0^+)$); for a series loop:
+$$L\,di/dt\big|_{0^+} = -v_C(0^+) - Ri(0^+)$$
 
 **Quality factor and the practical reading.** $Q = \omega_0/(2\alpha)$ measures how many radians of ringing survive; large $Q$ means lightly damped. Equivalently $\alpha = \omega_0/(2Q)$. In a series circuit $Q = \omega_0L/R = 1/(\omega_0CR)$, and in a parallel circuit the same expression with $R$ in the numerator. Critical damping corresponds to $Q = 1/2$, and any $Q > 1/2$ rings.
 

@@ -11,7 +11,7 @@ prereqs: ["[[05_Gauss_Law_and_Applications]]", "[[08_Dielectrics_and_Boundary_Co
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Capacitance from Geometry
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **Parallel plate.** The electrodes are equipotentials, so with plates of area $A$ carrying $\pm Q$ the surface charge density is $\sigma=Q/A$ and the field between them is uniform:
 $$E=\sigma/\varepsilon=Q/(\varepsilon A)$$
-Integrating over the separation $d$ gives $V=Ed=Qd/(\varepsilon A)$, so $C=\varepsilon A/d$. The formula is exact only for infinite plates; when $d$ is not small compared with the plate width the fringing field at the edges adds a few percent, which board problems conventionally ignore. Stacking layers of different dielectrics gives a series combination inside a single component:
+Integrating over the separation $d$ gives:
+$$V=Ed=Qd/(\varepsilon A)$$
+so $C=\varepsilon A/d$. The formula is exact only for infinite plates; when $d$ is not small compared with the plate width the fringing field at the edges adds a few percent, which board problems conventionally ignore. Stacking layers of different dielectrics gives a series combination inside a single component:
 $$C=A\big/\sum_i(d_i/\varepsilon_i)$$
 Notice that for a fixed geometry, capacitance is directly proportional to $\varepsilon_r$ — filling the gap multiplies $C$ by $\varepsilon_r$.
 

@@ -11,7 +11,7 @@ prereqs: ["[[05_AC_Power,_PQS_and_Triangle]]", "[[02_Phasors_and_Complex_Impedan
 tags: ["ece", "electronics_engineering", "ac_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Power Factor and Correction
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Only the component of current in phase with the voltage delivers net energy; the quadrature component merely shuttles energy in and out of the load's magnetic or electric field. Power factor is the fraction of the current phasor that does useful work, so a low power factor forces the utility to push a large current through the lines to deliver a modest real power. A parallel capacitor supplies the quadrature component locally, so the line current shrinks while the real power stays exactly where it was.
 
-**Power factor as the cosine of the load angle.** For a sinusoidal single-phase load, $PF = \cos\theta$ where $\theta$ is the angle by which the current lags or leads the voltage, and equivalently $PF = P/S$ with $P$ the real power in watts and $S = V_{rms}I_{rms}$ the apparent power in volt-amperes. The current phasor splits into an in-phase component $I\cos\theta$, which is the only part that delivers net energy, and a quadrature component $I\sin\theta$, which is energy sloshing into and out of the load's inductance or capacitance twice per cycle. Multiplying those two projections by $V_{rms}$ produces the power triangle: $P = S\cos\theta$, $Q = S\sin\theta$, $S^{2} = P^{2}+Q^{2}$. A **lagging** power factor means the current lags the voltage, which for a passive load means the load is inductive and $Q > 0$ under the standard convention. A **leading** power factor means capacitive, with $Q < 0$. The magnitude of the power factor alone never tells you which one you have - the sign of $Q$, or the words lagging and leading, carry the entire orientation of the problem.
+**Power factor as the cosine of the load angle.** For a sinusoidal single-phase load, $PF = \cos\theta$ where $\theta$ is the angle by which the current lags or leads the voltage, and equivalently $PF = P/S$ with $P$ the real power in watts and $S = V_{rms}I_{rms}$ the apparent power in volt-amperes. The current phasor splits into an in-phase component $I\cos\theta$, which is the only part that delivers net energy, and a quadrature component $I\sin\theta$, which is energy sloshing into and out of the load's inductance or capacitance twice per cycle. Multiplying those two projections by $V_{rms}$ produces the power triangle:
+$$P = S\cos\theta$$
+$Q = S\sin\theta$, $S^{2} = P^{2}+Q^{2}$. A **lagging** power factor means the current lags the voltage, which for a passive load means the load is inductive and $Q > 0$ under the standard convention. A **leading** power factor means capacitive, with $Q < 0$. The magnitude of the power factor alone never tells you which one you have - the sign of $Q$, or the words lagging and leading, carry the entire orientation of the problem.
 
 **Why a low power factor is penalised.** The real power $P$ is what the plant converts into heat, light, torque or chemical change, and it is set by the process, not by the electrical design. The current needed to move that power is:
 $$I_{rms} = P/(V_{rms}\,PF)$$

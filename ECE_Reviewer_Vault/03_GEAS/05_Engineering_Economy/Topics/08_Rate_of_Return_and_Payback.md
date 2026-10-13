@@ -11,7 +11,7 @@ prereqs: ["[[01_Simple_and_Compound_Interest]]", "[[07_PW,_FW_and_AW_Methods]]"]
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Rate of Return and Payback

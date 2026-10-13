@@ -11,7 +11,7 @@ prereqs: ["[[05_Second_Order_Specifications]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Root Locus Techniques
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > The root locus is the set of points in the s-plane where the open-loop phase is exactly $180^\circ$. Once a point satisfies that angle condition, the gain that puts a closed-loop pole there is fixed by $\lvert GH\rvert = 1/K$ — phase picks the shape, magnitude picks the gain.
 
-**Where the locus comes from.** The closed-loop characteristic equation is $1+KG(s)H(s)=0$, i.e. $KG(s)H(s)=-1$. A complex number equals $-1$ only if its magnitude is 1 and its angle is $180^\circ$ (plus multiples of $360^\circ$). So the locus is the set of $s$ with $\angle G(s)H(s)=180^\circ+360^\circ k$, and the gain at any point on it is $K=\dfrac{1}{\lvert G(s)H(s)\rvert}$ — evaluated **without** $K$, because $K$ was factored out. For positive feedback the angle condition becomes $0^\circ+360^\circ k$, a completely different (complementary) locus.
+**Where the locus comes from.** The closed-loop characteristic equation is $1+KG(s)H(s)=0$, i.e. $KG(s)H(s)=-1$. A complex number equals $-1$ only if its magnitude is 1 and its angle is $180^\circ$ (plus multiples of $360^\circ$). So the locus is the set of $s$ with $\angle G(s)H(s)=180^\circ+360^\circ k$, and the gain at any point on it is:
+$$K=\dfrac{1}{\lvert G(s)H(s)\rvert}$$
+— evaluated **without** $K$, because $K$ was factored out. For positive feedback the angle condition becomes $0^\circ+360^\circ k$, a completely different (complementary) locus.
 
 **The construction rules.** (1) $n$ branches, one per open-loop pole, starting at the open-loop poles for $K=0$ and ending at the open-loop *zeros* (or at infinity along asymptotes) as $K\to\infty$. (2) A point on the real axis is on the locus iff the total number of real poles and zeros **to its right** is odd. (3) $n-m$ asymptotes meet at the centroid $\sigma_a=\dfrac{\sum p_i-\sum z_i}{n-m}$ at angles $\dfrac{(2k+1)180^\circ}{n-m}$. (4) Breakaway/break-in points solve $\dfrac{dK}{ds}=0$, equivalently $N(s)D'(s)-N'(s)D(s)=0$ for $GH=N/D$ — then keep only roots that actually lie on the locus. (5) The $j\omega$ crossings come from the Routh array applied to the closed-loop characteristic equation, which also gives the critical gain.
 

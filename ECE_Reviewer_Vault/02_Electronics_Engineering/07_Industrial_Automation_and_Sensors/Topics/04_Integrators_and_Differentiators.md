@@ -11,7 +11,7 @@ prereqs: ["[[02_Linear_Op-Amp_Circuits]]", "[[10_Inductors,_Capacitors_and_Energ
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Integrators and Differentiators
@@ -24,7 +24,11 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A capacitor's current is proportional to the rate of change of its voltage. In the integrator the input resistor fixes the current and the capacitor accumulates it; in the differentiator the input capacitor fixes the current by the input slope and the feedback resistor turns that current into a voltage.
 
-**The integrator.** Put the resistor in the input path and the capacitor in the feedback path, and the virtual ground forces $V_i/R$ to flow into $C$. Integrating $i = C\,dV_o/dt$ gives $V_o(t) = -\frac{1}{RC}\int_0^t V_i\,dt + V_o(0)$, or in the frequency domain $V_o/V_i = -1/(j\omega RC)$. The magnitude is $1/(\omega RC)$, which falls at 20 dB/decade, and the phase is $+90^\circ$ because $-1/j = +j$: the output *leads* the input. The gain is unity at $f_b = 1/(2\pi RC)$; below that frequency the ideal gain exceeds 1 and at DC it is theoretically infinite.
+**The integrator.** Put the resistor in the input path and the capacitor in the feedback path, and the virtual ground forces $V_i/R$ to flow into $C$. Integrating $i = C\,dV_o/dt$ gives the time-domain result:
+$$V_o(t) = -\frac{1}{RC}\int_0^t V_i\,dt + V_o(0)$$
+In the frequency domain the transfer function is:
+$$V_o/V_i = -1/(j\omega RC)$$
+The magnitude is $1/(\omega RC)$, which falls at 20 dB/decade, and the phase is $+90^\circ$ because $-1/j = +j$: the output *leads* the input. The gain is unity at $f_b = 1/(2\pi RC)$; below that frequency the ideal gain exceeds 1 and at DC it is theoretically infinite.
 
 **Why the ideal integrator cannot work.** Infinite DC gain means any input offset voltage or bias current is integrated forever. A 2 mV offset with $RC = 10^{-4}\ \mathrm{s}$ drives the output 20 V/s into the rail in well under a second, and the circuit stops integrating. The standard fix is a feedback resistor $R_f$ across $C$, which bounds the DC gain at $-R_f/R_1$ and moves the break to $f_b = 1/(2\pi R_f C)$; a bias-current compensating resistor at $V_+$ removes the other half of the problem. A reset switch across the capacitor serves the same purpose in switched-integrator applications, and the initial condition $V_o(0)$ must always be carried through the arithmetic.
 

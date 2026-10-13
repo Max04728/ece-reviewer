@@ -11,7 +11,7 @@ prereqs: ["[[06_Electric_Potential_and_Gradient]]", "[[09_Capacitance_from_Geome
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Electrostatic Energy and Forces
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Energy is stored in the field, not in the metal. Every joule in a charged capacitor is distributed through the volume between the plates at a density $\frac{1}{2}\varepsilon E^2$ — and because nature minimises energy, that stored energy is the source of every mechanical pull, push and pressure in electrostatics.
 
-**Assembling charges costs work.** Bringing a charge $q$ from infinity to a point where the potential is already $V$ requires work $qV$; assembling a whole system therefore costs $W=\frac{1}{2}\sum_iq_iV_i$. The $\frac{1}{2}$ is not arbitrary bookkeeping: summing $q_iV_i$ over all charges counts every pair twice, once from each end, so the true work is half of it. For a pair of point charges this gives $U=\dfrac{q_1q_2}{4\pi\varepsilon_0r}$, negative for opposite charges (the field does the work) and positive for like charges (you must push). This is exactly the quantity that appears in ionisation energies, lattice energies and electron–nucleus binding.
+**Assembling charges costs work.** Bringing a charge $q$ from infinity to a point where the potential is already $V$ requires work $qV$; assembling a whole system therefore costs $W=\frac{1}{2}\sum_iq_iV_i$. The $\frac{1}{2}$ is not arbitrary bookkeeping: summing $q_iV_i$ over all charges counts every pair twice, once from each end, so the true work is half of it. For a pair of point charges this gives:
+$$U=\dfrac{q_1q_2}{4\pi\varepsilon_0r}$$
+negative for opposite charges (the field does the work) and positive for like charges (you must push). This is exactly the quantity that appears in ionisation energies, lattice energies and electron–nucleus binding.
 
 **The field point of view.** Instead of assembling charges, integrate the energy density over the region where the field exists:
 $$W=\displaystyle\int\frac{1}{2}\mathbf{D}\cdot\mathbf{E}\,dv=\int\frac{1}{2}\varepsilon E^2\,dv$$

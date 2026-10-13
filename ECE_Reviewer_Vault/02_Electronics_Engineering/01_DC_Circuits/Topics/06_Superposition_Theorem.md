@@ -11,7 +11,7 @@ prereqs: ["[[01_Circuit_Variables,_Ohm’s_Law_and_Signs]]", "[[02_KCL,_KVL,_Ser
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Superposition Theorem

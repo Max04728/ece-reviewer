@@ -11,7 +11,7 @@ prereqs: ["[[05_Second_Order_Specifications]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Bode Plots and Margins
@@ -30,7 +30,9 @@ Each standard factor therefore contributes an independent straight-line piece, a
 
 **The building blocks.** A constant $K$ is a flat $20\log K$ dB and $0^\circ$ (or $180^\circ$ if negative). A pole at the origin, $1/s$, is $-20\ \mathrm{dB/dec}$ and $-90^\circ$ everywhere. A simple pole $(1+j\omega\tau)^{-1}$ is flat at 0 dB, breaks downward at the corner $\omega=1/\tau$, and reaches $-90^\circ$ asymptotically; a simple zero is the mirror image. A quadratic pair contributes $-40\ \mathrm{dB/dec}$ above $\omega_n$ and a phase that drops from $0^\circ$ to $-180^\circ$, passing $-90^\circ$ exactly at $\omega_n$. The asymptotic approximation is 3 dB low at the corner for a simple pole and $20\log(2\zeta)$ low for a quadratic.
 
-**The two crossover frequencies, and which margin uses which.** The **gain crossover** $\omega_{gc}$ is where $\lvert G\rvert = 1$ (0 dB); the **phase margin** is $PM = 180^\circ + \angle G(j\omega_{gc})$ — how much extra phase lag would drive the loop to the $-180^\circ$ boundary without changing the gain. The **phase crossover** $\omega_{pc}$ is where $\angle G = -180^\circ$; the **gain margin** is:
+**The two crossover frequencies, and which margin uses which.** The **gain crossover** $\omega_{gc}$ is where $\lvert G\rvert = 1$ (0 dB); the **phase margin** is:
+$$PM = 180^\circ + \angle G(j\omega_{gc})$$
+— how much extra phase lag would drive the loop to the $-180^\circ$ boundary without changing the gain. The **phase crossover** $\omega_{pc}$ is where $\angle G = -180^\circ$; the **gain margin** is:
 $$GM = \dfrac{1}{\lvert G(j\omega_{pc})\rvert}$$
 or in dB:
 $$GM_{dB} = -20\log\lvert G(j\omega_{pc})\rvert$$

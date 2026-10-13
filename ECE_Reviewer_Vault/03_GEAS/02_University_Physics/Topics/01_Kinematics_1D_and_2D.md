@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Kinematics 1D and 2D

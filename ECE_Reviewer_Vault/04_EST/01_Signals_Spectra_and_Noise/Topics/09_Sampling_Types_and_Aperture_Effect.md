@@ -11,7 +11,7 @@ prereqs: ["[[08_Sampling_Theorem_and_Aliasing]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Sampling Types and Aperture Effect
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Quantifying the aperture.** The droop at frequency $f$ is $20\log_{10}|\mathrm{sinc}(f\tau)|$ dB, so the design question is inverted: for an allowable droop of $A$ dB at the highest signal frequency $f_{max}$, the aperture must satisfy approximately $\tau \le 0.443/f_{max}$ for 3 dB, $\tau \le 0.26/f_{max}$ for 1 dB, and $\tau \le 0.083/f_{max}$ for 0.1 dB. The pattern is easy to remember: a tighter tolerance costs aperture almost proportionally. The aperture must also be short compared with the sampling interval, $\tau \ll T_s$, or the held samples overlap and the reconstruction filter sees pulses wider than the intervals between them.
 
-**Aperture jitter: the time-domain partner of the same problem.** A real clock has a random sampling instant, with rms uncertainty $\Delta t$. For a sinusoid of amplitude $A$ and frequency $f$, the voltage error is the slope times the timing error, $\Delta v \approx 2\pi f A\,\Delta t$ at the zero crossing where the slope is greatest. Relative to the full-scale amplitude this gives a jitter-limited SNR of $\mathrm{SNR} = -20\log_{10}(2\pi f\,\Delta t)$ — a bound that depends only on frequency and jitter, not on the number of bits or the aperture width. At $1\ \mathrm{MHz}$ with $10\ \mathrm{ps}$ rms jitter the ceiling is about $84\ \mathrm{dB}$; at $1\ \mathrm{GHz}$ with the same clock it falls to $24\ \mathrm{dB}$. This is why high-speed digitisers are clocked from crystal-derived, low-phase-noise sources.
+**Aperture jitter: the time-domain partner of the same problem.** A real clock has a random sampling instant, with rms uncertainty $\Delta t$. For a sinusoid of amplitude $A$ and frequency $f$, the voltage error is the slope times the timing error, $\Delta v \approx 2\pi f A\,\Delta t$ at the zero crossing where the slope is greatest. Relative to the full-scale amplitude the jitter-limited SNR is:
+$$\mathrm{SNR} = -20\log_{10}(2\pi f\,\Delta t)$$
+This bound depends only on frequency and jitter, not on the number of bits or the aperture width. At $1\ \mathrm{MHz}$ with $10\ \mathrm{ps}$ rms jitter the ceiling is about $84\ \mathrm{dB}$; at $1\ \mathrm{GHz}$ with the same clock it falls to $24\ \mathrm{dB}$. This is why high-speed digitisers are clocked from crystal-derived, low-phase-noise sources.
 
 **Which scheme to use, and what breaks.** Natural sampling is the easiest to analyse and is used in some pulse-width modulation and PPM contexts, but it is awkward to implement because the pulse amplitude must follow the signal continuously. Flat-top sampling is what every sample-and-hold circuit actually does, which is why aperture droop is a real design constraint rather than a textbook curiosity. The step from sample-and-hold also means the sampler's output contains a residual pedestal and switching transients, and the hold capacitor's droop during the hold interval sets a maximum hold time. Finally, both natural and flat-top sampling obey the same Nyquist condition as ideal sampling: the aperture changes the *shape* of the replicas, but it does not prevent aliasing — an anti-alias filter is still required, as in [[10_Anti-Aliasing_Filters]].
 

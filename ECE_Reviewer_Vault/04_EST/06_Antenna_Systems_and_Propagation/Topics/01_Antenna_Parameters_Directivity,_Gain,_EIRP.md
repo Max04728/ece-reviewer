@@ -11,7 +11,7 @@ prereqs: ["[[04_Reflection_Coefficient_and_VSWR]]"]
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Antenna Parameters: Directivity, Gain, EIRP

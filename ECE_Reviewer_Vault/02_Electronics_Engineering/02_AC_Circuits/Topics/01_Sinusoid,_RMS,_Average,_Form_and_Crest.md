@@ -11,7 +11,7 @@ prereqs: ["[[01_Circuit_Variables,_Ohm’s_Law_and_Signs]]"]
 tags: ["ece", "electronics_engineering", "ac_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Sinusoid, RMS, Average, Form and Crest
@@ -46,7 +46,9 @@ For any symmetric wave with equal positive and negative lobes it is exactly zero
 
 **Form factor and crest factor are shape fingerprints.** Their definitions are:
 $$F_F = V_{rms}/V_{avg}$$
-and the crest (peak) factor is $F_C = V_m/V_{rms}$. Both are dimensionless and both depend only on shape, never on amplitude or frequency, so they are the fast way to identify an unknown waveform and the fast way to catch a wrong RMS. For a pure sine $F_F = 0.7071/0.6366 = 1.11$ and $F_C = \sqrt{2} = 1.414$; for a half-wave rectified sine $F_F = 1.57$ and $F_C = 2$; for a full-wave rectified sine $F_F = 1.11$ and $F_C = 1.414$ (identical to the sine, since rectification does not change the heating); for a $50\%$ duty unipolar square pulse train (0 to $V_m$) $F_F = \sqrt{2} = 1.414$ and $F_C = \sqrt{2} = 1.414$, while the bipolar $\pm V_m$ square has $V_{rms} = V_m$, a zero average, no form factor at all, and $F_C = 1$.
+and the crest (peak) factor is:
+$$F_C = V_m/V_{rms}$$
+Both are dimensionless and both depend only on shape, never on amplitude or frequency, so they are the fast way to identify an unknown waveform and the fast way to catch a wrong RMS. For a pure sine $F_F = 0.7071/0.6366 = 1.11$ and $F_C = \sqrt{2} = 1.414$; for a half-wave rectified sine $F_F = 1.57$ and $F_C = 2$; for a full-wave rectified sine $F_F = 1.11$ and $F_C = 1.414$ (identical to the sine, since rectification does not change the heating); for a $50\%$ duty unipolar square pulse train (0 to $V_m$) $F_F = \sqrt{2} = 1.414$ and $F_C = \sqrt{2} = 1.414$, while the bipolar $\pm V_m$ square has $V_{rms} = V_m$, a zero average, no form factor at all, and $F_C = 1$.
 
 **Square and triangle waves, and how to handle a DC offset.** A square wave alternating between $+V_m$ and $-V_m$ has $V_{rms} = V_m$ because $v^2 = V_m^2$ at every instant — no integral needed. A symmetric triangle has $V_{rms} = V_m/\sqrt{3}$. When a waveform is a DC level plus a zero-mean AC ripple, do **not** add the RMS values: the RMS of the sum is the root-sum-square:
 $$I_{rms} = \sqrt{I_{dc}^2 + I_{ac,rms}^2}$$

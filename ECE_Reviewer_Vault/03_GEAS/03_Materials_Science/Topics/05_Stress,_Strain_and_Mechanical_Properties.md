@@ -11,7 +11,7 @@ prereqs: ["[[04_Crystal_Imperfections]]"]
 tags: ["ece", "geas", "materials_science"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Stress, Strain and Mechanical Properties
@@ -32,9 +32,15 @@ updated: 2026-09-23
 $$G = \dfrac{E}{2(1+\nu)}$$
 and $E = 3K(1-2\nu)$. For metals $\nu \approx 0.25$–$0.35$ (0.33 is a safe exam default) and $G \approx 0.4E$. A value of $\nu = 0.5$ means the material is incompressible (rubber-like), and $\nu$ can never exceed 0.5 for a stable isotropic solid — an answer above 0.5 signals an arithmetic slip.
 
-**Ductile versus brittle.** Ductility is quantified as percent elongation, $\mathrm{EL} = \frac{L_f-L_0}{L_0}\times100$, and percent reduction in area, $\mathrm{RA} = \frac{A_0-A_f}{A_0}\times100$. Above roughly 5% elongation the material is ductile and fails after visible necking and shear; below it, the material is brittle and fails abruptly by cleavage on a plane normal to the tensile axis, with essentially no plastic deformation. Ductile metals (Cu, Al, mild steel) absorb large energy before fracture and give warning; brittle materials (cast iron, ceramics, glass) absorb little and fail without visible strain. That is why **static design against yielding** uses the yield strength for ductile materials with a factor of safety, while **brittle materials are designed against the ultimate strength**, since they have no yield point to give warning.
+**Ductile versus brittle.** The percent elongation is:
+$$\mathrm{EL} = \frac{L_f-L_0}{L_0}\times100$$
+The percent reduction in area is:
+$$\mathrm{RA} = \frac{A_0-A_f}{A_0}\times100$$
+Above roughly 5% elongation the material is ductile and fails after visible necking and shear; below it, the material is brittle and fails abruptly by cleavage on a plane normal to the tensile axis, with essentially no plastic deformation. Ductile metals (Cu, Al, mild steel) absorb large energy before fracture and give warning; brittle materials (cast iron, ceramics, glass) absorb little and fail without visible strain. That is why **static design against yielding** uses the yield strength for ductile materials with a factor of safety, while **brittle materials are designed against the ultimate strength**, since they have no yield point to give warning.
 
-**Toughness and resilience are areas, not points.** Modulus of resilience is the energy stored per unit volume in the elastic range, $u_r = \frac{1}{2}\sigma_y\epsilon_y = \dfrac{\sigma_y^2}{2E}$ — the triangle under the elastic line. Toughness is the total area under the whole curve to fracture, so a tough material needs both strength *and* ductility. High-strength tool steel can be strong yet not tough; mild steel is less strong but far tougher. The units expose the meaning:
+**Toughness and resilience are areas, not points.** Modulus of resilience is the energy stored per unit volume in the elastic range:
+$$u_r = \frac{1}{2}\sigma_y\epsilon_y = \dfrac{\sigma_y^2}{2E}$$
+It is the triangle under the elastic line. Toughness is the total area under the whole curve to fracture, so a tough material needs both strength *and* ductility. High-strength tool steel can be strong yet not tough; mild steel is less strong but far tougher. The units expose the meaning:
 $$\mathrm{MPa}\times\mathrm{strain}$$
 = $\mathrm{MJ/m^3}$ = $\mathrm{J/cm^3}$, an energy per volume.
 

@@ -1,0 +1,71 @@
+{
+  "area": "02_Electronics_Engineering/06_Power_Electronics_and_Systems",
+  "rewrites": [
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/02_Thermal_Resistance_and_Heat_Sinking.json",
+      "entry": 2,
+      "find": "Start from $T_j=T_a+P_D\\theta_{JA}$ with $\\theta_{JA}=\\theta_{JC}+\\theta_{CS}+\\theta_{SA}$, solve for the sink, and require the junction not to exceed its maximum: $\\theta_{SA}=\\dfrac{T_{j(max)}-T_a}{P_D}-\\theta_{JC}-\\theta_{CS}$. Every term must be a worst case, because a single optimistic input destroys the result. Use the maximum expected ambient (inside a closed cabinet, not the air-conditioned bench), the maximum loss at the hot junction temperature, and the maximum $T_{j(max)}$ — which is $150\\ ^\\circ\\mathrm{C}$ for most silicon, $175\\ ^\\circ\\mathrm{C}$ for some MOSFETs, and must be derated for reliability. Note the sign of the answer: a negative $\\theta_{SA}$ is not a small sink, it is proof that the loss or the ambient is already fatal with no sink at all. Push the same algebra forward and you get the other exam question: given the sink, find $T_j$ by simply adding up the series drops, $T_j=T_a+P_D(\\theta_{JC}+\\theta_{CS}+\\theta_{SA})$.",
+      "replace": "Start from $T_j=T_a+P_D\\theta_{JA}$. The total path splits into three series pieces: $\\theta_{JA}=\\theta_{JC}+\\theta_{CS}+\\theta_{SA}$. Solve for the sink, and require the junction not to exceed its maximum: $\\theta_{SA}=\\dfrac{T_{j(max)}-T_a}{P_D}-\\theta_{JC}-\\theta_{CS}$. Every term must be a worst case, because a single optimistic input destroys the result. Use the maximum expected ambient (inside a closed cabinet, not the air-conditioned bench), the maximum loss at the hot junction temperature, and the maximum $T_{j(max)}$ — which is $150\\ ^\\circ\\mathrm{C}$ for most silicon, $175\\ ^\\circ\\mathrm{C}$ for some MOSFETs, and must be derated for reliability. Note the sign of the answer: a negative $\\theta_{SA}$ is not a small sink, it is proof that the loss or the ambient is already fatal with no sink at all. Push the same algebra forward and you get the other exam question. Given the sink, find $T_j$ by simply adding up the series drops: $T_j=T_a+P_D(\\theta_{JC}+\\theta_{CS}+\\theta_{SA})$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/02_Thermal_Resistance_and_Heat_Sinking.json",
+      "entry": 3,
+      "find": "The line is the reciprocal of $\\theta_{JC}$ — $P_{D(max)}=\\dfrac{T_{j(max)}-T_C}{\\theta_{JC}}$ — so a device rated $50\\ \\mathrm{W}$ at",
+      "replace": "The line is the reciprocal of $\\theta_{JC}$, so the maximum power is: $P_{D(max)}=\\dfrac{T_{j(max)}-T_C}{\\theta_{JC}}$. A device rated $50\\ \\mathrm{W}$ at"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/03_SCR_Phase-Controlled_Rectifiers.json",
+      "entry": 2,
+      "find": "This is why the load's $I^2R$ heating and the thyristor's own $I_{rms}^2R_{on}$ loss must use the RMS expressions $V_{rms}=V_m\\sqrt{\\dfrac{1}{2\\pi}\\left(\\pi-\\alpha+\\dfrac{\\sin 2\\alpha}{2}\\right)}$ for half-wave and $V_m\\sqrt{\\dfrac{1}{\\pi}\\left(\\pi-\\alpha+\\dfrac{\\sin2\\alpha}{2}\\right)}$ for the bridge, not the average.",
+      "replace": "This is why the load's $I^2R$ heating and the thyristor's own $I_{rms}^2R_{on}$ loss must use the RMS expressions, not the average. For half-wave: $V_{rms}=V_m\\sqrt{\\dfrac{1}{2\\pi}\\left(\\pi-\\alpha+\\dfrac{\\sin 2\\alpha}{2}\\right)}$. For the bridge: $V_m\\sqrt{\\dfrac{1}{\\pi}\\left(\\pi-\\alpha+\\dfrac{\\sin2\\alpha}{2}\\right)}$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/04_Buck_Converter.json",
+      "entry": 2,
+      "find": "so the current ramps up linearly at $(V_{in}-V_o)/L$ for a time $DT_s$, giving $\\Delta I_L=\\dfrac{(V_{in}-V_o)D}{Lf_s}=\\dfrac{V_o(1-D)}{Lf_s}$ — the two forms are identical because $V_{in}-V_o=V_o(1-D)/D$.",
+      "replace": "so the current ramps up linearly at $(V_{in}-V_o)/L$ for a time $DT_s$. The ripple current is therefore: $\\Delta I_L=\\dfrac{(V_{in}-V_o)D}{Lf_s}=\\dfrac{V_o(1-D)}{Lf_s}$. The two forms are identical because $V_{in}-V_o=V_o(1-D)/D$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/05_Boost_Converter.json",
+      "entry": 3,
+      "find": "Charge balance over one period gives $\\Delta Q=I_oDT_s$ and therefore $\\Delta V_o=\\dfrac{I_oDT_s}{C}=\\dfrac{V_oD}{RCf_s}$, i.e. $\\dfrac{\\Delta V_o}{V_o}=\\dfrac{D}{RCf_s}$ —",
+      "replace": "Charge balance over one period gives $\\Delta Q=I_oDT_s$, and therefore the voltage ripple is: $\\Delta V_o=\\dfrac{I_oDT_s}{C}=\\dfrac{V_oD}{RCf_s}$. In fractional form: $\\dfrac{\\Delta V_o}{V_o}=\\dfrac{D}{RCf_s}$ —"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/07_Inverters_Half-Bridge_and_Full-Bridge.json",
+      "entry": 4,
+      "find": "produces a six-step line-to-line waveform with $V_{LL,rms} = \\sqrt{2/3}\\,V_{dc} = 0.8165V_{dc}$ and a fundamental rms of",
+      "replace": "produces a six-step line-to-line waveform. Its line-to-line rms is: $V_{LL,rms} = \\sqrt{2/3}\\,V_{dc} = 0.8165V_{dc}$. Its fundamental rms is"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/08_PWM_Techniques.json",
+      "entry": 1,
+      "find": "a full bridge driven by a sine-triangle comparison has $D(t) = \\tfrac{1}{2}\\left[1 + m_a\\sin\\omega_m t\\right]$, so the switching-cycle average traces the wanted sinusoid.",
+      "replace": "a full bridge driven by a sine-triangle comparison has a duty that varies: $D(t) = \\tfrac{1}{2}\\left[1 + m_a\\sin\\omega_m t\\right]$. The switching-cycle average therefore traces the wanted sinusoid."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/09_Linear_Voltage_Regulators.json",
+      "entry": 3,
+      "find": "the pass-device dissipation is $P_D = (V_{in} - V_o)I_o + V_{in}I_Q \\approx (V_{in} - V_o)I_o$, and the efficiency is",
+      "replace": "the pass-device dissipation is: $P_D = (V_{in} - V_o)I_o + V_{in}I_Q \\approx (V_{in} - V_o)I_o$. The efficiency is"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/09_Linear_Voltage_Regulators.json",
+      "entry": 3,
+      "find": "A bare TO-220 has $\\theta_{JA} \\approx 65\\ ^\\circ\\mathrm{C/W}$, so 7 W would push the junction 455 C above ambient and the thermal shutdown (about 150-175 C) trips within seconds.",
+      "replace": "For a bare TO-220 the thermal resistance is: $\\theta_{JA} \\approx 65\\ ^\\circ\\mathrm{C/W}$. So 7 W would push the junction 455 C above ambient and the thermal shutdown (about 150-175 C) trips within seconds."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/09_Linear_Voltage_Regulators.json",
+      "entry": 4,
+      "find": "so a 0.01%/V part shifts only $0.01\\%\\times12\\ \\mathrm{V}\\times3\\ \\mathrm{V} = 3.6\\ \\mathrm{mV}$ for a 3 V input change on a 12 V output.",
+      "replace": "so for a 3 V input change on a 12 V output a 0.01%/V part shifts only: $0.01\\%\\times12\\ \\mathrm{V}\\times3\\ \\mathrm{V} = 3.6\\ \\mathrm{mV}$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/06_Power_Electronics_and_Systems/05_Boost_Converter.json",
+      "entry": 3,
+      "find": "In fractional form: $\\dfrac{\\Delta V_o}{V_o}=\\dfrac{D}{RCf_s}$ — the ripple *fraction* contains $D$, unlike the buck's $\\Delta V_o=\\Delta I_L/(8f_sC)$.",
+      "replace": "In fractional form: $\\dfrac{\\Delta V_o}{V_o}=\\dfrac{D}{RCf_s}$. This ripple *fraction* contains $D$, unlike the buck's $\\Delta V_o=\\Delta I_L/(8f_sC)$."
+    }
+  ]
+}

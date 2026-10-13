@@ -11,7 +11,7 @@ prereqs: ["[[11_First_Order_RC_and_RL_Transients]]", "[[02_KCL,_KVL,_Series_and_
 tags: ["ece", "electronics_engineering", "power_electronics_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Boost Converter
@@ -32,9 +32,13 @@ Expanding to $V_{in}D+V_{in}-V_{in}D-V_o+V_oD=0$ cancels to $V_{in}-V_o(1-D)=0$,
 $$I_L=I_{in}=\dfrac{P_o}{V_{in}}=\dfrac{I_o}{1-D}$$
 so a 12 V-to-24 V boost delivering 1 A draws 2 A through the inductor and the switch.
 
-**The output capacitor here is a different animal from the buck's.** In a boost the diode (the only path into the output) conducts only during $(1-D)T_s$, so the capacitor must supply the entire load current during the on-time and is recharged in short, high-current pulses. Charge balance over one period gives $\Delta Q=I_oDT_s$ and therefore $\Delta V_o=\dfrac{I_oDT_s}{C}=\dfrac{V_oD}{RCf_s}$, i.e.
+**The output capacitor here is a different animal from the buck's.** In a boost the diode (the only path into the output) conducts only during $(1-D)T_s$, so the capacitor must supply the entire load current during the on-time and is recharged in short, high-current pulses. Charge balance over one period gives:
+$$\Delta Q=I_oDT_s$$
+and therefore the voltage ripple is:
+$$\Delta V_o=\dfrac{I_oDT_s}{C}=\dfrac{V_oD}{RCf_s}$$
+In fractional form:
 $$\dfrac{\Delta V_o}{V_o}=\dfrac{D}{RCf_s}$$
-— the ripple *fraction* contains $D$, unlike the buck's $\Delta V_o=\Delta I_L/(8f_sC)$. This also explains why a boost has poor ripple performance at high duty and needs a large, low-ESR capacitor: the load current is drawn from the capacitor, not the inductor, for a fraction $D$ of every cycle.
+This ripple *fraction* contains $D$, unlike the buck's $\Delta V_o=\Delta I_L/(8f_sC)$. This also explains why a boost has poor ripple performance at high duty and needs a large, low-ESR capacitor: the load current is drawn from the capacitor, not the inductor, for a fraction $D$ of every cycle.
 
 **Boundary, stresses and the CCM assumption.** CCM requires the average inductor current $I_L=V_o/((1-D)R)$ to exceed half the ripple, which gives the boundary inductance $L=\dfrac{D(1-D)^2R}{2f_s}$ and the boundary current $I_{OB}=\dfrac{V_oD(1-D)}{2Lf_s}$. Note how quickly the $(1-D)^2$ factor makes $L$ large as $D$ grows: at $D=0.9$ with $R=100\ \Omega$ and $f_s=100\ \mathrm{kHz}$ the boundary is $405\ \mu\mathrm{H}$, so a high-step boost is always close to DCM and its output rises above the ideal $V_{in}/(1-D)$ at light load. Device stresses are the nastiest part of the topology: when the switch is off it stands off the *entire output voltage* $V_o$ (not $V_{in}$), the diode reverse-blocks $V_o$, the switch carries the full inductor current with an RMS value $I_{sw,rms}=I_L\sqrt D$, and the diode carries the full inductor current for $(1-D)$ of the time with an average equal to $I_o$. This is why a boost's switch is rated for a higher voltage than the input would suggest, and why a boost cannot protect itself against a shorted output — there is a DC path from input to output through the diode.
 

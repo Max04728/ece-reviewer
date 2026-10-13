@@ -11,7 +11,7 @@ prereqs: ["[[09_Plane_Areas_Cartesian]]", "[[05_Trigonometric_Integrals_and_Subs
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Plane Areas Polar
@@ -24,9 +24,13 @@ updated: 2026-09-23
 > [!tip] Intuition
 > In polar coordinates the natural area element is a thin circular wedge, not a rectangle. A wedge at radius $r$ spanning angle $d\theta$ has area $\frac12 r^2\,d\theta$, and that single fact produces the entire formula.
 
-**The polar area formula.** The area swept by $r = f(\theta)$ from $\theta=\alpha$ to $\theta=\beta$ is $A = \frac{1}{2}\int_{\alpha}^{\beta} r^2\,d\theta$. Note that $r$ is **squared** — unlike the Cartesian case there is no 'upper minus lower' curve, because the wedge area depends on the square of the radius. The $\frac12$ is part of the formula and is very commonly dropped.
+**The polar area formula.** The area swept by $r = f(\theta)$ from $\theta=\alpha$ to $\theta=\beta$ is:
+$$A = \frac{1}{2}\int_{\alpha}^{\beta} r^2\,d\theta$$
+Note that $r$ is **squared** — unlike the Cartesian case there is no 'upper minus lower' curve, because the wedge area depends on the square of the radius. The $\frac12$ is part of the formula and is very commonly dropped.
 
-**Area between two polar curves.** $A = \frac{1}{2}\int_{\alpha}^{\beta}\left(r_{\mathrm{outer}}^2 - r_{\mathrm{inner}}^2\right)d\theta$, where the outer curve is the one with the larger $r$ on the interval. As in Cartesian work, find the intersections first and split the interval wherever the curves swap which is outer.
+**Area between two polar curves.** The formula is:
+$$A = \frac{1}{2}\int_{\alpha}^{\beta}\left(r_{\mathrm{outer}}^2 - r_{\mathrm{inner}}^2\right)d\theta$$
+The outer curve is the one with the larger $r$ on the interval. As in Cartesian work, find the intersections first and split the interval wherever the curves swap which is outer.
 
 **Finding intersections requires care.** Solving $f(\theta) = g(\theta)$ finds most intersections, but polar curves can also intersect at the **pole** when both pass through it at *different* angles. Both cases must be considered; missing the pole intersections is the characteristic polar error, and unlike Cartesian work there is no algebraic trace of it in the equation $f = g$.
 

@@ -11,7 +11,7 @@ prereqs: ["[[09_Plane_Areas_Cartesian]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Volumes by Cylindrical Shells
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **The shell element.** A vertical strip of width $dx$ at distance $x$ from the $y$-axis, of height $h(x)$, when revolved about the $y$-axis sweeps a cylindrical shell of volume $dV = 2\pi x\,h(x)\,dx$. The three factors have direct geometric meaning: $2\pi x$ is the circumference, $h(x)$ is the height, and $dx$ is the wall thickness. Reading the formula that way makes it easy to adapt when the geometry changes.
 
-**The shell formula.** $V = 2\pi\int_a^b (\mathrm{radius})(\mathrm{height})\,dx$. For a region between $y = f(x)$ and $y = g(x)$ with $f\geq g$, the height is $f(x)-g(x)$ and the radius is the distance from the strip to the axis of rotation. Note the contrast with washers: shells multiply radius by height, washers subtract squared radii. Choosing the right method is usually about which produces the simpler integrand.
+**The shell formula.** In symbols:
+$$V = 2\pi\int_a^b (\mathrm{radius})(\mathrm{height})\,dx$$
+For a region between $y = f(x)$ and $y = g(x)$ with $f\geq g$, the height is $f(x)-g(x)$ and the radius is the distance from the strip to the axis of rotation. Note the contrast with washers: shells multiply radius by height, washers subtract squared radii. Choosing the right method is usually about which produces the simpler integrand.
 
 **Shells versus washers — how to choose.** Washers integrate *perpendicular* to the axis of rotation; shells integrate *parallel* to it. So: rotating about the $y$-axis, a vertical strip is parallel to the axis, hence shells; a horizontal strip is perpendicular, hence washers. The practical rule is to pick whichever description of the region avoids solving for the other variable, since that is what prevents splitting the integral.
 

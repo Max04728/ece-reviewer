@@ -11,7 +11,7 @@ prereqs: ["[[01_Signal_Classification_and_Operations]]"]
 tags: ["ece", "mathematics", "signals_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — System Properties and LTI
@@ -36,7 +36,9 @@ or $\sum\lvert h[n]\rvert<\infty$. This is exactly the condition that a bounded 
 $$h(t)=\dfrac{1}{t+1}u(t)$$
 decays to zero yet is not absolutely integrable, so that system is unstable.
 
-**Causality from the impulse response.** A CT LTI system is causal iff $h(t)=0$ for $t<0$; a DT LTI system is causal iff $h[n]=0$ for $n<0$. Causal and stable are independent: $h(t)=e^{2t}u(-t)$ has finite area $1/2$ and is therefore stable, but it is nonzero for negative time and therefore non-causal. Equally, $h[n]=u[n]$ is causal and unstable.
+**Causality from the impulse response.** A CT LTI system is causal iff $h(t)=0$ for $t<0$; a DT LTI system is causal iff $h[n]=0$ for $n<0$. Causal and stable are independent:
+$$h(t)=e^{2t}u(-t)$$
+has finite area $1/2$ and is therefore stable, but it is nonzero for negative time and therefore non-causal. Equally, $h[n]=u[n]$ is causal and unstable.
 
 **Step response and interconnections.** The step response is the running integral (CT) or running sum (DT) of the impulse response:
 $$g(t)=\int_{-\infty}^{t}h(\tau)d\tau$$

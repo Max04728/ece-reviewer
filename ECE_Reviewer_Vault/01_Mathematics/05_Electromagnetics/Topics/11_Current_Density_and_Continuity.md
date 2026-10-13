@@ -11,7 +11,7 @@ prereqs: ["[[05_Gauss_Law_and_Applications]]"]
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Current Density and Continuity
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **The point form of Ohm's law.** Microscopically, carriers are accelerated by $\mathbf{E}$ and repeatedly scattered, so the average drift velocity is proportional to the field:
 $$\mathbf{v}_d=\mu\mathbf{E}$$
-with mobility $\mu$ in m²/(V·s). Substituting into $\mathbf{J}=ne\mathbf{v}_d$ gives $\mathbf{J}=\sigma\mathbf{E}$ with $\sigma=ne\mu$ — the point form of Ohm's law, valid at every point in a conductor, unlike $V=IR$ which is a statement about a whole component. In a semiconductor both electrons and holes contribute:
+with mobility $\mu$ in m²/(V·s). Substituting into $\mathbf{J}=ne\mathbf{v}_d$ gives:
+$$\mathbf{J}=\sigma\mathbf{E}$$
+with $\sigma=ne\mu$ — the point form of Ohm's law, valid at every point in a conductor, unlike $V=IR$ which is a statement about a whole component. In a semiconductor both electrons and holes contribute:
 $$\sigma=e(n\mu_e+p\mu_h)$$
 Resistance then follows from geometry:
 $$R=\dfrac{L}{\sigma A}=\dfrac{\rho L}{A}$$

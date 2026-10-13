@@ -11,7 +11,7 @@ prereqs: ["[[02_Linear_First_Order_and_Bernoulli]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Mixtures and Orthogonal Trajectories
@@ -32,9 +32,13 @@ Here $A$ is the mass of solute, $c_{\mathrm{in}}$ the inflow concentration and $
 $$V(t)=V_0+(r_{\mathrm{in}}-r_{\mathrm{out}})t$$
 When $r_{\mathrm{in}}=r_{\mathrm{out}}$ the volume is constant and the outflow term is $-\frac{r}{V}A$, which gives the clean solution:
 $$A(t)=c_{\mathrm{in}}V+\left(A_0-c_{\mathrm{in}}V\right)e^{-rt/V}$$
-Its steady state is $A_\infty=c_{\mathrm{in}}V$, so the tank ends up at the inflow concentration. When the rates differ, $V$ must be substituted into the integrating factor, so $\mu=e^{\int r_{\mathrm{out}}dt/V(t)}$ generally becomes a power of $V(t)$, not an exponential.
+Its steady state is:
+$$A_\infty=c_{\mathrm{in}}V$$
+so the tank ends up at the inflow concentration. When the rates differ, $V$ must be substituted into the integrating factor, so $\mu=e^{\int r_{\mathrm{out}}dt/V(t)}$ generally becomes a power of $V(t)$, not an exponential.
 
-**The single most common modelling error.** The rate out is $\frac{A}{V}\cdot r_{\mathrm{out}}$, not $A\cdot r_{\mathrm{out}}$ and not $c_{\mathrm{in}}r_{\mathrm{out}}$. The concentration leaving is the concentration *inside* the tank at that instant, which is the whole reason the equation is differential rather than algebraic. Using the inflow concentration for the outflow makes the amount grow without bound and is the classic wrong answer.
+**The single most common modelling error.** The rate out is:
+$$\frac{A}{V}\cdot r_{\mathrm{out}}$$
+not $A\cdot r_{\mathrm{out}}$ and not $c_{\mathrm{in}}r_{\mathrm{out}}$. The concentration leaving is the concentration *inside* the tank at that instant, which is the whole reason the equation is differential rather than algebraic. Using the inflow concentration for the outflow makes the amount grow without bound and is the classic wrong answer.
 
 **Steady state and the physical check.** With constant volume, $\frac{dA}{dt}=0$ gives the steady state:
 $$A_\infty=c_{\mathrm{in}}V$$

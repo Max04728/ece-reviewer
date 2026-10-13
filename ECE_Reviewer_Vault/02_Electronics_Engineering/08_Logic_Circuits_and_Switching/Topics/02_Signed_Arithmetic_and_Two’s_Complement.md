@@ -11,7 +11,7 @@ prereqs: ["[[01_Number_Systems_and_Base_Conversion]]"]
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Signed Arithmetic and Two’s Complement
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **Three signed representations, one survivor.** In *sign-magnitude* the MSB is a sign flag and the remaining bits are the magnitude, so $+5 = 00101$ and $-5 = 10101$. In *1's complement* a negative number is the bitwise NOT of its positive form. In *2's complement* it is the bitwise NOT plus 1. Only 2's complement survived in hardware because it has a single zero, needs no correction on addition, and lets subtraction reuse the adder.
 
-**The defining relation.** For an $n$-bit word, the negative value $-N$ is stored as $2^n - N$. Equivalently the MSB carries weight $-2^{n-1}$ and all other bits carry their usual positive weights, so $11010011$ means $-128 + 64 + 16 + 2 + 1 = -45$. This negative-weight reading is the fastest way to decode a 2's complement word back to decimal and it never needs a separate sign check.
+**The defining relation.** For an $n$-bit word, the negative value $-N$ is stored as $2^n - N$. Equivalently the MSB carries weight $-2^{n-1}$ and all other bits carry their usual positive weights, so $11010011$ means:
+$$-128 + 64 + 16 + 2 + 1 = -45$$
+This negative-weight reading is the fastest way to decode a 2's complement word back to decimal and it never needs a separate sign check.
 
 **Range is asymmetric.** An $n$-bit 2's complement word spans $-(2^{n-1})$ to $+(2^{n-1}-1)$: 8 bits give $-128\ldots+127$, 12 bits give $-2048\ldots+2047$. There is one more negative code than positive because zero occupies a single code (positive) and the leftover pattern $1000\ldots0$ is $-2^{n-1}$. Negating $-2^{n-1}$ is impossible: the result does not fit, and invert-and-add-1 returns the same pattern.
 
@@ -34,7 +36,9 @@ updated: 2026-09-23
 
 **Signed addition and overflow.** Add bit patterns with an ordinary binary adder and discard the final carry-out; the result is correct in 2's complement. Overflow is a different event from carry-out. It occurs only when both operands share a sign and the result has the opposite sign, and it is detected in hardware by XORing the carry **into** the MSB with the carry **out of** the MSB: overflow $= C_{n-1}\oplus C_n$. In the 8-bit sum $100 + 50 = 150$, both operands are positive but the result $10010110$ has MSB 1 and reads as $-106$; the carry-in is 1 and the carry-out is 0, so the XOR flags the overflow.
 
-**Sign extension preserves value.** Copying the sign bit into every new high-order position extends an $n$-bit word to $m$ bits without changing its value: $11110011_8 = -13$ extends to $1111111111110011_{16} = -13$. Zero extension instead would turn a negative number into a large positive one. Sign extension matters when a byte-wide result feeds a 16-bit adder or when a smaller immediate is used in a wider datapath.
+**Sign extension preserves value.** Copying the sign bit into every new high-order position extends an $n$-bit word to $m$ bits without changing its value:
+$$11110011_8 = -13$$
+extends to $1111111111110011_{16} = -13$. Zero extension instead would turn a negative number into a large positive one. Sign extension matters when a byte-wide result feeds a 16-bit adder or when a smaller immediate is used in a wider datapath.
 
 ## Formulas
 

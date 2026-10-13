@@ -11,7 +11,7 @@ prereqs: ["[[03_Ordinary_Annuity_and_Annuity_Due]]", "[[02_Nominal_vs_Effective_
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Deferred Annuities and Perpetuities
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A deferred annuity is an ordinary annuity parked in the future: value it one period before its first payment, then slide that single amount back to today. A perpetuity is the same series with no last payment, and its value collapses to a single division because the discounted payments form a geometric series that sums to a finite number.
 
-**Deferred annuity: value first, then discount.** If a uniform series of $n$ payments of $A$ begins at the end of period $k+1$ — that is, the first $k$ periods carry nothing — then $P = A(P/A,i,n)(P/F,i,k)$. The annuity factor already places the series one period before its first payment, which is the end of period $k$, so the second step discounts that single amount back over exactly $k$ periods. The equivalent one-line form is $P = A[(P/A,i,k+n) - (P/A,i,k)]$: pretend the series started at period 1, then subtract the $k$ payments that never arrive. Both routes are correct and must agree; using them as a cross-check is the fastest way to catch a miscounted deferral.
+**Deferred annuity: value first, then discount.** If a uniform series of $n$ payments of $A$ begins at the end of period $k+1$ — that is, the first $k$ periods carry nothing — then $P = A(P/A,i,n)(P/F,i,k)$. The annuity factor already places the series one period before its first payment, which is the end of period $k$, so the second step discounts that single amount back over exactly $k$ periods. The equivalent one-line form is:
+$$P = A[(P/A,i,k+n) - (P/A,i,k)]$$
+pretend the series started at period 1, then subtract the $k$ payments that never arrive. Both routes are correct and must agree; using them as a cross-check is the fastest way to catch a miscounted deferral.
 
 **Perpetuity: the 1/i factor.** Letting $n \to \infty$ drives $(P/A,i,n) = [1-(1+i)^{-n}]/i$ to $1/i$, so a level payment of $A$ at the end of every period forever is worth $P = A/i$ today. The reason is a geometric series:
 $$P = A/(1+i) + A/(1+i)^2 + \cdots$$
@@ -32,7 +34,9 @@ a geometric series with first term $A/(1+i)$ and ratio $1/(1+i) < 1$, whose sum 
 
 **Perpetuity due, deferred perpetuity, growing perpetuity.** If the first payment is immediate rather than at the end of period 1, add that one payment:
 $$P = A + A/i = A(1+i)/i$$
-If the stream is deferred $k$ periods, discount the capitalized amount: $P = (A/i)(1+i)^{-k}$. If the payments grow at rate $g$, the geometric series still closes provided $g < i$, giving $P = A_1/(i-g)$; when $g \ge i$ the series diverges and no finite present worth exists.
+If the stream is deferred $k$ periods, discount the capitalized amount:
+$$P = (A/i)(1+i)^{-k}$$
+If the payments grow at rate $g$, the geometric series still closes provided $g < i$, giving $P = A_1/(i-g)$; when $g \ge i$ the series diverges and no finite present worth exists.
 
 **Where the conventions bite.** Every formula above assumes end-of-period payments at a constant rate $i$ that is already the rate per payment period — if interest compounds quarterly but payments are annual, convert to the effective annual rate first (see the nominal-versus-effective note). In Philippine board problems the perpetuity framing shows up as an endowment, a maintenance fund, or a project 'to last forever', and the answer is always independent of any horizon a problem might tempt you to invent.
 

@@ -11,7 +11,7 @@ prereqs: ["[[11_Fourier_Series_Trigonometric_and_Exponential]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 12 — Half-Range Expansions and Symmetry
@@ -30,7 +30,9 @@ An even integrand doubles over the half interval while an odd one cancels, leavi
 
 **Convergence is governed by the periodic extension, not by $f$ alone.** Dirichlet's theorem gives the series the value $\frac{1}{2}[f(x^{+})+f(x^{-})]$ at every point of the extended function, so a jump in the extension produces a series that converges to the average of the two one-sided limits — for a pulse that jumps from $1$ to $0$, the series gives $0.5$ exactly at the jump, no matter how many terms are kept. Endpoints follow the same rule, and this is where the two half-range series behave very differently: the even extension is continuous at $x=0$ (value $f(0^{+})$) so the cosine series converges to $f(0^{+})$ there, while every sine series vanishes at both $x=0$ and $x=L$ because $\sin(n\pi)=0$ for every $n$. The sine series of $f(x)=x$ on $(0,L)$ therefore sums to $0$ at $x=L$ although $f(L)=L$ — a guaranteed exam trap, not a computational error.
 
-**Symmetry decides which series to prefer, and quarter-wave symmetry halves the work.** If $f$ vanishes at both ends and its odd extension is smooth, the sine series converges quickly and is the natural choice; if the even extension is the smooth one (zero slope at the ends), the cosine series converges quickly. Quarter-wave symmetry is the pattern that lets you skip half the coefficients: substituting $L-x$ into $\sin\frac{n\pi x}{L}$ gives $(-1)^{n+1}\sin\frac{n\pi x}{L}$, so a function with $f(L-x)=f(x)$ has all even sine coefficients zero and only odd harmonics survive, whereas $f(L-x)=-f(x)$ kills the odd harmonics and leaves only even ones. The cosine series is the mirror image of this rule with the roles of even and odd reversed. Detecting that symmetry before integrating turns a two-page expansion into one nonzero coefficient.
+**Symmetry decides which series to prefer, and quarter-wave symmetry halves the work.** If $f$ vanishes at both ends and its odd extension is smooth, the sine series converges quickly and is the natural choice; if the even extension is the smooth one (zero slope at the ends), the cosine series converges quickly. Quarter-wave symmetry is the pattern that lets you skip half the coefficients: substituting $L-x$ into $\sin\frac{n\pi x}{L}$ gives:
+$$(-1)^{n+1}\sin\frac{n\pi x}{L}$$
+so a function with $f(L-x)=f(x)$ has all even sine coefficients zero and only odd harmonics survive, whereas $f(L-x)=-f(x)$ kills the odd harmonics and leaves only even ones. The cosine series is the mirror image of this rule with the roles of even and odd reversed. Detecting that symmetry before integrating turns a two-page expansion into one nonzero coefficient.
 
 ## Formulas
 

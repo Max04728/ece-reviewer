@@ -11,7 +11,7 @@ prereqs: ["[[02_Differentiation_Rules]]"]
 tags: ["ece", "mathematics", "differential_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Differentials and Error Propagation
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > For a small change in input, a curve is indistinguishable from its tangent line. The differential is the change predicted by that tangent — which is why it is accurate to first order and cheap to compute.
 
-**Differential versus derivative.** The derivative $\frac{dy}{dx}$ is a rate; the differential $dy = f'(x)\,dx$ is an actual change in $y$ corresponding to a chosen change $dx$ in $x$. The true change is $\Delta y = f(x+dx) - f(x)$, and the approximation $\Delta y \approx dy$ is the linearisation. The gap between them is second-order in $dx$, so the estimate is excellent for small $dx$ and poor for large $dx$.
+**Differential versus derivative.** The derivative $\frac{dy}{dx}$ is a rate; the differential $dy = f'(x)\,dx$ is an actual change in $y$ corresponding to a chosen change $dx$ in $x$. The true change is:
+$$\Delta y = f(x+dx) - f(x)$$
+and the approximation $\Delta y \approx dy$ is the linearisation. The gap between them is second-order in $dx$, so the estimate is excellent for small $dx$ and poor for large $dx$.
 
 **Linear approximation form.** The same idea written out:
 $$f(x + \Delta x) \approx f(x) + f'(x)\Delta x$$
@@ -35,7 +37,11 @@ $$\Delta Q \approx \left|\frac{dQ}{dx}\right|\Delta x$$
 Taking absolute values is essential — uncertainties add, they do not cancel, because the sign of a measurement error is unknown. For a function of several variables, the individual contributions are combined:
 $$\Delta Q \approx \left|\frac{\partial Q}{\partial x}\right|\Delta x + \left|\frac{\partial Q}{\partial y}\right|\Delta y + \cdots$$
 
-**Relative and percentage error.** Relative error is $\frac{\Delta Q}{Q}$ and percentage error is $100\frac{\Delta Q}{Q}$. For power laws the rule is immediate. With $Q = kx^n$ the relative errors are related by:
+**Relative and percentage error.** Relative error is:
+$$\frac{\Delta Q}{Q}$$
+and percentage error is:
+$$100\frac{\Delta Q}{Q}$$
+For power laws the rule is immediate. With $Q = kx^n$ the relative errors are related by:
 $$\frac{\Delta Q}{Q} = n\frac{\Delta x}{x}$$
 The relative error is scaled by the exponent, which is why squaring a measurement doubles its relative error and taking a square root halves it.
 

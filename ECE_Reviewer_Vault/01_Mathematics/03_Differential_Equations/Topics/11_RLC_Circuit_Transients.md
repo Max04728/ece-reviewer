@@ -11,7 +11,7 @@ prereqs: ["[[10_Mass-Spring-Damper_Systems]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — RLC Circuit Transients
@@ -33,7 +33,9 @@ $$s = -\alpha \pm \sqrt{\alpha^2-\omega_0^2}$$
 
 **Damping classification.** The circuit is **overdamped** when $\alpha>\omega_0$, that is $R>2\sqrt{L/C}$; **critically damped** when $R = 2\sqrt{L/C}$, exactly one repeated real root and the fastest non-oscillatory settling; **underdamped** when $R<2\sqrt{L/C}$, giving complex roots $-\alpha\pm i\omega_d$ with $\omega_d = \sqrt{\omega_0^2-\alpha^2}$ and a decaying oscillation. In ratio form the series circuit has $\zeta = \frac{R}{2}\sqrt{\frac{C}{L}}$. Note what is *not* in the criterion: neither $R$ nor $C$ alone decides it, only the combination $R$ versus $2\sqrt{L/C}$.
 
-**Parallel is the dual, and its criterion is different.** For a parallel RLC driven by a current source, the characteristic equation is $s^2+\frac{1}{RC}s+\frac{1}{LC} = 0$, so $\alpha = \frac{1}{2RC}$ and $\omega_0 = \frac{1}{\sqrt{LC}}$ as before. Hence a parallel circuit is critically damped at $R = \frac{1}{2}\sqrt{L/C}$ — the reciprocal-shaped criterion. Applying the series rule $R = 2\sqrt{L/C}$ to a parallel circuit misclassifies damping by a factor of four in $R$.
+**Parallel is the dual, and its criterion is different.** For a parallel RLC driven by a current source, the characteristic equation is:
+$$s^2+\frac{1}{RC}s+\frac{1}{LC} = 0$$
+so $\alpha = \frac{1}{2RC}$ and $\omega_0 = \frac{1}{\sqrt{LC}}$ as before. Hence a parallel circuit is critically damped at $R = \frac{1}{2}\sqrt{L/C}$ — the reciprocal-shaped criterion. Applying the series rule $R = 2\sqrt{L/C}$ to a parallel circuit misclassifies damping by a factor of four in $R$.
 
 **Why the natural response looks the way it does.** The source-free solution is built exactly like the mechanical one:
 $$q_h = A_1e^{s_1t}+A_2e^{s_2t}$$

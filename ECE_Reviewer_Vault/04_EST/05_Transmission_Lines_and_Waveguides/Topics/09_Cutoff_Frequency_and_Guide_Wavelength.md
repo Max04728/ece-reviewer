@@ -11,7 +11,7 @@ prereqs: ["[[08_Waveguide_TE_and_TM_Modes]]"]
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Cutoff Frequency and Guide Wavelength

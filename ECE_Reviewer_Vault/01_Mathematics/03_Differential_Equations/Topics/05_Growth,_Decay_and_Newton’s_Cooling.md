@@ -11,7 +11,7 @@ prereqs: ["[[01_Separation_of_Variables]]", "[[01_Limits,_Continuity_and_L_Hopit
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Growth, Decay and Newton’s Cooling
@@ -26,11 +26,17 @@ updated: 2026-09-23
 
 **The law and its solution.** $\frac{dy}{dt}=ky$ is separable;
 $$\int\frac{dy}{y}=\int k\,dt$$
-gives $\ln\lvert y\rvert=kt+C$ and $y=y_0e^{k(t-t_0)}$. The constant $k$ has units of inverse time and carries the sign: $k>0$ for growth (populations, compound interest, avalanche current), $k<0$ for decay (radioactivity, capacitor discharge, damped transients). Write down which convention you are using — the alternative form $y=y_0e^{-\lambda t}$ with $\lambda>0$ is equally common, and mixing the two flips every answer.
+gives:
+$$\ln\lvert y\rvert=kt+C$$
+and $y=y_0e^{k(t-t_0)}$. The constant $k$ has units of inverse time and carries the sign: $k>0$ for growth (populations, compound interest, avalanche current), $k<0$ for decay (radioactivity, capacitor discharge, damped transients). Write down which convention you are using — the alternative form $y=y_0e^{-\lambda t}$ with $\lambda>0$ is equally common, and mixing the two flips every answer.
 
-**Half-life and doubling time.** Setting $y=y_0/2$ gives $\frac12=e^{-\lambda t_{1/2}}$, hence $\lambda=\frac{\ln 2}{t_{1/2}}$ and $t_{1/2}=\frac{\ln 2}{\lambda}$. For growth, $t_{\mathrm{double}}=\frac{\ln 2}{k}$. The logarithm is always $\ln 2=0.6931\ldots$, never 0.5 and never 2 — a half-life is *not* the time for the exponent to fall by 1.
+**Half-life and doubling time.** Setting $y=y_0/2$ gives:
+$$\frac12=e^{-\lambda t_{1/2}}$$
+hence $\lambda=\frac{\ln 2}{t_{1/2}}$ and $t_{1/2}=\frac{\ln 2}{\lambda}$. For growth, $t_{\mathrm{double}}=\frac{\ln 2}{k}$. The logarithm is always $\ln 2=0.6931\ldots$, never 0.5 and never 2 — a half-life is *not* the time for the exponent to fall by 1.
 
-**Why $\ln 2$ and not something else.** The decay law is $y/y_0=e^{-\lambda t}$, a function of the dimensionless product $\lambda t$. The half-life is the value of $t$ for which that function equals $0.5$, and solving $e^{-x}=0.5$ gives $x=\ln 2$. Everything about half-life is that one number.
+**Why $\ln 2$ and not something else.** The decay law is:
+$$y/y_0=e^{-\lambda t}$$
+a function of the dimensionless product $\lambda t$. The half-life is the value of $t$ for which that function equals $0.5$, and solving $e^{-x}=0.5$ gives $x=\ln 2$. Everything about half-life is that one number.
 
 **Newton's law of cooling is a shifted exponential.** $\frac{dT}{dt}=-k(T-T_m)$ with ambient $T_m$ constant. Put $u=T-T_m$; then $\frac{du}{dt}=-ku$ and $u=u_0e^{-kt}$, so $T(t)=T_m+(T_0-T_m)e^{-kt}$. The physical content of the subtraction is that the cooling rate depends on the *temperature difference*, not on the temperature itself. A body at 100 °C in a 25 °C room cools toward 25 °C and never below it; the ambient is the horizontal asymptote.
 
@@ -42,7 +48,9 @@ Temperature differences may be left in °C or °F because only differences enter
 
 **Logarithms beat repeated halving.** For a decay question such as 'what fraction remains after 4.3 half-lives', the answer comes directly from the fractional-power form:
 $$\frac{y}{y_0}=e^{-\lambda t}=2^{-t/t_{1/2}}$$
-which gives $2^{-4.3}=0.0508$. Doing it by repeated halving and interpolation is slower and error-prone when the number of half-lives is not an integer.
+which gives:
+$$2^{-4.3}=0.0508$$
+Doing it by repeated halving and interpolation is slower and error-prone when the number of half-lives is not an integer.
 
 **Where the model fails.** $\frac{dy}{dt}=ky$ assumes unlimited resources; real populations saturate and are modelled by the logistic equation:
 $$\frac{dP}{dt}=kP\left(1-\frac{P}{M}\right)$$

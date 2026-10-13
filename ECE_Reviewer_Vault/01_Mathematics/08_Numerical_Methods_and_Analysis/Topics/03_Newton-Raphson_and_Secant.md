@@ -11,7 +11,7 @@ prereqs: ["[[02_Differentiation_Rules]]"]
 tags: ["ece", "mathematics", "numerical_methods_and_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Newton-Raphson and Secant
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **Newton-Raphson is the tangent-line linearisation.** Expand $f$ about $x_n$ and keep two terms:
 $$f(x_n)+f'(x_n)(x_{n+1}-x_n)=0$$
-Solving gives $x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}$. Equivalently, the method replaces the curve by its tangent at each step — that is why it needs $f'$ and why it fails wherever the tangent is horizontal.
+Solving gives:
+$$x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}$$
+Equivalently, the method replaces the curve by its tangent at each step — that is why it needs $f'$ and why it fails wherever the tangent is horizontal.
 
 **Quadratic convergence, and what it costs.** Near a simple root the error satisfies:
 $$E_{n+1}\approx\frac{|f''(r)|}{2|f'(r)|}E_n^{2}$$

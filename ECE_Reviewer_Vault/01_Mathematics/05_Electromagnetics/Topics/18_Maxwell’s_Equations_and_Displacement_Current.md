@@ -11,7 +11,7 @@ prereqs: ["[[13_Ampere’s_Circuital_Law]]", "[[17_Faraday’s_Law_and_Motional_
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 18 — Maxwell’s Equations and Displacement Current
@@ -30,7 +30,9 @@ which says a magnetic field changing in time drives a circulating electric field
 $$\nabla\times\mathbf{H}=\mathbf{J}+\partial\mathbf{D}/\partial t$$
 and it says both conduction current and changing electric flux produce a circulating magnetic field. Note the asymmetry that is not an accident: the magnetic equation carries a source where the electric one does not, and the electric divergence has a source where the magnetic one does not. The two divergences and the two curls, with their signs, are the complete classical theory - every other result in electromagnetics is a consequence.
 
-**The inconsistency the displacement current repairs.** Take a wire charging a parallel-plate capacitor and apply Ampere's law to two different surfaces with the *same* rim, a circle around the wire. Surface A is a flat disc cutting the wire: it is pierced by the conduction current $I$, so $\oint\mathbf{H}\cdot d\mathbf{l}=I$. Surface B is a balloon that passes between the plates: no charge crosses it, so the same line integral would have to be zero. The same closed path cannot have two values, so Ampere's law as originally written is broken. The missing term is the rate of change of the electric flux through surface B: between the plates the field is $E=Q/(\varepsilon A)$, so $\partial D/\partial t$ integrated over the plate area equals $dQ/dt=I$, exactly the conduction current through surface A. Adding $\partial\mathbf{D}/\partial t$ makes the two surfaces agree, and it gives the charging capacitor a magnetic field between its plates - measurable, and the reason a capacitor does not break a high-frequency circuit. The displacement current density is not a flow of charge; it is a changing electric field, measured in A/m², and it exists even in vacuum.
+**The inconsistency the displacement current repairs.** Take a wire charging a parallel-plate capacitor and apply Ampere's law to two different surfaces with the *same* rim, a circle around the wire. Surface A is a flat disc cutting the wire: it is pierced by the conduction current $I$, so $\oint\mathbf{H}\cdot d\mathbf{l}=I$. Surface B is a balloon that passes between the plates: no charge crosses it, so the same line integral would have to be zero. The same closed path cannot have two values, so Ampere's law as originally written is broken. The missing term is the rate of change of the electric flux through surface B: between the plates the field is:
+$$E=Q/(\varepsilon A)$$
+so $\partial D/\partial t$ integrated over the plate area equals $dQ/dt=I$, exactly the conduction current through surface A. Adding $\partial\mathbf{D}/\partial t$ makes the two surfaces agree, and it gives the charging capacitor a magnetic field between its plates - measurable, and the reason a capacitor does not break a high-frequency circuit. The displacement current density is not a flow of charge; it is a changing electric field, measured in A/m², and it exists even in vacuum.
 
 **Consequences: charge conservation, the constitutive relations, and the boundary conditions.** Taking the divergence of the corrected Ampere law and using $\nabla\cdot(\nabla\times\mathbf{H})=0$ together with Gauss's law gives the continuity equation:
 $$0=\nabla\cdot\mathbf{J}+\partial\rho_v/\partial t$$
@@ -44,7 +46,9 @@ and it kills the divergence term because $\nabla\cdot\mathbf{E}=0$. Ampere's law
 $$\nabla\times\mathbf{H}=\varepsilon\,\partial\mathbf{E}/\partial t$$
 Substituting gives the wave equation for the electric field:
 $$\nabla^2\mathbf{E}=\mu\varepsilon\,\dfrac{\partial^2\mathbf{E}}{\partial t^2}$$
-whose propagation speed is $v=1/\sqrt{\mu\varepsilon}$; in vacuum that speed takes the value:
+whose propagation speed is:
+$$v=1/\sqrt{\mu\varepsilon}$$
+in vacuum that speed takes the value:
 $$1/\sqrt{\mu_0\varepsilon_0}=3\times10^{8}$$
 m/s. The same manipulation on Ampere's law gives the identical equation for $\mathbf{H}$. Notice that the displacement current is *not optional* here: drop $\partial\mathbf{D}/\partial t$ and the substitution produces $\nabla^2\mathbf{E}=0$, a static diffusion-free field with no propagation at all. So the term Maxwell added to fix a bookkeeping problem in a capacitor is the same term that permits light, radio and every antenna - which is why the equation is named after him and not after Ampere alone.
 

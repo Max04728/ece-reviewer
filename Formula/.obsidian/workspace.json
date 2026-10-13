@@ -1,0 +1,240 @@
+{
+  "main": {
+    "id": "02b8eff2e98b3676",
+    "type": "split",
+    "children": [
+      {
+        "id": "10bf6bd823472924",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c86a55deb70c0c7e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "GEAS/01_General_Chemistry.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01_General_Chemistry"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "eea670d017449bb5",
+    "type": "split",
+    "children": [
+      {
+        "id": "a476b534d243dfa0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c65502293cf0d2f0",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "bd453a7d0e9876aa",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "c948e0b9e6eed527",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "35ebf2e34958d773",
+    "type": "split",
+    "children": [
+      {
+        "id": "92c1c032f68f2531",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9b41d0dcfccd6616",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "GEAS/01_General_Chemistry.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "f6cd82aafff687cb",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "GEAS/01_General_Chemistry.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "d33f2c3fd5a9e35d",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "5a569d70c53962b8",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "c02933a6f0a60ccd",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "GEAS/01_General_Chemistry.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "c86a55deb70c0c7e",
+  "lastOpenFiles": [
+    "_AUDIT/add_geas_videos.mjs",
+    "GEAS/02_University_Physics.md",
+    "EST/07_Industrial_Automation_and_Instrumentation.md",
+    "EST/06_Antenna_Systems_and_Propagation.md",
+    "EST/05_Transmission_Lines_and_Waveguides.md",
+    "EST/04_Data_Communications_and_Networking.md",
+    "EST/03_Digital_Communications.md",
+    "EST/02_Principles_of_Communications.md",
+    "EST/01_Signals_Spectra_and_Noise.md",
+    "GEAS/01_General_Chemistry.md",
+    "Electronics_Engineering/04_Semiconductor_Devices.md",
+    "_AUDIT/add_est_videos.mjs",
+    "Electronics_Engineering/03_Two_Port_Networks.md",
+    "Electronics_Engineering/05_Circuit_Analysis_and_Design.md",
+    "_AUDIT/add_elecs_videos.mjs",
+    "Electronics_Engineering/02_AC_Circuits.md",
+    "Mathematics/06_Control_Systems.md",
+    "FORMULA_SHEET_STYLE_GUIDE.md",
+    "Mathematics/04_Advanced_Engineering_Math.md",
+    "_AUDIT/add_topic_videos.mjs",
+    "Mathematics/09_Engineering_Data_Analysis.md",
+    "Mathematics/08_Numerical_Methods_and_Analysis.md",
+    "Mathematics/07_Signals_and_Systems.md",
+    "Mathematics/05_Electromagnetics.md",
+    "Mathematics/03_Differential_Equations.md",
+    "Mathematics/02_Integral_Calculus.md",
+    "Mathematics/05_Electromagnetics.md~RF99053c25.TMP",
+    "Mathematics/01_Differential_Calculus.md",
+    "_attachments/State_space_block_diagram.svg",
+    "_attachments/Nyquist_plot_PT1.svg",
+    "_attachments/Root_locus_plot.png",
+    "_attachments/Second_order_step_responses.png",
+    "_attachments/_sources.json",
+    "_attachments/Lead_lag_bode_plot.png",
+    "_attachments/PID_block_diagram.svg",
+    "_attachments/First_order_step_response.png",
+    "_attachments/Position_servo_and_signal_flow_graph.png",
+    "_attachments/Signal_flow_graph_example.png",
+    "Mathematics/00_Index.md",
+    "_attachments/Bode_gain_phase_margins.png",
+    "_attachments",
+    "_AUDIT/commons_verify.mjs",
+    "GEAS/08_Computer_Systems_OOP_and_CAD.md",
+    "_AUDIT/commons_ctrl.mjs",
+    "EST/00_Index.md~RF98ea85c4.TMP",
+    "EST/00_Index.md~RF98ea3e3b.TMP"
+  ]
+}

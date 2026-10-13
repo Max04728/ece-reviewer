@@ -11,7 +11,7 @@ prereqs: ["[[09_ASK,_OOK_and_FSK]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — BPSK and QPSK
@@ -24,9 +24,13 @@ updated: 2026-09-23
 > [!tip] Intuition
 > BPSK flips the carrier between 0 and 180 degrees, one bit per symbol. QPSK uses four phases and packs two bits into each, so it sends the same data in half the symbol rate — the same bandwidth saving, with identical error performance per bit.
 
-**BPSK.** Binary phase shift keying maps 1 and 0 to two carrier phases separated by $180^\circ$. The signal is $s(t) = A\cos(2\pi f_c t + \pi b)$ for bit $b \in \{0,1\}$, which is equivalent to multiplying the carrier by $\pm 1$. Because the two symbols are antipodal — the maximum possible Euclidean distance for a given energy — BPSK is the most power-efficient binary scheme there is. Detection is coherent: the receiver must recover the carrier phase, usually with a squaring loop or a Costas loop, because a $180^\circ$ phase ambiguity otherwise inverts the whole message.
+**BPSK.** Binary phase shift keying maps 1 and 0 to two carrier phases separated by $180^\circ$. The signal is:
+$$s(t) = A\cos(2\pi f_c t + \pi b)$$
+for bit $b \in \{0,1\}$, which is equivalent to multiplying the carrier by $\pm 1$. Because the two symbols are antipodal — the maximum possible Euclidean distance for a given energy — BPSK is the most power-efficient binary scheme there is. Detection is coherent: the receiver must recover the carrier phase, usually with a squaring loop or a Costas loop, because a $180^\circ$ phase ambiguity otherwise inverts the whole message.
 
-**BPSK bandwidth and error rate.** One bit per symbol means the symbol rate equals the bit rate, $R_s = f_b$, and the null-to-null bandwidth of the rectangular-pulse spectrum is $B = 2f_b$. The bit error probability over an AWGN channel with coherent detection is $P_e = Q\!\left(\sqrt{2E_b/N_0}\right)$, the best of any binary scheme. Useful landmarks:
+**BPSK bandwidth and error rate.** One bit per symbol means the symbol rate equals the bit rate, $R_s = f_b$, and the null-to-null bandwidth of the rectangular-pulse spectrum is $B = 2f_b$. The bit error probability over an AWGN channel with coherent detection is:
+$$P_e = Q\!\left(\sqrt{2E_b/N_0}\right)$$
+the best of any binary scheme. Useful landmarks:
 $$E_b/N_0 = 6.8\ \mathrm{dB}$$
 gives $10^{-3}$, $8.4\ \mathrm{dB}$ gives $10^{-4}$, $9.6\ \mathrm{dB}$ gives $10^{-5}$, and $10.5\ \mathrm{dB}$ gives $10^{-6}$.
 
@@ -36,7 +40,9 @@ gives $10^{-3}$, $8.4\ \mathrm{dB}$ gives $10^{-4}$, $9.6\ \mathrm{dB}$ gives $1
 
 **Offsets and variants.** In QPSK the I and Q channels can change simultaneously, causing instantaneous $180^\circ$ transitions and large envelope dips when the signal is filtered and then amplified by a nonlinear (saturated) amplifier. *Offset QPSK (OQPSK)* delays the Q channel by half a symbol so at most one channel changes at a time, limiting phase jumps to $90^\circ$ and keeping the envelope nearly constant. *$\pi/4$-QPSK* alternates between two rotated QPSK constellations so that every transition is at most $135^\circ$ and the signal never passes through the origin, allowing non-coherent differential detection; it was used in IS-136 and PHS. These variants preserve QPSK's bandwidth and BER while improving spectral regrowth in real amplifiers.
 
-**Reading exam questions.** The two conversions that decide every problem are $R_s = f_b/\log_2 M$ and $B = 2R_s$ (null-to-null, rectangular pulses) or $B = (R_s/2)(1+\alpha)$ once raised-cosine filtering is specified. Watch for the phrase *input bit rate*: a 10 Mbps QPSK link has a 5 MBd symbol rate and therefore a 10 MHz unfiltered bandwidth, not 20 MHz.
+**Reading exam questions.** The two conversions that decide every problem are:
+$$R_s = f_b/\log_2 M$$
+and $B = 2R_s$ (null-to-null, rectangular pulses) or $B = (R_s/2)(1+\alpha)$ once raised-cosine filtering is specified. Watch for the phrase *input bit rate*: a 10 Mbps QPSK link has a 5 MBd symbol rate and therefore a 10 MHz unfiltered bandwidth, not 20 MHz.
 
 ## Formulas
 

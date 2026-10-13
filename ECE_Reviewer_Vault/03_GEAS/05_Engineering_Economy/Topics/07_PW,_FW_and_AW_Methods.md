@@ -11,7 +11,7 @@ prereqs: ["[[01_Simple_and_Compound_Interest]]", "[[03_Ordinary_Annuity_and_Annu
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — PW, FW and AW Methods

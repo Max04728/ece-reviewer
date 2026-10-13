@@ -11,7 +11,7 @@ prereqs: ["[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]", "[[05_Nodal_Analysis
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Thevenin and Norton Equivalents

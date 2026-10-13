@@ -11,7 +11,7 @@ prereqs: ["[[02_Block_Diagram_Reduction]]"]
 tags: ["ece", "mathematics", "control_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Mason’s Gain Formula

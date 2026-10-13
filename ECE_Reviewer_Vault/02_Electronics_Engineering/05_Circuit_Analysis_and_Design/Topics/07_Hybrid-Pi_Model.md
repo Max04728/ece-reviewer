@@ -11,7 +11,7 @@ prereqs: ["[[01_BJT_DC_Biasing_Configurations]]", "[[02_Load_Lines_and_Q_Point]]
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Hybrid-Pi Model
@@ -30,7 +30,9 @@ $$r_e = \alpha/g_m = V_T/I_E \approx V_T/I_C$$
 
 **Why the current source is controlled by v_pi, not by i_b.** The physical transistor is voltage-driven at the base-emitter junction:
 $$I_C = I_S e^{V_{BE}/V_T}$$
-so a small-signal change gives $i_c = g_m v_{be}$. That is why the model is *transconductance* based. The input current is a side effect, $i_b = v_{be}/r_\pi$, and the current gain is recovered as $\beta = g_m r_\pi = h_{fe}$, not assumed. r_o is the Early effect: the collector current rises slightly with $V_{CE}$ because the base width modulates, giving $r_o = V_A/I_C$ and an output conductance $h_{oe} = 1/r_o$. In hand analysis r_o is very often dropped because $r_o \gg R_C$ (a 100 V Early voltage at 1 mA gives 100 kohm against a few kohm load), but when the question says "include r_o" the collector load becomes $R_C \parallel r_o$.
+so a small-signal change gives:
+$$i_c = g_m v_{be}$$
+That is why the model is *transconductance* based. The input current is a side effect, $i_b = v_{be}/r_\pi$, and the current gain is recovered as $\beta = g_m r_\pi = h_{fe}$, not assumed. r_o is the Early effect: the collector current rises slightly with $V_{CE}$ because the base width modulates, giving $r_o = V_A/I_C$ and an output conductance $h_{oe} = 1/r_o$. In hand analysis r_o is very often dropped because $r_o \gg R_C$ (a 100 V Early voltage at 1 mA gives 100 kohm against a few kohm load), but when the question says "include r_o" the collector load becomes $R_C \parallel r_o$.
 
 **The four canonical results for a common-emitter stage.** (1) The midband voltage gain is:
 $$A_v = -g_m(R_C \parallel R_L \parallel r_o)$$

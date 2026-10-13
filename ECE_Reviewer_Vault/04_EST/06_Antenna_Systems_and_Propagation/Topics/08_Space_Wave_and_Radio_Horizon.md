@@ -11,7 +11,7 @@ prereqs: ["[[07_Ground_Wave_Propagation]]"]
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Space Wave and Radio Horizon

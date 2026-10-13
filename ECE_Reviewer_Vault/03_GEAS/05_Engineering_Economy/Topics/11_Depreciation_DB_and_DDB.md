@@ -11,7 +11,7 @@ prereqs: ["[[10_Depreciation_SLM_and_SYD]]", "[[01_Simple_and_Compound_Interest]
 tags: ["ece", "geas", "engineering_economy"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Depreciation: DB and DDB
@@ -24,13 +24,17 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Declining balance charges a fixed percentage of whatever book value is left, so the deductions are large at first and shrink every year. Applied strictly, the book value approaches zero but never reaches the salvage value, which is why the method needs a floor and a switch.
 
-**Mechanics of declining balance.** Each year's charge is a fixed rate $R$ applied to the book value at the start of that year: $d_m = R\,BV_{m-1}$, so $BV_m = BV_{m-1}(1-R) = FC(1-R)^m$. The distinguishing feature is that the rate is applied to book value, not to the depreciable basis, which means estimated salvage value is **not** subtracted before the calculation. Consequently the book value falls geometrically and never reaches zero; it approaches zero only asymptotically.
+**Mechanics of declining balance.** Each year's charge is a fixed rate $R$ applied to the book value at the start of that year:
+$$d_m = R\,BV_{m-1}$$
+so $BV_m = BV_{m-1}(1-R) = FC(1-R)^m$. The distinguishing feature is that the rate is applied to book value, not to the depreciable basis, which means estimated salvage value is **not** subtracted before the calculation. Consequently the book value falls geometrically and never reaches zero; it approaches zero only asymptotically.
 
 **Why the double-declining rate is 2/n.** Straight-line depreciation writes off a fraction $1/n$ of the basis per year, so $1/n$ is the natural reference rate. Declining balance doubles it, $R = 2/n$, which is why the method is called double-declining balance (DDB). Some tax regimes use 150% declining balance, $R = 1.5/n$. Nothing in the formula refers to salvage value: the rate is set purely by the service life, and the salvage value enters only as the floor below which book value must not be depreciated.
 
 **The salvage floor and the switch to straight line.** Because DDB ignores salvage, it can push book value below the estimated salvage value, which is not permitted. Two standard repairs exist. The simpler one caps the charge so that $BV_m = \max(FC(1-R)^m,\,SV)$ and depreciation stops once the floor is reached. The better one switches to straight line: in each year compare the DDB charge $R\,BV_{m-1}$ with the straight-line charge on the remaining book value over the remaining life, $(BV_{m-1}-SV)/(n-m+1)$, and switch permanently in the first year the straight-line amount is larger. The switch maximises the deductions while landing exactly on salvage at the end of the life, so it is the standard textbook treatment.
 
-**Finding a rate that lands on salvage.** If a problem states that the book value at the end of the life equals the salvage value under a pure declining-balance schedule, the rate is pinned by $SV = FC(1-R)^n$, that is $R = 1 - (SV/FC)^{1/n}$. This rate is not normally $2/n$, and the two are frequently confused: a 2/n rate on a 6-year asset leaves a book value well below salvage. In Philippine tax practice declining balance is an accepted method under the regulations implementing the National Internal Revenue Code, provided the rate is reasonable and applied consistently; as with every method, the total charge over the life can never exceed $FC - SV$.
+**Finding a rate that lands on salvage.** If a problem states that the book value at the end of the life equals the salvage value under a pure declining-balance schedule, the rate is pinned by $SV = FC(1-R)^n$, that is:
+$$R = 1 - (SV/FC)^{1/n}$$
+This rate is not normally $2/n$, and the two are frequently confused: a 2/n rate on a 6-year asset leaves a book value well below salvage. In Philippine tax practice declining balance is an accepted method under the regulations implementing the National Internal Revenue Code, provided the rate is reasonable and applied consistently; as with every method, the total charge over the life can never exceed $FC - SV$.
 
 ## Formulas
 

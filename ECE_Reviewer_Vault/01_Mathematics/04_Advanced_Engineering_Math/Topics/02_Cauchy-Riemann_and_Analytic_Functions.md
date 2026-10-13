@@ -11,7 +11,7 @@ prereqs: ["[[01_Complex_Numbers,_Euler_and_De_Moivre]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Cauchy-Riemann and Analytic Functions
@@ -28,7 +28,9 @@ updated: 2026-09-23
 $$f'(z) = \lim_{\Delta z \to 0}\frac{f(z+\Delta z)-f(z)}{\Delta z}$$
 It must give the same value for every direction of approach. Approaching along the real axis and along the imaginary axis and equating real and imaginary parts gives $u_x = v_y$ and $u_y = -v_x$. These two equations are the *only* content of complex differentiability — everything else in the topic is bookkeeping on top of them.
 
-**Differentiable at a point is not the same as analytic.** $f$ is analytic (holomorphic) at $z_0$ if it is differentiable at $z_0$ *and at every point of some open disk around* $z_0$. The CR equations with continuous partials are sufficient for differentiability at a point, but a function that satisfies CR only along a curve, or only at an isolated point, is differentiable there and analytic nowhere. This distinction is the single most examined subtlety: $f(z) = x^2 + jy^2$ satisfies CR on the line $y = x$, so it is differentiable on that line, yet it is analytic nowhere because no open disk lies inside the line.
+**Differentiable at a point is not the same as analytic.** $f$ is analytic (holomorphic) at $z_0$ if it is differentiable at $z_0$ *and at every point of some open disk around* $z_0$. The CR equations with continuous partials are sufficient for differentiability at a point, but a function that satisfies CR only along a curve, or only at an isolated point, is differentiable there and analytic nowhere. This distinction is the single most examined subtlety:
+$$f(z) = x^2 + jy^2$$
+satisfies CR on the line $y = x$, so it is differentiable on that line, yet it is analytic nowhere because no open disk lies inside the line.
 
 **Harmonic functions and conjugates.** If $f = u+jv$ is analytic, then both $u$ and $v$ satisfy Laplace's equation $u_{xx}+u_{yy}=0$; such functions are called harmonic. Given a harmonic $u$, its harmonic conjugate $v$ is recovered by integrating $v_y = u_x$ with respect to $y$ and then fixing the arbitrary function of $x$ by imposing $v_x = -u_y$. The conjugate is unique only up to an additive real constant, which is exactly why the answer carries a $+C$ and why $f(z)$ is determined up to $jC$.
 

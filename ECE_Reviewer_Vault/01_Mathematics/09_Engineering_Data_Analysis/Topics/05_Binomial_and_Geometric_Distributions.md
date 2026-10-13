@@ -11,7 +11,7 @@ prereqs: ["[[04_Probability_Rules_and_Bayes]]"]
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Binomial and Geometric Distributions
@@ -32,9 +32,13 @@ updated: 2026-09-23
 $$P(X\ge k)=1-P(X\le k-1)$$
 The lower tail sums the pmf directly:
 $$P(X\le k)=\sum_{j=0}^{k}\binom{n}{j}p^{j}q^{n-j}$$
-'At least one' is the fastest case: $P(X\ge1)=1-q^{n}$ — a result worth recognising instantly because it appears constantly in reliability and quality questions.
+'At least one' is the fastest case:
+$$P(X\ge1)=1-q^{n}$$
+— a result worth recognising instantly because it appears constantly in reliability and quality questions.
 
-**The geometric distribution counts trials to the first success.** $P(X=k)=q^{k-1}p$ for $k=1,2,\dots$, with $\mu=\frac{1}{p}$ and $\sigma^{2}=\frac{q}{p^{2}}$. The cumulative form telescopes: $P(X\le k)=1-q^{k}$, so $P(X>k)=q^{k}$. (Some texts count the number of *failures before* the first success; the mean then changes to $\frac{q}{p}$. Read what the variable is defined as.)
+**The geometric distribution counts trials to the first success.** $P(X=k)=q^{k-1}p$ for $k=1,2,\dots$, with $\mu=\frac{1}{p}$ and $\sigma^{2}=\frac{q}{p^{2}}$. The cumulative form telescopes:
+$$P(X\le k)=1-q^{k}$$
+so $P(X>k)=q^{k}$. (Some texts count the number of *failures before* the first success; the mean then changes to $\frac{q}{p}$. Read what the variable is defined as.)
 
 **The memoryless property.** $P(X>m+n\mid X>m)=P(X>n)=q^{n}$. Given that nothing has happened yet, past waiting is irrelevant — the process starts over. This is unique to the geometric (and exponential) distribution and is the conceptual heart of many exam questions.
 

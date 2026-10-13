@@ -1,0 +1,42 @@
+{
+  "area": "02_Electronics_Engineering/03_Two_Port_Networks",
+  "note": "Trial: separate the equations from the prose in 02_Z_and_Y_Parameters concept 1. Four prose-only splits; every formula keeps its exact text and order, so the applier's mathematics guard must pass on all four.",
+  "rewrites": [
+    {
+      "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/02_Z_and_Y_Parameters.json",
+      "entry": 1,
+      "find": "and the network responds with $V_1 = z_{11}I_1 + z_{12}I_2$ and $V_2 = z_{21}I_1 + z_{22}I_2$.",
+      "replace": "The network then answers with two port equations. The input equation is: $V_1 = z_{11}I_1 + z_{12}I_2$. The output equation is: $V_2 = z_{21}I_1 + z_{22}I_2$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/02_Z_and_Y_Parameters.json",
+      "entry": 1,
+      "find": "so $z_{11} = V_1/I_1$ is the driving-point impedance looking into port 1 with the output open, and $z_{21} = V_2/I_1$ is the transfer impedance measuring how much open-circuit output voltage one ampere at the input produces.",
+      "replace": "The driving-point impedance looking into port 1 with the output open is: $z_{11} = V_1/I_1$. The transfer impedance, meaning how much open-circuit output voltage one ampere at the input produces, is: $z_{21} = V_2/I_1$."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/02_Z_and_Y_Parameters.json",
+      "entry": 1,
+      "find": "gives $z_{22} = V_2/I_2$ and $z_{12} = V_1/I_2$. All four are in ohms.",
+      "replace": "gives the remaining two. The output driving-point impedance is: $z_{22} = V_2/I_2$. The reverse transfer impedance is: $z_{12} = V_1/I_2$. All four are in ohms."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/02_Z_and_Y_Parameters.json",
+      "entry": 1,
+      "find": "and you get the dual set: $y_{11} = I_1/V_1$ at $V_2 = 0$ (output shorted), $y_{21} = I_2/V_1$ at $V_2 = 0$, $y_{22} = I_2/V_2$ at $V_1 = 0$, $y_{12} = I_1/V_2$ at $V_1 = 0$, all in siemens.",
+      "replace": "and you get the dual set. The short-circuit input admittance is: $y_{11} = I_1/V_1$ at $V_2 = 0$ (output shorted). The forward transfer admittance is: $y_{21} = I_2/V_1$ at $V_2 = 0$. The short-circuit output admittance is: $y_{22} = I_2/V_2$ at $V_1 = 0$. The reverse transfer admittance is: $y_{12} = I_1/V_2$ at $V_1 = 0$. All four are in siemens."
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/02_Z_and_Y_Parameters.json",
+      "entry": 1,
+      "find": "as $(I_1, I_2)$ The network then answers",
+      "replace": "as $(I_1, I_2)$. The network then answers"
+    },
+    {
+      "file": "build/payload/02_Electronics_Engineering/03_Two_Port_Networks/02_Z_and_Y_Parameters.json",
+      "entry": 1,
+      "find": "means opening port 2, The driving-point impedance looking into port 1 with the output open is: $z_{11} = V_1/I_1$.",
+      "replace": "means opening port 2. The driving-point impedance looking into port 1 with the output open is: $z_{11} = V_1/I_1$."
+    }
+  ]
+}

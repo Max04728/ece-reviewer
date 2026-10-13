@@ -11,7 +11,7 @@ prereqs: ["[[01_BJT_DC_Biasing_Configurations]]", "[[10_BJT_Current_Gains_and_Re
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Darlington and Feedback Pairs

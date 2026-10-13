@@ -11,7 +11,7 @@ prereqs: ["[[16_Multiple_Access_FDMA,_TDMA,_CDMA]]"]
 tags: ["ece", "est", "data_communications_and_networking"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 17 — OFDMA and Spread Spectrum

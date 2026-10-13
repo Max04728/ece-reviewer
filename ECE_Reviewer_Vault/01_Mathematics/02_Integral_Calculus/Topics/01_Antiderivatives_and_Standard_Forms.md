@@ -11,7 +11,7 @@ prereqs: ["[[02_Differentiation_Rules]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Antiderivatives and Standard Forms
@@ -34,7 +34,9 @@ is the exception the power rule cannot cover, because $n = -1$ makes the formula
 
 **Absolute value in logarithms.** $\int \frac{dx}{x} = \ln|x| + C$, not $\ln x + C$. The integrand $1/x$ is defined for negative $x$ where $\ln x$ is not, so dropping the bars silently halves the domain. The same applies to $\int \frac{du}{u}$ in substitution and to $\int \tan x\,dx = -\ln|\cos x| + C$.
 
-**Linearity lets you split.** $\int [af(x) + bg(x)]\,dx = a\int f\,dx + b\int g\,dx$. There is no product or quotient rule for integrals — no analogous split exists, which is exactly why substitution, parts and partial fractions have to be developed as separate techniques. Recognising that a product cannot be split is the first step in choosing a method.
+**Linearity lets you split.** In symbols:
+$$\int [af(x) + bg(x)]\,dx = a\int f\,dx + b\int g\,dx$$
+There is no product or quotient rule for integrals — no analogous split exists, which is exactly why substitution, parts and partial fractions have to be developed as separate techniques. Recognising that a product cannot be split is the first step in choosing a method.
 
 **Verification is free.** Differentiate your answer. If it returns the integrand, the work is correct (up to the constant). In an exam this check costs a few seconds and catches essentially every algebraic slip; it is the single highest-value habit in integral calculus.
 

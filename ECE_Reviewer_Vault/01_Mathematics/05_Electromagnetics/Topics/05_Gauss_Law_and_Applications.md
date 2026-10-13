@@ -11,7 +11,7 @@ prereqs: ["[[03_Divergence_and_Stokes_Theorems]]", "[[04_Coulomb’s_Law_and_E_F
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Gauss Law and Applications
@@ -28,7 +28,9 @@ updated: 2026-09-23
 $$\oint_S\mathbf{D}\cdot d\mathbf{S}=Q_{\mathrm{enc}}$$
 The flux of $\mathbf{D}$ through any closed surface depends only on the charge enclosed — not on the shape of the surface, not on where the charges sit inside it, and not on charges outside at all. But to turn the integral into $D\times(\mathrm{area})$ you must be able to argue that $|\mathbf{D}|$ is constant over the surface and everywhere normal to it. That argument exists for exactly three geometries: spherical (point charge, sphere), cylindrical (infinite line, coaxial cable) and planar (infinite sheet). Without one of the three, Gauss's law remains true but useless for finding the field, and you must integrate Coulomb contributions instead.
 
-**The standard results and where the constants come from.** A point charge or a uniformly charged sphere seen from outside gives $D=Q/(4\pi r^2)$ because the Gaussian surface area is $4\pi r^2$. An infinite line gives $D=\lambda/(2\pi\rho)$ because the side area of a cylinder of length $L$ is $2\pi\rho L$. An infinite sheet gives $D=\sigma/2$ because flux escapes from *both* faces, so each side carries half the enclosed charge and the area cancels out entirely — the field does not weaken with distance. Each constant is a statement about the shape of the surface, which is why a wrong constant almost always means the wrong Gaussian surface.
+**The standard results and where the constants come from.** A point charge or a uniformly charged sphere seen from outside gives $D=Q/(4\pi r^2)$ because the Gaussian surface area is $4\pi r^2$. An infinite line gives:
+$$D=\lambda/(2\pi\rho)$$
+because the side area of a cylinder of length $L$ is $2\pi\rho L$. An infinite sheet gives $D=\sigma/2$ because flux escapes from *both* faces, so each side carries half the enclosed charge and the area cancels out entirely — the field does not weaken with distance. Each constant is a statement about the shape of the surface, which is why a wrong constant almost always means the wrong Gaussian surface.
 
 **Conductors versus insulators.** Inside a conductor in electrostatic equilibrium the field is exactly zero, so $Q_{\mathrm{enc}}=0$ and all excess charge sits on the outer surface, spread with $\sigma=Q/(4\pi a^2)$ for a sphere. Just outside, $E=\sigma/\varepsilon_0$. Inside a uniformly charged *insulating* sphere the field is not zero: only the charge within radius $r$ is enclosed, so $E=\rho r/(3\varepsilon_0)=kQr/a^3$, growing linearly from the centre and matching the outside expression at $r=a$. Mistaking one for the other is a recurring exam error.
 

@@ -11,7 +11,7 @@ prereqs: ["[[02_Algebraic_Substitution]]", "[[05_Trigonometric_Integrals_and_Sub
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Higher Order Homogeneous Auxiliary Equation
@@ -24,11 +24,15 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Guessing y = e^{mx} turns differentiation into multiplication by m, so the differential equation becomes an ordinary polynomial equation. Every solution of the ODE is a combination of exponentials built from the roots of that polynomial.
 
-**The ansatz and the auxiliary equation.** For $a y''+b y'+c y=0$ with constant $a,b,c$, try $y=e^{mx}$. Then $y'=me^{mx}$ and $y''=m^{2}e^{mx}$, and the ODE becomes $\left(am^{2}+bm+c\right)e^{mx}=0$. Since $e^{mx}$ is never zero, the bracket must vanish: $am^{2}+bm+c=0$ is the **auxiliary** (or characteristic) equation. The exponential ansatz is not a guess in the dark — it is the one function family that is closed under differentiation, and only such a family can satisfy a constant-coefficient equation term by term.
+**The ansatz and the auxiliary equation.** For $a y''+b y'+c y=0$ with constant $a,b,c$, try $y=e^{mx}$. Then $y'=me^{mx}$ and $y''=m^{2}e^{mx}$, and the ODE becomes:
+$$\left(am^{2}+bm+c\right)e^{mx}=0$$
+Since $e^{mx}$ is never zero, the bracket must vanish: $am^{2}+bm+c=0$ is the **auxiliary** (or characteristic) equation. The exponential ansatz is not a guess in the dark — it is the one function family that is closed under differentiation, and only such a family can satisfy a constant-coefficient equation term by term.
 
 **Case 1 — distinct real roots.** If $m_1\neq m_2$, then $y=C_1e^{m_1x}+C_2e^{m_2x}$ is the general solution. Two roots give two independent solutions, and the linear combination is general because the ODE is linear and homogeneous.
 
-**Case 2 — a repeated real root.** If $m_1=m_2=m$, then $e^{mx}$ alone supplies only one independent solution, and the general solution is: $y=(C_1+C_2x)e^{mx}$. The extra factor $x$ is exactly the same phenomenon as resonance: when the forcing or the second root duplicates a solution you already have, the second independent solution is that solution multiplied by $x$. Without the $x$, the two 'constants' are not independent and the general solution cannot satisfy arbitrary initial conditions.
+**Case 2 — a repeated real root.** If $m_1=m_2=m$, then $e^{mx}$ alone supplies only one independent solution, and the general solution is:
+$$y=(C_1+C_2x)e^{mx}$$
+The extra factor $x$ is exactly the same phenomenon as resonance: when the forcing or the second root duplicates a solution you already have, the second independent solution is that solution multiplied by $x$. Without the $x$, the two 'constants' are not independent and the general solution cannot satisfy arbitrary initial conditions.
 
 **Case 3 — complex conjugate roots.** If $m=\alpha\pm j\beta$ with $\beta\neq0$, Euler's formula converts the complex exponentials into real oscillatory functions:
 $$y=e^{\alpha x}\left(C_1\cos\beta x+C_2\sin\beta x\right)$$
@@ -39,7 +43,13 @@ Here $\alpha=-b/(2a)$ controls the exponential envelope (decay if $\alpha<0$) an
 **Why roots can be read straight off the coefficients.** For $a y''+b y'+c y=0$ the root sum is $-b/a$ and the root product is $c/a$. These two checks catch sign errors instantly: if the proposed roots do not sum to $-b/a$, the factorisation is wrong. For the repeated case the discriminant $b^{2}-4ac$ vanishes; for the complex case it is negative and the frequency is:
 $$\beta=\sqrt{\lvert b^{2}-4ac\rvert}/(2a)$$
 
-**Euler-Cauchy equations: the same idea with a power.** $a x^{2}y''+bxy'+cy=0$ is not constant-coefficient, so $y=e^{mx}$ fails. Try $y=x^{m}$ instead: $y'=mx^{m-1}$ and $y''=m(m-1)x^{m-2}$, and substitution gives $\left[am(m-1)+bm+c\right]x^{m}=0$, i.e. $am^{2}+(b-a)m+c=0$. The indicial (auxiliary) equation is *not* $am^{2}+bm+c=0$ — the $b-a$ is the whole trap. A repeated root $m$ gives $y=\left(C_1+C_2\ln x\right)x^{m}$, with $\ln x$ playing the role that $x$ played in the constant-coefficient case. Solutions are quoted for $x>0$.
+**Euler-Cauchy equations: the same idea with a power.** $a x^{2}y''+bxy'+cy=0$ is not constant-coefficient, so $y=e^{mx}$ fails. Try $y=x^{m}$ instead: $y'=mx^{m-1}$ and $y''=m(m-1)x^{m-2}$, and substitution gives:
+$$\left[am(m-1)+bm+c\right]x^{m}=0$$
+i.e.
+$$am^{2}+(b-a)m+c=0$$
+The indicial (auxiliary) equation is *not* $am^{2}+bm+c=0$ — the $b-a$ is the whole trap. A repeated root $m$ gives:
+$$y=\left(C_1+C_2\ln x\right)x^{m}$$
+with $\ln x$ playing the role that $x$ played in the constant-coefficient case. Solutions are quoted for $x>0$.
 
 ## Formulas
 

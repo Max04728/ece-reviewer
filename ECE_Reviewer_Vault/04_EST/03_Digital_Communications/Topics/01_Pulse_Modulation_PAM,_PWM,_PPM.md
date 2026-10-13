@@ -11,7 +11,7 @@ prereqs: ["[[08_Sampling_Theorem_and_Aliasing]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Pulse Modulation: PAM, PWM, PPM
@@ -26,13 +26,17 @@ updated: 2026-09-23
 
 **Everything starts with sampling.** If a message is bandlimited to $f_m$, sampling it at $f_s \geq 2f_m$ produces a train of pulses whose parameter tracks the message. That pulse train *is* the modulated signal. PAM modulates amplitude, PWM modulates width, PPM modulates position. Because the sampled parameter is still continuous, none of the three is digital — only PCM quantizes.
 
-**PAM (Pulse Amplitude Modulation).** The amplitude of each pulse is proportional to the sample value at the sampling instant. Two flavours exist: *natural* sampling, where the pulse top follows the message shape and the spectrum is undistorted, and *flat-top* (sample-and-hold) sampling, where the top is clamped and an aperture distortion $\mathrm{sinc}$ envelope appears. PAM is the easiest to generate and the natural format for time-division multiplexing, but it is the most noise-sensitive of the three because noise adds directly to the amplitude that carries the information. Its minimum bandwidth is $B_{PAM} = \dfrac{1}{2\tau}$, where $\tau$ is the pulse width.
+**PAM (Pulse Amplitude Modulation).** The amplitude of each pulse is proportional to the sample value at the sampling instant. Two flavours exist: *natural* sampling, where the pulse top follows the message shape and the spectrum is undistorted, and *flat-top* (sample-and-hold) sampling, where the top is clamped and an aperture distortion $\mathrm{sinc}$ envelope appears. PAM is the easiest to generate and the natural format for time-division multiplexing, but it is the most noise-sensitive of the three because noise adds directly to the amplitude that carries the information. Its minimum bandwidth is:
+$$B_{PAM} = \dfrac{1}{2\tau}$$
+where $\tau$ is the pulse width.
 
 **PWM (Pulse Width / Pulse Duration Modulation).** The pulse amplitude is constant and the *width* varies with the sample. Constant amplitude is the whole point: amplitude noise can be sliced off with a limiter, so PWM is far more noise-immune than PAM. Recovery needs only a low-pass filter, which is why PWM survives in class-D audio amplifiers, switch-mode motor drives and cheap servo links. The price is bandwidth:
 $$B_{PWM} = \dfrac{1}{\tau} = 2B_{PAM}$$
 for the same pulse width. PWM can be converted to PPM simply by differentiating the waveform, since the trailing edge of each PWM pulse encodes the same information.
 
-**PPM (Pulse Position Modulation).** A fixed-width, fixed-amplitude pulse is shifted earlier or later within its time slot according to the sample. It has the best noise immunity of the three — neither amplitude nor width carries the information, only the *time of arrival* of an edge — but it demands the most bandwidth and, critically, needs frame synchronisation, because a receiver cannot tell a late pulse in slot $n$ from an early pulse in slot $n+1$. The standard bandwidth ladder is $B_{PAM} : B_{PWM} : B_{PPM} = 1 : 2 : 4$, i.e.
+**PPM (Pulse Position Modulation).** A fixed-width, fixed-amplitude pulse is shifted earlier or later within its time slot according to the sample. It has the best noise immunity of the three — neither amplitude nor width carries the information, only the *time of arrival* of an edge — but it demands the most bandwidth and, critically, needs frame synchronisation, because a receiver cannot tell a late pulse in slot $n$ from an early pulse in slot $n+1$. The standard bandwidth ladder is:
+$$B_{PAM} : B_{PWM} : B_{PPM} = 1 : 2 : 4$$
+i.e.
 $$B_{PPM} = \dfrac{2}{\tau}$$
 
 **Why the ladder exists.** Each step adds one more dimension of edge handling. PAM only has to resolve a level, so it needs roughly one pulse-width of channel. PWM must resolve two edges (leading and trailing), doubling the requirement. PPM must resolve an edge to within a fraction of a pulse — equivalently, it must preserve the *derivative* of the PWM waveform — which doubles the requirement again. The rule of thumb to remember for boards: **PPM > PWM > PAM in bandwidth, and PAM > PWM > PPM in noise susceptibility.**

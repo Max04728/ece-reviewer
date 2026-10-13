@@ -11,7 +11,7 @@ prereqs: ["[[12_Signal_Conditioning_and_DAQ]]", "[[01_Op-Amp_Fundamentals_and_Re
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — ADC Architectures and Quantization

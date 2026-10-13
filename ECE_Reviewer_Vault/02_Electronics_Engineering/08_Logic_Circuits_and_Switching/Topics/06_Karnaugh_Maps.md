@@ -11,7 +11,7 @@ prereqs: ["[[05_SOP,_POS,_Minterms_and_Maxterms]]", "[[04_Boolean_Algebra_and_De
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Karnaugh Maps

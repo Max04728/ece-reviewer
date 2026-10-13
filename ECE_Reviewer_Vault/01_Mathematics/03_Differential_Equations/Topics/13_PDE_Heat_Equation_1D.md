@@ -11,7 +11,7 @@ prereqs: ["[[11_Fourier_Series_Trigonometric_and_Exponential]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — PDE Heat Equation 1D
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **Separation of variables.** Substituting $u = X(x)T(t)$ and dividing by $\alpha XT$ separates the variables:
 $$\frac{T'}{\alpha T} = \frac{X''}{X} = -\lambda$$
-The negative constant is again forced by the boundary conditions: $X''+\lambda X=0$ with $X(0)=X(L)=0$ has nontrivial solutions only for $\lambda_n = (n\pi/L)^2$ with $X_n = \sin\frac{n\pi x}{L}$. The time equation $T' = -\alpha\lambda_nT$ then gives pure exponential decay, $T_n = e^{-\alpha n^2\pi^2t/L^2}$ — no oscillation, because the equation is first order in $t$. This is the fundamental structural difference from the wave equation, where the second time derivative produced $\cos$ and $\sin$.
+The negative constant is again forced by the boundary conditions:
+$$X''+\lambda X=0$$
+with $X(0)=X(L)=0$ has nontrivial solutions only for $\lambda_n = (n\pi/L)^2$ with $X_n = \sin\frac{n\pi x}{L}$. The time equation $T' = -\alpha\lambda_nT$ then gives pure exponential decay, $T_n = e^{-\alpha n^2\pi^2t/L^2}$ — no oscillation, because the equation is first order in $t$. This is the fundamental structural difference from the wave equation, where the second time derivative produced $\cos$ and $\sin$.
 
 **The series solution and its coefficients.** Superposing the modes gives the series solution:
 $$u(x,t) = \sum_{n=1}^{\infty}B_n\sin\frac{n\pi x}{L}e^{-\alpha n^2\pi^2t/L^2}$$

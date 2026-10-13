@@ -11,7 +11,7 @@ prereqs: ["[[03_Definite_Integrals_and_FTC]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Improper Integrals
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **The two kinds of improper integral.** (1) *Infinite interval*: the upper or lower limit is $\pm\infty$, or the interval is the whole line. (2) *Infinite discontinuity*: the integrand blows up at a point *inside* the interval or at an endpoint. Both are defined by taking a limit; neither can be evaluated by direct substitution.
 
-**The definition, and why the limit matters.** $\int_a^{\infty} f(x)\,dx = \lim_{b\to\infty}\int_a^b f(x)\,dx$. If the limit exists and is finite the integral **converges**; otherwise it **diverges**. Writing the limit explicitly is not optional decoration — it is the definition, and skipping it is how divergent integrals get assigned finite values.
+**The definition, and why the limit matters.** In symbols:
+$$\int_a^{\infty} f(x)\,dx = \lim_{b\to\infty}\int_a^b f(x)\,dx$$
+If the limit exists and is finite the integral **converges**; otherwise it **diverges**. Writing the limit explicitly is not optional decoration — it is the definition, and skipping it is how divergent integrals get assigned finite values.
 
 **Interior discontinuities split the interval.** If $f$ blows up at $c$ with $a<c<b$, then $\int_a^b f = \int_a^c f + \int_c^b f$, and **both** pieces must converge for the whole to converge. If one diverges, the integral diverges. This is why $\int_{-1}^{1}\frac{dx}{x^2}$ does not equal $-2$: the naive antiderivative evaluation produces that number, but both halves diverge to $+\infty$. This is the classic trap of the topic.
 

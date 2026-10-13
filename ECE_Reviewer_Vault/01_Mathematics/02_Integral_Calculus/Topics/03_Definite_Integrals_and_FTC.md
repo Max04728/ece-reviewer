@@ -11,7 +11,7 @@ prereqs: ["[[01_Antiderivatives_and_Standard_Forms]]", "[[02_Algebraic_Substitut
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Definite Integrals and FTC
@@ -30,7 +30,9 @@ updated: 2026-09-23
 
 **Signed area.** A definite integral computes net signed area: regions below the $x$-axis contribute negatively. If a question asks for *total* area enclosed, you must split the interval at the zeros of the integrand and add absolute values. Answering a total-area question with the raw integral is a standard and fully avoidable error.
 
-**Chain rule with a variable limit.** For $F(x) = \int_{a}^{g(x)} f(t)\,dt$ the derivative is $F'(x) = f(g(x))\,g'(x)$. When the variable is in the lower limit, $F(x) = \int_{h(x)}^{a} f(t)\,dt$ reverses the sign:
+**Chain rule with a variable limit.** For $F(x) = \int_{a}^{g(x)} f(t)\,dt$ the derivative is:
+$$F'(x) = f(g(x))\,g'(x)$$
+When the variable is in the lower limit, $F(x) = \int_{h(x)}^{a} f(t)\,dt$ reverses the sign:
 $$F'(x) = -f(h(x))h'(x)$$
 When both limits vary, split the integral at a fixed point and apply both rules.
 

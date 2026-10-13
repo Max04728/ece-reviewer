@@ -11,7 +11,7 @@ prereqs: ["[[11_Fourier_Series_Trigonometric_and_Exponential]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Time vs Frequency and Line Spectra
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **Amplitude bookkeeping: one-sided versus two-sided.** The trigonometric series uses one-sided amplitudes $A_n$ at positive frequencies only. The exponential series uses two-sided coefficients $c_n$ at $\pm n f_0$, and $c_{-n} = c_n^{*}$. The bridge is $A_n = 2|c_n|$ for $n\ge 1$, while the DC term is $c_0 = a_0$ with **no factor of 2**. Textbook line spectra are usually drawn one-sided (all lines above the axis, height $A_n$); the two-sided version is symmetric and each line is half as tall. Mixing the two conventions is the single largest source of wrong answers here.
 
-**The rectangular pulse train is the exam workhorse.** For a pulse train of amplitude $A$, pulse width $\tau$ and period $T$, with duty cycle $d = \tau/T$, the coefficients are $c_n = A d\,\mathrm{sinc}(n d)$ where $\mathrm{sinc}(x) = \sin(\pi x)/(\pi x)$. Two facts fall straight out of that expression. First, the **DC value is $Ad$** (the average of the waveform). Second, the envelope has nulls wherever $nd$ is a nonzero integer, i.e. at $f = n/T = 1/\tau, 2/\tau,\dots$ — the null positions depend only on the **pulse width**, while the line positions depend only on the **period**. That separation is why narrow pulses give a broad spectrum: shrinking $\tau$ pushes the first null $1/\tau$ outward while the lines stay put.
+**The rectangular pulse train is the exam workhorse.** For a pulse train of amplitude $A$, pulse width $\tau$ and period $T$, with duty cycle $d = \tau/T$, the coefficients are:
+$$c_n = A d\,\mathrm{sinc}(n d)$$
+where $\mathrm{sinc}(x) = \sin(\pi x)/(\pi x)$. Two facts fall straight out of that expression. First, the **DC value is $Ad$** (the average of the waveform). Second, the envelope has nulls wherever $nd$ is a nonzero integer, i.e. at $f = n/T = 1/\tau, 2/\tau,\dots$ — the null positions depend only on the **pulse width**, while the line positions depend only on the **period**. That separation is why narrow pulses give a broad spectrum: shrinking $\tau$ pushes the first null $1/\tau$ outward while the lines stay put.
 
 **Power, not amplitude, adds.** Parseval's theorem says the average power of the signal is the sum of the powers in its lines:
 $$P = c_0^{2} + 2\sum_{n\ge1}|c_n|^{2} = a_0^{2} + \tfrac{1}{2}\sum_{n\ge1}A_n^{2}$$

@@ -11,7 +11,7 @@ prereqs: ["[[02_Linear_Op-Amp_Circuits]]", "[[07_Thevenin_and_Norton_Equivalents
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Instrumentation and Difference Amplifiers
@@ -24,9 +24,15 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A sensor in a bridge or a thermocouple sitting on a 2.5 V common-mode pedestal produces a tiny differential signal. Two matched resistor dividers subtract the pedestal; three op-amps do the same job while keeping both inputs at enormous impedance so the sensor is not loaded.
 
-**The four-resistor difference amplifier.** The signal at $V_2$ passes through the $R_3$-$R_4$ divider into $V_+$ and is then amplified by the non-inverting gain $1+R_2/R_1$; the signal at $V_1$ passes through $R_1$ into a virtual ground and is amplified by $-R_2/R_1$. Superposition gives the exact result $V_o = (1+R_2/R_1)\frac{R_4}{R_3+R_4}V_2 - \frac{R_2}{R_1}V_1$. When the ratios match, $R_2/R_4 = R_1/R_3$ — most easily built as $R_1 = R_3$ and $R_2 = R_4$ — the two terms collapse to $V_o = (R_2/R_1)(V_2-V_1)$ and the common-mode term cancels exactly.
+**The four-resistor difference amplifier.** The signal at $V_2$ passes through the $R_3$-$R_4$ divider into $V_+$ and is then amplified by the non-inverting gain $1+R_2/R_1$; the signal at $V_1$ passes through $R_1$ into a virtual ground and is amplified by $-R_2/R_1$. Superposition gives the exact result:
+$$V_o = (1+R_2/R_1)\frac{R_4}{R_3+R_4}V_2 - \frac{R_2}{R_1}V_1$$
+When the ratios match, $R_2/R_4 = R_1/R_3$ — most easily built as $R_1 = R_3$ and $R_2 = R_4$ — the two terms collapse to $V_o = (R_2/R_1)(V_2-V_1)$ and the common-mode term cancels exactly.
 
-**Why matching, not the op-amp, sets CMRR.** Write the same expression as $V_o = A_d(V_2-V_1) + A_{cm}(V_2+V_1)/2$. The differential gain is $A_d = R_2/R_1$ and the common-mode gain is $A_{cm} = (1+R_2/R_1)\frac{R_4}{R_3+R_4} - \frac{R_2}{R_1}$, which is zero only when the ratio condition holds *exactly*. A 1% resistor therefore leaks a fraction of the common-mode voltage into the output, and because the op-amp's own CMRR is 100-120 dB while the resistor network gives 40-60 dB, the network is always the limiting factor. A worst-case estimate is $CMRR \approx (1+R_2/R_1)/(4\delta)$ for fractional tolerance $\delta$, which is why a discrete difference amplifier with 1% resistors and a gain of 10 manages only about 48 dB.
+**Why matching, not the op-amp, sets CMRR.** Write the same expression as $V_o = A_d(V_2-V_1) + A_{cm}(V_2+V_1)/2$. The differential gain is $A_d = R_2/R_1$ and the common-mode gain is:
+$$A_{cm} = (1+R_2/R_1)\frac{R_4}{R_3+R_4} - \frac{R_2}{R_1}$$
+which is zero only when the ratio condition holds *exactly*. A 1% resistor therefore leaks a fraction of the common-mode voltage into the output, and because the op-amp's own CMRR is 100-120 dB while the resistor network gives 40-60 dB, the network is always the limiting factor. A worst-case estimate is:
+$$CMRR \approx (1+R_2/R_1)/(4\delta)$$
+for fractional tolerance $\delta$, which is why a discrete difference amplifier with 1% resistors and a gain of 10 manages only about 48 dB.
 
 **The three-op-amp instrumentation amplifier.** The input stage is two non-inverting buffers whose inverting nodes are joined by the single gain resistor $R_{gain}$: because the same current flows through both $R$'s, the differential input is amplified by $1 + 2R/R_{gain}$ with the common-mode voltage passing through at unity gain. The second stage is a unity-gain difference amplifier that removes the common mode. The result is a differential gain that depends on exactly one resistor, an input impedance independent of gain, and a resistor network in the output stage that must be *matched* but not accurate — which is why laser-trimmed in-amps reach 100-120 dB CMRR.
 

@@ -11,7 +11,7 @@ prereqs: ["[[01_Separation_of_Variables]]", "[[04_Integration_by_Parts_and_Tabul
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Linear First Order and Bernoulli
@@ -24,11 +24,17 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Multiplying by the integrating factor is the product rule run backwards. The factor is chosen so that the left-hand side collapses into the derivative of a single product, after which one integration finishes the problem.
 
-**The standard form is not optional.** Every equation in this topic must first be written as $\frac{dy}{dx}+P(x)y=Q(x)$, with the coefficient of $y'$ equal to $1$. From $xy'+y=x^2$ the standard form is $y'+\frac{1}{x}y=x$, so $P=1/x$ and $Q=x$ — not $P=1$, $Q=x^2$. Reading $P$ and $Q$ off the un-normalised equation is the single most common source of a wrong integrating factor.
+**The standard form is not optional.** Every equation in this topic must first be written as $\frac{dy}{dx}+P(x)y=Q(x)$, with the coefficient of $y'$ equal to $1$. From $xy'+y=x^2$ the standard form is:
+$$y'+\frac{1}{x}y=x$$
+so $P=1/x$ and $Q=x$ — not $P=1$, $Q=x^2$. Reading $P$ and $Q$ off the un-normalised equation is the single most common source of a wrong integrating factor.
 
 **Why $\mu=e^{\int P\,dx}$ works.** Multiply through by $\mu(x)$:
 $$\mu y'+\mu P y=\mu Q$$
-The left side is $\frac{d}{dx}(\mu y)=\mu y'+\mu' y$ exactly when $\mu'=\mu P$. That is a separable equation in $\mu$ alone, and its solution is $\mu=e^{\int P\,dx}$. Nothing is guessed: the factor is forced by demanding the product rule.
+The left side is:
+$$\frac{d}{dx}(\mu y)=\mu y'+\mu' y$$
+exactly when $\mu'=\mu P$. That is a separable equation in $\mu$ alone, and its solution is:
+$$\mu=e^{\int P\,dx}$$
+Nothing is guessed: the factor is forced by demanding the product rule.
 
 **The constant of integration inside $\mu$ is irrelevant; the one after integrating $\mu Q$ is not.** When $C_0$ is left in, the factor is:
 $$\mu=e^{\int P dx+C_0}=e^{C_0}e^{\int P dx}$$

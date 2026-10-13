@@ -11,7 +11,7 @@ prereqs: ["[[03_Framing_and_Flow_Control]]"]
 tags: ["ece", "est", "data_communications_and_networking"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — HDLC and PPP

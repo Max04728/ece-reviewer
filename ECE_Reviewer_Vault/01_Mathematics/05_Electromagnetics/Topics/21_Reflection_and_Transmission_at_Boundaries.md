@@ -11,7 +11,7 @@ prereqs: ["[[19_EM_Wave_Equations_and_Uniform_Plane_Waves]]", "[[22_Intrinsic_Im
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 21 — Reflection and Transmission at Boundaries
@@ -48,7 +48,9 @@ SWR measures the *magnitude* of the reflection only, never its phase: $\Gamma = 
 $$\beta_1\sin\theta_i = \beta_2\sin\theta_t$$
 which for non-magnetic media is Snell's law $n_1\sin\theta_i = n_2\sin\theta_t$ with $n = \sqrt{\varepsilon_r}$. Entering a denser medium ($n_2>n_1$) always gives $\theta_t<\theta_i$ and no critical angle. Entering a rarer medium ($n_1>n_2$) makes $\theta_t$ reach $90^\circ$ at $\sin\theta_c = n_2/n_1$; beyond that $\sin\theta_t>1$ has no real solution and the wave is *totally internally reflected*, though an evanescent field still penetrates a fraction of a wavelength (the basis of the prism coupler and of frustrated TIR). The Brewster angle is a different phenomenon: for *parallel* (TM) polarization, reflection vanishes when the reflected and refracted rays are perpendicular, $\theta_i+\theta_t = 90^\circ$, which reduces to $\tan\theta_B = n_2/n_1$. At that angle the dipoles driven by the refracted wave radiate along the reflection direction and cannot launch a reflected wave. Perpendicular (TE) polarization never vanishes at any real angle, so the two polarizations must always be treated separately.
 
-**E versus H, and the oblique coefficients.** For a wave travelling in $+\mathbf{a}_z$ the reflected wave travels in $-\mathbf{a}_z$, so its $\mathbf{H}$ picks up an extra minus sign from $\mathbf{a}_k\times\mathbf{E}$: the magnetic reflection coefficient is $\Gamma_H = -\Gamma_E$. Tangential-H continuity then gives the magnetic transmission coefficient:
+**E versus H, and the oblique coefficients.** For a wave travelling in $+\mathbf{a}_z$ the reflected wave travels in $-\mathbf{a}_z$, so its $\mathbf{H}$ picks up an extra minus sign from $\mathbf{a}_k\times\mathbf{E}$: the magnetic reflection coefficient is:
+$$\Gamma_H = -\Gamma_E$$
+Tangential-H continuity then gives the magnetic transmission coefficient:
 $$\tau_H = 1-\Gamma = 2\eta_1/(\eta_1+\eta_2)$$
 At normal incidence, therefore, the H reflection and transmission coefficients are the E coefficients with $\eta_1$ and $\eta_2$ interchanged. At oblique incidence the tangential fields are the transverse components, which brings in the cosines. For perpendicular (TE) polarization the reflection coefficient is:
 $$\Gamma_{\perp} = (\eta_2\cos\theta_i-\eta_1\cos\theta_t)/(\eta_2\cos\theta_i+\eta_1\cos\theta_t)$$

@@ -11,7 +11,7 @@ prereqs: ["[[01_BJT_DC_Biasing_Configurations]]", "[[09_BJT_Structure_and_Operat
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Small-Signal re Model: CE, CB, CC
@@ -30,11 +30,19 @@ updated: 2026-09-23
 
 **Common emitter (CE).** With $R_E$ bypassed, the midband results are as follows. The voltage gain is:
 $$A_v = -g_m(r_o \parallel R_C \parallel R_L) \approx -(R_C \parallel R_L)/r_e$$
-the input resistance is $Z_i = R_B \parallel \beta r_e$ and the output resistance is $Z_o \approx R_C$. It is the only inverting configuration (180° phase shift) and it provides both voltage gain and current gain, which is why it is the default. Its weakness is that the gain is inversely proportional to $r_e$, hence directly proportional to $I_C$ — raise the bias current to raise the gain and you also raise the dissipation and lower the input resistance.
+the input resistance is:
+$$Z_i = R_B \parallel \beta r_e$$
+and the output resistance is:
+$$Z_o \approx R_C$$
+It is the only inverting configuration (180° phase shift) and it provides both voltage gain and current gain, which is why it is the default. Its weakness is that the gain is inversely proportional to $r_e$, hence directly proportional to $I_C$ — raise the bias current to raise the gain and you also raise the dissipation and lower the input resistance.
 
 **Emitter degeneration: $R_E$ unbypassed.** Leaving $R_E$ in the signal path makes the emitter follow the base, so $v_{be}$ shrinks and $A_v$ collapses to $-(R_C \parallel R_L)/(r_e + R_E)$ while $Z_i$ rises to $R_B \parallel [\beta r_e + (\beta+1)R_E]$. The payoff is that the gain now depends on resistors rather than on $r_e$ (which drifts with temperature at $+0.5\ \%/^{\circ}\mathrm{C}$), and the input resistance can be raised by orders of magnitude. Gain and input impedance trade against each other, and this resistor is the knob.
 
-**Common base (CB).** The base is at AC ground and the signal enters the emitter, so $Z_i = r_e \parallel R_E \approx r_e$ — tens of ohms. The voltage gain is $A_v = +(R_C \parallel R_L)/r_e$, the same magnitude as CE but *non-inverting*, and the current gain is $A_i = -\alpha \approx -1$, so it is a current buffer, not a current amplifier. Its real value is frequency response: $C_{bc}$ sees the collector on one side and an AC ground on the other, so it is not Miller-multiplied, and the CB stage therefore has the widest bandwidth of the three. It is also the upper device of a cascode for exactly this reason.
+**Common base (CB).** The base is at AC ground and the signal enters the emitter, so $Z_i = r_e \parallel R_E \approx r_e$ — tens of ohms. The voltage gain is:
+$$A_v = +(R_C \parallel R_L)/r_e$$
+the same magnitude as CE but *non-inverting*, and the current gain is:
+$$A_i = -\alpha \approx -1$$
+so it is a current buffer, not a current amplifier. Its real value is frequency response: $C_{bc}$ sees the collector on one side and an AC ground on the other, so it is not Miller-multiplied, and the CB stage therefore has the widest bandwidth of the three. It is also the upper device of a cascode for exactly this reason.
 
 **Common collector (CC, emitter follower).** The output is taken at the emitter, where the voltage gain is just below unity and non-inverting:
 $$A_v = R_L'/(r_e + R_L') < 1$$

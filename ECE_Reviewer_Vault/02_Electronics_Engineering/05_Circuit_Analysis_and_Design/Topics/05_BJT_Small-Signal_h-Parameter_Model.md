@@ -11,7 +11,7 @@ prereqs: ["[[01_BJT_DC_Biasing_Configurations]]", "[[10_BJT_Current_Gains_and_Re
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — BJT Small-Signal h-Parameter Model
@@ -26,19 +26,36 @@ updated: 2026-09-23
 
 **The two-port idea.** At a fixed quiescent point a transistor is a linear two-port, so its small-signal behaviour is fully described by two equations:
 $$v_{be} = h_{ie}i_b + h_{re}v_{ce}$$
-and $i_c = h_{fe}i_b + h_{oe}v_{ce}$. The four coefficients are the h-parameters, and each is defined by measuring one port while the other is AC-short-circuited or AC-open-circuited: $h_{ie} = v_{be}/i_b$ with the output shorted (input resistance, in ohms), $h_{re} = v_{be}/v_{ce}$ with the input open (reverse voltage feedback, dimensionless), $h_{fe} = i_c/i_b$ with the output shorted (forward current gain, dimensionless), and $h_{oe} = i_c/v_{ce}$ with the input open (output admittance, in siemens). The name hybrid is exactly this mix of units. The equivalent circuit is read straight off the equations: $h_{ie}$ in series in the base loop, a controlled source $h_{re}v_{ce}$ in that same loop, a current source $h_{fe}i_b$ in parallel with $h_{oe}$ at the output. For a CE stage typical values are $h_{ie} \approx 1\ \mathrm{k\Omega}$, $h_{fe} \approx 100$, $h_{oe} \approx 25\ \mu\mathrm{S}$ and $h_{re} \approx 2.5\times10^{-4}$ — note that $h_{oe}$ corresponds to an output resistance $1/h_{oe} = 40\ \mathrm{k\Omega}$, large but not infinite.
+and $i_c = h_{fe}i_b + h_{oe}v_{ce}$. The four coefficients are the h-parameters, and each is defined by measuring one port while the other is AC-short-circuited or AC-open-circuited:
+$$h_{ie} = v_{be}/i_b$$
+with the output shorted (input resistance, in ohms), $h_{re} = v_{be}/v_{ce}$ with the input open (reverse voltage feedback, dimensionless), $h_{fe} = i_c/i_b$ with the output shorted (forward current gain, dimensionless), and $h_{oe} = i_c/v_{ce}$ with the input open (output admittance, in siemens). The name hybrid is exactly this mix of units. The equivalent circuit is read straight off the equations: $h_{ie}$ in series in the base loop, a controlled source $h_{re}v_{ce}$ in that same loop, a current source $h_{fe}i_b$ in parallel with $h_{oe}$ at the output. For a CE stage typical values are:
+$$h_{ie} \approx 1\ \mathrm{k\Omega}$$
+$h_{fe} \approx 100$, $h_{oe} \approx 25\ \mu\mathrm{S}$ and $h_{re} \approx 2.5\times10^{-4}$ — note that $h_{oe}$ corresponds to an output resistance $1/h_{oe} = 40\ \mathrm{k\Omega}$, large but not infinite.
 
-**What the external load does to the current source.** The current source $h_{fe}i_b$ feeds the parallel combination of $h_{oe}$ and the AC collector load. That load is $R_L = R_C \parallel R_L'$ — the collector resistor in parallel with whatever is coupled in — and because $i_c$ is the current INTO the collector, the signal voltage is $v_{ce} = -i_c R_L$. Substituting that constraint into the output equation gives $i_c = h_{fe}i_b + h_{oe}(-i_cR_L)$, hence $A_i = i_c/i_b = h_{fe}/(1+h_{oe}R_L)$. The $h_{oe}R_L$ term is the fraction of the copied current that is stolen by the output conductance instead of reaching the load: with $h_{oe} = 25\ \mu\mathrm{S}$ and $R_L = 1.5\ \mathrm{k\Omega}$ it is only 0.037, so $A_i$ is 3.6 % below $h_{fe}$. The same constraint applied to the input equation gives the exact input impedance:
+**What the external load does to the current source.** The current source $h_{fe}i_b$ feeds the parallel combination of $h_{oe}$ and the AC collector load. That load is:
+$$R_L = R_C \parallel R_L'$$
+— the collector resistor in parallel with whatever is coupled in — and because $i_c$ is the current INTO the collector, the signal voltage is:
+$$v_{ce} = -i_c R_L$$
+Substituting that constraint into the output equation gives:
+$$i_c = h_{fe}i_b + h_{oe}(-i_cR_L)$$
+hence $A_i = i_c/i_b = h_{fe}/(1+h_{oe}R_L)$. The $h_{oe}R_L$ term is the fraction of the copied current that is stolen by the output conductance instead of reaching the load: with $h_{oe} = 25\ \mu\mathrm{S}$ and $R_L = 1.5\ \mathrm{k\Omega}$ it is only 0.037, so $A_i$ is 3.6 % below $h_{fe}$. The same constraint applied to the input equation gives the exact input impedance:
 $$Z_i = (h_{ie}+\Delta h\,R_L)/(1+h_{oe}R_L)$$
-and the exact voltage gain follows as $A_v = -h_{fe}R_L/(h_{ie}+\Delta h\,R_L)$, where $\Delta h = h_{ie}h_{oe} - h_{fe}h_{re}$ is the determinant of the h matrix. Note the consistency check that always holds: $A_v = -A_iR_L/Z_i$.
+and the exact voltage gain follows as $A_v = -h_{fe}R_L/(h_{ie}+\Delta h\,R_L)$, where $\Delta h = h_{ie}h_{oe} - h_{fe}h_{re}$ is the determinant of the h matrix. Note the consistency check that always holds:
+$$A_v = -A_iR_L/Z_i$$
 
-**The sign convention behind the input impedance.** Expanding the closed form gives $Z_i = h_{ie} - h_{re}A_iR_L$: because $A_v$ is negative for a CE stage (the output is inverted), the feedback voltage $h_{re}v_{ce}$ adds to the base loop in the direction that REDUCES the input impedance — positive feedback through $h_{re}$. Textbooks that define the current gain with the load current rather than the collector current (so $A_i$ itself is negative) write the same result as $Z_i = h_{ie} + h_{re}A_iR_L$; the physics is identical and the sign of the $h_{re}$ term only tracks which direction was called positive. Substituting the typical numbers gives a feedback term of:
+**The sign convention behind the input impedance.** Expanding the closed form gives:
+$$Z_i = h_{ie} - h_{re}A_iR_L$$
+because $A_v$ is negative for a CE stage (the output is inverted), the feedback voltage $h_{re}v_{ce}$ adds to the base loop in the direction that REDUCES the input impedance — positive feedback through $h_{re}$. Textbooks that define the current gain with the load current rather than the collector current (so $A_i$ itself is negative) write the same result as $Z_i = h_{ie} + h_{re}A_iR_L$; the physics is identical and the sign of the $h_{re}$ term only tracks which direction was called positive. Substituting the typical numbers gives a feedback term of:
 $$h_{re}A_iR_L = 2.5\times10^{-4}(96.4)(1499) = 36\ \Omega$$
 The exact $Z_i$ is then 964 Ω against $h_{ie} = 1\ \mathrm{k\Omega}$ — a 3.6 % correction that is worth stating but rarely worth computing under exam time pressure.
 
-**Why the approximations are so good, and when they are not.** Setting $h_{re}\approx 0$ and $h_{oe}\approx 0$ gives $A_i \approx h_{fe}$, $Z_i \approx h_{ie}$ and $A_v \approx -h_{fe}R_L/h_{ie}$, which is what almost every exam question wants. Two separate smallness arguments support it:
+**Why the approximations are so good, and when they are not.** Setting $h_{re}\approx 0$ and $h_{oe}\approx 0$ gives:
+$$A_i \approx h_{fe}$$
+$Z_i \approx h_{ie}$ and $A_v \approx -h_{fe}R_L/h_{ie}$, which is what almost every exam question wants. Two separate smallness arguments support it:
 $$h_{re} = 2.5\times10^{-4}$$
-makes the feedback voltage negligible, and $h_{oe}R_L \approx 0.04$ makes the shunting of the current source negligible. There is also a happy cancellation: with the usual CE numbers $h_{ie}h_{oe} = 0.025$ and $h_{fe}h_{re} = 0.025$, so $\Delta h \approx 0$ and the exact voltage gain collapses to the approximate one even though $A_i$ and $Z_i$ each shift by several per cent. The approximation degrades when $R_L$ grows (a 10 kohm AC load with $h_{oe} = 30\ \mu\mathrm{S}$ gives $h_{oe}R_L = 0.3$ and $\Delta hR_L = 60\ \Omega$, worth 5 % of gain) or when the device is a high-$h_{oe}$ type. Finally, h-parameters are specified at a stated $I_C$, $V_{CE}$ and frequency, usually 1 kHz. The current gain tracks beta, and the input resistance is given by the bias current:
+makes the feedback voltage negligible, and $h_{oe}R_L \approx 0.04$ makes the shunting of the current source negligible. There is also a happy cancellation: with the usual CE numbers $h_{ie}h_{oe} = 0.025$ and $h_{fe}h_{re} = 0.025$, so $\Delta h \approx 0$ and the exact voltage gain collapses to the approximate one even though $A_i$ and $Z_i$ each shift by several per cent. The approximation degrades when $R_L$ grows (a 10 kohm AC load with $h_{oe} = 30\ \mu\mathrm{S}$ gives:
+$$h_{oe}R_L = 0.3$$
+and $\Delta hR_L = 60\ \Omega$, worth 5 % of gain) or when the device is a high-$h_{oe}$ type. Finally, h-parameters are specified at a stated $I_C$, $V_{CE}$ and frequency, usually 1 kHz. The current gain tracks beta, and the input resistance is given by the bias current:
 $$h_{ie}\approx\beta r_e = \beta(26\ \mathrm{mV})/I_{CQ}$$
 both change with bias, and above a few kilohertz they become complex and the hybrid-pi model takes over.
 

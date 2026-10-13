@@ -11,7 +11,7 @@ prereqs: ["[[04_Buck_Converter]]", "[[05_Boost_Converter]]", "[[11_First_Order_R
 tags: ["ece", "electronics_engineering", "power_electronics_and_systems"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Buck-Boost Converter
@@ -28,7 +28,11 @@ updated: 2026-09-23
 
 **Volt-second balance gives the ratio.** In steady state the inductor cannot accumulate net volt-seconds, otherwise its current would grow without bound cycle after cycle. During the on-interval the inductor collects $V_{in}DT_s$; during the off-interval it gives back $|V_o|(1-D)T_s$. Setting the two equal: $$V_{in}DT_s = |V_o|(1-D)T_s \quad\Rightarrow\quad \frac{|V_o|}{V_{in}} = \frac{D}{1-D}, \qquad V_o = -V_{in}\frac{D}{1-D}.$$ Solved the other way, the duty needed for a required output magnitude is $$D = \frac{|V_o|}{|V_o| + V_{in}}.$$ The pivot is $D = 0.5$, where $|V_o| = V_{in}$. Below 0.5 the converter steps the magnitude down (an inverting buck), above 0.5 it steps up (an inverting boost), and as $D \to 1$ the ideal output magnitude runs away - a real converter stops where conduction loss and device ratings take over.
 
-**Charge accounting fixes the currents.** The inductor is not connected to the output continuously, so $I_L \ne I_o$. The diode delivers charge to the output only during $(1-D)T_s$, hence $I_o = I_L(1-D)$ and $I_L = I_o/(1-D)$; the source feeds the inductor only during $DT_s$, hence $I_{in} = D I_L$. The lossless power-balance check is $V_{in}I_{in} = |V_o|I_o$. At $D = 0.6$ a 3 A output needs 7.5 A of average inductor current, so the inductor, switch and diode are sized by $I_L$, never by $I_o$. The ripple is set by the on-state voltage exactly as in the buck, $\Delta I_L = V_{in}D/(Lf_s)$. Discontinuous conduction begins when the current just reaches zero at the end of the off-interval, $I_L = \Delta I_L/2$, which solves to the boundary inductance $L_{min} = (1-D)^2R/(2f_s)$ - evaluated at the heaviest load, that is the smallest $R$. On the output side the capacitor carries $I_o$ alone for the whole on-interval, so its capacitive ripple is $\Delta V_C \approx I_oD/(Cf_s)$, and the ESR term $I_{L,peak}\times ESR$ is usually the larger of the two.
+**Charge accounting fixes the currents.** The inductor is not connected to the output continuously, so $I_L \ne I_o$. The diode delivers charge to the output only during $(1-D)T_s$, hence $I_o = I_L(1-D)$ and $I_L = I_o/(1-D)$; the source feeds the inductor only during $DT_s$, hence $I_{in} = D I_L$. The lossless power-balance check is:
+$$V_{in}I_{in} = |V_o|I_o$$
+At $D = 0.6$ a 3 A output needs 7.5 A of average inductor current, so the inductor, switch and diode are sized by $I_L$, never by $I_o$. The ripple is set by the on-state voltage exactly as in the buck, $\Delta I_L = V_{in}D/(Lf_s)$. Discontinuous conduction begins when the current just reaches zero at the end of the off-interval, $I_L = \Delta I_L/2$, which solves to the boundary inductance $L_{min} = (1-D)^2R/(2f_s)$ - evaluated at the heaviest load, that is the smallest $R$. On the output side the capacitor carries $I_o$ alone for the whole on-interval, so its capacitive ripple is:
+$$\Delta V_C \approx I_oD/(Cf_s)$$
+and the ESR term $I_{L,peak}\times ESR$ is usually the larger of the two.
 
 **Stress, limits and non-inverting alternatives.** When the switch is off it holds the input voltage plus the output magnitude, and so does the reverse-biased diode:
 $$V_{SW} = V_{in} + |V_o| = V_{in}/(1-D)$$

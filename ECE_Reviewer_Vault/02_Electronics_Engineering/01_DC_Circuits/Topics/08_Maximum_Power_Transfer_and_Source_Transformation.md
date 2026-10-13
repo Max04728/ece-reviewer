@@ -11,7 +11,7 @@ prereqs: ["[[07_Thevenin_and_Norton_Equivalents]]", "[[02_KCL,_KVL,_Series_and_P
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Maximum Power Transfer and Source Transformation
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **What a transformation does not preserve is internal power.** The equivalent reproduces the port voltage and the port current, so it is safe for finding load current, load voltage and load power. It is *not* safe for finding the power dissipated in the original source resistance or the actual source current. An extreme example makes the point: a $24\ \mathrm{V}$ source in series with $12\ \Omega$ shunted by $24\ \Omega$ has $V_{Th} = 16\ \mathrm{V}$ and $R_{Th} = 8\ \Omega$, but the Thevenin source is not the real source, and $8\ \mathrm{W}$ burned inside $R_{Th}$ bears no relation to the $24\ \mathrm{W}$ actually burned in the two real resistors. Equivalent-circuit power accounting applies only to the equivalent circuit.
 
-**Maximum power transfer.** Substituting $R_L = R_{Th}$ into $P_L = R_L V_{Th}^2/(R_{Th}+R_L)^2$ gives $P_{max} = V_{Th}^2/(4R_{Th})$; equivalently, differentiate $P_L$ with respect to $R_L$ and set the numerator to zero. The matched condition is the geometric statement that the two halves of the divider are equal, so $v_L = V_{Th}/2$ and $i_L = V_{Th}/(2R_{Th})$. Two cautions that decide exam answers. First, the $4$ in the denominator is unavoidable — the load only sees half the source voltage, and the other half is lost in $R_{Th}$, so the transfer efficiency is exactly $50\%$ at the matched point. Matched is thus the right target for signal and RF work, where the available power matters, and the wrong target for power systems, where efficiency matters. Second, $R_{Th}$ here is the resistance *looking back* from the load terminals; it includes every resistor the load is connected across, so a shunt resistor at the port is part of $R_{Th}$, not an external loss.
+**Maximum power transfer.** Substituting $R_L = R_{Th}$ into $P_L = R_L V_{Th}^2/(R_{Th}+R_L)^2$ gives:
+$$P_{max} = V_{Th}^2/(4R_{Th})$$
+equivalently, differentiate $P_L$ with respect to $R_L$ and set the numerator to zero. The matched condition is the geometric statement that the two halves of the divider are equal, so $v_L = V_{Th}/2$ and $i_L = V_{Th}/(2R_{Th})$. Two cautions that decide exam answers. First, the $4$ in the denominator is unavoidable — the load only sees half the source voltage, and the other half is lost in $R_{Th}$, so the transfer efficiency is exactly $50\%$ at the matched point. Matched is thus the right target for signal and RF work, where the available power matters, and the wrong target for power systems, where efficiency matters. Second, $R_{Th}$ here is the resistance *looking back* from the load terminals; it includes every resistor the load is connected across, so a shunt resistor at the port is part of $R_{Th}$, not an external loss.
 
 ## Formulas
 

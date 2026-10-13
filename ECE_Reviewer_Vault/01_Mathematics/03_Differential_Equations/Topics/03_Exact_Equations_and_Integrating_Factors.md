@@ -11,7 +11,7 @@ prereqs: ["[[02_Differentiation_Rules]]", "[[02_Algebraic_Substitution]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Exact Equations and Integrating Factors
@@ -32,7 +32,9 @@ This is the equality of the mixed second partials of $F$, run backwards:
 $$\frac{\partial^2F}{\partial y\,\partial x}=\frac{\partial^2F}{\partial x\,\partial y}$$
 The condition is necessary and, on a simply connected region, sufficient.
 
-**The reconstruction.** Integrate $M$ with respect to $x$ holding $y$ fixed: $F=\int M\,dx+g(y)$. The 'constant' of that integration is an arbitrary function of $y$, because any function of $y$ alone has zero $x$-derivative. Then impose $\frac{\partial F}{\partial y}=N$ to find $g'(y)$, which must come out free of $x$ — if an $x$ survives, the equation was not exact.
+**The reconstruction.** Integrate $M$ with respect to $x$ holding $y$ fixed:
+$$F=\int M\,dx+g(y)$$
+The 'constant' of that integration is an arbitrary function of $y$, because any function of $y$ alone has zero $x$-derivative. Then impose $\frac{\partial F}{\partial y}=N$ to find $g'(y)$, which must come out free of $x$ — if an $x$ survives, the equation was not exact.
 
 **When the test fails: integrating factors.** If $(M_y-N_x)/N$ is a function of $x$ alone, the integrating factor is:
 $$\mu(x)=\exp\left(\int\frac{M_y-N_x}{N}\,dx\right)$$
@@ -44,7 +46,9 @@ That one also makes $\mu M\,dx+\mu N\,dy=0$ exact. Note the two numerators are o
 
 **Answers are implicit.** The final answer is $F(x,y)=C$, or an equivalent algebraic rearrangement. Do not attempt to solve for $y$: the level curve is the solution, and the arbitrary constant may be rescaled (renaming $2C$ as $C$ is free) but not dropped.
 
-**Why ECE cares.** Exactness is the differential-equation face of a conservative field: $\oint M\,dx+N\,dy=0$ on every closed path exactly when $M_y=N_x$. In circuit and field problems, an exact differential is one where the path of integration does not matter, and a non-exact one is one where it does — which is the origin of the integrating-factor idea in thermodynamics and in state functions.
+**Why ECE cares.** Exactness is the differential-equation face of a conservative field:
+$$\oint M\,dx+N\,dy=0$$
+on every closed path exactly when $M_y=N_x$. In circuit and field problems, an exact differential is one where the path of integration does not matter, and a non-exact one is one where it does — which is the origin of the integrating-factor idea in thermodynamics and in state functions.
 
 ## Formulas
 

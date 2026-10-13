@@ -11,7 +11,7 @@ prereqs: ["[[01_Management_Functions_and_Organizational_Structures]]"]
 tags: ["ece", "geas", "engineering_management_and_pm"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — PERT/CPM Fundamentals
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **Two networks, one logic.** In **activity-on-arrow (AOA)** the arrow is the activity and the node is an *event* — a point in time where activities start or finish. Because two activities that share the same start and finish nodes cannot be told apart in AOA, a **dummy activity** (zero duration, zero resource) is inserted to carry the logic. In **activity-on-node (AON)**, also called the precedence diagramming method, the node is the activity and the arrows only show precedence; no dummies are needed, which is why AON is the default for computation and AOA is the default when the examiner asks you to draw or interpret an arrow diagram.
 
-**The three-point estimate.** PERT asks for three durations per activity: the optimistic $a$ (everything goes right), the most likely $m$ (the mode), and the pessimistic $b$ (everything that can go wrong, short of a catastrophe). The activity duration is modelled as a **beta distribution** on $[a,b]$, and PERT uses its mean and variance. The expected duration is $t_e = \dfrac{a+4m+b}{6}$ and the variance is:
+**The three-point estimate.** PERT asks for three durations per activity: the optimistic $a$ (everything goes right), the most likely $m$ (the mode), and the pessimistic $b$ (everything that can go wrong, short of a catastrophe). The activity duration is modelled as a **beta distribution** on $[a,b]$, and PERT uses its mean and variance. The expected duration is:
+$$t_e = \dfrac{a+4m+b}{6}$$
+and the variance is:
 $$\sigma^2 = \left(\dfrac{b-a}{6}\right)^2$$
 The mean is a weighted average that gives the most likely value four times the weight of either extreme; the standard deviation is simply one-sixth of the range, so a wider range means more uncertainty.
 

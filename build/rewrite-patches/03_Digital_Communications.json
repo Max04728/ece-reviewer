@@ -1,0 +1,84 @@
+{
+  "area": "04_EST/03_Digital_Communications",
+  "note": "All 13 sites. Three sites needed a unit moved into the lead-in so it does not open the line after a display block (entropy 'bits per symbol', 'bits', Shannon capacity 'bits per second').",
+  "rewrites": [
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/03_Quantization_Noise_and_SQNR.json",
+      "entry": 2,
+      "find": "In decibels this is $10\\log_{10}1.5 + 20n\\log_{10}2 = 1.76 + 6.02n$.",
+      "replace": "In decibels this is: $10\\log_{10}1.5 + 20n\\log_{10}2 = 1.76 + 6.02n$."
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/04_Companding_Mu-Law_and_A-Law.json",
+      "entry": 4,
+      "find": "**Mu-law (North America and Japan).** $|y| = \\dfrac{\\ln(1 + \\mu|x|)}{\\ln(1+\\mu)}$ with $\\mu = 255$",
+      "replace": "**Mu-law (North America and Japan).** The compression curve is: $|y| = \\dfrac{\\ln(1 + \\mu|x|)}{\\ln(1+\\mu)}$ with $\\mu = 255$"
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/11_M-ary_PSK_and_16-QAM.json",
+      "entry": 3,
+      "find": "the average symbol energy is $2\\times\\frac{(d/2)^2+(3d/2)^2}{2} = 2.5d^2$, so",
+      "replace": "the average symbol energy is: $2\\times\\frac{(d/2)^2+(3d/2)^2}{2} = 2.5d^2$, so"
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/11_M-ary_PSK_and_16-QAM.json",
+      "entry": 5,
+      "find": "with raised-cosine filtering it is $B = \\dfrac{R_s}{2}(1+\\alpha) = \\dfrac{f_b(1+\\alpha)}{2\\log_2 M}$.",
+      "replace": "with raised-cosine filtering it is: $B = \\dfrac{R_s}{2}(1+\\alpha) = \\dfrac{f_b(1+\\alpha)}{2\\log_2 M}$."
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/12_Constellation_and_BER_Comparison.json",
+      "entry": 1,
+      "find": "A passband digital signal can be written as $s(t) = I\\cos(2\\pi f_c t) - Q\\sin(2\\pi f_c t)$, so",
+      "replace": "A passband digital signal can be written in quadrature as: $s(t) = I\\cos(2\\pi f_c t) - Q\\sin(2\\pi f_c t)$, so"
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/12_Constellation_and_BER_Comparison.json",
+      "entry": 3,
+      "find": "the symbol error probability is $P_s \\approx N_{near}\\,Q\\!\\left(\\dfrac{d_{min}}{\\sqrt{2N_0}}\\right)$ where",
+      "replace": "the symbol error probability is: $P_s \\approx N_{near}\\,Q\\!\\left(\\dfrac{d_{min}}{\\sqrt{2N_0}}\\right)$ where"
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/12_Constellation_and_BER_Comparison.json",
+      "entry": 4,
+      "find": "For square 16-QAM, $d_{min} = \\sqrt{0.4E_s} = 1.265\\sqrt{E_b}$.",
+      "replace": "For square 16-QAM the minimum distance is: $d_{min} = \\sqrt{0.4E_s} = 1.265\\sqrt{E_b}$."
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/12_Constellation_and_BER_Comparison.json",
+      "entry": 5,
+      "find": "scheme B is $20\\log_{10}\\!\\left(\\dfrac{d_A/\\sqrt{E_b}}{d_B/\\sqrt{E_b}}\\right)$ with",
+      "replace": "scheme B is: $20\\log_{10}\\!\\left(\\dfrac{d_A/\\sqrt{E_b}}{d_B/\\sqrt{E_b}}\\right)$ with"
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/14_Information_Theory_and_Entropy.json",
+      "entry": 2,
+      "find": "is the entropy $H = \\sum_i p_i \\log_2(1/p_i) = -\\sum_i p_i \\log_2 p_i$ bits per symbol.",
+      "replace": "is the entropy, in bits per symbol: $H = \\sum_i p_i \\log_2(1/p_i) = -\\sum_i p_i \\log_2 p_i$."
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/14_Information_Theory_and_Entropy.json",
+      "entry": 3,
+      "find": "has $H = 0.5(1) + 0.25(2) + 0.125(3) + 0.125(3) = 1.75$ bits.",
+      "replace": "has an entropy in bits of: $H = 0.5(1) + 0.25(2) + 0.125(3) + 0.125(3) = 1.75$."
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/14_Information_Theory_and_Entropy.json",
+      "entry": 3,
+      "find": "you need base conversion, $\\log_2 p = \\ln p/\\ln 2 = 3.3219\\log_{10} p$, and",
+      "replace": "you need base conversion: $\\log_2 p = \\ln p/\\ln 2 = 3.3219\\log_{10} p$, and"
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/15_Shannon-Hartley_Capacity.json",
+      "entry": 1,
+      "find": "error probability is $C = B\\log_2\\!\\left(1 + \\dfrac{S}{N}\\right)$ bits per second.",
+      "replace": "error probability is, in bits per second: $C = B\\log_2\\!\\left(1 + \\dfrac{S}{N}\\right)$."
+    },
+    {
+      "file": "build/payload/04_EST/03_Digital_Communications/15_Shannon-Hartley_Capacity.json",
+      "entry": 3,
+      "find": "SNR ($S/N = 1$) gives $30\\ \\mathrm{kHz} \\times \\log_2 2 = 30\\ \\mathrm{kbps}$ —",
+      "replace": "SNR ($S/N = 1$) gives: $30\\ \\mathrm{kHz} \\times \\log_2 2 = 30\\ \\mathrm{kbps}$ —"
+    }
+  ]
+}

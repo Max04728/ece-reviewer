@@ -11,7 +11,7 @@ prereqs: ["[[15_PLC_Architecture_and_Scan_Cycle]]"]
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 16 — Ladder Logic, Timers and Counters
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Ladder logic is a relay panel drawn as a circuit: power flows left to right through contacts when they are closed, and anything it reaches energizes. The PLC keeps the drawing but replaces the wires with memory bits, which is why the same rung can be read as a Boolean equation.
 
-**Rungs, contacts and coils.** A rung is a Boolean expression evaluated left to right between the left power rail and the right rail. An XIC (examine if closed) contact passes power when its bit is 1, an XIO (examine if open) contact passes power when its bit is 0, and an OTE (output energize) coil writes its bit equal to the rung condition at the end of the scan. Because the OTE writes the bit once per scan, a coil addressed twice in the same program is a classic bug: the last rung wins, and the earlier logic appears to do nothing. A seal-in (latching) circuit keeps a momentary start button effective after it is released by putting a contact of the output in parallel with the start contact, with a normally-closed stop contact in series — $Q = (\mathrm{Start} + Q)\cdot\overline{\mathrm{Stop}}$ — and an interlock is the same construction with the enabling condition of another device placed in series, so the hardware state, not the HMI, decides whether an output may run.
+**Rungs, contacts and coils.** A rung is a Boolean expression evaluated left to right between the left power rail and the right rail. An XIC (examine if closed) contact passes power when its bit is 1, an XIO (examine if open) contact passes power when its bit is 0, and an OTE (output energize) coil writes its bit equal to the rung condition at the end of the scan. Because the OTE writes the bit once per scan, a coil addressed twice in the same program is a classic bug: the last rung wins, and the earlier logic appears to do nothing. A seal-in (latching) circuit keeps a momentary start button effective after it is released by putting a contact of the output in parallel with the start contact, with a normally-closed stop contact in series. The seal-in logic is:
+$$Q = (\mathrm{Start} + Q)\cdot\overline{\mathrm{Stop}}$$
+An interlock is the same construction with the enabling condition of another device placed in series, so the hardware state, not the HMI, decides whether an output may run.
 
 **Timers.** A TON (timer on-delay) starts accumulating time when its rung condition goes true, and sets its done bit when the accumulated value reaches the preset; when the rung goes false, the accumulated value resets to zero. A TOF (timer off-delay) sets its done bit immediately when the rung goes true and holds it for the preset time after the rung goes false, which makes it the standard way to keep a cooling fan or a brake running after the command is removed. An RTO (retentive timer on) behaves like a TON except that it *retains* its accumulated value when the rung goes false, and only a RES instruction clears it — the right choice for accumulating run hours. All three expose status bits that the program must use correctly: the enable bit follows the rung, the timing bit is true while the timer is counting, and the done bit is the one that drives the output. Preset values are entered in time-base units — a preset of 100 on a 10 ms base is 1.0 s — so the base must be checked before believing a number.
 

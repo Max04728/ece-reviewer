@@ -11,7 +11,7 @@ prereqs: ["[[02_PCM_Sampling,_Quantizing,_Encoding]]"]
 tags: ["ece", "est", "digital_communications"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Delta Modulation and ADM
@@ -32,7 +32,9 @@ updated: 2026-09-23
 
 **Adaptive delta modulation (ADM).** ADM breaks the compromise by making the step size track the signal. The standard rule (Jayant) compares the current bit with the previous one: if they agree (two 1s or two 0s) the staircase is falling behind and $\delta$ is multiplied up; if they alternate (1 then 0) the staircase is hunting and $\delta$ is multiplied down. A typical scheme uses $\delta_{k+1} = \delta_k \times 1.5$ on agreement and $\delta_k / 1.5$ on alternation. This gives DM a dynamic range comparable to 8–12 bit PCM while keeping the 1-bit channel.
 
-**Bandwidth and comparison with PCM.** With $R = f_s$ bits per second and binary baseband signalling, the minimum bandwidth is $B_{min} = f_s/2$. Because DM must sample far above Nyquist to track the waveform's slope, $f_s$ for DM is typically 8–16 times $f_m$ — for example 32–64 kbps for a 4 kHz voice channel, comparable to 64 kbps PCM but with much simpler hardware. DM's attraction is implementation cost, not bandwidth efficiency: a comparator, an integrator and a flip-flop replace a full analog-to-digital converter.
+**Bandwidth and comparison with PCM.** With $R = f_s$ bits per second and binary baseband signalling, the minimum bandwidth is:
+$$B_{min} = f_s/2$$
+Because DM must sample far above Nyquist to track the waveform's slope, $f_s$ for DM is typically 8–16 times $f_m$ — for example 32–64 kbps for a 4 kHz voice channel, comparable to 64 kbps PCM but with much simpler hardware. DM's attraction is implementation cost, not bandwidth efficiency: a comparator, an integrator and a flip-flop replace a full analog-to-digital converter.
 
 **Two more practical effects.** *Idle-channel noise*: with no input, DM keeps hunting around zero because the integrator drifts, so a silent channel transmits a continuous bit pattern. *Start-up and DC tracking*: the integrator cannot follow a step change faster than $\delta f_s$ either, so a sudden DC shift also overloads the loop until it climbs. Both are why practical DM codecs use ADM with a minimum step floor.
 

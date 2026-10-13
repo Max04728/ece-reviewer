@@ -11,7 +11,7 @@ prereqs: ["[[03_Work,_Energy_and_Conservation]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — SHM and Waves
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > SHM is what you get whenever a restoring force is proportional to displacement — the motion repeats because the force always points home and grows with how far you strayed. A travelling wave is that same oscillation handed from one piece of the medium to the next, so the medium never moves along with the wave; it only oscillates in place.
 
-**The single defining condition.** SHM occurs exactly when the net restoring force is $F = -kx$, which by Newton's second law gives $a = -\omega^2 x$ with $\omega^2 = k/m$. This is why the method generalises far beyond springs: any small displacement from a stable equilibrium has a linear restoring force, so a pendulum, a floating block or an $LC$ circuit all obey the same equation. If the force grows faster than linearly, or if friction is large, the motion is periodic but not simple harmonic and $T = 2\pi\sqrt{m/k}$ no longer applies.
+**The single defining condition.** SHM occurs exactly when the net restoring force is $F = -kx$, which by Newton's second law gives:
+$$a = -\omega^2 x$$
+with $\omega^2 = k/m$. This is why the method generalises far beyond springs: any small displacement from a stable equilibrium has a linear restoring force, so a pendulum, a floating block or an $LC$ circuit all obey the same equation. If the force grows faster than linearly, or if friction is large, the motion is periodic but not simple harmonic and $T = 2\pi\sqrt{m/k}$ no longer applies.
 
 **$\omega$, $f$ and $T$ are three names for one number.** $\omega = 2\pi f = 2\pi/T$ in $\mathrm{rad/s}$; $f$ is in hertz and $T$ in seconds. The board deliberately mixes them — a stem giving $f = 2\ \mathrm{Hz}$ and asking for the period or the angular frequency is testing only this conversion, and using $f$ where $\omega$ belongs understates every velocity and acceleration by a factor of $2\pi$.
 
@@ -34,7 +36,9 @@ updated: 2026-09-23
 
 **Wave speed is a property of the medium; frequency is a property of the source.** For a stretched string $v = \sqrt{T/\mu}$ with $\mu$ in $\mathrm{kg/m}$, so tightening a string or using a thinner one raises the pitch while plucking harder only raises the amplitude. For sound, $v$ depends on the medium and its temperature. The universal link is $v = f\lambda$: when a wave enters a new medium, $f$ is unchanged and $\lambda$ adjusts, which is why refraction shifts direction but never colour.
 
-**Standing waves are just superposition with boundary conditions.** A string fixed at both ends must have nodes there, so its allowed wavelengths are $\lambda_n = 2L/n$ and its frequencies $f_n = nv/(2L)$ — the harmonic series, all integer multiples of $f_1 = v/(2L)$. Superposition also produces beats between two close frequencies at $f_{beat} = |f_1 - f_2|$, and the same mathematics explains why a wave reflecting off a boundary can form a standing pattern only at those special frequencies.
+**Standing waves are just superposition with boundary conditions.** A string fixed at both ends must have nodes there, so its allowed wavelengths are:
+$$\lambda_n = 2L/n$$
+and its frequencies $f_n = nv/(2L)$ — the harmonic series, all integer multiples of $f_1 = v/(2L)$. Superposition also produces beats between two close frequencies at $f_{beat} = |f_1 - f_2|$, and the same mathematics explains why a wave reflecting off a boundary can form a standing pattern only at those special frequencies.
 
 ## Formulas
 

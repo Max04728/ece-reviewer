@@ -11,7 +11,7 @@ prereqs: ["[[02_Algebraic_Substitution]]", "[[05_Trigonometric_Integrals_and_Sub
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 13 — Arc Length and Surface Area
@@ -24,15 +24,26 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Arc length is just Pythagoras applied to a tiny piece of curve: a small horizontal step $dx$ and a small vertical step $dy$ form a right triangle whose hypotenuse is the little bit of arc. Add up all the hypotenuses.
 
-**Arc length from the distance formula.** A small segment of curve has horizontal run $dx$ and vertical rise $dy = f'(x)\,dx$. By Pythagoras its length is $ds = \sqrt{dx^2+dy^2} = \sqrt{1+\left(\frac{dy}{dx}\right)^2}\,dx$. Summing over the curve gives the arc length $L = \int_a^b\sqrt{1+\left[f'(x)\right]^2}\,dx$. Everything else in this topic is a variation on that expression.
+**Arc length from the distance formula.** A small segment of curve has horizontal run $dx$ and vertical rise $dy = f'(x)\,dx$. By Pythagoras its length is:
+$$ds = \sqrt{dx^2+dy^2} = \sqrt{1+\left(\frac{dy}{dx}\right)^2}\,dx$$
+Summing over the curve gives the arc length:
+$$L = \int_a^b\sqrt{1+\left[f'(x)\right]^2}\,dx$$
+Everything else in this topic is a variation on that expression.
 
-**Choosing the variable to suit the curve.** If the curve is naturally given as $x = g(y)$, integrate $L = \int_c^d\sqrt{1+\left(\frac{dx}{dy}\right)^2}\,dy$. For a polar curve $r = f(\theta)$ the arc length is $L = \int_{\alpha}^{\beta}\sqrt{r^2 + \left(\frac{dr}{d\theta}\right)^2}\,d\theta$ — note the $r^2$ term, which arises because motion in polar coordinates has both a radial and a tangential component. For parametric curves, $L = \int\sqrt{\left(\frac{dx}{dt}\right)^2+\left(\frac{dy}{dt}\right)^2}\,dt$.
+**Choosing the variable to suit the curve.** If the curve is naturally given as $x = g(y)$, the arc length is:
+$$L = \int_c^d\sqrt{1+\left(\frac{dx}{dy}\right)^2}\,dy$$
+For a polar curve $r = f(\theta)$ the arc length is:
+$$L = \int_{\alpha}^{\beta}\sqrt{r^2 + \left(\frac{dr}{d\theta}\right)^2}\,d\theta$$
+Note the $r^2$ term, which arises because motion in polar coordinates has both a radial and a tangential component. For parametric curves the arc length is:
+$$L = \int\sqrt{\left(\frac{dx}{dt}\right)^2+\left(\frac{dy}{dt}\right)^2}\,dt$$
 
 **Why arc length integrals are often hard.** The integrand contains a square root of a squared derivative, so the resulting integral is frequently not elementary in closed form. Textbook and exam problems are deliberately constructed so the expression under the radical is a perfect square — if your integrand does not simplify, that is usually a signal to re-examine the algebra rather than to push on.
 
 **Surface area of revolution.** When a curve is rotated about an axis, each element of arc sweeps a band whose area is the circumference times the arc length:
 $$dS = 2\pi(\mathrm{radius})\,ds$$
-So about the $x$-axis, $S = 2\pi\int_a^b f(x)\sqrt{1+[f'(x)]^2}\,dx$; about the $y$-axis with $x = g(y)$, the radius is $x$ and the same structure applies. The key difference from volume is that **surface area uses $ds$, not $dx$** — the slant, not the horizontal projection. Using $dx$ instead of $ds$ and computing the lateral area of a stack of cylinders rather than of a stack of frustums is the classic error.
+So about the $x$-axis:
+$$S = 2\pi\int_a^b f(x)\sqrt{1+[f'(x)]^2}\,dx$$
+About the $y$-axis with $x = g(y)$, the radius is $x$ and the same structure applies. The key difference from volume is that **surface area uses $ds$, not $dx$** — the slant, not the horizontal projection. Using $dx$ instead of $ds$ and computing the lateral area of a stack of cylinders rather than of a stack of frustums is the classic error.
 
 **Why the radius multiplies and not the square.** Volume elements use $r^2$ because a disk's cross-section is a circle; area elements use $r$ because a band unrolls into a rectangle whose width is the circumference $2\pi r$. Keeping these two mentally separate prevents most setup errors in the volume-and-surface questions.
 

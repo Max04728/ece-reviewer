@@ -11,7 +11,7 @@ prereqs: ["[[09_BJT_Structure_and_Operating_Regions]]", "[[10_BJT_Current_Gains_
 tags: ["ece", "electronics_engineering", "circuit_analysis_and_design"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — BJT DC Biasing Configurations
@@ -26,7 +26,9 @@ updated: 2026-09-23
 
 **What biasing is for.** An amplifier only works if the transistor sits in the active region with a defined quiescent collector current $I_{CQ}$ and collector-emitter voltage $V_{CEQ}$. Bias design therefore has two halves: solve the DC network for the Q-point, then prove the device is not saturated and not cut off. Every standard network — fixed (base) bias, emitter-stabilized bias, voltage-divider (self) bias, collector-feedback bias, and two-supply emitter bias — is just a different way of arranging the base circuit.
 
-**The DC recipe.** Treat the base divider as a Thevenin source, write Kirchhoff's voltage law around the base-emitter loop for $I_B$, multiply by $\beta$ to get $I_C$, then close the collector-emitter loop. For voltage-divider bias the Thevenin source is $V_{TH} = R_2V_{CC}/(R_1+R_2)$ in series with $R_{TH} = R_1R_2/(R_1+R_2)$, which turns a two-resistor divider into the same one-loop problem as base bias. Almost every board problem on this topic is that one substitution plus a saturation check.
+**The DC recipe.** Treat the base divider as a Thevenin source, write Kirchhoff's voltage law around the base-emitter loop for $I_B$, multiply by $\beta$ to get $I_C$, then close the collector-emitter loop. For voltage-divider bias the Thevenin source is:
+$$V_{TH} = R_2V_{CC}/(R_1+R_2)$$
+in series with $R_{TH} = R_1R_2/(R_1+R_2)$, which turns a two-resistor divider into the same one-loop problem as base bias. Almost every board problem on this topic is that one substitution plus a saturation check.
 
 **Why the emitter resistor is the whole trick.** Without $R_E$, $I_C = \beta I_B$ inherits the full device-to-device spread of beta (easily 3:1) and its $+0.5\%$ per degree C temperature drift. Adding $R_E$ puts $(\beta+1)R_E$ in series with $R_{TH}$ in the base loop, so an increase in beta raises $I_E$, raises $V_E$, and *reduces* $V_{BE}$, which pulls the current back. That negative feedback is what makes voltage-divider bias with an unbypassed $R_E$ the workhorse configuration. Base bias has no such loop: doubling beta doubles $I_C$ directly.
 

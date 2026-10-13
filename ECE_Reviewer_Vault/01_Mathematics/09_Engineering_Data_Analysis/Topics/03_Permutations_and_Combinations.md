@@ -11,7 +11,7 @@ prereqs: []
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Permutations and Combinations
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Permutations count ordered line-ups; combinations count unordered groups. Every counting question reduces to two decisions: does order matter, and may items repeat?
 
-**The multiplication (fundamental counting) principle.** If a task has $n_1$ outcomes for the first stage, $n_2$ for the second, and so on, the total number of ways is $n_1n_2\cdots n_k$. This is the base rule; every permutation and combination formula is a shortcut for a product of this kind. With repetition allowed and $r$ independent choices from $n$ options the count is simply $n^{r}$ (PIN codes, binary strings, licence plates).
+**The multiplication (fundamental counting) principle.** If a task has $n_1$ outcomes for the first stage, $n_2$ for the second, and so on, the total number of ways is:
+$$n_1n_2\cdots n_k$$
+This is the base rule; every permutation and combination formula is a shortcut for a product of this kind. With repetition allowed and $r$ independent choices from $n$ options the count is simply $n^{r}$ (PIN codes, binary strings, licence plates).
 
 **Permutations: order matters.** For $r$ distinct items chosen from $n$ distinct items, the number of arrangements is:
 $${}_nP_r=\frac{n!}{(n-r)!}=n(n-1)\cdots(n-r+1)$$

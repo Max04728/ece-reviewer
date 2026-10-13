@@ -11,7 +11,7 @@ prereqs: ["[[02_Phasors_and_Complex_Impedance]]", "[[03_Series_and_Parallel_AC_A
 tags: ["ece", "electronics_engineering", "ac_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 07 — Series Resonance
@@ -34,7 +34,9 @@ At that frequency the reactances cancel, $\mathbf{Z} = R$ is real and minimum in
 $$Q_0 = \omega_0 L/R = 1/(\omega_0 C R) = (1/R)\sqrt{L/C}$$
 — three forms that agree only at resonance. $Q_0$ has three useful readings. First, it is the ratio of reactive voltage to source voltage, so the inductor and capacitor each see $Q_0V_s$: that is voltage magnification, and it is how a small source stresses a component. Second, it sets the bandwidth, because the half-power points $f_1$ and $f_2$ are where $|\mathbf{Z}| = R\sqrt{2}$ and the current falls to $I_0/\sqrt{2}$, halving the power; consequently the bandwidth is:
 $$BW = f_2-f_1 = f_0/Q_0 = R/(2\pi L)$$
-Third, the two half-power frequencies are geometrically symmetric about $f_0$ rather than arithmetically: $f_0 = \sqrt{f_1f_2}$ holds for every $Q_0$, while the arithmetic mean $(f_1+f_2)/2$ sits slightly *above* $f_0$ and approaches it only as $Q_0\to\infty$.
+Third, the two half-power frequencies are geometrically symmetric about $f_0$ rather than arithmetically:
+$$f_0 = \sqrt{f_1f_2}$$
+holds for every $Q_0$, while the arithmetic mean $(f_1+f_2)/2$ sits slightly *above* $f_0$ and approaches it only as $Q_0\to\infty$.
 
 **Where the idealisation breaks.** The model assumes a lossless inductor with the only resistance in the circuit. A real inductor has winding resistance, and often a core, so part of $R$ is frequency dependent and $Q_0$ has a practical ceiling; measured $Q$ values above a few hundred need air-core or ferrite construction, and past the winding's self-resonant frequency the inductor behaves capacitively. Two consequences matter for design. A high-$Q$ series branch develops $Q_0V_s$ across each reactive element, so the capacitor must be rated for at least $\sqrt{2}\,Q_0V_{s,rms}$ peak, not for the source voltage. And a narrow $BW$ cuts both ways: it is exactly what a radio tuned circuit wants and exactly what a power circuit must avoid, because a small drift in frequency or in component value moves the branch far off resonance. Below $f_0$ the branch is capacitive and the current leads; above $f_0$ it is inductive and the current lags. The sign of $X_L-X_C$ is the whole story.
 

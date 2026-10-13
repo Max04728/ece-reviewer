@@ -11,7 +11,7 @@ prereqs: ["[[05_Nodal_Analysis_and_Supernodes]]", "[[02_KCL,_KVL,_Series_and_Par
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Millman’s and Tellegen Theorems
@@ -24,11 +24,15 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Millman's theorem is a weighted average in disguise: every branch pulls the node toward its own source voltage with a strength equal to its conductance $G_k = 1/R_k$, and the node settles where those pulls cancel. Tellegen's theorem is the accounting rule behind every check — if the voltages and currents really solve the network, everything produced is consumed.
 
-**Millman's theorem is KCL at a single node, pre-solved for the voltage.** Suppose $n$ branches each consist of a voltage source $V_k$ in series with a resistance $R_k$, and all $n$ branches are connected between the same node $A$ and the same reference rail. Writing KCL at $A$ with each branch current expressed as $(V_k - V_A)/R_k$ and solving for $V_A$ yields $V_A = \sum V_k G_k / \sum G_k$. The numerator is a sum of *currents* (volts times siemens) and the denominator a sum of conductances, so the quotient is a voltage, and it must lie between the smallest and largest source voltage once polarity signs are respected. That bracketing property is a free check: any Millman answer outside the range of the source voltages is wrong.
+**Millman's theorem is KCL at a single node, pre-solved for the voltage.** Suppose $n$ branches each consist of a voltage source $V_k$ in series with a resistance $R_k$, and all $n$ branches are connected between the same node $A$ and the same reference rail. Writing KCL at $A$ with each branch current expressed as $(V_k - V_A)/R_k$ and solving for $V_A$ yields:
+$$V_A = \sum V_k G_k / \sum G_k$$
+The numerator is a sum of *currents* (volts times siemens) and the denominator a sum of conductances, so the quotient is a voltage, and it must lie between the smallest and largest source voltage once polarity signs are respected. That bracketing property is a free check: any Millman answer outside the range of the source voltages is wrong.
 
 **Signs and stragglers are where the marks are lost.** A branch whose source is reversed enters the numerator as $-V_k G_k$ while keeping $G_k$ positive — reversal changes the sign of the source, never the sign of the resistance. Any branch that contains a current source contributes its current $I_j$ directly to the numerator, positive when injected into the node, plus its parallel conductance to the denominator. Any bare resistor from the node to the reference contributes $G_k$ to the denominator with no numerator term at all; omitting it is the most common arithmetic slip. Millman does not extend to a network with more than one unknown node, nor to branches that do not share the same two endpoints — those need the full nodal matrix. It also assumes each voltage source has its resistance truly in series, so a source already in parallel with its resistor must be converted first.
 
-**Tellegen's theorem is the power audit.** For any network, summing $v_k i_k$ over every element with the passive sign convention (current entering the terminal taken as positive) gives exactly zero: $\sum_k v_k i_k = 0$. The result follows from KVL and KCL alone, so it holds for linear and nonlinear, time-invariant and time-varying networks alike, and it is what justifies writing $\sum P_{delivered} = \sum P_{absorbed}$. In practice you compute the node voltages, derive each branch current, then verify that sources signed as producers exactly cover resistors signed as consumers. The theorem is *necessary but not sufficient*: because it follows from KVL and KCL only, a set of node voltages that satisfies KVL and branch currents that satisfy KCL will pass the balance even if some element violates Ohm's law — a wrong solution can survive the audit. A *failed* balance therefore proves an error, but a passing balance must still be backed by checking $v = iR$ on every resistor.
+**Tellegen's theorem is the power audit.** For any network, summing $v_k i_k$ over every element with the passive sign convention (current entering the terminal taken as positive) gives exactly zero:
+$$\sum_k v_k i_k = 0$$
+The result follows from KVL and KCL alone, so it holds for linear and nonlinear, time-invariant and time-varying networks alike, and it is what justifies writing $\sum P_{delivered} = \sum P_{absorbed}$. In practice you compute the node voltages, derive each branch current, then verify that sources signed as producers exactly cover resistors signed as consumers. The theorem is *necessary but not sufficient*: because it follows from KVL and KCL only, a set of node voltages that satisfies KVL and branch currents that satisfy KCL will pass the balance even if some element violates Ohm's law — a wrong solution can survive the audit. A *failed* balance therefore proves an error, but a passing balance must still be backed by checking $v = iR$ on every resistor.
 
 ## Formulas
 

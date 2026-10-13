@@ -11,7 +11,7 @@ prereqs: ["[[08_Normal_Distribution_and_Z_Scores]]", "[[09_Sampling_Techniques_a
 tags: ["ece", "mathematics", "engineering_data_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Central Limit Theorem

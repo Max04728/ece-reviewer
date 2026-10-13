@@ -11,7 +11,7 @@ prereqs: ["[[01_Crystal_Structures_and_Unit_Cells]]"]
 tags: ["ece", "geas", "materials_science"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Atomic Packing Factor and Density
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > APF asks how efficiently spheres fill a box; density asks how much that box weighs. Same cell, two questions — and both are decided by the number of atoms per cell and the radius–lattice relation.
 
-**APF is a ratio, so it is dimensionless and unit-free.** $\mathrm{APF} = \dfrac{n\left(\frac{4}{3}\pi R^3\right)}{V_c}$. Because it is a ratio, the same structure always yields the same number no matter what the actual lattice parameter is: SC 0.52, BCC 0.68, FCC 0.74, HCP 0.74, diamond cubic 0.34, caesium chloride (CsCl) 0.73. If a question gives you a lattice parameter and asks for the APF, that number is a distractor — the APF depends only on the structure type.
+**APF is a ratio, so it is dimensionless and unit-free.** The volume fraction the atoms occupy is:
+$$\mathrm{APF} = \dfrac{n\left(\frac{4}{3}\pi R^3\right)}{V_c}$$
+Because it is a ratio, the same structure always yields the same number no matter what the actual lattice parameter is: SC 0.52, BCC 0.68, FCC 0.74, HCP 0.74, diamond cubic 0.34, caesium chloride (CsCl) 0.73. If a question gives you a lattice parameter and asks for the APF, that number is a distractor — the APF depends only on the structure type.
 
 **Why the packing factors order the way they do.** SC packs only along the cube edge, so it wastes the face and body directions: $\pi/6 = 52.4\%$. BCC adds a body-centre atom that touches all eight corners, but the atoms still do not touch along the edges, so it reaches only $\pi\sqrt{3}/8 = 68.0\%$. FCC and HCP are close-packed planes stacked in different sequences (ABCABC versus ABAB) and both reach the three-dimensional sphere-packing maximum, $\pi/(3\sqrt{2}) = 74.05\%$. Kepler's conjecture — that 0.7405 is the largest possible fraction for equal spheres — was only proved in 1998; the board only needs the number and the ordering SC < BCC < FCC = HCP.
 

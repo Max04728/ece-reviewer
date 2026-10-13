@@ -11,7 +11,7 @@ prereqs: ["[[01_Antenna_Parameters_Directivity,_Gain,_EIRP]]", "[[02_Radiation_R
 tags: ["ece", "est", "antenna_systems_and_propagation"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — FSPL and Friis Transmission Equation
@@ -28,7 +28,9 @@ updated: 2026-09-23
 
 **What free-space path loss really is.** Define the free-space path loss as the reciprocal of the geometric factor, $$\mathrm{FSPL} = \left(\frac{4\pi d}{\lambda}\right)^2 = \left(\frac{4\pi d f}{c}\right)^2.$$ It is a *spreading* factor, not a dissipative loss: no energy disappears, and if the receiving aperture were large enough all of the transmitted power would be recovered. Two consequences are worth memorising as rates: FSPL rises $6.02$ dB every time the distance doubles, and $6.02$ dB every time the frequency doubles. That second rule holds only for antennas of fixed *gain*; if instead the physical aperture is fixed, $G$ itself rises as $f^2$ and the received power rises as $f^2$ — see the derivation below, because this is the most misquoted statement in the topic.
 
-**The working dB form and where 32.44 comes from.** Converting the definition with $d$ in kilometres and $f$ in megahertz gives $$\mathrm{FSPL(dB)} = 32.44 + 20\log_{10} d_{km} + 20\log_{10} f_{MHz}.$$ Equivalent constants for other unit pairs are $92.44$ with $d$ in km and $f$ in GHz, and $36.6$ with $d$ in statute miles and $f$ in MHz. The constant is not empirical: it is $20\log_{10}(4\pi \times 10^{9}/c)$, which is the $4\pi d/\lambda$ factor with the $10^3$ (km) and $10^6$ (MHz) conversions folded in. The practical content is that path loss grows $20$ dB per decade of distance — a $10\times$ range increase costs $20$ dB, and recovering $20$ dB needs $100\times$ the power.
+**The working dB form and where 32.44 comes from.** Converting the definition with $d$ in kilometres and $f$ in megahertz gives $$\mathrm{FSPL(dB)} = 32.44 + 20\log_{10} d_{km} + 20\log_{10} f_{MHz}.$$ Equivalent constants for other unit pairs are $92.44$ with $d$ in km and $f$ in GHz, and $36.6$ with $d$ in statute miles and $f$ in MHz. The constant is not empirical: it is:
+$$20\log_{10}(4\pi \times 10^{9}/c)$$
+which is the $4\pi d/\lambda$ factor with the $10^3$ (km) and $10^6$ (MHz) conversions folded in. The practical content is that path loss grows $20$ dB per decade of distance — a $10\times$ range increase costs $20$ dB, and recovering $20$ dB needs $100\times$ the power.
 
 **The link budget.** Turning Friis into a bookkeeping equation, $$P_r(\mathrm{dBm}) = P_t(\mathrm{dBm}) + G_t(\mathrm{dBi}) + G_r(\mathrm{dBi}) - \mathrm{FSPL(dB)} - L_{misc},$$ where $L_{misc}$ collects feed-line loss, pointing loss, atmospheric absorption, rain and polarization mismatch. The combined $P_t + G_t$ is the **EIRP**, the power an isotropic radiator would need to produce the same density in the wanted direction; a closely related figure is the **ERP**, referenced to a half-wave dipole instead of an isotropic radiator, and because a dipole has $G = 1.64 = 2.15$ dBi, $\mathrm{EIRP} = 1.64\,\mathrm{ERP}$ and $\mathrm{dBi} = \mathrm{dBd} + 2.15$. A link closes when the received power exceeds the receiver sensitivity; the difference between the two is the **fade margin**.
 

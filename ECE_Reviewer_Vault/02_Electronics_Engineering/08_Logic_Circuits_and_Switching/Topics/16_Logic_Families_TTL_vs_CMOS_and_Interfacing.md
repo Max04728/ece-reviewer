@@ -11,7 +11,7 @@ prereqs: ["[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]", "[[07_Thevenin_and_N
 tags: ["ece", "electronics_engineering", "logic_circuits_and_switching"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 16 — Logic Families: TTL vs CMOS and Interfacing

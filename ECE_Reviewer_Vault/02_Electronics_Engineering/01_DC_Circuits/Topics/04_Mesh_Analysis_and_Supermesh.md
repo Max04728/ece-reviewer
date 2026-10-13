@@ -11,7 +11,7 @@ prereqs: ["[[02_KCL,_KVL,_Series_and_Parallel_Reduction]]", "[[01_Circuit_Variab
 tags: ["ece", "electronics_engineering", "dc_circuits"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Mesh Analysis and Supermesh
@@ -26,7 +26,10 @@ updated: 2026-09-23
 
 **The mesh current idea.** Draw a clockwise loop current in each window (mesh) of a planar network. Because each invented current leaves any node it enters, KCL is satisfied at every node *automatically* — the only equations left to write are KVL around each mesh. A network with $n$ meshes therefore needs exactly $n$ simultaneous equations, one unknown each.
 
-**Writing the equations.** Around mesh $k$, the current $i_k$ drops $\left(\sum R_{\mathrm{own}}\right) i_k$ in its own resistors, and each shared resistor contributes $-R_{\mathrm{shared}} i_{j}$ because the neighbour's current opposes the traversal. Voltage sources contribute $+V$ if the clockwise path enters the $-$ terminal first (a rise) and $-V$ otherwise. This gives the standard form $R_{kk} i_k - \sum_{j\neq k} R_{kj} i_j = \sum v_k$, which is symmetric: $R_{kj} = R_{jk}$.
+**Writing the equations.** Around mesh $k$, the current $i_k$ drops $\left(\sum R_{\mathrm{own}}\right) i_k$ in its own resistors, and each shared resistor contributes $-R_{\mathrm{shared}} i_{j}$ because the neighbour's current opposes the traversal. Voltage sources contribute $+V$ if the clockwise path enters the $-$ terminal first (a rise) and $-V$ otherwise. This gives the standard form.
+$$R_{kk} i_k - \sum_{j\neq k} R_{kj} i_j = \sum v_k$$
+which is symmetric:
+$$R_{kj} = R_{jk}$$
 
 **From mesh currents to branch currents.** A branch that belongs to only one mesh carries that mesh current. A shared branch carries the *difference*, $i_{\mathrm{branch}} = i_k - i_j$, in the direction of $i_k$. This difference is where most sign errors appear: a positive difference means the current flows the way the first mesh circulates.
 

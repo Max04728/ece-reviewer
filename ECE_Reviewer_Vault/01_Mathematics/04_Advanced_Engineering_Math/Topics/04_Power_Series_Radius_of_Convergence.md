@@ -11,7 +11,7 @@ prereqs: ["[[03_Sequences_and_Convergence_Tests]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 04 — Power Series Radius of Convergence

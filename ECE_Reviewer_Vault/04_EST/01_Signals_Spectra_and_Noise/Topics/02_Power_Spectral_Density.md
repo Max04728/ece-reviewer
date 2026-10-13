@@ -11,7 +11,7 @@ prereqs: ["[[01_Time_vs_Frequency_and_Line_Spectra]]"]
 tags: ["ece", "est", "signals_spectra_and_noise"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 02 — Power Spectral Density
@@ -24,11 +24,15 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A line spectrum works for signals that repeat; noise never repeats, so instead of spikes we get a continuous distribution of power across frequency. The PSD is that distribution's height — power per hertz — so the power you collect is the area under the curve over your bandwidth, not the height itself.
 
-**PSD is a density, so it always needs a bandwidth.** The power spectral density $S_x(f)$ (or $G_x(f)$ for the one-sided version) says how much average power sits in each hertz, with units of $\mathrm{W/Hz}$ (equivalently $\mathrm{V^2/Hz}$ for a voltage density). A statement like 'the noise density is $4\ \mathrm{pW/Hz}$' is not yet a power. The power is $P = \int_B S_x(f)\,df$, which for a flat density collapses to the multiply-by-bandwidth rule $P = \mathrm{PSD}\times B$. This is why receiver noise power is always quoted together with a bandwidth: $-174\ \mathrm{dBm/Hz}$ is a density, $-114\ \mathrm{dBm}$ is the power you actually get in a $1\ \mathrm{MHz}$ channel.
+**PSD is a density, so it always needs a bandwidth.** The power spectral density $S_x(f)$ (or $G_x(f)$ for the one-sided version) says how much average power sits in each hertz, with units of $\mathrm{W/Hz}$ (equivalently $\mathrm{V^2/Hz}$ for a voltage density). A statement like 'the noise density is $4\ \mathrm{pW/Hz}$' is not yet a power. The power is:
+$$P = \int_B S_x(f)\,df$$
+which for a flat density collapses to the multiply-by-bandwidth rule $P = \mathrm{PSD}\times B$. This is why receiver noise power is always quoted together with a bandwidth: $-174\ \mathrm{dBm/Hz}$ is a density, $-114\ \mathrm{dBm}$ is the power you actually get in a $1\ \mathrm{MHz}$ channel.
 
 **Two-sided versus one-sided, the perpetual factor of 2.** The mathematically natural PSD is two-sided: it includes negative frequencies and is even in $f$. Instrumentation and datasheets use the one-sided PSD defined only for $f \ge 0$, which folds the negative-frequency half onto the positive axis. For white noise the two-sided height is $N_0/2$ and the one-sided height is $N_0$; the total power in a band $B$ is $P = N_0 B$ either way. Both conventions are correct, so the exam can hand you either one. If the density you are given is $N_0/2$ and you integrate it from $0$ to $\infty$, you must double it or you lose exactly half the power (a 3 dB error).
 
-**Where PSDs come from: the Wiener-Khinchin theorem.** For a stationary random process the PSD is the Fourier transform of the autocorrelation function, $S_x(f) = \int R_x(\tau)e^{-j2\pi f\tau}d\tau$. This formalises the intuition that a signal that is 'uncorrelated with itself except at zero lag' is flat in frequency: white noise has $R_x(\tau) = \frac{N_0}{2}\delta(\tau)$, whose transform is a constant. It also explains why filtering reshapes a PSD by $|H(f)|^{2}$: the filter squares the magnitude response because power, not amplitude, is being transmitted.
+**Where PSDs come from: the Wiener-Khinchin theorem.** For a stationary random process the PSD is the Fourier transform of the autocorrelation function:
+$$S_x(f) = \int R_x(\tau)e^{-j2\pi f\tau}d\tau$$
+This formalises the intuition that a signal that is 'uncorrelated with itself except at zero lag' is flat in frequency: white noise has $R_x(\tau) = \frac{N_0}{2}\delta(\tau)$, whose transform is a constant. It also explains why filtering reshapes a PSD by $|H(f)|^{2}$: the filter squares the magnitude response because power, not amplitude, is being transmitted.
 
 **Signals, not just noise.** A periodic signal has a 'line PSD' made of Dirac impulses, $S(f) = \sum_n |c_n|^{2}\delta(f - nf_0)$, which is the bridge back to the line-spectrum picture of [[01_Time_vs_Frequency_and_Line_Spectra]]. A finite-energy (non-periodic) pulse does not have a PSD in $\mathrm{W/Hz}$ at all — it has an energy spectral density in $\mathrm{J/Hz}$, the squared magnitude of its Fourier transform. Same shape, different units and a different normalisation; naming the wrong one is a favourite distractor.
 

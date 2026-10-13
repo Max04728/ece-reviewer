@@ -11,7 +11,7 @@ prereqs: ["[[13_PDE_Heat_Equation_1D]]"]
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — PDE Laplace Equation 2D
@@ -26,9 +26,15 @@ updated: 2026-09-23
 
 **The problem and its meaning.** $u_{xx}+u_{yy}=0$ on a plane region. It is the steady-state limit of the heat equation ($u_t\to0$) and the equation for the electrostatic potential in a charge-free region, so the same machinery serves thermal and electromagnetic problems. There is no time variable, so no initial condition exists; well-posedness comes entirely from boundary data, and boundary conditions must be given on the whole boundary. A solution of Laplace's equation is called harmonic, and every harmonic function has the mean-value property and the maximum principle.
 
-**Separation of variables.** Put $u = X(x)Y(y)$: then $X''Y+XY'' = 0$, so $\frac{X''}{X} = -\frac{Y''}{Y}$, and each side must be a constant. Writing that constant as $-\lambda$ gives $X''+\lambda X = 0$ and $Y''-\lambda Y = 0$: one oscillatory factor and one hyperbolic factor. Which one lands in which direction is decided by the boundary conditions, not by preference. The direction that carries *two homogeneous Dirichlet conditions* must receive the trigonometric functions, because only sines vanish at two distinct points; the remaining direction then gets $\sinh$ and $\cosh$, which are monotone and better suited to a single nonzero side.
+**Separation of variables.** Put $u = X(x)Y(y)$: then $X''Y+XY'' = 0$, so $\frac{X''}{X} = -\frac{Y''}{Y}$, and each side must be a constant. Writing that constant as $-\lambda$ gives:
+$$X''+\lambda X = 0$$
+and $Y''-\lambda Y = 0$: one oscillatory factor and one hyperbolic factor. Which one lands in which direction is decided by the boundary conditions, not by preference. The direction that carries *two homogeneous Dirichlet conditions* must receive the trigonometric functions, because only sines vanish at two distinct points; the remaining direction then gets $\sinh$ and $\cosh$, which are monotone and better suited to a single nonzero side.
 
-**The standard rectangle.** On $0<x<a$, $0<y<b$, take the three sides $x=0$, $x=a$ and $y=0$ at zero and let the top side carry the data, $u(x,b)=f(x)$. Then $X(0)=X(a)=0$ gives $X_n = \sin\frac{n\pi x}{a}$ with $\lambda_n = (n\pi/a)^2$, and $Y''-\lambda_nY=0$ with $Y(0)=0$ gives $Y_n = \sinh\frac{n\pi y}{a}$. The resulting solution is:
+**The standard rectangle.** On $0<x<a$, $0<y<b$, take the three sides $x=0$, $x=a$ and $y=0$ at zero and let the top side carry the data, $u(x,b)=f(x)$. Then $X(0)=X(a)=0$ gives:
+$$X_n = \sin\frac{n\pi x}{a}$$
+with $\lambda_n = (n\pi/a)^2$, and $Y''-\lambda_nY=0$ with $Y(0)=0$ gives:
+$$Y_n = \sinh\frac{n\pi y}{a}$$
+The resulting solution is:
 $$u(x,y) = \sum_{n=1}^{\infty}B_n\sin\frac{n\pi x}{a}\sinh\frac{n\pi y}{a}$$
 Imposing the top condition gives the coefficient relation:
 $$B_n\sinh\frac{n\pi b}{a} = \frac{2}{a}\int_0^af(x)\sin\frac{n\pi x}{a}dx$$

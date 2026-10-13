@@ -11,7 +11,7 @@ prereqs: ["[[13_SHM_and_Waves]]"]
 tags: ["ece", "geas", "university_physics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — Sound and Doppler
@@ -24,17 +24,25 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Sound is a pressure wave, so its speed depends on how stiff and how heavy the medium is, not on how loud the source is. The Doppler effect is not a change in the source at all — it is the bunching or stretching of wavefronts caused by relative motion, so the listener hears a different frequency than the source emits.
 
-**Speed of sound is a medium property.** In air at $20\ ^\circ\mathrm{C}$, $v = 343\ \mathrm{m/s}$; the exam approximation is $v\approx331 + 0.6\,t$ with $t$ in Celsius, which is accurate to a fraction of a percent over ordinary room temperatures. Sound travels roughly $4.3$ times faster in water ($\approx1480\ \mathrm{m/s}$) and about $17$ times faster in steel ($\approx5960\ \mathrm{m/s}$). Because the medium sets $v$ and the source sets $f$, a sound crossing from air into water keeps its frequency and lengthens its wavelength by the same factor of $4.3$.
+**Speed of sound is a medium property.** In air at $20\ ^\circ\mathrm{C}$, $v = 343\ \mathrm{m/s}$; the exam approximation is:
+$$v\approx331 + 0.6\,t$$
+with $t$ in Celsius, which is accurate to a fraction of a percent over ordinary room temperatures. Sound travels roughly $4.3$ times faster in water ($\approx1480\ \mathrm{m/s}$) and about $17$ times faster in steel ($\approx5960\ \mathrm{m/s}$). Because the medium sets $v$ and the source sets $f$, a sound crossing from air into water keeps its frequency and lengthens its wavelength by the same factor of $4.3$.
 
-**Intensity falls as the inverse square, level falls logarithmically.** A point source spreads its power over a sphere, so $I = P/(4\pi r^2)$ — move twice as far and the intensity drops by a factor of 4, which is only $6\ \mathrm{dB}$. The level scale is $\beta = 10\log_{10}(I/I_0)$ with the reference $I_0 = 1\times10^{-12}\ \mathrm{W/m^2}$; doubling the intensity adds only $3\ \mathrm{dB}$. Two identical sources together give $93\ \mathrm{dB}$ where one gives $90\ \mathrm{dB}$, never $180\ \mathrm{dB}$.
+**Intensity falls as the inverse square, level falls logarithmically.** A point source spreads its power over a sphere, so $I = P/(4\pi r^2)$ — move twice as far and the intensity drops by a factor of 4, which is only $6\ \mathrm{dB}$. The level scale is:
+$$\beta = 10\log_{10}(I/I_0)$$
+with the reference $I_0 = 1\times10^{-12}\ \mathrm{W/m^2}$; doubling the intensity adds only $3\ \mathrm{dB}$. Two identical sources together give $93\ \mathrm{dB}$ where one gives $90\ \mathrm{dB}$, never $180\ \mathrm{dB}$.
 
 **Use the ratio form of the level formula whenever a ratio is given.** Because $\beta$ is logarithmic, the ratio form is:
 $$\beta_2 - \beta_1 = 10\log_{10}(I_2/I_1)$$
 which is what makes 'how many dB louder is a jet than a whisper' answerable without the reference at all. The board also tests the inverse: a $+20\ \mathrm{dB}$ change means a 100x intensity change, and $+10\ \mathrm{dB}$ means 10x — not 2x.
 
-**Doppler: identify what moves before writing the formula.** The general result is $f' = f\,(v \pm v_o)/(v \mp v_s)$, where the top sign of each pair corresponds to *approaching*. The clean way to remember it: motion that closes the gap raises the pitch, motion that opens the gap lowers it. If the source moves and the listener is still, only $v_s$ appears; if the listener moves and the source is still, only $v_o$ appears. Putting a listener's speed into the source slot is the most common structural error.
+**Doppler: identify what moves before writing the formula.** The general result is:
+$$f' = f\,(v \pm v_o)/(v \mp v_s)$$
+where the top sign of each pair corresponds to *approaching*. The clean way to remember it: motion that closes the gap raises the pitch, motion that opens the gap lowers it. If the source moves and the listener is still, only $v_s$ appears; if the listener moves and the source is still, only $v_o$ appears. Putting a listener's speed into the source slot is the most common structural error.
 
-**The two Doppler cases are not symmetric.** For a listener moving toward a stationary source, the shift factor is $(v+v_o)/v$, which for $v_o = 20\ \mathrm{m/s}$ is $1.058$. For a source moving toward a stationary listener at the same $20\ \mathrm{m/s}$, the factor is $v/(v-v_s) = 1.062$ — slightly larger, because the source also shortens the wavelength it lays down. Equal speeds in the numerator and denominator do **not** cancel, and that asymmetry is a favourite board discrimination.
+**The two Doppler cases are not symmetric.** For a listener moving toward a stationary source, the shift factor is $(v+v_o)/v$, which for $v_o = 20\ \mathrm{m/s}$ is $1.058$. For a source moving toward a stationary listener at the same $20\ \mathrm{m/s}$, the factor is:
+$$v/(v-v_s) = 1.062$$
+— slightly larger, because the source also shortens the wavelength it lays down. Equal speeds in the numerator and denominator do **not** cancel, and that asymmetry is a favourite board discrimination.
 
 **Resonance and beats complete the picture.** A pipe open at both ends has the same harmonic series as a fixed-fixed string, $f_n = nv/(2L)$; a pipe closed at one end has only odd harmonics, $f_n = nv/(4L)$ with $n$ odd, so its fundamental is half that of an open pipe of the same length. Superposing two nearly equal frequencies produces beats at $f_{beat} = |f_1-f_2|$, which is how a tuner is used: beat until the difference goes to zero.
 

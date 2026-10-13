@@ -11,7 +11,7 @@ prereqs: ["[[01_Separation_of_Variables]]"]
 tags: ["ece", "mathematics", "numerical_methods_and_analysis"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 08 — Euler’s Method
@@ -26,15 +26,21 @@ updated: 2026-09-23
 
 **The method is the first two terms of a Taylor series.** Start from two facts:
 $$y(x_{i+1})=y(x_i)+h y'(x_i)+\frac{h^{2}}{2}y''(\xi)$$
-and $y'=f(x,y)$. Dropping the quadratic term gives $y_{i+1}=y_i+h\,f(x_i,y_i)$. Everything about the method follows from that truncation: it is *explicit* (the right-hand side uses only known values) and *first-order* (the discarded term is $O(h^{2})$ per step).
+and $y'=f(x,y)$. Dropping the quadratic term gives:
+$$y_{i+1}=y_i+h\,f(x_i,y_i)$$
+Everything about the method follows from that truncation: it is *explicit* (the right-hand side uses only known values) and *first-order* (the discarded term is $O(h^{2})$ per step).
 
-**Local versus global error.** The *local* truncation error is $\frac{h^{2}}{2}y''(\xi)$ per step; the *global* error after $n=(x_n-x_0)/h$ steps accumulates to $O(h)$, because there are $1/h$ steps each contributing $O(h^{2})$. The practical rule: **halving $h$ halves the total error**, and the error grows with the curvature $|y''|$ of the solution — which is why the method handles almost-straight solutions well and exponential solutions badly.
+**Local versus global error.** The *local* truncation error is:
+$$\frac{h^{2}}{2}y''(\xi)$$
+per step; the *global* error after $n=(x_n-x_0)/h$ steps accumulates to $O(h)$, because there are $1/h$ steps each contributing $O(h^{2})$. The practical rule: **halving $h$ halves the total error**, and the error grows with the curvature $|y''|$ of the solution — which is why the method handles almost-straight solutions well and exponential solutions badly.
 
 **The error bound.** For $y'=f(x,y)$ with Lipschitz constant $L$ and $M=\max|y''|$ on the interval, the explicit bound is:
 $$|E_n|\le\frac{hM}{2L}\left(e^{L(x_n-x_0)}-1\right)$$
 When $f$ does not depend on $y$ ($L\to0$) this collapses to $\frac{hM}{2}(x_n-x_0)$ — the same $O(h)$ statement. The bound is conservative; the observed error is usually a fraction of it.
 
-**Stability is a separate question from accuracy.** Applied to the test equation $y'=\lambda y$ with $\lambda<0$, Euler gives $y_{i+1}=(1+\lambda h)y_i$. The solution only decays — as the true solution does — when $|1+\lambda h|\le1$, i.e.
+**Stability is a separate question from accuracy.** Applied to the test equation $y'=\lambda y$ with $\lambda<0$, Euler gives:
+$$y_{i+1}=(1+\lambda h)y_i$$
+The solution only decays — as the true solution does — when $|1+\lambda h|\le1$, i.e.
 $$h\le\frac{2}{|\lambda|}$$
 Above that limit the numerical solution oscillates with growing amplitude even though the exact solution decays to zero. For $y'=-20y$ the limit is $h\le0.1$; at $h=0.11$ the sequence is $1,-1.2,1.44,\dots$ and diverges.
 

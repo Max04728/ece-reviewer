@@ -11,7 +11,7 @@ prereqs: ["[[04_Power_Series_Radius_of_Convergence]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Taylor and Maclaurin Series
@@ -32,7 +32,9 @@ updated: 2026-09-23
 $$\frac{1}{2 + (x-2)} = \frac{1}{2}\cdot\frac{1}{1 + \frac{x-2}{2}}$$
 Then use the geometric series in the variable $u = (x-2)/2$. The radius of convergence is then set by $|u|<1$, i.e. $|x-2|<2$. Reusing a Maclaurin series for an off-centre expansion is the single most common structural error in this topic.
 
-**When the expansion fails.** Convergence of the series to the function requires the remainder $R_n(x)\to 0$, which is not automatic: $f(x) = e^{-1/x^2}$ (with $f(0)=0$) is infinitely differentiable at 0 but every derivative there is zero, so its Maclaurin series is identically zero and represents the function only at $x=0$. Likewise the radius is finite whenever the function has a singularity in the complex plane at distance $R$ from the centre, even if that singularity is not on the real axis — $1/(1+x^2)$ has $R=1$ from its poles at $x=\pm j$ despite being perfectly smooth for all real $x$.
+**When the expansion fails.** Convergence of the series to the function requires the remainder $R_n(x)\to 0$, which is not automatic:
+$$f(x) = e^{-1/x^2}$$
+(with $f(0)=0$) is infinitely differentiable at 0 but every derivative there is zero, so its Maclaurin series is identically zero and represents the function only at $x=0$. Likewise the radius is finite whenever the function has a singularity in the complex plane at distance $R$ from the centre, even if that singularity is not on the real axis — $1/(1+x^2)$ has $R=1$ from its poles at $x=\pm j$ despite being perfectly smooth for all real $x$.
 
 **Where the series is valid.** Inside the open interval of convergence the series may be differentiated and integrated term by term, which is what makes series the standard tool for limits, approximate integration and solving differential equations by assuming a power-series solution. Outside it the series is worthless no matter how many terms you take.
 

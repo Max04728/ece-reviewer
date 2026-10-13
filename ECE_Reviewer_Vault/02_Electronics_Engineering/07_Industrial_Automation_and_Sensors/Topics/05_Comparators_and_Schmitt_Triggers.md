@@ -11,7 +11,7 @@ prereqs: ["[[02_Linear_Op-Amp_Circuits]]", "[[07_Thevenin_and_Norton_Equivalents
 tags: ["ece", "electronics_engineering", "industrial_automation_and_sensors"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 05 — Comparators and Schmitt Triggers
@@ -28,7 +28,11 @@ updated: 2026-09-23
 
 **The noise problem that hysteresis solves.** A comparator has no dead band, so an input that crosses the reference slowly with even a few millivolts of noise on it makes the output chatter between the rails at the noise rate. The cure is *positive* feedback: a resistor from the output back to the non-inverting input makes the threshold depend on the output state. When the output is high the threshold is $V_{UT}$; the moment the input crosses it the output drops, which lowers the threshold to $V_{LT}$ and latches the new state. A resistor from the output to the inverting input is *negative* feedback and produces a linear amplifier with a small gain, not a Schmitt trigger.
 
-**Inverting and non-inverting forms.** In the inverting Schmitt trigger the signal enters $V_-$ while $R_1$ goes from $V_+$ to a reference and $R_2$ goes from $V_o$ to $V_+$. The divider gives $V_+ = (V_oR_1 + V_{ref}R_2)/(R_1+R_2)$, so the two thresholds are $V_{UT} = (V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$ and $V_{LT} = (-V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$, a width of $2V_{sat}R_1/(R_1+R_2)$ centred on $V_{ref}R_2/(R_1+R_2)$ — *not* on $V_{ref}$ itself, because $R_1$ loads the reference. In the non-inverting form the signal enters $V_+$ through $R_1$ and $R_2$ feeds back from the output; the thresholds are $\pm V_{sat}R_1/R_2$. Note the different ratio, and note that the non-inverting form latches if $R_1 > R_2$, because no input within the rails can then overcome the feedback.
+**Inverting and non-inverting forms.** In the inverting Schmitt trigger the signal enters $V_-$ while $R_1$ goes from $V_+$ to a reference and $R_2$ goes from $V_o$ to $V_+$. The divider gives the corner at $V_+ = (V_oR_1 + V_{ref}R_2)/(R_1+R_2)$. The two thresholds are:
+$$V_{UT} = (V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$$
+
+$$V_{LT} = (-V_{sat}R_1 + V_{ref}R_2)/(R_1+R_2)$$
+The width is $2V_{sat}R_1/(R_1+R_2)$ centred on $V_{ref}R_2/(R_1+R_2)$ — *not* on $V_{ref}$ itself, because $R_1$ loads the reference. In the non-inverting form the signal enters $V_+$ through $R_1$ and $R_2$ feeds back from the output; the thresholds are $\pm V_{sat}R_1/R_2$. Note the different ratio, and note that the non-inverting form latches if $R_1 > R_2$, because no input within the rails can then overcome the feedback.
 
 **Choosing the hysteresis width.** The width must exceed the peak-to-peak noise riding on the input, and it must be small enough that it does not distort the measurement. A zero-crossing detector asked to ignore $100\ \mathrm{mV}$ of noise needs a width above $100\ \mathrm{mV}$; with $V_{sat} = \pm12\ \mathrm{V}$ that means $R_1/(R_1+R_2) > 0.1/24$, so $R_2$ below about $239\ \mathrm{k\Omega}$ for $R_1 = 1\ \mathrm{k\Omega}$. At such small widths the comparator's own input offset voltage — a few millivolts, not divided by any feedback — becomes a first-order threshold error, and the offset drift with temperature shifts the threshold with it.
 

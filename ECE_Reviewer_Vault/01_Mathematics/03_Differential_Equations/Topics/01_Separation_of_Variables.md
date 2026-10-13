@@ -11,7 +11,7 @@ prereqs: ["[[01_Antiderivatives_and_Standard_Forms]]", "[[02_Differentiation_Rul
 tags: ["ece", "mathematics", "differential_equations"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 01 — Separation of Variables
@@ -30,15 +30,21 @@ The test is exactly that factorisation — a product of a pure-$x$ piece and a p
 
 **Why the split is legal (it is not treating $dx$ as a fraction).** Let $H(y)=\int \frac{dy}{g(y)}$ and differentiate $H(y(x))$ in $x$. The chain rule gives:
 $$\frac{d}{dx}H(y)=H'(y)\,y'=\frac{1}{g(y)}\cdot g(y)f(x)=f(x)$$
-Integrating both sides with respect to $x$ yields $H(y)=\int f(x)\,dx+C$. So $\frac{dy}{g(y)}=f(x)\,dx$ is a chain-rule identity, valid on any interval where $g(y)\neq 0$. This is the sense in which the differentials are separated.
+Integrating both sides with respect to $x$ yields:
+$$H(y)=\int f(x)\,dx+C$$
+So $\frac{dy}{g(y)}=f(x)\,dx$ is a chain-rule identity, valid on any interval where $g(y)\neq 0$. This is the sense in which the differentials are separated.
 
 **The constant goes on one side only.** Write $\int\frac{dy}{g(y)}=\int f(x)\,dx+C$. A constant on each side is not wrong, but the two must collapse into one: $C_1-C_2$ is a single arbitrary constant. Carrying two independent constants through the algebra produces a 'general solution' with more freedom than the ODE has, and no initial condition can fix both.
 
-**Initial conditions fix the constant and the branch.** If $\int\frac{dy}{g(y)}$ gives $\ln|y|$, exponentiating gives $|y|=e^{C}e^{H(x)}$, and the $\pm$ is absorbed into a *new* constant $K=\pm e^{C}$ that may be positive **or** negative. Solve for $K$ from the data instead of assuming $K>0$. The definite-integral form:
+**Initial conditions fix the constant and the branch.** If $\int\frac{dy}{g(y)}$ gives $\ln|y|$, exponentiating gives:
+$$|y|=e^{C}e^{H(x)}$$
+and the $\pm$ is absorbed into a *new* constant $K=\pm e^{C}$ that may be positive **or** negative. Solve for $K$ from the data instead of assuming $K>0$. The definite-integral form:
 $$\int_{y_0}^{y}\frac{dt}{g(t)}=\int_{x_0}^{x}f(s)\,ds$$
 This removes the constant entirely and is the safest route on an exam.
 
-**Implicit answers are legitimate.** When $\int \frac{dy}{g(y)}$ cannot be inverted in elementary functions — the classic case is $\int(1+y^2)\,dy=y+\frac{y^3}{3}$ — the correct board answer is the implicit relation $F(x,y)=C$. Manufacturing an explicit $y$ by inventing an inverse is a worse answer than the implicit one.
+**Implicit answers are legitimate.** When $\int \frac{dy}{g(y)}$ cannot be inverted in elementary functions — the classic case is:
+$$\int(1+y^2)\,dy=y+\frac{y^3}{3}$$
+— the correct board answer is the implicit relation $F(x,y)=C$. Manufacturing an explicit $y$ by inventing an inverse is a worse answer than the implicit one.
 
 **Two silent failures.** (1) Dividing by $g(y)$ assumes $g(y)\neq 0$. Every constant $c$ with $g(c)=0$ yields the **singular solution** $y\equiv c$, which is not contained in the general solution and must be listed separately. (2) The solution is valid only on the largest interval containing $x_0$ on which the formula is defined and differentiable — it stops at the first vertical asymptote or branch point, not where the algebra happens to end.
 

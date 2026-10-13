@@ -11,7 +11,7 @@ prereqs: ["[[04_Reflection_Coefficient_and_VSWR]]", "[[05_Input_Impedance_and_Qu
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 06 — Smith Chart
@@ -28,7 +28,11 @@ updated: 2026-09-23
 
 **The two families of curves, and why they are circles.** Constant-resistance loci appear as circles with centres on the horizontal axis at $u = r/(1+r)$ and radii $1/(1+r)$ — every one of them passes through the point $\Gamma = +1$. Constant-reactance loci appear as arcs with centres at $u = 1,\ v = 1/x$ and radius $1/|x|$; the $x = 0$ line is the horizontal axis itself. Because the two families are orthogonal, any pair $(r, x)$ identifies exactly one point, and any point reads back to exactly one impedance. The price of the mapping is that the whole infinite right half-plane is compressed into a finite disc, so the outer edge near $\Gamma = +1$ is extremely crowded and low-impedance readings are hard to take accurately.
 
-**The VSWR circle is the single most useful construction.** On a lossless line $|\Gamma|$ is the same at every plane, so the locus of all impedances a given load presents along the line is a circle centred on the origin with radius $|\Gamma|$. Its two intersections with the real axis read the standing-wave extremes directly: the right-hand crossing is $r = \mathrm{VSWR}$ and the left-hand crossing is $r = 1/\mathrm{VSWR}$. That is why $\mathrm{VSWR}$ can be read off a chart with no arithmetic at all, and why $\mathrm{VSWR}$ tells you the *radius* of the circle but nothing about *where* on it the load sits.
+**The VSWR circle is the single most useful construction.** On a lossless line $|\Gamma|$ is the same at every plane, so the locus of all impedances a given load presents along the line is a circle centred on the origin with radius $|\Gamma|$. Its two intersections with the real axis read the standing-wave extremes directly: the right-hand crossing is:
+$$r = \mathrm{VSWR}$$
+and the left-hand crossing is:
+$$r = 1/\mathrm{VSWR}$$
+That is why $\mathrm{VSWR}$ can be read off a chart with no arithmetic at all, and why $\mathrm{VSWR}$ tells you the *radius* of the circle but nothing about *where* on it the load sits.
 
 **Motion along the line is rotation.** Since $\Gamma(l) = \Gamma_L e^{-2j\beta l}$, moving a distance $l$ toward the generator rotates the point clockwise about the centre by $2\beta l = 4\pi l/\lambda$ radians. The chart's outer scales are calibrated accordingly: one complete revolution is $\lambda/2$, so $\lambda/4$ is $180^\circ$ and the printed wavelengths-toward-generator scale runs $0$ to $0.5$. Moving toward the load goes counter-clockwise. Because rotation preserves $|\Gamma|$, an impedance and its value a quarter-wavelength away always land on the same VSWR circle at opposite ends of a diameter — which is exactly the $z \to 1/z$ inversion, and therefore $Z_{in}(\lambda/4) = Z_0^2/Z_L$.
 

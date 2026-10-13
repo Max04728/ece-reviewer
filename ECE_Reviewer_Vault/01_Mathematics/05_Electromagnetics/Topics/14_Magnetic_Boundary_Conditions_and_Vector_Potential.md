@@ -11,7 +11,7 @@ prereqs: ["[[03_Divergence_and_Stokes_Theorems]]", "[[13_Ampere’s_Circuital_La
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 14 — Magnetic Boundary Conditions and Vector Potential

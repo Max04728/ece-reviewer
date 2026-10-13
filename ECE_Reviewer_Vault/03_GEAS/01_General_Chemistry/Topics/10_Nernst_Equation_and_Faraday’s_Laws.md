@@ -11,7 +11,7 @@ prereqs: ["[[09_Redox_and_Galvanic_Cells]]", "[[04_Mole_Concept_and_Stoichiometr
 tags: ["ece", "geas", "general_chemistry"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 10 — Nernst Equation and Faraday’s Laws
@@ -26,17 +26,27 @@ updated: 2026-09-23
 
 **Why the voltage falls as a cell discharges.** $E^\circ_{cell}$ assumes every soluble species is at 1 M and every gas at 1 atm. Real cells are not standard, and the Nernst equation corrects for it:
 $$E = E^\circ - (RT/nF)\ln Q$$
-or at $25\ ^\circ\mathrm{C}$ the working form $E = E^\circ - (0.0592/n)\log Q$. As a galvanic cell discharges, the product concentration rises and the reactant concentration falls, so $Q$ grows, the correction grows, and the voltage sags toward zero — which is exactly what a battery meter is reading. Setting $E = 0$ (fully discharged) gives $\log K = nE^\circ/0.0592$, which is how a standard potential is converted into an equilibrium constant.
+or at $25\ ^\circ\mathrm{C}$ the working form $E = E^\circ - (0.0592/n)\log Q$. As a galvanic cell discharges, the product concentration rises and the reactant concentration falls, so $Q$ grows, the correction grows, and the voltage sags toward zero — which is exactly what a battery meter is reading. Setting $E = 0$ (fully discharged) gives:
+$$\log K = nE^\circ/0.0592$$
+which is how a standard potential is converted into an equilibrium constant.
 
-**Reading and writing Q correctly.** $Q$ takes the same form as $K$: products over reactants, each to its coefficient, with pure solids and liquids omitted entirely. For $\mathrm{Zn}(s) + \mathrm{Cu^{2+}} \to \mathrm{Zn^{2+}} + \mathrm{Cu}(s)$ it is $Q = [\mathrm{Zn^{2+}}]/[\mathrm{Cu^{2+}}]$ — the metals do not appear. The number of electrons $n$ comes from the BALANCED overall equation, not from one half-reaction. And a 0.0592 that is applied at a temperature other than 25 °C is simply wrong: the coefficient is $2.303RT/F$, which is 0.0592 V only at 298 K and about 0.0615 V at 310 K.
+**Reading and writing Q correctly.** $Q$ takes the same form as $K$: products over reactants, each to its coefficient, with pure solids and liquids omitted entirely. For the cell reaction:
+$$\mathrm{Zn}(s) + \mathrm{Cu^{2+}} \to \mathrm{Zn^{2+}} + \mathrm{Cu}(s)$$
+the quotient is:
+$$Q = [\mathrm{Zn^{2+}}]/[\mathrm{Cu^{2+}}]$$
+— the metals do not appear. The number of electrons $n$ comes from the BALANCED overall equation, not from one half-reaction. And a 0.0592 that is applied at a temperature other than 25 °C is simply wrong: the coefficient is $2.303RT/F$, which is 0.0592 V only at 298 K and about 0.0615 V at 310 K.
 
 **Concentration cells.** If both electrodes are the same material in the same ion at different concentrations, $E^\circ_{cell} = 0$ and the entire voltage comes from the concentration difference:
 $$E = -(0.0592/n)\log([\mathrm{dilute}]/[\mathrm{concentrated}])$$
 The concentrated side is the cathode (it gets reduced further), so the spontaneous process dilutes the strong side and concentrates the weak one until they match — at which point the voltage is zero. A tenfold ratio gives 0.0592/n volts, which is a useful mental benchmark.
 
-**Faraday's laws.** Charge is countable. $Q = It$ in coulombs, one mole of electrons is $F = 96485\ \mathrm{C}$, and $n$ electrons are needed per atom of product, so $m = MIt/(nF)$. The method has exactly three steps: charge from current and time, moles of electrons from charge, moles of substance from the half-reaction — then convert to mass or to time. Two unit traps dominate: time must be in SECONDS (so 30.0 min is 1800 s), and $n$ is the electrons per ion of the substance being deposited, which is 2 for $\mathrm{Cu^{2+}}$, 1 for $\mathrm{Ag^+}$ and 3 for $\mathrm{Al^{3+}}$. If the question supplies the mass and asks for $n$, the same formula rearranges to $n = MIt/(mF)$ and identifies the metal.
+**Faraday's laws.** Charge is countable. $Q = It$ in coulombs, one mole of electrons is:
+$$F = 96485\ \mathrm{C}$$
+and $n$ electrons are needed per atom of product, so $m = MIt/(nF)$. The method has exactly three steps: charge from current and time, moles of electrons from charge, moles of substance from the half-reaction — then convert to mass or to time. Two unit traps dominate: time must be in SECONDS (so 30.0 min is 1800 s), and $n$ is the electrons per ion of the substance being deposited, which is 2 for $\mathrm{Cu^{2+}}$, 1 for $\mathrm{Ag^+}$ and 3 for $\mathrm{Al^{3+}}$. If the question supplies the mass and asks for $n$, the same formula rearranges to $n = MIt/(mF)$ and identifies the metal.
 
-**Current efficiency and the practical correction.** Real plating cells lose charge to side reactions such as hydrogen evolution, so the mass actually deposited is less than the Faraday prediction. Current efficiency is $\eta = m_{actual}/m_{theoretical}\times100$, and every Faraday calculation can be run in reverse through it. This is why a question that gives both a current, a time and a final mass is really asking about efficiency rather than about Faraday's law — check whether the mass matches the prediction before deciding which quantity is unknown.
+**Current efficiency and the practical correction.** Real plating cells lose charge to side reactions such as hydrogen evolution, so the mass actually deposited is less than the Faraday prediction. Current efficiency is:
+$$\eta = m_{actual}/m_{theoretical}\times100$$
+and every Faraday calculation can be run in reverse through it. This is why a question that gives both a current, a time and a final mass is really asking about efficiency rather than about Faraday's law — check whether the mass matches the prediction before deciding which quantity is unknown.
 
 ## Formulas
 

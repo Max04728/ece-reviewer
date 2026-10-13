@@ -11,7 +11,7 @@ prereqs: ["[[19_EM_Wave_Equations_and_Uniform_Plane_Waves]]", "[[18_Maxwell’s_
 tags: ["ece", "mathematics", "electromagnetics"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 22 — Intrinsic Impedance and Poynting Vector
@@ -28,13 +28,17 @@ updated: 2026-09-23
 $$\eta_0 = \sqrt{\mu_0/\varepsilon_0} = 120\pi = 377\ \Omega$$
 and for a non-magnetic dielectric $\eta = \eta_0/\sqrt{\varepsilon_r}$, so a denser medium lowers $\eta$ and raises $H_0$ for the same $E_0$. Because $\eta$ has units of ohms, the relation reads exactly like Ohm's law for a wave, and it is what makes transmission-line matching intuition transfer to waves at a boundary. In a lossy medium $\eta$ becomes complex and E and H are no longer in phase — the impedance angle is the phase by which E leads H. Do not confuse $\eta$ with a transmission line's characteristic impedance or a waveguide's wave impedance: only $\eta$ is a property of the medium by itself.
 
-**The Poynting vector and why it is a cross product.** The instantaneous power flow density is $\mathbf{S} = \mathbf{E}\times\mathbf{H}$, in W/m². Its direction is the direction of energy transport. Take the standard plane wave, with its electric field along $x$:
+**The Poynting vector and why it is a cross product.** The instantaneous power flow density is:
+$$\mathbf{S} = \mathbf{E}\times\mathbf{H}$$
+in W/m². Its direction is the direction of energy transport. Take the standard plane wave, with its electric field along $x$:
 $$\mathbf{E} = E_0\cos(\omega t-\beta z)\mathbf{a}_x$$
 The magnetic field is then along $y$:
 $$\mathbf{H} = (E_0/\eta)\cos(\omega t-\beta z)\mathbf{a}_y$$
 Their cross product evaluates to the power flow density:
 $$\mathbf{S} = (E_0^{2}/\eta)\cos^{2}(\omega t-\beta z)\,\mathbf{a}_z$$
-Two features deserve attention. First, $\mathbf{S}$ never points backwards even though both fields oscillate through zero: the product of two quantities that change sign together stays positive. Second, the magnitude pulses between 0 and $E_0^{2}/\eta$ at *twice* the field frequency, which is why every practical question asks for the time average rather than the instantaneous value. The expression comes out of energy bookkeeping: the work done on charges per unit volume is $\mathbf{J}\cdot\mathbf{E}$, and a vector identity converts that work into the divergence of the power flow:
+Two features deserve attention. First, $\mathbf{S}$ never points backwards even though both fields oscillate through zero: the product of two quantities that change sign together stays positive. Second, the magnitude pulses between 0 and $E_0^{2}/\eta$ at *twice* the field frequency, which is why every practical question asks for the time average rather than the instantaneous value. The expression comes out of energy bookkeeping: the work done on charges per unit volume is:
+$$\mathbf{J}\cdot\mathbf{E}$$
+and a vector identity converts that work into the divergence of the power flow:
 $$\nabla\cdot(\mathbf{E}\times\mathbf{H}) = \mathbf{H}\cdot(\nabla\times\mathbf{E}) - \mathbf{E}\cdot(\nabla\times\mathbf{H})$$
 
 **Time average and the factor one half.** Averaging $\cos^{2}$ over a period gives $1/2$, so a sinusoidal plane wave carries a time-averaged power density of:

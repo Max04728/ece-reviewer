@@ -11,7 +11,7 @@ prereqs: ["[[02_Secondary_Constants_Z0_and_Gamma]]"]
 tags: ["ece", "est", "transmission_lines_and_waveguides"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 03 — Lossless and Distortionless Lines
@@ -24,17 +24,23 @@ updated: 2026-09-23
 > [!tip] Intuition
 > Shape survives when every frequency component travels at the same speed and is attenuated by the same amount per metre. The lossless line is the extreme case (no attenuation at all); the distortionless line is the realistic one, and it is a *condition on the ratios* of the primary constants, not on their sizes.
 
-**Lossless: the clean idealisation.** Setting $R = G = 0$ gives $Z_0 = \sqrt{L/C}$ (real), $\gamma = j\omega\sqrt{LC}$, hence $\alpha = 0$ and $\beta = \omega\sqrt{LC}$. Because $\beta$ is exactly proportional to $\omega$, the group delay per metre $d\beta/d\omega = \sqrt{LC}$ is a constant and $v = 1/\sqrt{LC}$ for every component. A pulse therefore arrives attenuated not at all and smeared not at all. This model is exact enough for computing $Z_{\mathrm{in}}$, reflection coefficients and stub lengths on short, low-loss runs, but it silently throws away the level budget.
+**Lossless: the clean idealisation.** Setting $R = G = 0$ gives:
+$$Z_0 = \sqrt{L/C}$$
+(real), $\gamma = j\omega\sqrt{LC}$, hence $\alpha = 0$ and $\beta = \omega\sqrt{LC}$. Because $\beta$ is exactly proportional to $\omega$, the group delay per metre $d\beta/d\omega = \sqrt{LC}$ is a constant and $v = 1/\sqrt{LC}$ for every component. A pulse therefore arrives attenuated not at all and smeared not at all. This model is exact enough for computing $Z_{\mathrm{in}}$, reflection coefficients and stub lengths on short, low-loss runs, but it silently throws away the level budget.
 
 **Distortionless: preserving shape while losing power.** Heaviside's condition is $R/L = G/C$. Write $k = R/L = G/C$; then $R + j\omega L = L(k + j\omega)$ and $G + j\omega C = C(k + j\omega)$, so $zy = LC(k+j\omega)^{2}$ and the propagation constant becomes:
 $$\gamma = \sqrt{LC}\,(k + j\omega) = \sqrt{RG} + j\omega\sqrt{LC}$$
-Both constants come out clean: $\alpha = \sqrt{RG}$ is **independent of frequency**, $\beta = \omega\sqrt{LC}$ stays linear, and $Z_0 = \sqrt{L/C}$ stays real and frequency-flat. Uniform attenuation plus linear phase is exactly what a distortionless channel needs — amplitude scaling without dispersion.
+Both constants come out clean:
+$$\alpha = \sqrt{RG}$$
+is **independent of frequency**, $\beta = \omega\sqrt{LC}$ stays linear, and $Z_0 = \sqrt{L/C}$ stays real and frequency-flat. Uniform attenuation plus linear phase is exactly what a distortionless channel needs — amplitude scaling without dispersion.
 
 **Why the condition is a ratio, and how it is repaired.** $R/L$ and $G/C$ both have units of $\mathrm{s}^{-1}$, so the condition compares two *rates*, not two components: a line with $R = 10\ \Omega/\mathrm{m}$ and $G = 40\ \mu\mathrm{S/m}$ is not thereby distortionless, since $R/L = 4\times10^{7}\ \mathrm{s^{-1}}$ while $G/C = 4\times10^{5}\ \mathrm{s^{-1}}$. Two repairs exist: raise $G$ to $CR/L$, or raise $L$ to $RC/G$. The second is what real loading coils do, and it is the only one used in practice — adding series inductance *reduces* loss, whereas raising $G$ increases it. The classic result for the attenuation is:
 $$\alpha^{2} = \tfrac{1}{2}[\sqrt{(R^{2}+\omega^{2}L^{2})(G^{2}+\omega^{2}C^{2})} + RG - \omega^{2}LC]$$
 which has its minimum over $L$ exactly at $L = RC/G$, confirming the Heaviside condition is also the minimum-attenuation condition, not merely a phase condition.
 
-**The price of loading, and what dispersion looks like.** Making a line distortionless by raising $L$ changes everything else: $Z_0 = \sqrt{L/C}$ rises with $L$ and $v = 1/\sqrt{LC}$ falls. Raising $L$ from 250 nH/m to 25 $\mu$H/m, for instance, cuts $\alpha$ from about 0.10 Np/m to 0.02 Np/m at 100 MHz but moves $Z_0$ from 50 $\Omega$ to 500 $\Omega$ and slows the line from $2\times10^{8}$ to $2\times10^{7}$ m/s. A line that is neither lossless nor distortionless has $\beta$ that is *not* linear in $\omega$: for the un-repaired example above, $\beta = 0.0590$ rad/m at 1 MHz and $3.143$ rad/m at 100 MHz, so the implied velocity rises from $1.065\times10^{8}$ to $1.999\times10^{8}$ m/s. Low frequencies crawl, high frequencies race ahead, and a rectangular pulse acquires a rounded, trailing edge.
+**The price of loading, and what dispersion looks like.** Making a line distortionless by raising $L$ changes everything else:
+$$Z_0 = \sqrt{L/C}$$
+rises with $L$ and $v = 1/\sqrt{LC}$ falls. Raising $L$ from 250 nH/m to 25 $\mu$H/m, for instance, cuts $\alpha$ from about 0.10 Np/m to 0.02 Np/m at 100 MHz but moves $Z_0$ from 50 $\Omega$ to 500 $\Omega$ and slows the line from $2\times10^{8}$ to $2\times10^{7}$ m/s. A line that is neither lossless nor distortionless has $\beta$ that is *not* linear in $\omega$: for the un-repaired example above, $\beta = 0.0590$ rad/m at 1 MHz and $3.143$ rad/m at 100 MHz, so the implied velocity rises from $1.065\times10^{8}$ to $1.999\times10^{8}$ m/s. Low frequencies crawl, high frequencies race ahead, and a rectangular pulse acquires a rounded, trailing edge.
 
 **When to use which model.** Use the lossless model whenever the question is about impedance, reflection or matching on a short line — the error in $\beta$ is negligible and the algebra is far simpler. Use the distortionless model when the question is about pulse shape, group delay or why telephone companies wound loading coils onto their pairs. Use the exact complex $\gamma$ when the question gives you all four primary constants and asks for $\alpha$; and never mix the two, because the lossless $\alpha = 0$ and the distortionless $\alpha = \sqrt{RG}$ are answers to different questions.
 

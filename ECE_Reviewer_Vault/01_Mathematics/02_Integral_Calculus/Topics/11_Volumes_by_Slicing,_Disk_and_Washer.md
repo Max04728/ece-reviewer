@@ -11,7 +11,7 @@ prereqs: ["[[09_Plane_Areas_Cartesian]]"]
 tags: ["ece", "mathematics", "integral_calculus"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 11 — Volumes by Slicing, Disk and Washer
@@ -24,7 +24,9 @@ updated: 2026-09-23
 > [!tip] Intuition
 > A solid of revolution is a stack of thin circular slices. Add up their volumes and you get the integral — the only real work is identifying the radius of each slice, and whether it has a hole.
 
-**The slicing principle.** If a solid has cross-sectional area $A(x)$ perpendicular to the $x$-axis, its volume is $V = \int_a^b A(x)\,dx$. This is the definition, and disk and washer are just the two cases where the cross-section is a circle or an annulus. Every volume formula in this topic descends from it.
+**The slicing principle.** If a solid has cross-sectional area $A(x)$ perpendicular to the $x$-axis, its volume is:
+$$V = \int_a^b A(x)\,dx$$
+This is the definition, and disk and washer are just the two cases where the cross-section is a circle or an annulus. Every volume formula in this topic descends from it.
 
 **Disk method.** When the region between $y = f(x)$ and the $x$-axis is rotated about the $x$-axis, each slice is a disk of radius $f(x)$, so $V = \pi\int_a^b [f(x)]^2\,dx$. The radius is always the *distance from the curve to the axis of rotation*, and if the axis is not the $x$-axis that distance must be measured accordingly.
 

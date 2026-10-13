@@ -11,7 +11,7 @@ prereqs: ["[[07_Laplace_Transform_Pairs]]"]
 tags: ["ece", "mathematics", "advanced_engineering_math"]
 status: not-started
 confidence: 0
-updated: 2026-09-23
+updated: 2026-09-26
 ---
 
 # 09 — Unit Step, Dirac and Periodic Functions
@@ -34,7 +34,9 @@ for any $f$ continuous at $a$. It is the derivative of the unit step and the der
 
 **Periodic waveforms and the geometric factor.** A signal that repeats with period $T$ need not be transformed from scratch:
 $$\mathcal{L}\{f(t)\} = \frac{1}{1-e^{-sT}}\int_{0}^{T}f(t)e^{-st}\,dt$$
-for $\mathrm{Re}\,s>0$. The integral handles one period and the geometric factor $\frac{1}{1-e^{-sT}}$ sums the infinite train of copies (it is $\sum_{n=0}^{\infty}e^{-nsT}$). Any periodic signal can also be written as a shifted-step superposition, which is often faster but produces the same result after geometric-series summation.
+for $\mathrm{Re}\,s>0$. The integral handles one period and the geometric factor $\frac{1}{1-e^{-sT}}$ sums the infinite train of copies (it is:
+$$\sum_{n=0}^{\infty}e^{-nsT}$$
+). Any periodic signal can also be written as a shifted-step superposition, which is often faster but produces the same result after geometric-series summation.
 
 **Where the representation breaks.** A signal with a jump must be written with the step at the correct side of the jump; the value at the single point $t=a$ is immaterial for the transform, but the *direction* of the jump is not. Impulses in a derivative require the $0^-$ lower limit to be captured: with $\int_{0^-}$ the impulse at the origin is included and $\mathcal{L}\{\delta\}=1$; with $\int_{0^+}$ it is excluded and the answer becomes $0$. Finally, the periodic formula requires one full period in the integral — integrating over $T/2$ silently doubles or halves the answer.
 
