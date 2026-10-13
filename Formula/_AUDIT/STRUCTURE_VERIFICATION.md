@@ -2,7 +2,7 @@
 
 - **Folder:** `C:\Users\Admin\Desktop\ECE_Reviewer\Formula`
 - **Convention source:** `FORMULA_SHEET_STYLE_GUIDE.md` (read in full before checking)
-- **Generated:** 2026-10-13 18:55:35 UTC
+- **Generated:** 2026-10-13 18:58:41 UTC
 - **Checker:** `_AUDIT/check-formula-structure.mjs` (read-only; writes only this report)
 - **Scope:** 33 subject files in Mathematics, Electronics_Engineering, EST, GEAS. Excluded as instructed: `00_Index.md` (4 files, reported separately in section 3 below), `.obsidian/`, `FORMULA_SHEET_STYLE_GUIDE.md`, `_AUDIT/`. The unrelated `PB/` PDF folder is also untouched.
 
