@@ -13,11 +13,27 @@ topics: 13
 
 $$E_{n+1} = 0.10\,E_n,\qquad \text{Ecological efficiency} = \frac{E_{n+1}}{E_n}\times100\ (\%),\qquad N_t = N_0e^{rt}$$
 
+**Symbols**
+
+- $E_n$ — energy content of trophic level $n$, in J
+- $E_{n+1}$ — energy content of the next trophic level, in J
+- $N_t$ — population size at time $t$, dimensionless
+- $N_0$ — initial population size, dimensionless
+
 **Productivity and growth** — $r$ in s⁻¹, $t$ in s, biomass in g·m⁻²·day⁻¹.
 
 $$GPP = NPP + R,\qquad NPP = GPP - R,\qquad r = \frac{\Delta N}{N\Delta t},\qquad t_{\text{double}} = \frac{\ln 2}{r}$$
 
 $$\text{Primary productivity} = \frac{\text{biomass produced}}{\text{area}\times\text{time}}$$
+
+**Symbols**
+
+- $GPP$ — gross primary productivity, total energy fixed by photosynthesis, in J·m⁻²·yr⁻¹ (or g·m⁻²·day⁻¹)
+- $NPP$ — net primary productivity, biomass remaining after respiratory loss, in J·m⁻²·yr⁻¹ (or g·m⁻²·day⁻¹)
+- $R$ — respiratory loss of the producers, in J·m⁻²·yr⁻¹ (or g·m⁻²·day⁻¹)
+- $t_{\text{double}}$ — doubling time of the population, in s
+- $\Delta N$ — change in population size over the interval, dimensionless
+- $\Delta t$ — length of the time interval, in s
 
 **Trophic pyramid:** producers → primary consumers → secondary → tertiary consumers.
 Biomass and numbers shrink at each level through respiratory loss, not only consumption.
@@ -86,9 +102,25 @@ $$\text{mg/m}^3 = \text{ppm}\times\frac{M}{24.45},\qquad \text{ppm} = \text{mg/m
 
 $$AQI = \frac{I_{\text{hi}}-I_{\text{lo}}}{C_{\text{hi}}-C_{\text{lo}}}\left(C_p - C_{\text{lo}}\right) + I_{\text{lo}},\qquad \text{good} \le 50,\ \text{moderate}\ 51\text{–}100$$
 
+**Symbols**
+
+- $AQI$ — air quality index, dimensionless
+- $C_p$ — measured ambient concentration of the pollutant, in µg/m³ (or ppm)
+- $C_{\text{hi}}$ — concentration breakpoint at or above $C_p$, in µg/m³
+- $C_{\text{lo}}$ — concentration breakpoint at or below $C_p$, in µg/m³
+- $I_{\text{hi}}$ — index value assigned to $C_{\text{hi}}$, dimensionless
+- $I_{\text{lo}}$ — index value assigned to $C_{\text{lo}}$, dimensionless
+- VOC — volatile organic compounds, the reactive organic precursors of photochemical ozone, in µg/m³
+
 **Gaussian plume** — $Q$ in g/s, $u$ in m/s, $\sigma_y,\sigma_z$ in m, $H$ = effective stack height in m.
 
 $$C = \frac{Q}{2\pi u\sigma_y\sigma_z}\,e^{-y^2/2\sigma_y^2}\left(e^{-(z-H)^2/2\sigma_z^2}+e^{-(z+H)^2/2\sigma_z^2}\right)$$
+
+**Symbols**
+
+- $C$ — ground-level pollutant concentration downwind of the stack, in µg/m³
+- $y$ — crosswind distance from the plume centreline, in m
+- $z$ — height above ground level, in m
 
 **Main sources:** CO and NO$_x$ from vehicles; SO$_2$ from sulfur-bearing fuel; PM from combustion and dust; O$_3$ photochemical from NO$_x$ + VOC; Pb historically from leaded gasoline.
 **Conditions:** 24.45 L/mol at 25 °C (22.41 L/mol at 0 °C); the plume model assumes steady state, flat terrain and no chemical reaction.
@@ -107,6 +139,14 @@ $$C = \frac{Q}{2\pi u\sigma_y\sigma_z}\,e^{-y^2/2\sigma_y^2}\left(e^{-(z-H)^2/2\
 **Global warming potential ★** — $m_i$ in mass units, GWP dimensionless relative to CO$_2$.
 
 $$\text{CO}_2\text{e} = \sum m_i\,GWP_i,\qquad \lambda = \frac1S\ \text{(K per W/m}^2\text{)}$$
+
+**Symbols**
+
+- $\text{CO}_2\text{e}$ — CO₂-equivalent emission of the mixture, in kg or t
+- $m_i$ — emitted mass of greenhouse gas $i$, in kg
+- $GWP_i$ — 100-year global warming potential of gas $i$ relative to CO₂, dimensionless
+- $\lambda$ — climate sensitivity, surface temperature change per unit radiative forcing, in K per W/m²
+- $S$ — climate sensitivity parameter, radiative forcing per unit surface temperature change, in W·m⁻²·K⁻¹
 
 **GWPs (100-year):** CO$_2$ 1, CH$_4$ 28, N$_2$O 265, CFC-12 ≈10,900, SF$_6$ 23,500.
 
@@ -141,17 +181,59 @@ $$\text{SO}_2 + \text{H}_2\text{O} + \tfrac12\text{O}_2 \to \text{H}_2\text{SO}_
 
 $$BOD_t = L_0\left(1-e^{-kt}\right),\qquad k_T = k_{20}(1.047)^{T-20}$$
 
+**Symbols**
+
+- $BOD_t$ — biochemical oxygen demand exerted after incubation time $t$, in mg/L
+- $L_0$ — ultimate (first-stage) BOD, the oxygen demand remaining at $t\to\infty$, in mg/L
+- $k$ — base-$e$ BOD reaction rate constant, in day⁻¹
+- $k_T$ — reaction rate constant at temperature $T$, in day⁻¹
+- $k_{20}$ — reaction rate constant at 20 °C, in day⁻¹
+- $T$ — incubation temperature, in °C
+
 $$\%\text{BOD removed} = \frac{BOD_{\text{in}}-BOD_{\text{out}}}{BOD_{\text{in}}}\times100$$
+
+**Symbols**
+
+- $BOD_{\text{in}}$ — influent BOD entering the treatment stage, in mg/L
+- $BOD_{\text{out}}$ — effluent BOD leaving the treatment stage, in mg/L
+- $\%\text{BOD removed}$ — BOD removal efficiency, dimensionless (per cent)
 
 **COD and solids** — all concentrations in mg/L.
 
 $$COD = \frac{(V_0-V_1)\times M\times 8000}{V_{\text{sample}}},\qquad \frac{BOD_5}{COD} \ge 0.5\ \text{is treatable}$$
 
+**Symbols**
+
+- $COD$ — chemical oxygen demand, in mg/L
+- $V_0$ — volume of ferrous ammonium sulfate titrant used for the blank, in mL
+- $V_1$ — volume of ferrous ammonium sulfate titrant used for the sample, in mL
+- $M$ — molarity of the ferrous ammonium sulfate titrant, in mol/L
+- $V_{\text{sample}}$ — volume of the water sample titrated, in mL
+- $BOD_5/COD$ — biodegradability ratio of the waste, dimensionless
+
 $$TDS = TS - TSS,\qquad TSS = \frac{\text{dry residue (mg)}}{\text{volume (L)}},\qquad Q_s = \frac{Q_wC_w + Q_rC_r}{Q_w+Q_r}$$
+
+**Symbols**
+
+- $TDS$ — total dissolved solids, in mg/L
+- $TS$ — total solids, in mg/L
+- $TSS$ — total suspended solids, in mg/L
+- $Q_s$ — solids concentration of the combined stream, in mg/L
+- $Q_w$ — wastewater flow rate, in m³/s
+- $C_w$ — solids concentration in the wastewater, in mg/L
+- $Q_r$ — receiving-water flow rate, in m³/s
+- $C_r$ — solids concentration in the receiving water, in mg/L
 
 **DO sag and saturation**
 
 $$D = DO_{\text{sat}} - DO_{\text{actual}},\qquad DO_{\text{sat}} \approx 14.6 - 0.41T + 0.008T^2\ \text{(mg/L)}$$
+
+**Symbols**
+
+- $D$ — dissolved-oxygen deficit, in mg/L
+- $DO_{\text{sat}}$ — saturation dissolved oxygen at temperature $T$, in mg/L
+- $DO_{\text{actual}}$ — measured dissolved oxygen, in mg/L
+- $T$ — water temperature, in °C
 
 **Benchmarks:** clean water DO > 7 mg/L; class C freshwater DO ≥ 5 mg/L; raw sewage BOD$_5$ 200–300 mg/L; drinking water TDS 500–1,000 mg/L.
 **Conditions:** $BOD_t$ is first-order with no nitrification or settling; $k_{20} \approx 0.23$ day⁻¹ for domestic sewage; COD ≥ BOD$_5$ always.
@@ -169,10 +251,30 @@ $$W_{\text{total}} = P\times g,\qquad V_{\text{landfill}} = \frac{W_{\text{total
 
 $$\text{Recycling rate} = \frac{\text{recycled}}{\text{generated}}\times100,\qquad \text{Diversion} = \frac{\text{recycled} + \text{composted}}{\text{generated}}\times100$$
 
+**Symbols**
+
+- $W_{\text{total}}$ — waste generated per unit time, in kg/day (use kg/yr when paired with $W_{\text{annual}}$)
+- $P$ — population served, dimensionless
+- $V_{\text{landfill}}$ — landfill volume required, in m³
+- $t_{\text{life}}$ — landfill life, in days (or yr, on the same basis as the generation rate used)
+- $W_{\text{annual}}$ — waste mass delivered per year, in kg/yr
+- $\rho$ — compacted waste density, in kg/m³
+
 **Hazardous waste characteristics (4) ★:** ignitability, corrosivity (pH ≤ 2 or ≥ 12.5), reactivity, toxicity (TCLP).
 **E-waste conversion** — $m$ in kg, $HHV$ in kWh/kg, $\eta$ dimensionless.
 
 $$E_{\text{waste}} = W_{\text{EEE}}\times\text{collection rate},\qquad E = m\times HHV\times\eta$$
+
+**Symbols**
+
+- $E_{\text{waste}}$ — mass of e-waste separately collected, in kg
+- $W_{\text{EEE}}$ — mass of electrical and electronic equipment placed on the market, in kg
+- $\text{collection rate}$ — fraction of that e-waste separately collected, dimensionless
+- $E$ — energy recovered from the waste, in kWh
+- $m$ — mass of waste processed, in kg
+- $HHV$ — higher heating value of the waste, in kWh/kg
+- $\eta$ — energy-recovery efficiency, dimensionless
+- TCLP — Toxicity Characteristic Leaching Procedure, the leach test used to classify a waste as hazardous, with leachate results reported in mg/L
 
 **E-waste hazards:** Pb (CRT solder), Hg (lamps, displays), Cd (NiCd), Cr(VI), brominated flame retardants, beryllium.
 **Management hierarchy:** reduce → reuse → recycle → compost → energy recovery → sanitary landfill.
@@ -199,7 +301,7 @@ $$E_{\text{waste}} = W_{\text{EEE}}\times\text{collection rate},\qquad E = m\tim
 - **Sec. 4:** no person or entity may undertake, and no agency may approve, an **ECP** or a project in an **ECA** without an **ECC**.
 - **Proclamation No. 2146 (1981):** lists Environmentally Critical Projects — heavy industry, resource extraction, power, infrastructure.
 - **Proclamation No. 803 (1996):** lists Environmentally Critical Areas — parks, watersheds, mangroves, reefs, caves, critical slopes, heritage and tourist sites.
-- **Sec. 9 (penalty):** fine of not less than **₱50,000**, and/or suspension or cancellation of the permit or license, plus closure.
+- **Sec. 9 (penalty):** fine **not exceeding ₱50,000** for every violation, and/or suspension or cancellation of the permit or license, plus closure.
 - **Documents:** EIS (full study), IEE (initial examination), ECC (approval), CNC (Certificate of Non-Coverage), ECC amendment, Environmental Guarantee Fund, Environmental Monitoring Fund.
 - **Agency:** DENR through the Environmental Management Bureau and the EIA Review Committee.
 - **Timing:** the ECC is secured **before** construction; it is project- and site-specific, and a change in scope needs an amendment or a new ECC.
@@ -214,19 +316,26 @@ $$E_{\text{waste}} = W_{\text{EEE}}\times\text{collection rate},\qquad E = m\tim
 ### 8. RA 8749 Clean Air Act
 
 **RA 8749 (Philippine Clean Air Act of 1999).**
-- **Sec. 5:** DENR sets **National Ambient Air Quality Guideline Values** for SO$_2$, NO$_2$, CO, O$_3$, PM$_{10}$/TSP and Pb.
-- **Sec. 17:** **Permit to Operate (PTO)** is required for stationary sources of air pollution.
+- **Sec. 12:** DENR sets **National Ambient Air Quality Guideline Values** for SO$_2$, NO$_2$, CO, O$_3$, PM$_{10}$/TSP and Pb.
+- **Sec. 16:** **Permit to Operate (PTO)** is required for stationary sources of air pollution.
 - **Sec. 19:** motor-vehicle emission testing linked to registration; anti-smoke belching enforcement.
 - **Sec. 20:** bans **incineration** of municipal, biomedical and hazardous waste, subject only to the law's limited exceptions.
 - **Sec. 25:** phase-out of **ozone-depleting substances** under the Montreal Protocol.
-- **Sec. 45 (penalties):** fine of not less than **₱10,000** but not more than **₱100,000 per day of violation**, and/or imprisonment of **1 to 6 years**.
+- **Sec. 45 (stationary-source exceedance):** fine of **not more than ₱100,000 per day of violation** — no fine floor and **no imprisonment**; PAB may order closure or suspension.
+- **Sec. 47 (other violations):** fine of ₱10,000 to ₱100,000, and/or imprisonment of **6 months to 6 years**. Do not quote Sec. 47's term as Sec. 45's.
 - **Other remedies:** Pollution Adjudication Board closure or suspension order; cleanup liability; citizen suits.
 - **Agency:** DENR-EMB, PAB and the LGUs sharing air-quality management.
+
+**Symbols**
+
+- TSP — total suspended particulates, the mass concentration of airborne particles captured on a filter, in µg/m³
+- PTO — Permit to Operate, the DENR-EMB permit required before a stationary source may emit air pollutants (administrative term, not a physical quantity)
+- PAB — Pollution Adjudication Board, the DENR body that adjudicates pollution cases and may order closure, suspension or fines (administrative term, not a physical quantity)
 
 **Conditions:** emission limits bind stationary sources at the stack, ambient limits bind the airshed; the incineration ban has no general municipal waste exemption.
 
 > [!warning] Exam trap
-> The fine is **per day of violation**, not a one-time amount — ₱10,000 to ₱100,000 daily, plus 1 to 6 years imprisonment.
+> Sec. 45 fines are **per day of violation** with a **ceiling only** (not more than ₱100,000/day) and **no imprisonment**; the ₱10,000–₱100,000 range with 6 months–6 years imprisonment is **Sec. 47**, for other violations. The two sections are the most frequently conflated pair in this Act.
 
 ---
 
@@ -255,9 +364,10 @@ $$E_{\text{waste}} = W_{\text{EEE}}\times\text{collection rate},\qquad E = m\tim
 - **Sec. 21:** **segregation at source** is mandatory for every household, commercial and industrial generator.
 - **Sec. 22:** segregated **collection** — non-segregated waste shall **not** be collected.
 - **MRF:** a **Materials Recovery Facility** is required for every barangay or cluster of barangays.
-- **Sec. 37 (prohibited acts):** littering; open dumping; open burning of solid waste; squatting in disposal facilities; unauthorized transport or collection; waste importation.
-- **Sec. 41:** closure of **open dumpsites** and conversion to **sanitary landfills** within the statutory period; open dumping is thereafter prohibited.
-- **Sec. 48 (fines and penalties):**
+- **Sec. 37:** prohibition against the use of **open dumps** for solid waste; closure of open dumpsites and conversion to **sanitary landfills** within the statutory period.
+- **Sec. 41:** the **criteria** for establishment of a sanitary landfill (site selection and design standards).
+- **Sec. 48 (prohibited acts):** littering; open dumping; open burning of solid waste; squatting in disposal facilities; unauthorized transport or collection; waste importation.
+- **Sec. 49 (fines and penalties):** penalties for the Sec. 48 acts.
   - **Littering:** fine of **₱300 to ₱1,000**, or community service of **1 to 15 days**, or both.
   - **Other prohibited acts:** the fine and/or imprisonment prescribed for the specific act, higher for repeat offenders and corporations.
 - **Hierarchy:** reduce → reuse → recycle → compost → energy recovery → sanitary landfill.
@@ -279,9 +389,15 @@ $$E_{\text{waste}} = W_{\text{EEE}}\times\text{collection rate},\qquad E = m\tim
 - **Pre-Manufacture Notification** for new substances; **Small Quantity Importation** and **Importation Clearance** for restricted chemicals.
 - **Hazardous waste chain:** generator registration → **Permit to Transport (PTT)** → **Hazardous Waste Manifest** → DENR-accredited treater.
 - **Prohibition:** no importation, entry or transit of hazardous and nuclear waste into Philippine territory.
-- **Sec. 14 (penalties):** the heaviest penalties cover illegal importation, transport or dumping of hazardous and nuclear waste — imprisonment of **6 years and 1 day to 12 years**, plus a fine and revocation of permits; lesser violations carry lower fines or shorter imprisonment.
+- **Sec. 14 (penalties):** two tiers. Violations of Sec. 13(a)–(c) (importation, manufacture, processing, sale, distribution, use or disposal of toxic substances) carry imprisonment of **6 months and 1 day to 6 years and 1 day** plus a fine of **₱600 to ₱4,000**. Illegal importation, transport or dumping of **hazardous or nuclear waste** under Sec. 13(d) carries **12 years and 1 day to 20 years**, plus a fine and revocation of permits.
 - **Agency:** DENR-EMB, with DOH, DOST and the Philippine Nuclear Research Institute; the PAB may order cleanup.
 - **Frameworks:** Basel Convention on transboundary hazardous waste movement; RA 8749 and RA 9275 for treatment emissions.
+
+**Symbols**
+
+- PCB — polychlorinated biphenyl, a persistent chlorinated organic pollutant restricted under a CCO, in mg/kg of waste
+- TCLP — Toxicity Characteristic Leaching Procedure, the leach test used to classify a waste as hazardous, with leachate results reported in mg/L
+- CCO — Chemical Control Order, a DENR-EMB issuance that bans or restricts a specific toxic substance (administrative term, not a physical quantity)
 
 **Conditions:** the law binds anyone who generates, stores, transports, treats or disposes of hazardous waste; "hazardous" follows the DENR list and the four TCLP characteristics.
 
@@ -329,6 +445,13 @@ $$P = \frac12\rho Av^3,\qquad P_{\text{actual}} = C_p\frac12\rho Av^3,\qquad C_p
 
 $$P_{\text{density}} = \frac PA = \frac12\rho v^3\ \text{(W/m}^2\text{)}$$
 
+**Symbols**
+
+- $P$ — available wind power in the free stream, in W
+- $P_{\text{actual}}$ — power actually extracted by the rotor, in W
+- $P_{\text{density}}$ — wind power per unit swept area, in W/m²
+- $C_p$ — power coefficient of the rotor, dimensionless (Betz limit $16/27$)
+
 **Cubic dependence:** a 10% rise in $v$ raises the available power by about 33%, so wind power is far more sensitive to speed than to rotor area.
 
 **Biogas from anaerobic digestion ★** — CH₄-rich gas from digesting manure, sewage sludge or food waste in the absence of oxygen.
@@ -342,6 +465,20 @@ $$\text{organic matter} \xrightarrow{\text{anaerobic}} \text{CH}_4 + \text{CO}_2
 | Solar PV | photons → DC electricity | $\eta = \frac{P_{\text{out}}}{GA}$ | $G$ = irradiance in W/m² |
 | Hydro | potential energy of the head | $P = \rho gQH\eta$ | $Q$ = flow in m³/s, $H$ = head in m |
 | Geothermal | steam or hot brine → turbine | $P = \dot m c_p\Delta T\eta$ | dry steam, flash and binary cycles |
+
+**Symbols**
+
+- $\eta$ — energy-conversion efficiency, dimensionless
+- $P_{\text{out}}$ — electrical output power, in W
+- $G$ — solar irradiance incident on the array, in W/m²
+- $A$ — collector or rotor area, in m²
+- $\rho$ — density of the working fluid, in kg/m³
+- $g$ — gravitational acceleration, in m/s²
+- $Q$ — volumetric flow rate, in m³/s
+- $H$ — hydraulic head, in m
+- $\dot m$ — mass flow rate of steam or brine, in kg/s
+- $c_p$ — specific heat capacity at constant pressure, in J·kg⁻¹·K⁻¹
+- $\Delta T$ — temperature drop across the turbine, in K
 
 **Conditions:** wind power assumes steady wind and constant air density; the tables list representative values, not statutory limits; biogas methane fraction and yield depend on feedstock and digester temperature.
 

@@ -15,15 +15,33 @@ topics: 15
 
 $$n_i^2=n_0p_0=BT^3e^{-E_g/kT}$$
 
+**Symbols**
+
+- $n_0$ — equilibrium electron concentration, in m⁻³ (this sheet quotes carrier concentrations in cm⁻³)
+- $p_0$ — equilibrium hole concentration, in m⁻³
+- $B$ — material-dependent constant of the $T^3$ fit for $n_i^2$, in m⁻⁶·K⁻³
+- $N_c$ — effective density of states in the conduction band, in m⁻³
+- $N_v$ — effective density of states in the valence band, in m⁻³
+
 $n_i$ in cm⁻³; $E_g$ in eV; $k=8.62\times10^{-5}$ eV/K; $T$ in K.
 
 **Mass action and charge neutrality**
 
 $$n_0p_0=n_i^2,\qquad p_0-n_0+N_D^+-N_A^-=0$$
 
+**Symbols**
+
+- $N_D^+$ — ionised donor concentration, in m⁻³
+- $N_A^-$ — ionised acceptor concentration, in m⁻³
+
 **Extrinsic carrier concentrations ★**
 
 $$n_0\approx N_D\ \text{(n-type)},\qquad p_0\approx N_A\ \text{(p-type)}$$
+
+**Symbols**
+
+- $N_D$ — donor (n-type) doping concentration, in m⁻³
+- $N_A$ — acceptor (p-type) doping concentration, in m⁻³
 
 $$n_0=\frac{N_D}{2}+\sqrt{\left(\frac{N_D}{2}\right)^2+n_i^2}\ \text{(exact n-type)}$$
 
@@ -36,6 +54,17 @@ $E_F$, $E_{Fi}$ in eV; $E_{Fi}$ = intrinsic Fermi level.
 **Transport mechanisms**
 
 $$J_{drift}=q(n\mu_n+p\mu_p)E\ \text{(A/cm}^2\text{)},\qquad J_{diff}=q\left(D_n\frac{dn}{dx}-D_p\frac{dp}{dx}\right)$$
+
+**Symbols**
+
+- $J_{drift}$ — drift current density, in A/m²
+- $J_{diff}$ — diffusion current density, in A/m²
+- $q$ — elementary charge, $q=1.602\times10^{-19}$ C
+- $n$, $p$ — electron and hole concentrations, in m⁻³
+- $\mu_n$, $\mu_p$ — electron and hole mobilities, in m²/(V·s) (this sheet quotes them in cm²/(V·s))
+- $E$ — applied electric field, in V/m
+- $D_n$, $D_p$ — electron and hole diffusion constants, in m²/s (this sheet quotes them in cm²/s)
+- $x$ — position along the semiconductor, in m
 
 **Einstein relation ★**
 
@@ -63,11 +92,21 @@ $V_T$ in V; $N_A,N_D$ in cm⁻³; $n_i$ in cm⁻³.
 
 $$W=x_n+x_p=\sqrt{\frac{2\varepsilon_s}{q}\left(\frac{1}{N_A}+\frac{1}{N_D}\right)(V_0-V_D)}$$
 
+**Symbols**
+
+- $x_n$, $x_p$ — depletion-region extents on the n-side and p-side, in m
+
 $\varepsilon_s$ in F/cm; $W$ in cm; $V_D$ = applied voltage (V), positive for forward bias.
 
 **Junction capacitance (transition) ★**
 
 $$C_j=\frac{\varepsilon_sA}{W}=\frac{C_{j0}}{\left(1-\frac{V_D}{V_0}\right)^m}\ \text{(F)}$$
+
+**Symbols**
+
+- $C_j$ — junction (transition) capacitance, in F
+- $C_{j0}$ — junction capacitance at zero applied bias, in F
+- $V_0$ — built-in (contact) potential, in V
 
 $A$ in cm²; $m=1/2$ (abrupt), $1/3$ (graded), $0$ (heavily doped).
 
@@ -79,9 +118,19 @@ $$N_Ax_p=N_Dx_n,\qquad \frac{x_n}{x_p}=\frac{N_A}{N_D}$$
 
 $$C_j=A\sqrt{\frac{q\varepsilon_sN_AN_D}{2(N_A+N_D)(V_0-V_D)}},\qquad C_d=\frac{\tau_T I_D}{V_T}=\frac{I_D\tau_T}{V_T}$$
 
+**Symbols**
+
+- $C_d$ — diffusion capacitance, in F
+- $\tau_T$ — minority-carrier transit time, in s
+- $I_D$ — forward diode current, in A
+
 **Contact potential from doping ratio**
 
 $$V_0=\frac{kT}{q}\ln\frac{N_AN_D}{n_i^2},\qquad E_{max}=\frac{2(V_0-V_D)}{W}\ \text{(V/cm)}$$
+
+**Symbols**
+
+- $E_{max}$ — peak electric field at the metallurgical junction, in V/m
 
 **Conditions:** abrupt junction approximation; $V_D<V_0$ for reverse bias validity; depletion approximation ignores mobile carriers inside $W$. #semiconductor
 
@@ -143,13 +192,33 @@ $$\begin{aligned}
 \text{piecewise:}\quad & V_D=V_\gamma+I_Dr_d
 \end{aligned}$$
 
+**Symbols**
+
+- $V_D$ — diode terminal voltage, in V
+- $I_D$ — diode current, in A
+- $V_\gamma$ — diode knee (cut-in) voltage, in V
+- $r_d$ — diode dynamic (AC) resistance, in $\Omega$
+
 **Load line ★**
 
 $$I_D=\frac{V_{SS}-V_D}{R_L}\ \text{(load line)},\qquad V_D=V_{SS}-I_DR_L$$
 
+**Symbols**
+
+- $V_{SS}$ — DC supply voltage, in V
+- $R_L$ — load resistance, in $\Omega$
+
 **Operating point**
 
 $$I_S\left(e^{V_D/nV_T}-1\right)=\frac{V_{SS}-V_D}{R_L},\qquad r_d=\frac{nV_T}{I_{DQ}}$$
+
+**Symbols**
+
+- $I_S$ — diode reverse saturation current, in A
+- $n$ — diode ideality factor, dimensionless
+- $V_T$ — thermal voltage, in V
+- $I_{DQ}$ — quiescent (DC) diode current at the Q point, in A
+- $V_{DQ}$ — quiescent (DC) diode voltage at the Q point, in V
 
 **Load line intercepts**
 
@@ -162,6 +231,12 @@ $$I_S\left(e^{V_D/nV_T}-1\right)=\frac{V_{SS}-V_D}{R_L},\qquad r_d=\frac{nV_T}{I
 **Voltage and current swing**
 
 $$\Delta V_D=\Delta I_Dr_d,\qquad \Delta I_D=\frac{\Delta V_{SS}}{R_L+r_d}$$
+
+**Symbols**
+
+- $\Delta V_{SS}$ — small-signal change in supply voltage, in V
+- $\Delta V_D$ — resulting small-signal diode voltage change, in V
+- $\Delta I_D$ — resulting small-signal diode current change, in A
 
 **Conditions:** DC supply $V_{SS}$ and series $R_L$; small-signal $\Delta V_{SS}\ll nV_T$ for validity of $r_d$; a silicon diode needs $V_{SS}>0.7$ V to conduct. #diode
 
@@ -182,11 +257,19 @@ $$\Delta V_D=\Delta I_Dr_d,\qquad \Delta I_D=\frac{\Delta V_{SS}}{R_L+r_d}$$
 
 $$V_{dc}=\frac{V_m}{\pi}=0.318V_m\ \text{(half-wave)},\qquad V_{dc}=\frac{2V_m}{\pi}=0.636V_m\ \text{(full-wave)}$$
 
+**Symbols**
+
+- $V_{dc}$ — average (DC) output voltage, in V
+
 $V_m$ = peak secondary voltage (V) referred to the conducting path.
 
 **Secondary requirement**
 
 $$V_m=\sqrt2V_{rms}\ \text{(each half secondary)},\qquad V_m=\sqrt2V_{rms}\ \text{(bridge)}$$
+
+**Symbols**
+
+- $V_{rms}$ — RMS secondary voltage, in V
 
 **Peak inverse voltage ★**
 
@@ -200,13 +283,34 @@ $$V_m=\sqrt2V_{rms}\ \text{(each half secondary)},\qquad V_m=\sqrt2V_{rms}\ \tex
 
 $$\theta_{cond}=180^\circ\ \text{(half-wave)},\qquad 180^\circ\ \text{per diode (full-wave)}$$
 
+**Symbols**
+
+- $\theta_{cond}$ — conduction angle per diode per cycle, in rad ($\pi$ rad = $180^\circ$)
+
 $$f_{out}=f_{in}\ \text{(half-wave)},\qquad f_{out}=2f_{in}\ \text{(full-wave)}$$
+
+**Symbols**
+
+- $f_{out}$ — output ripple frequency, in Hz
+- $f_{in}$ — input (line) frequency, in Hz
 
 **Currents and diode ratings**
 
 $$I_{dc}=\frac{V_{dc}}{R_L},\qquad I_{rms}=\frac{I_m}{2}\ \text{(half-wave)},\qquad I_{rms}=\frac{I_m}{\sqrt2}\ \text{(full-wave)}$$
 
+**Symbols**
+
+- $I_{dc}$ — average load current, in A
+- $I_{rms}$ — RMS load current, in A
+- $I_m$ — peak load (diode) current, in A
+- $R_L$ — load resistance, in $\Omega$
+
 $$I_{surge}=\frac{V_m}{R_L+r_B}\ \text{(first-cycle inrush)}$$
+
+**Symbols**
+
+- $I_{surge}$ — first-cycle inrush (surge) current, in A
+- $r_B$ — diode bulk (series) resistance, in $\Omega$
 
 **Conditions:** ideal diodes (no forward drop) unless $0.7$ V/diode is subtracted; resistive load; $V_m$ is the peak of the voltage actually applied to the conducting diode path. #rectifier
 
@@ -226,9 +330,9 @@ $r$ dimensionless; $f$ in Hz, $C$ in F, $R_L$ in $\Omega$.
 
 **Capacitor filter approximation ★**
 
-$$V_r=\frac{I_{dc}}{fC}=\frac{V_{dc}}{fCR_L}\ \text{(peak-to-peak ripple, full-wave)}$$
+$$V_r=\frac{I_{dc}}{fC}=\frac{V_{dc}}{fCR_L}\ \text{(peak-to-peak ripple, half-wave)}$$
 
-$$V_r=\frac{I_{dc}}{2fC}\ \text{(half-wave)},\qquad V_{dc}\approx V_m-\frac{V_r}{2}$$
+$$V_r=\frac{I_{dc}}{2fC}=\frac{V_{dc}}{2fCR_L}\ \text{(peak-to-peak ripple, full-wave)}$$
 
 **With diode drop**
 
@@ -269,17 +373,36 @@ $$v_o=\begin{cases}v_i,& v_i<V_{ref}\\V_{ref},& v_i\ge V_{ref}\end{cases}\ \text
 
 $$v_o=\begin{cases}V_{ref},& v_i\le V_{ref}\\v_i,& v_i>V_{ref}\end{cases}\ \text{(negative clipper)}$$
 
+**Symbols**
+
+- $v_o$ — output voltage, in V
+- $v_i$ — input voltage, in V
+- $V_{ref}$ — reference (clipping) level, in V
+
 **Clipping levels with a biased diode**
 
 $$V_{clip,top}=V_{ref}+V_\gamma\ \text{(V)},\qquad V_{clip,bot}=V_{ref}-V_\gamma$$
+
+**Symbols**
+
+- $V_{clip,top}$, $V_{clip,bot}$ — upper and lower clipping levels, in V
+- $V_\gamma$ — diode knee (cut-in) voltage, in V
 
 **Clamper shift ★**
 
 $$v_o=v_i+2V_m\ \text{(positive clamper)},\qquad v_o=v_i-2V_m\ \text{(negative clamper)}$$
 
+**Symbols**
+
+- $V_m$ — peak amplitude of the input waveform, in V
+
 **Real-diode clamp level ★**
 
 $$v_{o,peak}=V_m+V_\gamma\ \text{with }V_\gamma\approx0.7\ \text{V (Si)}$$
+
+**Symbols**
+
+- $v_{o,peak}$ — peak clamped output voltage, in V
 
 The ideal levels $v_o=v_i\pm2V_m$ are the limiting case $V_\gamma\to0$.
 
@@ -287,9 +410,20 @@ The ideal levels $v_o=v_i\pm2V_m$ are the limiting case $V_\gamma\to0$.
 
 $$v_{o,max}=2V_m,\qquad v_{o,min}=0\ \text{(positive clamper)}$$
 
+**Symbols**
+
+- $v_{o,max}$, $v_{o,min}$ — maximum and minimum clamped output voltages, in V
+
 **Voltage multipliers ★**
 
-$$V_{out}=nV_m\ \text{(half-wave, }n\text{ stages)},\qquad V_{out}=2nV_m\ \text{(full-wave)}$$
+$$V_{out}=nV_m\ \text{(half-wave, }n=\text{multiplication steps)},\qquad V_{out}=2nV_m\ \text{(full-wave, }n\text{ steps)}$$
+
+**Cockcroft–Walton cascade form** — with $N$ = number of diode-capacitor stages, $V_{out}=2NV_m$; so a doubler is $n=2$ steps but $N=1$ stage.
+
+**Symbols**
+
+- $V_{out}$ — multiplier output voltage, in V
+- $n$ — number of multiplication steps (doubler $n=2$, tripler $n=3$), dimensionless (integer)
 
 **Multiplier ratings**
 
@@ -297,7 +431,12 @@ $$V_{out}=nV_m\ \text{(half-wave, }n\text{ stages)},\qquad V_{out}=2nV_m\ \text{
 |---|---|---|
 | Doubler | $2V_m$ | $2V_m$ |
 | Tripler | $3V_m$ | $2V_m$ |
-| $n$-stage CW | $nV_m$ | $2V_m$ |
+| $n$-step multiplier | $nV_m$ | $2V_m$ |
+
+**Symbols**
+
+- $T$ — period of the input waveform, in s
+- $R$, $C$ — clamp time-constant resistance and capacitance, in $\Omega$ and F
 
 **Conditions:** ideal diodes unless $V_\gamma$ is added; clamps require $RC\gg T$ so the capacitor does not discharge during a cycle; multiplier loading reduces output; real-diode clamp levels shift up by $V_\gamma\approx0.7$ V for silicon, with the ideal levels as $V_\gamma\to0$. #diode
 
@@ -313,11 +452,32 @@ $$V_{out}=nV_m\ \text{(half-wave, }n\text{ stages)},\qquad V_{out}=2nV_m\ \text{
 
 $$V_L=V_Z\ \text{(regulation region)},\qquad I_S=\frac{V_S-V_Z}{R_S}$$
 
+**Symbols**
+
+- $V_L$ — regulated load voltage, in V
+- $V_Z$ — Zener (breakdown) voltage, in V
+- $I_S$ — current through the series resistor, in A
+- $V_S$ — unregulated source voltage, in V
+- $R_S$ — series (dropping) resistor, in $\Omega$
+
 $$I_Z=I_S-I_L,\qquad I_L=\frac{V_Z}{R_L}$$
+
+**Symbols**
+
+- $I_Z$ — Zener current, in A
+- $I_L$ — load current, in A
+- $R_L$ — load resistance, in $\Omega$
 
 **Series resistor bounds ★**
 
 $$R_{S,max}=\frac{V_{S,min}-V_Z}{I_{Z,min}+I_{L,max}},\qquad R_{S,min}=\frac{V_{S,max}-V_Z}{I_{Z,max}+I_{L,min}}$$
+
+**Symbols**
+
+- $R_{S,max}$, $R_{S,min}$ — upper and lower bounds on the series resistor, in $\Omega$
+- $V_{S,min}$, $V_{S,max}$ — minimum and maximum source voltage, in V
+- $I_{Z,min}$, $I_{Z,max}$ — minimum (knee) and maximum Zener current, in A
+- $I_{L,min}$, $I_{L,max}$ — minimum and maximum load current, in A
 
 $V$ in V, $I$ in A, $R_S$ in $\Omega$.
 
@@ -325,13 +485,30 @@ $V$ in V, $I$ in A, $R_S$ in $\Omega$.
 
 $$\text{Line reg}=\frac{\Delta V_L}{\Delta V_S},\qquad \text{Load reg}=\frac{\Delta V_L}{\Delta I_L}$$
 
+**Symbols**
+
+- $\Delta V_S$, $\Delta V_L$ — small changes in source and load voltage, in V
+- $\Delta I_L$ — small change in load current, in A
+
 **Zener model**
 
 $$V_Z=V_{Z0}+I_Zr_Z,\qquad r_Z=\frac{\Delta V_Z}{\Delta I_Z}\ \text{(}\Omega\text{)}$$
 
+**Symbols**
+
+- $V_{Z0}$ — Zener knee voltage (intercept of the linearised Zener model), in V
+- $r_Z$ — Zener dynamic (impedance) resistance, in $\Omega$
+- $\Delta V_Z$, $\Delta I_Z$ — small changes in Zener voltage and current, in V and A
+
 **Dissipation and temperature**
 
 $$P_Z=V_ZI_Z\ \text{(W)},\qquad P_{Z,max}=V_ZI_{Z,max},\qquad \text{TC}\approx+0.1\%/^\circ\text{C}$$
+
+**Symbols**
+
+- $P_Z$ — Zener power dissipation, in W
+- $P_{Z,max}$ — maximum rated Zener dissipation, in W
+- $\text{TC}$ — temperature coefficient of the Zener voltage, in %/K
 
 **Conditions:** Zener must remain reverse-biased in breakdown: $I_{Z,min}\le I_Z\le I_{Z,max}$; if the load is removed, all of $I_S$ flows through the Zener. #diode
 
@@ -445,6 +622,14 @@ $$r_d=\frac{\Delta V_{DS}}{\Delta I_D}\ \text{(}\Omega\text{)},\qquad \mu=g_mr_d
 
 $$I_D=\frac{k_n'}{2}\frac{W}{L}\left(V_{GS}-V_{th}\right)^2\ \text{(enhancement)},\qquad I_D=I_{DSS}\left(1-\frac{V_{GS}}{V_P}\right)^2\ \text{(depletion)}$$
 
+**Symbols**
+
+- $I_D$ — drain current, in A
+- $V_{GS}$ — gate-to-source voltage, in V
+- $I_{DSS}$ — saturation drain current at $V_{GS}=0$, in A
+- $V_P$ — pinch-off voltage, in V (negative for an n-channel device)
+- $C_{ox}$ — oxide capacitance per unit area, in F/m²
+
 $k_n'=\mu_nC_{ox}$ in A/V²; $W,L$ in µm; $V_{th}$ in V.
 
 **Triode (ohmic) region**
@@ -454,6 +639,11 @@ $$I_D=k_n'\frac{W}{L}\left[(V_{GS}-V_{th})V_{DS}-\frac{V_{DS}^2}{2}\right]$$
 **Boundary and transconductance ★**
 
 $$V_{DS}=V_{GS}-V_{th}\ \text{(saturation boundary)},\qquad g_m=k_n'\frac{W}{L}(V_{GS}-V_{th})=\frac{2I_D}{V_{GS}-V_{th}}$$
+
+**Symbols**
+
+- $V_{DS}$ — drain-to-source voltage, in V
+- $g_m$ — small-signal transconductance, in S (A/V)
 
 **MOSFET types**
 
@@ -465,6 +655,13 @@ $$V_{DS}=V_{GS}-V_{th}\ \text{(saturation boundary)},\qquad g_m=k_n'\frac{W}{L}(
 **Body effect**
 
 $$V_{th}=V_{th0}+\gamma\left(\sqrt{2\phi_F+V_{SB}}-\sqrt{2\phi_F}\right)$$
+
+**Symbols**
+
+- $V_{th0}$ — threshold voltage at zero source-body bias, in V
+- $\gamma$ — body-effect coefficient, in V$^{1/2}$
+- $\phi_F$ — Fermi (surface) potential of the substrate, in V
+- $V_{SB}$ — source-to-body (substrate) voltage, in V
 
 **Conditions:** n-channel enhancement MOSFET; saturation requires $V_{DS}\ge V_{GS}-V_{th}$; $I_G=0$, and $C_{ox}$ in F/cm² makes $k_n'$ in A/V². #mosfet
 
@@ -480,15 +677,34 @@ $$V_{th}=V_{th0}+\gamma\left(\sqrt{2\phi_F+V_{SB}}-\sqrt{2\phi_F}\right)$$
 
 $$I_L\ \text{(latching, A)}>I_H\ \text{(holding, A)},\qquad I_A>I_L\ \text{to stay on}$$
 
+**Symbols**
+
+- $I_L$ — latching current, in A
+- $I_H$ — holding current, in A
+- $I_A$ — anode current, in A
+
 Once latched, the gate loses control; the SCR turns off only when $I_A<I_H$.
 
 **SCR power and firing**
 
 $$P=V_{AK}I_A\ \text{(W)},\qquad \text{conduction angle }\theta=\pi-\alpha\ \text{(rad)}$$
 
+**Symbols**
+
+- $P$ — anode power dissipation, in W
+- $V_{AK}$ — anode-to-cathode voltage, in V
+- $\theta$ — conduction angle, in rad
+- $\alpha$ — firing (trigger) delay angle, in rad
+
 **UJT intrinsic standoff ratio ★**
 
 $$\eta=\frac{R_{B1}}{R_{B1}+R_{B2}},\qquad V_P=\eta V_{BB}+V_D$$
+
+**Symbols**
+
+- $R_{B1}$ — base-1 interbase resistance (emitter to B1), in $\Omega$
+- $R_{B2}$ — base-2 interbase resistance, in $\Omega$
+- $V_{BB}$ — interbase supply voltage, in V
 
 $\eta$ dimensionless (typ. 0.5–0.8); $V_P$ = peak voltage (V); $V_D\approx0.7$ V.
 
@@ -496,9 +712,19 @@ $\eta$ dimensionless (typ. 0.5–0.8); $V_P$ = peak voltage (V); $V_D\approx0.7$
 
 $$f=\frac{1}{RC\ln\frac{1}{1-\eta}}\ \text{(Hz)}$$
 
+**Symbols**
+
+- $f$ — UJT relaxation-oscillator frequency, in Hz
+- $R$ — timing resistance, in $\Omega$
+- $C$ — timing capacitance, in F
+
 **DIAC and TRIAC**
 
 $$V_{BO}\ \text{(DIAC breakover, V)},\qquad \text{TRIAC conducts both half-cycles}$$
+
+**Symbols**
+
+- $V_{BO}$ — DIAC breakover voltage, in V
 
 **Device comparison ★**
 
@@ -519,11 +745,19 @@ $$V_{BO}\ \text{(DIAC breakover, V)},\qquad \text{TRIAC conducts both half-cycle
 
 $$E_{ph}=\frac{hc}{\lambda}=\frac{1.24}{\lambda}\ \text{eV with }\lambda\ \text{in }\mu\text{m}$$
 
+**Symbols**
+
+- $E_{ph}$ — photon energy, in eV (SI: J)
+
 $h=6.626\times10^{-34}$ J·s, $c=3\times10^8$ m/s, $\lambda$ in m.
 
 **LED and photodiode relations**
 
 $$\lambda=\frac{hc}{E_g}\ \text{(emission wavelength)},\qquad I_{ph}=R_\lambda P_{opt}$$
+
+**Symbols**
+
+- $E_g$ — semiconductor bandgap energy, in eV (SI: J)
 
 $R_\lambda$ = responsivity in A/W, $P_{opt}$ in W, $I_{ph}$ in A.
 
@@ -531,11 +765,35 @@ $R_\lambda$ = responsivity in A/W, $P_{opt}$ in W, $I_{ph}$ in A.
 
 $$I=I_L-I_0\left(e^{V/nV_T}-1\right),\qquad V_{oc}=nV_T\ln\left(\frac{I_L}{I_0}+1\right)$$
 
+**Symbols**
+
+- $I$ — solar-cell terminal (output) current, in A
+- $I_L$ — light-generated (photo) current, in A
+- $I_0$ — diode reverse saturation current, in A
+- $V$ — solar-cell terminal voltage, in V
+- $V_{oc}$ — open-circuit voltage, in V
+- $n$ — diode ideality factor, dimensionless
+- $V_T$ — thermal voltage, in V
+
 $$P_{max}=V_{mp}I_{mp},\qquad FF=\frac{V_{mp}I_{mp}}{V_{oc}I_{sc}}=\frac{P_{max}}{V_{oc}I_{sc}}$$
+
+**Symbols**
+
+- $P_{max}$ — maximum power-point power, in W
+- $V_{mp}$, $I_{mp}$ — voltage and current at the maximum power point, in V and A
+- $FF$ — fill factor, dimensionless
+- $I_{sc}$ — short-circuit current, in A
 
 **Efficiency**
 
 $$\eta=\frac{P_{max}}{P_{in}}=\frac{V_{oc}I_{sc}FF}{P_{in}},\qquad P_{in}=1000\ \text{W/m}^2\ \text{(STC)}$$
+
+**Symbols**
+
+- $\eta$ — cell conversion efficiency, dimensionless (fraction)
+- $P_{in}$ — incident irradiance power density, in W/m²
+- STC — standard test conditions (1000 W/m², 25 °C, AM1.5 spectrum)
+- AM1.5 — air-mass 1.5 terrestrial reference spectrum, dimensionless air mass
 
 **Optoelectronic device table**
 
@@ -557,15 +815,31 @@ $$\eta=\frac{P_{max}}{P_{in}}=\frac{V_{oc}I_{sc}FF}{P_{in}},\qquad P_{in}=1000\ 
 
 $$C_j=\frac{C_0}{(1+V_R/V_0)^m},\qquad f_r=\frac{1}{2\pi\sqrt{LC_j}}$$
 
+**Symbols**
+
+- $C_0$ — junction capacitance at zero reverse bias, in F
+- $V_0$ — junction built-in (contact) potential, in V
+- $L$ — tuning inductance, in H
+
 $C_j$ in F, $V_R$ in V (reverse), $m=1/2$ abrupt, $f_r$ in Hz.
 
 **Varactor sensitivity**
 
 $$\frac{C_{max}}{C_{min}}=\left(\frac{1+V_{R,max}/V_0}{1+V_{R,min}/V_0}\right)^{-m},\qquad \text{tuning ratio }=\sqrt{\frac{C_{max}}{C_{min}}}$$
 
+**Symbols**
+
+- $C_{max}$, $C_{min}$ — maximum and minimum varactor capacitance over the tuning range, in F
+- $V_{R,max}$, $V_{R,min}$ — maximum and minimum reverse bias, in V
+
 **Schottky diode**
 
 $$V_F\approx0.3\ \text{V (Si Schottky)},\qquad t_{rr}\approx0\ \text{(no stored minority charge)}$$
+
+**Symbols**
+
+- $V_F$ — forward voltage drop, in V
+- $t_{rr}$ — reverse-recovery time, in s
 
 Metal-semiconductor junction; low forward drop and very fast switching.
 
@@ -573,7 +847,18 @@ Metal-semiconductor junction; low forward drop and very fast switching.
 
 $$I_{peak}>I_{valley}\ \text{for negative resistance},\qquad \text{NDR region between }V_P\ \text{and}\ V_V$$
 
+**Symbols**
+
+- $I_{peak}$, $I_{valley}$ — peak (maximum) and valley tunnel currents, in A
+- $V_P$ — peak-point voltage, in V
+- $V_V$ — valley-point voltage, in V
+- NDR — negative differential resistance region, between $V_P$ and $V_V$ (dimensionless label)
+
 $$\text{Figure of merit}=\frac{I_P}{I_V}\ \text{(typ. 5–10)}$$
+
+**Symbols**
+
+- $I_P$, $I_V$ — peak and valley currents of the tunnel diode, in A
 
 **Special-diode comparison ★**
 

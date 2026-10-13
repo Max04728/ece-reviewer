@@ -85,6 +85,12 @@ $$\int_{-a}^{a} f(x)dx=2\int_0^a f(x)dx\ (f\text{ even}),\qquad \int_{-a}^{a} f(
 > [!warning] Exam trap
 > For a definite integral through substitution, **change the limits**. Back-substituting to $x$ and forgetting to restore the original bounds is the most frequent mechanical error.
 
+> [!example] Calculator — the definite integral without the antiderivative
+> `∫(f(x), a, b, n)` evaluates the definite integral directly — no substitution, no partial fractions, no integration by parts. **COMP mode only**, and **radian** measure for trig.
+> **Verified:** $\int_0^{1}\frac{dx}{1+x^2}=0.785398=\pi/4$ (trapezoid gives $0.784747$, Simpson $0.785398$).
+> On a **multiple-choice** integral, evaluate each option against `∫(` — one keystroke per option, and it cannot go wrong algebraically.
+> If the integrand is undefined at an endpoint, nudge the limit (use $0.001$ instead of $0$). `∫` cannot nest with `d/dx`, `Σ`, `Π`, `Pol` or `Rec`.
+
 ---
 
 ### 3. Definite Integrals and FTC
@@ -228,11 +234,23 @@ $$\int\frac{dx}{\sqrt{a^2-x^2}}=\sin^{-1}\frac{x}{a}+C,\qquad \int\sqrt{a^2-x^2}
 
 $$A=\lim_{x\to a}(x-a)\frac{N(x)}{D(x)}=\frac{N(a)}{D'(a)}$$
 
+**Symbols**
+
+- $N(x)$ — numerator polynomial of the rational integrand (dimensionless)
+- $D(x)$ — denominator polynomial of the rational integrand (dimensionless)
+- $a$ — root of the linear factor $(x-a)$ in the denominator (dimensionless)
+- $A$ — partial-fraction coefficient of the $\frac{A}{x-a}$ term (dimensionless)
+
 **Resulting integrals**
 
 $$\int\frac{dx}{x-a}=\ln|x-a|+C,\qquad \int\frac{Ax+B}{x^2+bx+c}dx=\frac{A}{2}\ln|x^2+bx+c|+\frac{2B-Ab}{\sqrt{4c-b^2}}\tan^{-1}\frac{2x+b}{\sqrt{4c-b^2}}+C$$
 
 **Improper rational function** — if $\deg N\ge\deg D$, first perform polynomial division $N=D\,Q+R$.
+
+**Symbols**
+
+- $Q$ — quotient polynomial of the division $N\div D$, of degree $\deg N-\deg D$ (dimensionless)
+- $R$ — remainder polynomial of the division $N\div D$, of degree less than $\deg D$ (dimensionless)
 
 > [!warning] Exam trap
 > Repeated linear factors need **every** power: $\frac{1}{x(x-1)^2}=\frac{A}{x}+\frac{B}{x-1}+\frac{C}{(x-1)^2}$. Omitting the lower power makes the system unsolvable.
@@ -286,27 +304,60 @@ $$\Gamma(n)=\int_0^{\infty} x^{n-1}e^{-x}dx,\quad \Gamma(n+1)=n!,\quad \Gamma\!\
 
 $$f_{\text{ave}}=\frac{1}{b-a}\int_a^b f(x)\,dx$$
 
+**Symbols**
+
+- $f_{\text{ave}}$ — average (mean) value of $f$ over $[a,b]$, in the SI unit of $f$
+- $f(x)$ — continuous function being averaged, in the SI unit of the quantity it represents
+- $a,b$ — interval limits of the independent variable $x$, in its SI unit (s or m)
+
 **Conditions:** $f$ continuous on $[a,b]$.
 
 **Mean Value Theorem for Integrals ★**
 
 $$\int_a^b f(x)dx = f(c)(b-a)\quad \text{for some } c\in[a,b]$$
 
+**Symbols**
+
+- $c$ — point in $[a,b]$ at which $f$ equals its average value, in the SI unit of $x$
+
 **Root-mean-square (RMS) value ★**
 
 $$f_{\text{rms}}=\sqrt{\frac{1}{b-a}\int_a^b \big[f(x)\big]^2dx}$$
+
+**Symbols**
+
+- $f_{\text{rms}}$ — root-mean-square value of $f$ on $[a,b]$, in the SI unit of $f$
 
 **Periodic signals** — period $T$, full-cycle average
 
 $$f_{\text{ave}}=\frac1T\int_0^T f(t)\,dt,\qquad f_{\text{rms}}=\sqrt{\frac1T\int_0^T f^2(t)\,dt}$$
 
+**Symbols**
+
+- $T$ — period of the periodic signal, in s
+- $t$ — time, in s
+- $f(t)$ — periodic signal (voltage or current), in V or A
+
 **Sinusoid benchmarks ★**
 
 $$v(t)=V_m\sin\omega t:\quad V_{\text{ave}}=\frac{2V_m}{\pi},\qquad V_{\text{rms}}=\frac{V_m}{\sqrt2}\approx0.707V_m$$
 
+**Symbols**
+
+- $v(t)$ — instantaneous value of the sinusoid, in V
+- $V_m$ — peak (maximum) value of the sinusoid, in V
+- $\omega$ — angular frequency, in rad/s
+- $V_{\text{ave}}$ — full-wave average value $\frac{2V_m}{\pi}$, in V
+- $V_{\text{rms}}$ — RMS value $\frac{V_m}{\sqrt2}$, in V
+
 **Double-subscript / total distance**
 
 $$x_{\text{ave}}=\frac{1}{t_2-t_1}\int_{t_1}^{t_2}v(t)\,dt$$
+
+**Symbols**
+
+- $x_{\text{ave}}$ — average value of $v(t)$ over $[t_1,t_2]$ (total distance travelled per unit time), in m/s
+- $t_1,t_2$ — start and end times of the interval, in s
 
 > [!warning] Exam trap
 > Average value is $\frac{1}{b-a}\int f$, **not** $f$ at the midpoint. RMS requires squaring *before* integrating — never average first and square after.
@@ -383,27 +434,64 @@ $$x=r\cos\theta,\quad y=r\sin\theta,\quad r^2=x^2+y^2,\quad dA=r\,dr\,d\theta$$
 
 $$V=\int_a^b A(x)\,dx$$
 
+**Symbols**
+
+- $V$ — volume of the solid of revolution, in m³
+- $A(x)$ — cross-sectional area perpendicular to the $x$-axis, in m²
+- $a,b$ — limits of the solid along the $x$-axis, in m
+
 **Conditions:** $A(x)$ continuous cross-sectional area.
 
 **Disk method** — rotation about a coordinate axis
 
 $$V=\pi\int_a^b\big[f(x)\big]^2dx \quad\text{(about x-axis)},\qquad V=\pi\int_c^d\big[g(y)\big]^2dy \quad\text{(about y-axis)}$$
 
+**Symbols**
+
+- $f(x)$ — radius of the disk at position $x$, in m
+- $g(y)$ — radius of the disk at position $y$, in m
+- $c,d$ — limits of the solid along the $y$-axis, in m
+
 **Washer method ★** — rotation with a hole about the x-axis:
 
 $$V=\pi\int_a^b\Big(\big[R(x)\big]^2-\big[r(x)\big]^2\Big)dx$$
+
+**Symbols**
+
+- $R(x)$ — outer radius of the washer, in m
+- $r(x)$ — inner (hole) radius of the washer, in m
 
 **Off-axis rotation (shifted axis $y=k$)**
 
 $$V=\pi\int_a^b\Big(\big[R(x)-k\big]^2-\big[r(x)-k\big]^2\Big)dx$$
 
+**Symbols**
+
+- $k$ — position of the shifted axis of rotation $y=k$, in m
+
 **Known solids**
 
 $$V_{\text{sphere}}=\frac43\pi a^3,\qquad V_{\text{cone}}=\frac13\pi r^2h,\qquad V_{\text{torus}}=\pi r^2(2\pi R)$$
 
+**Symbols**
+
+- $V_{\text{sphere}}$ — volume of a sphere of radius $a$, in m³
+- $V_{\text{cone}}$ — volume of a right circular cone of base radius $r$ and height $h$, in m³
+- $V_{\text{torus}}$ — volume of a torus of tube radius $r$ and centre-to-axis distance $R$, in m³
+- $a$ — sphere radius, in m
+- $r$ — cone base radius (also torus tube radius), in m
+- $h$ — cone height, in m
+- $R$ — distance from the torus centre to the axis of revolution, in m
+
 **Prismoid formula (average end areas)**
 
 $$V=\frac{L}{6}\big(A_1+4A_m+A_2\big) \quad \text{(★)}$$
+
+**Symbols**
+
+- $L$ — length of the prismoid between the two end sections, in m
+- $A_1,A_2$ — areas of the two parallel end sections, in m²
+- $A_m$ — area of the mid-section, in m²
 
 > [!tip] High-yield ★
 > Locate the **axis of rotation** before choosing disk vs washer. Strip perpendicular to the axis ⇒ disk/washer; strip parallel to the axis ⇒ shells ([[02_Integral_Calculus#12. Volumes by Cylindrical Shells|Volumes by Cylindrical Shells]]).
@@ -496,9 +584,22 @@ $$ds=\sqrt{1+(y')^2}\,dx=\sqrt{dx^2+dy^2}=r\,d\theta\sqrt{1+\left(\frac{r'}{r}\r
 
 $$\bar{x}=\frac{\displaystyle\int_a^b x\,dA}{\displaystyle\int_a^b dA}=\frac{\int x\big[f(x)-g(x)\big]dx}{A},\qquad \bar{y}=\frac{1}{A}\int_a^b \frac{f(x)+g(x)}{2}\big[f(x)-g(x)\big]dx$$
 
+**Symbols**
+
+- $\bar x,\bar y$ — centroid coordinates of the plane region, in m
+- $A$ — area of the plane region, in m²
+- $dA$ — differential area element, in m²
+- $x,y$ — Cartesian coordinates in the plane, in m
+- $f(x),g(x)$ — upper and lower bounding curves of the region, in m
+
 **Area moment of inertia (second moment) ★** — $I$ in m⁴ for a plane area.
 
 $$I_x=\int_A y^2\,dA=\int \tfrac13 y^3\,dx\ \text{(area between curve and the }x\text{-axis)},\qquad I_y=\int_A x^2\,dA$$
+
+**Symbols**
+
+- $I_x$ — second moment of area about the $x$-axis, in m⁴
+- $I_y$ — second moment of area about the $y$-axis, in m⁴
 
 $$\text{Parallel-axis shift: } I_x=I_{\bar x}+A\bar y^{2},\qquad I_y=I_{\bar y}+A\bar x^{2}$$
 
@@ -510,13 +611,37 @@ $I_{\bar x},I_{\bar y}$ are the centroidal second moments, $A$ in m², $(\bar x,
 
 $$A=\int dA,\qquad Q_y=\int x\,dA=A\bar{x},\qquad Q_x=\int y\,dA=A\bar{y}$$
 
+**Symbols**
+
+- $Q_x$ — first moment of area about the $x$-axis, in m³
+- $Q_y$ — first moment of area about the $y$-axis, in m³
+
 **Composite bodies**
 
 $$\bar{x}=\frac{\sum A_i\bar{x}_i}{\sum A_i},\qquad \bar{y}=\frac{\sum A_i\bar{y}_i}{\sum A_i},\qquad \bar{z}=\frac{\sum V_i\bar{z}_i}{\sum V_i}$$
 
+**Symbols**
+
+- $A_i$ — area of the $i$th component, in m²
+- $\bar x_i,\bar y_i$ — centroid coordinates of the $i$th component, in m
+- $V_i$ — volume of the $i$th component, in m³
+- $\bar z$ — $z$-coordinate of the centroid of the composite volume, in m
+- $\bar z_i$ — $z$-coordinate of the centroid of the $i$th component, in m
+
+> [!example] Calculator — composite centroids as a weighted mean
+> The composite forms are weighted means, and $\bar x=\sum f_ix_i/\sum f_i$ is exactly what the statistics mode computes — but the **FREQ column counts repeats**, so use it only when the weights are small whole numbers.
+> For general (non-integer) areas, key the weighted mean directly. The calculator holds only `A`–`F`, `X`, `Y`, `M`, so store the three areas in `A`, `B`, `C` and the three coordinates in `X`, `Y`, `M`, then evaluate `(AX + BY + CM)/(A + B + C)`. With at most three components that beats fighting the FREQ column.
+> Repeat with the $y$-coordinates for $\bar y$; volumes work identically (areas → volumes, coordinates → $\bar z$).
+> **Verified:** the parallel-axis identity $I_x=I_{\bar x}+A\bar y^2$ is an exact algebraic check on any centroid result, and `∫(` evaluates $\int x\,dA$ and $\int dA$ numerically — take the ratio rather than doing both by hand.
+
 **Centroid by integration over a volume**
 
 $$\bar{x}=\frac{1}{V}\int x\,dV,\qquad V=\int dV$$
+
+**Symbols**
+
+- $V$ — volume of the solid, in m³
+- $dV$ — differential volume element, in m³
 
 **Pappus–Guldinus theorems ★**
 
@@ -553,32 +678,83 @@ where $\bar{r}$ = perpendicular distance from centroid to the axis of revolution
 $$W=\int_a^b F(x)\,dx \qquad \text{(units: N·m = J)}$$
 
 
+**Symbols**
+
+- $W$ — work done by the force, in J
+- $F(x)$ — applied force as a function of position $x$, in N
+- $a,b$ — start and end positions along the path, in m
+
 **Work — pumping fluids**
 
 $$W=\rho g\int_a^b A(y)\,\big(\text{lift distance}\big)\,dy,\qquad \rho g = 9810\ \text{N/m}^3\ \text{(water)}$$
 
+**Symbols**
+
+- $\rho$ — mass density of the fluid, in kg/m³
+- $g$ — gravitational acceleration, in m/s² (9.81 for water)
+- $A(y)$ — horizontal cross-sectional area of the fluid layer at vertical position $y$, in m²
+- $y$ — vertical position of the fluid layer measured from the chosen reference level, in m
+
 $$W=\int_a^b (\gamma)\,(A(y))\,(d-y)\,dy \quad \text{(★)}$$
+
+**Symbols**
+
+- $\gamma=\rho g$ — specific weight of the fluid, in N/m³
+- $d$ — level of the discharge point measured from the same reference as $y$, so that $d-y$ is the lift distance, in m
 
 **Hooke's law**
 
 $$F=kx\ (k\ \text{in N/m}),\qquad W=\int_0^{x_1}kx\,dx=\frac12kx_1^2$$
 
+**Symbols**
+
+- $F$ — spring force, in N
+- $k$ — spring constant (stiffness), in N/m
+- $x$ — displacement from the unstretched position, in m
+- $x_1$ — spring displacement at the upper integration limit, in m
+
 **Spring work between positions**
 
 $$W=\frac{k}{2}\big(x_2^2-x_1^2\big)$$
+
+**Symbols**
+
+- $x_1,x_2$ — the two spring displacements between which the work is computed, in m
 
 **Hydrostatic force on a plate ★**
 
 $$F=\int_a^b \rho g\,h(y)\,w(y)\,dy = \gamma\int_a^b h\,w\,dy \qquad \text{(N)}$$
 
 
+**Symbols**
+
+- $F$ — resultant hydrostatic force on the submerged plate, in N
+- $h(y)$ — depth of the horizontal strip below the free surface, in m
+- $w(y)$ — width of the strip at that depth, in m
+
 **Centre of pressure**
 
 $$y_{cp}=\frac{\displaystyle\int y\,dF}{\displaystyle\int dF}=\bar{y}+\frac{I_{xc}}{A\bar{y}} \quad \text{(★)}$$
 
+**Symbols**
+
+- $y_{cp}$ — depth of the centre of pressure below the free surface, in m
+- $\bar y$ — depth of the plate centroid below the free surface, in m
+- $I_{xc}$ — second moment of the plate area about the centroidal axis parallel to the free surface, in m⁴
+- $A$ — submerged area of the plate, in m²
+- $dF$ — differential force on the strip at depth $y$, in N
+
 **Work–energy forms**
 
 $$W=\Delta KE=\tfrac12m\big(v_2^2-v_1^2\big),\qquad W=\int P\,dt \quad (P\ \text{in W})$$
+
+**Symbols**
+
+- $\Delta KE$ — change in kinetic energy, in J
+- $m$ — mass of the body, in kg
+- $v_1,v_2$ — initial and final speeds, in m/s
+- $P$ — power, in W
+- $t$ — time, in s
 
 **Conditions:** force $F(x)$ continuous along the path; plate vertical, fluid of density $\rho$.
 

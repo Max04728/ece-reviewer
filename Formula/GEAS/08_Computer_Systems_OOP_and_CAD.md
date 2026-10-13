@@ -153,6 +153,13 @@ $$ (int)\,x\ \text{truncates toward zero},\qquad (double)\,i\ \text{is exact for
 
 $$ \text{pure}(f) \iff \forall x:\ f(x)\ \text{is constant and side-effect free} $$
 
+**Symbols**
+
+- $\text{pure}(f)$ — predicate asserting that the function $f$ is pure, dimensionless
+- $f$ — function being tested, dimensionless
+- $x$ — input value supplied to the function, dimensionless
+- JVM — Java Virtual Machine, the runtime that loads classes, executes Java bytecode and raises `Error`s such as `OutOfMemoryError` and `StackOverflowError` (platform name, dimensionless)
+
 **Conditions:** `finally` runs whether or not an exception is thrown and even on `return`, except when the JVM exits or the thread is killed. #software
 
 ---
@@ -188,6 +195,12 @@ $$ \text{pure}(f) \iff \forall x:\ f(x)\ \text{is constant and side-effect free}
 **Scrum vocabulary:** roles — product owner, Scrum master, development team. Artifacts — product backlog, sprint backlog, increment. Ceremonies — sprint planning, daily stand-up, sprint review, retrospective.
 
 $$ \text{sprint} \le 4\ \text{weeks (typically } 2\text{)},\qquad \text{increment} = \text{sum of completed sprint backlogs} $$
+
+**Symbols**
+
+- SDLC — software development life cycle, the staged process of requirements, design, implementation, testing, deployment and maintenance (framework name, dimensionless)
+- $\text{sprint}$ — timeboxed iteration length, at most 4 weeks, in s
+- $\text{increment}$ — working product delivered so far, the sum of the completed sprint backlogs, dimensionless
 
 **Conditions:** waterfall assumes stable, fully known requirements; iterative and agile models assume changing requirements and frequent customer feedback. #software
 
@@ -240,6 +253,10 @@ $$ \text{sprint} \le 4\ \text{weeks (typically } 2\text{)},\qquad \text{incremen
 
 $$ \text{composition} \Rightarrow \text{filled diamond},\qquad \text{aggregation} \Rightarrow \text{hollow diamond} $$
 
+**Symbols**
+
+- UML — Unified Modeling Language, the standard graphical notation for specifying, visualising and documenting the structure and behaviour of a software system, dimensionless (notation-standard name)
+
 > [!tip] High-yield ★
 > Filled diamond = **composed** (part cannot exist alone); hollow diamond = **aggregated** (part can exist alone). The diamond always sits on the **whole** end.
 
@@ -275,6 +292,11 @@ $$ \text{composition} \Rightarrow \text{filled diamond},\qquad \text{aggregation
 **Input validation ★:** check type, range and format before the system processes the data; reject or sanitize invalid input to prevent overflow, corruption and injection.
 
 $$ \text{GUI} = \text{widgets} + \text{layout} + \text{event loop} $$
+
+**Symbols**
+
+- HWND — window handle, the opaque identifier that `CreateWindow()` / `CreateWindowEx()` returns and that receives `WM_*` messages from the message loop, dimensionless (OS handle, not a quantity)
+- API — application programming interface, the set of functions, messages and data structures that an operating system or library exposes to an application, dimensionless (programmatic-contract label)
 
 > [!warning] Exam trap
 > `CreateWindow()` only registers the window class and returns a handle — the window is not visible until the message loop (`GetMessage` / `DispatchMessage`) starts pumping messages.

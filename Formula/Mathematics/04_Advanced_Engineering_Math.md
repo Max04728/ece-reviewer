@@ -48,6 +48,13 @@ $$z_1z_2=r_1r_2e^{j(\theta_1+\theta_2)},\qquad \frac{z_1}{z_2}=\frac{r_1}{r_2}e^
 > [!tip] High-yield ★
 > $\sqrt[n]{z}$ yields exactly $n$ distinct roots equally spaced by $2\pi/n$ on a circle of radius $r^{1/n}$. Exam items usually ask for the product/sum of all roots — by symmetry it is $(-1)^{n+1}$ times the constant term.
 
+> [!example] Calculator — all complex arithmetic in `CPLX` mode
+> `MODE` → `CPLX`, then type $a+bi$ directly (the imaginary unit is a labelled key in that mode) and let the calculator do the algebra:
+> `Abs` for $\lvert z\rvert$, `Arg` for the quadrant-corrected $\theta$, `Conjg` for the conjugate, `Real`/`Imag` to split a result.
+> `▶r∠θ` and `▶a+bi` convert between forms, and **`Pol(`/`Rec(` store their results into `X` and `Y` automatically** — `Pol(r, θ)` leaves $r$ in `X`, $\theta$ in `Y`.
+> **Verified:** $(3+4j)(1-2j)=11-2j$, $\lvert3+4j\rvert=5$, $\arg(3+4j)=53.1301^\circ$; manual check `Pol(1, √3)` gives $r=2$, $\theta=60^\circ$ with `X`=2, `Y`=60.
+> De Moivre powers and the $n$ roots are then one keystroke each — no repeated multiplication.
+
 ---
 
 ### 2. Cauchy-Riemann and Analytic Functions
@@ -200,6 +207,16 @@ $$f(x,y)\approx f(a,b)+f_x(a,b)(x-a)+f_y(a,b)(y-b)$$
 
 $$f(x)=P_n(x)+R_n(x),\qquad \lvert R_n\rvert\le \frac{M}{(n+1)!}\lvert x-a\rvert^{n+1},\quad M=\max\lvert f^{(n+1)}\rvert$$
 
+**Symbols**
+
+- $f(x)$ — function being approximated, in its own physical unit
+- $P_n(x)$ — $n$th-degree Taylor polynomial about $x=a$, in the units of $f(x)$
+- $R_n(x)$ — truncation error (Lagrange remainder) after the $n$th-degree term, in the units of $f(x)$
+- $M$ — maximum of $\lvert f^{(n+1)}\rvert$ on the interval, in the units of $f^{(n+1)}$
+- $x$ — evaluation point, in the units of the independent variable (e.g. in s)
+- $a$ — expansion point, in the same units as $x$
+- $n$ — degree of the approximating polynomial (non-negative integer, dimensionless)
+
 **Linear and quadratic approximation**
 
 $$f(x)\approx f(a)+f'(a)(x-a)$$
@@ -213,6 +230,16 @@ $$\sin x\approx x,\quad \cos x\approx 1-\frac{x^2}{2},\quad \tan x\approx x,\qua
 **Bounding the error term**
 
 $$\lvert E\rvert \le \frac{f''(\xi)}{2}h^2\ \text{(trapezoidal)},\qquad \lvert E\rvert\le \frac{(b-a)^5}{180n^4}\max\lvert f^{(4)}\rvert\ \text{(Simpson)}$$
+
+**Symbols**
+
+- $E$ — error of the numerical integration rule, in the units of $\int_a^b f\,dx$
+- $\xi$ — unknown interior point in $(a,b)$ at which the derivative is evaluated, in the same units as $x$
+- $h$ — subinterval width (step size), in the same units as $x$
+- $a$, $b$ — lower and upper limits of integration, in the same units as $x$
+- $n$ — number of subintervals used by Simpson's rule (positive even integer, dimensionless)
+- $f^{(4)}$ — fourth derivative of the integrand, in the units of $f$ divided by the units of $x$ to the fourth power
+- $f''$ — second derivative of the integrand, in the units of $f$ divided by the units of $x$ squared
 
 **Significant digits / relative error**
 
@@ -237,6 +264,15 @@ $$\varepsilon_{\text{rel}}=\frac{\lvert \text{true}-\text{approx}\rvert}{\lvert 
 
 $$F(s)=\mathcal{L}\{f(t)\}=\int_0^{\infty}e^{-st}f(t)\,dt,\qquad s=\sigma+j\omega\ \text{(s}^{-1}\text{)}$$
 
+**Symbols**
+
+- $f(t)$ — causal time-domain function ($f(t)=0$ for $t<0$), in V or the modelled quantity
+- $F(s)$ — Laplace transform (image) of $f(t)$, in the units of $f(t)$ times s
+- $s=\sigma+j\omega$ — complex frequency variable, in s$^{-1}$
+- $\sigma$ — real part of $s$ (exponential rate), in Np/s (s$^{-1}$)
+- $\omega$ — imaginary part of $s$ (angular frequency), in rad/s
+- $\mathcal{L}\{\cdot\}$ — Laplace transform operator
+
 **Conditions:** $f$ piecewise continuous, exponential order.
 
 **Transform pairs ★**
@@ -258,6 +294,16 @@ $$F(s)=\mathcal{L}\{f(t)\}=\int_0^{\infty}e^{-st}f(t)\,dt,\qquad s=\sigma+j\omeg
 | $\delta(t)$ | $1$ | all $s$ |
 | $u(t-a)$ | $\frac{e^{-as}}{s}$ | $\sigma>0$ |
 
+**Symbols**
+
+- ROC (region of convergence) — set of $\sigma=\operatorname{Re}s$ for which the defining integral converges, in s$^{-1}$
+- $a$ — real exponential rate (e.g. in $e^{at}$), in s$^{-1}$; time delay in $u(t-a)$, in s
+- $\sigma$ — real part of $s$, in s$^{-1}$
+- $n$ — non-negative integer exponent (dimensionless)
+- $\omega$ — angular frequency of the sinusoid, in rad/s
+- $\delta(t)$ — Dirac delta (unit impulse), in s$^{-1}$
+- $u(t-a)$ — unit step (Heaviside) delayed to $t=a$, dimensionless
+
 > [!tip] High-yield ★
 > Every transform item reduces to partial fractions plus this table. Memorize $t^{n}$ and the damped sinusoids — they cover RLC, control and vibrations in one shot.
 
@@ -273,6 +319,14 @@ $$F(s)=\mathcal{L}\{f(t)\}=\int_0^{\infty}e^{-st}f(t)\,dt,\qquad s=\sigma+j\omeg
 
 $$\mathcal{L}\{af+bg\}=aF(s)+bG(s),\qquad \mathcal{L}\{f(at)\}=\frac1aF\!\left(\frac{s}{a}\right),\ a>0$$
 
+**Symbols**
+
+- $f(t)$, $g(t)$ — causal time-domain functions, in V or the modelled quantity
+- $F(s)$, $G(s)$ — their Laplace transforms, in the units of the time function times s
+- $a$ — linear-combination weight and positive time-scaling factor (dimensionless)
+- $b$ — linear-combination weight (dimensionless)
+- $s$ — complex frequency, in s$^{-1}$
+
 $$\mathcal{L}\{f'\}=sF(s)-f(0),\qquad \mathcal{L}\{f''\}=s^2F(s)-sf(0)-f'(0)$$
 
 $$\mathcal{L}\{f^{(n)}\}=s^{n}F(s)-s^{n-1}f(0)-\dots-f^{(n-1)}(0)$$
@@ -280,6 +334,12 @@ $$\mathcal{L}\{f^{(n)}\}=s^{n}F(s)-s^{n-1}f(0)-\dots-f^{(n-1)}(0)$$
 **Integrals and multiplication**
 
 $$\mathcal{L}\left\{\int_0^t f(\tau)d\tau\right\}=\frac{F(s)}{s},\qquad \mathcal{L}\left\{\frac{f(t)}{t}\right\}=\int_s^{\infty}F(\sigma)d\sigma$$
+
+**Symbols**
+
+- $\tau$ — dummy time variable of integration, in s
+- $\sigma$ — dummy real-frequency variable of integration, in s$^{-1}$
+- $t$ — time, in s
 
 $$\mathcal{L}\{t^{n}f(t)\}=(-1)^{n}\frac{d^{n}F}{ds^{n}},\qquad \mathcal{L}\{tf(t)\}=-F'(s)$$
 
@@ -301,6 +361,11 @@ $$f(0^+)=\lim_{s\to\infty}sF(s),\qquad f(\infty)=\lim_{s\to0}sF(s)\ \text{(if th
 
 $$\mathcal{L}\{f(t)\}=\frac{1}{1-e^{-sT}}\int_0^{T}e^{-st}f(t)dt,\qquad f(t+T)=f(t)$$
 
+**Symbols**
+
+- $T$ — period of the periodic function, in s
+- $\sigma_0$ — abscissa of convergence (real part of the rightmost pole of $F(s)$; right boundary of the ROC), in s$^{-1}$
+
 **Conditions:** $f$ piecewise continuous and of exponential order with $\operatorname{Re}s>\sigma_0$; the $s$-shift takes real $a$; the $t$-shift requires $f(t-a)u(t-a)$, never $f(t-a)$ alone; differentiation theorems assume the transform of the derivative exists; the final-value theorem needs all poles of $sF(s)$ in the open LHP except at most a simple pole at $s=0$.
 
 > [!warning] Exam trap
@@ -318,9 +383,22 @@ $$\mathcal{L}\{f(t)\}=\frac{1}{1-e^{-sT}}\int_0^{T}e^{-st}f(t)dt,\qquad f(t+T)=f
 
 $$f(t)=g(t)+\big[h(t)-g(t)\big]u(t-a),\qquad \mathcal{L}\{u(t-a)\}=\frac{e^{-as}}{s},\ a>0$$
 
+**Symbols**
+
+- $f(t)$ — piecewise-defined signal, in V or the modelled quantity
+- $g(t)$ — first branch of $f(t)$, valid for $t<a$, in V
+- $h(t)$ — second branch of $f(t)$, valid for $t\ge a$, in V
+- $u(t-a)$ — unit step (Heaviside) delayed to $t=a$, dimensionless
+- $a$ — switching instant, in s
+- $s$ — complex frequency, in s$^{-1}$
+
 **Windowed (gate) function**
 
 $$\mathcal{L}\{u(t-a)-u(t-b)\}=\frac{e^{-as}-e^{-bs}}{s},\qquad a<b$$
+
+**Symbols**
+
+- $b$ — end of the gate interval ($b>a$), in s
 
 **Dirac delta ★**
 
@@ -336,6 +414,16 @@ $$\mathcal{L}\{tu(t)\}=\frac{1}{s^2},\qquad \mathcal{L}\{(t-a)u(t-a)\}=\frac{e^{
 
 $$h(t)=\mathcal{L}^{-1}\{H(s)\},\qquad y(t)=h(t)*x(t)$$
 
+**Symbols**
+
+- $H(s)$ — system transfer function, $H(s)=Y(s)/X(s)$ (dimensionless ratio)
+- $X(s)$ — Laplace transform of the input $x(t)$, in the units of $x(t)$ times s
+- $Y(s)$ — Laplace transform of the output $y(t)$, in the units of $y(t)$ times s
+- $x(t)$ — input signal, in V
+- $y(t)$ — output signal, in V
+- $h(t)$ — impulse response of the system, in V (distinct from the second-branch function $h(t)$ above)
+- $T$ — period of a periodic function, in s
+
 **Conditions:** $u(t-a)=0$ for $t<a$ and $1$ for $t>a$, undefined at $t=a$; $\delta$ is a distribution defined only under an integral, with $\int\delta(t-a)\,dt=1$; the periodic transform needs $f(t+T)=f(t)$ with $T>0$; $y=h*x$ assumes zero initial conditions.
 
 > [!tip] High-yield ★
@@ -349,9 +437,27 @@ $$h(t)=\mathcal{L}^{-1}\{H(s)\},\qquad y(t)=h(t)*x(t)$$
 
 $$f(t)=\mathcal{L}^{-1}\{F(s)\}=\frac{1}{2\pi j}\int_{c-j\infty}^{c+j\infty}F(s)e^{st}ds\quad \text{(Bromwich)}$$
 
+**Symbols**
+
+- $f(t)$ — time-domain function, in V or the modelled quantity
+- $F(s)$ — its Laplace transform, in the units of $f(t)$ times s
+- $c$ — real abscissa of the Bromwich line of integration, chosen to the right of every singularity of $F(s)$, in s$^{-1}$
+- $s$ — complex frequency, in s$^{-1}$
+- $t$ — time, in s
+
 **Partial-fraction strategy ★**
 
 $$F(s)=\frac{N(s)}{D(s)}=\sum\frac{A_i}{s-p_i}+\sum\frac{B_js+C_j}{s^2+bs+c}$$
+
+**Symbols**
+
+- $N(s)$ — numerator polynomial of $F(s)$, in the units of $F(s)\cdot D(s)$
+- $D(s)$ — denominator polynomial of $F(s)$, taken monic of degree $m$ (its powers $s^{k}$ carry the units of s$^{-k}$)
+- $p_i$ — real pole of $F(s)$ (root of $D(s)$), in s$^{-1}$
+- $A_i$ — partial-fraction coefficient (residue) at the simple pole $p_i$, in the units of $f(t)$
+- $B_j$ — numerator coefficient of the $j$th irreducible quadratic factor, in the units of $f(t)$
+- $C_j$ — constant numerator coefficient of the $j$th quadratic factor, in the units of $f(t)$ per second
+- $b$ — linear coefficient of the quadratic factor $s^2+bs+c$, in s$^{-1}$
 
 **Conditions:** $\deg N<\deg D$ (else divide first).
 
@@ -367,9 +473,30 @@ $$A_i=\lim_{s\to p_i}(s-p_i)F(s)=\frac{N(p_i)}{D'(p_i)}$$
 
 $$A_k=\frac{1}{(m-k)!}\lim_{s\to p}\frac{d^{m-k}}{ds^{m-k}}\big[(s-p)^{m}F(s)\big]$$
 
+**Symbols**
+
+- $m$ — order of the repeated pole at $s=p$ (positive integer, dimensionless)
+- $p$ — location of the repeated pole, in s$^{-1}$
+- $k$ — index of the partial-fraction coefficient, $k=1,\dots,m$ (dimensionless)
+- $A_k$ — coefficient of the $k$th repeated-pole term, in the units of $f(t)$
+
 **Complex pair** — poles $-\alpha\pm j\omega$:
 
 $$F(s)=\frac{As+B}{(s+\alpha)^2+\omega^2}\ \Rightarrow\ f(t)=e^{-\alpha t}\left(\frac{B-A\alpha}{\omega}\sin\omega t + A\cos\omega t\right)$$
+
+**Symbols**
+
+- $\alpha$ — real part of the complex pole pair (decay rate), in Np/s (s$^{-1}$)
+- $\omega$ — imaginary part of the complex pole pair (damped angular frequency), in rad/s
+- $A$ — cosine-term numerator coefficient, in the units of $f(t)$
+- $B$ — constant numerator coefficient, in the units of $f(t)$ per second
+
+> [!example] Calculator — residues by the cover-up rule, evaluated not solved
+> For a **distinct real pole** the coefficient is just $N(p_i)/D'(p_i)$ — a single evaluation, no algebra.
+> Store the pole in `A`, type `N(A)/D'(A)` and press `=`; repeat with each pole in `A` via `CALC`.
+> Polynomial roots first: `MODE` → `EQN` → `4`/`5`/`6` factors $D(s)$ for you, so the poles never have to be found by hand.
+> **Verified:** the formula $A_i=N(p_i)/D'(p_i)$ is the standard residue at a simple pole, and `EQN` returns polynomial roots exactly — so the poles and the coefficients are both exact.
+> The complex-pole pair $-\alpha\pm j\omega$ also falls to `EQN`, then substitute $\alpha$ and $\omega$ into the printed form.
 
 **Common inverses**
 
@@ -378,6 +505,12 @@ $$\frac{1}{s(s+a)}\to\frac{1-e^{-at}}{a},\qquad \frac{1}{s^2+\omega^2}\to\frac{\
 **Repeated real pole**
 
 $$\frac{1}{(s+a)^2}\to te^{-at},\qquad \frac{1}{s^2(s+a)}\to \frac{at-1+e^{-at}}{a^2}$$
+
+**Symbols**
+
+- $a$ — real pole magnitude in these inverted pairs, in s$^{-1}$
+- $Q(s)$ — quotient polynomial from dividing $N(s)$ by $D(s)$ when $\deg N\ge\deg D$, in the units of $F(s)$
+- $R(s)$ — remainder polynomial of that division ($\deg R<\deg D$), in the units of $N(s)$
 
 > [!warning] Exam trap
 > Check $\deg N<\deg D$ first. If not, divide: $F(s)=Q(s)+R(s)/D(s)$ — the polynomial part becomes $\delta$ functions and derivatives, not a time function.
@@ -577,11 +710,29 @@ $$\begin{vmatrix}a_1&b_1&c_1\\ a_2&b_2&c_2\\ a_3&b_3&c_3\end{vmatrix}=a_1\begin{
 
 **Properties of determinants** — $\det(AB)=\det A\det B$, $\det(A^{T})=\det A$, $\det(kA)=k^{n}\det A$, row swap flips sign.
 
+**Symbols**
+
+- $A$, $B$ — square matrices of the same order, entries in their own physical unit
+- $k$ — scalar multiplier (dimensionless)
+- $n$ — order of the square matrix (positive integer, dimensionless)
+- $A^{T}$ — transpose of $A$
+
 **Inverse ★**
 
 $$A^{-1}=\frac{\operatorname{adj}A}{\det A},\qquad \operatorname{adj}A=\big[\text{cofactor }C_{ij}\big]^{T},\qquad C_{ij}=(-1)^{i+j}M_{ij}$$
 
+**Symbols**
+
+- $\operatorname{adj}A$ — adjugate: transpose of the cofactor matrix, in the units of the entries of $A$ to the power $n-1$
+- $C_{ij}$ — cofactor of the entry in row $i$, column $j$, in the units of the entries of $A$ to the power $n-1$
+- $M_{ij}$ — minor: determinant of $A$ with row $i$ and column $j$ deleted, in the units of the entries of $A$ to the power $n-1$
+- $i$, $j$ — row and column indices (integer, dimensionless)
+
 $$A^{-1}A=AA^{-1}=I,\qquad (AB)^{-1}=B^{-1}A^{-1},\qquad (A^{T})^{-1}=(A^{-1})^{T}$$
+
+**Symbols**
+
+- $I$ — identity matrix (unit diagonal, zero elsewhere; dimensionless entries)
 
 **Conditions:** $\det A\neq0$ (nonsingular).
 
@@ -589,12 +740,30 @@ $$A^{-1}A=AA^{-1}=I,\qquad (AB)^{-1}=B^{-1}A^{-1},\qquad (A^{T})^{-1}=(A^{-1})^{
 
 $$\operatorname{rank}A=\text{number of nonzero rows in row echelon form},\qquad \operatorname{rank}A+\operatorname{nullity}A=n$$
 
+**Symbols**
+
+- $\operatorname{rank}A$ — rank of $A$: number of nonzero rows in row echelon form (dimensionless count)
+- $\operatorname{nullity}A$ — dimension of the null space of $A$: number of free variables, $n-\operatorname{rank}A$ (dimensionless count)
+- $n$ — number of columns of $A$ (dimensionless count; equals the matrix order for square $A$)
+
 **Trace and transpose identities**
 
 $$\operatorname{tr}(AB)=\operatorname{tr}(BA),\qquad \det A=\prod_i\lambda_i,\qquad \operatorname{tr}A=\sum_i\lambda_i$$
 
+**Symbols**
+
+- $\operatorname{tr}A$ — trace: sum of the diagonal entries, in the units of the entries of $A$
+- $\lambda_i$ — $i$th eigenvalue of $A$, in the units of the entries of $A$
+- $i$ — eigenvalue index (integer, dimensionless)
+
 > [!warning] Exam trap
 > The adjugate uses the **transpose** of the cofactor matrix. Using cofactors directly yields the inverse only for symmetric matrices by accident.
+
+> [!example] Calculator — determinant and inverse without cofactors
+> `MODE` → `MATX`: define the matrix (up to $4\times4$), then `Det` for the determinant, `Inv` for the inverse, `Trn` for the transpose.
+> `MODE` → `VCTR` gives `Dot` and the cross product, plus norms and angles, for the vector items in this part.
+> **Verified:** $\det\begin{bmatrix}4&7\\2&6\end{bmatrix}=10$ and $AA^{-1}=I$ to machine precision.
+> **Eigenvalues:** `Det(` is a MATX-mode function and `SOLVE` is COMP-only, so you **cannot** put a matrix determinant inside `SOLVE`. Expand $\det(A-\lambda I)$ into a scalar polynomial first, then either `SHIFT` `SOLVE` it with $\lambda$→`X`, or hand the expanded coefficients to `MODE` → `EQN` `4`/`5`/`6`.
 
 ---
 
@@ -627,6 +796,13 @@ $$x=\frac{\begin{vmatrix}c_1&b_1\\ c_2&b_2\end{vmatrix}}{\begin{vmatrix}a_1&b_1\
 > [!tip] High-yield ★
 > Cramer's rule is fast for $2\times2$ and $3\times3$; beyond that use elimination. If $\det A=0$, stop — Cramer does not apply.
 
+> [!example] Calculator — `EQN` beats Cramer outright
+> `MODE` → `EQN` → `1`/`2`/`3` for 2/3/4 unknowns: type the coefficients and read the solution. **No determinants, no cofactor expansion.**
+> Polynomial items take the same menu: `4`/`5`/`6` for quadratic/cubic/quartic, which replaces the quadratic formula and synthetic division. Complex roots surface with the `i` indicator.
+> Prefer this over the "regression trick" for 2 unknowns — same answer, less setup.
+> **Verified:** $2x+3y=13$, $4x-y=5$ → $x=2,y=3$; $x+y+z=6$, $2x-y+z=3$, $x+2y-z=2$ → $x=1,y=2,z=3$.
+> To test *existence* first, `MODE` → `MATX` → `Det`: a zero determinant means no unique solution, exactly the case the note tells you to stop on.
+
 ---
 
 ### 18. Eigenvalues and Eigenvectors
@@ -639,6 +815,14 @@ $$x=\frac{\begin{vmatrix}c_1&b_1\\ c_2&b_2\end{vmatrix}}{\begin{vmatrix}a_1&b_1\
 
 $$A\vec v=\lambda\vec v \iff \det(A-\lambda I)=0,\qquad (A-\lambda I)\vec v=\vec 0$$
 
+**Symbols**
+
+- $A$ — square matrix, entries in their own physical unit
+- $\vec v$ — eigenvector of $A$ (dimensionless direction)
+- $\lambda$ — eigenvalue of $A$, in the units of the entries of $A$
+- $I$ — identity matrix of the same order as $A$ (dimensionless entries)
+- $\vec 0$ — zero vector
+
 **Determination for $2\times2$**
 
 $$\lambda^2-(\operatorname{tr}A)\lambda+\det A=0,\qquad \lambda_{1,2}=\frac{\operatorname{tr}A\pm\sqrt{(\operatorname{tr}A)^2-4\det A}}{2}$$
@@ -649,11 +833,29 @@ $$\lambda^2-(\operatorname{tr}A)\lambda+\det A=0,\qquad \lambda_{1,2}=\frac{\ope
 
 $$A=PDP^{-1},\ D=\operatorname{diag}(\lambda_1,\dots,\lambda_n),\qquad A^{k}=PD^{k}P^{-1}$$
 
+**Symbols**
+
+- $P$ — modal matrix whose columns are the eigenvectors of $A$ (dimensionless)
+- $D$ — diagonal matrix of eigenvalues $\lambda_1,\dots,\lambda_n$, in the units of the entries of $A$
+- $P^{-1}$ — inverse of the modal matrix $P$
+- $k$ — integer matrix power (dimensionless)
+- $n$ — order of $A$ (positive integer, dimensionless)
+
 $$A^{n}+c_{n-1}A^{n-1}+\dots+c_1A+c_0I=0\quad \text{(Cayley–Hamilton)}$$
+
+**Symbols**
+
+- $c_i$ — coefficient of $\lambda^{i}$ in the characteristic polynomial $\det(\lambda I-A)$, in the units of the entries of $A$ to the power $n-i$ (dimensionless when the entries of $A$ are dimensionless)
 
 $$e^{At}=Pe^{Dt}P^{-1},\qquad e^{Dt}=\operatorname{diag}\big(e^{\lambda_1t},\dots,e^{\lambda_nt}\big)\ \text{(★)}$$
 
 **Symmetric matrices** — real symmetric $A$: all eigenvalues real, eigenvectors of distinct eigenvalues are orthogonal, $A=Q\Lambda Q^{T}$ with $Q$ orthogonal.
+
+**Symbols**
+
+- $Q$ — orthogonal matrix whose columns are orthonormal eigenvectors of $A$ (dimensionless)
+- $\Lambda$ — diagonal matrix of eigenvalues of $A$, in the units of the entries of $A$
+- $Q^{T}$ — transpose of $Q$ (equal to $Q^{-1}$)
 
 **Stability link** — CT system is stable iff $\operatorname{Re}\lambda_i<0$; DT system is stable iff $\lvert\lambda_i\rvert<1$. See [[06_Control_Systems#14. State Space Representation Basics|State Space Representation Basics]] and [[07_Signals_and_Systems#9. Difference Equations and Stability|Difference Equations and Stability]].
 

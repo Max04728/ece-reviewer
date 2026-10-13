@@ -133,10 +133,25 @@ $$\frac{dP}{dt}=kP,\qquad P(t)=P_0e^{kt}$$
 
 $$k>0\ \text{growth},\quad k<0\ \text{decay};\qquad t_{1/2}=\frac{\ln 2}{\lvert k\rvert}=\frac{0.693}{\lvert k\rvert}$$
 
+**Symbols**
+
+- $P(t)$ — amount present at time $t$ (population, mass or value), in the same units as $P_0$
+- $P_0$ — initial amount at $t=0$, in the same units as $P$
+- $k$ — growth/decay rate constant, in s$^{-1}$ (positive for growth, negative for decay)
+- $t$ — elapsed time, in s
+- $t_{1/2}$ — half-life, in s
 
 **Radioactive decay**
 
 $$A(t)=A_0e^{-\lambda t},\qquad \lambda=\frac{\ln 2}{t_{1/2}}\ \text{(s}^{-1}),\qquad N(t)=N_0e^{-\lambda t}$$
+
+**Symbols**
+
+- $A(t)$ — activity of the radioactive sample at time $t$, in Bq (decays per second)
+- $A_0$ — initial activity at $t=0$, in Bq
+- $N(t)$ — number of undecayed nuclei at time $t$, dimensionless
+- $N_0$ — initial number of undecayed nuclei, dimensionless
+- $\lambda$ — decay constant, in s$^{-1}$
 
 **Newton's law of cooling ★**
 
@@ -144,10 +159,20 @@ $$\frac{dT}{dt}=-k\big(T-T_m\big),\qquad T(t)=T_m+\big(T_0-T_m\big)e^{-kt}$$
 
 $$k=\frac{1}{t}\ln\frac{T_0-T_m}{T(t)-T_m} \quad \text{(★)}$$
 
+**Symbols**
+
+- $T(t)$ — temperature of the body at time $t$, in °C or K
+- $T_0$ — initial temperature of the body at $t=0$, in °C or K
+- $T_m$ — ambient (surrounding medium) temperature, in °C or K
 
 **Continuous compounding / logistic contrast**
 
 $$P=Pe^{rt};\qquad \frac{dP}{dt}=kP\!\left(1-\frac{P}{L}\right)\Rightarrow P(t)=\frac{L}{1+\left(\frac{L-P_0}{P_0}\right)e^{-kt}}$$
+
+**Symbols**
+
+- $r$ — continuous compounding rate, in s$^{-1}$ (usually quoted per year)
+- $L$ — carrying capacity of the logistic model, in the same units as $P$ (dimensionless for a population count)
 
 **Conditions:** rate of change proportional to present amount; ambient temperature $T_m$ constant.
 
@@ -246,6 +271,13 @@ $$W(y_1,y_2)=\begin{vmatrix} y_1 & y_2\\ y_1' & y_2'\end{vmatrix}=y_1y_2'-y_2y_1
 | $e^{ax}(A\cos bx+B\sin bx)$ | $e^{ax}(C\cos bx+D\sin bx)$ |
 | $x^{n}e^{ax}$ | $(A_nx^{n}+\dots+A_0)e^{ax}$ |
 
+**Symbols**
+
+- $R(x)$ — non-homogeneous (forcing) term of the ODE, in the units of $y$
+- $y_c$ — complementary solution of the associated homogeneous equation (carries the arbitrary constants)
+- $y_p$ — particular integral, one solution of the non-homogeneous ODE, in the units of $y$
+- $A,B,C,D,A_n$ — undetermined coefficients found by substitution, in the units of $y$
+
 **Duplication rule ★** — If a term of the trial already appears in $y_c$, multiply the whole trial by $x^{s}$, where $s$ = multiplicity of that root.
 
 $$y_p=x^{s}\big(\text{trial}\big)$$
@@ -257,6 +289,12 @@ $$R(x)=R_1+R_2 \Rightarrow y_p=y_{p_1}+y_{p_2}$$
 **Particular integral shortcut (constant coefficients)** — for $R=ke^{ax}$:
 
 $$y_p=\frac{ke^{ax}}{F(a)},\qquad F(a)\neq0;\ \text{else use } x^{s}\frac{ke^{ax}}{F^{(s)}(a)}$$
+
+**Symbols**
+
+- $F(a)$ — the characteristic (auxiliary) polynomial $F(m)=a_nm^{n}+\dots+a_0$ evaluated at $m=a$
+- $F^{(s)}(a)$ — the $s$-th derivative of $F(m)$ evaluated at $m=a$
+- $a$ — exponent rate in the trial $e^{ax}$, in (units of $x$)$^{-1}$
 
 **Conditions:** $R(x)$ limited to polynomials, exponentials, sines/cosines or finite products and sums of these; the method fails for $\ln x$, $1/x$ or $\tan x$ (use variation of parameters); multiply the trial by $x^{s}$ where $s$ is the multiplicity of the root in the complementary solution.
 
@@ -275,6 +313,14 @@ $$u_1=-\int\frac{y_2R}{W}dx,\qquad u_2=\int\frac{y_1R}{W}dx \quad \text{(★)}$$
 
 $$W=y_1y_2'-y_2y_1'\neq0$$
 
+**Symbols**
+
+- $y_1,y_2$ — two linearly independent solutions of the homogeneous equation $y''+P(x)y'+Q(x)y=0$
+- $y_p$ — particular integral of the non-homogeneous equation, in the units of $y$
+- $u_1,u_2$ — unknown functions that replace the constants $c_1,c_2$, in the units of $y$
+- $W$ — Wronskian of $y_1$ and $y_2$, in (units of $y$)$^2$ per unit of $x$
+- $R(x)$ — non-homogeneous (forcing) term, in the units of $y$
+
 **Conditions:** written as $y''+P(x)y'+Q(x)y=R(x)$.
 
 ![](https://www.youtube.com/watch?v=Ik3YW1JGr_A)
@@ -284,6 +330,11 @@ $$W=y_1y_2'-y_2y_1'\neq0$$
 **Third order extension**
 
 $$y_p=y_1\!\int\!\frac{W_1}{W}R\,dx+y_2\!\int\!\frac{W_2}{W}R\,dx+y_3\!\int\!\frac{W_3}{W}R\,dx,\qquad W=\begin{vmatrix}y_1&y_2&y_3\\ y_1'&y_2'&y_3'\\ y_1''&y_2''&y_3''\end{vmatrix}$$
+
+**Symbols**
+
+- $W_1,W_2,W_3$ — Wronskian determinants with column $k$ replaced by the column $(0,1,0)$; for the second-order case $W_1=-y_2$ and $W_2=y_1$, in the units of $y$
+- $y_3$ — third linearly independent solution of the homogeneous equation
 
 **General solution**
 
@@ -413,6 +464,15 @@ $$u(x,t)=\sum_{n=1}^{\infty}\sin\frac{n\pi x}{L}\left(A_n\cos\frac{n\pi ct}{L}+B
 
 $$A_n=\frac{2}{L}\int_0^L f(x)\sin\frac{n\pi x}{L}dx,\qquad B_n=\frac{2}{n\pi c}\int_0^L g(x)\sin\frac{n\pi x}{L}dx$$
 
+**Symbols**
+
+- $L$ — length of the string, in m
+- $A_n$ — coefficient of the cosine (initial-displacement) mode $n$, in m
+- $B_n$ — coefficient of the sine (initial-velocity) mode $n$, in m
+- $f(x)$ — initial displacement of the string at $t=0$, in m
+- $g(x)$ — initial transverse velocity of the string at $t=0$, in m/s
+- $n$ — mode index (integer $\ge1$, dimensionless)
+
 **D'Alembert solution**
 
 $$u(x,t)=\frac{f(x-ct)+f(x+ct)}{2}+\frac{1}{2c}\int_{x-ct}^{x+ct}g(s)\,ds$$
@@ -444,17 +504,40 @@ $u$ = temperature (°C or K), $k$ = thermal conductivity (W/m·K), $\rho$ = dens
 
 $$X''+\lambda X=0,\qquad T'+\alpha\lambda T=0 \Rightarrow T=Ce^{-\alpha\lambda t}$$
 
+**Symbols**
+
+- $\lambda$ — separation constant, in m$^{-2}$ (positive for the sine/cosine eigenfunctions)
+
 **Rod with both ends at zero ★**
 
 $$u(x,t)=\sum_{n=1}^{\infty}B_n\sin\frac{n\pi x}{L}e^{-n^2\pi^2\alpha t/L^2},\qquad B_n=\frac{2}{L}\int_0^L f(x)\sin\frac{n\pi x}{L}dx$$
+
+**Symbols**
+
+- $L$ — length of the rod, in m
+- $B_n$ — Fourier-sine coefficient of mode $n$ of the initial temperature profile, in °C or K
+- $f(x)$ — initial temperature distribution $u(x,0)$, in °C or K
+- $n$ — mode index (integer $\ge1$, dimensionless)
 
 **Steady-state with fixed end temperatures**
 
 $$u_{ss}(x)=T_1+\frac{T_2-T_1}{L}x,\qquad u(x,t)=u_{ss}(x)+u_{transient}(x,t)$$
 
+**Symbols**
+
+- $T_1$ — fixed temperature at the end $x=0$, in °C or K
+- $T_2$ — fixed temperature at the end $x=L$, in °C or K
+- $u_{ss}(x)$ — steady-state (linear) temperature profile, in °C or K
+- $x$ — position along the rod, in m
+
 **Insulated ends (zero flux)**
 
 $$u(x,t)=\frac{A_0}{2}+\sum_{n=1}^{\infty}A_n\cos\frac{n\pi x}{L}e^{-n^2\pi^2\alpha t/L^2}$$
+
+**Symbols**
+
+- $A_0$ — mean (DC) temperature term of the cosine series, in °C or K
+- $A_n$ — cosine-series coefficient of mode $n$, in °C or K
 
 **Newton's law of cooling BC** and **time constant** for the $n$-th mode:
 
@@ -471,6 +554,12 @@ $$\tau_n=\frac{L^2}{n^2\pi^2\alpha}\ \text{(s)}$$
 
 $$\nabla^2u=\frac{\partial^2u}{\partial x^2}+\frac{\partial^2u}{\partial y^2}=0,\qquad \nabla^2u=-\frac{\rho}{\varepsilon}\ \text{(Poisson, 2D charge free)}$$
 
+**Symbols**
+
+- $u$ — potential (dependent field variable), in V
+- $\rho$ — volume charge density of the source distribution, in C/m$^3$
+- $\varepsilon$ — permittivity of the medium, in F/m
+
 **Classification of second-order PDEs ★** — for $Au_{xx}+Bu_{xy}+Cu_{yy}+Du_x+Eu_y+Fu=G$ with $A,B,C$ functions of $(x,y)$.
 
 $$\Delta=B^{2}-4AC>0\ \text{(hyperbolic)},\qquad \Delta=0\ \text{(parabolic)},\qquad \Delta<0\ \text{(elliptic)}$$
@@ -483,19 +572,43 @@ Wave and telegrapher equations are hyperbolic, the heat equation is parabolic, a
 
 $$\frac{X''}{X}=-\frac{Y''}{Y}=\lambda\ \Rightarrow\ \begin{cases}X''-\lambda X=0\\ Y''+\lambda Y=0\end{cases}$$
 
+**Symbols**
+
+- $\lambda$ — separation constant, in m$^{-2}$ (its sign selects the trigonometric or the hyperbolic solution form)
+
 **Solution forms**
 
 $$u(x,y)=\big(A\cos kx+B\sin kx\big)\big(Ce^{ky}+De^{-ky}\big)$$
 
 $$u(x,y)=\big(A\cosh kx+B\sinh kx\big)\big(C\cos ky+D\sin ky\big)$$
 
+**Symbols**
+
+- $k$ — separation (wavenumber) constant, in m$^{-1}$, with $k^2=\lvert\lambda\rvert$
+- $A,B,C,D$ — arbitrary constants fixed by the boundary conditions, in the units of $u$
+
 **Rectangle with three sides grounded, top side $f(x)$ ★**
 
 $$u(x,y)=\sum_{n=1}^{\infty}B_n\sin\frac{n\pi x}{a}\sinh\frac{n\pi y}{a},\qquad B_n=\frac{2}{a\sinh\frac{n\pi b}{a}}\int_0^a f(x)\sin\frac{n\pi x}{a}dx$$
 
+**Symbols**
+
+- $a$ — width of the rectangle along $x$ (from $0$ to $a$), in m
+- $b$ — height of the rectangle along $y$ (from $0$ to $b$), in m
+- $B_n$ — Fourier-sine coefficient of mode $n$ for the top boundary, in V
+- $f(x)$ — prescribed potential on the top side $y=b$, in V
+- $n$ — mode index (integer $\ge1$, dimensionless)
+
 **Polar form (2D)**
 
 $$\nabla^2u=\frac{1}{r}\frac{\partial}{\partial r}\!\left(r\frac{\partial u}{\partial r}\right)+\frac{1}{r^2}\frac{\partial^2u}{\partial\theta^2}=0,\qquad u(r,\theta)=A_0+B_0\ln r+\sum_{n\ge1}r^{n}\big(A_n\cos n\theta+B_n\sin n\theta\big)$$
+
+**Symbols**
+
+- $A_0,B_0$ — constant and logarithmic terms of the polar series, in V
+- $A_n,B_n$ — cosine and sine coefficients of the $n$th polar harmonic, in V
+- $r$ — radial distance from the origin, in m
+- $\theta$ — polar angle, in rad
 
 **Uniqueness / mean value** — the value at any interior point equals the average over any circle centred there (no interior extrema).
 

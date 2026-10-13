@@ -40,6 +40,12 @@ topics: 11
 **Sec. 35 penalizes ★:** false statements to the Board; using another person's certificate, ID, APO card **or seal**; using a revoked or suspended certificate.
 Also: practising or using a title without registration; stamping after revocation or suspension; signing work not actually performed.
 
+**Symbols**
+
+- PRC — Professional Regulation Commission, the government agency that regulates and supervises all the professions, including electronics engineering, dimensionless (agency name)
+- BOECE — Board of Electronics Engineering (also BEE), the PRC regulatory board for the ECE profession that sets the registration requirements, dimensionless (board name)
+- APO — Accredited Professional Organization, the integrated professional organization for electronics engineers (the IECEP under RA 9292 Sec. 32), whose membership card is one of the credentials whose misuse Sec. 35 penalizes, dimensionless (organization name)
+
 **Conditions:** using any letter or word that conveys registered status while unregistered is itself the offense — intent to defraud is not an element to be proven.
 
 > [!warning] Exam trap
@@ -102,8 +108,16 @@ It also covers unregistered practice, sealing after revocation, and violation of
 - **VAS rule:** a VAS provider does **not** need a franchise; it registers with the NTC and may lease network facilities.
 - **Interconnection:** mandatory and non-discriminatory among authorized carriers, at reasonable rates.
 - **Rate regulation:** tariff approval by the NTC; universal access and lifeline rate programs for underserved areas.
-- **Tax:** public telecommunications entities are subject to the **3% franchise tax** on gross receipts, in lieu of other percentage taxes.
+- **Tax:** public telecommunications entities are subject to the **3% franchise tax** on gross receipts, in lieu of other percentage taxes. **Note:** this is a **NIRC** imposition (franchise tax on telecommunications), **not** a provision of RA 7925 — the Act contains no tax section. Verify the current rate against the NIRC before relying on it.
 - **Related laws:** RA 11202 (Mobile Number Portability, 2019) · RA 11934 (SIM Registration Act, 2022) · RA 10929 (Free Internet Access in Public Places) · RA 10844 (DICT, 2016).
+
+**Symbols**
+
+- CPCN — Certificate of Public Convenience and Necessity, the NTC authorization that a public telecommunications entity must hold before serving the public, dimensionless (permit name)
+- NTC — National Telecommunications Commission, the agency that regulates telecommunications services, issues the CPCN and registers VAS providers, dimensionless (agency name)
+- DICT — Department of Information and Communications Technology, the department created by RA 10844 (2016) to which the NTC is attached, dimensionless (agency name)
+- PTE — public telecommunications entity, a carrier offering public telecom service for compensation, which needs both a congressional franchise and a CPCN, dimensionless (carrier category name)
+- VAS — value-added service, a service that enhances a carrier's network and needs only NTC registration and no congressional franchise, dimensionless (service category name)
 
 **Conditions:** the franchise-plus-CPCN rule binds entities offering public telecom service for compensation; VAS providers need only NTC registration.
 
@@ -156,11 +170,17 @@ It also covers unregistered practice, sealing after revocation, and violation of
 
 | Offense | Imprisonment | Fine |
 |---|---|---|
-| Unauthorized processing, personal | 1–3 years | ₱500,000–₱2,000,000 |
-| Unauthorized processing, sensitive | 3–6 years | ₱2,000,000–₱5,000,000 |
-| Negligent access | 1–3 years | ₱500,000–₱2,000,000 |
-| Improper disposal | 6 months–2 years | ₱100,000–₱500,000 |
-| Concealment of breach | 1.5–5 years | ₱500,000–₱1,000,000 |
+| Unauthorized processing, personal — Sec. 25(a) | 1–3 years | ₱500,000–₱2,000,000 |
+| Unauthorized processing, sensitive — Sec. 25(b) | 3–6 years | ₱500,000–₱4,000,000 |
+| Negligent access, personal — Sec. 26(a) | 1–3 years | ₱500,000–₱2,000,000 |
+| Negligent access, sensitive — Sec. 26(b) | 3–6 years | ₱500,000–₱4,000,000 |
+| Improper disposal, personal — Sec. 27(a) | 6 months–2 years | ₱100,000–₱500,000 |
+| Improper disposal, sensitive — Sec. 27(b) | 1–3 years | ₱100,000–₱1,000,000 |
+| Concealment of breach — Sec. 30 | 1.5–5 years | ₱500,000–₱1,000,000 |
+
+**Symbols**
+
+- IRR — Implementing Rules and Regulations, the rules issued to carry RA 10173 into effect (the Data Privacy Act IRR of 2016), dimensionless (rules instrument)
 
 **Conditions:** consent is not the only lawful basis — contract, legal obligation, vital and legitimate interests also apply; the 72-hour clock runs from **knowledge**.
 
@@ -184,15 +204,22 @@ It also covers unregistered practice, sealing after revocation, and violation of
 
 - **Sec. 6 — one degree higher ★:** any crime under the Revised Penal Code committed through a computer system is punished **one degree higher** than the RPC penalty.
 - **Sec. 8 — penalty floor ★:** a fine of **at least ₱200,000**, up to a maximum commensurate to the damage incurred, in addition to imprisonment.
-- **Sec. 12 — data retention:** service providers must retain traffic data for at least **6 months**.
+- **Sec. 12:** real-time collection of traffic data by law enforcement.
+- **Sec. 13 — data retention ★:** service providers must **preserve** traffic data and subscriber information for at least **6 months** from the date of the transaction.
 - **Sec. 19:** DOJ power to order blocking or **takedown** of computer data.
 - **Sec. 24:** creation of the **Cybercrime Investigation and Coordinating Center (CICC)**; DOJ Office of Cybercrime handles investigation.
 - **Cyber libel:** libel (RPC Art. 355) through ICT, one degree higher — the Supreme Court fixed a **12-year** prescription (Disini, 2014).
 
+**Symbols**
+
+- RPC — Revised Penal Code, the penal law whose crimes, when committed through a computer system, are punished one degree higher under Sec. 6, dimensionless (statute name)
+- DOJ — Department of Justice, the department empowered under Sec. 19 to order the blocking or takedown of computer data, with its Office of Cybercrime handling investigation, dimensionless (agency name)
+- RTC — Regional Trial Court, the trial court designated to hear cybercrime cases, dimensionless (court name)
+
 **Conditions:** the one-degree-higher rule requires the RPC crime to be committed by, through or with ICT; jurisdiction is with the designated cybercrime RTC.
 
 > [!tip] High-yield ★
-> Remember three numbers: **one degree higher** (Sec. 6), **₱200,000 minimum fine** (Sec. 8), **6 months data retention** (Sec. 12).
+> Remember three numbers: **one degree higher** (Sec. 6), **₱200,000 minimum fine** (Sec. 8), **6 months data preservation** (Sec. 13 — not Sec. 12, which is real-time traffic collection).
 
 ---
 
@@ -221,8 +248,14 @@ Issued under **Article 162 of the Labor Code (PD 442)**; it applies to all workp
 - **Safety officer:** required depending on the number of workers and the risk level; the safety officer implements the OSH program and maintains accident records.
 - **Rule 1050:** work accidents and occupational illnesses must be reported to DOLE; fatal and serious accidents are investigated.
 - **RA 11058 (2018)** strengthened compliance — it requires OSH personnel, safety committees, mandatory training and reporting, and raised penalties.
-- **Penalty:** **₱20,000 to ₱100,000 per day of violation** of OSH standards (Labor Code Art. 288, as amended by RA 11058).
+- **Penalty (RA 11058 Sec. 28(a)):** administrative fine of **not more than ₱100,000 per day** until the violation is corrected — a ceiling, with **no minimum floor**. Sec. 28(b) adds a separate fine of up to ₱100,000 for the acts it enumerates.
 - Repeat violations double the fine; work stoppage or closure may also be ordered.
+
+**Symbols**
+
+- DOLE — Department of Labor and Employment, the department that issues the Occupational Safety and Health Standards (DO 13, s. 1998) and with which establishments register, dimensionless (agency name)
+- OSH — occupational safety and health, the subject matter of DO 13 (the OSHS), dimensionless (field name)
+- DO — Department Order, the form of issuance of DO 13, s. 1998, dimensionless (issuance type)
 
 **Conditions:** the OSHS is a minimum standard — stricter industry rules and the electrical/electronics codes prevail; construction follows Rule 1960.
 
@@ -247,6 +280,13 @@ Issued under **Article 162 of the Labor Code (PD 442)**; it applies to all workp
 
 - **Class I Division 1:** flammable gases or vapours present continuously, intermittently or periodically under normal operation.
 - **Required equipment:** intrinsically safe, explosion-proof or purged equipment, plus the specific wiring methods the Code prescribes.
+
+**Symbols**
+
+- PEC — Philippine Electronics Code, the Code of Technical Standards of Practice mandated by RA 9292 Sec. 30 and published by IECEP, dimensionless (code name)
+- BOECE — Board of Electronics Engineering, the PRC board that adopted the 4-book Code through Resolution No. 12, Series of 2014 as a referral document to the National Building Code (PD 1096), dimensionless (board name)
+- OFNP — optical fiber nonconductive plenum, the cable rating required for plenum (air-handling) spaces, dimensionless (cable rating)
+- OFNR — optical fiber nonconductive riser, the cable rating used for riser (vertical shaft) runs, dimensionless (cable rating)
 
 **Conditions:** as a referral document to the Building Code, compliance is enforced through building permits and occupancy, and through RA 9292 for practice; a Class I Division 1 area is judged hazardous during normal operation, so ordinary equipment and wiring methods are never acceptable there.
 

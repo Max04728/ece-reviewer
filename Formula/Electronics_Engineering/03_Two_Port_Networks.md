@@ -139,6 +139,11 @@ $$h_{11}=h_{ie},\qquad h_{12}=h_{re},\qquad h_{21}=h_{fe},\qquad h_{22}=h_{oe}$$
 
 $$h_{ie}=r_\pi\ (\Omega),\qquad h_{re}\ \text{dimensionless},\qquad h_{fe}=\beta\ \text{dimensionless},\qquad h_{oe}=\frac{1}{r_o}\ \text{(S)}$$
 
+**Symbols**
+
+- $r_\pi$ — small-signal input resistance of the CE BJT (base–emitter), in $\Omega$
+- $r_o$ — small-signal output resistance of the CE BJT (collector–emitter), in $\Omega$
+
 See [[05_Circuit_Analysis_and_Design#5. BJT Small-Signal h-Parameter Model|BJT Small-Signal h-Parameter Model]].
 
 **Conditions:** h parameters are mixed units — never add $h_{11}$ to $h_{22}$ or $h_{21}$ to $h_{12}$; measured with the appropriate port short- or open-circuited. #network
@@ -178,6 +183,14 @@ $$\begin{bmatrix}A&B\\C&D\end{bmatrix}=\prod_{k=1}^{n}\begin{bmatrix}A_k&B_k\\C_
 | Shunt $Y$ | 1 | 0 | $Y$ | 1 |
 | Line/T network | $1+Z_1Y$ | $Z_1+Z_2+Z_1Z_2Y$ | $Y$ | $1+Z_2Y$ |
 | Ideal transformer $n$ | $n$ | 0 | 0 | $1/n$ |
+
+**Symbols**
+
+- $Z$ — series impedance of the series-element block, in $\Omega$
+- $Y$ — shunt admittance of the shunt-element block, in S
+- $Z_1$ — input-side series arm impedance of the T (line) network, in $\Omega$
+- $Z_2$ — output-side series arm impedance of the T (line) network, in $\Omega$
+- $n$ — ideal transformer turns ratio, dimensionless
 
 **Conditions:** $A$, $B$, $C$, $D$ mix dimensionless, $\Omega$ and S units; $AD-BC=1$ for a reciprocal network. #network
 
@@ -306,7 +319,21 @@ $$A_v=-z_{21}\frac{Z_L}{\Delta_Z+z_{11}Z_L}$$
 
 $$G_p=\frac{P_L}{P_{in}}=\lvert A_v\rvert^2\frac{Z_{in}}{Z_L},\qquad G_T=\frac{P_L}{P_{avail}}$$
 
+**Symbols**
+
+- $G_p$ — operating power gain (load power over power entering the two-port), dimensionless
+- $G_T$ — transducer power gain (load power over power available from the source), dimensionless
+- $P_L$ — power delivered to the load, in W
+- $P_{in}$ — power entering the input port of the two-port, in W
+- $P_{avail}$ — power available from the source (under conjugate match), in W
+
 $$IL=10\log_{10}\frac{P_{L,\text{ref}}}{P_{L,\text{loaded}}}\ \text{(dB)}$$
+
+**Symbols**
+
+- $IL$ — insertion loss, in dB
+- $P_{L,\text{ref}}$ — load power in the reference case (two-port removed), in W
+- $P_{L,\text{loaded}}$ — load power with the two-port inserted, in W
 
 **Image and matched conditions**
 

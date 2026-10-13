@@ -49,15 +49,31 @@ $$\frac{|\Delta y|}{|y|} \approx \frac{|\Delta a|}{|a|} + \frac{|\Delta b|}{|b|}
 
 $$x_r = \frac{a+b}{2}\quad\text{(bisection: keep the half that still brackets the root)}$$
 
+**Symbols**
+
+- $x_r$ — approximate root (midpoint of the current bracket), in the same unit as $x$
+- $a$, $b$ — lower and upper endpoints of the current bracket, in the same unit as $x$
+
 **Conditions:** $f(x)$ continuous on $[a,b]$ and $f(a)\,f(b) < 0$.
 
 **Error bound and iterations needed for tolerance $\varepsilon_s$ ★**
 
 $$|E_t| \leq \frac{b-a}{2^{n+1}},\qquad n \geq \frac{\log_{10}(b-a) - \log_{10}\varepsilon_s}{\log_{10}2} \approx \frac{\ln\left(\frac{b-a}{\varepsilon_s}\right)}{\ln 2}$$
 
+**Symbols**
+
+- $E_t$ — true error of the root estimate, in the same unit as $x$
+- $n$ — number of bisection iterations required, dimensionless (integer)
+- $\varepsilon_s$ — preset stopping tolerance on the relative error, dimensionless (in %)
+
 **Regula falsi (false position) ★** — superlinear, but one endpoint stagnates:
 
 $$x_r = b - \frac{f(b)(a-b)}{f(a)-f(b)} = \frac{a\,f(b) - b\,f(a)}{f(b)-f(a)}$$
+
+**Symbols**
+
+- $x_r$ — regula falsi root estimate (false-position point), in the same unit as $x$
+- $f(a)$, $f(b)$ — function values at the bracket endpoints, in the same unit as $f(x)$
 
 **Convergence comparison**
 
@@ -97,6 +113,13 @@ $$x_{i+1} = x_i - \frac{f f'}{(f')^2 - f f''} \quad\text{or}\quad x_{i+1} = x_i 
 
 > [!tip] High-yield ★
 > Given $|\varepsilon_a| \leq \varepsilon_s$ and a starting value, Newton usually converges in 3–5 iterations; bisection needs ~3.3 per decimal digit.
+
+> [!example] Calculator — iterate in one keystroke, and check with `SOLVE`
+> Store the starting value in `X`, then key the Newton step **using `Ans`** so each `=` performs one iteration:
+> `Ans - f(Ans)/f'(Ans)` — press `=` repeatedly and read the convergence.
+> Better still, when the item only wants **the root**, use `SHIFT` `SOLVE` on `f(X)=0` and read `L−R` for the residual; the manual labels that line "precision of solution".
+> **Verified:** $x^{3}-2x-5=0$ → $x=2.0945514815$ with residual $<10^{-15}$, in agreement with a 60-step hand Newton iteration.
+> Use `MODE` → TABLE to **bracket** the root first when you are unsure of a starting guess.
 
 ---
 
@@ -210,6 +233,13 @@ $$I \approx \frac{3h}{8}\left[f_0 + 3f_1 + 3f_2 + f_3\right],\quad E_t = -\frac{
 | Simpson $3/8$ | 3 | $1,\,3,\,3,\,2,\,3,\,3,\dots,1$ | 3 | $h^4$ |
 | Boole / $2/45$ | 4 | $7,\,32,\,12,\,32,\,7$ | 5 | $h^6$ |
 
+> [!example] Calculator — evaluate the rule, then verify with `∫(`
+> The composite rules are weighted sums, but `Σ` cannot alternate weights on odd/even indices, so the practical route is:
+> **Let the calculator do the quadrature** with `∫(f(x), a, b, n)` and use the rule only to *show* the method or when the item specifies $n$.
+> If the item demands the rule's own arithmetic, tabulate the $f_i$ with `MODE` → TABLE, then accumulate the weighted sum in a letter variable — the alternation `4,2,4,2,…` is the only manual step.
+> **Verified:** $n=8$ on $\frac{1}{1+x^2}$ over $[0,1]$ → trapezoid $0.784747$, Simpson $0.785398$ against $\pi/4=0.785398$.
+> `∫` and `d/dx` are **COMP mode only** and require **radian** measure for trig. They cannot nest with each other or with `Σ`, `Π`, `Pol`, `Rec`.
+
 > [!tip] High-yield ★
 > Composite Simpson $1/3$ needs an **even** number of panels; $3/8$ needs a multiple of 3. Mixed panels: apply $3/8$ to 3 panels + $1/3$ to the rest.
 
@@ -223,9 +253,22 @@ $$I \approx \frac{3h}{8}\left[f_0 + 3f_1 + 3f_2 + f_3\right],\quad E_t = -\frac{
 
 $$y_{i+1} = y_i + f(x_i,y_i)\,h$$
 
+**Symbols**
+
+- $y_i$ — computed solution at the point $x_i$, in the SI unit of the dependent variable $y$
+- $y_{i+1}$ — solution advanced one step to $x_{i+1}$, in the same unit as $y$
+- $f(x_i,y_i)$ — derivative $y'$ evaluated at $(x_i,y_i)$, in the unit of $y$ per unit of $x$
+- $h = x_{i+1}-x_i$ — step size, in the same unit as $x$
+
 **Exactness case ★** — Euler's method is exact when $y'$ is constant, because the tangent coincides with the solution over every step.
 
 $$y'=c\ \Rightarrow\ y_{n+1}=y_n+ch\ \text{is exact for all }h;\qquad \text{global error }O(h)\ \text{otherwise}$$
+
+**Symbols**
+
+- $c$ — constant value of the derivative $y'$, in the unit of $y$ per unit of $x$
+- $y_n$, $y_{n+1}$ — exact solution at consecutive steps, in the same unit as $y$
+- $O(h)$ — first-order global error of the method, dimensionless
 
 **Conditions:** $y' = f(x,y)$, $y(x_0)=y_0$, step $h = x_{i+1}-x_i$.
 
@@ -233,9 +276,23 @@ $$y'=c\ \Rightarrow\ y_{n+1}=y_n+ch\ \text{is exact for all }h;\qquad \text{glob
 
 $$y_{i+1} = y_i + y'_i h + \frac{y''_i}{2}h^2 + \cdots,\qquad \text{LTE} = \frac{h^2}{2}y''(\xi) = O(h^2),\quad \text{global } O(h)$$
 
+**Symbols**
+
+- $\text{LTE}$ — local truncation error (error committed in a single step), in the same unit as $y$
+- $y''(\xi)$ — second derivative at an interior point of the step, in the unit of $y$ per unit of $x$ squared
+- $\xi$ — point inside the step interval, $x_i < \xi < x_{i+1}$, in the same unit as $x$
+- $O(h^2)$, $O(h)$ — local and global orders of the error, dimensionless
+
 **Step-halving error estimate** — $p=1$ for Euler:
 
 $$E \approx \frac{y(h/2) - y(h)}{2^p - 1}$$
+
+**Symbols**
+
+- $E$ — estimated error of the coarser solution, in the same unit as $y$
+- $y(h)$ — solution computed with step $h$, in the same unit as $y$
+- $y(h/2)$ — solution computed with half the step, $h/2$, in the same unit as $y$
+- $p$ — order of the method, dimensionless ($p=1$ for Euler)
 
 ---
 
@@ -299,9 +356,28 @@ $$x_i^{(k+1)}=\frac1{a_{ii}}\left(b_i-\sum_{j\ne i}a_{ij}x_j^{(k)}\right)\ \text
 
 $$x_i^{(k+1)}=\frac1{a_{ii}}\left(b_i-\sum_{j<i}a_{ij}x_j^{(k+1)}-\sum_{j>i}a_{ij}x_j^{(k)}\right)\ \text{(Gauss-Seidel — newest values)}$$
 
+**Symbols**
+
+- $A$ — coefficient matrix of the system, in the unit of its entries (dimensionless for a pure-coefficient system)
+- $\vec x$ — vector of unknowns, in the unit of $x_i$
+- $\vec b$ — right-hand-side vector, in the same unit as $A\vec x$
+- $x_i^{(k)}$ — value of unknown $i$ at iteration $k$, in the unit of $x_i$
+- $x_i^{(k+1)}$ — updated value of unknown $i$, in the same unit as $x_i$
+- $a_{ii}$ — diagonal entry of $A$ in row $i$ (non-zero), in the unit of the entries of $A$
+- $a_{ij}$ — off-diagonal entry of $A$ in row $i$, column $j$, in the unit of the entries of $A$
+- $b_i$ — $i$th entry of the right-hand-side vector, in the same unit as $b$
+- $k$ — iteration index, dimensionless (integer)
+- $i$, $j$ — row and column indices, dimensionless (integers)
+
 **Convergence: strict diagonal dominance ★**
 
 $$\lvert a_{ii}\rvert>\sum_{j\ne i}\lvert a_{ij}\rvert\ \text{for every }i\qquad\Rightarrow\qquad \text{both methods converge for any starting vector}$$
+
+**Symbols**
+
+- $D$ — diagonal part of $A$ (holds the $a_{ii}$), in the unit of the entries of $A$
+- $L$ — strictly lower-triangular part of $A$ (entries $a_{ij}$ with $j<i$), in the unit of the entries of $A$
+- $U$ — strictly upper-triangular part of $A$ (entries $a_{ij}$ with $j>i$), in the unit of the entries of $A$
 
 Gauss-Seidel typically converges about twice as fast as Jacobi and needs only one storage vector, which is why it is preferred when the dominance test passes.
 

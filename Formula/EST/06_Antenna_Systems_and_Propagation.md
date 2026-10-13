@@ -392,11 +392,28 @@ $$BW_{video}=4.2\ \text{MHz (NTSC)},\qquad BW_{channel}=6\ \text{MHz},\qquad f_{
 
 $$f_{video}=1.25\ \text{MHz above channel edge},\qquad f_{audio}=f_{video}+4.5\ \text{MHz},\qquad \text{vestigial sideband }0.75\ \text{MHz}$$
 
+**Symbols**
+
+- $BW_{video}$ — video baseband (luminance) bandwidth, in Hz
+- $BW_{channel}$ — total radio-frequency channel bandwidth, in Hz
+- $f_{sc}$ — colour (chrominance) subcarrier frequency, in Hz
+- $f_{video}$ — video carrier frequency measured from the lower channel edge, in Hz
+- $f_{audio}$ — audio (sound) carrier frequency, in Hz
+- NTSC — National Television System Committee, the 525-line/60 Hz analogue colour TV standard (standard name, not a quantity)
+
 Frequencies in MHz; the 6 MHz channel carries VSB video, an FM audio subcarrier and a colour subcarrier.
 
 **Scanning and resolution**
 
 $$f_{line}=\frac{N_{lines}}{2}\cdot f_{frame}\cdot\frac{1}{1-v}\ \text{(Hz)},\qquad N_{lines}=525\ \text{(NTSC)},\ 625\ \text{(PAL)},\qquad f_{frame}=30\ \text{or}\ 25\ \text{Hz}$$
+
+**Symbols**
+
+- $f_{line}$ — horizontal line (scan) rate, in Hz
+- $N_{lines}$ — number of lines per frame, dimensionless
+- $f_{frame}$ — frame rate, in Hz
+- $v$ — vertical blanking interval as a fraction of the frame period, dimensionless
+- PAL — Phase Alternating Line, the 625-line/50 Hz analogue colour TV standard (standard name, not a quantity)
 
 $f_{line}$ in Hz (horizontal line rate), $N_{lines}$ dimensionless, $f_{frame}$ in Hz, $v$ dimensionless (vertical blanking fraction); NTSC line rate is 15 734 Hz and PAL is 15 625 Hz.
 
@@ -405,6 +422,14 @@ $f_{line}$ in Hz (horizontal line rate), $N_{lines}$ dimensionless, $f_{frame}$ 
 $$BW_{ISDB\text{-}T}=6\ \text{MHz},\qquad 13\ \text{segments of }429\ \text{kHz},\qquad \text{OFDM with }QPSK/16QAM/64QAM,\qquad \text{guard interval }1/8\ \text{or}\ 1/16$$
 
 $$R_b\approx\frac{N_{carriers}\cdot b_{subcarrier}}{T_s}\ \text{(bit/s)},\qquad \text{one-segment (1seg) service for mobile},\qquad \text{Brazil/Japan/Philippines standard}$$
+
+**Symbols**
+
+- $N_{carriers}$ — number of OFDM carriers in the channel, dimensionless
+- $b_{subcarrier}$ — bits carried by one subcarrier in one OFDM symbol, dimensionless
+- $T_s$ — OFDM symbol duration including the guard interval, in s
+- $R_b$ — net payload bit rate, in bit/s
+- ISDB-T — Integrated Services Digital Broadcasting – Terrestrial, the Japanese/Philippine digital terrestrial TV standard (standard name, not a quantity)
 
 Segments dimensionless (13 per channel), subcarrier spacing 429 kHz/segment relationship as defined by the standard, $T_s$ in s (OFDM symbol), $R_b$ in bit/s; ISDB-T is the Philippine DTV standard (ISDB-Tb for Brazil).
 
@@ -424,6 +449,19 @@ $$T=2\pi\sqrt{\frac{a^3}{\mu}}\ \text{(s)},\qquad \mu=GM=3.986\times10^{14}\ \te
 
 $$v=\sqrt{\frac{\mu}{a}}\ \text{(m/s)},\qquad GEO: h\approx35\,786\ \text{km},\ T=23\ \text{h }56\ \text{min},\ v\approx3.07\ \text{km/s},\qquad \text{LEO}: h\approx500\text{–}2000\ \text{km}$$
 
+**Symbols**
+
+- $T$ — orbital period, in s
+- $a$ — orbital semi-major axis (equal to $R_E+h$ for a circular orbit), in m
+- $\mu=GM$ — Earth's gravitational parameter, in m³/s²
+- $G$ — Newtonian gravitational constant, in m³/(kg·s²)
+- $M$ — mass of the Earth, in kg
+- $R_E$ — Earth's equatorial radius, in m
+- $h$ — orbital altitude above the Earth's surface, in m
+- $v$ — orbital speed, in m/s
+- GEO — geostationary Earth orbit (equatorial, circular, prograde; orbit label, not a quantity)
+- LEO — low Earth orbit (orbit label, not a quantity)
+
 $a$ in m (semi-major axis), $h$ in m (altitude), $\mu$ in m³/s², $T$ in s, $v$ in m/s; the geostationary orbit is equatorial, circular and prograde.
 
 **Link budget, EIRP and G/T ★**
@@ -432,11 +470,37 @@ $$P_{r,dBW}=EIRP_{dBW}+G_{r,dBi}-FSPL_{dB}-L_{misc},\qquad FSPL_{dB}=92.45+20\lo
 
 $$\Bigl(\frac{C}{N_0}\Bigr)_{dBHz}=EIRP_{dBW}+G/T_{dB/K}-FSPL_{dB}+228.6\ \text{(dBW/K/Hz constant)},\qquad \frac{G}{T}=\frac{G_{r}}{T_{sys}}\ \text{(K}^{-1}\text{)}$$
 
+**Symbols**
+
+- $P_{r,dBW}$ — received carrier power, in dBW
+- $EIRP_{dBW}$ — equivalent isotropically radiated power of the transmitter, in dBW
+- $G_{r,dBi}$ — receive antenna gain, in dBi
+- $FSPL_{dB}$ — free-space path loss, in dB
+- $L_{misc}$ — miscellaneous link losses (atmospheric, pointing, feeder), in dB
+- $f_{GHz}$ — link frequency, in GHz
+- $d_{km}$ — link distance, in km
+- $C/N_0$ — carrier-to-noise-density ratio, in dBHz
+- $G/T$ — receive antenna gain-to-system-noise-temperature figure of merit, in K$^{-1}$ (or dB/K)
+- $G_r$ — receive antenna gain, dimensionless
+- $T_{sys}$ — system noise temperature referred to the receiver input, in K
+- $k$ — Boltzmann constant, $k=-228.6$ dBW/K/Hz
+- dBHz — decibels relative to a 1 Hz noise bandwidth, the unit of carrier-to-noise-density ratio (unit label, not a quantity)
+
 $\frac{G}{T}$ in K$^{-1}$ or dB/K (referenced to 1 K$^{-1}$), $T_{sys}$ in K, $C/N_0$ in dBHz, $k=-228.6$ dBW/K/Hz; $\frac{G}{T}$ is the satellite or earth-station figure of merit.
 
 **Transponder and multiple access**
 
 $$G_{xp}=G_rG_tL_{xp}\ \text{(dB)},\qquad BW_{xp}=36\ \text{or}\ 54\ \text{MHz typical},\qquad \text{FDMA/TDMA/CDMA user access},\qquad \text{bent-pipe vs regenerative}$$
+
+**Symbols**
+
+- $G_{xp}$ — transponder gain, in dB
+- $G_r$ — earth-station receive antenna gain, dimensionless
+- $G_t$ — earth-station transmit antenna gain, dimensionless
+- $L_{xp}$ — transponder loss (input filter, amplifier back-off, output filter), in dB
+- $BW_{xp}$ — transponder bandwidth, in Hz
+- FDMA, TDMA, CDMA — frequency-, time- and code-division multiple access (access-scheme labels, not quantities)
+- VSAT — very small aperture terminal, a small-dish earth station (equipment label, not a quantity)
 
 $G_{xp}$ in dB (transponder gain), $L_{xp}$ in dB (transponder loss), $BW_{xp}$ in Hz; a bent-pipe transponder translates frequency and amplifies, a regenerative one demodulates and remodulates.
 
@@ -530,6 +594,28 @@ $$P_{out}=I_{drive}\cdot\eta_{slope}\ \text{(W)},\qquad \eta_{ext}=\frac{P_{out}
 
 $$R=\frac{I_p}{P_{in}}\ \text{(A/W)},\qquad I_p=RP_{in},\qquad APD\ gain\ M\uparrow\Rightarrow SNR\uparrow,\ noise\uparrow$$
 
+**Symbols**
+
+- $P_{out}$ — optical output power, in W
+- $I_{drive}$ — source drive current, in A
+- $\eta_{slope}$ — slope efficiency of the source, in W/A
+- $\eta_{ext}$ — external quantum efficiency, dimensionless
+- $I$ — injected current, in A
+- $E_{ph}$ — photon energy, in J
+- $\lambda_{peak}$ — peak emission wavelength, in m
+- $h$ — Planck constant, in J·s
+- $c$ — speed of light in vacuum, in m/s
+- $E_g$ — bandgap energy of the source material, in J
+- $BW$ — LED emission spectral width, in nm
+- $R$ — detector responsivity, in A/W
+- $I_p$ — photocurrent, in A
+- $P_{in}$ — optical power incident on the detector, in W
+- $M$ — APD avalanche multiplication gain, dimensionless
+- SNR — signal-to-noise ratio, dimensionless (or in dB)
+- APD — avalanche photodiode (detector type, not a quantity)
+- PIN — p-intrinsic-n photodiode (detector type, not a quantity)
+- MSM — metal–semiconductor–metal photodetector (detector type, not a quantity)
+
 $P_{out}$ in W, $I_{drive}$ in A, $\eta_{slope}$ in W/A, $\eta_{ext}$ dimensionless, $E_{ph}$ in J, $E_g$ in J (bandgap), $\lambda_{peak}$ in m, $R$ in A/W (responsivity), $I_p$ in A, $M$ dimensionless (avalanche gain); LED is broadband and cheap, laser is narrowband and fast.
 
 **Power budget and margin ★**
@@ -538,11 +624,35 @@ $$P_{rx}=P_{tx}-L_{fiber}-L_{connectors}-L_{splices}-M\ \text{(dBm)},\qquad P_{r
 
 $$L_{fiber}=\alpha L\ \text{(dB)},\qquad L_{connector}\approx0.5\ \text{dB each},\qquad L_{splice}\approx0.1\ \text{dB each}$$
 
+**Symbols**
+
+- $P_{rx}$ — received optical power at the receiver, in dBm
+- $P_{tx}$ — launched optical power from the transmitter, in dBm
+- $L_{fiber}$ — total fiber attenuation loss, in dB
+- $L_{connectors}$ — total connector loss, in dB
+- $L_{splices}$ — total splice loss, in dB
+- $M$ — system margin, in dB
+- $P_{sens}$ — receiver sensitivity (minimum detectable power), in dBm
+- $\alpha$ — fiber attenuation coefficient, in dB/km
+- $L$ — fiber length, in km
+- $L_{connector}$ — loss of one connector, in dB
+- $L_{splice}$ — loss of one splice, in dB
+
 $P$ in dBm (1 mW reference), $L$ in dB, $\alpha$ in dB/km, $L$ in km, $M$ in dB (system margin, 3–6 dB typical); a budget passes when received power exceeds receiver sensitivity.
 
 **Rise time and bandwidth budget**
 
 $$t_{rise,total}=\sqrt{t_{tx}^2+t_{fiber}^2+t_{rx}^2}\ \text{(s)},\qquad BW_{system}\approx\frac{0.35}{t_{rise,total}}\ \text{(Hz)},\qquad \text{NRZ: }BW\approx\frac{R_b}{2}$$
+
+**Symbols**
+
+- $t_{rise,total}$ — total 10–90% rise time of the link, in s
+- $t_{tx}$ — transmitter rise time, in s
+- $t_{fiber}$ — fiber (dispersion) rise time, in s
+- $t_{rx}$ — receiver rise time, in s
+- $BW_{system}$ — link bandwidth, in Hz
+- $R_b$ — bit rate, in bit/s
+- NRZ — non-return-to-zero line code (line-code label, not a quantity)
 
 $t$ in s (10–90% rise times), $BW$ in Hz, $R_b$ in bit/s (bit rate); the 0.35 constant is the Gaussian-response approximation.
 

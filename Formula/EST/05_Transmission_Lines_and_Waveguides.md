@@ -160,6 +160,11 @@ $\lambda$ in m (guide wavelength on the line), $d$ in m; a quarter-wave line inv
 
 $$Z_{0,\lambda/4}=\sqrt{Z_{in}Z_L}\ \text{(}\Omega\text{)},\qquad BW\propto\frac{1}{Q},\qquad \Gamma_{max}\ \text{rises as }f\ \text{leaves }f_0,\qquad \frac{\Delta f}{f_0}\approx\frac{2}{\pi}\arccos\Bigl(\frac{2\lvert\Gamma\rvert_{max}\sqrt{Z_L/Z_{in}}}{\lvert 1-Z_L/Z_{in}\rvert}\Bigr)$$
 
+**Symbols**
+
+- $Q$ — quality factor of the load/matching section, dimensionless
+- $\ell$ — physical length of the quarter-wave transformer section, in m
+
 $Z_{0,\lambda/4}$ in $\Omega$ (geometric mean), $BW$ in Hz, $\Delta f$ in Hz, $\lvert\Gamma\rvert_{max}$ dimensionless.
 
 **Conditions:** lossless line, single-frequency matching; the quarter-wave transformer is narrowband because its impedance is exact only at $f_0=\frac{v_p}{4\ell}$ where $\ell$ is its physical length. #transmission
@@ -287,7 +292,7 @@ $v_p$ in m/s (phase velocity in the filling medium), $\mu$ in H/m, $\epsilon$ in
 | K | WR-42 | 10.67 | 4.32 | 14.05 | 18.0–26.5 |
 | Ka | WR-28 | 7.11 | 3.56 | 21.08 | 26.5–40.0 |
 
-**Conditions:** air-filled guide ($\mu=\mu_0$, $\epsilon=\epsilon_0$) with $a=2b$ in standard sizes; below $f_{c,10}$ the mode is evanescent and the guide attenuates instead of propagating. #waveguide #cutoff
+**Conditions:** air-filled guide ($\mu=\mu_0$, $\epsilon=\epsilon_0$) with $a\approx2b$ typically (real standard guides run $a/b\approx2.2$–$2.5$, e.g. WR-90 is $2.25$); below $f_{c,10}$ the mode is evanescent and the guide attenuates instead of propagating. #waveguide #cutoff
 
 ---
 
@@ -299,7 +304,9 @@ $v_p$ in m/s (phase velocity in the filling medium), $\mu$ in H/m, $\epsilon$ in
 
 **Phase and group velocity ★**
 
-$$v_p=\frac{\omega}{\beta_g}=\frac{c}{\sqrt{\epsilon_r}\sqrt{1-(f_c/f)^2}}\ \text{(m/s)},\qquad v_g=\frac{d\omega}{d\beta_g}=c\sqrt{\epsilon_r}\sqrt{1-(f_c/f)^2}\ \text{(m/s)}$$
+$$v_p=\frac{\omega}{\beta_g}=\frac{c}{\sqrt{\epsilon_r}\sqrt{1-(f_c/f)^2}}\ \text{(m/s)}$$
+
+$$v_g=\frac{d\omega}{d\beta_g}=\frac{c}{\sqrt{\epsilon_r}}\sqrt{1-(f_c/f)^2}\ \text{(m/s)}$$
 
 $$v_p\cdot v_g=v^2=\frac{c^2}{\epsilon_r},\qquad v_p>v,\qquad v_g<v,\qquad \lambda_g=\frac{v_p}{f}=\frac{v_g}{f}\cdot\frac{v_p^2}{v^2}$$
 

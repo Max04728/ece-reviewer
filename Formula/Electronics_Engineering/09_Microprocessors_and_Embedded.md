@@ -19,17 +19,38 @@ topics: 10
 
 $$T_{exec}=IC\times CPI\times T_{clk}=\frac{IC\times CPI}{f_{clk}}\ \text{(s)}$$
 
+**Symbols**
+
+- $T_{exec}$ — program execution time, in s
+
 $IC$ = instruction count (dimensionless), $CPI$ = cycles per instruction, $T_{clk}$ in s, $f_{clk}$ in Hz.
 
 **MIPS and CPI**
 
 $$MIPS=\frac{f_{clk}}{CPI\times10^6},\qquad CPI=\frac{\text{total cycles}}{\text{instruction count}}$$
 
+**Symbols**
+
+- $MIPS$ — millions of instructions per second, a throughput rating, in $10^6$ instructions/s
+
 $$Speedup=\frac{T_{old}}{T_{new}}=\frac{CPI_{old}f_{new}}{CPI_{new}f_{old}}$$
+
+**Symbols**
+
+- $Speedup$ — speed-up of the new version relative to the old, dimensionless
+- $T_{old}$, $T_{new}$ — execution times of the old and new versions, in s
+- $CPI_{old}$, $CPI_{new}$ — cycles per instruction of the old and new versions, dimensionless
+- $f_{old}$, $f_{new}$ — clock frequencies of the old and new versions, in Hz
 
 **Amdahl's law ★**
 
 $$S_{overall}=\frac{1}{(1-P)+\frac{P}{S_{part}}},\qquad P=\text{fraction enhanced (dimensionless)}$$
+
+**Symbols**
+
+- $S_{overall}$ — overall speed-up of the whole program, dimensionless
+- $S_{part}$ — speed-up of the enhanced (optimized) part alone, dimensionless
+- $P$ — fraction of the work that is enhanced, dimensionless
 
 **CISC vs RISC**
 
@@ -46,6 +67,11 @@ $$S_{overall}=\frac{1}{(1-P)+\frac{P}{S_{part}}},\qquad P=\text{fraction enhance
 
 $$CPI_{RISC}\approx1\ \text{(pipelined)},\qquad CPI_{CISC}>1\ \text{(microcoded)}$$
 
+**Symbols**
+
+- $CISC$ — complex instruction set computer: many complex, variable-length instructions, usually multi-cycle (architecture class, dimensionless)
+- $RISC$ — reduced instruction set computer: few simple, fixed-length instructions, mostly single-cycle (architecture class, dimensionless)
+
 **Conditions:** $T_{clk}$ is the reciprocal of the clock frequency; Amdahl's law assumes only the enhanced fraction speeds up; MIPS is a misleading metric across different instruction sets. #embedded #cpu
 
 > [!tip] High-yield ★
@@ -59,11 +85,21 @@ $$CPI_{RISC}\approx1\ \text{(pipelined)},\qquad CPI_{CISC}>1\ \text{(microcoded)
 
 $$N_{addresses}=2^{n}\ \text{for }n\ \text{address lines},\qquad \text{capacity}=2^n\times w\ \text{bits}$$
 
+**Symbols**
+
+- $N_{addresses}$ — number of distinct addressable locations, dimensionless
+
 $n$ = address lines (dimensionless), $w$ = word width in bits.
 
 **Bus width and bandwidth**
 
 $$BW=\frac{w}{8}\times f_{bus}\ \text{(bytes/s)},\qquad T_{transfer}=\frac{1}{BW}\ \text{(s/byte)}$$
+
+**Symbols**
+
+- $BW$ — bus bandwidth, in bytes/s
+- $T_{transfer}$ — time to transfer one byte, in s/byte
+- $f_{bus}$ — bus clock frequency, in Hz
 
 $$w=8,16,32,64\ \text{bits (data bus)},\qquad \text{Address bus decides capacity, data bus decides speed.}$$
 
@@ -85,9 +121,21 @@ $$k\ \text{KB}=2^{10}\ \text{bytes},\qquad 1\ \text{MB}=2^{20},\qquad 1\ \text{G
 | ACC | arithmetic accumulator |
 | Status / flags | Z, C, N, V bits |
 
+**Symbols**
+
+- $Z$ — zero flag: set when the ALU result is zero (1 bit, dimensionless)
+- $C$ — carry/borrow flag: set by a carry out or borrow (1 bit, dimensionless)
+- $N$ — negative flag: copy of the sign bit of the result (1 bit, dimensionless)
+- $V$ — overflow flag: set when a signed result overflows (1 bit, dimensionless)
+
 **Condition note**
 
 $$T_{cycle}=T_{fetch}+T_{decode}+T_{execute}+T_{store}\ \text{(pipeline stages)}$$
+
+**Symbols**
+
+- $T_{cycle}$ — time for one pass through the fetch–decode–execute–store stages, in s
+- $T_{fetch}$, $T_{decode}$, $T_{execute}$, $T_{store}$ — time spent in each stage, in s
 
 **Conditions:** $2^n$ counts both program and data space when the architecture uses a unified memory map; bus bandwidth assumes one transfer per clock and ignores wait states. #embedded #memory
 
@@ -103,7 +151,18 @@ $$T_{cycle}=T_{fetch}+T_{decode}+T_{execute}+T_{store}\ \text{(pipeline stages)}
 
 $$\text{Capacity}=2^{n}\times w\ \text{bits},\qquad \text{chips needed}=\frac{C_{total}}{C_{chip}}\ \text{(dimensionless)}$$
 
+**Symbols**
+
+- $C_{total}$ — total memory capacity required by the system, in bits
+- $C_{chip}$ — capacity of one memory chip, in bits
+
 $$N_{chips}=\frac{\text{word depth}_{total}}{\text{word depth}_{chip}}\times\frac{\text{width}_{total}}{\text{width}_{chip}}$$
+
+**Symbols**
+
+- $N_{chips}$ — number of memory chips needed, dimensionless
+- word depth — number of addressable words, dimensionless
+- width — data width of the memory, in bits
 
 **Address decoding ★**
 
@@ -131,9 +190,20 @@ $$Y_k\ \text{active when the upper address bits equal }k,\qquad \text{one output
 
 $$t_{refresh,interval}=\frac{t_{RC}}{N_{rows}}\ \text{(s)},\qquad \text{DRAM must be refreshed every few ms}$$
 
+**Symbols**
+
+- $t_{refresh,interval}$ — time allowed between successive refresh operations, in s
+- $t_{RC}$ — DRAM row cycle time (activate-to-precharge delay of one row), in s
+- $N_{rows}$ — number of DRAM rows that must be refreshed, dimensionless
+
 **Inverse address-line count ★**
 
 $$n=\lceil\log_2N\rceil\ \text{lines for }N\ \text{addressable locations},\qquad n=\lceil\log_2(\text{bytes})\rceil\ \text{for byte-organized memory}$$
+
+**Symbols**
+
+- $n$ — number of address lines required, dimensionless
+- $N$ — number of addressable locations, dimensionless
 
 $$64\ \text{KiB}=65{,}536\ \text{bytes}=2^{16}\ \Rightarrow\ n=16\ \text{address lines}$$
 
@@ -183,6 +253,11 @@ $$\text{stall cycles}=\text{pipeline bubbles},\qquad CPI_{eff}=CPI_{ideal}+\text
 
 $$EA=\text{address computed by the addressing mode},\qquad Operand=M[EA]$$
 
+**Symbols**
+
+- $EA$ — effective address produced by the addressing mode (a memory address/index, dimensionless)
+- $M[\,]$ — memory-content operator: $M[A]$ is the word stored at address $A$ (address-indexed, dimensionless)
+
 **Mode formulas**
 
 $$\begin{aligned}
@@ -194,6 +269,13 @@ $$\begin{aligned}
 \text{Relative:}\quad & EA=PC+offset\\
 \text{Base+offset:}\quad & EA=R_b+\text{disp}
 \end{aligned}$$
+
+**Symbols**
+
+- $\#$ — immediate-operand prefix: $\#data$ carries the literal data inside the instruction (notation prefix, not a quantity)
+- $M[\,]$ — memory-content operator: $M[A]$ is the word stored at address $A$ (address-indexed, dimensionless)
+- $R_b$ — content of the base register used as the base address, dimensionless
+- $PC$ — program counter content, the address of the next instruction, dimensionless
 
 $A$ = address field, $R$ = register content, $\text{disp}$ = displacement; all addresses in the native word size.
 
@@ -227,17 +309,44 @@ $$\text{data transfer},\quad \text{arithmetic/logic},\quad \text{control transfe
 
 $$t_{latency}=t_{finish\ current\ instruction}+t_{context\ save}+t_{vector\ fetch}\ \text{(s)}$$
 
+**Symbols**
+
+- $t_{latency}$ — interrupt latency: from the request to the first ISR instruction, in s
+- $ISR$ — interrupt service routine, the handler code that services the interrupt (dimensionless label, not a physical quantity)
+- $t_{finish\ current\ instruction}$ — time to complete the instruction already in progress, in s
+- $t_{context\ save}$ — time to save the CPU context, in s
+- $t_{vector\ fetch}$ — time to fetch the interrupt vector (the ISR entry address), in s
+
 $$t_{response}=t_{latency}+t_{ISR,first\ useful\ action}\ \text{(s)}$$
+
+**Symbols**
+
+- $t_{response}$ — total interrupt response time up to the first useful ISR action, in s
+- $t_{ISR,first\ useful\ action}$ — time from ISR entry to its first useful action, in s
 
 **Overhead and throughput**
 
 $$\text{Overhead}=\frac{t_{context}+t_{return}}{t_{period}}\times100\%,\qquad f_{max}=\frac{1}{t_{ISR}+t_{context}}$$
+
+**Symbols**
+
+- $\text{Overhead}$ — processor time spent on interrupt entry and exit, in %
+- $t_{context}$ — context save/restore time per interrupt, in s
+- $t_{return}$ — interrupt return time, in s
+- $t_{period}$ — time between successive interrupts, in s
+- $f_{max}$ — maximum sustainable interrupt rate, in Hz
+- $t_{ISR}$ — ISR execution time, in s
 
 **Nested and priority interrupts**
 
 $$\text{Priority: higher vector number = higher priority (or per-configuration)}$$
 
 $$t_{nested}=t_{ISR1}+t_{ISR2}\ \text{when ISR2 preempts ISR1}$$
+
+**Symbols**
+
+- $t_{nested}$ — total time spent serving the nested interrupts, in s
+- $t_{ISR1}$, $t_{ISR2}$ — execution times of the two interrupt service routines, in s
 
 **Polling vs interrupts**
 
@@ -339,25 +448,73 @@ $$\Delta t=N_{capture}T_{tick}\ \text{(s)},\qquad f_{measured}=\frac{f_{timer}}{
 
 $$f_{PWM}=\frac{f_{clk}}{N_{prescaler}\cdot(ARR+1)}\ \text{(Hz)},\qquad Duty=\frac{CCR}{ARR+1}\times100\%$$
 
+**Symbols**
+
+- $f_{PWM}$ — PWM output frequency, in Hz
+- $f_{clk}$ — timer clock frequency, in Hz
+- $N_{prescaler}$ — prescaler divisor applied to the timer clock, dimensionless
+- $ARR$ — auto-reload register value (timer period in ticks), dimensionless
+- $Duty$ — duty cycle, in %
+- $CCR$ — capture/compare register value (compare count in timer ticks), dimensionless
+
 $$V_{avg}=D\cdot V_{DD}\ \text{(V)},\qquad D=\frac{t_{on}}{T}$$
+
+**Symbols**
+
+- $V_{avg}$ — average output voltage of the PWM waveform, in V
+- $D$ — duty cycle as a fraction ($0$ to $1$), dimensionless
+- $V_{DD}$ — supply voltage, in V
+- $t_{on}$ — on-time of the pulse, in s
+- $T$ — PWM period, in s
 
 **PWM resolution**
 
 $$n_{bits}=\log_2(ARR+1)\ \text{bits},\qquad \Delta V=\frac{V_{DD}}{2^{n_{bits}}-1}\ \text{(V)}$$
 
+**Symbols**
+
+- $n_{bits}$ — PWM resolution, in bits
+- $\Delta V$ — voltage change per duty-cycle step, in V
+
 $$Duty\ resolution=\frac{1}{ARR+1}\times100\%\ \text{per step}$$
 
 **ADC parameters ★**
 
-$$Resolution=\frac{V_{ref}}{2^n}\ \text{(V/LSB)},\qquad Digital=\text{round}\left(\frac{V_{in}}{V_{ref}}\times2^n\right)$$
+$$Resolution=\frac{V_{ref}}{2^n}\ \text{(V/LSB)},\qquad Digital=\left\lfloor\frac{V_{in}}{V_{ref}}\times2^n\right\rfloor\ \text{(max code }2^n-1\text{)}$$
+
+**Symbols**
+
+- $Resolution$ — ADC step size (voltage per LSB), in V
+- $V_{ref}$ — ADC reference voltage, in V
+- $n$ — ADC resolution, in bits
+- $V_{in}$ — analog input voltage, in V
+- $Digital$ — ADC output code, dimensionless
 
 $$t_{conv}=\frac{1}{f_{ADC}}\ \text{(s)},\qquad f_{ADC}=\frac{f_{clk}}{N_{cycles}}$$
+
+**Symbols**
+
+- $t_{conv}$ — ADC conversion time, in s
+- $f_{ADC}$ — ADC clock frequency, in Hz
+- $N_{cycles}$ — number of ADC clock cycles per conversion, dimensionless
 
 **Sampling and filtering**
 
 $$f_s\ge2f_{max}\ \text{(Nyquist)},\qquad \tau=RC\ \text{(anti-alias, s)}$$
 
+**Symbols**
+
+- $f_s$ — sampling frequency, in Hz
+- $f_{max}$ — highest frequency present in the input signal, in Hz
+- $\tau$ — anti-alias filter time constant, in s
+- $R$ — filter resistance, in $\Omega$
+- $C$ — filter capacitance, in F
+
 $$SNR_{ideal}=6.02n+1.76\ \text{(dB)}$$
+
+**Symbols**
+
+- $SNR_{ideal}$ — ideal signal-to-noise ratio of a full-scale sine input, in dB
 
 **Conditions:** duty cycle is quantized to $1/(ARR+1)$ steps, so a low ARR limits resolution; ADC conversion needs a stable $V_{ref}$ and a source impedance below the datasheet limit. #embedded #pwm #adc
 

@@ -2,7 +2,7 @@
 title: Electronics Engineering Index
 part: Electronics Engineering
 tags: [ece, elecs, formula-sheet, moc]
-topics: 119
+topics: 120
 ---
 
 # Electronics Engineering — PRC ECE Board Formula Vault
@@ -25,11 +25,11 @@ topics: 119
 | 4 | [[04_Semiconductor_Devices\|Semiconductor Devices]] | 15 | **Part A** Physics, Junction & Diodes · **Part B** Rectifiers, Filters & Waveshaping · **Part C** Transistors & Optoelectronics |
 | 5 | [[05_Circuit_Analysis_and_Design\|Circuit Analysis and Design]] | 18 | **Part A** Biasing · **Part B** Small Signal & Multistage · **Part C** Frequency, Feedback, Power & Oscillators · **Part D** Current Sources |
 | 6 | [[06_Power_Electronics_and_Systems\|Power Electronics and Systems]] | 9 | Part A Switches & Thermal · Part B DC-DC Converters · Part C Regulation |
-| 7 | [[07_Industrial_Automation_and_Sensors\|Industrial Automation and Sensors]] | 18 | Part A Op-Amp Circuits · Part B Sensors, Data Conversion & PLCs · Part C Instrumentation and Systems Integration |
+| 7 | [[07_Industrial_Automation_and_Sensors\|Industrial Automation and Sensors]] | 19 | Part A Op-Amp Circuits · Part B Sensors, Data Conversion & PLCs · Part C Instrumentation and Systems Integration |
 | 8 | [[08_Logic_Circuits_and_Switching\|Logic Circuits and Switching]] | 17 | **Part A** Number Systems & Boolean Algebra · **Part B** Combinational Logic · **Part C** Sequential Logic & Families · **Part D** Asynchronous Logic |
 | 9 | [[09_Microprocessors_and_Embedded\|Microprocessors and Embedded]] | 10 | Part A Architecture & Memory · Part B Peripherals & Interfacing |
 
-**Total: 119 topics** across 9 subjects.
+**Total: 120 topics** across 9 subjects.
 
 > [!tip] High-yield ★
 > **Most heavily tested subjects:** [[01_DC_Circuits|DC Circuits]] · [[02_AC_Circuits|AC Circuits]] · [[04_Semiconductor_Devices|Semiconductor Devices]] · [[05_Circuit_Analysis_and_Design|Circuit Analysis and Design]] · [[08_Logic_Circuits_and_Switching|Logic Circuits and Switching]]
@@ -44,7 +44,7 @@ topics: 119
 ## Split notes
 
 - **[[04_Semiconductor_Devices]]**, **[[05_Circuit_Analysis_and_Design]]**, **[[06_Power_Electronics_and_Systems]]** and **[[08_Logic_Circuits_and_Switching]]** are the longest notes, so each is split into **Part A / Part B / Part C** segments **inside the same file** (no separate files, per the vault spec). Topic numbering is continuous across parts.
-- Topics now run 1–18 (Circuit Analysis and Design), 1–18 (Industrial Automation and Sensors), 1–17 (Logic Circuits and Switching), 1–15 (Semiconductor Devices) and 1–13 (DC Circuits). Parts D/C added by the corpus-coverage pass carry counts 13, 17, 18 and 18 respectively. #split
+- Topics now run 1–18 (Circuit Analysis and Design), 1–19 (Industrial Automation and Sensors), 1–17 (Logic Circuits and Switching), 1–15 (Semiconductor Devices) and 1–13 (DC Circuits). Parts D/C added by the corpus-coverage pass carry counts 13, 17, 18 and 18 respectively. #split
 
 ## Cross-topic jump table
 
@@ -63,16 +63,20 @@ topics: 119
 | Buck / boost duty cycle | [[06_Power_Electronics_and_Systems#4. Buck Converter\|Buck Converter]] |
 | Heatsink sizing | [[06_Power_Electronics_and_Systems#2. Thermal Resistance and Heat Sinking\|Thermal Resistance]] |
 | Op-amp gain configurations | [[07_Industrial_Automation_and_Sensors#2. Linear Op-Amp Circuits\|Linear Op-Amp Circuits]] |
-| ADC resolution and SNR | [[07_Industrial_Automation_and_Sensors#13. ADC Architectures and Quantization\|ADC Architectures]] |
+| ADC resolution and SNR | [[07_Industrial_Automation_and_Sensors#14. ADC Architectures and Quantization\|ADC Architectures]] |
 | K-map simplification | [[08_Logic_Circuits_and_Switching#6. Karnaugh Maps\|Karnaugh Maps]] |
 | Flip-flop setup and hold | [[08_Logic_Circuits_and_Switching#11. Flip-Flop Timing, Setup and Hold\|Flip-Flop Timing]] |
 | Interrupt latency | [[09_Microprocessors_and_Embedded#6. Interrupts and ISRs\|Interrupts and ISRs]] |
 | Serial protocol choice | [[09_Microprocessors_and_Embedded#10. Serial Interfaces: UART, SPI, I2C\|Serial Interfaces]] |
 | Coupled coils, dot convention or mutual inductance | [[01_DC_Circuits#13. Mutual Inductance and Coupled Coils\|Mutual Inductance]] |
 | Constant-current source or µA bias | [[05_Circuit_Analysis_and_Design#18. Current Mirrors\|Current Mirrors]] |
-| Voltmeter multiplier or ammeter shunt | [[07_Industrial_Automation_and_Sensors#17. Measurements and Instrumentation\|Measurements]] |
-| KNX, DMX512, Modbus, BACnet or HVAC sizing | [[07_Industrial_Automation_and_Sensors#18. Building, AV and Industrial Integration\|Building and AV]] |
+| Voltmeter multiplier or ammeter shunt | [[07_Industrial_Automation_and_Sensors#18. Measurements and Instrumentation\|Measurements]] |
+| KNX, DMX512, Modbus, BACnet or HVAC sizing | [[07_Industrial_Automation_and_Sensors#19. Building, AV and Industrial Integration\|Building and AV]] |
+| 555 monostable or astable timing | [[07_Industrial_Automation_and_Sensors#6. The 555 Timer\|The 555 Timer]] |
 | Logic hazard, race or asynchronous FSM | [[08_Logic_Circuits_and_Switching#17. Asynchronous Logic, Hazards and Races\|Hazards and Races]] |
+| Counter modulus, ring/Johnson or decade counter | [[08_Logic_Circuits_and_Switching#13. Counters: Types, Modulus and Design\|Counters]] |
+| Flip-flop type, excitation or characteristic table | [[08_Logic_Circuits_and_Switching#10. Latches and Flip-Flops\|Latches and Flip-Flops]] |
+| Shift register mode (SISO/SIPO/PISO/PIPO) | [[08_Logic_Circuits_and_Switching#12. Shift Registers\|Shift Registers]] |
 
 ## Tag index
 

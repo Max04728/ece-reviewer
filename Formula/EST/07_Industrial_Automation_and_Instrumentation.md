@@ -49,6 +49,12 @@ $V_{supply}$ in V dc (24 V typical), $I$ in A, $R_{wire}$ in Ω for both conduct
 
 HART superimposes Bell-202 FSK (±0.5 mA, 1200 baud) on the dc loop; Profibus PA and Foundation Fieldbus replace the analogue value with a fully digital frame on the same cable.
 
+**Symbols**
+
+- HART — Highway Addressable Remote Transducer, the digital signal frequency-shift-keyed on top of the 4–20 mA loop (a protocol label, dimensionless)
+- FSK — frequency-shift keying, the Bell-202 modulation (±0.5 mA, 1200 baud) that carries the HART digital data (dimensionless)
+- Profibus PA — Profibus Process Automation, the intrinsically safe fieldbus variant that replaces the analogue value with a fully digital frame on the same cable (dimensionless)
+
 > [!tip] High-yield ★
 > 4 mA is not "no signal" — it is the live zero. A 0 mA reading always means an open loop or dead supply, never a valid 0 % measurement.
 
@@ -119,6 +125,10 @@ $R_0$ in Ω at 0 °C (PT100 = 100 Ω, PT1000 = 1000 Ω), $\alpha=0.385\ \Omega/(
 
 $$C=\frac{\varepsilon_r\varepsilon_0A}{d},\qquad RH\propto C-C_{dry},\qquad T_d\approx T-\frac{100-RH}{5}$$
 
+**Symbols**
+
+- $C_{dry}$ — capacitance of the sensing element at the dry (0 % RH) reference state, in F
+
 $C$ in F (pF range), $A$ in m², $d$ in m, $\varepsilon_r$ of the hygroscopic polymer rises as water is absorbed; $RH$ dimensionless in %, dew point $T_d$ in °C (approximation near 50 % RH).
 
 **Strain gauge and bridge**
@@ -137,9 +147,18 @@ $GF$ dimensionless (≈2.0 for metal foil), $\varepsilon$ dimensionless (µε = 
 | Reed / Hall | magnet | 5–30 mm | position, cylinder sensing |
 | Mechanical limit | physical contact | — | SPDT contact, needs force |
 
+**Symbols**
+
+- SPDT — single-pole double-throw, a contact set with one common terminal and two selectable positions (one normally open, one normally closed); a switch label, dimensionless
+
 Output stage and speed:
 
 $$PNP\ \text{sources current to the load},\qquad NPN\ \text{sinks current to 0 V},\qquad f_{max}=\frac{1}{t_{on}+t_{off}}$$
+
+**Symbols**
+
+- PNP — PNP-transistor sourcing output stage, which switches the positive supply to the load; an output-stage type, dimensionless
+- NPN — NPN-transistor sinking output stage, which switches the load to the 0 V return; an output-stage type, dimensionless
 
 $f_{max}$ in Hz (switching frequency limit), $t_{on},t_{off}$ in s.
 
@@ -169,6 +188,10 @@ $f_{max}$ in Hz (switching frequency limit), $t_{on},t_{off}$ in s.
 
 $$T_{scan}=T_{in}+T_{prog}+T_{out}+T_{house},\qquad T_{resp,max}\approx 2\,T_{scan}+T_{filter}$$
 
+**Symbols**
+
+- $T_{filter}$ — input filter (debounce) delay of each input circuit, which must elapse before a field change is latched, in ms
+
 $T_{scan}$ in ms (1–50 ms typical), $T_{in}$ = input scan (read and latch every input), $T_{prog}$ = program scan (execute the ladder), $T_{out}$ = output scan (write every output), $T_{house}$ = housekeeping, comms and watchdog; a simple input→output path can need one scan to miss the input plus one scan to set the output.
 
 **Watchdog timer**
@@ -190,6 +213,10 @@ $T_{WD}$ in ms (100–500 ms typical).
 **Analog resolution and I/O wiring**
 
 $$\Delta x=\frac{x_{max}-x_{min}}{2^n-1}\ \text{per LSB},\qquad \text{12-bit over 0–10 V}\Rightarrow\Delta x=\frac{10}{4095}=2.44\ \text{mV}$$
+
+**Symbols**
+
+- LSB — least significant bit, the smallest step the converter resolves, i.e. one count of the $n$-bit code ($\Delta x$), dimensionless
 
 $n$ = ADC bits (dimensionless), $x_{max}-x_{min}$ = input span in V or mA; a 12-bit card resolves 16 mA/4095 = 3.9 µA of loop current.
 
@@ -295,6 +322,10 @@ $T_s$ = sample/scan time in s; $T_s$ must be short against the process dead time
 
 $K_u$ = ultimate gain, $P_u$ = ultimate period in s with I and D off (sustained oscillation). Open-loop reaction curve: $K_p=1.2T/(KL)$, $T_i=2L$, $T_d=0.5L$ with process gain $K$, dead time $L$ in s and time constant $T$ in s.
 
+**Symbols**
+
+- $\tau_D$ — derivative filter time constant, the first-order lag applied to the derivative term ($\frac{K_d s}{\tau_D s+1}$), in s
+
 **Conditions:** PI is the industrial default, derivative is used only on slow noise-free loops and is filtered as $\frac{K_d s}{\tau_Ds+1}$; anti-windup clamps the integral while the output saturates. #instrumentation
 
 ---
@@ -315,6 +346,14 @@ $K_u$ = ultimate gain, $P_u$ = ultimate period in s with I and D off (sustained 
 | 3 | SCADA master, HMI servers | supervision, setpoints, alarms |
 | 4 | historian, MES, ERP | trending, reporting, planning |
 
+**Symbols**
+
+- SCADA — supervisory control and data acquisition, the master-station system that supervises the process, sets setpoints and annunciates alarms; a system label, dimensionless
+- HMI — human–machine interface, the operator display and control terminal of a controller or SCADA system; dimensionless
+- RTU — remote terminal unit, a field device that acquires I/O and reports it to the master over a communications link; dimensionless
+- MES — manufacturing execution system, the plant production and reporting layer above SCADA; dimensionless
+- ERP — enterprise resource planning, the business planning layer above MES; dimensionless
+
 Data path: field devices → RTU/PLC → communications → master station/HMI → historian.
 
 **Polling and network load**
@@ -333,6 +372,10 @@ $N$ = number of slaves (dimensionless), $T_{resp}$ = slave response time in s, $
 | DNP3 | serial / TCP | objects, time stamps | utilities, water, SCADA |
 | MQTT | TCP publish/subscribe | topics via a broker | IIoT telemetry, cloud |
 | HART | 4–20 mA FSK | command/response | transmitter configuration |
+
+**Symbols**
+
+- IIoT — industrial Internet of Things, the use of networked publish/subscribe telemetry (e.g. MQTT) to carry plant data to the cloud; dimensionless
 
 Modbus addresses: coils (0x, read/write bits), discrete inputs (1x, read-only bits), input registers (3x, read-only 16-bit), holding registers (4x, read/write 16-bit); a 32-bit value occupies two registers.
 
@@ -366,6 +409,12 @@ Modbus addresses: coils (0x, read/write bits), discrete inputs (1x, read-only bi
 | DALI | 2-wire bus, 1200 bit/s | 64 ballasts, 16 groups | digital dimming, lamp-failure report |
 | 0–10 V | analogue pair | per driver | simple dimming, no feedback |
 | Modbus | RS-485 / IP | registers | meters, VFDs |
+
+**Symbols**
+
+- BAS — building automation system, the supervisory system that controls HVAC, lighting and other building services; dimensionless
+- MS/TP — Master-Slave/Token-Passing, the RS-485 BACnet data link used on the field bus; dimensionless
+- VFD — variable-frequency drive, the power converter that varies the speed of an ac motor to match the load; dimensionless
 
 **Sensible and latent HVAC load ★**
 

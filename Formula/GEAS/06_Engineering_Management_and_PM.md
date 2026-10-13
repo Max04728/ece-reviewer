@@ -68,6 +68,11 @@ $$DPMO = \frac{\text{defects}}{\text{units}\times\text{opportunities}}\times10^6
 
 $$Y_{RT} = Y_1Y_2\cdots Y_n,\qquad \sigma_{\text{level}} = 0.8406 + \sqrt{29.37 - 2.221\ln(DPMO)}$$
 
+**Symbols**
+
+- DMADV — Define, Measure, Analyze, Design, Verify; the Six Sigma methodology used when designing a new product or process (acronym, dimensionless)
+- DFSS — Design for Six Sigma; the design-oriented Six Sigma programme carried out through DMADV (acronym, dimensionless)
+
 | Sigma level | DPMO | Yield |
 |---|---|---|
 | 1 | 691,462 | 30.9% |
@@ -115,6 +120,12 @@ Also: improvement · evidence-based decision making · relationship management.
 **Sister standards:** ISO 9000 (vocabulary) · ISO 9004 (sustained success) · ISO 19011 (auditing) · ISO 14001 (environment).
 Also: ISO 45001 (OHS) · ISO/IEC 17025 (testing labs) · ISO/IEC 27001 (information security) · TL 9000 (telecom QMS) · ISO 31000 (risk).
 **Core concepts:** PDCA cycle, process approach, risk-based thinking, documented information instead of "records and manuals", no mandatory quality manual since 2015.
+
+**Symbols**
+
+- PDCA — Plan–Do–Check–Act; the continuous-improvement cycle that drives the process approach (acronym, dimensionless)
+- OHS — occupational health and safety; the management-system domain covered by ISO 45001 (acronym, dimensionless)
+
 **Conditions:** ISO 9001 certifies the **management system**, not the product; it does not guarantee product quality or replace statutory/regulatory requirements.
 
 > [!tip] High-yield ★
@@ -138,6 +149,11 @@ $$t_e = \frac{o+4m+p}{6},\qquad \sigma_e = \frac{p-o}{6},\qquad \sigma_e^2 = \le
 **Project mean and standard deviation** — combine activities on the **critical path** only.
 
 $$T_E = \sum t_e,\qquad \sigma_{\text{proj}} = \sqrt{\sum\sigma_e^2},\qquad z = \frac{X-T_E}{\sigma_{\text{proj}}}$$
+
+**Symbols**
+
+- PERT — Program Evaluation and Review Technique; probabilistic, event-oriented scheduling used when activity durations are uncertain (acronym, dimensionless)
+- CPM — Critical Path Method; deterministic, activity-oriented scheduling whose core technique is time–cost crashing (acronym, dimensionless)
 
 **Differences**
 
@@ -166,15 +182,31 @@ $z$ from the standard normal table gives the probability of finishing by time $X
 
 $$ES_n = \max\left(EF_{\text{predecessors}}\right),\qquad EF_n = ES_n + t_a$$
 
+**Symbols**
+
+- $ES_n$ — earliest start time of activity $n$, in days
+- $EF_n$ — earliest finish time of activity $n$, in days
+
 **Backward pass (latest times) ★**
 
 $$LF_n = \min\left(LS_{\text{successors}}\right),\qquad LS_n = LF_n - t_a$$
+
+**Symbols**
+
+- $LS_n$ — latest start time of activity $n$ (without delaying the project), in days
+- $LF_n$ — latest finish time of activity $n$ (without delaying the project), in days
 
 **Float ★** — $ES,EF,LS,LF$ in days; float $= 0$ defines the critical path.
 
 $$TF = LS - ES = LF - EF,\qquad FF = \min(ES_{\text{succ}}) - EF,\qquad IF = \max(0,\ \min ES_{\text{succ}} - \max LF_{\text{pred}} - t_a)$$
 
 $$TF = FF + \text{(float of the chain that follows)}$$
+
+**Symbols**
+
+- $TF$ — total float; delay possible without delaying the project finish, in days
+- $FF$ — free float; delay possible without delaying any successor, in days
+- $IF$ — interfering float; the share of total float shared with the chain that follows ($TF-FF$), in days
 
 **Rules:** project duration = $EF$ = $LF$ of the last activity; the critical path is the longest path and has zero total float.
 A negative $TF$ means the schedule must be compressed.
@@ -233,6 +265,11 @@ Types: concierge, landing page/smoke test, Wizard-of-Oz, piecemeal, single-featu
 
 $$CAC = \frac{\text{total sales and marketing cost}}{\text{new customers acquired}},\qquad \text{Payback} = \frac{CAC}{ARPU}\ \text{(months)}$$
 
+**Symbols**
+
+- CAC — customer acquisition cost; total sales and marketing spend divided by new customers acquired, in ₱ per customer
+- ARPU — average revenue per user, in ₱ per user per month
+
 $$\text{Conversion rate} = \frac{\text{converted}}{\text{visitors}}\times100,\qquad \text{Retention}_{t} = \frac{\text{active in period }t}{\text{cohort size}}\times100$$
 
 **Pivot types:** zoom-in, zoom-out, customer segment, customer need, platform, business architecture, value capture, engine of growth, channel, technology.
@@ -254,6 +291,12 @@ Also: key resources · key activities · key partnerships · cost structure.
 **Quantitative add-ons**
 
 $$ARPU = \frac{\text{revenue}}{\text{users}},\qquad \text{Gross margin} = \frac{\text{revenue} - COGS}{\text{revenue}}\times100,\qquad \text{Revenue} = \text{users}\times ARPU$$
+
+**Symbols**
+
+- COGS — cost of goods sold; the direct cost of the goods or services delivered, in ₱
+- TOWS — Threats–Opportunities–Weaknesses–Strengths; the matching matrix that converts SWOT items into SO/ST/WO/WT strategies (acronym, dimensionless)
+- SaaS — Software as a Service; the subscription revenue model in which software is delivered over the network (acronym, dimensionless)
 
 **Value proposition × segment fit:** each segment needs a distinct, testable value proposition — one canvas per segment, never one blended canvas.
 
@@ -290,6 +333,10 @@ $$\text{Bottom-up: } TAM = \text{customers}\times\text{units/year}\times\text{pr
 
 $$\text{Market share} = \frac{\text{company revenue}}{\text{SAM}}\times100,\qquad \text{Run-rate} = MRR\times12$$
 
+**Symbols**
+
+- MRR — monthly recurring revenue; the recurring subscription revenue booked in one month, in ₱ per month
+
 $$\text{Penetration} = \frac{\text{users}}{\text{eligible population}}\times100$$
 
 **Order of magnitude:** $TAM \ge SAM \ge SOM$ always.
@@ -309,13 +356,27 @@ $$\text{Net burn} = \text{cash out} - \text{cash in},\qquad \text{Gross burn} = 
 
 $$\text{Burn multiple} = \frac{\text{net burn}}{\text{net new ARR}},\qquad \text{Rule of 40} = \text{growth rate} + \text{profit margin} \ge 40\%$$
 
+**Symbols**
+
+- ARR — annual recurring revenue; the yearly value of recurring subscription revenue, in ₱ per year
+
 **Unit economics and dilution**
 
 $$LTV = ARPU\times\text{gross margin}\times\frac{1}{\text{churn rate}},\qquad \frac{LTV}{CAC} \ge 3$$
 
+**Symbols**
+
+- LTV — customer lifetime value; the gross profit expected from one customer over the whole relationship, in ₱
+- CAC — customer acquisition cost; total sales and marketing spend divided by new customers acquired, in ₱ per customer
+
 $$\text{Pre-money} = \frac{\text{investment}}{\text{dilution}} - \text{investment}$$
 
 $$\text{Dilution} = \frac{\text{new shares}}{\text{shares after round}}\times100,\qquad \text{Post-money} = \text{pre-money} + \text{investment}$$
+
+**Symbols**
+
+- IPO — initial public offering; the first sale of the company's shares to the public (acronym, dimensionless)
+- M&A — mergers and acquisitions; an exit in which the company is sold to or combined with another firm (acronym, dimensionless)
 
 **Funding stages:** pre-seed → seed → Series A/B/C → growth/mezzanine → IPO or M&A.
 **Sources:** bootstrapping, grants, angel, VC, venture debt, crowdfunding, government programs (DOST-PCIEERD, DTI, TBI).

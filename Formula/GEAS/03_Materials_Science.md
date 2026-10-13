@@ -19,6 +19,11 @@ $$\text{SC: } a = 2r,\quad n = 1 \qquad \text{BCC: } a = \frac{4r}{\sqrt3},\quad
 
 $$\text{HCP: } c/a = 1.633,\quad n = 6,\qquad V_{\text{cell}} = a^2c\sin 120^\circ$$
 
+**Symbols**
+
+- $c$ — HCP unit-cell height (length of the hexagonal $c$ axis), in m
+- $V_{\text{cell}}$ — unit-cell volume, in m³
+
 **Structure comparison ★**
 
 | Property | SC | BCC | FCC | HCP |
@@ -29,9 +34,22 @@ $$\text{HCP: } c/a = 1.633,\quad n = 6,\qquad V_{\text{cell}} = a^2c\sin 120^\ci
 | $a$ vs $r$ | $2r$ | $\frac{4r}{\sqrt3}$ | $\frac{4r}{\sqrt2}$ | $a = 2r$ |
 | Example | Po | Fe($\alpha$), W | Cu, Al, Au | Mg, Zn, Ti |
 
+**Symbols**
+
+- APF — atomic packing factor: fraction of the unit-cell volume occupied by the atoms (dimensionless)
+
 **Coordination and density relations**
 
 $$\text{CN} = 6\ (SC),\ 8\ (BCC),\ 12\ (FCC/HCP),\qquad \text{Density } \rho = \frac{nA}{V_cN_A}\ \text{(g/cm}^3\text{)}$$
+
+**Symbols**
+
+- CN — coordination number: number of nearest-neighbour atoms touching a given atom (dimensionless)
+- $\rho$ — theoretical density, in g/cm³
+- $n$ — atoms per unit cell (dimensionless)
+- $A$ — atomic (molar) mass, in g/mol
+- $V_c$ — unit-cell volume, in cm³
+- $N_A$ — Avogadro constant, $6.022\times10^{23}$ mol⁻¹
 
 **Conditions:** hard-sphere model, spheres touching along the close-packed direction; $A$ in g/mol, $V_c$ in cm³, $N_A = 6.022\times10^{23}$ mol⁻¹.
 
@@ -84,10 +102,23 @@ $$d_{hkl} = \frac{a}{\sqrt{h^2+k^2+l^2}}\ \text{(cubic)},\qquad d_{hkl} = \frac{
 
 $$N = h^2+k^2+l^2,\qquad d = \frac{a}{\sqrt N},\qquad \cos\phi = \frac{h_1h_2+k_1k_2+l_1l_2}{\sqrt{N_1N_2}}$$
 
+**Symbols**
+
+- $h,k,l$ — Miller indices of the plane (integers, dimensionless)
+- $N = h^2+k^2+l^2$ — sum of the squared Miller indices of the plane (dimensionless)
+- $d$ — interplanar spacing, in m
+- $\phi$ — angle between the planes $(h_1k_1l_1)$ and $(h_2k_2l_2)$, in rad (or °)
+
 Allowed reflections: SC all, BCC $h+k+l$ even, FCC $h,k,l$ all odd or all even.
 **Bragg and crystal size** — $\lambda$ in m, $\theta$ in rad/°, $n$ = order (integer).
 
 $$n\lambda = 2d\sin\theta,\qquad D = \frac{K\lambda}{\beta\cos\theta}\ \text{(Scherrer)},\quad K\approx0.9$$
+
+**Symbols**
+
+- $D$ — crystallite (coherently diffracting domain) size measured normal to the reflecting planes, in m
+- $\beta$ — peak breadth, the full width at half maximum of the diffraction peak, in rad
+- $K$ — Scherrer shape factor (dimensionless, $\approx 0.9$)
 
 **Conditions:** cubic symmetry for $d = a/\sqrt N$; Bragg requires elastic scattering from parallel planes with $n$ a positive integer; SC/BCC/FCC reflection rules assume monatomic basis.
 
@@ -260,6 +291,15 @@ $$n = N_c\exp\!\left(\frac{E_F-E_c}{k_BT}\right),\qquad p = N_v\exp\!\left(\frac
 
 $$N_c = 2\!\left(\frac{2\pi m_n^*k_BT}{h^2}\right)^{3/2},\qquad N_v = 2\!\left(\frac{2\pi m_p^*k_BT}{h^2}\right)^{3/2}$$
 
+**Symbols**
+
+- $N_c$, $N_v$ — effective densities of states at the conduction and valence band edges, in m⁻³
+- $m_n^*$ — electron effective mass in the conduction band, in kg
+- $m_p^*$ — hole effective mass in the valence band, in kg
+- $h$ — Planck constant, $h = 6.626\times10^{-34}$ J·s
+- $k_B$ — Boltzmann constant, $k_B = 1.381\times10^{-23}$ J/K
+- $T$ — absolute temperature, in K
+
 **Fermi level at finite temperature:** for $n$-type, $E_F$ moves **down** toward $E_i$ as $T$ rises; the doping ionizes fully below ~100 K.
 **Conditions:** $np = n_i^2$ holds at thermal equilibrium only; Boltzmann approximation requires the Fermi level to sit at least $3k_BT$ from either band edge.
 
@@ -284,9 +324,21 @@ $$W = \tfrac12 CV^2 = \frac{Q^2}{2C} = \tfrac12 QV\ \text{(J)}$$
 
 $$D = \varepsilon_0E + P = \varepsilon E,\qquad \varepsilon_r = 1+\chi_e,\qquad P = \varepsilon_0\chi_eE$$
 
+**Symbols**
+
+- $D$ — electric flux density (electric displacement field), in C/m²
+- $\varepsilon$ — absolute permittivity of the dielectric, in F/m
+
 **Loss and breakdown** — $\tan\delta$ = loss tangent (dimensionless), dissipation factor.
 
 $$D_f = \tan\delta = \frac{\varepsilon''}{\varepsilon'},\qquad P_{\text{loss}} = 2\pi f C V^2\tan\delta\ \text{(W)}$$
+
+**Symbols**
+
+- $\varepsilon'$ — real part of the complex relative permittivity (the dielectric constant), dimensionless
+- $\varepsilon''$ — imaginary part of the complex relative permittivity (the loss factor), dimensionless
+- $f$ — applied excitation frequency, in Hz
+- $P_{\text{loss}}$ — dielectric power loss, in W
 
 $$E_{\text{bd}} = \frac{V_{\text{bd}}}{d}\ \text{(V/m or kV/mm)}$$
 
@@ -295,6 +347,11 @@ $$E_{\text{bd}} = \frac{V_{\text{bd}}}{d}\ \text{(V/m or kV/mm)}$$
 **Inverse piezoelectric effect ★** — applied field $E$ in V/m produces mechanical strain $S$ (dimensionless); $d$ = piezoelectric coefficient in m/V.
 
 $$S = dE$$
+
+**Symbols**
+
+- $S$ — mechanical strain produced by the applied field, dimensionless
+- $d$ — piezoelectric strain coefficient (the inverse-piezoelectric $d$, distinct from the plate spacing used above), in m/V
 
 The basis of BaTiO$_3$ and PZT actuators, which convert an applied voltage into controlled displacement.
 
@@ -329,6 +386,14 @@ $$B = \mu H = \mu_r\mu_0H,\qquad B = \mu_0(H+M),\qquad \chi = \mu_r - 1,\qquad \
 
 $$W_h = \oint H\,dB\ \text{(J/m}^3\text{ per cycle)},\qquad P_h = k_hfB_m^{1.6}\ \text{(Steinmetz)},\qquad P_e = k_ef^2B_m^2t^2\ \text{(eddy)}$$
 
+**Symbols**
+
+- $k_h$ — Steinmetz hysteresis-loss coefficient, an empirical material constant (in $\mathrm{W\cdot s\,m^{-3}T^{-1.6}}$ when $P_h$ is taken per unit volume in W/m³)
+- $k_e$ — eddy-current loss coefficient, an empirical material constant (in $\mathrm{W\cdot s^2\,m^{-5}T^{-2}}$ when $P_e$ is taken per unit volume in W/m³)
+- $B_m$ — maximum (peak) flux density of the magnetising cycle, in T
+- $f$ — magnetising frequency, in Hz
+- $t$ — lamination thickness, in m
+
 $$L = \frac{N\Phi}{I} = \frac{\mu N^2A}{l}\ \text{(H)},\qquad \mathcal{R} = \frac{l}{\mu A}\ \text{(reluctance, A/Wb)}$$
 
 **Soft magnets** (transformer Si–Fe, ferrites): narrow loop — high $\mu_r$, low $H_c$, low hysteresis loss.
@@ -341,6 +406,11 @@ $$T < T_C:\ \text{ferromagnetic} \to T > T_C:\ \text{paramagnetic}\quad(\text{pu
 $$T < T_N:\ \text{antiferromagnetic} \to T > T_N:\ \text{paramagnetic}$$
 
 $$\chi = \frac{C}{T-T_C}\ \text{(Curie–Weiss, } T > T_C\text{)}$$
+
+**Symbols**
+
+- $C$ — Curie constant, a material-specific constant of the Curie–Weiss law, in K
+- $T_C$ — Curie temperature, in K
 
 **Conditions:** $\mu_r$ is not constant — it depends on $H$, temperature and frequency; saturation, hysteresis and eddy-current loss vanish only in the ideal linear core; the Curie–Weiss law applies in the paramagnetic region $T > T_C$ only.
 
@@ -374,6 +444,14 @@ Non-steady state has $C$ varying with both $x$ and $t$; the solution has the err
 
 $$C(x,t) = C_s - (C_s-C_0)\,\text{erf}\!\left(\frac{x}{2\sqrt{Dt}}\right)$$
 
+**Symbols**
+
+- $C_s$ — constant surface concentration maintained at the surface, in kg/m³
+- $C_0$ — initial uniform concentration in the specimen, in kg/m³
+- $\text{erf}(\cdot)$ — Gaussian error function, $\text{erf}(u)=\frac{2}{\sqrt\pi}\int_0^u e^{-z^2}dz$ (dimensionless)
+- $x$ — depth below the surface, in m
+- $t$ — diffusion time, in s
+
 **Conditions:** $D$ is constant and independent of concentration; Fick's first law is a steady-state statement; the Arrhenius form assumes a single activation energy $Q$ over the temperature range.
 
 ---
@@ -386,12 +464,21 @@ $$C(x,t) = C_s - (C_s-C_0)\,\text{erf}\!\left(\frac{x}{2\sqrt{Dt}}\right)$$
 
 $$\text{surface-area-to-volume ratio} \propto \frac1r,\qquad \text{quantum dots: } E_g \text{ rises as } r \text{ falls (quantum confinement)}$$
 
+**Symbols**
+
+- $r$ — nanoparticle (particle) radius, in m
+- $E_g$ — band gap energy, in eV
+
 **Fabrication routes**
 
 | Route | Direction | Examples |
 |---|---|---|
 | Top-down | bulk → nano | milling, lithography |
 | Bottom-up | atoms/molecules → nano | self-assembly, CVD |
+
+**Symbols**
+
+- CVD — chemical vapour deposition: a bottom-up route in which gaseous precursors react to deposit a solid nanomaterial (process acronym, not a quantity)
 
 **Why properties differ:** a large surface-atom fraction, quantum confinement and altered surface energy shift melting point, reactivity and optical behavior.
 **Conditions:** the 1–100 nm definition counts external dimensions only, not internal structure; quantum-confinement shifts appear once the size approaches the exciton Bohr radius.

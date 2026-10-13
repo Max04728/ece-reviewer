@@ -223,6 +223,11 @@ $$\text{group size}=2^k\ (k=0,1,2,\dots),\qquad \text{each 1 must be covered at 
 
 $$\text{number of groups}\ge\text{number of prime implicants needed}$$
 
+**Symbols**
+
+- $k$ — group-size exponent, so a legal group covers $2^k$ cells (integer, dimensionless)
+- $\text{prime implicant}$ — maximal group of 1-cells that cannot be enlarged without covering a 0 (dimensionless)
+
 **Cell adjacency**
 
 $$\text{adjacent cells differ in exactly }1\ \text{variable},\qquad \text{wraparound at edges and corners}$$
@@ -231,9 +236,18 @@ $$\text{adjacent cells differ in exactly }1\ \text{variable},\qquad \text{wrapar
 
 $$F=\sum(\text{prime implicants}),\qquad \text{each group removes }k\ \text{variables for }2^k\ \text{cells}$$
 
+**Symbols**
+
+- $F$ — Boolean function output (0 or 1, dimensionless)
+
 **Don't-care conditions**
 
 $$d=\Sigma m(\text{don't-care indices}),\qquad \text{include a don't-care if and only if it enlarges a group}$$
+
+**Symbols**
+
+- $d$ — don't-care set, the sum of the minterm indices whose output may be treated as 0 or 1 (dimensionless)
+- $m$ — minterm index of the function (integer, dimensionless)
 
 **Map sizes and literals removed**
 
@@ -384,15 +398,33 @@ $$N\ \text{channels need }\log_2N\ \text{select lines},\qquad 2^n{:}1\ \text{MUX
 
 $$Q_{next}=S+\bar{R}Q,\qquad \text{invalid when }S=R=1\ \text{(NOR latch)}$$
 
+**Symbols**
+
+- $Q$ — present state of the latch output (0 or 1, dimensionless)
+- $Q_{next}$ — next state of the latch output (0 or 1, dimensionless)
+- $S$ — set input (0 or 1, dimensionless)
+- $R$ — reset input (0 or 1, dimensionless)
+
 **D and JK flip-flops ★**
 
 $$D:\ Q_{next}=D,\qquad JK:\ Q_{next}=J\bar{Q}+\bar{K}Q$$
 
 $$JK\ \text{with }J=K=1\ \Rightarrow\ Q_{next}=\bar{Q}\ \text{(toggle)}$$
 
+**Symbols**
+
+- $D$ — data input, copied to the output at the clock edge (0 or 1, dimensionless)
+- $J$ — JK set input (0 or 1, dimensionless)
+- $K$ — JK reset input (0 or 1, dimensionless)
+- $\bar{Q}$ — complement of the present output state (0 or 1, dimensionless)
+
 **T flip-flop**
 
 $$T:\ Q_{next}=T\bar{Q}+\bar{T}Q=T\oplus Q$$
+
+**Symbols**
+
+- $T$ — toggle input, the flip-flop toggles when $T=1$ (0 or 1, dimensionless)
 
 **Characteristic table ★**
 
@@ -412,6 +444,10 @@ $$T:\ Q_{next}=T\bar{Q}+\bar{T}Q=T\oplus Q$$
 | $1\to0$ | 0 | X | 1 | 1 |
 | $1\to1$ | 1 | X | 0 | 0 |
 
+**Symbols**
+
+- $X$ — don't-care entry in the excitation table: the input may be either 0 or 1 (dimensionless)
+
 **Conditions:** level-sensitive latches are transparent while enabled; edge-triggered flip-flops sample only at the clock edge; the $S=R=1$ state is invalid for a NOR SR latch because both outputs go low. #logic #flipflop
 
 ## Part C — Sequential Logic and Families
@@ -426,9 +462,23 @@ $$T:\ Q_{next}=T\bar{Q}+\bar{T}Q=T\oplus Q$$
 
 $$t_{setup}+t_{hold}\le T_{clk},\qquad T_{clk}\ge t_{cq}+t_{logic}+t_{setup}$$
 
+**Symbols**
+
+- $t_{setup}$ — flip-flop setup time, in s
+- $t_{hold}$ — flip-flop hold time, in s
+- $T_{clk}$ — clock period, in s
+- $t_{cq}$ — clock-to-Q (clock-to-output) delay, in s
+- $t_{logic}$ — worst-case combinational logic delay between flip-flops, in s
+
 **Maximum clock frequency ★**
 
 $$f_{max}=\frac{1}{t_{cq}+t_{logic,comb}+t_{setup}+t_{skew}}\ \text{(Hz)}$$
+
+**Symbols**
+
+- $f_{max}$ — maximum clock frequency, in Hz
+- $t_{logic,comb}$ — combinational logic delay in the critical path, in s
+- $t_{skew}$ — clock skew between the launching and capturing registers, in s
 
 $t$ terms in s; $t_{cq}$ = clock-to-Q delay.
 
@@ -436,13 +486,28 @@ $t$ terms in s; $t_{cq}$ = clock-to-Q delay.
 
 $$t_{hold}\le t_{cq}+t_{logic,min}\ \text{(no skew)},\qquad t_{hold}\le t_{cq}+t_{logic,min}-t_{skew}$$
 
+**Symbols**
+
+- $t_{logic,min}$ — minimum (shortest) combinational logic delay from launch to capture, in s
+
 **Propagation delay and skew**
 
 $$t_{pd}=t_{PHL}\ \text{or}\ t_{PLH},\qquad t_{skew}=t_{clk2}-t_{clk1}\ \text{(s)}$$
 
+**Symbols**
+
+- $t_{pd}$ — propagation delay of the gate or flip-flop, in s
+- $t_{PHL}$ — high-to-low propagation delay, in s
+- $t_{PLH}$ — low-to-high propagation delay, in s
+- $t_{clk1},t_{clk2}$ — clock arrival times at the two registers, in s
+
 **Setup slack**
 
 $$\text{slack}=T_{clk}-t_{cq}-t_{logic}-t_{setup}-t_{skew}$$
+
+**Symbols**
+
+- $\text{slack}$ — setup slack, the timing margin remaining in one clock period, in s
 
 **Conditions:** positive slack is required for reliable capture; skew is positive when the destination clock arrives later; hold violations cannot be fixed by slowing the clock. #logic #flipflop
 
@@ -471,6 +536,8 @@ $$\text{ring: modulus}=n,\qquad \text{Johnson: modulus}=2n$$
 
 $$f_{out,ring}=\frac{f_{clk}}{n},\qquad f_{out,Johnson}=\frac{f_{clk}}{2n}\ \text{(Hz)}$$
 
+See `### 13. Counters: Types, Modulus and Design` for the full comparison with binary, decade and truncated counters.
+
 **Shift register types**
 
 | Type | Input | Output | Use |
@@ -486,7 +553,7 @@ $$f_{out,ring}=\frac{f_{clk}}{n},\qquad f_{out,Johnson}=\frac{f_{clk}}{2n}\ \tex
 
 ---
 
-### 13. Asynchronous and Synchronous Counters
+### 13. Counters: Types, Modulus and Design
 
 ![](https://www.youtube.com/watch?v=imblQB_ZxBs)
 
@@ -494,33 +561,103 @@ $$f_{out,ring}=\frac{f_{clk}}{n},\qquad f_{out,Johnson}=\frac{f_{clk}}{2n}\ \tex
 
 **Modulus and division ★**
 
-$$M=2^n\ \text{for an }n\text{-bit binary counter},\qquad f_{out}=\frac{f_{clk}}{M}\ \text{(Hz)}$$
+$$M=2^n\ \text{for a full }n\text{-bit binary counter},\qquad M=N_{reset}\ \text{for a truncated counter}$$
 
-$$M=2^n\ \text{when the full count is used},\qquad \text{truncated: }M=N_{reset}$$
+$$f_{out}=\frac{f_{clk}}{M}\ \text{(Hz)},\qquad n\ge\lceil\log_2M\rceil\ \text{flip-flops required}$$
+
+**Symbols**
+
+- $M$ — counter modulus, the number of distinct states before the sequence repeats (dimensionless)
+- $n$ — number of flip-flop stages (bits) in the counter (integer, dimensionless)
+- $N_{reset}$ — terminal count at which a truncated counter is reset (dimensionless)
+- $f_{out}$ — output frequency of the counter, in Hz
+- $f_{clk}$ — clock frequency, in Hz
+
+**Counter taxonomy ★**
+
+| Classified by | Types |
+|---|---|
+| Clocking | asynchronous (ripple) · synchronous |
+| Direction | up · down · up/down (bidirectional) |
+| Modulus | MOD-$2^n$ binary · decade (MOD-10) · truncated MOD-$m$ |
+| Encoding | binary · BCD · Gray · one-hot (ring) |
+| Architecture | binary · ring (straight) · Johnson (twisted ring) |
+| Loading | free-running · presettable (parallel load) |
 
 **Asynchronous (ripple) counter**
 
-$$f_{MSB}=\frac{f_{clk}}{2^n},\qquad t_{settle}=n\cdot t_{FF}\ \text{(s)}$$
+$$f_{MSB}=\frac{f_{clk}}{2^n},\qquad Q_i=\frac{f_{clk}}{2^{i+1}},\qquad t_{settle}=n\cdot t_{FF}\ \text{(worst case)}$$
 
-$$Q_i=\frac{f_{clk}}{2^{i+1}}\ \text{(each stage divides by 2)}$$
+**Symbols**
+
+- $f_{MSB}$ — frequency at the most-significant-bit output, in Hz
+- $t_{settle}$ — total settling time of the ripple chain, in s
+- $t_{FF}$ — propagation delay of one flip-flop stage, in s
+- $Q_i$ — output frequency of counter stage $i$ (each stage divides by 2), in Hz
+- $i$ — counter stage index (integer, dimensionless; stage 0 = LSB)
 
 **Synchronous counter**
 
 $$f_{max}=\frac{1}{t_{cq}+t_{logic}+t_{setup}}\ \text{(all stages clocked together)}$$
 
-$$J_i=K_i=\prod_{k<i}Q_k\ \text{(count-enable terms)}$$
+$$J_i=K_i=\prod_{k<i}Q_k\ \text{(count-enable / carry terms)}$$
 
-**Counter comparison ★**
+**Symbols**
 
-| Feature | Asynchronous | Synchronous |
-|---|---|---|
-| Clock | rippled | common |
-| Speed | slow ($n t_{FF}$) | fast |
-| Decoding | glitchy | clean |
-| Logic | minimal | more gates |
-| Use | dividers | controllers |
+- $f_{max}$ — maximum clock frequency of the synchronous counter, in Hz
+- $t_{cq}$ — flip-flop clock-to-output delay, in s
+- $t_{logic}$ — combinational logic delay in the count-enable path, in s
+- $t_{setup}$ — flip-flop setup time, in s
+- $J_i,K_i$ — J and K inputs of stage $i$ (count-enable terms), dimensionless
+- $Q_k$ — output state of an earlier stage $k$ (0 or 1, dimensionless)
 
-**Conditions:** ripple counters accumulate propagation delay, so decoded outputs can glitch; synchronous counters are preferred whenever decoded states drive logic; modulus $M$ needs $n\ge\log_2M$ flip-flops. #logic #counter
+**Ring counter (straight / one-hot)**
+
+$$M=N\ \text{states},\qquad f_{out}=\frac{f_{clk}}{N},\qquad \text{one flip-flop per state}$$
+
+A single 1 circulates; output of the last stage feeds the first directly. Propagation delay is **independent of $N$**, so it runs faster than a binary counter of the same length, but it needs more flip-flops.
+
+**Johnson counter (twisted ring) ★**
+
+$$M=2N\ \text{states},\qquad f_{out}=\frac{f_{clk}}{2N}$$
+
+Last stage is fed back **inverted**. Self-initializes from the all-zeros state and produces a **Gray-code** sequence (adjacent states differ by one bit), so it can be sampled without glitches.
+
+**Counter type comparison ★**
+
+| Type | Modulus | Flip-flops for $M$ | Output code | Decoding |
+|---|---|---|---|---|
+| Binary (ripple) | $2^n$ | $\lceil\log_2M\rceil$ | binary | glitchy |
+| Binary (synchronous) | $2^n$ | $\lceil\log_2M\rceil$ | binary | clean |
+| Decade (BCD) | 10 | 4 | BCD | clean |
+| Ring | $N$ | $N$ | one-hot | no decoder needed |
+| Johnson | $2N$ | $N$ | Gray / Johnson | 1 gate per state |
+
+**Common counter ICs**
+
+| Device | Function |
+|---|---|
+| 7490 | decade (MOD-10) ripple counter, ÷2 and ÷5 sections |
+| 7492 | divide-by-12 ripple counter |
+| 7493 | 4-bit binary (MOD-16) ripple counter |
+| 74160 / 74162 | synchronous decade counters (async / sync clear) |
+| 74161 / 74163 | synchronous 4-bit binary counters (async / sync clear) |
+| 74190 / 74192 | synchronous up/down decade counters |
+| 74191 / 74193 | synchronous up/down 4-bit binary counters |
+
+**Cascading and modulus control**
+
+$$M_{total}=M_1\times M_2\qquad \text{(series cascade, TC}\to\text{Enable)}$$
+
+Truncated modulus: feed the terminal count back to the **Load** (preset) inputs so the counter reloads early; a MOD-$m$ counter with $n$ flip-flops skips $2^n-m$ states.
+
+**Conditions:** ripple counters accumulate propagation delay, so decoded outputs can glitch — synchronous (or ring/Johnson) counters are preferred whenever decoded states drive logic. Unused states in a truncated counter must be handled, since an illegal state can lock up a self-starting design. #logic #counter
+
+> [!warning] Exam trap
+> Ring vs Johnson is the most commonly swapped pair: a straight ring counter has **$N$** states (one-hot), a Johnson counter has **$2N$**. So a 4-flip-flop ring gives MOD-4 while a 4-flip-flop Johnson gives MOD-8.
+
+> [!tip] High-yield ★
+> To find the flip-flop count, use $n\ge\lceil\log_2M\rceil$: MOD-10 needs 4 (not 3), and MOD-6 needs 3. A synchronous counter's speed limit is set by the **count-enable logic** path, not by the number of stages.
 
 ---
 
@@ -610,6 +747,15 @@ $$Z=\sum(\text{state}\cdot\text{conditions})\ \text{(Mealy output in ASM form)}$
 
 $$NM_H=V_{OH,min}-V_{IH,min},\qquad NM_L=V_{IL,max}-V_{OL,max}$$
 
+**Symbols**
+
+- $NM_H$ — HIGH-state noise margin, in V
+- $NM_L$ — LOW-state noise margin, in V
+- $V_{OH,min}$ — minimum guaranteed output HIGH voltage, in V
+- $V_{IH,min}$ — minimum input voltage recognised as HIGH, in V
+- $V_{IL,max}$ — maximum input voltage recognised as LOW, in V
+- $V_{OL,max}$ — maximum guaranteed output LOW voltage, in V
+
 All in V; voltage values are the worst-case guaranteed limits.
 
 **Fan-out ★**
@@ -618,11 +764,31 @@ $$Fan\text{-}out=\frac{I_{OH}}{I_{IH}}\ \text{(logic HIGH)},\qquad Fan\text{-}ou
 
 $$Fan\text{-}out=\min(\text{high, low})\ \text{(dimensionless count)}$$
 
+**Symbols**
+
+- $I_{OH}$ — output HIGH drive current, in A
+- $I_{IH}$ — input HIGH current drawn by one load gate, in A
+- $I_{OL}$ — output LOW sink current, in A
+- $I_{IL}$ — input LOW current of one load gate, in A
+- $Fan\text{-}out$ — number of identical gate inputs one output can drive (dimensionless)
+
 **Power and speed**
 
 $$P_{avg}=V_{CC}I_{CC,avg}\ \text{(W)},\qquad PDP=P_{avg}\cdot t_{pd}\ \text{(J)}$$
 
 $$P_{dynamic,CMOS}=C_LV_{DD}^2f\ \text{(W)}$$
+
+**Symbols**
+
+- $P_{avg}$ — average power dissipation of the gate, in W
+- $V_{CC}$ — supply voltage, in V
+- $I_{CC,avg}$ — average supply current, in A
+- $PDP$ — power-delay product, the energy per switching operation, in J
+- $t_{pd}$ — propagation delay, in s
+- $P_{dynamic,CMOS}$ — dynamic (switching) power of a CMOS gate, in W
+- $C_L$ — load capacitance, in F
+- $V_{DD}$ — CMOS supply voltage, in V
+- $f$ — switching frequency, in Hz
 
 **Logic level table ★**
 

@@ -98,6 +98,16 @@ $$P_{DQ}=V_{CEQ}I_{CQ}\ \text{(W)},\qquad I_{CQ}=\frac{V_{CC}-V_{CEQ}}{R_{DC}}$$
 
 $$S_{I_{CO}}=\frac{\partial I_C}{\partial I_{CO}},\qquad S_{V_{BE}}=\frac{\partial I_C}{\partial V_{BE}},\qquad S_\beta=\frac{\partial I_C}{\partial\beta}$$
 
+**Symbols**
+
+- $S_{I_{CO}}$ — stability factor relating collector current to collector leakage current, dimensionless
+- $S_{V_{BE}}$ — stability factor relating collector current to base-emitter voltage, in S
+- $S_\beta$ — stability factor relating collector current to current gain, dimensionless
+- $I_C$ — collector current, in A
+- $I_{CO}$ — collector-base leakage current with the emitter open, in A
+- $V_{BE}$ — base-emitter voltage, in V
+- $\beta$ — forward current gain, dimensionless
+
 All dimensionless except $S_{V_{BE}}$ in S.
 
 **Ideal and practical values ★**
@@ -110,13 +120,34 @@ $$S_{I_{CO}}=1+\beta\ \text{(fixed bias)},\qquad S_{I_{CO}}=\frac{1+\beta}{1+\be
 
 $$S_{I_{CO}}=\frac{(\beta+1)(R_E+R_B)}{R_E(\beta+1)+R_B}\ \text{(general)}$$
 
+**Symbols**
+
+- $R_E$ — emitter resistance, in $\Omega$
+- $R_B$ — base resistance, in $\Omega$
+
 **Stability relations**
 
 $$S_\beta=\frac{I_{C1}}{\beta_1}S_{I_{CO}}\ \text{(for }\beta\text{ change)}\qquad \Delta I_C=S_\beta\Delta\beta+S_{V_{BE}}\Delta V_{BE}+S_{I_{CO}}\Delta I_{CO}$$
 
+**Symbols**
+
+- $I_{C1}$ — collector current at the initial (pre-change) operating point, in A
+- $\beta_1$ — forward current gain at the initial operating point, dimensionless
+- $\Delta I_C$ — change in collector current from the initial operating point, in A
+- $\Delta\beta$ — change in forward current gain from the initial operating point, dimensionless
+- $\Delta V_{BE}$ — change in base-emitter voltage from the initial operating point, in V
+- $\Delta I_{CO}$ — change in collector leakage current from the initial operating point, in A
+
 **Thermal stability**
 
 $$P_D=V_{CE}I_C,\qquad \frac{dP_D}{dT}\ \text{must stay below the derated }P_{D,max}$$
+
+**Symbols**
+
+- $P_D$ — device power dissipation, in W
+- $V_{CE}$ — collector-emitter voltage, in V
+- $T$ — device junction temperature, in °C
+- $P_{D,max}$ — maximum (derated) allowable device power dissipation, in W
 
 **Conditions:** $S_{I_{CO}}$ as close to 1 as possible for the best thermal stability; larger $R_E$ lowers both $S_{I_{CO}}$ and $S_\beta$ but costs headroom. #bjt
 
@@ -163,6 +194,19 @@ $$V_{GS}=V_{DD}-I_DR_D,\qquad V_{DS}=V_{DD}-I_D(R_D+R_S)$$
 
 $$\mathbf{V}_{be}=h_{ie}\mathbf{I}_b+h_{re}\mathbf{V}_{ce},\qquad \mathbf{I}_c=h_{fe}\mathbf{I}_b+h_{oe}\mathbf{V}_{ce}$$
 
+**Symbols**
+
+- $\mathbf{V}_{be}$ — small-signal base-emitter voltage phasor, in V
+- $\mathbf{I}_b$ — small-signal base current phasor, in A
+- $\mathbf{V}_{ce}$ — small-signal collector-emitter voltage phasor, in V
+- $\mathbf{I}_c$ — small-signal collector current phasor, in A
+- $h_{ie}$ — input impedance (hybrid parameter), in $\Omega$
+- $h_{re}$ — reverse voltage feedback ratio (hybrid parameter), dimensionless
+- $h_{fe}$ — forward current gain (hybrid parameter), dimensionless
+- $h_{oe}$ — output admittance (hybrid parameter), in S
+- $r_\pi=h_{ie}$ — small-signal base-emitter input resistance, in $\Omega$
+- $r_o=1/h_{oe}$ — small-signal output resistance of the transistor, in $\Omega$
+
 **Parameter meanings and units ★**
 
 | Parameter | Value | Unit | Meaning |
@@ -181,6 +225,14 @@ $$h_{ie}\approx1\ \text{k}\Omega,\qquad h_{fe}\approx100,\qquad h_{re}\approx2\t
 $$A_v=\frac{-h_{fe}R_L'}{h_{ie}},\qquad A_i=\frac{h_{fe}}{1+h_{oe}R_L'},\qquad R_{in}=h_{ie}$$
 
 $$R_{out}=\frac{1}{h_{oe}}\ \text{(open-source approximation)}$$
+
+**Symbols**
+
+- $A_v$ — mid-band small-signal voltage gain, dimensionless
+- $A_i$ — mid-band small-signal current gain, dimensionless
+- $R_L'$ — effective AC load resistance ($R_C\parallel R_L$), in $\Omega$
+- $R_{in}$ — amplifier input resistance, in $\Omega$
+- $R_{out}$ — amplifier output resistance, in $\Omega$
 
 **Approximate analysis rules**
 
@@ -202,6 +254,16 @@ $$r_e=\frac{V_T}{I_E}=\frac{26\ \text{mV}}{I_E}\ \text{(}\Omega\text{ with }I_E\
 
 $$r_\pi=\beta r_e,\qquad g_m=\frac{I_C}{V_T}=\frac{1}{r_e}\ \text{(S)}$$
 
+**Symbols**
+
+- $r_e$ — base-emitter dynamic (AC) resistance, in $\Omega$
+- $V_T$ — thermal voltage ($\approx26$ mV at room temperature), in V
+- $I_E$ — DC emitter current, in A
+- $I_C$ — DC collector current, in A
+- $\beta$ — forward current gain, dimensionless
+- $r_\pi=\beta r_e$ — small-signal base-emitter input resistance, in $\Omega$
+- $g_m=I_C/V_T=1/r_e$ — small-signal transconductance, in S
+
 **CE amplifier ★**
 
 $$A_v=-\frac{R_C\parallel R_L}{r_e},\qquad A_i=\beta,\qquad R_{in}=\beta r_e,\qquad R_{out}=R_C$$
@@ -209,6 +271,11 @@ $$A_v=-\frac{R_C\parallel R_L}{r_e},\qquad A_i=\beta,\qquad R_{in}=\beta r_e,\qq
 **CE with unbypassed emitter ★**
 
 $$A_v=-\frac{R_C\parallel R_L}{r_e+R_E},\qquad R_{in}=\beta\big[r_e+(1+\beta)R_E\big]$$
+
+**Symbols**
+
+- $R_E$ — emitter resistance, in $\Omega$
+- $f_L$ — lower cutoff (low-corner) frequency of the amplifier, in Hz
 
 Removing the emitter bypass capacitor lowers the midband gain, raises the input impedance, and lowers the lower cutoff frequency $f_L$.
 
@@ -221,6 +288,10 @@ $$A_v=+\frac{R_C\parallel R_L}{r_e},\qquad A_i\approx1,\qquad R_{in}=r_e,\qquad 
 $$A_v=\frac{R_E\parallel R_L}{R_E\parallel R_L+r_e}\approx1,\qquad A_i=\beta+1,\qquad R_{in}=\beta(R_E\parallel R_L)$$
 
 $$R_{out}=R_E\parallel\left(r_e+\frac{R_{in,source}}{\beta}\right)$$
+
+**Symbols**
+
+- $R_{in,source}$ — source (generator) resistance driving the amplifier input, in $\Omega$
 
 **Comparison of the three configurations ★**
 
@@ -281,15 +352,36 @@ $$A_v=-g_m(r_d\parallel R_D\parallel R_L),\qquad A_v=-\frac{R_D\parallel R_L}{1/
 
 $$R_{in}=R_G,\qquad R_{out}=R_D\parallel r_d$$
 
+**Symbols**
+
+- $A_v$ — mid-band voltage gain, dimensionless
+- $g_m$ — small-signal transconductance, in S
+- $r_d$ — small-signal drain (output) resistance of the FET, in $\Omega$
+- $R_D$ — drain resistance, in $\Omega$
+- $R_L$ — load resistance, in $\Omega$
+- $R_S$ — source resistance, in $\Omega$
+- $R_G$ — gate resistance, in $\Omega$
+- $R_{in}$ — amplifier input resistance, in $\Omega$
+- $R_{out}$ — amplifier output resistance, in $\Omega$
+- $R_D'=r_d\parallel R_D\parallel R_L$ — effective AC drain load, in $\Omega$
+
 **Common drain (source follower) ★**
 
 $$A_v=\frac{g_m(r_d\parallel R_S\parallel R_L)}{1+g_m(r_d\parallel R_S\parallel R_L)}\approx\frac{g_mR_S'}{1+g_mR_S'}$$
 
 $$R_{in}=R_G,\qquad R_{out}=\frac{1}{g_m}\parallel R_S$$
 
+**Symbols**
+
+- $R_S'=r_d\parallel R_S\parallel R_L$ — effective AC source load, in $\Omega$
+
 **Common gate**
 
 $$A_v=+g_m(r_d\parallel R_D\parallel R_L),\qquad A_i\approx1,\qquad R_{in}=\frac{1}{g_m},\qquad R_{out}\approx R_D$$
+
+**Symbols**
+
+- $A_i$ — mid-band current gain, dimensionless
 
 **Comparison ★**
 
@@ -391,13 +483,34 @@ $$\beta_{pair}\approx\beta_1\beta_2,\qquad V_{BE,pair}\approx0.7\ \text{V (singl
 
 $$A_v(f)=\frac{A_{v,mid}}{\sqrt{1+(f_L/f)^2}\sqrt{1+(f/f_H)^2}}$$
 
+**Symbols**
+
+- $A_v(f)$ — voltage gain magnitude at frequency $f$, dimensionless
+- $A_{v,mid}$ — mid-band (maximum) voltage gain, dimensionless
+- $f$ — signal frequency, in Hz
+- $f_L$ — lower cutoff (corner) frequency, in Hz
+- $f_H$ — upper cutoff (corner) frequency, in Hz
+
 **Corner frequencies from RC**
 
 $$f_L=\frac{1}{2\pi R_CC_C}\ \text{(coupling/bypass)},\qquad f_H=\frac{1}{2\pi R_{Th}C_{in}}\ \text{(stray/internal)}$$
 
+**Symbols**
+
+- $R_C$ — resistance seen by the coupling or bypass capacitor, in $\Omega$
+- $C_C$ — coupling (or bypass) capacitance, in F
+- $R_{Th}$ — Thévenin resistance seen by the input capacitance, in $\Omega$
+- $C_{in}$ — input (stray/internal) capacitance, in F
+
 **Decibel definitions ★**
 
 $$A(\text{dB})=20\log_{10}\lvert A_v\rvert\ \text{(voltage)},\qquad A(\text{dB})=10\log_{10}A_P\ \text{(power)}$$
+
+**Symbols**
+
+- $A(\text{dB})$ — voltage or power gain expressed in decibels, in dB
+- $A_v$ — voltage gain, dimensionless
+- $A_P$ — power gain, dimensionless
 
 **Bode slopes**
 
@@ -411,6 +524,11 @@ $$A(\text{dB})=20\log_{10}\lvert A_v\rvert\ \text{(voltage)},\qquad A(\text{dB})
 **Bandwidth and cutoff**
 
 $$BW=f_H-f_L\approx f_H\ \text{(when }f_H\gg f_L\text{)},\qquad \lvert A_v(f_c)\rvert=\frac{A_{v,mid}}{\sqrt2}=-3\ \text{dB}$$
+
+**Symbols**
+
+- $BW$ — bandwidth, in Hz
+- $f_c$ — cutoff (corner) frequency, in Hz
 
 **Conditions:** single-pole (dominant-pole) approximation; $-3$ dB = 70.7% of mid-band gain; decibel values add where stages cascade. #frequency
 
@@ -457,9 +575,24 @@ $$GBW=\lvert A_{v,mid}\rvert\cdot BW=f_T\ \text{(for a single-pole op-amp)}$$
 
 $$f_T=\lvert A_{v,mid}\rvert f_H\ \text{(Hz)},\qquad A_v(f)=\frac{f_T}{f}\ \text{(above the corner)}$$
 
+**Symbols**
+
+- $GBW$ — gain-bandwidth product, in Hz
+- $A_{v,mid}$ — mid-band voltage gain, dimensionless
+- $BW$ — bandwidth, in Hz
+- $f_T$ — unity-gain (transition) frequency, in Hz
+- $f_H$ — upper cutoff frequency, in Hz
+- $A_v(f)$ — voltage gain at frequency $f$, dimensionless
+
 **Closed-loop bandwidth ★**
 
 $$f_{CL}=\frac{f_T}{1+R_f/R_i}=\frac{GBW}{A_{CL}}$$
+
+**Symbols**
+
+- $f_{CL}$ — closed-loop bandwidth, in Hz
+- $R_f$ — feedback resistance, in $\Omega$
+- $R_i$ — input (gain-setting) resistance, in $\Omega$
 
 $f_T$ in Hz, $A_{CL}$ dimensionless.
 
@@ -469,9 +602,24 @@ $$f_T=\frac{g_m}{2\pi(C_\pi+C_\mu)},\qquad f_\beta=\frac{f_T}{\beta}$$
 
 $$f_{max}=\sqrt{\frac{f_T}{8\pi r_bC_\mu}}\ \text{(maximum oscillation frequency)}$$
 
+**Symbols**
+
+- $g_m$ — small-signal transconductance, in S
+- $C_\pi$ — base-emitter (diffusion) capacitance, in F
+- $C_\mu$ — base-collector (feedback) capacitance, in F
+- $f_\beta$ — beta cutoff frequency (where the current gain falls by 3 dB), in Hz
+- $r_b$ — base spreading resistance, in $\Omega$
+- $f_{max}$ — maximum oscillation frequency, in Hz
+
 **Slew-rate limit**
 
 $$SR=2\pi f_{max,full}V_{op}\ \text{(V/}\mu\text{s)},\qquad f_{max,full}=\frac{SR}{2\pi V_{op}}$$
+
+**Symbols**
+
+- $SR$ — slew rate, in V/µs
+- $f_{max,full}$ — full-power (maximum) output frequency, in Hz
+- $V_{op}$ — output peak voltage, in V
 
 **Conditions:** single-pole op-amp or transistor; above $f_c$ the gain falls at $-20$ dB/decade, so $A_vf=$ constant; slew rate is a large-signal limit independent of $GBW$. #frequency #opamp
 
@@ -495,6 +643,16 @@ $$S_A^{A_f}=\frac{1}{1+\beta A},\qquad \text{THD}_f=\frac{\text{THD}}{1+\beta A}
 
 $$f_{Hf}=f_H(1+\beta A),\qquad f_{Lf}=\frac{f_L}{1+\beta A}$$
 
+**Symbols**
+
+- $S_A^{A_f}$ — sensitivity of the closed-loop gain to changes in the open-loop gain, dimensionless
+- $\text{THD}$ — total harmonic distortion of the open-loop amplifier, dimensionless
+- $\text{THD}_f$ — total harmonic distortion with feedback, dimensionless
+- $f_H$ — open-loop upper cutoff frequency, in Hz
+- $f_L$ — open-loop lower cutoff frequency, in Hz
+- $f_{Hf}$ — upper cutoff frequency with feedback, in Hz
+- $f_{Lf}$ — lower cutoff frequency with feedback, in Hz
+
 **The four topologies ★**
 
 | Topology | Sampled | Mixed | Stabilizes |
@@ -504,11 +662,23 @@ $$f_{Hf}=f_H(1+\beta A),\qquad f_{Lf}=\frac{f_L}{1+\beta A}$$
 | Series-series (transconductance) | current | voltage | $G_m$, raises $R_{out}$ |
 | Shunt-series (current amp) | current | current | $A_i$, raises $R_{in}$, $R_{out}$ |
 
+**Symbols**
+
+- $R_m$ — transresistance (mutual resistance) gain, in $\Omega$
+- $G_m$ — transconductance gain, in S
+
 **Impedance effects**
 
 $$R_{in,f}=R_{in}(1+\beta A)\ \text{(series mixing)},\qquad R_{in,f}=\frac{R_{in}}{1+\beta A}\ \text{(shunt mixing)}$$
 
 $$R_{out,f}=\frac{R_{out}}{1+\beta A}\ \text{(voltage sampling)},\qquad R_{out,f}=R_{out}(1+\beta A)\ \text{(current sampling)}$$
+
+**Symbols**
+
+- $R_{in,f}$ — input resistance with feedback, in $\Omega$
+- $R_{out,f}$ — output resistance with feedback, in $\Omega$
+- $R_{in}$ — open-loop input resistance, in $\Omega$
+- $R_{out}$ — open-loop output resistance, in $\Omega$
 
 **Conditions:** negative feedback ($1+\beta A>0$); if $\beta A=-1$ the loop oscillates (Barkhausen); gain-bandwidth product is preserved. #feedback
 
@@ -526,15 +696,35 @@ $$P_{out,max}=\frac{V_{CC}^2}{8R_L}\ \text{(series-fed)},\qquad \eta_{max}=25\%$
 
 $$P_{out,max}=\frac{V_{CC}^2}{2R_L}\ \text{(transformer-coupled)},\qquad \eta_{max}=50\%$$
 
+**Symbols**
+
+- $P_{out,max}$ — maximum output power delivered to the load, in W
+- $V_{CC}$ — DC supply voltage, in V
+- $R_L$ — load resistance, in $\Omega$
+- $\eta_{max}$ — maximum conversion efficiency, dimensionless (in %)
+
 **Class B push-pull ★**
 
 $$P_{out,max}=\frac{V_{CC}^2}{2R_L},\qquad \eta_{max}=\frac{\pi}{4}=78.5\%$$
 
 $$P_{supply}=\frac{2V_{CC}V_{op}}{\pi R_L},\qquad P_D=P_{supply}-P_{out}$$
 
+**Symbols**
+
+- $P_{supply}$ — DC power drawn from the supply, in W
+- $V_{op}$ — output peak voltage, in V
+- $P_D$ — transistor power dissipation, in W
+- $P_{out}$ — output power delivered to the load, in W
+
 **Class AB and C**
 
 $$\eta_{AB}\approx60\text{–}70\%,\qquad \eta_C\ \text{can exceed }80\%\ \text{with high tank }Q$$
+
+**Symbols**
+
+- $\eta_{AB}$ — maximum conversion efficiency of class AB, dimensionless (in %)
+- $\eta_C$ — maximum conversion efficiency of class C, dimensionless (in %)
+- $Q$ — quality factor of the resonant tank load, dimensionless
 
 **Crossover and efficiency comparison ★**
 
@@ -547,9 +737,16 @@ $$\eta_{AB}\approx60\text{–}70\%,\qquad \eta_C\ \text{can exceed }80\%\ \text{
 
 **Thermal dissipation**
 
-$$P_{D,max}=\frac{V_{CC}^2}{4R_L}\ \text{(class B, at }V_{op}=2V_{CC}/\pi\text{)}$$
+$$P_{D,max}=\frac{2V_{CC}^2}{\pi^2R_L}=\frac{4}{\pi^2}P_{o,max}\ \text{(class B, at }V_{op}=2V_{CC}/\pi\text{)}$$
 
 $$T_J=P_D\theta_{JA}+T_A\ \text{(}^\circ\text{C)}$$
+
+**Symbols**
+
+- $P_{D,max}$ — maximum transistor power dissipation, in W
+- $T_J$ — junction temperature, in °C
+- $T_A$ — ambient temperature, in °C
+- $\theta_{JA}$ — junction-to-ambient thermal resistance, in °C/W
 
 **Conditions:** $V_{op}$ = output peak voltage (V); class B ignores $V_{BE}$ drops and $V_{CE,sat}$; worst-case class B dissipation occurs at about 63.7% of maximum output, not at full output. #power
 
@@ -564,9 +761,20 @@ $$T_J=P_D\theta_{JA}+T_A\ \text{(}^\circ\text{C)}$$
 
 $$\lvert\beta A\rvert=1,\qquad \angle\beta A=0^\circ\ \text{or }360^\circ\ \text{(at }f_0\text{)}$$
 
+**Symbols**
+
+- $\beta$ — feedback fraction of the feedback network, dimensionless
+- $A$ — amplifier (forward) gain, dimensionless
+- $f_0$ — frequency of oscillation, in Hz
+
 **RC phase-shift oscillator ★**
 
 $$f_0=\frac{1}{2\pi RC\sqrt6}\ \text{(three identical sections)},\qquad \beta=\frac{1}{29}\ \Rightarrow\ \lvert A\rvert\ge29$$
+
+**Symbols**
+
+- $R$ — resistance in each phase-shift section, in $\Omega$
+- $C$ — capacitance in each phase-shift section, in F
 
 **Wien bridge oscillator ★**
 
@@ -574,13 +782,28 @@ $$f_0=\frac{1}{2\pi RC}\ \text{(}R_1=R_2=R,\ C_1=C_2=C\text{)}$$
 
 $$\frac{R_f}{R_i}=2\ \Rightarrow\ \lvert A\rvert=3,\qquad \beta=\frac{1}{3}$$
 
+**Symbols**
+
+- $R_1,R_2$ — resistances of the Wien network ($R_1=R_2=R$), in $\Omega$
+- $C_1,C_2$ — capacitances of the Wien network ($C_1=C_2=C$), in F
+- $R_f$ — feedback resistance of the non-inverting gain network, in $\Omega$
+- $R_i$ — input (gain-setting) resistance of the non-inverting gain network, in $\Omega$
+
 **General RC phase-shift form**
 
 $$f_0=\frac{1}{2\pi RC\sqrt{2n}}\ \text{(n identical sections for }180^\circ\text{)}$$
 
+**Symbols**
+
+- $n$ — number of identical RC sections, dimensionless (integer)
+
 **Amplitude stabilization**
 
 $$A_{loop}=A\beta\ \text{slightly}>1\ \text{to start},\ =1\ \text{to sustain}$$
+
+**Symbols**
+
+- $A_{loop}=A\beta$ — loop gain (forward gain times feedback fraction), dimensionless
 
 **Conditions:** loop gain of exactly $1$ at $f_0$ for sustained oscillation; $A\beta>1$ gives growing amplitude until clipping, so an AGC or thermistor is needed; $n=3$ sections give the $180^\circ$ needed with an inverting amplifier. #oscillator
 
@@ -632,11 +855,26 @@ $$Q=\frac{\omega_sL_1}{R_1}\ \text{(typ. }10^4\text{–}10^6\text{)},\qquad \fra
 
 $$I_{out}=\frac{I_{ref}}{1+2/\beta}\approx I_{ref},\qquad I_{ref}=\frac{V_{CC}-V_{BE}}{R}$$
 
+**Symbols**
+
+- $I_{out}$ — output (mirrored) current, in A
+- $I_{ref}$ — reference current, in A
+- $\beta$ — forward current gain of each matched transistor, dimensionless
+- $V_{CC}$ — DC supply voltage, in V
+- $V_{BE}$ — base-emitter voltage of the diode-connected transistor, in V
+- $R$ — reference-setting resistor, in $\Omega$
+- $I_S$ — transistor saturation (scale) current, matched for both devices, in A
+
 The $2/\beta$ term is the base-current error of the two matched transistors.
 
 **Widlar mirror ★**
 
 $$I_{out}R_E=V_T\ln\frac{I_{ref}}{I_{out}}\ \text{(µA output)}$$
+
+**Symbols**
+
+- $R_E$ — emitter degeneration resistance of the output transistor, in $\Omega$
+- $V_T$ — thermal voltage ($\approx26$ mV at 300 K), in V
 
 $V_T\approx26$ mV at 300 K; $R_E$ in $\Omega$; the logarithmic relation gives a small output from a much larger reference.
 

@@ -61,21 +61,47 @@ $$E_\infty=\int_{-\infty}^{\infty}|x(t)|^2dt$$
 
 $$P_\infty=\lim_{T\to\infty}\frac{1}{T}\int_{-T/2}^{T/2}|x(t)|^2dt$$
 
+**Symbols**
+
+- $E_\infty$ — total energy of the signal, in J
+- $P_\infty$ — average power of the signal, in W
+- $x(t)$ — the signal, in V or A
+- $T$ — averaging interval, in s
+
 **Signal classes**
 
 - Energy signal: $E$ finite with $P=0$, e.g. $e^{-at}\mu(t)$, rect
 - Power signal: $P$ finite nonzero with $E=\infty$, e.g. $\mu(t)$, $\cos\omega_0t$, any periodic signal
 - Neither: $x(t)=t\mu(t)$
 
+**Symbols**
+
+- $E$ — energy of the signal, in J
+- $P$ — average power of the signal, in W
+- $a$ — decay-rate constant of the exponential example $e^{-at}\mu(t)$, in s⁻¹
+
 **Periodic power (Parseval)**
 
 $$P=\frac{1}{T_0}\int_{T_0}|x(t)|^2dt=\sum_n|c_n|^2$$
+
+**Symbols**
+
+- $T_0$ — fundamental period of the periodic signal, in s
+- $c_n$ — complex Fourier coefficient of the $n$th harmonic (line amplitude at $nf_0$), in V or A
+- $n$ — harmonic index (integer, dimensionless)
 
 **Even and odd parts ★**
 
 $$x_e(t)=\frac{x(t)+x(-t)}{2},\qquad x_o(t)=\frac{x(t)-x(-t)}{2}$$
 
 $$x=x_e+x_o,\qquad E_x=E_{x_e}+E_{x_o}$$
+
+**Symbols**
+
+- $x_e(t)$ — even part of $x(t)$, in V or A
+- $x_o(t)$ — odd part of $x(t)$, in V or A
+- $E_x$ — total energy of $x(t)$, in J
+- $E_{x_e}$, $E_{x_o}$ — energies of the even and odd parts respectively, in J
 
 **Symmetry rules**
 
@@ -198,6 +224,12 @@ $$y[n]=\sum_{k=0}^{n}x[k]h[n-k],\qquad L_y=L_x+L_h-1\ \text{samples}$$
 | $\sum_{k=0}^{\infty}a^k$ | $\frac{1}{1-a}$ | $\lvert a\rvert<1$ |
 | $\sum_{k=0}^{n}a^k$ | $\frac{1-a^{n+1}}{1-a}$ | — |
 
+> [!example] Calculator — geometric sums by Σ, and convolution by test value
+> **Geometric sums need no closed form.** `Σ(A^X, 0, N-1)` gives $\frac{1-a^N}{1-a}$ directly: **verified** $\sum_{k=0}^{20}3\cdot2^k=6\,291\,453$, matching $3(2^{21}-1)$, and $\sum_{k=1}^{100}k=5050$.
+> A convolution value is also a `Σ`, but the sequence values must be **typed into the expression** — the calculator has no user-defined functions or signal arrays. For $y[n]=\sum_k x[k]h[n-k]$, write `Σ(X·(n-X), 0, n)` for $x[k]=k$, $h[k]=k$; for a general pair state the terms explicitly.
+> On a **multiple-choice** convolution item you rarely need the whole sequence: evaluate that `Σ` at one convenient $n$ (usually $n=0$ or $1$) and eliminate. One value normally separates the options.
+> `Σ(f(x), a, b)` takes exactly **three** arguments and the running variable is always `X` — not the four-argument Casio form.
+
 **Common pairs**
 
 | Pair | Result |
@@ -286,13 +318,27 @@ Expand the log as a power series and read the coefficient of $z^{-n}$; never att
 | Initial value | $x[0]$ | $\lim_{z\to\infty}X(z)$ (causal) | — |
 | Final value | $\lim_{n\to\infty}x[n]$ | $\lim_{z\to1}(z-1)X(z)$ | poles inside unit circle |
 
+**Symbols**
+
+- $R$ — ROC of $X(z)$, the set of $z$ for which the $z$-transform sum converges (a region of the complex $z$-plane, dimensionless)
+- $R_1$, $R_2$ — ROCs of $X_1(z)$ and $X_2(z)$ respectively (regions of the complex $z$-plane, dimensionless)
+- $x_1$, $x_2$ — the two sequences combined by linearity or convolution, in V or A
+- $a$ — $z$-scaling factor (complex constant, dimensionless)
+- $n_0$ — integer time shift, in samples (dimensionless)
+
 **Parseval ★**
 
 $$\sum_n x[n]y^*[n]=\frac{1}{2\pi j}\oint X(z)Y^*(1/z^*)z^{-1}dz$$
 
 $$\sum_n|x[n]|^2=\frac{1}{2\pi}\int_{-\pi}^{\pi}|X(e^{j\omega})|^2d\omega$$
 
+**Symbols**
 
+- $x[n]$, $y[n]$ — discrete-time sequences, in V or A
+- $X(z)$, $Y(z)$ — their $z$-transforms
+- $X(e^{j\omega})$ — DTFT of $x[n]$, that is $X(z)$ evaluated on the unit circle
+- $\omega$ — discrete angular frequency, in rad/sample
+- $j$ — imaginary unit (dimensionless)
 
 **Conditions:** Convolution and Parseval need overlapping ROCs. Initial- and final-value theorems assume a causal $x[n]$ with rational $X(z)$; The final-value theorem also needs every pole inside the unit circle, except possibly a simple pole at $z=1$. #ztransform.
 
@@ -437,7 +483,20 @@ $\theta$ is in rad.
 
 $$X(j\omega)=\int_{-\infty}^{\infty}x(t)e^{-j\omega t}dt,\qquad x(t)=\frac{1}{2\pi}\int_{-\infty}^{\infty}X(j\omega)e^{j\omega t}d\omega$$
 
+**Symbols**
+
+- $X(j\omega)$ — Fourier transform of $x(t)$, in V·s (equivalently V/Hz)
+- $x(t)$ — time-domain signal, in V
+- $\omega$ — angular frequency, in rad/s
+- $j$ — imaginary unit (dimensionless)
+
 $$X(s)=\int_{0^-}^{\infty}x(t)e^{-st}dt,\qquad s=\sigma+j\omega\ \text{s}^{-1}$$
+
+**Symbols**
+
+- $X(s)$ — one-sided Laplace transform of $x(t)$, in V·s
+- $s=\sigma+j\omega$ — complex frequency, in s⁻¹
+- $\sigma$ — real part of $s$ (neper frequency), in s⁻¹
 
 **Common transform pairs**
 
@@ -453,17 +512,37 @@ $$X(s)=\int_{0^-}^{\infty}x(t)e^{-st}dt,\qquad s=\sigma+j\omega\ \text{s}^{-1}$$
 | $e^{-at}\cos\omega_0t\,\mu(t)$ | $\frac{a+j\omega}{(a+j\omega)^2+\omega_0^2}$ | $\frac{s+a}{(s+a)^2+\omega_0^2}$ | $\sigma>-a$ |
 | $e^{-at}\sin\omega_0t\,\mu(t)$ | $\frac{\omega_0}{(a+j\omega)^2+\omega_0^2}$ | $\frac{\omega_0}{(s+a)^2+\omega_0^2}$ | $\sigma>-a$ |
 
+**Symbols**
+
+- $a$ — exponential decay constant (pole location on the negative real axis), in s⁻¹
+- $\omega_0$ — angular frequency of the sinusoid, in rad/s
+- $\delta(\omega)$ — Dirac delta in frequency, in s
+- $\delta'(\omega)$ — first derivative of $\delta(\omega)$ with respect to $\omega$, in s²
+- $t$ — time, in s
+
 **LTI eigenfunction ★**
 
 $$x(t)=e^{st}\ \Rightarrow\ y(t)=H(s)e^{st}$$
 
 $$y_{ss}(t)=|H(j\omega)|A\cos\big(\omega t+\angle H(j\omega)\big),\qquad Y(j\omega)=X(j\omega)H(j\omega)$$
 
+**Symbols**
+
+- $A$ — amplitude of the input sinusoid, in V
+- $y_{ss}(t)$ — steady-state sinusoidal output, in V
+- $H(j\omega)$ — frequency response of the LTI system (dimensionless gain)
+- $Y(j\omega)$ — Fourier transform of the output $y(t)$, in V·s
+
 **Convergence ★**
 
 - Fourier converges in the ordinary sense iff $\int|x(t)|dt<\infty$
 - Otherwise it converges in the generalized impulse sense
 - The one-sided Laplace ROC is $\sigma>\sigma_{max}$ of the poles
+
+**Symbols**
+
+- ROC — region of convergence, the set of $s$ for which the Laplace integral converges (a region of the complex $s$-plane, dimensionless)
+- $\sigma_{max}$ — real part of the rightmost pole of $X(s)$, in s⁻¹
 
 **Fourier properties**
 

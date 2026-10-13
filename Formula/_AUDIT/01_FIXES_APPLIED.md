@@ -18,6 +18,14 @@ Follow-up to `00_COVERAGE_SUMMARY.md`. Everything below is **on disk and verifie
 | `EST/` | 87 | **99** | +12 (incl. 1 new subject file) |
 | **Total** | **408** | **452** | **+44** |
 
+## Later additions
+
+| Vault | Change | Effect |
+|---|---|---|
+| `Electronics_Engineering/` | New topic `07 ### 6. The 555 Timer` (monostable, astable, duty cycle, internal divider) | 119 → **120** |
+| `Electronics_Engineering/` | `08 ### 13` expanded from "Asynchronous and Synchronous Counters" to **"Counters: Types, Modulus and Design"** — adds ring/Johnson, decade, up/down, presettable, taxonomy and IC tables, cascading | topic count unchanged (17) |
+| All vaults | 22 factual/citation defects corrected — see `CROSSCHECK_INTERNET_VERIFICATION.md` | formulas verified |
+
 ## 1. Correctness repairs
 
 | # | Defect | Fix |

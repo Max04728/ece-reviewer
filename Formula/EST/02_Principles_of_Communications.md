@@ -99,6 +99,12 @@ $P_m$ in W (modulating power), $P_{DSB},P_{SSB}$ in W, $f_m$ in Hz; DSB-SC effic
 
 $$v_o(t)=\bigl[A_cm(t)\cos\omega_ct\bigr]\cos\omega_ct=\frac{A_c}{2}m(t)+\frac{A_c}{2}m(t)\cos2\omega_ct,\qquad \text{LPF}\Rightarrow\frac{A_c}{2}m(t)$$
 
+**Symbols**
+
+- $v_o(t)$ — product-detector output before and after low-pass filtering, in V
+- $\text{LPF}$ — low-pass filter that rejects the $2\omega_c$ term and passes the baseband, dimensionless
+- $\phi$ — phase error between the local oscillator and the received carrier, in rad
+
 Local oscillator must be phase- and frequency-coherent; any phase error $\phi$ scales the output by $\cos\phi$.
 
 **Conditions:** SSB uses the filter method (sharp $f_c$ cutoff) or phasing method; DSB-SC and SSB-SC both require synchronous (coherent) detection, unlike plain AM. #am
@@ -295,7 +301,7 @@ $m,\beta,\beta_p$ dimensionless; FOM is the ratio of output SNR to input SNR in 
 
 **Output-to-input SNR ratio in dB form**
 
-$$(SNR_o/SNR_i)_{dB}=10\log_{10}FOM,\qquad \text{AM @ }m=1:\ -4.8\ \text{dB},\qquad \text{FM }\beta=5:\ +18.8\ \text{dB}$$
+$$(SNR_o/SNR_i)_{dB}=10\log_{10}FOM,\qquad \text{AM @ }m=1:\ -4.8\ \text{dB},\qquad \text{FM }\beta=5:\ +15.7\ \text{dB}$$
 
 **Comparison table**
 
@@ -411,6 +417,12 @@ $f_s$ in Hz; a high first IF and a high-$Q$ front end both raise $IRR$.
 
 $$Sensitivity\ (dBm)=-174+NF_{dB}+10\log_{10}B+SNR_{min},\qquad Selectivity=10\log_{10}\frac{P_{f_0}}{P_{f_{\pm\Delta}}}\ \text{(dB)}$$
 
+**Symbols**
+
+- $P_{f_0}$ — received power at the centre (on-channel) frequency $f_0$, in W
+- $P_{f_{\pm\Delta}}$ — received power in the adjacent channel at $f_0\pm\Delta$, in W
+- $\Delta$ — frequency offset of the adjacent channel from the centre frequency $f_0$, in Hz
+
 $$DR=10\log_{10}\frac{P_{max}}{P_{min}}\ \text{(dB)}$$
 
 $NF_{dB}$ in dB, $B$ in Hz, $SNR_{min}$ in dB, $P$ in W or dBm (referenced to 1 mW), $DR$ in dB (spurious-free dynamic range).
@@ -418,6 +430,11 @@ $NF_{dB}$ in dB, $B$ in Hz, $SNR_{min}$ in dB, $P$ in W or dBm (referenced to 1 
 **AGC loop relation**
 
 $$A_{out}=A_{in}G_{AGC},\qquad G_{AGC}=\frac{G_0}{1+\beta A_{out}},\qquad \text{loop gain }T=\beta A$$
+
+**Symbols**
+
+- AGC — automatic gain control, the feedback loop that holds the receiver output level nearly constant as the input level varies, dimensionless
+- $T=\beta A$ — loop gain of the AGC feedback loop (feedback factor times forward gain), dimensionless
 
 $A_{in},A_{out}$ in V (or dB), $G_0$ dimensionless (open-loop gain), $\beta$ dimensionless (feedback factor), $T$ dimensionless.
 

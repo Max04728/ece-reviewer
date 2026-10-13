@@ -23,9 +23,21 @@ topics: 21
 | 2 | Data link | Frame | framing, MAC, error control | Ethernet, PPP, HDLC |
 | 1 | Physical | Bit | bit transmission, signaling | RS-232, 10Base-T |
 
+**Symbols**
+
+- OSI — Open Systems Interconnection seven-layer reference model (ISO/IEC 7498-1), dimensionless
+- PDU — protocol data unit, the named data block handled at each layer (data, data, data, segment, packet, frame, bit), dimensionless
+
 **Encapsulation overhead**
 
 $$L_{frame}=H_{DL}+H_{NW}+H_{TR}+Payload+FCS,\qquad \eta_{eff}=\frac{Payload}{L_{frame}},\qquad MTU_{Eth}=1500\ \text{B}$$
+
+**Symbols**
+
+- $L_{frame}$ — total frame length (all headers plus payload plus trailer), in B
+- $FCS$ — frame check sequence, the error-detection trailer appended to the frame, in B
+- $MTU_{Eth}$ — Ethernet maximum transmission unit, the largest payload a frame may carry, in B
+- $\eta_{eff}$ — payload efficiency, the ratio $Payload/L_{frame}$, dimensionless
 
 $L_{frame}$ and $MTU$ in bytes (B), $\eta_{eff}$ dimensionless; the classic TCP/IP header stack is 14 (Ethernet) + 20 (IP) + 20 (TCP) = 54 B.
 
@@ -85,6 +97,11 @@ $$\text{Byte count: } \text{frame}=[\text{count}][\text{data}],\qquad \text{Flag
 
 $$\text{Physical coding violation: } \text{V in Manchester/AMI as delimiter}$$
 
+**Symbols**
+
+- AMI — alternate mark inversion, a bipolar line code in which successive 1 bits alternate in polarity while 0 bits sit at zero level, dimensionless (line-code name)
+- $V$ — a deliberate physical coding violation (a pulse that breaks the Manchester/AMI coding rule) used as a frame delimiter, dimensionless
+
 Frame delimiters are dimensionless bit patterns; the byte count field is in bytes; stuffed bits are dimensionless.
 
 **Stop-and-wait flow control**
@@ -117,6 +134,12 @@ $W$ in frames (window size, dimensionless), $N_{seq}$ dimensionless (sequence nu
 | Go-Back-N | $2^n-1$ | 1 | $n$ bits, $N_{seq}=2^n$ |
 | Selective Repeat | $2^{n-1}$ | $2^{n-1}$ | $n$ bits, $N_{seq}=2^n$ |
 
+**Symbols**
+
+- ARQ — automatic repeat request, the retransmit-on-error protocol family, dimensionless (protocol name)
+- GBN — Go-Back-N ARQ, which retransmits the lost frame plus every frame sent after it, dimensionless (protocol name)
+- SR — Selective Repeat ARQ, which retransmits only the frame that was lost, dimensionless (protocol name)
+
 $W_s,W_r$ dimensionless (frames), $n$ dimensionless (sequence-number bits), $N_{seq}$ dimensionless.
 
 **Utilization formulas ★**
@@ -146,6 +169,12 @@ $S$ in bit/s, $L$ in bits, $R$ in bit/s, $H$ in bits (header), $T$ in s, $T_{pro
 
 $$\text{Frame}=\text{Flag}_{8}\ \text{Address}_{8}\ \text{Control}_{8\ \text{or}\ 16}\ \text{Data}_{n}\ \text{FCS}_{16\ \text{or}\ 32}\ \text{Flag}_{8}$$
 
+**Symbols**
+
+- $FCS$ — frame check sequence, the 16- or 32-bit error-detection field, in bits
+- ABM — Asynchronous Balanced Mode, the HDLC mode in which either combined station may initiate transmission, dimensionless (mode name)
+- ARM — Asynchronous Response Mode, the HDLC mode in which the secondary transmits only with the primary's permission, dimensionless (mode name)
+
 | Frame type | Control bits | Use |
 |---|---|---|
 | I-frame (information) | $0$, seq, piggyback N(R) | user data with ACK |
@@ -163,6 +192,13 @@ $N(S)$ in frames (send sequence), $N(R)$ in frames (next expected), $k$ dimensio
 $$PPP=\text{Flag}_{7E}\ \text{Address}_{FF}\ \text{Control}_{03}\ \text{Protocol}_{2}\ \text{Payload}_{1500}\ \text{FCS}_{2}\ \text{Flag}_{7E}$$
 
 $$LCP:\ \text{link setup},\qquad NCP:\ \text{network layer config},\qquad PAP/CHAP:\ \text{authentication}$$
+
+**Symbols**
+
+- LCP — Link Control Protocol, which sets up, configures, tests and closes the PPP link, dimensionless (protocol name)
+- NCP — Network Control Protocol, which configures the network-layer protocol carried over PPP, dimensionless (protocol name)
+- PAP — Password Authentication Protocol, a PPP authentication that sends the password in clear text, dimensionless (protocol name)
+- CHAP — Challenge Handshake Authentication Protocol, a challenge-response PPP authentication that never sends the secret, dimensionless (protocol name)
 
 Field sizes in bytes (B); PPP payload MTU defaults to 1500 B, and byte stuffing (7E, 7D) replaces the bit stuffing used by HDLC.
 
@@ -182,6 +218,14 @@ $$\text{Frame}=\text{Preamble}_{7}\ \text{SFD}_{1}\ \text{DA}_{6}\ \text{SA}_{6}
 
 $$T_{slot}=2\tau=512\ \text{bit times (10 Mbit/s)},\qquad L_{min}=2\tau R=64\ \text{B},\qquad \text{jam signal }=32\ \text{bits}$$
 
+**Symbols**
+
+- $SFD$ — start-of-frame delimiter, the 10101011 byte that ends the 7-byte preamble, in B
+- $DA$ — destination MAC address, in B
+- $SA$ — source MAC address, in B
+- $FCS$ — frame check sequence, the 32-bit CRC trailer, in B
+- CSMA/CD — carrier sense multiple access with collision detection, the half-duplex Ethernet access method, dimensionless (protocol name)
+
 $T_{slot}$ in s (round-trip contention), $\tau$ in s (one-way propagation), $R$ in bit/s, $L_{min}$ in bytes; frames shorter than 64 B are runts and are discarded.
 
 **Binary exponential backoff**
@@ -194,6 +238,11 @@ $W$ dimensionless (slot count), $r$ dimensionless (random slots to wait), $k$ di
 
 $$E_{eff}=\frac{1}{1+5a}\ \text{(CSMA/CD limit)},\qquad a=\frac{\tau}{T_{frame}},\qquad \text{Gbit Ethernet: } \tau\to0\Rightarrow E_{eff}\to1$$
 
+**Symbols**
+
+- $E_{eff}$ — CSMA/CD efficiency, the steady-state fraction of link capacity carried by successful frames, dimensionless
+- $a$ — normalized propagation delay, $a=\tau/T_{frame}$, dimensionless
+
 | Standard | Rate | Medium | Max segment |
 |---|---|---|---|
 | 10Base-T | 10 Mbit/s | UTP Cat 3 | 100 m |
@@ -202,11 +251,20 @@ $$E_{eff}=\frac{1}{1+5a}\ \text{(CSMA/CD limit)},\qquad a=\frac{\tau}{T_{frame}}
 | 1000Base-LX | 1 Gbit/s | fiber | 550 m–5 km |
 | 10GBase-SR | 10 Gbit/s | multimode fiber | 300 m |
 
+**Symbols**
+
+- UTP — unshielded twisted pair copper cable, dimensionless (cable type)
+
 **STP (IEEE 802.1D) loop prevention ★**
 
 $$\text{root bridge}:\ \min(\text{bridge ID}),\qquad \text{bridge ID}=(\text{priority}_{16},\ MAC_{48}),\qquad \text{redundant port}\Rightarrow\text{blocking}$$
 
 $$\text{one active path at a time},\qquad \text{BPDU hello}=2\ \text{s},\ \text{max age}=20\ \text{s},\qquad \text{failure}\Rightarrow\text{reconvergence}$$
+
+**Symbols**
+
+- STP — Spanning Tree Protocol (IEEE 802.1D), which blocks redundant ports so that only one active Layer-2 path exists, dimensionless (protocol name)
+- BPDU — bridge protocol data unit, the 2 s hello message that carries bridge IDs and path costs, dimensionless (message name)
 
 $P_{priority}$ dimensionless (2 B priority, lowest wins) and $MAC_{48}$ the 6 B address; blocked ports still receive BPDUs and take over when the active path fails.
 
@@ -223,6 +281,15 @@ $P_{priority}$ dimensionless (2 B priority, lowest wins) and $MAC_{48}$ the 6 B 
 **DCF access and interframe spaces ★**
 
 $$DIFS=SIFS+2\sigma,\qquad \text{backoff}: W=2^{\min(k,10)},\qquad \text{contention window }CW_{min}=15,\ CW_{max}=1023$$
+
+**Symbols**
+
+- DCF — distributed coordination function, the mandatory contention-based 802.11 access method, dimensionless (protocol name)
+- DIFS — DCF interframe space, the idle wait a station observes before contending, in s
+- SIFS — short interframe space, the shortest wait, used for ACKs, CTS and fragment bursts, in s
+- $CW_{min},CW_{max}$ — lower and upper bounds of the contention window, in slots (dimensionless)
+- RTS — request to send, the optional control frame that reserves the medium, dimensionless (frame name)
+- CTS — clear to send, the reply control frame that reserves the medium and mitigates the hidden-node problem, dimensionless (frame name)
 
 $DIFS,SIFS$ in $\mu$s (or slots), $\sigma$ in s (slot time, 9 $\mu$s for 802.11g OFDM), $W$ dimensionless (slots), $k$ dimensionless (retries).
 
@@ -295,11 +362,22 @@ $T_{setup}$ in s, $M$ in bits (message), $h$ dimensionless (hops), $L_i$ in bits
 
 $$N_{hosts}=2^{h}-2,\qquad N_{subnets}=2^{s}\ (\text{with subnet zero}),\qquad \text{broadcast}=\text{all host bits }1,\qquad \text{network}=\text{all host bits }0$$
 
+**Symbols**
+
+- $N_{hosts}$ — usable host addresses per subnet (all-zeros network and all-ones broadcast excluded), dimensionless
+- $N_{subnets}$ — subnets created by borrowing host bits, dimensionless
+- $h$ — host bits left in the subnet mask, dimensionless (integer)
+- $s$ — subnet bits borrowed from the host portion of the address, dimensionless (integer)
+
 $h$ dimensionless (host bits), $s$ dimensionless (borrowed subnet bits); the two reserved addresses are the all-zeros network and all-ones broadcast.
 
 **Private and special ranges**
 
 $$10.0.0.0/8,\quad 172.16.0.0/12,\quad 192.168.0.0/16\ \text{(RFC 1918)};\qquad 127.0.0.0/8\ \text{(loopback)};\qquad 169.254.0.0/16\ \text{(APIPA)}$$
+
+**Symbols**
+
+- APIPA — Automatic Private IP Addressing, the link-local 169.254.0.0/16 self-configuration used when no DHCP server answers, dimensionless (protocol name)
 
 **Conditions:** the first octet determines the class in classful addressing; classful routing is obsolete, but class boundaries still matter for default masks and for reading legacy exam items. #subnetting
 
@@ -363,9 +441,20 @@ Field sizes in bits (B = bytes); the base header is fixed at 40 B and extension 
 | Hop limit | 8 | replaces TTL |
 | Source/Destination | 128 each | addressing |
 
+**Symbols**
+
+- DSCP — differentiated services code point, the 6-bit traffic-class field that selects the per-hop forwarding treatment, dimensionless
+- ECN — explicit congestion notification, the 2-bit field with which routers mark congestion instead of dropping, dimensionless
+- TTL — time to live, the legacy IPv4 hop-count field that IPv6 replaces with the 8-bit hop limit, dimensionless
+
 **Subnetting and transition**
 
 $$/64\ \text{standard LAN prefix},\qquad 2^{64}\ \text{hosts per subnet},\qquad SLAAC:\ \text{prefix}_{64}+EUI\text{-}64\ \text{interface ID},\qquad \text{tunnel/dual-stack/NAT64 for transition}$$
+
+**Symbols**
+
+- SLAAC — stateless address autoconfiguration, which builds an address from the advertised /64 prefix plus an interface ID, dimensionless (protocol name)
+- EUI-64 — extended unique identifier, the 64-bit interface ID formed from the 48-bit MAC by inserting FFFE, dimensionless
 
 **Conditions:** IPv6 has no broadcast (multicast and anycast only), no header checksum, and no fragmentation by routers; $::$ may compress one run of zero groups. #subnetting
 
@@ -386,6 +475,12 @@ $D_x(y)$ dimensionless (cost from $x$ to $y$), $c(x,v)$ dimensionless (link cost
 **Link state (Dijkstra) ★**
 
 $$D(v)=\min\bigl(D(v),\ D(w)+c(w,v)\bigr)\ \text{for each neighbor }w\ \text{of the settled node},\qquad O(n^2)\ \text{or}\ O(E\log V)$$
+
+**Symbols**
+
+- $O(\cdot)$ — big-O asymptotic complexity, the growth rate of the algorithm's running time with network size, dimensionless
+- LSA — link-state advertisement, the packet a router floods to describe its links and their costs, dimensionless (message name)
+- SPF — shortest path first, the Dijkstra computation each router runs on its link-state database, dimensionless (algorithm name)
 
 $D(v)$ dimensionless (shortest known cost), $c(w,v)$ dimensionless (link cost), $n$ dimensionless (nodes), $E$ dimensionless (edges), $V$ dimensionless (vertices).
 
@@ -422,6 +517,10 @@ $$cwnd_{slow\ start}: 1\to2\to4\ldots\ \text{doubling per RTT},\qquad cwnd_{AIMD
 
 $$Throughput\approx\frac{W_{max}\cdot MSS}{RTT}\ \text{(bit/s)},\qquad ssthresh=\frac{cwnd}{2}\ \text{on timeout}$$
 
+**Symbols**
+
+- AIMD — additive increase, multiplicative decrease, the congestion-window law that adds one MSS per RTT and halves the window on loss, dimensionless (algorithm name)
+
 $cwnd$ in bytes or MSS units, $MSS$ in bytes, $RTT$ in s, $ssthresh$ in bytes.
 
 **Well-known ports**
@@ -455,6 +554,13 @@ $$T1:\ 24\ \text{channels}\times8\ \text{bits}+1\ \text{framing bit}=193\ \text{
 
 $$E1:\ 32\ \text{channels}\times8\ \text{bits}=256\ \text{bits/frame},\qquad R_{E1}=8000\times256=2.048\ \text{Mbit/s}$$
 
+**Symbols**
+
+- $R_{T1}$ — T1 line rate (1.544 Mbit/s), in bit/s
+- $R_{E1}$ — E1 line rate (2.048 Mbit/s), in bit/s
+- B8ZS — bipolar with 8-zero substitution, the T1 line code that replaces runs of eight zeros with a violation pattern so the clock is recovered, dimensionless (line-code name)
+- HDB3 — high-density bipolar 3-zeros, the E1 line code that substitutes for runs of four zeros, dimensionless (line-code name)
+
 Frame rate 8000 frames/s (125 $\mu$s per frame) in both; channel rate 64 kbit/s; $R$ in bit/s.
 
 **DS and E carrier hierarchy**
@@ -470,6 +576,13 @@ Frame rate 8000 frames/s (125 $\mu$s per frame) in both; channel rate 64 kbit/s;
 **FDM and statistical TDM**
 
 $$FDM:\ BW_{total}=\sum_{i=1}^{n}BW_i+BW_{guard}(n-1),\qquad STDM:\ \text{slots assigned on demand},\qquad \eta=\frac{\text{useful}}{\text{total}}$$
+
+**Symbols**
+
+- FDM — frequency division multiplexing, which places each channel in its own frequency band, dimensionless (technique name)
+- TDM — time division multiplexing, which gives each channel a periodic time slot, dimensionless (technique name)
+- STDM — statistical TDM, which assigns slots on demand to active channels only, dimensionless (technique name)
+- $BW_{guard}$ — guard band inserted between adjacent FDM channels, in Hz
 
 $BW$ in Hz, $n$ dimensionless (channels), $\eta$ dimensionless (efficiency); FDM needs guard bands, TDM needs frame synchronization.
 
@@ -487,6 +600,10 @@ $BW$ in Hz, $n$ dimensionless (channels), $\eta$ dimensionless (efficiency); FDM
 
 $$N_{ch}=\frac{\Delta\lambda}{\Delta\lambda_{ch}},\qquad C=N_{ch}\cdot R_{ch}\ \text{(bit/s)},\qquad \nu=\frac{c}{\lambda},\qquad \Delta\nu=\frac{c\,\Delta\lambda}{\lambda^2}$$
 
+**Symbols**
+
+- $R_{ch}$ — bit rate carried by one wavelength channel, in bit/s
+
 $N_{ch}$ dimensionless (channels), $\Delta\lambda$ in nm (bandwidth), $\Delta\lambda_{ch}$ in nm (channel spacing), $\nu$ in Hz, $\lambda$ in m, $c=3\times10^8$ m/s, $C$ in bit/s.
 
 **Bands and spacing**
@@ -500,9 +617,19 @@ $N_{ch}$ dimensionless (channels), $\Delta\lambda$ in nm (bandwidth), $\Delta\la
 | L-band | 1565–1625 nm | extended DWDM |
 | U-band | 1625–1675 nm | future/long |
 
+**Symbols**
+
+- EDFA — erbium-doped fiber amplifier, the C-band optical amplifier that makes DWDM links possible, dimensionless (device name)
+
 **Capacity scales**
 
 $$CWDM:\ 18\ \text{channels},\ 20\ \text{nm spacing};\qquad DWDM:\ 40/80/160\ \text{channels},\ 0.8\ \text{nm (100 GHz)};\qquad 25\ \text{GHz grid in modern systems}$$
+
+**Symbols**
+
+- WDM — wavelength division multiplexing, which carries several signals on one fiber in separate wavelength channels, dimensionless (technique name)
+- DWDM — dense WDM, the 40/80/160-channel 0.8 nm (100 GHz) grid, dimensionless (technique name)
+- CWDM — coarse WDM, up to 18 channels on a 20 nm spacing, dimensionless (technique name)
 
 **Conditions:** DWDM needs temperature-stabilized lasers and EDFA amplification; channel spacing on the ITU grid is defined in frequency (100 GHz $\approx$ 0.8 nm at 1550 nm). #fiber
 
@@ -518,11 +645,21 @@ $$CWDM:\ 18\ \text{channels},\ 20\ \text{nm spacing};\qquad DWDM:\ 40/80/160\ \t
 
 $$C_{FDMA}=\frac{BW_{total}}{BW_{ch}}\ \text{channels},\qquad C_{TDMA}=\frac{\text{frames}}{\text{slot}}\ \text{per frame},\qquad C_{CDMA}\approx\frac{BW}{R}\cdot\frac{1}{E_b/N_0}\cdot G_p$$
 
+**Symbols**
+
+- FDMA — frequency division multiple access, which gives each user a dedicated sub-band, dimensionless (access-scheme name)
+- TDMA — time division multiple access, which gives each user a repeating time slot, dimensionless (access-scheme name)
+- CDMA — code division multiple access, which separates users by orthogonal spreading codes, dimensionless (access-scheme name)
+
 $BW$ in Hz, $C$ dimensionless (channels), $R$ in bit/s, $G_p$ dimensionless (processing gain), $E_b/N_0$ dimensionless.
 
 **CDMA spreading and capacity ★**
 
 $$G_p=\frac{BW_{ss}}{R}=\frac{T_b}{T_c},\qquad N_{max}\approx\frac{G_p}{(E_b/N_0)_{req}}+1,\qquad s(t)=d(t)c(t)$$
+
+**Symbols**
+
+- PN — pseudonoise, the pseudorandom spreading code that each user multiplies onto the data, dimensionless (code name)
 
 $G_p$ dimensionless (processing gain, chips per bit), $T_b$ in s (bit), $T_c$ in s (chip), $N_{max}$ dimensionless (simultaneous users), $d(t)$ dimensionless (data), $c(t)$ dimensionless (PN code).
 
@@ -532,6 +669,10 @@ $G_p$ dimensionless (processing gain, chips per bit), $T_b$ in s (bit), $T_c$ in
 | TDMA | time slots | higher capacity, digital | needs timing sync |
 | CDMA | orthogonal codes | soft capacity, anti-jam | near-far problem, power control |
 | OFDMA | subcarriers | high spectral efficiency, flexible | PAPR, synchronization |
+
+**Symbols**
+
+- PAPR — peak-to-average power ratio, the peak envelope power divided by the average power, dimensionless
 
 **Conditions:** CDMA capacity is interference-limited, not hard-limited, so every added user raises the noise floor; strict power control is what keeps the near-far effect in check. #cdma #cellular
 
@@ -547,6 +688,11 @@ $G_p$ dimensionless (processing gain, chips per bit), $T_b$ in s (bit), $T_c$ in
 
 $$f_n=\frac{n}{T_s},\qquad \Delta f=\frac{1}{T_s},\qquad N_{sc}=\frac{BW}{\Delta f},\qquad T_s=T_{FFT}+T_{CP}$$
 
+**Symbols**
+
+- OFDM — orthogonal frequency division multiplexing, which splits the band into orthogonal subcarriers, dimensionless (technique name)
+- OFDMA — orthogonal frequency division multiple access, which assigns groups of subcarriers to different users, dimensionless (technique name)
+
 $f_n$ in Hz (subcarrier), $T_s$ in s (symbol time), $\Delta f$ in Hz (spacing), $N_{sc}$ dimensionless (subcarriers), $T_{FFT}$ in s, $T_{CP}$ in s (cyclic prefix).
 
 **Spreading methods and processing gain ★**
@@ -554,6 +700,11 @@ $f_n$ in Hz (subcarrier), $T_s$ in s (symbol time), $\Delta f$ in Hz (spacing), 
 $$DS\text{-}SS:\ s(t)=d(t)c(t),\qquad FH\text{-}SS:\ f_k\ \text{hops per }T_h,\qquad G_p=\frac{BW_{ss}}{R_b}=10\log_{10}G_p\ \text{dB}$$
 
 $$Jamming\ margin\ M_j=G_p-\Bigl(\frac{S}{N}\Bigr)_{req}\ \text{dB},\qquad R_{chip}=\frac{1}{T_c}\ \text{(chip/s)}$$
+
+**Symbols**
+
+- DS-SS — direct-sequence spread spectrum, which multiplies the data by a fast pseudonoise code, dimensionless (technique name)
+- FH-SS — frequency-hopping spread spectrum, which hops the carrier across $f_k$ channels with dwell time $T_h$, dimensionless (technique name)
 
 $G_p$ dimensionless (or dB), $M_j$ in dB, $S/N$ dimensionless, $R_{chip}$ in chip/s, $T_h$ in s (hop dwell).
 
@@ -616,6 +767,11 @@ $T_{handoff}$ in dBm, $P$ dimensionless, sectors dimensionless; trunking efficie
 | 5G NR FR1 | OFDMA/CP-OFDM | 1–2 Gbit/s | 5–100 MHz | sub-6 GHz, massive MIMO |
 | 5G NR FR2 | OFDMA | 4–20 Gbit/s | 100–400 MHz | mmWave, beamforming |
 
+**Symbols**
+
+- HSDPA — High-Speed Downlink Packet Access, the 3.5G downlink upgrade of UMTS/WCDMA, dimensionless (standard name)
+- HSUPA — High-Speed Uplink Packet Access, the matching 3.5G uplink upgrade, dimensionless (standard name)
+
 **Cellular capacity and spectral efficiency**
 
 $$SE=\frac{R_{peak}}{BW}\ \text{(bit/s/Hz)},\qquad C_{area}=C_{cell}\cdot N_{cells},\qquad \text{MIMO: } C\approx M\log_2(1+\rho)\ \text{(bit/s/Hz)}$$
@@ -625,6 +781,12 @@ $SE$ in bit/s/Hz, $R_{peak}$ in bit/s, $BW$ in Hz, $M$ dimensionless (spatial st
 **Latency targets**
 
 $$4G:\ \approx20\text{–}30\ \text{ms},\qquad 5G\ \text{URLLC}:\ 1\ \text{ms},\qquad 5G\ \text{eMBB}\ \text{peak}\ 20\ \text{Gbit/s},\qquad \text{connection density }10^6/\text{km}^2$$
+
+**Symbols**
+
+- URLLC — ultra-reliable low-latency communication, the 5G service class with a 1 ms latency target, dimensionless (service-class name)
+- eMBB — enhanced mobile broadband, the 5G service class for very high peak rates, dimensionless (service-class name)
+- mMTC — massive machine-type communication, the 5G service class for very high connection density, dimensionless (service-class name)
 
 **Conditions:** 2G/3G are circuit-switched at the voice level with packet overlays, while 4G/5G are all-IP; 5G splits into eMBB, URLLC and mMTC service classes sharing the same NR air interface. #cellular
 
@@ -675,6 +837,13 @@ $N$ dimensionless (nodes), $L$ dimensionless (links), $d_i$ dimensionless (degre
 | Typical use | bulk data encryption | key exchange, signatures |
 | Examples | AES, DES, 3DES | RSA, ECC, Diffie-Hellman |
 
+**Symbols**
+
+- AES — Advanced Encryption Standard, the symmetric block cipher with 128-bit blocks and 128/192/256-bit keys, dimensionless (algorithm name)
+- DES — Data Encryption Standard, the legacy symmetric block cipher with a 56-bit key, dimensionless (algorithm name)
+- 3DES — triple DES, three DES passes giving 112 or 168 effective key bits, dimensionless (algorithm name)
+- ECC — elliptic-curve cryptography, asymmetric cryptography over elliptic curves using much shorter keys, dimensionless (algorithm name)
+
 **RSA and modular exponentiation ★**
 
 $$c=m^{e}\bmod n,\qquad m=c^{d}\bmod n,\qquad n=pq,\qquad ed\equiv1\bmod\phi(n),\qquad \phi(n)=(p-1)(q-1)$$
@@ -696,6 +865,10 @@ $g$ dimensionless (generator), $p$ dimensionless (large prime), $a,b$ dimensionl
 $$h=H(M)\ \text{(fixed length)},\qquad s=\text{sign}_{K_{priv}}\bigl(H(M)\bigr),\qquad \text{verify with }K_{pub}$$
 
 $$MAC=H(K\parallel M)\ \text{(shared key)},\qquad H(M')\ne H(M)\Rightarrow\text{integrity failure}$$
+
+**Symbols**
+
+- MAC — message authentication code, a keyed tag that proves both integrity and origin, dimensionless (tag name)
 
 $H$ dimensionless (hash, e.g. SHA-256), $h$ dimensionless (digest), $M$ the message, $s$ the signature, $MAC$ the tag; the private key signs, the public key verifies.
 

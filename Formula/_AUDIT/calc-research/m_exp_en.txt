@@ -1,0 +1,1495 @@
+
+===== PAGE 1 =====
+2
+Contents ENGLISH
+Display ...............................................................................................................P.3
+Getting Started
+ Power On, Off ...........................................................................................P.4
+ Display Contrast Adjustment.....................................................................P.4
+ Mode Selection .........................................................................................P.4
+ Application Function Menu (Apps Key) ..................................................... P.5
+ Calculator Set-up Menu ............................................................................ P.6
+ Before Using the Calculator ......................................................................P.8
+Inputting Expressions and Values
+ Input Capacity ...........................................................................................P.9
+ Input Editing .............................................................................................. P.9
+ Inputting and Display Result in Mathematics Mode...................................P.10
+Input Range and Error Messages .................................................................P.10
+ Order of Operations ................................................................................P.11
+ Calculation Stacks................................................................................... P.11
+ Error Messages and Error Locator.......................................................... P.11
+Basic Calculations 
+ Arithmetic Calculations............................................................................ P.13
+ Memory Calculations............................................................................... P.13
+ Fraction Calculations............................................................................... P.14
+ Percentage Calculations .........................................................................P.15
+ Degree-Minutes-Seconds Calculations................................................... P.15
+ Replay & Multi-statements ...................................................................... P.15
+ Constant Value Calculations ................................................................... P.16
+ Metric Conversions ................................................................................. P.16
+Functional Scientific Calculations
+ Square, Root, Cube, Cube Root, Power, Power Root, 
+ Reciprocal and Pi .................................................................................... P.17
+ Logarithm, Natural Logarithm, Antilogarithm and Log ab.........................P.17
+ Angle Unit Conversion ............................................................................ P.17
+ Trigonometry Calculations ......................................................................P.17
+ Permutation, Combination, Factorials and Random 
+ Number Generation................................................................................. P.18
+ Produce (�) Calculation ..........................................................................P.18
+ Summation (∑) Calculation ....................................................................P.18
+ Maximum Value and Minimum Value Calculation ..................................P.18
+ Modulus After Division (Mod) Calculations ............................................P.19
+ Least Common Multiple and Greatest Common Divisor.......................... P.19
+ Prime Fractorization ................................................................................P.19
+ Quotient and Remainder Calculations .................................................... P.19
+ Coordinate Conversion ........................................................................... P.20
+ Absolute Value Calculation ..................................................................... P.20
+ Engineering Notation............................................................................... P.20
+ Display Values Exchange ......................................................................P.20
+ Complex Number Calculations................................................................P.21
+ Base-n Calculations and Logical Calculations ........................................ P.22
+Statistical Calculations 
+ Statistical Type Selection ........................................................................ P.22
+ Statistical Data Input ............................................................................... P.23
+ Editing Statistical Sample Data ............................................................... P.23
+ Statistical Calculation Screen.................................................................. P.24
+ Statistical Menu....................................................................................... P.24
+ Statistical Calculation Example ............................................................... P.26
+ Distribution Calculations.......................................................................... P.26
+Equation Calculations.....................................................................................P.27
+Solve Function.................................................................................................P.28
+CALC Function ................................................................................................P.29
+Differential Calculations .................................................................................P.30
+Integration Calculations .................................................................................P.30
+Matrix Calculations .........................................................................................P.31
+Vector Calculations......................................................................................... P.33
+Function (x, y) Table Calculation ..................................................................P.34
+Battery Replacement.......................................................................................P.35
+Advice and Precautions .................................................................................P.36
+Specifications .................................................................................................P.36
+===== PAGE 2 =====
+3
+Display
+     About Using the Manual 
+• This basic manual briefly introduce F-789SGA functions, 
+specification and usage precautions.
+• To familiar with F-789SGA , you can read the Calculation 
+Examples for a series of examples, operation procedure’s; and the 
+calculation range of major functions.
+     How to use the slide cover
+Open or close the cover by 
+sliding as shown in the figure.
+<Status Indicators>
+ S : Shift key
+ A : Alpha key
+M : Independent Memory
+STO : Store Memory
+RCL : Recall Memory
+STAT : 1-Var & 2-Var Statistics Mode
+CPLX : Complex Number Calculation Mode
+MATX : Matrix Calculation Mode
+VCTR : Vector Calculation Mode
+EQN : Equation Calculation Mode
+ D : Degree Mode
+ R : Radian Mode 
+ G : Gradient Mode
+FIX : Fixed-decimal Setting
+SCI : Scientific Notation
+LINE : Line Display Mode
+ : Up Arrow
+ : Down Arrow
+Disp : Multi-statements Display
+===== PAGE 3 =====
+4
+Getting Started
+ Power On, Off 
+First time operation: 
+1. Remove the battery insulation tab to load the battery. 
+2. Press                                           to initialize the 
+calculator.
+Power ON: When        is pressed.
+Power OFF:                are pressed.
+Auto Power off Function:
+ When the calculator is not used for approximately 7 
+minutes, it will automatically power off.
+ Display Contrast Adjustment
+  Press                            (6:      CONT     ), to enter the 
+Display Contrast Adjustment screen.
+ Press       to make the display contrast darken.
+ Press       to make the display contrast lighten.
+ Press         or         to confirm and clear the screen.
+ To initialize the LCD contrast, press
+        outside the Display Contrast Adjustment screen.
+ Mode Selection
+  Press         to enter the Calculation Mode Selection 
+screen.
+
+===== PAGE 4 =====
+5
+ Application Function Menu (Apps Key) 
+The Apps menu contains mathematical functions. In each 
+Calculation Mode, the listed functions are different.
+ Press        and corresponding number to enter the calculation 
+mode.
+ Press         to enter the Apps menu.
+ Press       /      for next / previons pages.
+i) COMP Mode ii) CPLX Mode
+iii) STAT Mode
+In SD mode In REG mode
+  Initial mode is COMP mode.
+Apps
+Press [      ]
+or [      ] key
+iv) BASE Mode
+COMP Normal calculations 
+CPLX Complex number calculation CPLX
+STAT  
+BASE  
+EQN Equation solution EQN
+TABLE Function table generation 
+MATX Matrix calculations MATX
+VCTR Vector calculations VCTR
+ Operation Mode LCDIndicator
+Statistical and regression
+calculations
+Calculations involving specific
+number systems
+STAT
+===== PAGE 5 =====
+6
+ Calculator Set-up Menu
+  Press                 to enter the Calculator Set-up Menu;   
+press       /       for next / previous page.
+ To select the calculator input & output format [1] Maths 
+or [2] Line 
+ [1] Maths – (Mathematics mode): 
+ The majority of calculation input 
+ and output (e.g. Fraction, pi, 
+ square root number) are shown in 
+ Mathematics textbook format. 
+ [2] Line – (Line mode): The majority  
+ of calculation input and output are 
+ shown in the lines format. And 
+ “LINE” icon will be shown.
+ For the STAT, EQN, MATX, VCTR mode, the Input & Display 
+format will switch to Line mode automatically.
+  Press               to exit the Apps menu.
+Mathematics mode
+Line mode
+LINE
+Apps Apps
+vii) VCTR Mode
+v) EQN Mode
+Press [      ]
+or [      ] key
+vi) MATX Mode
+Press [      ]
+or [      ] key
+Press [      ]
+or [      ] key
+
+===== PAGE 6 =====
+7
+  To select the angle unit [3] Deg, [4] Rad or [5] Gra
+ [3] Deg: Angle unit in Degree
+ [4] Rad: Angle unit in Radian
+ [5] Gra: Angle unit in Gradient
+ 90º =     radians = 100grads
+ To select display digit or notation [6] Fix, [7] Sci or 
+[8] Norm
+ [6] Fix: Fixed Decimal, [Fix 0~9?] appears, specify the 
+number of decimal places by pressing [0] – [9].
+ Example: 220 ÷ 7 = 31.4286 (FIX 4)
+    = 31.43 (FIX 2)
+ [7] Sci: Scientific Notation, [Sci 0~9?] appears, specify 
+the number of significant digits by pressing [0] – [9].
+ Example : 220 ÷ 7 = 3.1429x10 1 (SCI 5)
+   = 3.143x10 1 (SCI 4)
+ [8] Norm: Exponential Notation, [Norm 1~2?] appears, 
+specify the exponential notation format by pressing [1] 
+ or [2].
+ Norm 1: Exponential notation is automatically used for 
+integer values with more than 10 digits and decimal 
+values with more than TWO decimal points.
+ Norm 2: Exponential notation is automatically used for 
+integer values with more than 10 digits and decimal 
+values with more than NINE decimal places.
+ Example: 1 ÷ 1000  = 1x10 -3 (Norm 1)
+   = 0.001 (Norm 2)
+ To select the fraction format [1] a b/c or [2] d/c
+ [1] a b/c: specify Mixed fraction display
+ [2] d/c: specify Improper fraction display
+ To select the complex number display format [3] 
+CLPX ([1] a+bi or [2] r<  )
+ [1] a+bi: specify Rectangular Coordinates
+ [2] r<   : specify Polor Coordinates
+===== PAGE 7 =====
+8
+ To select the statistical display format [4] STAT 
+ ([1] ON or [2] OFF)
+ [1] ON: Show FREQ (Frequency) Column in Statistical 
+Data Input Screen
+ [2] OFF: Hide FREQ (Frequency) Column in Statistical 
+Data Input Screen
+ To select the decimal point display format [5] Disp 
+([1] Dot or [2] Comma)
+ [1] Dot: specify dot format for Decimal point result display
+ [2] Comma: specify comma format for Decimal point 
+result display
+ To Adjust Display contrast [6]      CONT    
+ Refer to the “Display Contrast Adjustment” section.
+ Before Using the Calculator
+ Check the current Calculation Mode
+Be sure to check the status indicators that indicate the 
+current calculation mode (COMP, STAT, TABLE), display 
+formats setting and angle unit setting (Deg, Rad, Gra)
+ Return to initial setup
+Press                               (YES)         to return the initial 
+calculator setup
+ Calculation mode  : COMP
+ Input/Output Format  : Maths
+ Angle unit  : Deg
+ Display Digits  : Norm 1
+ Fraction Display Format : d/c
+ Statistical Data Input : OFF
+ Decimal Point format : Dot
+This action will not clear the variable memories.
+ Initialize the calculator
+When you are not sure of the current calculator setting, you 
+are recommended to initialize the calculator (resets 
+calculation mode “COMP”, angle unit “Degree”, clears reply 
+and variable memories), and resets LCD contrast) by 
+performing the following key operations:         
+                    (All)        (YES)        . 
+===== PAGE 8 =====
+9
+*2. Scientific functions come with the open parenthesis. Example: 
+sin(, cos(, Pol(, LCM(…. You need to input the argument and the 
+close parenthesis        .
+*3. Omit the last close parenthesis before the        ,        ,       ,
+         and        .
+ Insert and Overwrite Input mode
+In Line mode, you can use INSERT         or overwrite mode for 
+inputting.
+ - In Insert mode (Default input mode), the cursor is a vertical 
+flashing line “   ” for inserting a new character.
+ - In Overwrite mode, press               key to switch the cursor to a 
+flashing horizontal “ _ ” and replace the character at the current 
+cursor position.
+In Mathematics mode, you can only use the insert mode.
+Whenever the display format changes from Line mode to Mathematics 
+mode, it will automatically switch to the insert mode.
+*1. Omit multiplication sign (x)
+ - Input before an open parentheses        : 1 x (2+3)
+ - Input before scientific functions that includes parenthesis: 2 x 
+cos(30)
+ - Input before Random number function  
+ - Input before Variable (A, B, C, D, X, Y, M), π, θ
+F-789SGA allows you to input a single calculation with up to 99 
+bytes. When input capacity is less than 10bytes, the input cursor 
+will change from “    ” to “    ” signaling that the memory is 
+running now. 
+ Input Editing 
+ New Input begins on the left of display. When the input data 
+is more than 15 characters (Line Mode) / 16 characters 
+(Maths mode), the line will scroll to the right consecutively. 
+You can scroll back to the left by using       and       to review 
+the input.
+ Omit the multiplication sign and final close parenthesis.
+Inputting Expressions and Values
+ Input Capacity
+EX #1Example: 2 x log 100 x (1+3) = 16 .......
+===== PAGE 9 =====
+10
+(1) Replace an entry (1234567       1234560)  ......   
+(2) Deletion (1234567       134567)....... 
+(3) Insertion (889900        2889900) .......
+EX #2
+EX #3
+EX #4
+ Deleting and Correcting an Expression
+In Insert mode: Move the cursor to the right of the character or 
+function that needs to be deleted, then press        . 
+In Overwrite mode: Move the cursor under the character or 
+function being deleted, then press        .
+ 
+ 
+  Display of results using 
+Calculation results may be displayed using      when in all of the 
+following cases:
+1. When intermediate and final calculation results are displayed 
+in the following form:     
+2. When the number of terms in the intermediate and final 
+calculation result involving     is one or two.
+Example: 1234567 + 889900
+EX #5
+ Inputting and Display Result in Mathematics Mode
+  In Mathematic Mode, the Input and display result of fraction 
+or certain functions (log, x2, x3, x ,     , 3    ,     , x-1,10 , e , 
+Abs) is shown in Handwriting/Mathematics format.
+NOTE
+(1) Some input expressions cause the height of a 
+calculation expression to be greater than one display 
+screen. Maximum input capacity: 2 display screens 
+ (31 dots x 2).
+(2) Calculator memory limits how many functions or 
+parentheses can be input in any single expression. In 
+this case, divide the expression into multiple parts 
+and calculate separately.
+(3) If part of the expression you input is cut off after 
+calculation and in the result display screen, you can 
+press      or      to view the full expression.
+Input Range and Error Messages
+• Errors are cumulative in the case of consecutive 
+ calculations, this is also true as internal consecutive 
+ calculation are performed in the case of ^(x y), x  y, 3   , x!, 
+ nPr, nCr , etc. and may become large. 
+ Calculation Precision, Input Range please refer to ... EX #6
+===== PAGE 10 =====
+11
+ 
+  Error Messages and Error locator
+The calculator is locked up while an error message is shown on 
+the display to indicate the cause of the error.
+ Press         to clear the error message, then return to the 
+initial display of latest mode.
+ Press       or       to display input expression with the cursor 
+positioned next to the error.
+ Press         to clear the error message, replay memory history 
+and return to the initial display of the latest mode.
+ Calculation Stacks
+This calculator uses memory areas, called “stacks”, to 
+temporarily store numeric value (numbers) commands (+, –, 
+x…) and functions according to their precedence during 
+calculations.
+The numeric stack has 10 levels and command stack has 
+128 levels. A stack error [Stack ERROR] occurs whenever 
+you try to perform a calculation that exceeds the capacity of 
+stacks.
+Calculations are performed in sequence according to “Order 
+of Operations”. After the calculation is performed, the stored 
+stack values will be released.
+EX #7
+ Order of Operations
+This calculator will automatically determine the operation 
+priority of each individual command as 
+===== PAGE 11 =====
+12
+• Press      or      to display 
+the location of the cause of 
+an error and make 
+required corrections.
+• Press      or      to display 
+the cursor at the location 
+of the error, make 
+appropriate corrections
+Error Message Cause Action
+Math ERROR • The intermediate or final 
+result is outside the 
+allowable calculation range.
+• An attempt to perform a 
+calculation using a value 
+that exceeds the allowable 
+input range.
+• An attempt to perform an 
+illogical operation (division 
+by zero, etc.)
+• Check the input values and 
+make sure they are all 
+within the allowable 
+ranges, Pay special 
+attention to values in any 
+using memory areas
+Stack ERROR • The capacity of the numeric 
+stack or operator stack is 
+exceeded.
+• Simplify the calculation.
+• Divide the calculation into 
+two or more separate 
+parts.
+Syntax ERROR •  An attempt to perform an 
+illegal mathematical 
+operation.
+Insufficient 
+MEM
+Can’t Solve 
+ERROR 
+(only in SOLVE 
+function)
+Variable 
+ERROR
+(only in SOLVE 
+function)
+Time Out 
+ERROR
+(only in 
+Differential or 
+integration 
+Calculations 
+• The calculation result of 
+Function Table mode 
+parameters caused more 
+than 30 x-values to be 
+generated for a table
+• Narrow the table 
+calculation range by 
+changing the start, end, 
+and step values, and try 
+again.
+• The calculator could not 
+obtain a solution.
+• Press        or      to display 
+the location of the cause of 
+an error and make required 
+corrections.
+Argument 
+ERROR • Improper use of an argument.
+Dimension 
+ERROR
+(only in Matrix 
+or Vector)
+• Equation is not a correct 
+equation.
+• Equation does not include 
+variable X. 
+• The solution variable is not 
+similar to the specified 
+variable in the expression.  
+• Check for errors in the 
+equation that you input.
+• Input a value for the 
+solution variable that is 
+close to the expected 
+solution and try again.
+• The calculation ends 
+without the ending condition 
+being fulfilled. 
+• The dimension (row 
+column) is over.
+• An attempt to perform an 
+illegal matrix/vector 
+operation.
+• Revise the ending condition 
+and try again.
+  (refer P.51-52) 
+• Correct the equation to 
+include variable X.
+• Correct the equation to 
+match the solution variable 
+and expression.
+ (refer to P.49)
+===== PAGE 12 =====
+13
+ Arithmetic Calculations
+• To calculate the negative values (exclude the negative 
+exponent) enclose then within the parentheses.
+• This calculator supports 99 levels of parenthetical 
+expression. ......
+ Press                to enter COMP mode.
+ During the busy calculation, the calculator shows the 
+message [PROCESSING] (without any calculation 
+result). Press        key to interrupt the calculating 
+operation.
+Basic Calculations
+EX #8
+Independent Memory
+• Independent memory       uses the same memory area 
+as variable M. It is convenient for calculating cumulative 
+totals by pressing        (add to memory) or       (subtract 
+from memory).
+• Memory contents are retained even when the calculator 
+is powered off.
+• Clear independent memory (M) by pressing             
+• Clear all memory values by pressing                2(MCL) 
+                   .
+EX #9
+ Memory Calculations
+ Memory Variables
+• There are 19 memory variables (0 – 9, A – F, M, X and 
+Y), which store data, results, or dedicated values.
+• Store values into memory by pressing              + Memory 
+variable.
+• Recall memory values by pressing        + Memory 
+variable.
+• Memory content can be cleared by pressing    
+ + Memory variable.
+Example:  23 + 7    A (30 store into A), calculate 2 sinA 
+ and clear memory A ......
+===== PAGE 13 =====
+2
+14
+Answer Memory
+• The input values or the most recent calculation result will 
+be automatically stored into Answer memory whenever 
+you press       ,              ,       ,             ,             . Answer 
+memory can hold up to 18 digits.
+• Recall and use the latest stored Answer memory by 
+pressing        .
+• Answer memory is not updated when an error operation 
+has been performed.
+• Answer memory contents can be maintained even after 
+pressing       , changing the calculation mode, or turning 
+off the calculator. ......
+ Press         to switch a calculation result between fraction and 
+decimal format.
+ Press                to switch a calculation result between 
+improper fraction and mixed fraction format.
+ Result will be displayed in decimal format automatically 
+whenever the total digit of a fractional value (integer + 
+numerator + denominator + separator marks) exceeds 10. 
+ When a fraction calculation is mixed with decimal values, the 
+result will be displayed in decimal format.
+Maths Mode
+Line Mode 3_|2_|311_|3
+Mixed Fraction 
+(a b/c)
+Improper Fraction 
+(d/c)
+ Fraction Calculations
+The calculator supports Fraction calculation and the 
+conversions between Fraction, Decimal point, Mixed fraction 
+and Improper fraction.
+• Specify the fraction calculation result display format by 
+selecting either mixed fraction (      ) or improper fraction
+  (     ) in set-up menu.
+• At the default setting, fractions are displayed as improper 
+fractions (     ).
+• Mixed Fraction display results are only available after 
+selecting (      ) in the setup menu.
+11
+3
+2
+33
+Fraction        Decimal point conversion ......
+EX  #10
+EX  #11
+===== PAGE 14 =====
+3
+15
+ Percentage Calculations
+ Multi-statements Function
+• Use a colon       to put two or more calculation expressions 
+together.
+• The first executed statement will have “Disp” indicator; and 
+the “Disp” icon will disappeared after the last statement is 
+executed. ......
+ Replay & Multi-statements
+ Replay Memory Function
+• Replay memory is only available in COMP mode.
+• After the calculation is executed, the calculation input and 
+result will be stored in the replay memory automatically.
+• Pressing      (or      ) can replay the performed calculation 
+input and result history.
+• After obtaining the calculation result on the display, 
+ press      or      to edit the input expression of that result.
+• If the     Indicator is on the right side of a calculation result 
+display, you need to press        and then      or      to scroll 
+the calculation.
+• Replay memory is cleared when you:
+1. Initialize calculator setting by 
+2. Change from one calculation mode or display mode to 
+another.
+3. Press        key.
+4. Press               to power off the machine.
+EX #12
+ Degree-Minutes-Seconds Calculations
+Use degrees (hours), minutes and seconds key to perform 
+a sexagesimal (base-60 notational system) calculation or 
+convert the sexagesimal value into decimal value.
+Degree-Minutes-Seconds       Decimal points......EX  #13
+EX #14
+===== PAGE 15 =====
+4
+16
+F-789SGA has total of 79 built-in constant values, you can enter 
+(or exit) the constant value selection menu by pressing             , 
+the following display will be shown:
+• You can go to the next or previous value selection pages by 
+pressing      or     .
+• To select a constant value simply press      or      . The 
+selection cursor will shift left or right to underline a constant 
+symbol and the lower line display will show the value of the 
+underlined constant symbol. 
+• The underlined constant symbol will be selected as you  
+press       .
+• You can instantly get the constant value if you input the 
+constant value item number and press        when the 
+selection cursor is underlining 0 0. ......
+• Constant Table please refer ......
+EX #15
+ Metric Conversions
+The calculator has 172 conversion pairs which allows you to 
+convert a number to and from the specified metric units. 
+• Press        enter the conversion menu.  
+• There are 8 category pages (distance, area, temperature, 
+capacity, weight, energy, pressure and speed) containing 36 
+metric symbols, you can press      or      to change the 
+category selection page. 
+• In a category page, you can shift the selection cursor left or 
+right by pressing      or      . ......
+Input     1   79           0 0
+   mp    mn    me    mµ   ao
+ Constant Value Calculations
+EX #16
+EX #17
+• Go back to the calculation mode by pressing         within the 
+category selection menu. After the base conversion unit,
+      ,      or        keys will be invalid.
+EX #18Example: Convert 10 + (5 ft2     m2) = 10.4645152 ......
+• If the converted result overflows, [ERROR] will be shown in the 
+lower display. Press        to select the overflow value; the following 
+scenarios are valid:
+Scenario A - Keep selecting the other conversion value by 
+pressing       or      . 
+Scenario B - Clear the screen and jump out of the selection 
+by pressing        or        .
+Scenario C - Jump back to the previous calculation screen by 
+pressing       .
+===== PAGE 16 =====
+5
+17
+EX #19
+EX  #20
+EX  #22
+ Square, Root, Cube, Cube Root, Power, Power Root, 
+ Reciprocal and Pi
+ Logarithm, Natural logarithm, Antilogarithm and LogaSb
+ Angle Unit Conversion
+ Press                  to enter COMP mode.
+    = 3.1415926535897932324
+ e = 2.7182818284590452324
+The default calculator angle unit setting is “Degree”. Press
+to enter the setup menu to change the unit to “Radian” or “Gradient”,:
+Functional Scientific Calculations
+Press the corresponding number key        ,         or         for the 
+angle unit you need. Then the display will show the     ,     ,   
+Indicator accordingly.
+Convert an angle unit between “Degree”, “Radian” and 
+“Gradient” by pressing
+  
+Then, pressing        ,        , or         will convert the displayed 
+value into the selected angle unit. .......
+GRD
+Deg
+Rad
+Gra
+Units of 15º
+Multiples of        radians
+Multiples of       grads
+Angle Value InputAngle Unit Setting Input Value Range for    form result
+1
+12
+50
+3
+EX #21
+ Trigonometry Calculations
+ Before using the trigonometric functions (except 
+hyperbolic calculations), select the appropriate angle unit 
+(Deg/Rad/Gra) by pressing              .
+ 90º =     Radians = 100 Gradients. ......
+===== PAGE 17 =====
+6
+18
+ Hyperbolic (sinh/ cosh/ tanh), Inverse Hyperbolic 
+(sinh-1/cosh-1/tanh-1) functions
+ Pressing         enter sub-hyperbolic menu.
+ Permutation:  
+ Combination:  
+ Factorial :  
+ Permutation, Combination, Factorials and Random 
+ Number Generation
+ Random Number Generation
+                : Generate a random number between 0.000 and 
+0.999. And the display result will be fraction format 
+in Maths mode status.
+                : Generate a random number between two specified 
+positive integers. The entry is divided by “.”
+*The value is only a sample, results will differ each time.
+EX #24
+EX  #25
+EX #23
+
+Maximum Value and Minimum Value Calculation 
+EX #26
+EX #27
+EX #28
+===== PAGE 18 =====
+7
+19
+ “Quotient” (Q) is the result of a division problem, “Remainder” 
+(r) is the value remaining in an integer division problem.
+ The calculated quotient value (Q) and remainder (r) will be 
+stored into memory variables “C” and “D” automatically 
+assigned.
+ In Maths mode, press      or      to scroll a long calculation 
+result.
+ In Line mode, the quotient value (Q) and remainder (r) will be 
+shown over 2 line.
+ Only Quotient Value (Q) can continue to be used for the next 
+calculation or be stored into memory variables. ......
+ Quotient and Remainder Calculations
+ LCM: Calculate the least common multiple among 
+(maximum) three positive integers.
+ GCD: Calculate the greatest common divisor among 
+(maximum) three positive integers.
+ Least Common Multiple and Greatest Common Divisor
+EX #30
+ Prime Factorization
+• The factor a positive integer up to 10 digits into prime  
+factors up to the 3 digits. 
+           Ptact Number : 0 < X < 99999 99999 (X is integer)
+     • The reminder part that cannot be factored will be 
+enclosed in parentheses on the display. 
+NOTE:
+• During any calculation operations, pressing                or                
+        or         or        key will exit the prime factorization 
+result display. 
+• Use the setup menu to change the angle unit setting 
+(Deg, Rad, Gra) or display digit setting (Fix, Sci, Norm).
+• [Math ERROR] will be shown if decimal value, fraction, 
+negative value calculation result, or Pol, Rec, Q...R is 
+displayed.
+EX #31
+Example:  99999 99999 = 32 x 11 x 41 x 271 x (9091) 
+                   
+EX #32
+
+Modulus After Division (Mod) Calculation
+EX #29
+===== PAGE 19 =====
+8
+20
+ With polar coordinates, you can calculate and Display θ 
+within the range of –180º < θ ≤ 180º. (Same as Radian and 
+Gradient)
+ In Maths mode, press       or      to scroll the through 
+calculation result.
+ In Line mode, (x,y)  or (r, θ) will be shown over 2 lines.
+ After conversion, the results will automatically be assigned to 
+memory variables X and Y. Press               or       to show the 
+results.
+ Coordinate Conversion
+ Absolute Value Calculation
+ Engineering Notation
+Rectangular Coordinates 
+(Rec)
+Polar Coordinates (Pol)
+ In Maths mode, press         to change the calculation result 
+value between fraction form     Decimal form,    form   
+Decimal form, √ form     Decimal form.
+ In Line mode, press         to ONLY change the calculation 
+result value between fraction form     Decimal form, the other  
+     and √ calculation will display the decimal value only.
+NOTE:
+• In some Calculation results, pressing         key will not 
+convert the display value.
+• Some display result conversion may take a long time.
+ Display Values Exchange
+NOTE:
+• During any calculation operations, pressing                or                
+        or         or        key will exit the prime factorization 
+result display. 
+• Use the setup menu to change the angle unit setting 
+(Deg, Rad, Gra) or display digit setting (Fix, Sci, Norm).
+• [Math ERROR] will be shown if decimal value, fraction, 
+negative value calculation result, or Pol, Rec, Q...R is 
+displayed.
+: Convert rectangular coordinates (x, y) to polar 
+coordinates (r, θ); Press               for r, or               
+for θ. ...... EX #33
+: Convert polar coordinates (r, θ) to rectangular 
+coordinates (x, y); Press                for x, or             
+for y. ...... EX #34
+EX #35
+EX #36
+EX #37
+===== PAGE 20 =====
+9
+21
+ Press                 to enter CPLX mode. 
+ Press        to select the calculation type.
+Complex Number type selection
+Thre are 6 types of complex number calculations in the Complex 
+Number Type screen. Press the number to select the type of 
+Complex Number Calculation.
+ Check the current angle unit setting (Deg, Rad, Grad). 
+ [   ] indicates the display result is the imaginary number, 
+ [     ] indicates the display value is the argument value   . 
+ Imaginary numbers will use up replay memory capacity.
+ Complex Number Calculations
+Complex numbers can be expressed by rectangular form (z = a + bi) 
+or polar form (r      ). Where " a " is the real number part, " bi " is the 
+imaginary number (and i is the imaginary unit equal to square root of 
+–1,   -1), " r " is the absolute value, and "    " is the argument of the 
+complex number.
+r
+4
+0 3 Real axis
+Imaginary axis ( i )
+Apps
+Apps
+Apps
+Absolute Value and Argument Calculation
+With the rectangular form complex number, you can calculate the 
+corresponding absolute value (r) or argument (   ) by pressing          
+or                 key respectively. ...... 
+Conjugate of a complex number
+If the complex number is z = a + bi, the conjugate value of this 
+complex number should be z = a – bi. ......
+Determine the Real/Imaginary of complex number
+Abs
+Apps
+Abs
+Rectangular Form and Polar Form Conversion
+Press                can convert rectangular form complex numbers into 
+polar form; whereas press                will convert polar form complex 
+number into rectangular form. ...... EX #38
+EX #39
+EX #40
+EX #41
+===== PAGE 21 =====
+10
+22
+Logical Operation ......
+1 (SD) One-variable statistics (x)
+2 (Lin) Two-variable, Linear regression (y= A+Bx)
+3 (Quad) Two-variable, Quadratic regression (y=A +Bx + Cx2)
+4 (Log) Two-variable, Logarithmic regression (y=AxBlnx)
+5 (e EXP) Two-variable, E exponential regression (y=Ae Bx)
+6 (ab EXP) Two-variable, ab Exponential regression (y=AB x)
+7 (Pwr) Two-variable, Power regression (y=Ax B)
+8 (Inv) Two-variable, Inverse regression (y=A+B/x)
+Statistical CalculationPressing Key
+ Statistical Type Selection
+There are 8 types of Statistical Calculation, after entering the 
+Statistical Type Selection screen, press the number to select 
+the type of Statistic Calculation.
+ Press                 to enter Statistical calculation mode; the 
+“STAT” indicator lights up. 
+ Press                 (Type) to select the calculation type.
+Statistical Calculations
+Apps
+ Base-n Calculations and Logical Calculations
+ Press                  to enter Base-n mode. 
+ Decimal (base 10), hexadecimal (base 16), binary (base 2), octal 
+(base 8), or logical calculations. 
+ To select a specific number system in base mode, simply press 
+       Decimal [DEC],       Hexadecimal [HEX],       Binary [BIN] or
+       Octal [OCT].
+ Press         key to perform logical calculations including: Logic 
+connection [and] / [or], exclusive or [Xor], exclusive nor [Xnor], 
+argument complement [Not] and negation [Neg].
+ If the binary or octal calculation result is more than 8 digits,       
+will be displayed to indicate the result has a next block. Press               
+        to loop between result blocks.  
+ In Base-n mode all the scientific functions cannot be used, and 
+you cannot input the value with decimal places or exponents.
+MODE
+Apps
+EX  #42
+EX #44
+Base-n Transformation EX #43......
+===== PAGE 22 =====
+11
+23
+ Statistical Data Input
+After confirmed the calculation type in the Statistical Type 
+Selection screen or by pressing               (Data) in the STAT 
+mode, the following Statistical Data Input screen will be shown.
+• After turning on Data Frequency in the setup menu, the 
+“FREQ” column will be added into the above screen.
+• The following are the maximum number of lines for data input.
+• Input expression and display result values in the Statistical 
+Data Input screen are in Line mode (same as Comp mode 
+with Line mode status).
+• After inputted the data, press         to store the value into 
+statistical registers and display the value (max. 6 digits) in the 
+cell. You can press cursor key to move the cursor between 
+each cell.
+FREQ OFFStatistic type
+Single Variable (only x input) 40 80
+2 Variable (x & y input) 26 40
+FREQ ON
+Apps
+1-variable STAT 2-variable STAT 1-variable STAT 
+”FREQ ON”
+ Base-n Calculations and Logical Calculations
+ Press                  to enter Base-n mode. 
+ Decimal (base 10), hexadecimal (base 16), binary (base 2), octal 
+(base 8), or logical calculations. 
+ To select a specific number system in base mode, simply press 
+       Decimal [DEC],       Hexadecimal [HEX],       Binary [BIN] or
+       Octal [OCT].
+ Press         key to perform logical calculations including: Logic 
+connection [and] / [or], exclusive or [Xor], exclusive nor [Xnor], 
+argument complement [Not] and negation [Neg].
+ If the binary or octal calculation result is more than 8 digits,       
+will be displayed to indicate the result has a next block. Press               
+        to loop between result blocks.  
+ In Base-n mode all the scientific functions cannot be used, and 
+you cannot input the value with decimal places or exponents.
+ Editing Statistical Sample Data
+ Replacing the Data in a Cell
+(1) In the Statistical Data Input screen, move the cursor to 
+the cell you want to edit.
+(2) Input the new data value or expression, and press       .
+ Deleting a Line
+(1) In the Statistical Data Input screen, move the cursor to 
+the line you want to delete.
+(2) Press  
+ Inserting a Line
+(1) In the Statistical Data Input screen, move the cursor to 
+the line that will be under the line being inserted.
+(2) Press               (Edit)
+(3) Press        (Ins)
+ Deleting All STAT Data Input
+(1) Press               (Edit)
+(2) Press        (Del-A)
+Apps
+Apps
+===== PAGE 23 =====
+12
+24
+ Statistical Calculation Screen
+ After inputting the STAT Data, press         to enter the 
+Statistical Calculation screen.
+ Statistical Calculation screen is in Line mode for input 
+& output display
+ Use the Statistical Menu to calculate the Statistical 
+result. (S-SUM, S-VAR, S-PTS, Reg).
+ Statistical Menu
+In the Statistical Data Input screen or Statistical 
+Calculation screen, press        to display the Statistical 
+Menu screen.
+[1] Type To enter the statistical calculation type screen
+[2] Data To enter the statistical data input screen
+[3] Edit To enter Edit sub-menu for editing STAT editor screen contents
+[4] S-SUM To enter S-Sum sub-menu (Calculating sum)
+[5] S-VAR To enter S-Var sub-menu (Calculating variable)
+[6] S-PTS To enter S-PTS sub-menu (Calculating points)
+[7] Distr To enter Distr sub-menu (Calculating distribution)
+[8] Reg To enter Reg sub-menu (Regression vcalculation)
+DescriptionSTAT items
+Apps
+1-variable STAT 2-variable STAT
+
+===== PAGE 24 =====
+25
+13
+===== PAGE 25 =====
+26
+14
+SD type Statistical calculation Example: 
+To calculate ∑x2, ∑x, n, x, x   n, x   n-1, minX, maxX of data: 75, 
+85, 90, 77, 79 in SD mode (Freq: OFF) ......
+Quadratic Regression type Statistical Calculation Example: 
+ABC Company investigate the effectiveness of the 
+advertisement expense in coded units, the following data was 
+obtained:
+Advertisement expenses: X 18 35 40 21 19
+Effectiveness: y (%) 38 54 59 40 38
+Statistical Calculation Example
+Please use the regression to estimate the effectiveness 
+(estimate the value of y) if the advertisement expenses X=30, 
+and estimate the advertisement expenses level (estimate the 
+value of X1, X2) for effectiveness y = 50. ......
+EX #45
+EX #46
+ Distribution Calculations
+ After sample data is entered in either Statistic (SD) or Regression 
+(REG) mode, you can perform the normal distribution or 
+probability distribution calculation such as P(t), Q(t) and R(t) in 
+which t is the variate of the probabilistic experiment.
+Random variable
+Mean of sample
+Standard deviation
+ Press                 to display the distribution calculations screen.
+ Press       ,       ,       or        for the corresponding calculations.
+1: P( 2: Q(
+3: R( 4:    t
+Apps
+===== PAGE 26 =====
+27
+15
+ Equation Calculations
+ Press                to enter the equation mode; press      /       
+for next / previous pages.
+[1] 2 unknow EQN  Simultaneous Linear Equations with two unknowns 
+[2] 3 unknow EQN  Simultaneous Linear Equations with three unknowns
+[3] 4 unknow EQN   Simultaneous Linear Equations with four unknowns 
+[4] Quad EQN  Quadratic Equation, degree 2 equation 
+[5] Cubic EQN  Cubic Equation, degree 3 equation 
+[6] Quartic EQN   Quartic Equation, degree 4 equation
+DescriptionEquation Item
+Press [      ]
+or [      ] key
+Example: Calculate the probability distribution P(t) for the sample 
+data: 20, 43, 26, 46, 20, 43, when x = 26. ......
+P(t): Probability below a 
+given point x  
+Q(t): Probability below a 
+given point x and above 
+the mean
+R(t): Probability above a 
+given point x
+1
+  2
+P(t)= e           dt ,
+1 t – u
+2–   (       ) 2
+P(t )
+R ( t ) = 1 –  P ( t ),
+R(t )
+Q ( t ) = 0.5 –  R ( t ),
+Q(t )
+EX #47
+===== PAGE 27 =====
+28
+16
+Example: Solve the simultaneous equation with three    
+                 unknowns: 2x + 4y – 4z = 20
+  2x – 2y + 4z = 8
+  5x – 2y – 2z = 20  ......
+ 
+Example: Solve the cubic equation 5x3 + 2x2 – 2x + 1 = 0
+For quadratic, cubic or quart equations, the variable name
+starts with “X1”.
+Simultaneous Linear Equations
+Simultaneous Linear Equations with Two Unknowns:
+ a 1x + b1y = c1
+ a 2x + b2y = c2
+Simultaneous Linear Equations with Three Unknowns:
+ a 1x + b1y + c1z = d1
+ a 2x + b2y + c2z = d2
+ a 3x + b3y + c3z = d3
+Simultaneous Linear Equations with Four Unknowns:
+ a 1w + b1x + c1y + d1z = e1
+ a 2w + b2x + c2y + d2z = e2
+ a 3w + b3x + c3y + d3z = e3
+ a 4w + b4x + c4y + d4z = e4
+EX #48
+Quadratic, Cubic and Quart Equations
+Quadratic equation : ax 2 + bx + c = 0 (a second-order polynomial 
+equation with a single variable x)
+Cubic equation : ax 3 + bx2 + cx + d = 0 (an equation with cubic 
+polynomial)
+Quart equation  : ax 4 + bx3 + cx2 + dx + e = 0 
+EX #49..
+  Solve Function
+■ Solve functions use Newton’s Method to obtain the approximate 
+solution of equations.
+       Note: SOLVE function can be used in the COMP Mode only.
+■ The following describes the types of equations whose solutions 
+can be obtained by using SOLVE function.
+• Equations that include variable X,
+ SOLVE function solves for X, for example, X 2 + 2X – 2, X = Y + 3, 
+X – 5 = A + B, X = tan(C),
+ • Variable X to be solved should be put at the left hand side of
+  the equation.
+  For example, an equation is input as X2 + 5X = 24 or X2 + 5X – 24 = 0 
+  or X 2 + 5X – 24
+ • An expression like X2 + 5X – 24 will be treated as X2 + 5X – 24 = 0,
+  not necessary to input “= 0”.
+• Equations input uses the following syntax : 
+{equation},{solution variable}
+ In general, an equation is solved for X, unless specified. For 
+example, to solve for Y when an equation is input as, Y = X + 5, Y
+===== PAGE 28 =====
+29
+17
+Example: For the equation Y = 5x2 –2x +1, calculate the value of Y if 
+x = 5 or x = 7. ...... 
+! The         stored expression will be cleared as you start a new 
+calculation, change into another mode, or turn off the calculator.
+ CALC Function
+ CALC function is a memory zone with a maximum of 79 steps to 
+store a single calculation expression which can be recalled and 
+calculated a number of times with different values. 
+ After inputting the calculation expression and pressing       , the 
+calculator will request for the current value of your input variables.
+ CALC function can only be used in COMP mode or CPLX mode.
+EX #51
+Important precaution when using “Solve” function:
+• The following functions    ,     , ∑, ∏, Pol, Rec, Q…r, Rand, i-Rand or 
+ multi-statement are not allowed to input into an equation for SOLVE 
+ function.
+• Since SOLVE function uses Newton’s Method to obtain the solution, 
+ even if there are multiple solutions, only one of them will be shown as 
+ the solution.
+• SOLVE function may not be able to obtain a solution because of preset
+ initial value of the solution variable. In case this happens, try to change 
+ the initial value of the solution variable.
+• SOLVE function may not be able to find the correct solution, even if the 
+ solution(s) exists.
+• If an equation contains input functions that include an open parenthesis, 
+ do not omit the closing parenthesis.
+• It will show “Variable ERROR” when the expression does not contain the 
+ variable that you want to solve.
+• Newton’s Method may have problems for solving the following types of 
+ functions, for example y = ex, y =     , y = sin(x), y =  x, etc.
+• In case the equation takes long time for solving, the calculator will display 
+ “PROCESSING” screen, you can cancel the processing of SOLVE 
+ operation by pressing the        key.
+d
+dx
+1
+x √
+EX #50Example: To solve X=       B2C (when B=5; C=20) 13 
+• The Precision of Solution shows the result when the obtained 
+ solution is assigned to the solution variable. The precision of the 
+ obtained solution is higher if this value is closer to zero.
+Continue Screen
+• SOLVE performs convergence a preset number of times. If it 
+ cannot find a solution, it displays a confirmation screen that shows 
+ “Continue: [=]”, asking if you want to continue. Press       to continue 
+ or        to cancel the SOLVE operation.
+===== PAGE 29 =====
+30
+18
+ Differential Calculations
+ 
+ Differential Calculations can be used in the COMP mode only.
+ To perform a differential calculation, you have to input the
+ expression in the form of:                                  f(x)         a         ∆x 
+ Your calculator performs differential calculations by aprroximating
+  the derivative based on centered difference approximation.
+Example: To determine the derivative at point x = 10, ∆x = 10-8, for 
+the function f(x) = sin(3x + 30). ......
+  Integration Calculations
+ Integration Calculations can be used in the COMP mode only.
+ To perform an integration calculation you are required to input the 
+following elements:
+                          f(x)        a        b        n  
+• f(x) : Function of X. (All non-X variables are treated as constants.)
+• a, b : The integration range of the definite integral. 
+• n : Tolerance; for Line Mode only
+ The integration calculation is based on Gauss-kronrod method.
+ The internal integration calculations may take considerable time
+ to complete. For some cases, even after considerable time is
+ spent performing a calculation, the calculation results may be
+ erroneous. Particularly when significant digits are less than 1, 
+ an ERROR might occur.
+EX #52
+• f(x) : Function of X. (All non-X variables are treated as constants.)
+• a : Differential point. 
+• ∆x : Tolerance (calculation precision); for Line mode only
+! You can leave out the ∆x in the differential expression and the 
+calculator will automatically substitute a value for ∆x.
+! The smaller the entered value ∆x is, the longer the calculation time 
+will be with more accurate results, the larger the entered value ∆x 
+is, the shorter the calculation time will be with comparatively less 
+accurate results.
+! Inaccurate results and errors can be caused by the following : 
+ • Discontinuous points in x values 
+ • Extreme changes in x value
+ • Inclusion of the local maximum point and local minimum point in x values.  
+ • Inclusion of the inflection point in x values
+ • Inclusion of undifferentiable points in x values
+ • Differential calculation results approaching zero
+! When performing differential calculations with trigonometric functions, 
+select radian (Rad) as the angle unit setting.
+! Logab, i~Rand(, Rec( , Pol(, ∫(, d/dx(, ∑(, ∏(, Max( and Min( functions 
+cannot join in differential calculations.
+! You can cancel the processing of differential calculation by pressing 
+the        key.
+===== PAGE 30 =====
+31
+19
+EX #53
+ Matrix Calculations 
+ Press                to enter Matrix mode.
+ Before starting matrix calculations, you have to create one matrix 
+or a maximum of four matrices named A, B, C and D at one time. 
+The matrix dimension can be up to 4x4.
+ The matrix calculation results are stored into the MatAns memory 
+automatically. You can use the matrix MatAns memory for any 
+subsequent matrix calculations.
+Creating a Matrix 
+ Press                to enter Matrix mode.
+ Press                 to use the MATX application; press      /      for 
+next / previous pages.
+ Press         to exit the matrix creating screen.
+[1]  Dim 
+[2]  Data 
+[3]  MatA to MatD 
+[4]  MatAns 
+[5]  Det 
+[6]  Trn 
+[7]  Ide 
+[8]  Adj 
+[9]  Inv 
+Specify the Matrix memory A to D, and specify the 
+dimension (up to 4 x 4)
+Specify the matrix A-D for editing and corresponding 
+matrix element
+Select matrix A to D
+Calculation Answer of Matrix & Store into MatAns 
+Determinate function of Matrix A-D
+Transposed data in Matrix A-D
+Identity of matrix 
+Adjoint to Matrix 
+Inverse of Matrix 
+DESCRIPTIONMATX ITEM
+Apps
+! You can leave out the n in the Integration expression and the 
+calculator will automatically substitute a value for n.
+! The smaller the entered value n is, the longer the calculation time will be 
+with more accurate results, the larger the entered value n is, the shorter 
+the calculation time will be with comparatively less accurate results.
+! When performing integration calculations with trigonometric functions, 
+select radian (Rad) as the angle unit setting.
+! Log ab, i~Rand(, Rec( , Pol(, ∫(, d/dx(, ∑(, ∏(, Max( and Min( functions 
+cannot join in integration calculations.
+! A “Time Out” error occurs when an integration calculation ends without 
+ the ending condition being fulfilled.
+! You can cancel the processing of integration calculation by pressing 
+the        key.
+Example: Perform the integration calculation for, with n = 4.
+......
+Press [      ]
+or [      ] key
+
+===== PAGE 31 =====
+32
+20
+     Adjoint of Matrix 
+Example:  Adjoint Matrix A                     < Result:                 >  
+2    3
+4    5
+5    -3
+-4    2
+    Matrix Addition, Subtraction and Multiplication
+Example: MatA =                  , MatB =                  , MatA x MatB=?
+1   2   3
+4   5   6
+7   8   9
+9   8   7
+6   5   4
+3   2   1
+EX #54
+! Matrices which will be added, subtracted or multiplied must be the 
+same size. An error occurs if you try to add, subtract or multiply 
+matrices whose dimensions are different from each other. For 
+example, you cannot add or subtract a 2 x 3 to a 2 x 2 matrix.
+Example: Multiple Matrix C =                by 2        <Result:               > 
+ 3   -2
+-1    5
+ 6   -4
+-2    10
+     Obtain the Scalar Product of a Matrix
+Each position in the matrix is multiplied by a single value, resulting in 
+a matrix of the same size. 
+EX #55
+     Obtain the Determinant of a Matrix
+Example:  Obtain the determinant of Matrix C =                      
+ <Result: -471>                                
+10  -5    3
+-4    9    2
+1     7   -3
+! An error occurs if you obtain the determinant of a non-square matrix.
+EX  #56
+    Transpose a Matrix
+Example:  Transpose Matrix B =                     <Result:                  >
+9   5
+6   2
+8   4
+9   6   8
+5   2   4
+EX #57
+     Identity of Matrix 
+Example:  Identity Matrix D 
+1    0
+0    1 ...... EX #58
+EX #59
+Editing Matrix Data 
+ Press                         (Data), then specify the matrix A, B, C or D 
+for editing and the corresponding matrix element indicator will be 
+displayed. 
+ Input the new value and press        to confirm the edit. 
+ Press        to exit the matrix editing screen.
+Apps
+===== PAGE 32 =====
+33
+21
+      Determine the Absolute value of a Matrix
+Example: To determine the absolute value of the inverted Matrix C in 
+the previous example. ...... EX #61
+Creating a Vector 
+ Press                to enter Vector mode. 
+ Press                to use the Vector tool; 
+ Press         to exit the matrix creating screen.
+[1]  Dim 
+[2]  Data 
+[3]  VctA to VctD 
+[4]  VctAns 
+[5]  Dot
+Specify the Vector Name A to D, and specify the 
+dimension (2D or 3D)
+Specify the Vector A-D for editing and corresponding 
+matrix element 
+Select Vector A to D 
+Calculation Answer of Vector stored into VctAns 
+Input the “▪” command for obtaining the dot product 
+of a vector Outside VCTR MODE Apps
+DESCRIPTIONITEM
+Apps
+  Vector Calculations
+ Press                to enter Vector mode. 
+ Before starting vector calculations, you have to create one or
+ more vectors named A, B, C and D (maximum four vectors at one
+ time). 
+ The vector calculation results are stored into VctAns memory
+ automatically. You can use the vector VctAns memory for any
+ subsequent vector calculations.
+Editing Vector Elements
+ Press                        (data), then specify the matrix A, B, C or D 
+for editing, and the corresponding vector element indicator will be 
+displayed. 
+ Input the new value and press        to confirm the edit. 
+ Press         to exit the vector editing screen.
+Apps
+     Invert a Matrix
+Example: Inverting Matrix C =             
+ <Result:                                                    >                 
+8   2
+3   6
+0.142857142    -0.047619047
+-0.071428571   0.19047619 ...... EX #60
+===== PAGE 33 =====
+34
+22
+! An error occurs if you try to add or subtract vectors whose 
+dimensions are different from each other. For example Vector A 
+(a,b,c) cannot add or subtract with Vector B (d,e).
+    Vector Addition and Subtraction 
+Example: Vector A = (9,5), Vector B = (7,3), Vector A – Vector B =?
+EX #62
+    Obtain the Scalar Product of a Vector
+Each position in the vector is multiplied by a single value, resulting in 
+a vector of the same size.      
+  s x VctA(a,b) = VctB(axs, bxs) 
+Example: To Multiply Vector C = (4,5,-6) by 5 ...... EX #63
+    Calculate the Inner Product of Two Vectors
+Example: Calculate the inner product of Vector A and Vector B. As 
+Vector A = (4,5,-6) and Vector B = (-7,8,9). ...... EX #64
+    Calculate the Outer Product of Two Vectors
+Example: Calculate the outer product of Vector A and Vector B. As 
+Vector A = (4,5,-6) and Vector B = (-7,8,9). ......
+! An error occurs if you try to obtain an inner or outer product of two 
+vectors whose dimensions are different from each other. 
+EX #65
+   Determine the Absolute Value of a Vector
+Example 1: Determine the absolute value of the Vector C. When  
+                     Vector C = (4,5,-6) and is already created in the calculator. 
+EX #66
+Example 2: Based on Vector A=(-1, 0, 1) and Vector B=(1, 2, 0), 
+determine the size of the angle    (angle unit: Deg) and a 
+unit 1 vector perpendicular to both A and B.
+                         cos   =          , whereas   = cos -1 
+            Unit 1 vector perpendicular to both A and B= 
+  < Result:                   =(0.666666666, -0.333333333, 0.666666666) > EX #67....
+ Input f(x) function to generate the function table for x & f(x).
+ Steps to generate a Number Table
+ 1. Press               to enter the Table function calculation.
+ 2. Function Input screen
+  • Input function with X variable (              ) to generate the 
+Function Table Result.
+  • All other variables (A, B, C, D, Y) and independent 
+memory (M) act as the value.
+Function (x, y) Table Calculation
+===== PAGE 34 =====
+23
+35
+  • Pol, Rec, Q…r, S,     functions can not be used in the 
+Function Input screen.
+  • The Function Table Calculation will change X-variable.
+ 3. The input the start, end, & step information
+  • Input the value, press         to confirm on the following 
+screens
+  • Input expression and display result value in following 
+screens are in Line mode status
+  •  There is a maximum of 30 x-values in the function table 
+generation. “Insufficient Error” will be shown if the start, 
+end, step value combination is more than 30 x-values.
+Replace the battery immediately when the display characters are dim 
+even with a darker LCD display contrast OR when the following message 
+appears on the screen. Turn the calculator off and replace the lithium 
+battery immediately.
+Please replace the lithium battery using the following procedures,
+1. Press                 to power off the calculator.
+2. Remove the screw that securely fixes the battery cover in place.
+3. Remove battery cover.
+4. Remove the old battery with ball pen or similar sharp object.
+5. Load the new battery with positive “+” side facing up.
+6. Replace the battery cover, screw, and press         ,     
+         to initialize the calculator.
+Caution: Risk of explosion if battery is replaced by an incorrect type. 
+Dispose of used battery according to the instruction.   
+     Electromagnetic interference or electrostatic discharge may cause the 
+display to malfunction or the contents of the memory to be lost or 
+altered. Should this occur, press         ,                                         to 
+restart the calculator.
+Battery Replacement
+!
+Low Battery 
+ In the Function Table Result screen, you cannot edit the 
+content, press         to return to the Function Input screen.
+Example:                               to generate the function table for 
+                 the range              , incremented in steps of 1.
+f (x) = x3 + 3x2 2x
+Start? Input the lower limit of X (Default =1).
+End? Input the upper limit of X (Default = 5).
+ *End value must be greater than the start value.
+Step? Input the increment step (Default =1).
+You should input:-Display screen
+d
+dx
+EX #68
+===== PAGE 35 =====
+24
+36
+Specifications
+Power Supply : Solar Cell and Lithium battery (CR2032 x 1)
+Power Consumption : DC 3.0V / 0.3mW
+Battery Life : Approximately 4 years 
+   (Base on 1 hour operation per day)
+Auto power off : Approx. 7 minutes
+Usable Temperature : 0° ~ 40°C 
+Size: 171 (L) × 86 (W) × 17.3 (H) mm (with cover)
+ 168 (L) × 80 (W) × 13.15 (H) mm (without cover) 
+Weight: 120 g (with cover) / 88 g (without cover)
+*Specifications are subject to change without notice.
+Advice and Precautions
+• This calculator contains precision components such as LSI 
+chips and should not be used in places subject to rapid 
+variations in temperature, excessive humidity, dirt or dust, or 
+exposed to direct sunlight.
+• The liquid crystal display panel is made of glass and should not 
+be subjected to excessive pressure.
+• When cleaning the device, do not use a damp cloth or volatile 
+liquid such as paint thinner. Instead, use only a soft, dry cloth.
+• Do not under any circumstances dismantle this device. If you 
+believe that the calculator is not functioning properly, either bring 
+or mail the device together with the guarantee to a service 
+representative of the Canon Business office.
+• Never dispose the calculator improperly such as burning; it can 
+create risks of personal injury or harm. You are suggested to 
+dispose this product according to your national law.
+• Do replace the battery once every two years even if it is not 
+used frequently.
+Battery Caution!
+• Keep the battery out of the reach of children. If the battery is 
+ swallowed, contact a doctor immediately.
+• Misuse of the battery may cause leakage, explosion, damages, 
+ or personal injury.
+• Do not recharge or disassemble the battery, it could cause a 
+ short circuit.
+• Never expose the battery to high temperatures, direct heat, or 
+ dispose by incineration.
+• Never leave a dead battery in the calculator as the dead 
+ battery may leak and cause damage to the calculator.
+• Continued use of the calculator in the low battery condition may
+ result in improper operation or the stored memory may be  
+ corrupted or lost completely. Keep the written records of 
+important data all the time; and replace the battery as soon as 
+ possible.

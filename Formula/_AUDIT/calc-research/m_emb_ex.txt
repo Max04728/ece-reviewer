@@ -1,0 +1,1303 @@
+
+===== PAGE 1 =====
+F-789SGA
+Calculation Examples
+Exemples de Calcul
+Π/uni0440/uni0438/uni043C/uni0435/uni0440/uni044B /uni0412/uni044B/uni0447/uni0438/uni0441/uni043B/uni0435/uni0438/uni0438/uni0439
+Számítási Példák
+Przykłady Obilczeń
+Exemple de Calcul 
+Příklady Vypočtů
+Π/uni0440/uni0438/uni043C/uni0435/uni0440/uni0438 /uni0437/uni0430 /uni0418/uni0437/uni0447/uni0438/uni0441/uni043B/uni0435/uni043D/uni0438/uni0435
+Primeri Kalkulacij 
+Primjeri Izračunavanja
+Priklady vypočtov
+Hesaplama örnekleri
+ENGLISH
+FRANÇAIS
+Ρ/uni0423/uni0421/uni0421/uni041A/uni0418/uni0419
+MAGYAR
+POLSKI
+ROMÂNĂ
+ČESKÁ VERZE
+/uni0411/uni0411/uni041B/uni0413/uni0410/uni0420/uni0421/uni041A/uni0418
+SLOVENŠČINA
+HRVATSKI
+SLOVENSKY
+TÜRKE-IM-2808
+===== PAGE 2 =====
+2
+EX #1
+Including         *1, 
+        *2,        *3
+Omitting         *1, 
+        *3
+2xlog(100) x (1+3)
+16
+*2
+*1
+2log(100)(1+3)
+                          16
+3
+Key In Operation DisplayExample
+Method 1: 
+Insert mode
+Mode Setting Display (input Line only)Key In operation
+Method 2: 
+Overwrite mode
+EX #2
+LINE MODE:
+===== PAGE 3 =====
+3
+Insert mode      6times
+ 
+1234567+|889900
+1234567+2|889900
+EX #3
+Method 1:  
+Insert mode
+Method 2: 
+Overwrite mode
+     12times
+ 
+     13times
+ 
+12|34567+889900
+1|34567+889900
+1234567+889900_
+1234567+889900
+134567+889900
+Mode Setting Display Key In operation
+LINE MODE:
+Mode Setting DisplayKey In operation
+MATHEMATICS MODE:
+EX #4
+DisplayKey in operationExample
+MATHEMATICS MODE:
+EX #5
+===== PAGE 4 =====
+4
+                   Calculation Precision, Input Range / 
+                    Calcul de précision, plages des valeurs 
+d'entrée / Расчет точности, Входной диапазон / 
+Számítási pontosság, Bemeneti tartomány / Precyzyjnych 
+obliczeń, Zakres wejściowy / Precizie de calcul, Gama de 
+intrare / Výpočet Precision, vstupní rozsah / Изчисляване 
+на точност, обхват на входното / Izračun Precision, 
+Območje vhodnih podatkov / Proračun precizni, ulaznog 
+raspona / Proračun precizni, ulaznog raspona / Calculation 
+Precision, Input Range 
+EX #6
+Number of Digits for 
+Internal Calculation
+Precision*
+Calculation Range
+18 digits
+±1 at the 10th digit for a single calculation 
+±1 at the least significant for exponential 
+display
+±1 × 10–99 to ±9.999999999 × 1099 or 0
+Nombre de chiffres 
+pour les calculs 
+internes
+Précision*
+Plage de calcul
+18 chiffres
+±1 sur le dixième chiffre pour un calcul 
+unique
+±1 sur le demier chiffre significatif pour 
+l'affichage exponentiel
+±1 × 10–99 à ±9.999999999 × 1099 ou 0
+Количество разрядов 
+во внутреннем 
+вычислении
+Точность*
+Диапазон вычислений
+18 цифры
+±1 в 10-м знаке для одного вычисления
+±1 в последней значащей цифре для
+экспоненциального отображения
+±1 × 10–99 à ±9.999999999 × 1099 или 0
+RU
+Belső számítások 
+számjegyeinek száma
+Pontosság*
+Számítási tartomány
+18 számjegy
+±1 a 10. számjegynél, egyetlen számítás 
+esetében
+±1 a legkevésbé értékes számjegynél, 
+exponenciális kijelzés esetében
+±1 × 10–99 to ±9.999999999 × 1099 vagy 0
+HU
+Liczba cyfr w 
+wewnętrznych 
+obliczeniach
+Dokładność*
+Zakres obliczeń
+18 cyfr
+±1 10-tej cyfry w przypadku obliczeń 
+pojedynczych
+±1 ostatniej znaczącej cyfry w przypadku 
+obliczeń wykładniczych
+±1 × 10–99 a ±9.999999999 × 1099 lub 0
+PL
+===== PAGE 5 =====
+5
+Numărul de cifre 
+pentru calcul intern
+Precizie*
+Interval de calcul
+18 cifre
+±1 la a 10-a cifră pentru un singur calcul
+±1 la ultima cifră semnificativă pentru 
+afişarea exponenţială
+±1 × 10–99 tot ±9.999999999 × 1099 sau 0
+RO
+Počet číslic pro 
+interní výpočet
+Přesnost*
+Rozsah výpočtu
+18 číslice
+±1 na místě 10. číslice u jednoho výpočtu
+±1 na místě poslední platné číslice u 
+exponenciálního zobrazení
+±1 × 10–99 til ±9.999999999 × 1099 nebo 0
+CZ
+Брой цифри за вътрешни 
+изчисления
+Точност*
+Диапазон на 
+изчисление
+18 цифри
+±1 при 10тата цифра на единично 
+изчисление
+±1 на последната значима цифра при 
+експоненциално представяне
+±1 × 10–99 to ±9.999999999 × 1099 или 0
+BG
+Število znakov 
+notranjega izračuna
+Natančnost*
+Obseg izračuna
+18 število
+±1 pri 10. številki za posamezen izračun
+±1 pri najmanj pomembni številki za 
+eksponentni prikaz
+±1 × 10–99 to ±9.999999999 × 1099 ali 0
+SL
+Broj znamenki 
+unutarnjeg izracuna
+Preciznost*
+Raspon izračuna
+18 znamenki
+±1 no na 10. znamenku svakog izračuna
+±1 na posljednju značajnu znamenku za 
+prikaz eksponenta
+±1 × 10–99 a ±9.999999999 × 1099 ili 0
+HR
+Počet číslic pri 
+internom výpočte
+Presnosť*
+Rozsah výpočtu
+18 číslic
+1 na desiatej číslici v prípade jedného 
+výpočtu
+1 na poslednej platnej číslici v prípade 
+exponenciálneho zobrazenia
+1 x 10-99 alebo 9.999999999 x 1099
+SK
+İç Hesaplama 
+Basamakları sayısı
+Hassas *
+Aralığı Hesaplama
+18 rakam
+Tek bir hesaplama için 10 rakamı ± 1
+ Üstel gösterim için en önemli ± 1
+±1 x 10-99 için 9.999999999 x 1099 veya 0
+TU
+===== PAGE 6 =====
+6
+Input Ranges / Plages des valeurs d'entrée / 
+диапазоны вводимых значений / Beviteli 
+tartományok / Zakresy wprowadzanych danych / 
+Domeniile de definiţie / Definiční obory / диапазон 
+за въвеждане / Obsegi vnosov / Rasponi unosa / 
+Vstupné rozsahy / Giriş Aralığı
+===== PAGE 7 =====
+7
+===== PAGE 8 =====
+8
+0<|x,y|    9.999999999x1012
+Default result=x when y=0
+|x|<1x10100
+|FREQ|<1x10100
+|x|<1x10100
+|y|<1x10100
+|FREQ|<1x10100
+|x|<1x10100
+x    9999999999 (positive integers)
+Positive: 0~0111 1111 1111 1111 1111 1111 1111 1111
+Negative: 1000 0000 0000 0000 0000 0000 0000 0000~
+ 1111 1111 1111 1111 1111 1111 1111 1111
+Positive: 0~2147483647
+Negative: -2147483648~-1
+Positive: 0~177 7777 7777
+Negative: 200 0000 0000~377 7777 7777
+Positive: 0~7FFF FFFF
+Negative: 8000 0000~FFFF FFFF
+a and b are integers in the range of –1 • 10^10 < a    b <1 • 10^10.
+a and b are integers in the range of –1 • 10^10 < a    b <1 • 10^10.
+Mod(x,y)
+ABS
+BIN
+DEC
+OCT
+HEX
+∑ (f(x),a, b)
+∏ (f(x),a, b)
+Pfact
+Single-variable
+Paired-variable
+Input RangeFunctions
+===== PAGE 9 =====
+9
+Recall memory (A, B, C, D, E, F, 0-9), Rand
+Calculation within parentheses ( ).
+Function with parenthesis that request the input 
+argument to the right Pol(, Rec(, d/dx,   dx, P(, Q(, R(, 
+Det(, Trn(, Ide(, Adj(, Inv(, Arg(, Conjg(, Real(, Imag(, 
+sin(, cos(, tan(, sin–1(, cos–1(, tan–1(, sinh(, cosh(, 
+tanh(, sinh–1(, cosh–1(, tanh–1(, log(, ln(, e^(, 10^(,    (,   
+3   (, Abs(, ROUND(, LCM(, GCD(, Q…r(, i~Rand(,
+Functions that come after the input value preceded by 
+values, powers, power roots:
+x2, x3, x–1, x!, ° ’ ”, °, r, g, ^(, x   (, Percent %, logab, EXP,     
+  t
+Fractions: a b/c, d/c
+Prefix symbol: (–) (negative sign), base-n symbols   
+(d, h, b, o, Neg, Not)
+Statistical estimated value calculation:
+Metric conversion commands (cm     in, etc)   
+Multiplication where sign is omitted: Multiplication sign 
+omitted immediately before    , e, variables (2   , 5A,    A, 
+etc.), functions with parentheses (2    (3), Asin(30), etc.)
+Permutations, combinations: nPr, nCr
+Complex number polar coordinate symbol (<)
+Dot: .
+Multiplication and division: ×, ÷
+Addition and subtraction: +, –
+Logical AND (and)
+Logical OR, XOR, XNOR (or, xor, xnor)
+Calculation ending instruction: =, M+, M- STO (store 
+memory),    r<   ,    a+bi
+1st Priority
+2nd
+3rd
+4th
+5th
+6th
+7th
+8th
+9th
+10th
+11th
+12th
+13th
+14th
+15th
+x, y, x1, x2ˆ ˆ ˆ ˆ
+EX #7
+===== PAGE 10 =====
+10
+EX #8
+MATHEMATICS MODE:
+(-2.5)2
+                              
+4E75x
+25
+4
+1
+1250
+(-2.5)2
+(4 x 1075)(-2 x 
+10-79)
+DisplayKey in operationExample
+ 
+23+7     A
+ 30
+2sin(A
+ 1
+0     A
+ 0
+23 + 7      A
+2 x sin A = 1
+Clear memory
+DisplayKey in operation
+MATHEMATICS MODE:
+Example
+EX #9
+===== PAGE 11 =====
+11
+2.333333333
+1 + =12
+(Fraction      Decimal)
+(Decimal      Mixed 
+Fraction)
+DisplayKey in operationExample
+ 
+5
+6 1 +12 56
+1 +12 56
+1 +12
+2 13
+22.333333333
+2.333333333
+1
+3
+7
+3
+5
+6
+7
+3
+7
+3
+MATHEMATICS MODE:
+MATHEMATICS MODE:
+EX #10
+Ans2
+ 335241
+789900-Ans
+ 454659
+123 + 456      M+,
+Ans2 = 335,241
+789900 – Ans = 
+454,659
+DisplayKey in operationExample
+EX #11
+===== PAGE 12 =====
+2
+12
+86º37 º 34.2 º ÷ 0.7
+ 
+ 123º45’6”
+86º37 º 34.2 º ÷ 0.7
+ 123.7516667
+2.3456
+ 2º20’44.16”
+86º37’34.2” ÷ 0.7 = 
+123º45’6” 
+123º45’6”     123.7516667
+2.3456     2º20’44.16”
+DisplayKey in operationExample
+MATHEMATICS MODE:
+820x25%
+ 205
+750÷1250%
+ 60
+To calculate 25% of 
+820
+The percentage of 
+750 against 1250
+DisplayKey in operationExample
+MATHEMATICS MODE:
+EX #12
+EX #13
+===== PAGE 13 =====
+3
+13
+EX #14
+MATHEMATICS MODE:
+Disp
+1x12:2+25|
+1x12
+ 12
+2+25
+ 27
+1x12
+ 12
+1x12=12
+2+25=27
+using a multi-statement
+Replay the previous 
+calculation history 
+(1 x 12 = 12)
+DisplayKey in operationExample
+EX #15
+               (menu selection page)
+   
+        35
+                       50  
+Key in Operation Display
+Input     1   79                 0 0
+   mp     mn      me      mµ    ao
+g|
+g+35
+              44.80665
+Ansx50
+ 2240.3325
+MATHEMATICS MODE:
+===== PAGE 14 =====
+4
+14
+NO. Symbol UnitValueConstant
+1.672621777x10-27
+1.674927351 x10-27
+9.10938291x10-31
+1.883531475x10-28
+0.52917721092x10-10
+6.62606957 x10-34
+5.05078353 x10-27
+927.400968 x10-26
+1.054571726 x10-34
+7.2973525698x10-3
+2.8179403267x10-15
+2.4263102389 x10-12
+2.675222005 x108
+1.3195909068x10-15
+1.660538921 x10-27
+1.410606743x10-26
+-928.476430x10-26
+-0.96623647 x10-26
+-4.49044807 x10-26
+1.602176565x10-19
+1.3806488 x10-23
+22.413968 x10-3
+3.74177153x10-16
+1.4387770 x10-2
+8.3144621
+299792458
+6.02214129x1023
+96485.3365
+10973731.568539
+1.32140985623 x10-15
+EX #16
+===== PAGE 15 =====
+5
+15
+NO. Symbol UnitValueConstant
+5.670373x10-8
+8.854187817 x10-12
+12.566370614x10-7
+2.067833758 x10-15
+7.7480917346x10-5
+6.67384 x10-11
+0.21001941568x10-15
+1.616199x10-35
+5.39106x10-44
+2.17651 x10-8
+1.660538921 x10-27
+1.602176565x10-19
+3.9903127176x10-10
+2.8977721 x10-3
+543.1020504 x 10-12
+4.35974434 x10-18
+2.6867805 x1025
+12906.4037217
+483597.870 x109
+386.15926800x10-15
+0.6652458734 x10-28
+1.15965218076 x10-3
+1.760859708x1011
+1.16592091 x10-3
+-2.0023318418
+-2.00231930436153
+25812.8074434
+9.80665
+376.730313461
+273.15
+101325
+5.585694713
+Pa
+===== PAGE 16 =====
+6
+16
+! Constant values cannot perform rounding. / Les valeurs constantes ne 
+peuvent pas effectuer d'arrondi. / Постоянные значения не могут 
+выполнить округление / Konstans értékek nem tudja ellátni kerekítés / 
+Wartości stałe nie może wykonać zaokrąglenie / Valori constante nu se 
+poate efectua de rotunjire / Konstantní hodnoty nelze provést 
+zaokrouhlení / Постоянни стойности не може да извършва 
+закръгляване / Stalne vrednosti, ne more izvesti zaokroževanje / 
+Konstantne vrijednosti ne može obavljati zaokruživanje / Konštantné 
+hodnoty nemožno vykonať zaokrúhlenie / Sabit değerler yuvarlama 
+gerçekleştirin olamaz
+Source: CODATA Internationally 2010 / Source: Conférence internationale 
+CODATA 2010 / Источник: CODATA Международно 2010 / 
+Forrás: CODATA Nemzetközileg 2010 / Źródło: CODATA Międzynarodowe 
+2010 / Sursa: CODATA internaţional 2010 / Zdroj: CODATA Mezinárodně 
+2010 / Източник: CODATA Международно 2010 / Vir: CODATA 
+Mednarodno 2010 / Izvor: CODATA Međunarodno 2010 / Zdroj: CODATA 
+Medzinárodne 2010 / Kaynak: CODATA Uluslararası 2010
+http://physics.nist.gov/constants
+11.73444103x10-15
+1.867594294x10-15
+0.697787 x10-15
+0.111056 x10-15
+3.16747 x10-27
+1.410570499 x10-26
+1.83247179 x108
+2.037894659 x108
+2.675153268 x108
+3.34358348 x10-27
+0.433073489 x10-26
+-1.074553044 x10-26
+5.00641234 x10-27
+6.64465675 x10-27
+25.694 x10-6
+-3.82608545
+0.21030891047 x10-15
+NO. Symbol UnitValueConstant
+===== PAGE 17 =====
+7
+17
+Page UnitSymbol 
+ 1 feet feet
+ 1 m meter
+ 1 mil milliliter
+ 1 mm millimeter
+ 1 in inch
+ 1 cm centimeter
+ 1 yd yard
+ 1 mile mile
+ 1 km kilometer
+ 2 ft2 square foot
+ 2 yd2 square yard
+ 2 m2 square meter
+ 2 mile2 square mile
+ 2 km2 square kilometer
+ 2 hectares hectare
+ 2 acres acre
+ 3 oF degree Fahrenheit
+ 3 oC degree Celsius
+ 4 gal gallon (U.K.)
+ 4 liter liter
+ 4 B.gal gallon (U.S.)
+ 4 pint pint
+ 4 fl.oz fluid ounces (U.S.)
+ 5 Tr.oz ounce (troy or apothecary) 
+ 5 oz ounces
+ 5 lb libra
+ 5 Kg kilogram
+ 5 g gram
+ 6 J joule
+ 6 cal.f calorie
+ 7 atm standard atmosphere
+ 7 Kpa kilopascal
+ 7 mmHg millimeter of mercury
+ 7 cmH 2O centimeter of water
+ 8 m/s Meter per second
+ 8 km/h Kilometer per hour
+EX #17
+===== PAGE 18 =====
+8
+18
+EX #19
+MATHEMATICS MODE:
+= 0.6217559776
+0.6217559776
+7
+= 7 
+DisplayKey in operationExample
+EX #18
+   
+(menu selection menu)
+              (confirm selection ft2)
+                    (confirm the value  
+convert into m2)
+ 
+Key in Operation Display
+Unit (distance) 
+feet    m    mil   mm   in 
+cm    yd    mile   km
+ft2     yd2     m2     mile2
+km2   ha     acres
+                             5
+MATHEMATICS MODE:
+===== PAGE 19 =====
+9
+19
+MATHEMATICS MODE:
+EX #20
+e-3 + 101.2 + In3 = 
+16.99733128
+log381 – log1 = 4
+16.99733128
+4
+DisplayKey in operationExample
+EX #22
+MATHEMATICS MODE:
+Degree Mode
+Sin 60 = 
+       =Cosec 45º =  
+sin(60
+sin(45)-1
+DisplayKey in operationExample
+1
+Sin45o
+D
+ 3
+2
+ 3
+2
+2
+EX #21
+MATHEMATICS MODE:
+Convert 180 
+degree into radian 
+and gradient
+(180º =    Rad = 
+200Gad)
+180º
+180º
+ 200
+DisplayKey in operationExample
+R
+===== PAGE 20 =====
+10
+20
+EX #23
+MATHEMATICS MODE:
+sinh2.5 – cosh 2.5 
+= -0.082084998
+Cosh-145 
+= 4.499686191
+sinh(2.5) – cosh(
+ 
+    -0.08208499862
+DisplayKey in operationExample
+cosh-1(45
+ 4.499686191
+EX #24
+MATHEMATICS MODE:
+10P3 = 720
+5C2 = 10
+5! = 120
+10P3
+ 720
+5C2
+ 10
+5!
+ 120
+DisplayKey in operationExample
+EX #25
+Generate a random 
+number between 
+0.000 & 0.999
+Generate an integer 
+from a range of 1 to 
+100
+DisplayKey in operationExample
+Rand
+ 
+i~Rand(1,100
+ 33
+139
+1000
+MATHEMATICS MODE:
+===== PAGE 21 =====
+21
+Apps
+720
+(x + 1)
+=0
+EX #26
+EX #27
+EX #28
+MATHEMATICS MODE:
+Apps
+20
+To calculate Maximum
+value of 3, sin30 and 
+cos30
+To calculate Minimum
+value of 3, sin30 and 
+cos30
+Max(3, sin(30), C
+Apps
+Min(3, sin(30), C
+Apps
+Mod(23, 5
+Mod(-23, 5
+Apps
+Apps
+EX #29
+===== PAGE 22 =====
+22
+MATHEMATICS MODE:
+LCM(15, 27, 39) 
+= 1755
+LCM(15,27,39
+ 
+ 1755
+DisplayKey in operationExample
+Apps
+EX #30
+LINE MODE:
+GCD(12, 24, 60) 
+= 12
+GCD(12,24,60
+ 
+ 12
+DisplayKey in operationExample
+Apps
+MATHEMATICS MODE:
+Key in Operation Display
+9999999999
+ 
+ 32x11x41x271x(9
+1777
+ 
+                             (1777)
+EX #31
+LINE MODE:
+35 ÷ 10 = 3 x 10 +5
+Q=3
+R=5
+Quotient value (Q) + 3 
+= 6
+Recall Quotient 
+value (Q)
+Recall Remainder 
+value (r)
+Q…r(35, 10
+Q= 3
+R= 5
+Ans+3
+ 6
+C
+ 3
+D
+ 5
+DisplayKey in operationExample
+Apps
+EX #32
+===== PAGE 23 =====
+23
+MATHEMATICS MODE:
+With rectangular 
+coordinate (x=1, y=
+√3). Find Polar 
+coordinate (r, θ) at 
+degree mode
+Pol(1, √3
+ r=2, θ=60
+X
+ 2
+Y
+ 60
+DisplayKey in operationExample
+EX #33
+LINE MODE:
+Rec(2, 60
+X= 1
+Y= 1.732050808
+X
+ 1
+Y
+ 1.732050808
+With Polar coordinate 
+(r=2, θ=60º). 
+Find Rectangular 
+coordinate (x, y) at 
+degree mode
+DisplayKey in operationExample
+EX #34
+MATHEMATICS MODE:
+2.573442045
+DisplayKey in operationExample
+EX #35
+LINE MODE:
+1÷200 = 5x10-3 1÷200
+ 5 x10-3
+1÷200
+ 5000x 10-6
+1÷200
+ 5x 10-3
+DisplayKey in operationExample
+EX #36
+===== PAGE 24 =====
+24
+LINE MODE:
+DisplayKey in operationExample
+2_|3+2
+ 8_|3
+2_|3+2
+ 2.666666667
+EX #37
+MATHEMATICS MODE:
+ =0.5773502692
+ =0.3926990817
+DisplayKey in operationExample
+÷ 8 = 18
+0.5773502692
+0.3926990817
+ 3
+3
+1
+8
++2 8
+3
+2
+3
+ 2.666666667
++223
+EX #38 MATHEMATICS MODE:
+DisplayKey in operationExample
+3+4   =
+      5   53.13010235
+ 2<45=1+
+3+4    
+        5   53.13010235
+ 2   45= 
+                            1+ 
+Apps
+Apps
+===== PAGE 25 =====
+25
+LINE MODE:
+Absolute value (r) 
+and argument (   ) if 
+complex number is 
+6+8
+DisplayKey in operationExample
+Abs (6+8  )    
+                              10
+Arg (6+8  ) 
+             53.13010235 
+Abs
+Apps
+LINE MODE:
+3+4   is 3–4
+DisplayKey in operationExample
+Conjg (3+4  )    
+                              3
+                          - 4
+Apps
+MATHEMATICS MODE:
+  Display  Key in operation  Example
+Real and Imaginary 
+values of a complex 
+number is 23<54
+Real(23  54)    
+              13.5190608
+Imag(23  54) 
+            18.60739087 
+Apps
+Apps
+EX #39
+EX #40
+EX #41
+===== PAGE 26 =====
+26
+EX #42 MATHEMATICS MODE:
+  Display  Key in operation   Example
+10101011+1100–
+1001x101÷10
+=10100001 
+(in Binary Mode)
+10101011+1100–1 
+BIN
+1010 0001
+645+321–23x7÷2
+=1064 
+(in Octal Mode)
+645+321-23x7÷2 
+OCT
+00000001064
+(77A6C+D9)xB÷F
+=57C87
+(in Hexadecimal Mode)
+(77A6C+D9)xB÷F 
+HEX
+00057C87
+MATHEMATICS MODE:EX #43
+  Display  Key in operation  Example
+12345+101=12446 12345+101 
+DEC
+12446
+12345+101 
+HEX
+000309E
+12345+101 
+OCT
+00000030236
+12345+101 
+    BIK 1/2           BIN
+1001 1110
+  Display  Key in operation  Example
+789ABC Xnor 
+147258
+789ABC  nor147258 
+HEX
+FF93171B
+Ans or 789ABC Ansor789ABC 
+HEX
+FFFB9FBF
+Neg 789ABC Neg(789ABC 
+HEX
+FF876544
+Apps
+Apps
+Apps
+MATHEMATICS MODE:EX #44
+===== PAGE 27 =====
+27
+∑x2
+33120
+∑x
+406
+n
+5
+x
+81.2
+x   n
+5.528109984
+x   n-1
+6.180614856
+(SD)
+     Display    Key in operation
+Apps
+Apps
+Apps
+Apps
+Apps
+Apps
+LINE MODE:EX #45
+===== PAGE 28 =====
+28
+LINE MODE:
+LINE MODE:
+EX #46
+(Quad)
+  30y
+ 48.69615715
+  50x1
+ 31.30538226
+  50x2
+ -167.1096731
+DisplayKey in operation
+Apps
+Apps
+Apps
+EX #47
+26   t
+ -0.6236095645
+P(Ans
+ 0.26644
+        Display   Key in operation
+Apps
+Apps
+
+===== PAGE 29 =====
+29
+EX #48 MATHEMATICS MODE:
+                       (3 unknowns)
+X=
+Y=
+Z=
+3
+3
+4
+DisplayKey in operation
+11
+2
+
+===== PAGE 30 =====
+30
+LINE MODE:
+EX #49 MATHEMATICS MODE:
+                                     
+(Cubic equation)
+X1=
+X2=
+X3=
+DisplayKey in operation
+3
+10+0.331662479
+3
+10 -0.331662479
+-1
+EX #50
+               
+                
+                      
+        
+X=         B2C
+B?
+0
+C?
+0
+Solve for X
+0
+X=       B2C
+X=                           523.5987756
+L-R =                                        0
+Display Key in Operation 
+ Initial value 
+1
+3
+ Solution variable  Solution 
+1
+3
+ Precision of solution 
+===== PAGE 31 =====
+31
+21
+LINE MODE:
+(COMP MODE) 0
+Y=5X2–X+1
+0
+Y=5X2–X+1
+116
+Y=5X2–X+1
+232
+DisplayKey in operation
+EX #51
+LINE MODE:
+DisplayKey in operation
+   0
+236
+(5X^(4)+3X 2 +2X
+EX #53
+LINE MODE:EX #52
+(COMP MODE) 0
+d/dx(sin(3X+30)
+                         
+0.02617993878
+DisplayKey in operation
+===== PAGE 32 =====
+22
+32
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+EX #54
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+EX #55
+0
+d/dx(sin(3X+30)
+                         
+0.02617993878
+===== PAGE 33 =====
+23
+33
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+EX #56
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+EX #57
+===== PAGE 34 =====
+24
+34
+LINE MODE:
+DisplayKey in operation
+Apps
+EX #58
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+EX #59
+===== PAGE 35 =====
+25
+35
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+EX #60
+LINE MODE:
+DisplayKey in operation
+Abs
+Apps
+EX #61
+===== PAGE 36 =====
+26
+36
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+EX #62
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+EX #63
+===== PAGE 37 =====
+27
+37
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+Apps
+Apps
+EX #64
+LINE MODE:
+DisplayKey in operation
+Apps
+Apps
+Apps
+Apps
+EX #65
+===== PAGE 38 =====
+28
+38
+LINE MODE:
+Abs
+DisplayKey in operation
+Apps
+Apps
+EX #66
+LINE MODE:
+DisplayKey in operation
+Abs
+Abs
+Abs
+Apps
+Apps
+Apps Apps Apps
+Apps
+Apps
+Apps
+Apps
+Apps Apps
+EX #67
+===== PAGE 39 =====
+39
+29
+EX #68
+f(x)=
+f(x)= X3+3X2-2X
+DisplayKey in operation
+LINE MODE:
+CANON ELECTRONIC BUSINESS MACHINES (H.K.) CO., LTD.
+17/F ., Tower one, Ever Gain Plaza, 82-100 Container Port Road, 
+Kwai Chung, New Territories, Hong Kong
+CANON EUROPA N.V.
+Bovenkerkerweg 59, 1185 XB Amstelveen, The Netherlands
+CANON COMMUNICATION & IMAGE FRANCE S.A.
+12, rue de l'ndustrie 92400, Courbevoie Cedex Paris, France
+SLOVENIJA
+Canon Adria d.o.o., Dunajska cesta 128a, p.p. 581, 1521 Ljubljana                      
+Tel.: 061/53 08 710 Fax: 061/53 08 745
+MAGYARORSZÁG
+Canon Hungária Kft, 1031 Budapest, Graphisoft Park 1.  (Záhony utca 7.)
+Telefon: (+361) 2375900 Fax: (+361) 2375901 
+Internet: www.canon.hu
+POLSKI
+Canon Polska Sp. z o.o., ul. Raclawicka 146, 02-117 Warszawa                           
+tel. (+48 22) 572 30 00 fax: (+48 22) 668 61 15
+ČESKÁ VERZE
+Canon CZ s.r.o., nám. Na Santince 2440, 160 00 Praha 6, Česká republika
+Tel. +420 225 280 111 Fax. +420 225 280 311
+BULGARIAN
+CEE CANON EAST EUROPE - Sofia Information Office                                       
+e-mail: infooffice@canon.bg www.canon.bg
+ROMANIAN
+CANON EAST EUROPE - BUCHAREST OFFICE
+World Trade Center, entrance D, unit 1. 15, P□a. Montreal nr. 10, 
+sector 1 Bucharest, Romania
+phone number 40-21-224.38.54  fax number 40-21-224.42.36
+e-mail: office@canon.ro
+CANON EURASIA GÖRÜNTÜLEME VE OFIS SISTEMLERI A.Ş.
+Değirmen Sokak Nida Kule İş Merkezi No:18/10 K:1 
+Kozyatağı 34742 Kadıköy İstanbul, Türkiye
+Tel: +90216 571 68 00 Faks: +90216 571 68 99
+в Kиеве
+Украина, 01030, Kиев, ул. Богдана Хмельницкого 33/34     
+Teл. +380 (44) 490 2595 факс +380 (44) 490 2598
+Эл. адpес: post@canon.kiev.ua
+CANON POLSKA SPOL s.r.o.
+Ul, Moldawska 9, 02-117 Warszawa, Poland
+CANON SLOVAKIA s.r.o.
+Sancova 4, 811 04 Bratislava, Slovak Republic
+CANON MIDDLE EAST FZ-LILC
+City, P .O. Box 500007, Dubai, U.A.E.
+CANON SOUTH AFRICA PTY. LTD.
+820, 16th Road Midrand South Africa
+Производитель: CANON ELECTRONIC BUSINESS MACHINES 
+(H.K.) CO., LTD.
+17/Ф., Тауэр Уан, Эвер Гейн Плаза, 82-100 Контейнер Порт Роад, 
+Квай Чунг, Нью Территориз, Гонконг  
+Уполномоченный представитель производителя для 
+рассмотрения претензий 
+потребителя в России ООО «Канон Ру», Россия, 109028, Москва, 
+Серебряническая набережная, д. 29
+===== PAGE 40 =====
+30
+40
+PUB E-IM-2808
+© CANON ELECTRONIC BUSINESS MACHINES (H.K.) CO., LTD. 2012
+CANON ELECTRONIC BUSINESS MACHINES (H.K.) CO., LTD.
+17/F ., Tower one, Ever Gain Plaza, 82-100 Container Port Road, 
+Kwai Chung, New Territories, Hong Kong
+CANON EUROPA N.V.
+Bovenkerkerweg 59, 1185 XB Amstelveen, The Netherlands
+CANON COMMUNICATION & IMAGE FRANCE S.A.
+12, rue de l'ndustrie 92400, Courbevoie Cedex Paris, France
+SLOVENIJA
+Canon Adria d.o.o., Dunajska cesta 128a, p.p. 581, 1521 Ljubljana                      
+Tel.: 061/53 08 710 Fax: 061/53 08 745
+MAGYARORSZÁG
+Canon Hungária Kft, 1031 Budapest, Graphisoft Park 1.  (Záhony utca 7.)
+Telefon: (+361) 2375900 Fax: (+361) 2375901 
+Internet: www.canon.hu
+POLSKI
+Canon Polska Sp. z o.o., ul. Raclawicka 146, 02-117 Warszawa                           
+tel. (+48 22) 572 30 00 fax: (+48 22) 668 61 15
+ČESKÁ VERZE
+Canon CZ s.r.o., nám. Na Santince 2440, 160 00 Praha 6, Česká republika
+Tel. +420 225 280 111 Fax. +420 225 280 311
+BULGARIAN
+CEE CANON EAST EUROPE - Sofia Information Office                                       
+e-mail: infooffice@canon.bg www.canon.bg
+ROMANIAN
+CANON EAST EUROPE - BUCHAREST OFFICE
+World Trade Center, entrance D, unit 1. 15, P□a. Montreal nr. 10, 
+sector 1 Bucharest, Romania
+phone number 40-21-224.38.54  fax number 40-21-224.42.36
+e-mail: office@canon.ro
+CANON EURASIA GÖRÜNTÜLEME VE OFIS SISTEMLERI A.Ş.
+Değirmen Sokak Nida Kule İş Merkezi No:18/10 K:1 
+Kozyatağı 34742 Kadıköy İstanbul, Türkiye
+Tel: +90216 571 68 00 Faks: +90216 571 68 99
+в Kиеве
+Украина, 01030, Kиев, ул. Богдана Хмельницкого 33/34     
+Teл. +380 (44) 490 2595 факс +380 (44) 490 2598
+Эл. адpес: post@canon.kiev.ua
+CANON POLSKA SPOL s.r.o.
+Ul, Moldawska 9, 02-117 Warszawa, Poland
+CANON SLOVAKIA s.r.o.
+Sancova 4, 811 04 Bratislava, Slovak Republic
+CANON MIDDLE EAST FZ-LILC
+City, P .O. Box 500007, Dubai, U.A.E.
+CANON SOUTH AFRICA PTY. LTD.
+820, 16th Road Midrand South Africa
+Производитель: CANON ELECTRONIC BUSINESS MACHINES 
+(H.K.) CO., LTD.
+17/Ф., Тауэр Уан, Эвер Гейн Плаза, 82-100 Контейнер Порт Роад, 
+Квай Чунг, Нью Территориз, Гонконг  
+Уполномоченный представитель производителя для 
+рассмотрения претензий 
+потребителя в России ООО «Канон Ру», Россия, 109028, Москва, 
+Серебряническая набережная, д. 29

@@ -392,7 +392,17 @@ $$T_{\text{spring}} = 2\pi\sqrt{\frac{m}{k}},\qquad T_{\text{pendulum}} = 2\pi\s
 
 $$v = f\lambda = \frac{\omega}{k},\qquad v_{\text{string}} = \sqrt{\frac{T_{\text{tension}}}{\mu}},\qquad y = A\sin(kx-\omega t)$$
 
+**Symbols**
+
+- $k$ — angular wavenumber, $k = 2\pi/\lambda$, in rad/m
+
 **Interference:** path difference $\Delta = m\lambda$ constructive, $\Delta = (m+\tfrac12)\lambda$ destructive.
+
+**Symbols**
+
+- $\Delta$ — path difference between the two interfering waves, in m
+- $m$ — interference order (integer, dimensionless)
+
 **Standing waves** — $n = 1,2,3,\ldots$ and $L$ = length in m:
 
 $$f_n = \frac{nv}{2L}\ \text{(string both ends fixed; pipe open both ends)},\qquad f_n = \frac{(2n-1)v}{4L}\ \text{(pipe closed at one end)}$$
@@ -462,6 +472,11 @@ $$n_1\sin\theta_1 = n_2\sin\theta_2,\qquad v = \frac{c}{n},\qquad \lambda_n = \f
 
 $$\theta_c = \sin^{-1}\!\left(\frac{n_2}{n_1}\right),\ n_1 > n_2,\qquad \Delta = (n_{\text{violet}}-n_{\text{red}})A\ \text{(prism)}$$
 
+**Symbols**
+
+- $\Delta$ — angular dispersion (angle between the violet and red rays), in rad
+- $A$ — prism apex angle, in rad
+
 **Indices:** air 1.000, water 1.333, crown glass 1.52, diamond 2.42.
 **Conditions:** Snell's law requires a flat interface between isotropic media; total internal reflection requires travel from the denser to the rarer medium with $\theta_1 > \theta_c$.
 
@@ -493,6 +508,11 @@ $$m = -\frac{d_i}{d_o},\qquad P = \frac{1}{f\ \text{(m)}}\ \text{(diopters, D)}$
 | $m$ | upright | inverted |
 
 **Two-lens and magnification chains:** $d_{o2} = s - d_{i1}$, $m_{\text{total}} = m_1m_2$, $P_{\text{total}} = P_1+P_2$ (thin lenses in contact).
+
+**Symbols**
+
+- $s$ — separation between the two lenses, in m
+
 **Conditions:** paraxial rays only (small angles, near the optical axis); lensmaker's equation assumes a thin lens in air with $n$ relative to the surroundings.
 
 > [!tip] High-yield ★
@@ -524,6 +544,11 @@ $$C = \frac{\varepsilon_r\varepsilon_0A}{d},\qquad \frac1{C_{eq}} = \sum_i\frac1
 
 $$U = \tfrac12CV^2 = \frac{Q^2}{2C} = \tfrac12QV\ \text{(J)}$$
 
+**Symbols**
+
+- $Q$ — charge stored on the capacitor, in C
+- $V$ — potential difference across the capacitor, in V
+
 **Conditions:** point charges at rest in vacuum or air; series capacitors carry the same charge and parallel capacitors share the same voltage; the parallel-plate result assumes a uniform field with no fringing.
 
 ---
@@ -541,6 +566,10 @@ $$X_L = X_C \Rightarrow f_0 = \frac1{2\pi\sqrt{LC}},\qquad Z = R\ \text{(minimum
 **Power factor and transformers**
 
 $$P = VI\cos\theta,\qquad \cos\theta = \frac{R}{Z},\qquad \frac{V_s}{V_p} = \frac{N_s}{N_p} = \frac{I_p}{I_s}$$
+
+**Symbols**
+
+- $\theta$ — power-factor angle (phase angle between voltage and current), in rad
 
 **Inductor continuity:** the current through an inductor cannot jump, so $i(0^+) = i(0^-)$.
 **Conditions:** $V$ and $I$ are rms values (or consistent peak values); ideal components and an ideal transformer (no loss, no leakage, infinite $\mu_r$); resonance results assume a series RLC loop driven at steady state.

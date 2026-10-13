@@ -28,6 +28,12 @@ $$\left(\frac{F}{P},i,n\right) = (1+i)^n,\qquad \left(\frac{P}{F},i,n\right) = (
 **Rate of interest and discount:** $i = \frac{I}{Pn}$; simple discount $F = \frac{P}{1-dn}$ with $d$ = discount rate (decimal).
 **Conditions:** simple interest is linear and applies to a single principal over one period; compound interest assumes interest is reinvested each period at a constant $i$.
 
+> [!example] Calculator — solve for $i$ or $n$ instead of memorizing the rearrangements
+> You only need $F=P(1+i)^n$. Put $P$ in `A`, $F$ in `B`, then:
+> **Find $i$:** `A(1+X)^n - B` `ALPHA` `=` `0` → `SHIFT` `SOLVE`, guess 0.1 → $i$ in `X`. **Find $n$:** `A(1+i)^X - B` `ALPHA` `=` `0` → `SHIFT` `SOLVE`.
+> Both skip $\left(\frac{F}{P}\right)^{1/n}-1$ and $\frac{\ln(F/P)}{\ln(1+i)}$ entirely; always confirm `L−R`≈0.
+> Continuously compounded items use $e$ directly — `SHIFT` `CVALUE` code `28` gives $c_0$ if you also need $c$.
+
 > [!tip] High-yield ★
 > The 72 rule: money doubles in about $\frac{72}{100i}$ years. At 8% it doubles in roughly 9 years — a fast check on any "how long" item.
 
@@ -63,6 +69,13 @@ $$i_{\text{eff}} = e^r - 1,\qquad F = Pe^{rn},\qquad P = Fe^{-rn}$$
 > [!warning] Exam trap
 > A 12% nominal rate compounded monthly is **not** 12% effective. Convert with $i = r/m = 1\%$ per month, and use $n$ in **months** — never mix a monthly rate with an annual $n$.
 
+> [!example] Calculator — effective rate is one keystroke
+> Put $r$→`A`, $m$→`B`: effective annual rate is `(1+A/B)^B - 1`. Continuous compounding is `e^A - 1`.
+> **Verified:** $r=12\%$ monthly → $12.6825\%$; continuous → $12.7497\%$, matching the compounding table in this topic.
+> Reverse direction ("what nominal gives 12% effective?") needs no algebra — `SHIFT` `SOLVE` on `(1+X/B)^B - 1 - i_eff`.
+> For the whole table at once: `MODE` → TABLE on `(1+A/X)^X - 1` with `Start` 1, `End` 365 — remember the 30-row cap, and use `Start` 1 `End` 12 to cover the common cases.
+> `SHIFT` `CVALUE` code `23` gives $e$ if you prefer the constant over the `e^` key.
+
 ---
 
 ### 3. Ordinary Annuity and Annuity Due
@@ -85,10 +98,25 @@ $$P_{\text{due}} = P_{\text{ord}}(1+i),\qquad F_{\text{due}} = F_{\text{ord}}(1+
 
 $$n = \frac{\ln\!\left[\frac{A}{A-Pi}\right]}{\ln(1+i)},\qquad P_{\text{deferred}} = A(P/A,i,n)(P/F,i,k)$$
 
+**Symbols**
+
+- $k$ — deferral period, the number of payment periods before the first payment is made, dimensionless
+
 **Conditions:** equal payments, constant $i$, first ordinary payment exactly one period from now; annuity-due factors are always the ordinary factor times $(1+i)$.
 
 > [!tip] High-yield ★
 > "First payment now" or "payment at the beginning" = annuity due. One phrase costs the whole item if you forget the $(1+i)$ multiplier.
+
+> [!example] Calculator — the four annuity factors, no memorizing
+> Store the givens in letters first: $i$→`A`, $n$→`B`, $A_{\text{pay}}$→`C`. Then one `Σ` gives the closed form outright.
+> **$P/A$:** `Σ((1+A)^-X, 1, B)` × `C`. **$F/A$:** multiply that by `(1+A)^B`, or `Σ((1+A)^(B-X), 1, B)` × `C`.
+> Syntax is `Σ(f(x), a, b)` — three arguments, and the running variable is always `X`.
+> The factors are geometric sums — verified equal to 12 significant figures: $A=1000$, $i=8\%$, $n=10$ → $P=6710.0814$, $F=14486.5625$.
+> Reverse direction: if the unknown is $n$ or $i$, do **not** rearrange — type `C(1-(1+A)^-B)/A - P` with `ALPHA` `=` and `SHIFT` `SOLVE`; confirm `L−R`≈0.
+
+> [!example] Calculator — annuity due by multiplication, not a second formula
+> Compute the ordinary factor once, then multiply by $(1+i)$: with $i$ in `A` and the ordinary answer in `Ans`, key `Ans(1+A)`.
+> **Verified:** $P_{\text{ord}}=6710.0814$ → $P_{\text{due}}=7246.8879$. Same for $F_{\text{due}}$; for $A_{\text{due}}$ **divide** by $(1+i)$.
 
 ---
 
@@ -115,6 +143,11 @@ $$P = A\left[\frac{(1+i)^n-1}{i(1+i)^n}\right](1+i)^{-k} = A(P/A,i,n)(P/F,i,k)$$
 > [!warning] Exam trap
 > A perpetuity is **not** $A\times n$. Plugging any finite $n$ into the annuity factor for an endless payment stream underestimates $P$ — use $A/i$.
 
+> [!example] Calculator — a perpetuity needs no $n$ at all
+> Perpetuity is `C/A`. Perpetuity-due is `C/A(1+A)`. Deferred perpetuity multiplies by $(1+i)^{-k}$ — put $k$→`D` and key `C/A(1+A)^-D`.
+> **Verified:** $A=1000$, $i=8\%$ → $\frac{A}{i}=12500$ exactly. Growing perpetuity `C/(A-D)` requires $i>g$ or the sum diverges.
+> Never type a finite $n$ into an annuity factor for an endless stream — that is the trap this topic warns about.
+
 ---
 
 ### 5. Arithmetic and Geometric Gradients
@@ -137,6 +170,13 @@ $$P = A_1\left[\frac{1-\left(\frac{1+g}{1+i}\right)^n}{i-g}\right]\ (i\neq g),\q
 
 > [!tip] High-yield ★
 > For the arithmetic gradient, $P_{\text{total}} = A(P/A,i,n) \pm G(P/G,i,n)$ — the base annuity and the gradient are computed separately, never combined into one factor.
+
+> [!example] Calculator — the gradient factors, both from one Σ
+> The gradient is *defined* by its sum, so let the calculator do it rather than recalling $P/G$ and $A/G$.
+> Put $i$→`A`, $n$→`B`, $G$→`C`. **$P/G$:** `C·Σ((X-1)/(1+A)^X, 1, B)` — the sum $\sum_{k=1}^{n}(k-1)(1+i)^{-k}$ **is** the $P/G$ factor with the $1/i$ already inside it, so no outside scaling is needed.
+> **$A/G$:** multiply that $P/G$ answer by the **$A/P$ factor**, `Ans·A/(1-(1+A)^-B)`.
+> **Verified:** $G=500$, $i=8\%$, $n=10$ → the Σ returns $25.976831$, giving $P/G=12988.4157$ and $A/G=1935.6570$ — both matching their closed forms and the brute-force sums.
+> Geometric gradient: `C(1-((1+D)/(1+A))^B)/(A-D)` with $g$→`D`, or just `Σ(C(1+D)^(X-1)/(1+A)^X, 1, B)` — verified $8183.5539$ against the brute-force sum.
 
 ---
 
@@ -162,6 +202,12 @@ $$\Delta CC = CC_2 - CC_1 = (FC_2-FC_1) + \frac{A_2-A_1}{i}$$
 
 > [!warning] Exam trap
 > Replacement every $k$ years is not an annual cost of $\frac{FC}{k}$. Convert with $A = FC(A/F,i,k)$ before dividing by $i$ — otherwise the interest earned between replacements is ignored.
+
+> [!example] Calculator — capitalized cost in one line
+> Put $FC$→`A`, recurring cost→`B`, $i$→`C`. Key `A + B/C`. That is the whole formula; there is nothing to rearrange.
+> **Verified:** $FC=50000$, $A=4000$, $i=8\%$ → $100000$ exactly.
+> Periodic maintenance every $k$ years: the equivalent annual is `B·C/((1+C)^k-1)`, so capitalized cost is `A + B/((1+C)^k-1)`. Set $k$→`D` and check it against $A+B/C$ when $k=1$.
+> Salvage: subtract it as a perpetuity — `A - S/C` with $SV$→`S`.
 
 ---
 
@@ -200,6 +246,13 @@ $$\text{Sensitivity} = \frac{\%\ \Delta \text{measure of worth}}{\%\ \Delta \tex
 > [!tip] High-yield ★
 > For unequal service lives the default answer is **annual worth**. If the problem forces PW, set a study period equal to the LCM of the lives and include replacement costs.
 
+> [!example] Calculator — PW and FW as a single Σ, not a factor table
+> $PW$ is defined as a sum, so total it — but the calculator has **no cash-flow array**, so the flows must be typed into the expression. For flows $300,400,500$ at $t=1,2,3$ with $i$→`A`, key `300/(1+A) + 400/(1+A)^2 + 500/(1+A)^3`.
+> For a **uniform** series no typing is needed and one `Σ` does the whole annuity: `Σ(C/(1+A)^X, 1, B)` — the running variable `X` **is** the period.
+> $AW$ then follows from the same answer: multiply by `A/(1-(1+A)^-B)`.
+> **Verified:** the geometric-sum identity $\sum_{k=1}^{n}(1+i)^{-k}=\frac{1-(1+i)^{-n}}{i}$ holds to 12 significant figures, so `Σ` and the closed-form factors always agree — use whichever is faster to type.
+> Remember `Σ(f(x), a, b)` takes exactly **three** arguments and the running variable is always `X`; it is not the four-argument Casio form.
+
 ---
 
 ### 8. Rate of Return and Payback
@@ -222,12 +275,32 @@ $$0 = \Delta PW = PW_B - PW_A \quad \text{solved for } \Delta i$$
 
 $$\text{Simple payback} = \frac{P}{A}\ \text{(periods)},\qquad \text{Payback}_{k} = k + \frac{\lvert\text{cumulative CF at }k\rvert}{CF_{k+1}}$$
 
+**Symbols**
+
+- $k$ — year index, the last whole year before the cumulative cash flow turns positive, dimensionless (a count of periods)
+
 $$\text{Discounted payback: solve } \sum_{t=1}^{np}\frac{CF_t}{(1+i)^t} = P$$
+
+**Symbols**
+
+- $np$ — discounted payback period, the number of periods $t$ for the discounted cash flows to recover the initial investment $P$, dimensionless (a count of periods)
 
 **Conditions:** IRR assumes reinvestment at IRR itself and can give multiple roots when signs alternate more than once; simple payback ignores the time value of money and all cash flow beyond the cutoff.
 
 > [!warning] Exam trap
 > On alternatives, never compare IRR values directly — pick the higher-cost option only if the **incremental** rate of return exceeds MARR. A lower-cost option with a higher IRR can still be the wrong choice.
+
+> [!example] Calculator — IRR by `SOLVE`, never by trial and error
+> Write the $PW$ equation with the cash flows typed in full and the unknown as `X`:
+> `-1000 + 300/(1+X) + 400/(1+X)^2 + 500/(1+X)^3` `ALPHA` `=` `0` → `SHIFT` `SOLVE`, guess 0.1.
+> **Verified:** IRR $=8.8963\%$ with $PW\approx0$. For unequal flows just keep appending terms — no interpolation table needed.
+> **IMPORTANT:** `Σ` and `∫` cannot appear inside a `SOLVE` equation, so the cash flows must be written out term by term.
+> If signs alternate more than once there may be several IRRs: re-run with a different guess and confirm `L−R`≈0 each time.
+
+> [!example] Calculator — implied rate from an annuity
+> Same idea when the unknown is $i$ rather than a plain rate: put $P$→`A`, payment→`B`, $n$→`C` and key
+> `B(1-(1+X)^-C)/X - A` `ALPHA` `=` `0` → `SHIFT` `SOLVE`.
+> **Verified:** $P=50000$, $A=8000$, $n=10$ → $i=9.6059\%$. This replaces the interpolation between annuity-factor tables that the old method required.
 
 ---
 
@@ -246,6 +319,11 @@ $$BCR_{\text{modified}} = \frac{PW_B - PW_{O\&M}}{PW_{\text{initial}}},\qquad \t
 
 > [!tip] High-yield ★
 > Conventional and modified BCR give different numbers but the **same accept/reject decision** for an independent project. For ranking, use incremental BCR — ranking by raw BCR is invalid.
+
+> [!example] Calculator — BCR is one division once PW is summed
+> Total the benefits in one `Σ` and the costs in another — with the flows typed in, since there is no cash-flow array — then the ratio is a single keystroke. For uniform series: `Σ(B/(1+A)^X, 1, n)` over `Σ(C/(1+A)^X, 1, n)`.
+> **Verified:** the PW sum method reproduces the closed-form factors to 12 significant figures, so $PW_B$ and $PW_C$ computed by `Σ` are exact.
+> On a **multiple-choice** ranking item, compute each option's BCR into a letter variable (`A`–`F`) and compare — the calculator holds six values, enough for the usual four options plus the increment.
 
 ---
 
@@ -283,6 +361,17 @@ $$OCF = \text{net income} + \text{depreciation},\qquad \text{Taxable income} = \
 
 > [!tip] High-yield ★
 > SYD book value at the end of life always equals $SV$, and the year-$(n)$ depreciation equals $\frac{FC-SV}{SOY}$ — the smallest charge, not zero.
+
+> [!example] Calculator — SOY and the SYD column by Σ
+> $SOY$ is just $\sum k$: key `Σ(X, 1, n)` with $n$→`B` → for $n=5$ this gives $15$ (verified).
+> The cumulative SYD fraction in $BV_k$ is $\sum_{j=1}^{k}(n-j+1)$, so `Σ(B-X+1, 1, k)` with $k$→`C` gives the numerator directly.
+> Put $FC$→`A`, $SV$→`S`, $n$→`B`: year-$k$ charge is `(A-S)(B-C+1)/Σ(X,1,B)`. Enter the whole year-1…5 column with `CALC`, changing only `C`.
+
+> [!example] Calculator — DDB schedule from one TABLE scan
+> `MODE` → TABLE, enter `f(x) = 10000(1-2/5)^x`, Start 0, End 5, Step 1 → the book value at every year in one pass.
+> **Verified:** $FC=10000$, $n=5$ → $BV_1=6000$, $BV_2=3600$, $BV_5=777.60$, matching $FC(1-2/n)^k$ and the year-by-year recursion.
+> Remember the table caps at 30 rows; for a long life move the window (`Start` 20, `End` 25 …) rather than widening the step.
+> To find the year a target salvage is reached, `SOLVE` on `A(1-2/B)^X - S` instead of tabling.
 
 ---
 
@@ -353,6 +442,13 @@ $p_i$ = probability of outcome $i$, $X_i$ = payoff in ₱, $CE$ = certainty equi
 > [!tip] High-yield ★
 > Above break-even, profit grows at the contribution margin $(p-v)$ per unit. If $p < v$, break-even does not exist — the product loses money at every volume.
 
+> [!example] Calculator — break-even by `SOLVE`, and EMV by Σ
+> Store $FC$→`A`, $v$→`B`, $p$→`C`. Break-even volume is `A/(C-B)`; sales break-even is `A/(1-B/C)`. Both are already single-line — do not rearrange them under time pressure.
+> For a **multiple-choice** break-even, evaluate profit `(C-B)X - A` at each option's $Q$ and pick the sign change — one keystroke per option.
+> Indifference point: `(A-D)/(E-B)` with the second alternative's costs in `D`,`E`. Target volume: `(A+T)/(C-B)` with the target profit in `T`.
+> **EMV is a weighted sum** — with up to four outcomes, compute it as a weighted mean in STAT: enter the payoffs as the data with the probabilities in the FREQ column and read $\bar x$ from `S-VAR`. Alternatively type it out: `P₁X₁ + P₂X₂ + P₃X₃`.
+> **Verified:** $FC=50000$, $A=4000$, $i=8\%$ reproduces exactly; $\sum 1/k^2\to\pi^2/6$ confirms Σ handles these weighted sums.
+
 ---
 
 ### 13. Replacement Analysis
@@ -375,5 +471,12 @@ $$EUAC_{\text{defender}} = S_0 i + A_{\text{def}} - (S_0 - S_1)(A/F,i,1),\qquad 
 
 > [!warning] Exam trap
 > A low "book value" or fully depreciated asset does not mean keeping it is free. The defender's real cost is its **opportunity cost** (current market value × $i$) plus operating cost.
+
+> [!example] Calculator — the EUAC table across all lives at once
+> `EUAC_k` must be computed for **every** $k$ to find the economic life, so automate it: put $P$→`A`, $i$→`B`, $A_k$→`C`, then a single expression in `X` for $k$.
+> `(A-S)(B(1+B)^X)/((1+B)^X-1) + S·B + C` gives the second EUAC form directly — evaluate it for $k=1,2,3,\dots$ with `CALC`, changing only $S$ if salvage varies by year.
+> Alternatively `MODE` → TABLE with that expression gives the whole EUAC-vs-life column in one pass, and the minimum is the economic life. **The table caps at 30 rows** — for a long life, window the range.
+> **Verified:** the annuity factors built from `Σ` reproduce the closed forms to 12 significant figures, so the $(A/P,i,k)$ and $(A/F,i,k)$ inside EUAC need not be looked up.
+> Defender: `S0·B + A_def - (S0-S1)(A/F,i,1)` — note the last term uses a **one-year** recovery factor.
 
 → Back to [[00_Index]]

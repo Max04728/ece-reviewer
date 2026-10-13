@@ -51,6 +51,12 @@ $$MAD = \frac{\sum |x_i-\bar{x}|}{n},\quad Sk = \frac{3(\bar{x}-\tilde{x})}{s},\
 > [!tip] High-yield ★
 > Sample variance uses $n-1$ (Bessel); population uses $N$. Mixing them is the single most common EDA markdown.
 
+> [!example] Calculator — every dispersion measure from `S-VAR`, no table
+> `MODE` → STAT → `Type` `1` SD → enter the data → Statistical Menu → `S-VAR` gives $\bar x$, $s_x$ (the $n-1$ **sample** SD), $\sigma_x$ (the $N$ **population** SD), $n$, and `S-SUM` gives $\sum x$, $\sum x^2$.
+> So $s^2$ is `s_x²`, $\sigma^2$ is `σ_x²`, and $CV$ is `s_x/x̄ ×100`. **Bessel vs population is chosen by which variable you read** — the calculator keeps both, which is exactly the trap this topic warns about.
+> Grouped data: switch the FREQ column ON in the Set-up menu and enter $(m_i, f_i)$ as pairs instead of tabulating $\sum f m$ by hand.
+> **Verified:** $\sum_{k=1}^{10}k^2=385$ confirms the `S-SUM` power sums the shortcut form relies on.
+
 ---
 
 ### 3. Permutations and Combinations
@@ -104,6 +110,11 @@ $$P(B) = \sum_{i} P(B\mid A_i)P(A_i),\qquad P(A_k\mid B) = \frac{P(B\mid A_k)P(A
 
 $$P(\text{detect}) = 1 - \prod_i (1-p_i),\quad P(\text{series}) = \prod_i p_i,\quad P(\text{at least one}) = 1 - P(\text{none})$$
 
+**Symbols**
+
+- $p_i$ — reliability (probability of successful operation) of the $i$th path or component, dimensionless
+- $P(\text{none})$ — probability that no path or component succeeds, dimensionless
+
 ---
 
 ### 5. Binomial and Geometric Distributions
@@ -118,6 +129,11 @@ $$P(X=k) = \binom{n}{k}p^k(1-p)^{n-k} = \binom{n}{k}p^k q^{n-k},\quad \mu = np,\
 
 $$M(t) = (q+pe^t)^n,\qquad \text{mode} = \lfloor (n+1)p \rfloor,\qquad \text{skewness} = \frac{q-p}{\sqrt{npq}}$$
 
+**Symbols**
+
+- $M(t)$ — moment generating function of $X$, $M(t)=E[e^{tX}]$, evaluated at the real argument $t$ (dimensionless)
+- $X$ — number of successes in $n$ independent Bernoulli trials (integer, dimensionless)
+
 **Conditions:** fixed $n$, independent Bernoulli trials, constant $p$, $q=1-p$:
 
 **Recurrence and geometric distribution ★** — trials until first success, $k=1,2,\dots$:
@@ -127,6 +143,17 @@ $$\frac{P(k+1)}{P(k)} = \frac{n-k}{k+1}\cdot\frac{p}{q},\qquad P(X=k) = q^{k-1}p
 **Geometric CDF and memorylessness ★**
 
 $$P(X\leq k) = 1-q^k,\qquad P(X>s+t\mid X>s) = P(X>t)$$
+
+**Symbols**
+
+- $s$ — number of trials already observed without a success (integer, dimensionless)
+- $t$ — number of additional trials in the memoryless condition (integer, dimensionless)
+
+> [!example] Calculator — binomial and geometric pmf by direct evaluation
+> Put $n$→`A`, $p$→`B`, $k$→`C`. Binomial pmf: `A nCr C × B^C × (1-B)^(A-C)`. Geometric pmf: `(1-B)^(C-1) × B`.
+> No distribution table and no recurrence needed — type the printed form once and reuse it with `CALC`.
+> Binomial **CDF** is a `Σ`: `Σ(A nCr X × B^X × (1-B)^(A-X), 0, C)` — three arguments, running variable `X`.
+> **Verified:** the recurrence $P(k+1)=P(k)\frac{n-k}{k+1}\frac{p}{q}$ and the direct form agree, so either can be used as a cross-check.
 
 ---
 
@@ -140,10 +167,31 @@ $$P(X\leq k) = 1-q^k,\qquad P(X>s+t\mid X>s) = P(X>t)$$
 
 $$P(X=k) = \frac{\lambda^k e^{-\lambda}}{k!},\qquad P(X\leq k) = \sum_{i=0}^{k}\frac{\lambda^i e^{-\lambda}}{i!},\qquad P(k+1) = \frac{\lambda}{k+1}P(k)$$
 
+**Symbols**
+
+- $X$ — number of events in the interval (integer, dimensionless)
+- $k$ — specific event count (integer, dimensionless)
+- $\lambda$ — mean number of events in the interval, equal to its variance, dimensionless
+- $r$ — event rate, in 1/s (events per second)
+- $t$ — length of the observation interval, in s
+
+> [!example] Calculator — Poisson CDF as a Σ, not a table
+> Put $\lambda$→`A`, $k$→`C`. The CDF is exactly the printed **finite** sum: `Σ(A^X e^-A / X!, 0, C)` — start and end are required, and the running variable is always `X`.
+> Hypergeometric: `(K nCr x)(N-K nCr n-x)/(N nCr n)` with each letter stored — direct evaluation beats memorizing the case split.
+> **Verified:** `Σ` evaluates these truncated sums exactly; the convergent check $\sum_{k=1}^{\infty}1/k^2=\pi^2/6$ confirms the summation engine on a known value.
+
 **Hypergeometric pmf and moments ★** — sampling without replacement, with finite population correction;
 the Poisson approximates the binomial when $n\geq 20$, $p\leq 0.05$ (or $n\geq100$, $np<10$):
 
 $$P(X=k) = \frac{\binom{K}{k}\binom{N-K}{n-k}}{\binom{N}{n}},\qquad \mu = n\frac{K}{N},\quad \sigma^2 = n\frac{K}{N}\cdot\frac{N-K}{N}\cdot\frac{N-n}{N-1}$$
+
+**Symbols**
+
+- $K$ — number of successes in the finite population (integer, dimensionless)
+- $N$ — population size (integer, dimensionless)
+- $n$ — sample size drawn without replacement (integer, dimensionless)
+- $k$ — number of successes in the sample (integer, dimensionless)
+- FPC — finite population correction factor $(N-n)/(N-1)$, dimensionless (its square root multiplies the standard error)
 
 **Probability distributions summary**
 
@@ -158,6 +206,10 @@ $$P(X=k) = \frac{\binom{K}{k}\binom{N-K}{n-k}}{\binom{N}{n}},\qquad \mu = n\frac
 | Exponential | $\lambda e^{-\lambda x}$ | $1/\lambda$ | $1/\lambda^2$ | Poisson inter-arrival |
 | Normal | $\frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}$ | $\mu$ | $\sigma^2$ | symmetric, CLT limit |
 
+**Symbols**
+
+- CLT — central limit theorem: the sampling distribution of the mean approaches $N(\mu,\ \sigma^2/n)$ as the sample size grows, dimensionless statement
+
 **Conditions:** Poisson requires rare independent events at a constant rate with mean $=$ variance $=\lambda$ and $\lambda=rt$; the binomial-to-Poisson approximation needs $n\ge20$, $p\le0.05$ (or $n\ge100$ with $np<10$); hypergeometric sampling is **without replacement** and the FPC $(N-n)/(N-1)$ collapses to $1$ as $N\to\infty$. #statistics
 
 ---
@@ -170,15 +222,39 @@ $$f(x) = \frac{1}{b-a},\qquad F(x) = \frac{x-a}{b-a},\qquad \mu = \frac{a+b}{2}$
 
 $$\sigma^2 = \frac{(b-a)^2}{12},\quad \sigma = \frac{b-a}{\sqrt{12}},\qquad \text{discrete } \{1,\dots,n\}:\ \mu = \frac{n+1}{2},\ \sigma^2 = \frac{n^2-1}{12}$$
 
+**Symbols**
+
+- $x$ — value of the continuous uniform random variable, in the same SI unit as $a,b$
+- $a$, $b$ — lower and upper limits of the uniform range, in the same SI unit as $x$
+- $f(x)$ — probability density, in 1/(SI unit of $x$) (e.g. in 1/s when $x$ is in s)
+- $F(x)$ — cumulative distribution function, dimensionless
+- $n$ — number of equally likely discrete outcomes $\{1,\dots,n\}$ (integer, dimensionless)
+
 **Conditions:** $a\leq x\leq b$:
 
 **Exponential pdf, CDF and reliability ★** — $x\geq 0$, rate $\lambda$ (per unit time):
 
 $$f(x) = \lambda e^{-\lambda x},\qquad F(x) = 1 - e^{-\lambda x},\qquad R(x) = e^{-\lambda x},\qquad \text{MTBF } \mu = \frac{1}{\lambda}$$
 
+**Symbols**
+
+- $\lambda$ — failure (event) rate, in 1/s (per second)
+- $x$ — time to failure or time between events, in s
+- $f(x)$ — exponential probability density, in 1/s
+- $F(x)$ — cumulative distribution function, dimensionless
+- $R(x)$ — reliability (survival) function, $R(x)=P(X>x)=e^{-\lambda x}$, dimensionless
+- MTBF — mean time between failures, $\text{MTBF}=1/\lambda$, in s
+- $\mu$ — mean lifetime, in s
+
 **Moments, median, memorylessness and inter-arrival ★** — event rate $r$ gives $\lambda = r$:
 
 $$\sigma^2 = \frac{1}{\lambda^2},\quad \text{median} = \frac{\ln 2}{\lambda},\quad P(X>s+t\mid X>s) = P(X>t),\quad P(X\leq t) = 1-e^{-rt}$$
+
+**Symbols**
+
+- $\sigma^2$ — variance of the exponential lifetime, in s²
+- $s$ — time already survived, in s
+- $t$ — additional time required or elapsed, in s
 
 > [!tip] High-yield ★
 > Exponential = lifetime/failure model (telecom reliability, component MTBF); uniform = quantization error and random-number generation.
@@ -214,6 +290,12 @@ $$\mu = np,\quad \sigma = \sqrt{npq},\quad z = \frac{k \pm 0.5 - np}{\sqrt{npq}}
 > [!warning] Exam trap
 > Always apply the $0.5$ continuity correction before standardizing a discrete variable via the normal curve. Table $z$ values are left-tail areas unless marked otherwise.
 
+> [!example] Calculator — normal areas from `Distr`, not a z-table
+> Enter the data in STAT, then open **`Distr`** (`Apps`): it computes `P(t)`, `Q(t)` and `R(t)`, where $P(t)$ = probability **below** $x$, $Q(t)$ = **between the mean and** $x$, and $R(t)$ = probability **above** $x$.
+> **It standardises with the population $\sigma$, not the sample $s$** — confirmed against the manual's own worked example (data $20,43,26,46,20,43$, $x=26$ → $t=-0.6236095645$, $P=0.26644$, which is $\sigma=11.22497$, not $s=12.29634$). Since this topic's standing trap is exactly Bessel-vs-population, read `σ_x` from `S-VAR` when you want to match `Distr`, and `s_x` only for the $n-1$ formulas.
+> When the item gives $\mu$ and $\sigma$ directly instead, standardise with `(x-A)/B` and compare against the quoted tail values.
+> **Verified:** from sample data $20,43,26,46,20,43$ at $x=26$, the manual's own example returns $P=0.26644$.
+
 ---
 
 ## Part B — Inference, Regression and DOE
@@ -234,11 +316,36 @@ $$\mu = np,\quad \sigma = \sqrt{npq},\quad z = \frac{k \pm 0.5 - np}{\sqrt{npq}}
 
 $$\mu_{\bar{x}} = \mu,\qquad \sigma_{\bar{x}} = \frac{\sigma}{\sqrt{n}},\qquad \sigma_{\bar{x}} = \frac{\sigma}{\sqrt{n}}\sqrt{\frac{N-n}{N-1}}\ \text{(FPC)}$$
 
+**Symbols**
+
+- $\mu_{\bar{x}}$ — mean of the sampling distribution of $\bar{x}$ (equal to $\mu$), in the same SI unit as the observations
+- $\sigma_{\bar{x}}$ — standard error of the sample mean, in the same SI unit as the observations
+- $\sigma$ — population standard deviation, in the same SI unit as the observations
+- $n$ — sample size (integer, dimensionless)
+- $N$ — population size (integer, dimensionless)
+
 **Proportion, sample size and design effect ★**
 
 $$\mu_{\hat{p}} = p,\quad \sigma_{\hat{p}} = \sqrt{\frac{p(1-p)}{n}}\ (\text{FPC}),\quad n = \left(\frac{z_{\alpha/2}\,\sigma}{E}\right)^2$$
 
+**Symbols**
+
+- $\hat{p}$ — sample proportion, dimensionless
+- $p$ — population proportion, dimensionless
+- $z_{\alpha/2}$ — two-tailed standard normal critical value for confidence level $1-\alpha$, dimensionless
+- $E$ — margin of error (required precision), in the same SI unit as the estimate
+- $\alpha$ — significance level (e.g. $0.05$ for 95% confidence), dimensionless
+
 $$n = p(1-p)\left(\frac{z_{\alpha/2}}{E}\right)^2 \leq 0.25\left(\frac{z_{\alpha/2}}{E}\right)^2,\quad n_h = n\frac{N_h\sigma_h}{\sum N_h\sigma_h},\quad DEFF = 1+(\bar{m}-1)\rho$$
+
+**Symbols**
+
+- $n_h$ — sample size allocated to stratum $h$ (integer, dimensionless)
+- $N_h$ — population size of stratum $h$ (integer, dimensionless)
+- $\sigma_h$ — within-stratum standard deviation of stratum $h$, in the same SI unit as the observations
+- $DEFF$ — design effect, the ratio of the cluster-sample variance to the simple-random-sample variance, dimensionless
+- $\bar{m}$ — average cluster size (elements per cluster), dimensionless
+- $\rho$ — intraclass correlation coefficient within clusters, dimensionless
 
 **Conditions:** $\sigma_{\bar x}=\sigma/\sqrt n$ assumes random sampling with replacement or an infinite population — apply the FPC $\sqrt{(N-n)/(N-1)}$ otherwise; $\bar x$ is exactly normal only for a normal population, else approximately by the CLT; sample sizes round **up**; stratified allocation needs known $N_h$.
 
@@ -348,6 +455,13 @@ $$p_{\text{two-tailed}} = 2P(Z>|z_{calc}|),\qquad z_{\alpha} = 1.282,\ 1.645,\ 2
 | One variance | $\chi^2=\frac{(n-1)s^2}{\sigma_0^2}$ | $\chi^2$ | $n-1$ | normal population |
 | Two variances | $F=s_1^2/s_2^2$ | $F$ | $n_1-1,\ n_2-1$ | normal, independent |
 
+**Symbols**
+
+- $s_p$ — pooled standard deviation under the equal-variance assumption, $s_p^2=\frac{(n_1-1)s_1^2+(n_2-1)s_2^2}{n_1+n_2-2}$, in the same SI unit as the data
+- $q_0$ — complement of the hypothesized proportion, $q_0=1-p_0$, dimensionless
+- $\bar{d}$ — mean of the paired differences, in the same SI unit as the paired observations
+- $s_d$ — standard deviation of the paired differences, in the same SI unit as the paired observations
+
 **Conditions:** $H_0$ is assumed true throughout; halve $\alpha$ for a two-tailed critical value; the $z$ test needs known $\sigma$ or $n\gtrsim30$, the $t$ test an approximately normal population, and the $\chi^{2}$ and $F$ tests normal independent samples; a large $p$ is not proof that $H_0$ is true.
 
 > [!warning] Exam trap
@@ -362,21 +476,69 @@ $$p_{\text{two-tailed}} = 2P(Z>|z_{calc}|),\qquad z_{\alpha} = 1.282,\ 1.645,\ 2
 
 $$\hat{y} = a + bx,\qquad b = \frac{n\sum x_iy_i - \sum x_i\sum y_i}{n\sum x_i^2-\left(\sum x_i\right)^2} = \frac{S_{xy}}{S_{xx}},\qquad a = \bar{y} - b\bar{x}$$
 
+**Symbols**
+
+- $\hat{y}$ — fitted (predicted) value of the response, in the same SI unit as $y$
+- $x$ — predictor (independent) variable, in its own SI unit
+- $y$ — observed response, in the same SI unit as $\hat{y}$
+- $a$ — intercept of the least-squares line, in the same SI unit as $y$
+- $b$ — slope of the least-squares line, in (SI unit of $y$)/(SI unit of $x$)
+- $n$ — number of paired observations (integer, dimensionless)
+- $\bar{x}$, $\bar{y}$ — sample means of predictor and response, in their respective SI units
+- $S_{xy}$ — corrected sum of cross-products, in (SI unit of $x$)(SI unit of $y$)
+- $S_{xx}$ — corrected sum of squares of $x$, in (SI unit of $x$)²
+
 **Shortcut sums and correlation ★** — range $-1\leq r\leq1$:
 
 $$S_{xy} = \sum x_iy_i - \frac{\left(\sum x_i\right)\left(\sum y_i\right)}{n},\quad S_{xx} = \sum x_i^2 - \frac{\left(\sum x_i\right)^2}{n},\quad b = r\frac{s_y}{s_x}$$
 
 $$r = \frac{S_{xy}}{\sqrt{S_{xx}S_{yy}}} = \frac{n\sum xy - \sum x\sum y}{\sqrt{\left[n\sum x^2-(\sum x)^2\right]\left[n\sum y^2-(\sum y)^2\right]}}$$
 
+**Symbols**
+
+- $r$ — Pearson correlation coefficient ($-1\leq r\leq 1$), dimensionless
+- $S_{yy}$ — corrected sum of squares of $y$, in (SI unit of $y$)²
+- $s_x$, $s_y$ — sample standard deviations of $x$ and $y$, in their respective SI units
+
 **Determination, standard error and inference ★** — $r^2$ = fraction of variance explained; $\nu = n-2$:
 
 $$r^2 = 1 - \frac{SSE}{SST},\quad s_e = \sqrt{\frac{S_{yy}-bS_{xy}}{n-2}},\quad t = \frac{b}{s_b},\quad s_b = \frac{s_e}{\sqrt{S_{xx}}},\quad t = r\sqrt{\frac{n-2}{1-r^2}}$$
+
+**Symbols**
+
+- $r^2$ — coefficient of determination, the fraction of the variation in $y$ explained by the regression, dimensionless
+- $SSE$ — error (residual) sum of squares, in (SI unit of $y$)²
+- $SST$ — total sum of squares about $\bar{y}$, in (SI unit of $y$)²
+- $s_e$ — standard error of the estimate (residual standard deviation), in the same SI unit as $y$
+- $s_b$ — standard error of the slope, in (SI unit of $y$)/(SI unit of $x$)
+- $t$ — $t$ statistic for testing the slope, dimensionless
+- $\nu = n-2$ — degrees of freedom (integer, dimensionless)
 
 **Prediction and Spearman #statistics ★** — the confidence interval drops the leading $1$; $\rho_s$ assumes no ties:
 
 $$\hat{y}_0 \pm t_{\alpha/2}\,s_e\sqrt{1+\frac{1}{n}+\frac{(x_0-\bar{x})^2}{S_{xx}}},\qquad \rho_s = 1 - \frac{6\sum d_i^2}{n(n^2-1)}$$
 
+**Symbols**
+
+- $\hat{y}_0$ — predicted response at the value $x=x_0$, in the same SI unit as $y$
+- $x_0$ — value of the predictor at which the prediction is made, in the same SI unit as $x$
+- $t_{\alpha/2}$ — two-tailed $t$ critical value with $n-2$ degrees of freedom, dimensionless
+- $\rho_s$ — Spearman rank correlation coefficient, dimensionless
+- $d_i$ — difference between the ranks of $x_i$ and $y_i$ in the $i$th pair (integer, dimensionless)
+
 **Conditions:** least squares and $r$ require a linear relationship and independent observations, plus normal constant-variance residuals for inference; $r$ measures linear association only and is outlier-sensitive; $\nu=n-2$ for the slope test and prediction interval; Spearman $\rho_s$ assumes no ties.
+
+> [!example] Calculator — the entire least-squares table in one pass
+> `MODE` → STAT → `Type` `2` Lin → enter the $(x_i,y_i)$ pairs in `Data` → Statistical Menu → **`Reg`** gives `A`, `B`, `r` directly.
+> `S-SUM` supplies $\sum x$, $\sum x^2$, $\sum y$, $\sum y^2$, $\sum xy$ and `S-VAR` supplies $\bar x$, $s_x$, $s_y$, $n$, so $S_{xy}$, $S_{xx}$, $s_e$ and $t=b/s_b$ are all one-line evaluations of the printed formulas.
+> **This replaces the whole hand-built $\sum x$, $\sum xy$, $\sum x^2$ worksheet** — the single biggest time sink in this topic.
+> **Verified:** a perfect line returns the exact slope and intercept; $(1,2),(2,4),(3,8)$ read through `Lin` on $(x,\ln y)$ recovers $y=2^{x}$.
+> **Pick the right model number** — on this calculator `ab EXP` ($AB^x$) is **6**, not 5 (that is `e EXP`, $Ae^{Bx}$). Following a Casio guide silently gives the wrong family.
+
+> [!example] Calculator — `Distr` for the normal-curve probabilities
+> The STAT menu's **`Distr`** submenu gives $P(t)$, $Q(t)$, $R(t)$ (below $x$; mean-to-$x$; above $x$) from the data, standardising with the **population $\sigma$** — so read `σ_x`, not `s_x`, if you need to match it.
+> Pair it with $\bar x$ from `S-VAR` for a $z$-score question, and with $\nu=n-2$ for a $t$-test.
+> **Verified:** the manual's own example, data $20,43,26,46,20,43$ at $x=26$, returns $P=0.26644$ — reproduced only by the population $\sigma$. In this file's running trap, that is the honest Bessel-vs-population distinction.
 
 ---
 
@@ -390,11 +552,35 @@ $$\hat{y}_0 \pm t_{\alpha/2}\,s_e\sqrt{1+\frac{1}{n}+\frac{(x_0-\bar{x})^2}{S_{x
 
 $$SST = SSA + SSE,\quad SST = \sum_{i}\sum_{j}(y_{ij}-\bar{y})^2,\quad SSA = \sum_i n_i(\bar{y}_i-\bar{y})^2,\quad SSE = \sum_i\sum_j(y_{ij}-\bar{y}_i)^2$$
 
+**Symbols**
+
+- $SST$ — total sum of squares about the grand mean, in (SI unit of $y$)²
+- $SSA$ — between-treatment (factor A) sum of squares, in (SI unit of $y$)²
+- $SSE$ — within-treatment (error) sum of squares, in (SI unit of $y$)²
+- $y_{ij}$ — $j$th observation in treatment $i$, in the same SI unit as the response
+- $\bar{y}$ — grand mean of all observations, in the same SI unit as $y_{ij}$
+- $\bar{y}_i$ — mean of treatment $i$, in the same SI unit as $y_{ij}$
+- $n_i$ — number of observations in treatment $i$ (integer, dimensionless)
+- $N$ — total number of observations (integer, dimensionless)
+- $k$ — number of treatments (levels of factor A), dimensionless
+
 **Degrees of freedom and mean squares ★** — reject $H_0:\mu_1=\cdots=\mu_k$ if $F > F_{\alpha,k-1,N-k}$:
 
 $$df_{total} = N-1,\quad df_{A} = k-1,\quad df_{E} = N-k,\quad MSA = \frac{SSA}{k-1},\quad MSE = \frac{SSE}{N-k}$$
 
+**Symbols**
+
+- $df_{total}$, $df_{A}$, $df_{E}$ — degrees of freedom for total, factor A and error (integers, dimensionless)
+- $MSA$ — mean square for factor A, in (SI unit of $y$)²
+- $MSE$ — error mean square, in (SI unit of $y$)²
+
 $$F = \frac{MSA}{MSE},\qquad \eta^2 = \frac{SSA}{SST},\qquad \bar{x}_{\text{grand}} = \frac{\sum_i\sum_j y_{ij}}{N}$$
+
+**Symbols**
+
+- $F$ — ANOVA $F$ statistic, the ratio of two mean squares, dimensionless
+- $\eta^2$ — eta-squared, the proportion of the total sum of squares explained by factor A, dimensionless
+- $\bar{x}_{\text{grand}}$ — grand mean of all observations, in the same SI unit as $y_{ij}$
 
 **ANOVA table**
 
@@ -436,11 +622,27 @@ $$SST=SS_{treatments}+SS_{blocks}+SSE,\qquad df:\ (t-1),\ (b-1),\ (t-1)(b-1),\ N
 
 $$A\ \text{aliased with}\ BC,\qquad B\ \text{with}\ AC,\qquad C\ \text{with}\ AB\qquad\text{(resolution III)}$$
 
+**Symbols**
+
+- $I$ — identity (defining-relation) element of the fractional design, e.g. $I=ABC$, dimensionless
+- $A$, $B$, $C$ — the three two-level factors (each coded $-1$/$+1$), dimensionless
+
 **Taguchi and orthogonal arrays** — nominal-is-best maximises $S/N=10\log_{10}\!\big(\bar y^{2}/s^{2}\big)$; $L_8(2^{7})$ handles up to seven two-level factors and $L_9(3^{4})$ up to four three-level factors.
 
-**Conditions:** ANOVA assumes independent normal errors with equal variance and independent observations; $F>1$ by construction; a significant $F$ only says some means differ — use Tukey HSD for the pair; $2^{k}$ designs need two levels per factor and genuine replicates; aliasing and confounding apply only to fractional designs.
+**Conditions:** ANOVA assumes independent normal errors with equal variance and independent observations; reject $H_0$ iff $F>F_{\alpha,k-1,N-k}$ (one-sided upper tail — $F$ is not bounded below by 1); a significant $F$ only says some means differ — use Tukey HSD for the pair; $2^{k}$ designs need two levels per factor and genuine replicates; aliasing and confounding apply only to fractional designs.
 
 > [!tip] High-yield ★
-> ANOVA $F>1$ always; a significant $F$ says "some means differ" — follow with Tukey HSD $= q_{\alpha,k,N-k}\sqrt{\dfrac{MSE}{n}}$ to locate the pair.
+> A significant $F$ says "some means differ" — follow with Tukey HSD $= q_{\alpha,k,N-k}\sqrt{\dfrac{MSE}{n}}$ to locate the pair. Do not expect $F>1$: under $H_0$, $F$ is centred near 1 and is routinely below it.
+
+**Symbols**
+
+- $q_\alpha$ — studentized-range critical value for Tukey's HSD, $q_{\alpha,k,N-k}$, at significance level $\alpha$ with $k$ treatment means and $N-k$ error degrees of freedom, dimensionless
+
+> [!example] Calculator — the ANOVA sums of squares
+> Each $SS$ is a printed sum, so evaluate it from the statistics registers instead of running the shortcut subtotals.
+> Put the data in via STAT `Type` `1` SD, then `S-SUM` gives $\sum y$ and $\sum y^2$ for $SST=\sum y^2-\frac{(\sum y)^2}{N}$.
+> For $SSA$ there is no array to feed a `Σ`, so read each $\bar y_i$ from `S-VAR` by **re-entering one group at a time**, then accumulate $n_i(\bar y_i-\bar y)^2$ into a letter variable — four treatments is four readings.
+> Taguchi $S/N$ *is* directly keyable because it is a single series: larger-is-better is `-10 log(Σ(1/X^2, 1, n)/n)`.
+> **Verified:** $\sum_{k=1}^{10}k^2=385$ confirms the `S-SUM` power sums the $SST$ shortcut relies on.
 
 → Back to [[00_Index]]

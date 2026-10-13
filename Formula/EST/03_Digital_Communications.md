@@ -59,6 +59,10 @@ $\Delta$ in V (step size), $V_{pp}$ in V (peak-to-peak full scale), $V_m$ in V (
 
 $$BW_{PCM}=\frac{1}{2}R_b\ \text{(Hz, polar NRZ)},\qquad T_b=\frac{1}{R_b}\ \text{(s)},\qquad f_s\ge2f_{max}$$
 
+**Symbols**
+
+- NRZ — non-return-to-zero line code, in which the signal level is held for the whole bit interval with no return to zero between bits (a code label, not a quantity; dimensionless)
+
 $T_b$ in s (bit duration), $BW$ in Hz; standard voice PCM is 8 kHz sampling with 8 bits, giving 64 kbit/s.
 
 **Conditions:** uniform (linear) quantizer, full-scale sinusoid input, $f_s\ge2f_{max}$; the 6 dB per bit rule and the 1.76 dB offset both require that full-scale condition. #pcm
@@ -180,6 +184,12 @@ $V$ in V (voltage level), bit interval $T_b$ in s; $V$ and $B$ are violation and
 
 $$BW_{NRZ}=\frac{R_b}{2}\ \text{(Hz)},\qquad BW_{RZ}=R_b\ \text{(Hz)},\qquad BW_{Manchester}=R_b\ \text{(Hz)},\qquad BW_{AMI}\approx\frac{R_b}{2}$$
 
+**Symbols**
+
+- RZ — return-to-zero line code, in which the pulse returns to zero for part of every bit interval (a code label, not a quantity; dimensionless)
+- AMI — alternate mark inversion (bipolar) line code, which sends each 1 as a pulse of alternating polarity and each 0 as no pulse (a code label, not a quantity; dimensionless)
+- 2B1Q — two-binary-one-quaternary line code, which maps each pair of bits onto one of four signal levels (a code label, not a quantity; dimensionless)
+
 $R_b$ in bit/s, $BW$ in Hz; Manchester and RZ are self-clocking (guaranteed transitions), NRZ-L and NRZ-I are not.
 
 | Code | DC component | Self-clocking | Notes |
@@ -243,6 +253,14 @@ $A$ in V (logic levels), $\sigma$ in V (RMS noise per level), $Q$ dimensionless 
 
 $$H_{eq}(f)=\frac{1}{H_c(f)}\ \text{(zero forcing)},\qquad MSE=E\Bigl[\bigl(y_n-\hat{a}_n\bigr)^2\Bigr],\qquad \text{DFE: } y_n=\sum_ic_ir_{n-i}-\sum_jd_j\hat{a}_{n-j}$$
 
+**Symbols**
+
+- MSE — mean squared error between the equalizer output and the transmitted symbol, in V²
+- ZF — zero-forcing equalizer, which inverts the channel with $H_{eq}(f)=1/H_c(f)$ to null amplitude and delay distortion (dimensionless)
+- MMSE — minimum mean squared error equalizer, which minimizes the MSE in the presence of noise (dimensionless)
+- DFE — decision-feedback equalizer, which cancels post-cursor ISI with a feedback filter driven by past symbol decisions (dimensionless)
+- LMS — least mean squares algorithm, which updates the tap weights once per symbol to track a time-varying channel (dimensionless)
+
 $H_c(f)$ dimensionless (channel response), $c_i,d_j$ dimensionless (tap weights), $y_n,\hat{a}_n,r_n$ in V, MSE in V².
 
 | Equalizer | Structure | Best for |
@@ -274,6 +292,11 @@ $A_c$ in V, $m(t)$ dimensionless (binary data), $f_c$ in Hz, $\Delta f$ in Hz (F
 
 $$BW_{ASK}=BW_{OOK}=2R_b\ \text{(Hz)},\qquad BW_{FSK}\approx2(\Delta f+R_b)\ \text{(Hz)},\qquad P_e=\frac{1}{2}e^{-E_b/(4N_0)}$$
 
+**Symbols**
+
+- AWGN — additive white Gaussian noise channel model, with flat two-sided noise density $N_0/2$ and Gaussian amplitude statistics (a channel label, not a quantity; dimensionless)
+- $Q(\cdot)$ — Gaussian tail (complementary error) function, $Q(u)=\frac{1}{\sqrt{2\pi}}\int_u^{\infty}e^{-x^2/2}dx$, dimensionless
+
 $R_b$ in bit/s, $E_b$ in J (energy per bit), $N_0$ in W/Hz, $P_e$ dimensionless; coherent ASK is $Q(\sqrt{E_b/N_0})$ and coherent FSK is $Q(\sqrt{E_b/N_0})$ as well.
 
 | Scheme | Coherent $P_e$ | Noncoherent $P_e$ | BW (Hz) |
@@ -301,6 +324,11 @@ $A_c$ in V, $m(t)\in\{0,1\}$ dimensionless, $E_b$ in J, $N_0$ in W/Hz, $P_e$ dim
 **QPSK and OQPSK ★**
 
 $$s_{QPSK}(t)=\frac{A_c}{\sqrt2}\bigl[I(t)\cos\omega_ct-Q(t)\sin\omega_ct\bigr],\qquad P_e=Q\Bigl(\sqrt{\frac{2E_b}{N_0}}\Bigr),\qquad R_s=\frac{R_b}{2}$$
+
+**Symbols**
+
+- AWGN — additive white Gaussian noise channel model, with flat two-sided noise density $N_0/2$ and Gaussian amplitude statistics (a channel label, not a quantity; dimensionless)
+- $Q(\cdot)$ — Gaussian tail (complementary error) function, $Q(u)=\frac{1}{\sqrt{2\pi}}\int_u^{\infty}e^{-x^2/2}dx$, dimensionless
 
 $I,Q\in\{+1,-1\}$ dimensionless, $A_c$ in V, $R_s$ in baud, $R_b$ in bit/s; OQPSK offsets the Q channel by $T_b$ to cap phase jumps at 90° (no zero-crossing).
 
@@ -335,6 +363,11 @@ $M$ dimensionless (constellation size), $A_c$ in V, $d_{min}$ in V (minimum dist
 
 $$P_{e,MPSK}\approx\frac{2}{\log_2M}Q\Bigl(\sqrt{\frac{2E_b\log_2M}{N_0}}\sin\frac{\pi}{M}\Bigr),\qquad P_{e,16QAM}\approx\frac{3}{4}Q\Bigl(\sqrt{\frac{4E_b}{5N_0}}\Bigr)$$
 
+**Symbols**
+
+- AWGN — additive white Gaussian noise channel model, with flat two-sided noise density $N_0/2$ and Gaussian amplitude statistics (a channel label, not a quantity; dimensionless)
+- $Q(\cdot)$ — Gaussian tail (complementary error) function, $Q(u)=\frac{1}{\sqrt{2\pi}}\int_u^{\infty}e^{-x^2/2}dx$, dimensionless
+
 $E_b$ in J, $N_0$ in W/Hz, $M$ dimensionless, $P_e$ dimensionless.
 
 | Scheme | Bits/symbol | $d_{min}$ (norm.) | $E_b/N_0$ @ $P_e=10^{-5}$ |
@@ -357,6 +390,11 @@ $E_b$ in J, $N_0$ in W/Hz, $M$ dimensionless, $P_e$ dimensionless.
 **Distance, energy and union bound ★**
 
 $$d_{min}=\min_{i\ne j}\lVert s_i-s_j\rVert,\qquad P_e\le\sum_{i\ne j}Q\Bigl(\frac{d_{ij}}{\sqrt{2N_0}}\Bigr),\qquad E_s=E_b\log_2M$$
+
+**Symbols**
+
+- AWGN — additive white Gaussian noise channel model, with flat two-sided noise density $N_0/2$ and Gaussian amplitude statistics (a channel label, not a quantity; dimensionless)
+- $Q(\cdot)$ — Gaussian tail (complementary error) function, $Q(u)=\frac{1}{\sqrt{2\pi}}\int_u^{\infty}e^{-x^2/2}dx$, dimensionless
 
 $s_i$ in V (constellation points), $d_{min}$ in V, $N_0$ in W/Hz, $E_s$ in J (energy per symbol), $E_b$ in J, $M$ dimensionless.
 
@@ -393,6 +431,13 @@ $s(t)$ in V (known pulse), $T$ in s (sampling instant), $E$ in J (pulse energy),
 **Correlation receiver and error probability**
 
 $$y(T)=\int_0^Ts(t)r(t)dt,\qquad P_e=Q\Bigl(\frac{d}{2\sigma}\Bigr)=Q\Bigl(\sqrt{\frac{E_d}{2N_0}}\Bigr),\qquad \sigma^2=\frac{N_0}{2}\int\lvert h\rvert^2dt$$
+
+**Symbols**
+
+- AWGN — additive white Gaussian noise channel model, with flat two-sided noise density $N_0/2$ and Gaussian amplitude statistics (a channel label, not a quantity; dimensionless)
+- $Q(\cdot)$ — Gaussian tail (complementary error) function, $Q(u)=\frac{1}{\sqrt{2\pi}}\int_u^{\infty}e^{-x^2/2}dx$, dimensionless
+- MAP — maximum a posteriori detector, which decides the symbol with the largest posterior probability given the observation (dimensionless)
+- ML — maximum likelihood detector, which decides the symbol whose likelihood is largest under the assumed noise model (dimensionless)
 
 $r(t)$ in V (received signal + noise), $d$ in V (distance between signals), $\sigma$ in V, $E_d$ in J (distance energy), $P_e$ dimensionless.
 
@@ -459,8 +504,8 @@ $\eta$ in bit/s/Hz, $E_b$ in J, $N_0$ in W/Hz; the $-1.59$ dB limit is approache
 | 0.5 | $-0.8$ | $-3.8$ |
 | 1 | 0 | 0 |
 | 2 | 1.8 | 4.8 |
-| 4 | 4.8 | 12.0 |
-| 8 | 7.9 | 21.4 |
+| 4 | 5.7 | 11.8 |
+| 8 | 15.0 | 24.1 |
 
 **Hartley's law (noiseless channel) ★**
 
@@ -492,6 +537,12 @@ $n$ total, $k$ data and $r$ parity bits, $d_{min}$ minimum distance, $t$ correct
 **Coding gain, redundancy and error detection**
 
 $$R_c=\frac{k}{n}\ \text{(code rate)},\qquad P_{block}\approx1-(1-P_e)^n,\qquad CRC:n-k\ \text{bits},\qquad P_{undetected}\approx2^{-(n-k)}$$
+
+**Symbols**
+
+- CRC — cyclic redundancy check, a polynomial-division error-detecting code that appends $n-k$ check bits (a code label, not a quantity; dimensionless)
+- SEC — single-error correcting, the capability of a code whose $d_{min}=3$ (a capability label, dimensionless)
+- FCS — frame check sequence, the CRC remainder carried in a frame for error detection (a field label, not a quantity; dimensionless)
 
 $R_c$ dimensionless, $P_e$ dimensionless, $n,k$ dimensionsless, $P_{undetected}$ dimensionless; CRC detects any burst shorter than the generator degree.
 

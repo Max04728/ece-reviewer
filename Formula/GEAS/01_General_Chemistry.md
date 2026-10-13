@@ -21,9 +21,24 @@ $$E_n = -\frac{13.6\,Z^2}{n^2}\ \text{eV},\qquad r_n = \frac{0.529\,n^2}{Z}\ \te
 
 $$E = hf = \frac{hc}{\lambda}\ \text{(J)},\qquad \frac{1}{\lambda} = R_H Z^2\!\left(\frac{1}{n_1^2}-\frac{1}{n_2^2}\right),\ n_2 > n_1$$
 
+**Symbols**
+
+- $E$ — photon energy, in J
+- $h$ — Planck constant, $h = 6.626\times10^{-34}$ J·s
+- $f$ — photon frequency, in Hz
+- $c$ — speed of light in vacuum, $c = 2.998\times10^{8}$ m/s
+- $R_H$ — Rydberg constant, $R_H = 1.097\times10^{7}$ m$^{-1}$
+- $n_1, n_2$ — principal quantum numbers of the lower and upper levels of the transition (integers, dimensionless)
+
 **Matter waves and uncertainty** — $\lambda$ in m, $p$ in kg·m/s, $v$ in m/s, $\hbar = h/2\pi$ in J·s.
 
 $$\lambda = \frac{h}{p} = \frac{h}{mv},\qquad \Delta x\,\Delta p \ge \frac{\hbar}{2}$$
+
+**Symbols**
+
+- $m$ — mass of the electron, in kg
+- $\Delta x$ — uncertainty in position, in m
+- $\Delta p$ — uncertainty in momentum, in kg·m/s
 
 **Quantum numbers** — $n,l,m_l,m_s$; $l = 0\ldots n-1$, $m_l = -l\ldots +l$, $m_s = \pm\tfrac12$ (dimensionless).
 
@@ -73,6 +88,12 @@ $$\chi_{\text{Mulliken}} = \frac{\text{IE} + \text{EA}}{2}\ \text{(kJ/mol)},\qqu
 $$\text{Percent ionic character} \approx 16\,\lvert\Delta\chi\rvert + 3.5\,(\Delta\chi)^2\ (\%),\qquad \mu = q\,d\ \text{(C·m)}$$
 
 $$1\,\text{D} = 3.336\times10^{-30}\ \text{C·m}$$
+
+**Symbols**
+
+- $\mu$ — molecular dipole moment, in C·m
+- $q$ — magnitude of either charge of the dipole, in C
+- $d$ — separation between the two charges, in m
 
 **Trend summary**
 
@@ -127,6 +148,16 @@ $$\text{FC} = V - N_{\text{nonbonding}} - \frac{B_{\text{bonding}}}{2},\qquad \t
 **Lattice energy (Born–Landé) ★** — $U$ in kJ/mol, $r_0$ in pm, $A$ = Madelung constant (dimensionless).
 
 $$U = -\frac{N_A M z^+ z^- e^2}{4\pi\varepsilon_0 r_0}\left(1-\frac{1}{n}\right) \approx -\frac{k\,z^+ z^-}{r_0}$$
+
+**Symbols**
+
+- $N_A$ — Avogadro constant, $N_A = 6.022\times10^{23}$ mol$^{-1}$
+- $M$ — Madelung constant, a dimensionless geometric factor of the lattice
+- $z^+, z^-$ — charge numbers of the cation and the anion (integers, dimensionless)
+- $e$ — elementary charge, $e = 1.602\times10^{-19}$ C
+- $\varepsilon_0$ — vacuum permittivity, $\varepsilon_0 = 8.854\times10^{-12}$ F/m
+- $n$ — Born exponent, a dimensionless measure of ion compressibility (typically 5–12)
+- $k = 1/(4\pi\varepsilon_0)$ — Coulomb constant, $k = 8.988\times10^{9}$ N·m²/C²
 
 **Bond type decision:** $\Delta\chi > 1.7$ ionic, $0.4 < \Delta\chi \le 1.7$ polar covalent, $\Delta\chi \le 0.4$ nonpolar covalent.
 **Conditions:** Born–Landé assumes purely ionic, point-charge, non-polarizable ions; VSEPR angles shrink as lone-pair repulsion increases.
@@ -204,6 +235,12 @@ $$\%\text{selectivity} = \frac{n_{\text{product}}}{n_{\text{reacted}}}\times100$
 
 $$M = \frac{n_{\text{solute}}}{V_{\text{soln}}}\ (\text{mol/L}),\qquad m = \frac{n_{\text{solute}}}{m_{\text{solvent}}}\ (\text{mol/kg}),\qquad N = M\times\text{(eq/mol)}$$
 
+**Symbols**
+
+- $M$ — molarity, in mol/L
+- $m$ — molality, in mol/kg
+- $N$ — normality, in eq/L
+
 $$\text{ppm} = \frac{m_{\text{solute}}}{m_{\text{soln}}}\times10^6,\qquad x_i = \frac{n_i}{n_{\text{total}}}$$
 
 $$\%\frac{w}{w} = \frac{m_{\text{solute}}}{m_{\text{soln}}}\times100$$
@@ -221,6 +258,15 @@ $$\Delta T_b = iK_b m,\qquad \Delta T_f = iK_f m,\qquad \pi = iMRT\ \text{(Pa)}$
 **Vapor pressure and solubility of gases**
 
 $$P_{\text{soln}} = x_{\text{solvent}}P^\circ_{\text{solvent}}\ \text{(Raoult)},\qquad C = k_H P\ \text{(Henry)}$$
+
+**Symbols**
+
+- $P_{\text{soln}}$ — vapour pressure of the solution, in Pa
+- $x_{\text{solvent}}$ — mole fraction of the solvent (dimensionless)
+- $P^\circ_{\text{solvent}}$ — vapour pressure of the pure solvent, in Pa
+- $C$ — concentration (solubility) of the dissolved gas, in mol/L
+- $k_H$ — Henry's law constant, in Pa·L/mol
+- $P$ — partial pressure of the gas above the solution, in Pa
 
 $i$ values: 1 nonelectrolyte, 2 NaCl/KCl, 3 CaCl$_2$/Na$_2$SO$_4$, 4 AlCl$_3$.
 **Conditions:** Raoult and colligative laws hold for dilute ideal solutions; Henry's law holds at low $P$ and constant $T$.
@@ -314,6 +360,10 @@ $$E^\circ_{\text{cell}} = E^\circ_{\text{cathode}} - E^\circ_{\text{anode}} = E^
 
 $$\Delta G^\circ = -nFE^\circ_{\text{cell}}\ \text{(J)},\qquad \Delta G^\circ = -RT\ln K \Rightarrow E^\circ = \frac{0.0592}{n}\log K\ (25\ ^\circ\text{C})$$
 
+**Symbols**
+
+- SHE — standard hydrogen electrode ($2\text{H}^+ + 2e^- \to \text{H}_2$ at 1 M, 1 atm, 25 °C), the reference half-cell whose potential is defined as $E^\circ = 0.00$ V (electrode potentials in V)
+
 **Standard potentials (V vs SHE)**
 
 | Half-reaction | $E^\circ$ |
@@ -372,6 +422,11 @@ $$\eta_{\text{Ah}} = \frac{Q_{\text{discharge}}}{Q_{\text{charge}}}\times100,\qq
 **Peukert and energy density** — $k$ dimensionless, $t$ in h; density per kg or per L.
 
 $$I^k t = C_p \Rightarrow t = \frac{C_p}{I^k},\qquad \text{Specific energy} = \frac{Wh}{kg},\qquad \text{Energy density} = \frac{Wh}{L}$$
+
+**Symbols**
+
+- $C_p$ — Peukert capacity (capacity extrapolated to a 1 A discharge), in A·h
+- $k$ — Peukert exponent (dimensionless, typically 1.1–1.4)
 
 **Common cell chemistries**
 

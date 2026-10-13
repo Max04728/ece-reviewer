@@ -15,19 +15,38 @@ topics: 12
 
 $$x(t)=\sum_{n=-\infty}^{\infty}c_ne^{jn\omega_0t},\qquad c_n=\frac{1}{T}\int_0^Tx(t)e^{-jn\omega_0t}dt,\qquad \omega_0=2\pi f_0=\frac{2\pi}{T}$$
 
-$c_n$ in V (or A), $T$ in s (period), $f_0$ in Hz, $\omega_0$ in rad/s, $n$ integer. Discrete lines exist only at $nf_0$.
+**Symbols**
+
+- $x(t)$ — periodic signal, in V or A
+- $c_n$ — complex Fourier coefficient (line amplitude at $nf_0$), in V or A
+- $T$ — period, in s
+- $f_0=1/T$ — fundamental frequency, in Hz
+- $\omega_0=2\pi f_0$ — fundamental angular frequency, in rad/s
+- $n$ — harmonic index (integer, $-\infty$ to $+\infty$, dimensionless)
+
+Discrete lines exist only at $nf_0$.
 
 **Trigonometric form, RMS and Parseval ★**
 
 $$x=a_0+\sum_{n\ge1}\bigl(a_n\cos n\omega_0t+b_n\sin n\omega_0t\bigr),\qquad X_{rms}=\sqrt{a_0^2+\sum_{n\ge1}\frac{a_n^2+b_n^2}{2}},\qquad P=\sum_{n}\lvert c_n\rvert^2$$
 
-$a_n,b_n$ in V, $X_{rms}$ in V (RMS), $P$ in W (average power into 1 $\Omega$).
+**Symbols**
+
+- $a_0$ — DC (average) term, in V
+- $a_n,b_n$ — cosine and sine amplitudes of the $n$th harmonic, in V
+- $X_{rms}$ — total RMS value, in V
+- $P$ — average power into a 1 $\Omega$ reference, in W
 
 **Pulse-train envelope (sinc)**
 
 $$\lvert c_n\rvert=\frac{2A\tau}{T}\lvert\mathrm{sinc}(n\tau f_0)\rvert,\qquad \mathrm{sinc}\,u=\frac{\sin\pi u}{\pi u},\qquad \text{first null at } f=\frac{1}{\tau}$$
 
-$A$ in V (pulse amplitude), $\tau$ in s (pulse width), $\lvert c_n\rvert$ in V.
+**Symbols**
+
+- $A$ — pulse amplitude, in V
+- $\tau$ — pulse width, in s
+- $\lvert c_n\rvert$ — magnitude of the $n$th spectral line, in V
+- $\mathrm{sinc}\,u=\sin(\pi u)/(\pi u)$ — normalised sinc ($u$ dimensionless)
 
 **Conditions:** $x(t)$ periodic and finite-power, satisfying Dirichlet conditions (single-valued, finite extrema, finite discontinuities per period). #fourier
 
@@ -43,23 +62,52 @@ $A$ in V (pulse amplitude), $\tau$ in s (pulse width), $\lvert c_n\rvert$ in V.
 
 $$S_x(f)=\int_{-\infty}^{\infty}R_x(\tau)e^{-j2\pi f\tau}d\tau,\qquad R_x(\tau)=\int_{-\infty}^{\infty}S_x(f)e^{j2\pi f\tau}df,\qquad P=\int_{-\infty}^{\infty}S_x(f)\,df$$
 
-$S_x(f)$ in W/Hz (two-sided density), $R_x(\tau)$ in W (autocorrelation), $\tau$ in s, $f$ in Hz, $P$ in W.
+**Symbols**
+
+- $S_x(f)$ — two-sided power spectral density, in W/Hz
+- $R_x(\tau)$ — autocorrelation function, in W
+- $\tau$ — time lag, in s
+- $f$ — frequency, in Hz
+- $P$ — total average power, in W
 
 **One-sided density and discrete lines**
 
 $$S_1(f)=2S_x(f)\ (f\ge0),\qquad P=\int_0^\infty S_1(f)df,\qquad P_{dc}=S_x(0)B,\qquad S_x(f)=\frac{V_{rms}^2}{RB}$$
 
-$S_1(f)$ in W/Hz, $B$ in Hz, $R$ in $\Omega$, $V_{rms}$ in V; white noise has flat $S_x(f)=N_0/2$ in W/Hz.
+**Symbols**
+
+- $S_1(f)$ — one-sided (physical) density, in W/Hz for $f\ge0$
+- $S_x(0)$ — value of the two-sided density at DC, in W/Hz
+- $P$ — total average power, in W
+- $P_{dc}$ — DC power, in W
+- $B$ — measurement bandwidth, in Hz
+- $R$ — resistance, in $\Omega$
+- $V_{rms}$ — RMS voltage across $R$, in V
+- $N_0$ — white-noise density level, in W/Hz
+
+White noise has flat $S_x(f)=N_0/2$ in W/Hz.
 
 **Discrete autocorrelation and cross-correlation ★**
 
 $$R_{xx}[k]=\sum_{n=-\infty}^{\infty}x[n]x[n-k],\qquad R_{xy}[k]=R_{yx}[-k]$$
 
-$R_{xx}[k]$ in V² (autocorrelation), $k$ integer (lag, dimensionless), $R_{xy},R_{yx}$ in V²; order matters since $R_{xy}\ne R_{yx}$ in general.
+**Symbols**
+
+- $R_{xx}[k]$ — autocorrelation sequence, in V²
+- $R_{xy}[k]$, $R_{yx}[k]$ — cross-correlation sequences, in V²
+- $x[n]$ — discrete-time samples, in V
+- $k$ — lag (integer, dimensionless)
+
+Order matters, since $R_{xy}\ne R_{yx}$ in general.
 
 **DC block, power signals and the unit circle**
 
 $$\text{nonzero mean}\Rightarrow\text{pole at }z=1,\qquad \lvert z\rvert=1\notin ROC,\qquad \text{remove the mean}\Rightarrow\text{pole inside }\lvert z\rvert<1$$
+
+**Symbols**
+
+- $z$ — complex frequency variable of the $z$-transform ($z=e^{sT}$), dimensionless
+- ROC — region of convergence, the set of $z$ values for which the $z$-transform sum converges (a region of the complex $z$-plane, dimensionless)
 
 Non-zero mean gives a pole at $z=1$ and a power (not energy) signal because the ROC excludes $\lvert z\rvert=1$; removing the mean pulls the pole inside the unit circle.
 
@@ -77,7 +125,16 @@ Non-zero mean gives a pole at $z=1$ and a power (not energy) signal because the 
 
 $$P_n=kTB,\qquad N_0=kT,\qquad V_n=\sqrt{4kTBR},\qquad I_n=\sqrt{\frac{4kTB}{R}}$$
 
-$k=1.38\times10^{-23}$ J/K, $T$ in K, $B$ in Hz, $R$ in $\Omega$, $V_n$ in V (RMS), $I_n$ in A (RMS), $P_n$ in W, $N_0$ in W/Hz.
+**Symbols**
+
+- $k$ — Boltzmann constant, $k=1.38\times10^{-23}$ J/K
+- $T$ — absolute temperature, in K
+- $B$ — noise bandwidth, in Hz
+- $R$ — resistance, in $\Omega$
+- $V_n$ — RMS noise voltage, in V
+- $I_n$ — RMS noise current, in A
+- $P_n=kTB$ — available noise power at a matched load, in W
+- $N_0=kT$ — noise power spectral density, in W/Hz
 
 **Standard reference values ★**
 
@@ -90,9 +147,16 @@ dBm is referenced to 1 mW, dBW to 1 W: $P_{dBm}=10\log_{10}\frac{P}{1\,\mathrm{m
 
 **Equivalent noise bandwidth ★**
 
-$$B_n=\frac{\pi}{2}B_{3\text{dB}}\approx1.57\,B_{3\text{dB}}\ \text{(single-tuned)},\qquad B_n=\frac{1}{RC}\ \text{(parallel RLC)}$$
+$$B_n=\frac{\pi}{2}B_{3\text{dB}}\approx1.57\,B_{3\text{dB}}\ \text{(single-tuned)},\qquad B_n=\frac{1}{4RC}\ \text{(parallel RLC)}$$
 
-$B_n$ in Hz is the bandwidth of an ideal rectangular filter passing the same total noise power; $B_{3\text{dB}}$ in Hz.
+**Symbols**
+
+- $B_n$ — equivalent noise bandwidth, in Hz
+- $B_{3\text{dB}}$ — 3 dB (half-power) bandwidth, in Hz
+- $R$ — resistance, in $\Omega$
+- $C$ — capacitance, in F
+
+$B_n$ is the bandwidth of an ideal rectangular filter passing the same total noise power, and the receiver noise power is $P_n=kTB_n$.
 
 $R$ in $\Omega$, $C$ in F, $P_n$ in W; the receiver noise power is $P_n=kTB_n$.
 
@@ -110,13 +174,29 @@ $R$ in $\Omega$, $C$ in F, $P_n$ in W; the receiver noise power is $P_n=kTB_n$.
 
 $$I_{sh}=\sqrt{2qI_{dc}B},\qquad P_{sh}=2qI_{dc}BR,\qquad q=1.602\times10^{-19}\ \text{C}$$
 
-$I_{dc}$ in A, $B$ in Hz, $R$ in $\Omega$, $I_{sh}$ in A (RMS), $P_{sh}$ in W.
+**Symbols**
+
+- $I_{sh}$ — RMS shot-noise current, in A
+- $I_{dc}$ — DC bias current through the barrier, in A
+- $P_{sh}$ — shot-noise power in $R$, in W
+- $q$ — electron charge, $q=1.602\times10^{-19}$ C
+- $B$ — noise bandwidth, in Hz
+- $R$ — resistance, in $\Omega$
 
 **Flicker ($1/f$) and transit-time noise**
 
 $$V_f^2=\frac{KI_{dc}}{f^{\alpha}}B,\qquad \alpha\approx1,\qquad f_{ce}=\frac{KI_{dc}}{2q},\qquad f_{tt}\propto\frac{1}{2\pi\tau_t}$$
 
-$K$ in $\mathrm{A\cdot\Omega^2}$, $f$ in Hz, $\alpha$ dimensionless (0.8–1.3), $f_{ce}$ in Hz (corner where flicker = shot), $\tau_t$ in s (transit time).
+**Symbols**
+
+- $K$ — flicker-noise empirical constant, in $\mathrm{A\cdot\Omega^2}$
+- $I_{dc}$ — DC current, in A
+- $f$ — frequency, in Hz
+- $\alpha$ — flicker exponent, dimensionless (typically 0.8–1.3)
+- $B$ — noise bandwidth, in Hz
+- $f_{ce}$ — corner frequency where flicker noise equals shot noise, in Hz
+- $\tau_t$ — carrier transit time, in s
+- $f_{tt}$ — transit-time corner frequency, in Hz
 
 | Noise | Physical origin | Spectrum |
 |---|---|---|
@@ -139,13 +219,24 @@ $K$ in $\mathrm{A\cdot\Omega^2}$, $f$ in Hz, $\alpha$ dimensionless (0.8–1.3),
 
 $$\mathrm{SNR}=\frac{P_s}{P_n}=\frac{V_s^2}{V_n^2}\ \text{(matched)},\qquad F=\frac{\mathrm{SNR}_i}{\mathrm{SNR}_o}=\frac{S_i/N_i}{S_o/N_o}\ge1$$
 
-$P_s,P_n,S_i,S_o,N_i,N_o$ in W, $V_s,V_n$ in V (RMS), $F$ dimensionless (linear power ratio).
+**Symbols**
+
+- $P_s,P_n$ — signal and noise power, in W
+- $V_s,V_n$ — signal and noise RMS voltage, in V
+- $S_i,S_o$ — input and output signal power, in W
+- $N_i,N_o$ — input and output noise power, in W
+- $F$ — noise factor, dimensionless (linear power ratio, $\ge1$)
 
 **dB forms — always state the reference ★**
 
 $$NF_{dB}=10\log_{10}F,\qquad F=1+\frac{T_e}{T_0},\qquad T_0=290\ \text{K},\qquad F_{loss}=L$$
 
-$NF_{dB}$ in dB (a dimensionless ratio, not dBm); $T_e$ in K; $L\ge1$ dimensionless loss factor, so a passive attenuator's $F$ equals its loss.
+**Symbols**
+
+- $NF_{dB}=10\log_{10}F$ — noise figure, in dB (a dimensionless ratio, never dBm)
+- $T_e$ — equivalent noise temperature, in K
+- $T_0=290$ K — standard reference temperature
+- $L\ge1$ — loss factor of a passive block, dimensionless, so $F_{loss}=L$
 
 **Noise figure of a lossy (passive) block**
 
@@ -155,7 +246,11 @@ $$NF_{dB}=10\log_{10}L,\qquad T_{loss}=T_0(L-1)\ \text{(K)}$$
 
 $$F=F_1+\frac{F_2-1}{G_1}+\frac{F_3-1}{G_1G_2}+\cdots$$
 
-$F_i$ dimensionless (noise factor of stage $i$), $G_i$ dimensionless (available power gain of stage $i$).
+**Symbols**
+
+- $F$ — overall noise factor of the cascade, dimensionless
+- $F_i$ — noise factor of stage $i$, dimensionless
+- $G_i$ — available power gain of stage $i$, dimensionless (a power ratio, not dB)
 
 The first stage dominates because each later term is divided by the preceding available gains.
 
@@ -173,13 +268,24 @@ The first stage dominates because each later term is divided by the preceding av
 
 $$T_e=(F-1)T_0,\qquad F=1+\frac{T_e}{T_0},\qquad T_0=290\ \text{K}\ (17\ ^\circ\text{C})$$
 
-$T_e$ in K, $F$ dimensionless, $T_0$ in K.
+**Symbols**
+
+- $T_e$ — equivalent noise temperature, in K
+- $F$ — noise factor, dimensionless
+- $T_0=290$ K — standard reference temperature (17 °C)
 
 **System temperature and noise power**
 
 $$T_{sys}=T_a+T_e,\qquad N=kT_{sys}B,\qquad N_{dBm}=10\log_{10}\frac{kT_{sys}B}{1\ \text{mW}}$$
 
-$T_a$ in K (antenna noise temperature), $T_{sys}$ in K, $N$ in W or dBm (referenced to 1 mW), $B$ in Hz, $k=1.38\times10^{-23}$ J/K.
+**Symbols**
+
+- $T_a$ — antenna noise temperature, in K
+- $T_e$ — equivalent noise temperature of the receiver, in K
+- $T_{sys}$ — system noise temperature, in K
+- $N$ — noise power, in W or dBm (dBm referenced to 1 mW)
+- $B$ — noise bandwidth, in Hz
+- $k=1.38\times10^{-23}$ J/K — Boltzmann constant
 
 **Conversion table**
 
@@ -207,19 +313,37 @@ $T_a$ in K (antenna noise temperature), $T_{sys}$ in K, $N$ in W or dBm (referen
 
 $$f_s\ge2f_{max},\qquad T_s=\frac{1}{f_s}\le\frac{1}{2f_{max}},\qquad f_N=\frac{f_s}{2}$$
 
-$f_s$ in Hz, $f_{max}$ in Hz (highest baseband component), $T_s$ in s, $f_N$ in Hz (Nyquist/folding frequency); $f_s>2f_{max}$ leaves a guard band.
+**Symbols**
+
+- $f_s$ — sampling rate, in Hz
+- $f_{max}$ — highest baseband component of $x(t)$, in Hz
+- $T_s=1/f_s$ — sampling interval, in s
+- $f_N=f_s/2$ — Nyquist (folding) frequency, in Hz
+
+Taking $f_s>2f_{max}$ leaves a guard band.
 
 **Aliased frequency and sampled spectrum ★**
 
 $$f_a=\lvert f-nf_s\rvert\ \text{for the } n \text{ giving } 0\le f_a\le f_N,\qquad X_s(f)=f_s\sum_{n=-\infty}^{\infty}X(f-nf_s)$$
 
-$f$ in Hz (true frequency), $f_a$ in Hz (observed/alias frequency), $X_s(f)$ in V/Hz, $n$ integer.
+**Symbols**
+
+- $f$ — true frequency of the component, in Hz
+- $f_a$ — observed (alias) frequency, in Hz
+- $f_s$ — sampling rate, in Hz
+- $X_s(f)$ — spectrum of the sampled signal, in V/Hz
+- $n$ — integer chosen so that $0\le f_a\le f_N$
 
 **Ideal reconstruction and resolution floor**
 
 $$x(t)=\sum_n x(nT_s)\,\mathrm{sinc}\Bigl(\frac{t-nT_s}{T_s}\Bigr),\qquad \mathrm{SQNR}_{ideal}=6.02N_q+1.76\ \text{dB}$$
 
-$x(nT_s)$ in V (samples), $N_q$ dimensionless (bits), SQNR in dB.
+**Symbols**
+
+- $x(nT_s)$ — signal samples, in V
+- $T_s$ — sampling interval, in s
+- $N_q$ — quantiser resolution, dimensionless (bits)
+- $\mathrm{SQNR}_{ideal}$ — ideal signal-to-quantisation-noise ratio, in dB
 
 **Conditions:** $x(t)$ strictly band-limited to $f_{max}$; any component above $f_N$ folds to $f_s-f$ and is unrecoverable afterwards. #sampling
 
@@ -235,19 +359,38 @@ $x(nT_s)$ in V (samples), $N_q$ dimensionless (bits), SQNR in dB.
 
 $$x_n=x(nT_s)\ \text{(ideal)},\qquad X_{ft}(f)=\bigl[X(f)H_a(f)\bigr]*f_s\!\!\sum_n\delta(f-nf_s)$$
 
-$x_n$ in V, $H_a(f)$ dimensionless, $f_s$ in Hz, $*$ convolution; natural sampling multiplies $x(t)$ by the pulse train instead.
+**Symbols**
+
+- $x_n$ — ideal samples, in V
+- $H_a(f)$ — aperture (hold) response, dimensionless
+- $f_s$ — sampling rate, in Hz
+- $\delta(f-nf_s)$ — impulse train at multiples of $f_s$
+- $*$ — convolution
+
+Natural sampling multiplies $x(t)$ by the pulse train instead.
 
 **Aperture (hold) response and first null ★**
 
 $$H_a(f)=\tau\,\mathrm{sinc}(f\tau)e^{-j\pi f\tau},\qquad \lvert H_a(f)\rvert=\tau\lvert\mathrm{sinc}(f\tau)\rvert,\qquad \text{null at } f=\frac{1}{\tau}$$
 
-$\tau$ in s (aperture/hold time), $\mathrm{sinc}\,u=\frac{\sin\pi u}{\pi u}$ with $u=f\tau$ dimensionless.
+**Symbols**
+
+- $\tau$ — aperture (hold) time, in s
+- $\lvert H_a(f)\rvert$ — aperture magnitude response, dimensionless
+- $\mathrm{sinc}\,u=\sin(\pi u)/(\pi u)$ with $u=f\tau$ dimensionless
+- $f$ — frequency, in Hz
 
 **Aperture error, cutoff and droop**
 
 $$\Delta V\le\frac{dV}{dt}\Bigr\rvert_{max}\tau,\qquad f_{-3dB}\approx\frac{0.443}{\tau},\qquad \text{droop}=\frac{\Delta V}{V}$$
 
-$dV/dt$ in V/s, $\Delta V$ in V, $f_{-3dB}$ in Hz, droop dimensionless.
+**Symbols**
+
+- $dV/dt$ — maximum slope of the signal, in V/s
+- $\Delta V$ — aperture error (voltage uncertainty), in V
+- $\tau$ — aperture time, in s
+- $f_{-3\text{dB}}$ — 3 dB cutoff frequency, in Hz
+- droop — fractional voltage droop, dimensionless
 
 **Conditions:** flat-top sampling distorts by $\mathrm{sinc}(f\tau)$ — equalize with an inverse-sinc filter or shrink $\tau$; require $f_s\tau\ll1$. #sampling
 
@@ -259,13 +402,27 @@ $dV/dt$ in V/s, $\Delta V$ in V, $f_{-3dB}$ in Hz, droop dimensionless.
 
 $$\lvert H(f)\rvert^2=\frac{1}{1+\bigl(\frac{f}{f_c}\bigr)^{2n}},\qquad n\ge\frac{\log_{10}\bigl(10^{A_s/10}-1\bigr)}{2\log_{10}\bigl(\frac{f_s-f_{max}}{f_{max}}\bigr)},\qquad f_c\ge f_{max}$$
 
-$f_c$ in Hz (cutoff), $f$ in Hz, $n$ integer (order), $A_s$ in dB (stopband attenuation required at $f_s-f_{max}$), $\lvert H(f)\rvert$ dimensionless.
+**Symbols**
+
+- $f$ — frequency, in Hz
+- $f_c$ — cutoff frequency, in Hz
+- $n$ — filter order, integer
+- $A_s$ — required stopband attenuation at $f_s-f_{max}$, in dB
+- $f_s$ — sampling rate, in Hz
+- $f_{max}$ — highest signal frequency to preserve, in Hz
+- $\lvert H(f)\rvert$ — magnitude response, dimensionless
 
 **Chebyshev and Bessel responses**
 
 $$\lvert H(f)\rvert^2=\frac{1}{1+\epsilon^2T_n^2\!\bigl(\frac{f}{f_c}\bigr)}\ \text{(type I)},\qquad \epsilon^2=10^{A_p/10}-1,\qquad \tau_g\approx\text{flat (Bessel)}$$
 
-$\epsilon$ dimensionless (ripple factor), $T_n$ = $n$-th order Chebyshev polynomial, $A_p$ in dB (passband ripple), $\tau_g$ in s (group delay).
+**Symbols**
+
+- $\epsilon$ — ripple factor, dimensionless
+- $T_n$ — $n$th-order Chebyshev polynomial
+- $A_p$ — passband ripple, in dB
+- $f_c$ — cutoff frequency, in Hz
+- $\tau_g$ — group delay, in s
 
 | Response | Passband | Stopband | Roll-off / phase |
 |---|---|---|---|
@@ -289,17 +446,38 @@ $\epsilon$ dimensionless (ripple factor), $T_n$ = $n$-th order Chebyshev polynom
 
 $$X(k)=\sum_{n=0}^{N-1}x(n)e^{-j2\pi kn/N},\qquad x(n)=\frac{1}{N}\sum_{k=0}^{N-1}X(k)e^{j2\pi kn/N}$$
 
-$x(n)$ in V (samples), $X(k)$ in V, $N$ dimensionless (points), $n,k=0,1,\dots,N-1$.
+**Symbols**
+
+- $x(n)$ — input samples, in V
+- $X(k)$ — DFT output, in V
+- $N$ — transform length (number of points), dimensionless
+- $n,k$ — sample and bin indices, $0,1,\dots,N-1$
+- $j=\sqrt{-1}$
 
 **Bin spacing, record length and resolution ★**
 
 $$\Delta f=\frac{f_s}{N}=\frac{1}{T_0},\qquad T_0=NT_s,\qquad f_{bin}=k\Delta f,\qquad \frac{k}{N}=\frac{f}{f_s}$$
 
-$\Delta f$ in Hz (bin spacing), $T_0$ in s (record length), $f_s$ in Hz; resolution is set by $T_0$, not by $N$ alone.
+**Symbols**
+
+- $\Delta f$ — bin spacing, in Hz
+- $T_0$ — record length, in s
+- $f_s$ — sampling rate, in Hz
+- $f_{bin}$ — frequency of bin $k$, in Hz
+- $T_s$ — sampling interval, in s
+
+Resolution is set by $T_0$, not by $N$ alone.
 
 **FFT cost, windows and leakage**
 
 $$C_{DFT}=N^2,\qquad C_{FFT}=\frac{N}{2}\log_2N\ \text{complex MACs},\qquad \text{speedup}=\frac{2N}{\log_2N}$$
+
+**Symbols**
+
+- $C_{DFT}$ — direct DFT cost, complex multiply-accumulates
+- $C_{FFT}$ — radix-2 FFT cost, complex multiply-accumulates
+- $N$ — transform length, dimensionless
+- speedup — cost ratio $C_{DFT}/C_{FFT}$, dimensionless
 
 | Window | Main-lobe width (bins) | Peak sidelobe (dB) |
 |---|---|---|
@@ -322,19 +500,44 @@ $$C_{DFT}=N^2,\qquad C_{FFT}=\frac{N}{2}\log_2N\ \text{complex MACs},\qquad \tex
 
 $$H(z)=\sum_{n=0}^{M-1}h(n)z^{-n},\qquad y(n)=\sum_{k=0}^{M-1}h(k)x(n-k)$$
 
-$h(n)$ dimensionless coefficients, $z$ dimensionless (complex frequency variable), $M$ dimensionless (taps), $x,y$ in V (samples), $n$ dimensionless (sample index).
+**Symbols**
+
+- $h(n)$ — impulse-response coefficients, dimensionless
+- $H(z)$ — transfer function in $z$
+- $z$ — complex frequency variable, dimensionless
+- $M$ — number of taps, dimensionless
+- $x(n),y(n)$ — input and output samples, in V
+- $n,k$ — sample indices, dimensionless
 
 **FIR linear phase and window design ★**
 
 $$\text{symmetric }h(n)\Rightarrow\tau_g=\frac{M-1}{2}T_s\ \text{(s)},\qquad h(n)=h_d(n)w(n),\qquad \Delta f\approx\frac{c}{MT_s}\ \text{(Hz)}$$
 
-$\phi$ in rad, $\omega$ in rad/s, $\tau_g$ in s, $T_s$ in s, $h_d(n),w(n)$ dimensionless (ideal response, window), $\Delta f$ in Hz, $c$ dimensionless ($\approx0.9$ rectangular, 3.1 Hamming).
+**Symbols**
+
+- $h(n)$ — designed impulse response, dimensionless
+- $h_d(n)$ — ideal (truncated) response, dimensionless
+- $w(n)$ — window function, dimensionless
+- $\tau_g$ — group delay, in s
+- $T_s$ — sampling interval, in s
+- $M$ — number of taps, dimensionless
+- $\Delta f$ — transition width, in Hz
+- $c$ — window-dependent constant, dimensionless ($\approx0.9$ rectangular, 3.1 Hamming)
 
 **IIR transfer function, stability and bilinear warp ★**
 
 $$H(z)=\frac{\sum_{k=0}^{M}b_kz^{-k}}{1+\sum_{k=1}^{N}a_kz^{-k}},\qquad \text{stable}\iff\lvert p_k\rvert<1,\qquad \omega_a=\frac{2}{T}\tan\frac{\omega_dT}{2}$$
 
-$a_k,b_k$ dimensionless coefficients, $N$ dimensionless (poles), $M$ dimensionless (zeros), $p_k$ dimensionless (poles), $\omega_a$ in rad/s (analog), $\omega_d$ in rad/s (digital), $T$ in s.
+**Symbols**
+
+- $a_k$ — feedback (denominator) coefficients, dimensionless
+- $b_k$ — feedforward (numerator) coefficients, dimensionless
+- $N$ — filter order (number of poles), dimensionless
+- $M$ — number of zeros, dimensionless
+- $p_k$ — poles in the $z$-plane, dimensionless
+- $\omega_a$ — analog angular frequency, in rad/s
+- $\omega_d$ — digital angular frequency, in rad/s
+- $T$ — sampling interval, in s
 
 | Property | FIR | IIR |
 |---|---|---|
@@ -357,19 +560,40 @@ $a_k,b_k$ dimensionless coefficients, $N$ dimensionless (poles), $M$ dimensionle
 
 $$H(z)=\frac{\sum_{k=0}^{M}b_kz^{-k}}{1+\sum_{k=1}^{N}a_kz^{-k}},\qquad y(n)=-\sum_{k=1}^{N}a_ky(n-k)+\sum_{k=0}^{M}b_kx(n-k),\qquad \text{stable}\iff\lvert p_k\rvert<1$$
 
-$a_k,b_k$ dimensionless coefficients, $N$ dimensionless (poles), $M$ dimensionless (zeros), $x,y$ in V (samples), $p_k$ dimensionless (poles in the $z$-plane).
+**Symbols**
+
+- $H(z)$ — transfer function in $z$
+- $a_k$ — feedback (denominator) coefficients, dimensionless
+- $b_k$ — feedforward (numerator) coefficients, dimensionless
+- $N$ — filter order (number of poles), dimensionless
+- $M$ — number of zeros, dimensionless
+- $p_k$ — poles in the $z$-plane, dimensionless
+- $x(n),y(n)$ — input and output samples, in V
 
 **Analog prototype mapping ★**
 
 $$s=\frac{2}{T}\frac{1-z^{-1}}{1+z^{-1}}\ \text{(bilinear)},\qquad \omega_a=\frac{2}{T}\tan\frac{\omega_dT}{2},\qquad \omega_d=2\arctan\frac{\omega_aT}{2}$$
 
-$\omega_a$ in rad/s (analog), $\omega_d$ in rad/s (digital), $T$ in s; the warp squeezes the infinite analog axis into $0\le\omega_d\le\pi/T$.
+**Symbols**
+
+- $s$ — Laplace variable
+- $z$ — $z$-transform variable
+- $T$ — sampling interval, in s
+- $\omega_a$ — analog angular frequency, in rad/s
+- $\omega_d$ — digital angular frequency, in rad/s
+- $z^{-1}$ — unit delay
 
 **Cost and sensitivity versus FIR**
 
 $$MAC_{IIR}\approx M+N,\qquad MAC_{FIR}\approx N_{FIR}\gg N_{IIR},\qquad \lvert H(e^{j\omega})\rvert\ \text{peaks near the poles}$$
 
-$MAC$ dimensionless (multiply-accumulates per sample), $N_{FIR}$ dimensionless (taps needed for the same spec), $\omega$ in rad/s.
+**Symbols**
+
+- $MAC_{IIR}$ — multiply-accumulates per sample, dimensionless
+- $M,N$ — zeros and poles of the IIR filter, dimensionless
+- $N_{FIR}$ — taps needed by an FIR for the same specification, dimensionless
+- $\omega$ — digital angular frequency, in rad/s
+- $\lvert H(e^{j\omega})\rvert$ — magnitude response on the unit circle, dimensionless
 
 | Property | IIR | FIR (reference) |
 |---|---|---|

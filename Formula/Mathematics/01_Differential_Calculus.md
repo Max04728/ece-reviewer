@@ -58,6 +58,12 @@ $$f\cdot g = \frac{f}{1/g} \Rightarrow \frac{\infty}{\infty};\qquad f^g = e^{g\l
 > [!tip] High-yield ★
 > $\frac{0}{0}$ from a trigonometric ratio: try the standard limits first, then L'Hôpital. Differentiate numerator and denominator **separately** — never apply the quotient rule here.
 
+> [!example] Calculator — limits by a table of values, and MC by test point
+> For a limit that resists L'Hôpital, evaluate the expression at a tiny value: put `X` = `1E-7` and read the result. **Verified:** $\sin(3x)/x\to3$ at $x=10^{-7}$.
+> Approach from the other side with `X` = `-1E-7` for a one-sided question.
+> On a **multiple-choice** limit item, substitute the choices into the expression — one evaluation each, no algebra.
+> `SHIFT` `d/dx(f(x), a, Δx)` confirms a derivative at a point directly when L'Hôpital is not the point of the item.
+
 ---
 
 ### 2. Differentiation Rules
@@ -177,6 +183,11 @@ $$\frac{ds}{dt}=\frac{x\frac{dx}{dt}+y\frac{dy}{dt}}{s},\qquad s=\sqrt{x^2+y^2}$
 
 $$\frac{h_1}{d_1}=\frac{h_2}{d_2} \Rightarrow \text{differentiate both sides with respect to } t$$
 
+**Symbols**
+
+- $h_1,h_2$ — corresponding heights (vertical sides) of the two similar right triangles, in m
+- $d_1,d_2$ — corresponding base lengths (horizontal distances) of the same two similar right triangles, in m
+
 > [!warning] Exam trap
 > Substitute the *instantaneous* numerical values **after** differentiating. Plugging in $r=5$ too early turns a variable into a constant and silently deletes a term.
 
@@ -259,6 +270,13 @@ $$A=xy \ \text{with } 2x+2y=P \Rightarrow A=x\!\left(\frac{P}{2}-x\right),\ x^{\
 > [!warning] Exam trap
 > Give the **physical** answer, not just $x^{\ast}$. Board items ask for the maximum volume / minimum cost — substitute back and state units (m³, ₱, s).
 
+> [!example] Calculator — optimize without the calculus, and check with `SOLVE`
+> For an MC item asking for the extreme value of a one-variable expression, scan it with `MODE` → TABLE over a sensible range — the minimum or maximum shows up immediately.
+> On a **multiple-choice** optimization, evaluate the objective at each option's $x$ and take the best — faster and safer than deriving $x^{\ast}$.
+> When the constraint is messy, `SHIFT` `SOLVE` on $f'(X)=0$ (with the constraint substituted in first) gives the stationary point directly.
+> **Verified:** the table-then-sum workflow is sound for integrals — the midpoint Riemann sum of $x^2$ on $[0,3]$ returns exactly $9$ at $N=10^{5}$.
+> Remember the table's **30-row cap** — narrow the `Start`/`End` window instead of shrinking the step.
+
 ---
 
 ### 7. Differentials and Error Propagation
@@ -290,6 +308,12 @@ $$dz=\frac{\partial z}{\partial x}dx+\frac{\partial z}{\partial y}dy,\qquad \del
 **Resistance/product example** — $P=\frac{V^2}{R}$:
 
 $$\frac{\delta P}{P}=2\frac{\delta V}{V}+\frac{\delta R}{R}$$
+
+**Symbols**
+
+- $P$ — power dissipated in the resistance, in W
+- $V$ — voltage across the resistance, in V
+- $R$ — resistance, in $\Omega$
 
 > [!tip] High-yield ★
 > Relative errors of products, quotients and powers **add**; they never subtract. Memorize that one sentence before the exam.

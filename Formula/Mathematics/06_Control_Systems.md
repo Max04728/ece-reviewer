@@ -13,6 +13,15 @@ topics: 14
 
 $$H(s)=\frac{Y(s)}{X(s)}=\frac{b_ms^m+\cdots+b_0}{a_ns^n+\cdots+a_0}=\frac{N(s)}{D(s)}$$
 
+**Symbols**
+
+- $H(s)$ — transfer function, the ratio $Y(s)/X(s)$, dimensionless
+- $Y(s)$ — Laplace transform of the output, in V
+- $X(s)$ — Laplace transform of the input, in V
+- $N(s)$ — numerator polynomial of $H(s)$, dimensionless
+- $D(s)$ — denominator polynomial of $H(s)$ (the characteristic polynomial), dimensionless
+- $s$ — Laplace variable, in rad/s
+
 **ODE to transfer function ★**
 
 $$\sum_{k=0}^{n}a_k\frac{d^ky}{dt^k}=\sum_{k=0}^{m}b_k\frac{d^kx}{dt^k}\ \Rightarrow\ H(s)=\frac{\sum_k b_ks^k}{\sum_k a_ks^k}$$
@@ -39,6 +48,11 @@ $$\omega_n=\frac{1}{\sqrt{LC}}\ \text{rad/s},\qquad \zeta=\frac{R}{2}\sqrt{\frac
 **DC motor (armature-controlled)**
 
 $$\frac{\theta(s)}{V_a(s)}=\frac{K_t}{s\big[(Ls+R)(Js+b)+K_tK_e\big]}$$
+
+**Symbols**
+
+- $V_a(s)$ — armature voltage applied to the motor (the input), in V
+- $\theta(s)$ — motor shaft angle (the output), in rad (dimensionless)
 
 $K_t$ in N·m/A, $K_e$ in V·s/rad, $J$ in kg·m², $b$ in N·m·s.
 
@@ -160,6 +174,14 @@ $$G(s)=\frac{\omega_n^2}{s^2+2\zeta\omega_n s+\omega_n^2}$$
 
 $$\omega_n=\sqrt{K/J}\ \text{rad/s},\qquad \zeta=\frac{B}{2\sqrt{KJ}}$$
 
+**Symbols**
+
+- $\omega_n$ — undamped natural frequency, in rad/s
+- $\zeta$ — damping ratio (dimensionless)
+- $K$ — torsional spring constant (restoring stiffness), in N·m/rad
+- $J$ — moment of inertia, in kg·m²
+- $B$ — viscous damping coefficient, in N·m·s/rad
+
 **Damped frequency and poles ★**
 
 $$\omega_d=\omega_n\sqrt{1-\zeta^2}\ \text{rad/s},\qquad s=-\zeta\omega_n\pm j\omega_d$$
@@ -180,11 +202,24 @@ $$M_p=e^{-\pi\zeta/\sqrt{1-\zeta^2}}\times100\%$$
 
 $$\zeta=\frac{|\ln M_p|}{\sqrt{\pi^2+\ln^2M_p}}\ \text{(fraction form)}$$
 
+**Symbols**
+
+- $M_p$ — peak percent overshoot, as a percentage of the final value
+
 **Time specifications**
 
 $$t_p=\frac{\pi}{\omega_d},\qquad t_r\approx\frac{1.8}{\omega_n}$$
 
 $$t_s=\frac{4}{\zeta\omega_n}\ (2\%\ \text{band}),\qquad t_s=\frac{3}{\zeta\omega_n}\ (5\%\ \text{band})$$
+
+**Symbols**
+
+- $t_p$ — peak time (time to the first peak), in s
+- $t_r$ — rise time (10% to 90% of the final value), in s
+- $t_s$ — settling time (into the 2% or 5% band), in s
+- $\omega_n$ — undamped natural frequency, in rad/s
+- $\omega_d$ — damped natural frequency, in rad/s
+- $\zeta$ — damping ratio (dimensionless)
 
 > [!tip] High-yield ★
 > $M_p$ depends only on $\zeta$, and speed depends only on $\zeta\omega_n$ (real-part magnitude). Peak value $=1+M_p$, and $\zeta\approx PM/100$.
@@ -207,6 +242,13 @@ $$e_{ss}=\lim_{t\to\infty}e(t)=\lim_{s\to0}sE(s)$$
 
 $$e_{ss}=\lim_{s\to0}\frac{sR(s)}{1+G(s)H(s)}$$
 
+**Symbols**
+
+- $e_{ss}$ — steady-state error, in V
+- $E(s)$ — Laplace transform of the error signal, in V
+- $R(s)$ — Laplace transform of the reference input, in V
+- $G(s)H(s)$ — open-loop transfer function, dimensionless at the summing junction
+
 **Error constants and steady-state error**
 
 | Constant | Definition | Step $A/s$ | Ramp $A/s^2$ | Parabola $A/s^3$ |
@@ -214,6 +256,13 @@ $$e_{ss}=\lim_{s\to0}\frac{sR(s)}{1+G(s)H(s)}$$
 | $K_p$ | $\lim_{s\to0}GH$ | $\frac{A}{1+K_p}$ | $\infty$ | $\infty$ |
 | $K_v$ | $\lim_{s\to0}sGH$ | $0$ | $\frac{A}{K_v}$ | $\infty$ |
 | $K_a$ | $\lim_{s\to0}s^2GH$ | $0$ | $0$ | $\frac{A}{K_a}$ |
+
+**Symbols**
+
+- $A$ — amplitude of the applied test input (step height, ramp slope or parabolic coefficient), in V
+- $K_p$ — position (step) error constant (dimensionless)
+- $K_v$ — velocity (ramp) error constant, in s⁻¹
+- $K_a$ — acceleration (parabolic) error constant, in s⁻²
 
 **Reading the table ★** — a finite nonzero $e_{ss}$ needs the error constant of matching order to exist. $K_v$ is in s⁻¹ and $K_a$ is in s⁻².
 
@@ -234,9 +283,22 @@ $$e_{ss}=\lim_{s\to0}\frac{sR(s)}{1+G(s)H(s)}$$
 | 2 | $\infty$ | $\infty$ | $K$ | $0$ | $0$ | $\frac{A}{K}$ |
 | 3 | $\infty$ | $\infty$ | $\infty$ | $0$ | $0$ | $0$ |
 
+**Symbols**
+
+- $n$ — system type: number of open-loop poles at the origin (integer, dimensionless)
+- $K$ — finite value of the error constant of matching order (the nonzero $K_p$, $K_v$ or $K_a$): dimensionless for $K_p$, in s⁻¹ for $K_v$, in s⁻² for $K_a$
+- $A$ — amplitude of the applied test input (step height, ramp slope or parabolic coefficient), in V
+
 **Non-unity feedback**
 
 $$e_{ss}=\lim_{s\to0}\frac{sR(s)}{1+GH}$$
+
+**Symbols**
+
+- $e_{ss}$ — steady-state error, in V
+- $R(s)$ — Laplace transform of the reference input, in V
+- $G(s)H(s)$ — open-loop transfer function at the summing junction, dimensionless
+- $D(s)$ — Laplace transform of the disturbance input, in V
 
 A disturbance instead uses $D(s)$ as the input.
 
@@ -341,20 +403,44 @@ $\omega$ is in rad/s.
 | $1/(1+s/\omega_p)$ | $-20$ dB/dec above $\omega_p$ | $0\to-90^\circ$ |
 | $1+2\zeta s/\omega_n+s^2/\omega_n^2$ | $\pm40$ dB/dec | $0\to\pm180^\circ$ |
 
+**Symbols**
+
+- $K$ — frequency-independent gain constant (dimensionless)
+- $s=j\omega$ — Laplace variable on the imaginary axis, in rad/s
+- $\omega$ — angular frequency, in rad/s
+- $\omega_z$ — corner (break) frequency of the numerator factor, in rad/s
+- $\omega_p$ — corner (break) frequency of the denominator factor, in rad/s
+- $\omega_n$ — undamped natural frequency, in rad/s
+- $\zeta$ — damping ratio (dimensionless)
+
 **Resonance ★**
 
 $$M_r=\frac{1}{2\zeta\sqrt{1-\zeta^2}},\qquad \omega_r=\omega_n\sqrt{1-2\zeta^2}\ \text{rad/s}\ \ (\zeta<0.707)$$
 
+**Symbols**
+
+- $M_r$ — resonant peak magnitude (linear, dimensionless)
+- $\omega_r$ — resonant frequency, in rad/s
+- $\omega_n$ — undamped natural frequency, in rad/s
+- $\zeta$ — damping ratio (dimensionless)
+
 **Crossover frequencies ★** — gain crossover $\omega_{gc}$ satisfies $|G(j\omega_{gc})|=1$, and phase crossover $\omega_{pc}$ satisfies $\angle G(j\omega_{pc})=-180^\circ$.
 
 $$PM=180^\circ+\angle G(j\omega_{gc}),\qquad GM=-20\log_{10}|G(j\omega_{pc})|\ \text{dB}$$
+
+**Symbols**
+
+- $PM$ — phase margin, in degrees
+- $GM$ — gain margin, in dB
+- $\omega_{gc}$ — gain crossover frequency, where $\lvert G(j\omega_{gc})\rvert=1$, in rad/s
+- $\omega_{pc}$ — phase crossover frequency, where $\angle G(j\omega_{pc})=-180^\circ$, in rad/s
 
 ![](https://www.youtube.com/watch?v=ThoA4amCAX4)
 
 *Video: Gain and Phase Margins Explained! — Brian Douglas, 13:54*
 
 > [!tip] High-yield ★
-> $\zeta\approx PM/100$ and $t_s\approx\frac{4}{\omega_{gc}\tan PM}$. A stable minimum-phase loop needs $GM>0$ dB and $PM>0^\circ$.
+> $\zeta\approx PM/100$ and $t_s\approx\frac{4}{\zeta\omega_n}$. A stable minimum-phase loop needs $GM>0$ dB and $PM>0^\circ$.
 
 **Conditions:** Minimum-phase open loop, asymptotic straight-line approximation, one decade = factor of 10 in $\omega$. #control #stability
 
@@ -412,6 +498,10 @@ $$G_c(s)=K_p+\frac{K_i}{s}+K_ds=K_p\Big(1+\frac{1}{T_is}+T_ds\Big)$$
 
 $$G_{\text{filtered}}=K_p+\frac{K_i}{s}+\frac{K_ds}{\tau_fs+1}$$
 
+**Symbols**
+
+- $\tau_f$ — derivative-filter time constant, in s
+
 $$G_{PI}=K_p+\frac{K_i}{s},\qquad G_{PD}=K_p+K_ds$$
 
 **Effect of raising each gain**
@@ -421,6 +511,10 @@ $$G_{PI}=K_p+\frac{K_i}{s},\qquad G_{PD}=K_p+K_ds$$
 | $K_p\uparrow$ | faster response with less error, but more overshoot |
 | $K_i\uparrow$ | kills $e_{ss}$, adds oscillation, raises the type by 1 |
 | $K_d\uparrow$ | more damping and less overshoot, but noise-sensitive |
+
+**Symbols**
+
+- $e_{ss}$ — steady-state error (residual offset), in V
 
 **Ziegler-Nichols ultimate gain ★** — from the ultimate gain $K_u$, the ultimate frequency $\omega_u$, and the period $P_u=2\pi/\omega_u$ in s:
 
@@ -448,6 +542,13 @@ $$K_p=\frac{1.2T}{RL},\qquad T_i=2L,\qquad T_d=0.5L$$
 
 $$G_c(s)=K_c\frac{s+z_c}{s+p_c}$$
 
+**Symbols**
+
+- $K_c$ — compensator gain (dimensionless)
+- $z_c$ — compensator zero location, in rad/s
+- $p_c$ — compensator pole location, in rad/s
+- $s$ — Laplace variable, in rad/s
+
 **Lead vs. lag**
 
 | Type | Placement | Primary effect |
@@ -463,7 +564,19 @@ $$\omega_{max}=\frac{1}{\tau\sqrt{\alpha}}\ \text{rad/s},\qquad \phi_{max}=\arcs
 
 $$\alpha=\frac{1-\sin\phi_{max}}{1+\sin\phi_{max}}$$
 
+**Symbols**
+
+- $\tau$ — lead-network time constant, in s
+- $\alpha=z_c/p_c<1$ — zero-to-pole ratio of the lead network (dimensionless)
+- $\omega$ — angular frequency, in rad/s
+- $\omega_{max}$ — frequency of maximum phase lead, in rad/s
+- $\phi_{max}$ — maximum phase lead, in degrees
+
 **Lag network** — $\beta=\frac{p_c}{z_c}>1$, unity high-frequency gain and DC gain $\beta$.
+
+**Symbols**
+
+- $\omega_{gc}$ — gain crossover frequency of the loop, where the open-loop magnitude is $1$, in rad/s
 
 - Place $z_c$ one decade below $\omega_{gc}$
 - Place $p_c$ one decade below $z_c$

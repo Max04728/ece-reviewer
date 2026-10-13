@@ -1,0 +1,1057 @@
+[
+ {
+  "part": "Mathematics",
+  "file": "01_Differential_Calculus.md",
+  "topics": [
+   {
+    "no": 4,
+    "topic": "Related Rates",
+    "bare": "$h_1$, $d_1$, $h_2$, $d_2$"
+   },
+   {
+    "no": 7,
+    "topic": "Differentials and Error Propagation",
+    "bare": "$P$, $V$, $R$"
+   }
+  ]
+ },
+ {
+  "part": "Mathematics",
+  "file": "02_Integral_Calculus.md",
+  "topics": [
+   {
+    "no": 6,
+    "topic": "Partial Fractions",
+    "bare": "$N(x)$, $D(x)$, $Q$, $R$"
+   },
+   {
+    "no": 8,
+    "topic": "Average Value and MVT for Integrals",
+    "bare": "$V_m$, $\\omega$, $x_{\\text{ave}}$, $v(t)$"
+   },
+   {
+    "no": 11,
+    "topic": "Volumes by Slicing, Disk and Washer",
+    "bare": "$R(x)$, $r(x)$, $L$, $A_1$, $A_m$, $A_2$"
+   },
+   {
+    "no": 14,
+    "topic": "Centroids and Pappus-Guldinus",
+    "bare": "$Q_x$, $Q_y$, $z$-centroid terms"
+   },
+   {
+    "no": 15,
+    "topic": "Work and Hydrostatic Force",
+    "bare": "$\\gamma$, $y_{cp}$, $I_{xc}$, $A(y)$, $d$, $w(y)$"
+   }
+  ]
+ },
+ {
+  "part": "Mathematics",
+  "file": "03_Differential_Equations.md",
+  "topics": [
+   {
+    "no": 5,
+    "topic": "Growth, Decay and Newton's Cooling",
+    "bare": "$L$ (carrying capacity), $r$ (continuous rate), $A$, $A_0$, $N$, $N_0$"
+   },
+   {
+    "no": 8,
+    "topic": "Undetermined Coefficients",
+    "bare": "$F(a)$ (characteristic polynomial), $R(x)$ (forcing term)"
+   },
+   {
+    "no": 9,
+    "topic": "Variation of Parameters",
+    "bare": "$y_1$, $y_2$, $u_1$, $u_2$, $W_1$, $W_2$, $R(x)$"
+   },
+   {
+    "no": 12,
+    "topic": "PDE Wave Equation 1D",
+    "bare": "$L$ (string length), $A_n$, $B_n$, $f(x)$, $g(x)$"
+   },
+   {
+    "no": 13,
+    "topic": "PDE Heat Equation 1D",
+    "bare": "$L$, $A_0$, $A_n$, $B_n$, $T_1$, $T_2$, $f(x)$, $\\lambda$"
+   },
+   {
+    "no": 14,
+    "topic": "PDE Laplace Equation 2D",
+    "bare": "$\\rho$, $\\varepsilon$, $a$, $b$, $\\lambda$, $A_n$, $B_n$, $k$"
+   }
+  ]
+ },
+ {
+  "part": "Mathematics",
+  "file": "04_Advanced_Engineering_Math.md",
+  "topics": [
+   {
+    "no": 6,
+    "topic": "Truncation Error and Approximation",
+    "bare": "$P_n(x)$, $h$, $\\xi$, $n$ (Simpson subintervals)"
+   },
+   {
+    "no": 7,
+    "topic": "Laplace Transform Pairs",
+    "bare": "ROC, $\\sigma$, $\\delta(t)$, $u(t-a)$"
+   },
+   {
+    "no": 8,
+    "topic": "Shifting Theorems and Properties",
+    "bare": "$\\sigma_0$, $T$, $\\tau$"
+   },
+   {
+    "no": 9,
+    "topic": "Unit Step, Dirac and Periodic Functions",
+    "bare": "$g(t)$, $h(t)$, $X(s)$, $Y(s)$, $T$"
+   },
+   {
+    "no": 10,
+    "topic": "Inverse Laplace and Partial Fractions",
+    "bare": "$Q(s)$, $R(s)$, $c$ (Bromwich), $p_i$, $b$"
+   },
+   {
+    "no": 16,
+    "topic": "Matrices, Determinants, Rank and Inversion",
+    "bare": "$M_{ij}$ (minor), $\\lambda_i$, $k$, $C_{ij}$"
+   },
+   {
+    "no": 18,
+    "topic": "Eigenvalues and Eigenvectors",
+    "bare": "$\\Lambda$, $c_i$ (Cayley-Hamilton), $Q$"
+   }
+  ]
+ },
+ {
+  "part": "Mathematics",
+  "file": "06_Control_Systems.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "System Modeling and Transfer Functions",
+    "bare": "$V_a(s)$ (armature voltage), $\\theta(s)$ (shaft angle), $N(s)$, $D(s)$"
+   },
+   {
+    "no": 5,
+    "topic": "Second Order Specifications",
+    "bare": "$K$, $J$, $B$, $t_p$, $t_r$, $t_s$"
+   },
+   {
+    "no": 6,
+    "topic": "Steady State Error and Error Constants",
+    "bare": "$R(s)$ (reference input), $A$ (input amplitude)"
+   },
+   {
+    "no": 7,
+    "topic": "System Types and Error Analysis",
+    "bare": "$A$ (input amplitude), $K$ (error-constant value)"
+   },
+   {
+    "no": 10,
+    "topic": "Bode Plots and Margins",
+    "bare": "PM (phase margin), GM (gain margin), $M_r$, $K$, $\\omega_z$, $\\omega_p$"
+   },
+   {
+    "no": 12,
+    "topic": "PID Controllers and Tuning",
+    "bare": "$\\tau_f$ (filter time constant), $e_{ss}$"
+   },
+   {
+    "no": 13,
+    "topic": "Lead-Lag Compensator Design",
+    "bare": "$K_c$, $z_c$, $p_c$, $\\tau$, $\\omega_{gc}$"
+   }
+  ]
+ },
+ {
+  "part": "Mathematics",
+  "file": "07_Signals_and_Systems.md",
+  "topics": [
+   {
+    "no": 2,
+    "topic": "Energy, Power, Even and Odd",
+    "bare": "$c_n$ (Fourier coefficient), $E_x$, $a$"
+   },
+   {
+    "no": 7,
+    "topic": "Z Transform Theorems and Pairs",
+    "bare": "$R$, $R_1$, $R_2$ (ROC regions)"
+   },
+   {
+    "no": 11,
+    "topic": "CT Fourier and Laplace as System Tools",
+    "bare": "$A$ (amplitude), $\\delta'(\\omega)$, $\\sigma_{max}$, ROC"
+   }
+  ]
+ },
+ {
+  "part": "Mathematics",
+  "file": "08_Numerical_Methods_and_Analysis.md",
+  "topics": [
+   {
+    "no": 2,
+    "topic": "Bisection and Regula Falsi",
+    "bare": "$x_r$ (approximate root), $n$ (iterations)"
+   },
+   {
+    "no": 8,
+    "topic": "Euler's Method",
+    "bare": "LTE (local truncation error), $p$ (order)"
+   },
+   {
+    "no": 12,
+    "topic": "Iterative Linear Solvers",
+    "bare": "$D$, $L$, $U$ (matrix triangular parts), $k$ (iteration index)"
+   }
+  ]
+ },
+ {
+  "part": "Mathematics",
+  "file": "09_Engineering_Data_Analysis.md",
+  "topics": [
+   {
+    "no": 4,
+    "topic": "Probability Rules and Bayes",
+    "bare": "$p_i$ (path reliability), $P(\\text{none})$"
+   },
+   {
+    "no": 5,
+    "topic": "Binomial and Geometric Distributions",
+    "bare": "$M(t)$ (moment generating function), $s$, $t$"
+   },
+   {
+    "no": 6,
+    "topic": "Poisson and Hypergeometric Distributions",
+    "bare": "FPC, CLT, $K$, $N$"
+   },
+   {
+    "no": 7,
+    "topic": "Uniform and Exponential Distributions",
+    "bare": "MTBF, $R(x)$ (reliability function)"
+   },
+   {
+    "no": 9,
+    "topic": "Sampling Techniques and Sampling Distributions",
+    "bare": "$\\rho$ (intraclass correlation), $\\bar m$ (cluster size), $E$, $z_{\\alpha/2}$"
+   },
+   {
+    "no": 12,
+    "topic": "Hypothesis Testing, Z, t and p Errors",
+    "bare": "$s_p$ (pooled SD), $q_0$, $\\bar d$"
+   },
+   {
+    "no": 13,
+    "topic": "Linear Regression and Pearson r",
+    "bare": "SSE, SST, $s_e$, $s_b$, $d_i$, $x_0$"
+   },
+   {
+    "no": 14,
+    "topic": "ANOVA and DOE",
+    "bare": "$\\eta^2$, $I$ (defining relation), $q_\\alpha$"
+   }
+  ]
+ },
+ {
+  "part": "Electronics_Engineering",
+  "file": "03_Two_Port_Networks.md",
+  "topics": [
+   {
+    "no": 4,
+    "topic": "Hybrid and Inverse Hybrid Parameters",
+    "bare": "$r_\\pi$ (input resistance), $r_o$ (output resistance)"
+   },
+   {
+    "no": 5,
+    "topic": "Transmission ABCD Parameters",
+    "bare": "$n$ (turns ratio), $Z_1$, $Z_2$ (T-network arms), $Y$"
+   },
+   {
+    "no": 9,
+    "topic": "Terminated Networks and Gains",
+    "bare": "$G_T$, $P_{avail}$, $P_{L,\\text{ref}}$, $P_{L,\\text{loaded}}$, $P_{in}$"
+   }
+  ]
+ },
+ {
+  "part": "Electronics_Engineering",
+  "file": "04_Semiconductor_Devices.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "Intrinsic, Extrinsic and Carrier Transport",
+    "bare": "$N_c$, $N_v$ (band densities), $B$, $E$ (field), $N_D^+$, $N_A^-$"
+   },
+   {
+    "no": 2,
+    "topic": "PN Junction and Depletion Region",
+    "bare": "$\\tau_T$ (transit time), $C_{j0}$ (zero-bias capacitance), $C_d$"
+   },
+   {
+    "no": 4,
+    "topic": "Diode Models and Load Line",
+    "bare": "$V_\\gamma$ (knee voltage), $V_{DQ}$, $I_{DQ}$"
+   },
+   {
+    "no": 5,
+    "topic": "Rectifiers: Half-Wave, Center-Tapped, Bridge",
+    "bare": "$I_m$ (peak current), $I_{surge}$, $\\theta_{cond}$"
+   },
+   {
+    "no": 7,
+    "topic": "Clippers, Clampers and Multipliers",
+    "bare": "$V_{ref}$ (reference level), $V_\\gamma$, $T$"
+   },
+   {
+    "no": 8,
+    "topic": "Zener Diodes and Shunt Regulators",
+    "bare": "TC (temperature coefficient), $V_{Z0}$ (knee voltage)"
+   },
+   {
+    "no": 12,
+    "topic": "MOSFET Types and Regions",
+    "bare": "$\\gamma$ (body effect), $\\phi_F$ (surface potential), $V_{SB}$, $V_{th0}$, $C_{ox}$"
+   },
+   {
+    "no": 13,
+    "topic": "Thyristors: UJT, SCR, DIAC, TRIAC",
+    "bare": "$\\alpha$ (firing angle), $R_{B1}$, $R_{B2}$, $V_{BB}$"
+   },
+   {
+    "no": 14,
+    "topic": "Optoelectronics and Solar Cells",
+    "bare": "$I_L$, $I_0$, $I_{sc}$, FF, AM1.5"
+   },
+   {
+    "no": 15,
+    "topic": "Special Diodes: Varactor, Schottky, Tunnel",
+    "bare": "$C_0$, $V_0$, $t_{rr}$ (reverse recovery), NDR, $V_P$, $V_V$"
+   }
+  ]
+ },
+ {
+  "part": "Electronics_Engineering",
+  "file": "05_Circuit_Analysis_and_Design.md",
+  "topics": [
+   {
+    "no": 3,
+    "topic": "Bias Stability and Stability Factors",
+    "bare": "$I_{CO}$ (leakage current), $I_{C1}$, $\\beta_1$, $P_{D,max}$"
+   },
+   {
+    "no": 5,
+    "topic": "BJT Small-Signal h-Parameter Model",
+    "bare": "$R_L'$ (effective AC load), $r_\\pi$, $r_o$"
+   },
+   {
+    "no": 6,
+    "topic": "Small-Signal re Model: CE, CB, CC",
+    "bare": "$R_{in,source}$ (source resistance), $f_L$ (lower cutoff)"
+   },
+   {
+    "no": 8,
+    "topic": "FET Amplifiers: CS, CD, CG",
+    "bare": "$R_S'$, $R_D'$ (effective loads), $r_d$"
+   },
+   {
+    "no": 11,
+    "topic": "Frequency Response and Bode Plots",
+    "bare": "$A_{v,mid}$ (mid-band gain), $C_C$ (coupling cap), $R_{Th}$, $C_{in}$"
+   },
+   {
+    "no": 13,
+    "topic": "Gain-Bandwidth Product and fT",
+    "bare": "GBW, $R_f$, $R_i$, $r_b$ (base resistance), SR, $V_{op}$"
+   },
+   {
+    "no": 14,
+    "topic": "Feedback Amplifier Topologies",
+    "bare": "THD, $R_m$ (transresistance), $G_m$ (transconductance), $S_A^{A_f}$"
+   },
+   {
+    "no": 15,
+    "topic": "Power Amplifiers: Classes A, B, AB, C",
+    "bare": "$\\theta_{JA}$ (thermal resistance), $T_A$, $T_J$, $Q$ (tank Q)"
+   },
+   {
+    "no": 16,
+    "topic": "Oscillators: RC Phase Shift and Wien Bridge",
+    "bare": "$R_f$, $R_i$, $A_{loop}$ (loop gain)"
+   },
+   {
+    "no": 18,
+    "topic": "Current Mirrors",
+    "bare": "$I_S$ (transistor saturation current), $R_E$"
+   }
+  ]
+ },
+ {
+  "part": "Electronics_Engineering",
+  "file": "06_Power_Electronics_and_Systems.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "Power Switches: MOSFET, IGBT, GTO, TRIAC",
+    "bare": "$Q_g$, $V_g$, $\\beta_{off}$, $R_{DS(on)}$, $P_{leak}$"
+   },
+   {
+    "no": 4,
+    "topic": "Buck Converter",
+    "bare": "CCM, DCM (conduction modes)"
+   },
+   {
+    "no": 7,
+    "topic": "Inverters: Half-Bridge and Full-Bridge",
+    "bare": "THD, $V_{1,rms}$, $V_n$, $V_{o,1}$"
+   },
+   {
+    "no": 9,
+    "topic": "Linear Voltage Regulators",
+    "bare": "$I_Q$ (quiescent current), PSRR, $V_{DO}$ (dropout)"
+   }
+  ]
+ },
+ {
+  "part": "Electronics_Engineering",
+  "file": "07_Industrial_Automation_and_Sensors.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "Op-Amp Fundamentals and Real Parameters",
+    "bare": "CMRR, PSRR, $V_{os}$, $I_B$, $A_d$, $A_{cm}$, $R_{comp}$, $\\beta$"
+   },
+   {
+    "no": 3,
+    "topic": "Instrumentation and Difference Amplifiers",
+    "bare": "$R$ (gain-set resistor), $R_G$, $V_{o1}$, $V_{o2}$"
+   },
+   {
+    "no": 5,
+    "topic": "Comparators and Schmitt Triggers",
+    "bare": "UTP, LTP (threshold abbreviations), GBW"
+   },
+   {
+    "no": 7,
+    "topic": "Active Filter Responses",
+    "bare": "$H_{LP}$, $H_{HP}$, $H_{BP}$, $H_{BR}$, $\\omega_z$, $M_p$"
+   },
+   {
+    "no": 9,
+    "topic": "Temperature Sensors",
+    "bare": "$K$ (IC sensitivity), $\\theta$ (thermal resistance), $T_0$, $R_0$"
+   },
+   {
+    "no": 10,
+    "topic": "Strain Gauges and Wheatstone Bridge",
+    "bare": "$E$ (modulus of elasticity), $R_1$–$R_4$ (bridge arms)"
+   },
+   {
+    "no": 11,
+    "topic": "Position Sensors: LVDT, Hall, Encoders",
+    "bare": "PPR, $n$ (carrier density), $q$ (carrier charge), $t$ (thickness)"
+   },
+   {
+    "no": 12,
+    "topic": "Signal Conditioning and DAQ",
+    "bare": "LSB, ENOB, SNR, $A$, $A_p$, $f_p$"
+   },
+   {
+    "no": 13,
+    "topic": "ADC Architectures and Quantization",
+    "bare": "INL, DNL, SINAD, SFDR, ENOB, $t_{acq}$, $T_{clk}$"
+   },
+   {
+    "no": 14,
+    "topic": "DAC Architectures",
+    "bare": "$b_k$ (bit coefficient), DNL, INL, $t_{settle}$"
+   },
+   {
+    "no": 16,
+    "topic": "Ladder Logic, Timers and Counters",
+    "bare": "DN, PT, PRE, RES, $K$ (units/pulse)"
+   },
+   {
+    "no": 18,
+    "topic": "Building, AV and Industrial Integration",
+    "bare": "$N$ (shaft speed), $Q$ (flow), $H$ (head), $P$ (power)"
+   }
+  ]
+ },
+ {
+  "part": "Electronics_Engineering",
+  "file": "08_Logic_Circuits_and_Switching.md",
+  "topics": [
+   {
+    "no": 6,
+    "topic": "Karnaugh Maps",
+    "bare": "prime implicants, $d$ (don't-care set), $k$"
+   },
+   {
+    "no": 10,
+    "topic": "Latches and Flip-Flops",
+    "bare": "$X$ (don't-care entry in excitation table)"
+   },
+   {
+    "no": 11,
+    "topic": "Flip-Flop Timing, Setup and Hold",
+    "bare": "$t_{PHL}$, $t_{PLH}$ (propagation delays), $t_{logic,min}$"
+   },
+   {
+    "no": 13,
+    "topic": "Asynchronous and Synchronous Counters",
+    "bare": "$t_{FF}$ (flip-flop delay), $N_{reset}$"
+   },
+   {
+    "no": 16,
+    "topic": "Logic Families: TTL vs CMOS and Interfacing",
+    "bare": "PDP, $C_L$ (load capacitance), $V_{DD}$"
+   }
+  ]
+ },
+ {
+  "part": "Electronics_Engineering",
+  "file": "09_Microprocessors_and_Embedded.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "CPU Architecture: CISC and RISC",
+    "bare": "MIPS, $S_{part}$ (part speedup), CISC, RISC"
+   },
+   {
+    "no": 2,
+    "topic": "Registers, Buses and Memory Organization",
+    "bare": "Z, C, N, V (processor status flags)"
+   },
+   {
+    "no": 3,
+    "topic": "Memory Technologies and Address Decoding",
+    "bare": "$t_{RC}$ (DRAM row cycle), $N_{rows}$, $C_{total}$, $C_{chip}$"
+   },
+   {
+    "no": 5,
+    "topic": "Addressing Modes and Instruction Sets",
+    "bare": "$\\#$ (immediate prefix), $M[\\,]$ (memory at address), $R_b$"
+   },
+   {
+    "no": 6,
+    "topic": "Interrupts and ISRs",
+    "bare": "ISR, $t_{vector}$ (vector fetch time)"
+   },
+   {
+    "no": 9,
+    "topic": "PWM and ADC/DAC Modules",
+    "bare": "$N_{cycles}$ (ADC clock cycles), SNR, CCR"
+   }
+  ]
+ },
+ {
+  "part": "EST",
+  "file": "01_Signals_Spectra_and_Noise.md",
+  "topics": [
+   {
+    "no": 2,
+    "topic": "Power Spectral Density",
+    "bare": "ROC (region of convergence), $z$"
+   }
+  ]
+ },
+ {
+  "part": "EST",
+  "file": "02_Principles_of_Communications.md",
+  "topics": [
+   {
+    "no": 3,
+    "topic": "DSB-SC and SSB-SC",
+    "bare": "LPF (low-pass filter), $\\phi$ (phase error)"
+   },
+   {
+    "no": 14,
+    "topic": "AGC and Receiver Characteristics",
+    "bare": "AGC (automatic gain control), $P_{f_{\\pm\\Delta}}$, $\\Delta$ (offset), $T$ (loop gain)"
+   }
+  ]
+ },
+ {
+  "part": "EST",
+  "file": "03_Digital_Communications.md",
+  "topics": [
+   {
+    "no": 2,
+    "topic": "PCM: Sampling, Quantizing, Encoding",
+    "bare": "NRZ (non-return-to-zero)"
+   },
+   {
+    "no": 6,
+    "topic": "Line Coding Schemes",
+    "bare": "AMI, RZ, 2B1Q"
+   },
+   {
+    "no": 8,
+    "topic": "Eye Diagrams and Equalization",
+    "bare": "MSE, ZF, MMSE, DFE, LMS"
+   },
+   {
+    "no": 9,
+    "topic": "ASK, OOK and FSK",
+    "bare": "AWGN, $Q(\\cdot)$ (Gaussian tail function)"
+   },
+   {
+    "no": 10,
+    "topic": "BPSK and QPSK",
+    "bare": "AWGN, $Q(\\cdot)$"
+   },
+   {
+    "no": 11,
+    "topic": "M-ary PSK and 16-QAM",
+    "bare": "AWGN, $Q(\\cdot)$"
+   },
+   {
+    "no": 12,
+    "topic": "Constellation and BER Comparison",
+    "bare": "AWGN, $Q(\\cdot)$"
+   },
+   {
+    "no": 13,
+    "topic": "Matched Filter and Optimum Detection",
+    "bare": "AWGN, MAP, ML, $Q(\\cdot)$"
+   },
+   {
+    "no": 16,
+    "topic": "Error Control: Hamming and CRC",
+    "bare": "CRC, SEC, FCS"
+   }
+  ]
+ },
+ {
+  "part": "EST",
+  "file": "04_Data_Communications_and_Networking.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "OSI Seven-Layer Model",
+    "bare": "PDU, FCS, MTU, OSI"
+   },
+   {
+    "no": 3,
+    "topic": "Framing and Flow Control",
+    "bare": "AMI (alternate mark inversion)"
+   },
+   {
+    "no": 4,
+    "topic": "ARQ: Stop-and-Wait, GBN, Selective Repeat",
+    "bare": "ARQ, GBN, SR"
+   },
+   {
+    "no": 5,
+    "topic": "HDLC and PPP",
+    "bare": "LCP, NCP, PAP, CHAP, ABM, ARM, FCS"
+   },
+   {
+    "no": 6,
+    "topic": "MAC Protocols and Ethernet",
+    "bare": "CSMA/CD, SFD, DA, SA, BPDU, STP, UTP"
+   },
+   {
+    "no": 7,
+    "topic": "Wireless LAN and CSMA/CA",
+    "bare": "DCF, DIFS, SIFS, RTS, CTS, CW"
+   },
+   {
+    "no": 9,
+    "topic": "IPv4 Addressing and Classes",
+    "bare": "APIPA, $s$ (subnet bits)"
+   },
+   {
+    "no": 11,
+    "topic": "IPv6 Structure",
+    "bare": "SLAAC, EUI-64, DSCP, ECN, TTL"
+   },
+   {
+    "no": 12,
+    "topic": "Routing Algorithms: Distance Vector and Link State",
+    "bare": "LSA, SPF, $O(\\cdot)$"
+   },
+   {
+    "no": 13,
+    "topic": "TCP vs UDP and Port Numbers",
+    "bare": "AIMD"
+   },
+   {
+    "no": 14,
+    "topic": "Multiplexing: FDM, TDM, T1 and E1",
+    "bare": "FDM, TDM, STDM, B8ZS, HDB3"
+   },
+   {
+    "no": 15,
+    "topic": "WDM and DWDM",
+    "bare": "WDM, DWDM, CWDM, EDFA, $R_{ch}$"
+   },
+   {
+    "no": 16,
+    "topic": "Multiple Access: FDMA, TDMA, CDMA",
+    "bare": "FDMA, TDMA, CDMA, PN, PAPR"
+   },
+   {
+    "no": 17,
+    "topic": "OFDMA and Spread Spectrum",
+    "bare": "OFDM, OFDMA, DS-SS, FH-SS"
+   },
+   {
+    "no": 19,
+    "topic": "Cellular Generations 2G to 5G",
+    "bare": "URLLC, eMBB, mMTC, HSDPA, HSUPA"
+   },
+   {
+    "no": 21,
+    "topic": "Network Security",
+    "bare": "AES, DES, 3DES, ECC, MAC"
+   }
+  ]
+ },
+ {
+  "part": "EST",
+  "file": "05_Transmission_Lines_and_Waveguides.md",
+  "topics": [
+   {
+    "no": 5,
+    "topic": "Input Impedance and Quarter-Wave Transformer",
+    "bare": "$Q$ (quality factor), $\\ell$ (physical length)"
+   }
+  ]
+ },
+ {
+  "part": "EST",
+  "file": "06_Antenna_Systems_and_Propagation.md",
+  "topics": [
+   {
+    "no": 12,
+    "topic": "Television Systems and ISDB-T",
+    "bare": "$f_{sc}$ (colour subcarrier), $b_{subcarrier}$, $N_{carriers}$, ISDB-T, NTSC"
+   },
+   {
+    "no": 13,
+    "topic": "Satellite Orbits, Transponders and G/T",
+    "bare": "$C/N_0$ (carrier-to-noise density), VSAT, dBHz"
+   },
+   {
+    "no": 16,
+    "topic": "Optical Sources, Detectors and Power Budget",
+    "bare": "APD, PIN, MSM, NRZ"
+   }
+  ]
+ },
+ {
+  "part": "EST",
+  "file": "07_Industrial_Automation_and_Instrumentation.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "The 4–20 mA Current Loop",
+    "bare": "HART, FSK, Profibus PA"
+   },
+   {
+    "no": 3,
+    "topic": "Humidity, Strain, Proximity and Switch Sensors",
+    "bare": "PNP, NPN, SPDT, $C_{dry}$"
+   },
+   {
+    "no": 4,
+    "topic": "PLC Architecture and the Scan Cycle",
+    "bare": "$T_{filter}$ (input filter delay), LSB"
+   },
+   {
+    "no": 6,
+    "topic": "PID Control",
+    "bare": "$\\tau_D$ (derivative filter time)"
+   },
+   {
+    "no": 7,
+    "topic": "SCADA, HMI and Industrial Networks",
+    "bare": "SCADA, HMI, RTU, MES, ERP, IIoT"
+   },
+   {
+    "no": 8,
+    "topic": "Building Automation, HVAC and Life Safety",
+    "bare": "VFD, BAS, MS/TP"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "01_General_Chemistry.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "Atomic Structure and Configurations",
+    "bare": "$R_H$ (Rydberg constant), $\\Delta x$, $\\Delta p$, $m$ (electron mass), $c$"
+   },
+   {
+    "no": 2,
+    "topic": "Periodic Trends",
+    "bare": "$\\mu$ (dipole moment), $q$ (charge), $d$ (separation)"
+   },
+   {
+    "no": 3,
+    "topic": "Chemical Bonding",
+    "bare": "$k$ (Coulomb constant), $n$ (Born exponent), $\\varepsilon_0$"
+   },
+   {
+    "no": 6,
+    "topic": "Solutions and Concentration Units",
+    "bare": "$N$ (normality), $k_H$ (Henry constant), $P^\\circ$ (pure-solvent vapour pressure)"
+   },
+   {
+    "no": 9,
+    "topic": "Redox and Galvanic Cells",
+    "bare": "SHE (standard hydrogen electrode)"
+   },
+   {
+    "no": 11,
+    "topic": "Battery Chemistries",
+    "bare": "$C_p$ (Peukert capacity), $k$ (Peukert exponent)"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "02_University_Physics.md",
+  "topics": [
+   {
+    "no": 13,
+    "topic": "SHM and Waves",
+    "bare": "$k$ (angular wavenumber), $\\Delta$ (path difference), $m$ (interference order)"
+   },
+   {
+    "no": 15,
+    "topic": "Reflection and Refraction",
+    "bare": "$\\Delta$ (angular dispersion), $A$ (prism apex angle)"
+   },
+   {
+    "no": 16,
+    "topic": "Lenses and Mirrors",
+    "bare": "$s$ (lens separation)"
+   },
+   {
+    "no": 17,
+    "topic": "Electrostatics",
+    "bare": "$Q$ (capacitor charge), $V$ (potential difference)"
+   },
+   {
+    "no": 18,
+    "topic": "AC Circuits",
+    "bare": "$\\theta$ (power-factor angle)"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "03_Materials_Science.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "Crystal Structures and Unit Cells",
+    "bare": "APF, CN (coordination number), $c$ (HCP cell height)"
+   },
+   {
+    "no": 3,
+    "topic": "Miller Indices",
+    "bare": "$D$ (crystallite size), $\\beta$ (peak breadth), $K$ (shape factor)"
+   },
+   {
+    "no": 8,
+    "topic": "Fermi Level",
+    "bare": "$m_n^*$, $m_p^*$ (effective masses), $h$"
+   },
+   {
+    "no": 9,
+    "topic": "Dielectric Properties and Breakdown",
+    "bare": "$D$ (electric flux density), $\\varepsilon'$, $\\varepsilon''$, $S$ (strain), $d$ (piezoelectric coeff.)"
+   },
+   {
+    "no": 10,
+    "topic": "Magnetic Properties and Hysteresis",
+    "bare": "$C$ (Curie constant), $k_h$, $k_e$, $B_m$"
+   },
+   {
+    "no": 11,
+    "topic": "Diffusion and Fick's Laws",
+    "bare": "erf (error function), $C_s$, $C_0$"
+   },
+   {
+    "no": 12,
+    "topic": "Nanomaterials",
+    "bare": "CVD, $r$ (particle radius)"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "04_Environmental_Sci_and_PH_Laws.md",
+  "topics": [
+   {
+    "no": 1,
+    "topic": "Ecosystems and Energy Flow",
+    "bare": "$R$ (respiration loss), GPP, NPP"
+   },
+   {
+    "no": 3,
+    "topic": "Air Pollution and Criteria Pollutants",
+    "bare": "$C_p$ (measured concentration), $I_{hi}$, $I_{lo}$, VOC"
+   },
+   {
+    "no": 4,
+    "topic": "Greenhouse Effect, Ozone and Acid Rain",
+    "bare": "$S$ (climate sensitivity parameter), GWP"
+   },
+   {
+    "no": 5,
+    "topic": "Water Quality: BOD, COD, DO, TDS",
+    "bare": "$L_0$ (ultimate BOD), $V_0$, $V_1$, $M$, $Q_w$, $C_w$, $Q_r$, $C_r$"
+   },
+   {
+    "no": 6,
+    "topic": "Solid, Hazardous and E-Waste",
+    "bare": "$P$ (population), $W_{EEE}$, HHV, TCLP"
+   },
+   {
+    "no": 8,
+    "topic": "RA 8749 Clean Air Act",
+    "bare": "TSP, PTO, PAB"
+   },
+   {
+    "no": 11,
+    "topic": "RA 6969 Toxic Substances",
+    "bare": "PCB, TCLP, CCO"
+   },
+   {
+    "no": 13,
+    "topic": "Energy Resources",
+    "bare": "$\\dot m$ (mass flow rate), $c_p$ (specific heat), $G$ (irradiance)"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "05_Engineering_Economy.md",
+  "topics": [
+   {
+    "no": 3,
+    "topic": "Ordinary Annuity and Annuity Due",
+    "bare": "$k$ (deferral period)"
+   },
+   {
+    "no": 8,
+    "topic": "Rate of Return and Payback",
+    "bare": "$np$ (discounted payback period), $k$ (year index)"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "06_Engineering_Management_and_PM.md",
+  "topics": [
+   {
+    "no": 2,
+    "topic": "TQM and Six Sigma",
+    "bare": "DMADV, DFSS"
+   },
+   {
+    "no": 3,
+    "topic": "ISO 9001 Overview",
+    "bare": "PDCA, OHS"
+   },
+   {
+    "no": 4,
+    "topic": "PERT/CPM Fundamentals",
+    "bare": "PERT, CPM"
+   },
+   {
+    "no": 5,
+    "topic": "Network Passes, Float and Critical Path",
+    "bare": "ES, EF, LS, LF, TF, FF, IF"
+   },
+   {
+    "no": 7,
+    "topic": "Lean Startup and MVP",
+    "bare": "CAC, ARPU"
+   },
+   {
+    "no": 8,
+    "topic": "Business Model Canvas and SWOT",
+    "bare": "COGS, TOWS, SaaS"
+   },
+   {
+    "no": 9,
+    "topic": "Market Sizing: TAM, SAM, SOM",
+    "bare": "MRR"
+   },
+   {
+    "no": 10,
+    "topic": "Funding, Burn Rate and Runway",
+    "bare": "ARR, LTV, CAC, IPO, M&A"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "07_ECE_Laws_and_Professional_Ethics.md",
+  "topics": [
+   {
+    "no": 2,
+    "topic": "Titles: PECE, ECE, ECT and Seal",
+    "bare": "PRC, BOECE, APO"
+   },
+   {
+    "no": 4,
+    "topic": "RA 7925 Telecom Policy and Carriers",
+    "bare": "CPCN, NTC, DICT, PTE, VAS"
+   },
+   {
+    "no": 6,
+    "topic": "RA 10173 Data Privacy Act",
+    "bare": "IRR"
+   },
+   {
+    "no": 7,
+    "topic": "RA 10175 Cybercrime Prevention Act",
+    "bare": "RPC, DOJ, RTC"
+   },
+   {
+    "no": 8,
+    "topic": "DOLE DO 13 OSHS Safety",
+    "bare": "DOLE, OSH, DO"
+   },
+   {
+    "no": 9,
+    "topic": "Philippine Electronics Code Books",
+    "bare": "OFNP, OFNR, BOECE, PEC"
+   }
+  ]
+ },
+ {
+  "part": "GEAS",
+  "file": "08_Computer_Systems_OOP_and_CAD.md",
+  "topics": [
+   {
+    "no": 4,
+    "topic": "Exception Handling and Programming Paradigms",
+    "bare": "JVM"
+   },
+   {
+    "no": 5,
+    "topic": "SDLC Phases and Process Models",
+    "bare": "SDLC"
+   },
+   {
+    "no": 6,
+    "topic": "UML Diagrams: Structure, Behaviour and Relationships",
+    "bare": "UML"
+   },
+   {
+    "no": 7,
+    "topic": "GUI Vocabulary and Event Handling",
+    "bare": "HWND, API"
+   }
+  ]
+ }
+]

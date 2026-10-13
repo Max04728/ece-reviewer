@@ -1,0 +1,2488 @@
+
+===== PAGE 1 =====
+F-789SGA
+HƯ/uni1EDANG D/uni1EAAN S/uni1EEC D/uni1EE4NG
+TI/uni1EBENG VI/uni1EC6T
+E-IV-008
+===== PAGE 2 =====
+Nội dung   
+Màn hình .......................................................................................................................P.2
+Bắt đầu  
+Bật tắt     ....................................................................................................... 
+Điều chỉnh độ tương phản hiển thị ................................................................P.4
+......P.4
+Lựa chọn chế độ ...........................................................................................P.4
+Menu chức năng ứng dụng (Phím Apps ) .....................................................P.5
+Cài đặt máy tính ............................................................................................P.6
+Trước khi sử dụng máy tính ..........................................................................P.8
+Nhập biểu thức và giá trị   
+Sức chứa giá trị nhập ....................................................................................P.9  
+Sửa biểu thức nhập .......................................................................................P.9 
+Nhập và hiển thị kết quả trong Chế độ Toán học ..........................................P.11
+Trường giá trị nhập và các thông báo lỗi.................................................................P.11
+Thứ tự ưu tiên phép tính …….......................................................................P.14
+Bộ nhớ phép tính   .......................................................................................P.15
+Thông báo lỗi và bộ định vị lỗi .....................................................................P.15
+Phép tính cơ bản    
+Tính toán đại số ………........................................................... .........................P.17
+Bộ nhớ máy tính .....……............................................................................P.17
+Tính toán với phân số .…............................................................................P.19
+Tính toán phần trăm ………….....................................................................P.21
+Tính toán với Độ - Phút - Giây …….............................................................P.21
+Phát lại và đa nhiệm........................................................................................P.22
+Giá trị hằng số khoa học ..... .......................................................................P.23
+Đổi đơn vị đo ............…. .............................................................................P.27
+Chức năng tính toán khoa học  
+Bình phương, Căn bậc 2, Mũ 3, Căn bậc 3, Lũy thừa, Khai căn,   
+Nghịch đảo và số Pi…………………………………………….………………. P.28 
+Logarit, Loga e, Nghịch đảo của Loga và ab………………………..….…..P.29Chuyển đổi đơn vị đo góc ............................................................................P.29
+Tính hàm lượng giác………….....................................................................P.30
+Hoán vị, Giai thừa, Tổ hợp, Lấy ngẫu nhiên ....................... ..........................P.31
+Tạo phép  (π) Tích chuỗi ….........................................................................P.32
+Tạo phép  (∑) Tổng chuỗi ............................................................................P.32
+Tính giá trị lớn nhất và giá trị nhỏ nhất ………….........................................P.32
+Tính phép chia lấy dư (Mod) ……………... ..................................................P.33
+Bội chung lớn nhất và ước chung nhỏ nhất................................................ P.33
+Phân tích thừa số nguyên tố .......................................................................P.34
+Tính số dư và thương …………………........................................................P.35
+Chuyển đổi tọa độ ……................................................................................P.35
+Tính giá trị tuyệt đối .....................................................................................P.36
+Hiển thị kỹ thuật……....................................................................................P.36  
+Tính toán với số phức………………............................................................P.37
+Tính toán cơ số n và phép tính logic………….............................................P.39
+Log
+Tính phép Thống kê
+Chọn kiểu phép Thống kê .............................................................................P.41
+Nhập dữ liệu Thống kê..................................................................................P.42
+Sửa dữ liệu Thống kê mẫu….. .....................................................................P.42
+Màn hình tính Thống kê ..…….......................................................................P.43
+Menu thống kê ............................................................................................P.43
+Mẫu phép tính Thống kê ………....................................................................P.43
+Phép tính Phân phối.....................................................................................P.46
+Giải Phương trình .....................................................................................................P.48
+Chức năng Solve ..................................................................................................... .P.50
+Chức năng CALC ......................................................................................................P.52
+Tính Vi phân ............................... ...............................................................................P.52
+Tính Tích phân ….......................................................................................................P.53
+Tính với Ma trận ........................................................................................................P.54
+Tính Vector................................................................................................................P.59
+Chức năng tính Bảng ............... …………….…........................................................P.64
+Thay pin ............... .....................................................................................................P.65
+Lời khuyên và Cảnh báo...........................................................................................P.65
+Thông số kỹ thuật ....................................................................................................P.66
+2
+===== PAGE 3 =====
+     Về hướng dẫn sử dụng
+• Sổ tay cơ bản này tóm tắt ngắn gọn các chức năng, thông số kỹ 
+thuật và biện pháp an toàn khi sử dụng của F-789SGA.
+• Để làm quen với F-789SGA, bạn có thể đọc các Ví dụ tính toán 
+để hiểu về loạt các ví dụ, cách thức hoạt động; và phạm vi tính 
+toán của các chức năng chính.
+     Cách sử dụng nắp trượt
+Đóng mở nắp máy bằng cách 
+trượt vỏ máy giống hình bên.
+Màn hình hiển thị
+<Ký hiệu trạng thái>
+ S : Shift 
+ A : Alpha 
+M : Bộ nhớ độc lập
+STO : Lưu trữ bộ nhớ
+RCL : Lấy giá trị đã nhớ
+STAT : Chế độ thống kê 1 biến/ 2 biến
+CPLX : Chế độ tính Số phức
+MATX : Chế độ tính Ma trận
+VCTR : Chế độ tính Vector
+EQN : Chế độ giải Phương trình
+ D : Chế độ đơn vị Độ
+ R : Chế độ đơn vị Rad
+ G : Chế độ đơn vị Gra
+FIX : Chế độ hiển thị Hỗn số
+SCI : Chế độ hiển thị Thập phân khoa học
+LINE : Hiển thị số dạng Dòng
+ : Mũi tên lên
+ : Mũi tên xuống
+Disp : Hiển thị đa lệnh
+3
+===== PAGE 4 =====
+Tắt bật máy
+Lần đầu khởi động: 
+1. Tháo lớp chắn pin để kích hoạt pin. 
+2. Nhấn                                            để khởi động máy mặc 
+định lần đầu.
+Máy bật: Khi ấn
+Máy tắt: Khi ấn
+Tự động tắt:
+Khi máy tính không được sử dụng trong khoảng 7 phút, nó 
+sẽ tự động tắt nguồn.
+ Điều chỉnh độ tương phản màn hình
+  Nhấn                             (6:      CONT     ) để vào màn 
+hình Điều chỉnh độ tương phản hiển thị.
+ Nhấn       để làm màn hình hiển thị tối hơn.
+ Nhấn       để làm màn hình hiển thị sáng hơn.
+ Nhấn          hoặc          để xác nhận và thoát ra.
+ Để khởi tạo độ sáng tối của màn, ấn
+        mà không cần Điều chỉnh độ tương phản.
+ Lựa chọn chế độ
+  Nhấn         để vào màn hình Lựa chọn chế độ tính toán.
+Khởi động
+4
+===== PAGE 5 =====
+ 
+ 
+ 
+ 
+Chế độ
+ 
+mặc định là chế độ COMP  
+Các chức năng tính toán (Phím Apps)  
+Tại menu Apps chứa các hàm toán học. Trong mỗi chế độ tính toán 
+khác nhau lại có các hàm khác nhau.  
+Ấn chọn số tương ứng với mode cần tính toán.  
+Ấn  để truy cập menu Apps. 
+Ấn  để chuyển trang chức năng.  
+                                
+i) COMP ii) CPLX
+iii) STAT
+SD  REG
+Ấn [      ]
+hoặc [      ]
+iv) BASE 
+COMP Tính toán thông thường 
+CPLX Tính toán với Số phức CPLX
+STAT
+BASE  
+EQN Giải phương trình EQN
+TABLE Bảng giá trị hàm 
+MATX Phép tính với Ma trận MATX
+VCTR Tính toán với Vector VCTR
+Cách ấn Chế độ Tên hiển thị
+Phép tính Thống kê và Hồi quy
+Phép tính liên quan tới các 
+hệ số khác
+STAT
+COMP 
+BASE
+TABLE
+5
+===== PAGE 6 =====
+  Nhấn                để thoát khỏi màn hình Apps
+vii) VCTR
+v) EQN 
+Ấn   [      ]
+hoặc[      ]
+vi) MATX 
+Ấn   [      ]
+hoặc[      ]
+ Cài đặt máy tính 
+ Nhấn                 để truy cập mục Cài đặt máy tính; 
+     
+     Nhấn        /       để chuyển trang trước hoặc sau.
+ Để chọn định dạng đầu vào và đầu ra của máy tính: [1] 
+Maths hoặc [2] Line 
+ [1] Maths – (Chế độ toán học): 
+ Hầu hết các phép tính đầu vào 
+     và đầu ra (ví dụ: phân số, pi, căn 
+     bậc hai) được hiển thị dưới dạng 
+     định dạng sách giáo khoa Toán.
+ [2] Line – ( Chế độ dòng): hầu hết 
+     các phép tính đầu vào và đầu ra 
+     được hiển thị dưới dạng định dạng
+     dòng. Và biểu tượng "LINE" sẽ
+     được hiển thị.
+      
+     Đối với chế độ STAT, EQN, MATX, VCTR, định dạng đầu
+     vào và hiển thị sẽ tự động chuyển sang chế độ LINE.
+Mathematics mode
+Line mode
+LINE
+Ấn   [      ]
+hoặc[      ]
+6
+===== PAGE 7 =====
+   
+Ví dụ:      1 ÷ 1000 = 1x10-3 (Norm 1)  
+                        = 0.001 (Norm 2)  
+  Để cài đặt định dạng phân số [1] a b/c hoặc [2] d/c  
+ 
+     [1] a b/c: Hiển thị ở dạng hỗn số  
+     [2] d/c: Hiển thị ở dạng phân số   
+  Để cài đặt hiển thị số phức [3]  CLPX ([1] a+bi hoặc [2] 
+r<  )  
+     [1] a+bi: Dạng đại số tọa độ   
+     [2] r<  : Dạng cột vector 
+  Để lựa chọn đơn vị đo góc [3] Deg, [4] Rad or [5] Gra
+ [3] Deg: Đơn vị đo góc Độ
+ [4] Rad: Đơn vị đo góc Radian
+ [5] Gra: Đơn vị đo góc Gradian
+ 90º =     radians = 100grads
+ Để chọn chữ số hoặc ký hiệu hiển thị [6] Fix, [7] Sci 
+hoặc [8] Norm
+ [6] Fix: Cố định dấu thập phân, bảng [Fix 0~9?] xuất hiện, 
+chọn số lượng chữ số thập phân bằng cách nhấn [0] – [9].
+ Ví dụ: 220 ÷ 7 = 31.4286 (FIX 4)
+    = 31.43 (FIX 2)
+ [7] Sci: Dạng ký hiệu khoa học, [Sci 0~9?] xuất hiện, 
+chọn số lượng chữ số bằng cách nhấn [0] – [9].
+ Ví dụ: 220 ÷ 7 = 3.1429x10 1 (SCI 5)
+   = 3.143x10 1 (SCI 4)
+ [8] Norm: Dạng ký hiệu mũ, [Norm 1~2?] xuất hiện, chọn 
+định dạng ký hiệu mũ bằng cách nhấn [1] hoặc [2].
+ Norm 1: Ký hiệu mũ sẽ tự động được sử dụng cho các 
+giá trị số nguyên có hơn 10 chữ số và giá trị thập phân 
+có hơn HAI chữ số thập phân.
+ Norm 2: Ký hiệu mũ sẽ tự động được sử dụng cho các 
+giá trị số nguyên có hơn 10 chữ số và giá trị thập phân 
+có hơn CHÍN chữ số thập phân.
+7
+===== PAGE 8 =====
+ Để chọn định dạng hiển thị thống kê [4] STAT 
+ ([1] ON hoặc [2] OFF)
+ [1] ON: Hiển thị cột FREQ (Tần số) trong Màn hình Nhập 
+dữ liệu thống kê
+ [2] OFF: Ẩn cột FREQ (Tần số) trong Màn hình Nhập dữ 
+liệu thống kê
+ Để chọn định dạng hiển thị dấu thập phân [5] Hiển thị 
+([1] Dấu chấm hoặc [2] Dấu phẩy)
+ [1] Dot: Chọn đặt dấu chấm cho số thập phân.
+ [2] Comma: Chọn đặt dấu phẩy cho hiển thị kết quả, dữ 
+liệu nhập cho số thập phân.
+ Để cài đặt độ tương phản  [6]      CONT    
+ Xem phần "Điều chỉnh độ tương phản hiển thị".
+ Trước khi sử dụng máy tính
+ Kiểm tra cài đặt hiện tại
+Hãy chắc chắn kiểm tra các chỉ số trạng thái chỉ ra chế độ 
+tính toán hiện tại (COMP, STAT, TABLE), cài đặt định dạng 
+hiển thị và cài đặt đơn vị góc (Deg, Rad, Gra).
+ Về cài đặt mặc định
+Nhấn                               (YES)         để trở về cài đặt mặc 
+định.
+ Chế độ tính toán  : COMP
+ Nhập xuất dữ liệu      : Maths
+ Đơn vị đo góc  : Deg
+ Hiển thị chữ số  : Norm 1
+ Hiển thị phân số        : d/c
+ Nhập dữ liệu thống kê : OFF
+ Dấu chấm thập phân : Dot
+Hành động này sẽ không xóa bộ nhớ biến.
+ Khởi tạo lại máy tính
+Khi bạn không chắc chắn về cài đặt hiện tại của máy tính, 
+bạn được khuyến nghị khởi tạo lại máy tính (Đặt lại chế độ 
+tính toán "COMP", đơn vị góc "Độ", xóa kết quả và bộ nhớ 
+biến và đặt lại độ tương phản LCD) bằng cách thực hiện 
+các thao tác phím sau:         
+                    (All)        (YES)        . 
+8
+===== PAGE 9 =====
+- Trước dấu ngoặc mở 
+- Trước các hàm khoa học bao gồm dấu ngoặc: 2 x cos(30)
+- Trước hàm số ngẫu nhiên
+- Trước biến (A, B, C, D, X, Y, M), π, θ
+Ví d/uni1EE5: sin(, cos(, Pol(, LCM(.... B/uni1EA1n c/uni1EA7n nh/uni1EADp đ/uni1ED1i s/uni1ED1 và d/uni1EA5u ngo/uni1EB7c 
+đóng            .
+Các hàm khoa học đi kèm với dấu ngoặc         :1 x (2+3)
+ Bỏ đi dấu ngoặc đóng cuối cùng trước dấu          ,          ,         ,
+         và
+Including         *1, 
+        *2,        *3
+Omitting         *1, 
+        *3
+2xlog(100) x (1+3)
+16
+*2
+*1
+2log(100)(1+3)
+                          16
+Operation 2: Display 2
+3
+  
+ Nhập biểu thức và giá trị
+Dung lượng nhập  
+F-789SGA cho phép bạn nhập một phép tính đơn tối đa 99 byte.
+Khi dung lượng nhập nhỏ hơn 10 byte, con trỏ nhập sẽ thay đổi
+từ “   ” sang “     ” để báo hiệu bộ nhớ đang sử dụng.
+  
+  
+     
+ Sửa dữ liệu nhập
+  
+Dữ liệu mới sẽ nằm phía trái của màn hình. Khi dữ liệu nhập 
+hơn 15 ký tự (chế độ Line) / 16 ký tự (chế độ Maths), dòng sẽ 
+tự động cuộn sang phải. Bạn có thể cuộn trở lại phía trái 
+bằng cách sử dụng các phím mũi tên trái     và phải     để xem 
+lại dữ liệu đã nhập.
+Ví dụ: 2 x log 100 x (1+3) = 16 
+*1. Bỏ qua dấu nhân (x)
+ 
+  
+*2. 
+*3. 
+Bỏ qua dấu nhân và dấu ngoặc đóng cuối cùng.
+Có ch/uni1EE9a
+Hiển thị 2Thao tác 2
+B/uni1ECF qua
+9
+Thao tác 1: Hiển thị 1
+Rand
+===== PAGE 10 =====
+  
+10
+     12 lần
+ 
+     13 lần
+ 
+12|34567+889900
+1|34567+889900
+1234567+889900_
+1234567+889900
+134567+889900
+ Xóa và sửa một biểu thức
+Trong chế độ Chèn: Di chuyển con trỏ vào bên phải của ký tự
+hoặc hàm cần xóa, sau đó nhấn phím 
+Trong chế độ Ghi đè: Di chuyển con trỏ dưới ký tự hoặc hàm 
+đang được xóa, sau đó nhấn phím 
+Ví dụ: 1234567 + 889900
+  
+Ch/uni1EBF đ/uni1ED9 nh/uni1EADp chèn và ghi đè
+Trong ch/uni1EBF đ/uni1ED9 Line, b/uni1EA1n có th/uni1EC3 s/uni1EED d/uni1EE5ng ch/uni1EBF đ/uni1ED9 CHÈN            ho/uni1EB7c 
+ghi đè đ/uni1EC3 nh/uni1EADp li/uni1EC7u.
+Trong ch/uni1EBF đ/uni1ED9 Chèn (Ch/uni1EBF đ/uni1ED9 nh/uni1EADp m/uni1EB7c đ/uni1ECBnh), con tr/uni1ECF là m/uni1ED9t 
+dòng đ/uni1EE9ng nh/uni1EA5p nháy d/uni1ECDc "  " đ/uni1EC3 chèn m/uni1ED9t ký t/uni1EF1 m/uni1EDBi.
+Trong ch/uni1EBF đ/uni1ED9 Ghi đè, nh/uni1EA5n phím                  đ/uni1EC3 chuy/uni1EC3n đ/uni1ED5i con 
+tr/uni1ECF thành m/uni1ED9t dòng nh/uni1EA5p nháy ngang " _ " và thay th/uni1EBF ký t/uni1EF1 t/uni1EA1i 
+v/uni1ECB trí con tr/uni1ECF hi/uni1EC7n t/uni1EA1i.
+-
+-
+Trong ch/uni1EBF đ/uni1ED9 Maths, b/uni1EA1n ch/uni1EC9 có th/uni1EC3 s/uni1EED d/uni1EE5ng ch/uni1EBF đ/uni1ED9 chèn.
+Khi đ/uni1ECBnh d/uni1EA1ng hi/uni1EC3n th/uni1ECB chuy/uni1EC3n t/uni1EEB ch/uni1EBF đ/uni1ED9 Line sang ch/uni1EBF đ/uni1ED9 Maths, nó 
+s/uni1EBD t/uni1EF1 đ/uni1ED9ng chuy/uni1EC3n sang ch/uni1EBF đ/uni1ED9 chèn.
+Cách 1:
+Chèn ở chế độ 
+Maths/ Line
+Cách 2:
+Ghi đè - chỉ ở chế độ 
+Line
+(1) Thay thế một mục  (1234567       1234560)  ......   
+(2) Xóa bỏ   (1234567       134567)....... 
+lần
+lần
+Cách 1:
+Chèn ở chế độ 
+Maths/ Line
+Cách 2:
+Ghi đè - chỉ ở chế độ 
+Line
+Chế độ cài đặt Thao tác phím Màn hiển thị
+===== PAGE 11 =====
+Biên độ tính
+±1 ở chữ số ít quan trọng nhất cho 
+hiển thị mũ
+±1 × 10–99 to ±9.999999999 × 1099 or 0
+11
+(3) Chèn vào (889900        2889900) .......
+Nhập và hiển thị kết quả trong Chế độ Maths 
+Trong chế độ Toán học, việc nhập và hiển thị kết quả của 
+phân số hoặc một số hàm nhất định (log, x2, x3, x  ,     ,3    , 
+          , x-1,10 , e ,  |x|) được hiển thị dưới dạng Maths viết tay.
+Chèn ở chế độ 
+Maths/ Line
+Dung lượng đầu vào và Báo lỗi
+CHẾ ĐỘ MATHS:
+Ví dụ Thao tác bấm Hiển thị màn hình
+Chú ý
+(1) Một số biểu thức đầu vào làm cho chiều cao của biểu thức 
+tính toán vượt quá một màn hình hiển thị. Dung lượng đầu 
+vào tối đa:  2 màn hình hiển thị (31 điểm ảnh x 2).
+(2) Bộ nhớ máy tính giới hạn số lượng hàm hoặc dấu ngoặc có 
+thể nhập trong một biểu thức duy nhất. Trong trường hợp này, 
+chia biểu thức thành nhiều phần và tính toán mỗi phần một 
+cách riêng biệt..
+(3) Nếu một phần của biểu thức bị cắt bớt sau khi tính toán và 
+trên màn hình hiển thị kết quả, bạn có thể nhấn các phím mũi 
+tên      hoặc      để xem toàn bộ biểu thức.
+Độ chính xác của máy tính và biên độ đầu vào
+Số chữ số cho tính 
+toán nội bộ
+Độ chính xác
+Lên đến 18 chữ số
+±1 ở chữ số thứ 10 cho một phép tính 
+     6 lần
+ 
+1234567+|889900
+1234567+2|889900
+===== PAGE 12 =====
+12
+  Biên độ giá trị nhập vào các hàm
+DEG 0    |x| <9×109
+RAD 0    |x| <157 079 632.7
+GRA 0    |x| <1x1010
+DEG 0    |x| <9×109
+RAD 0    |x| <157 079 632.7
+GRA 0    |x| <1x1010
+DEG Giống sinx, trừ |x| =(2n-1)×90
+RAD Giống sinx, trừ |x| =(2n-1)×   /2
+GRA Giống sinx, trừ |x| =(2n-1)×100
+0    |x|    9.999 999 999x1099
+0    |x|    4.999 999 999x1099
+1    x    4.999 999 999x1099
+0    |x|    9.999 999 999x1099
+0    |x|    9.999 999 999x10-1
+0< x     9.999 999 999x1099
+-9.999 999 999 x1099    x    99.999 999 99
+-9.999 999 999 x1099    x    230.258 509 2
+0    x <1x10100
+|x|<1x1050
+|x|    2.154 434 69x1033
+|x|<1x10 100,x     0   
+|x|<1x10100
+0    x    69 (x là số nguyên)
+0    n < 1x1010, 0    r    n (n,r là số nguyên)
+1    {n!/((n-r)!} < 1x10100
+0    n < 1x1010, 0    r    n (n,r là số nguyên)
+1    n!/r! < 1x10100 or 1    n!/(n-r)! < 1x10100
+sinx
+cosx
+tanx
+sin-1x
+cos-1x
+tan-1x
+sinhx
+coshx
+sinh-1x
+cosh-1x
+tanhx
+tanh-1x
+logx/lnx
+10x
+ex
+x2
+x3
+x-1
+3
+x!
+nPr
+nCr
+Biên độ giá trịChức năng
+0    |x|    1
+0    |x|    230 258 509 2
+===== PAGE 13 =====
+0<|x,y|    9.999999999x1012
+Kết quả mặc định=x when y=0
+|x|<1x10100
+|FREQ|<1x10100
+|x|<1x10100
+|y|<1x10100
+|FREQ|<1x10100
+|x|<1x10100
+x    9999999999 (Số nguyên dương)
+Dương: 0~0111 1111 1111 1111 1111 1111 1111 1111
+Âm: 1000 0000 0000 0000 0000 0000 0000 0000~
+ 1111 1111 1111 1111 1111 1111 1111 1111
+Dương: 0~2147483647
+Âm: -2147483648~-1
+Dương: 0~177 7777 7777
+Âm: 200 0000 0000~377 7777 7777
+Dương: 0~7FFF FFFF
+Âm: 8000 0000~FFFF FFFF
+a và b là số nguyên trong khoảng –1 • 10^10 < a    b <1 • 10^10.
+a và b là số nguyên trong khoảng –1 • 10^10 < a    b <1 • 10^10.
+Mod(x,y)
+ABS
+BIN
+DEC
+OCT
+HEX
+Pfact
+1 biến
+Cặp biến
+Chức năng
+ 
+  Kết quả phép tính chứa dấu 
+Máy tính Canon có thể hiển thị dấu căn    trong tất cả các 
+trường hợp sau:
+1. Khi kết quả tính toán trung gian và cuối cùng được hiển thị 
+dưới dạng     
+2. Khi số lượng thuật ngữ trong kết quả tính toán trung gian và 
+cuối cùng có một hoặc hai dấu      .
+• Lỗi tích lũy trong trường hợp các phép tính liên tục. Điều này
+     cũng đúng cho các phép tính liên tục nội bộ được thực hiện
+     với các phép toán như ^(xy), x^y, 3√, x!, nPr, nCr,     ,  v.v., và
+     những lỗi này có thể trở nên đáng kể.
+Biên độ giá trị
+13
+===== PAGE 14 =====
+  t
+Bộ nhớ được gọi (A, B, C, D, E, F, 0-9), Rand
+Phép tính trong ngoặc ( ).
+Hàm có dấu ngoặc đơn yêu cầu đối số đầu vào ở 
+bên phải                                   Pol(, Rec(, d/dx,   dx, P(, Q(, R(, 
+Det(, Trn(, Ide(, Adj(, Inv(, Arg(, Conjg(, Real(, Imag(, 
+sin(, cos(, tan(, sin–1(, cos–1(, tan–1(, sinh(, cosh(, 
+tanh(, sinh–1(, cosh–1(, tanh–1(, log(, ln(, e^(, 10^(,    (,   
+3   (, Abs(, ROUND(, LCM(, GCD(, Q…r(, i~Rand(,
+Các hàm xuất hiện sau giá trị đầu vào và đứng trước 
+các giá trị, lũy thừa, căn lũy thừa
+x2, x3
+, x–1, x!, ° ’ ”, °, r, g, ^(, 
+x   (, Percent %, logab, EXP,     
+Phân số, hỗn số: a b/c, d/c
+Ký hiệu đầu số: (–) (dấu âm), dấu hiệu base-n
+(d, h, b, o, Neg, Not)
+Tính toán giá trị ước lượng thống kê:
+Các lệnh chuyển đổi đơn vị  (cm     in, etc)   
+Phép nhân khi dấu nhân được bỏ qua: dấu nhân nằm
+ngay trước ký hiệu    , e, các biến  (2   , 5A,    A, etc.),
+hàm có dấu ngoặc đơn (2    (3), Asin(30), etc.)
+Tổ hợp, chỉnh hợp: nPr, nCr
+Biểu tượng tọa độ cực của số phức (<)
+Dấu chấm: .
+Phép nhân và chia: ×, ÷
+Phép cộng, trừ: +, –
+Phép logic AND (và)
+Phép logic OR, XOR, XNOR (Hoặc, xor, xnor)
+Hướng tới kết thúc tính toán: =, M+, M- STO ( lưu
+dữ liệu),    r<   ,    a+bi
+1st ưu tiên
+2nd
+3rd
+4th
+5th
+6th
+7th
+8th
+9th
+10th
+11th
+12th
+13th
+14th
+15th
+x, y, x1, x2ˆ ˆ ˆ ˆ
+Thứ tự thực hiện các phép toán
+Bộ máy tính này sẽ tự động xác định ưu tiên thực hiện của
+mỗi lệnh cá nhân là:
+14
+===== PAGE 15 =====
+ Với cùng mức độ ưu tiên trong phép tính, máy tính sẽ thực 
+     hiện tính từ trái qua phải.
+ Các phép tính được đặt trong ngoặc sẽ được thực hiện trước. 
+     Khi một phép tính chứa một đối số là một số âm, số âm đó 
+     phải được đặt trong ngoặc.
+ 
+Ví dụ 1:
+Ví dụ 2:
+Ví dụ 3:
+  Thông báo lỗi và Bộ định vị lỗi
+     Máy tính bị khóa khi một thông báo lỗi được hiển thị trên 
+màn hình để chỉ ra nguyên nhân của lỗi. 
+     Nhấn         để loại bỏ thông báo lỗi và trở về màn hình ban 
+đầu của Mode đang sử dụng.
+ Nhấn       hoặc       để tới màn hình nhập dữ liệu với vị trí con 
+trỏ ở ngay cạnh vị trí xác định được lỗi.
+     Nhấn         để loại bỏ thông báo lỗi, loại bỏ bộ nhớ máy tính 
+đang có và trở về màn hình mặc định của Mode đang dùng.
+Bộ máy tính này sử dụng các vùng bộ nhớ, gọi là “ngăn xếp” 
+(Stacks), để tạm thời lưu trữ các giá trị số (số), các lệnh (+, 
+–, x…), và các hàm theo độ ưu tiên của chúng trong quá 
+trình tính toán. 
+Ngăn xếp số có 10 cấp độ, và ngăn xếp lệnh có 128 cấp độ. 
+Một lỗi ngăn xếp [Stack ERROR] xảy ra mỗi khi bạn cố gắng 
+thực hiện một phép tính vượt quá dung lượng của các ngăn 
+xếp. 
+Các tính toán được thực hiện theo trình tự theo "Thứ tự thực 
+hiện các phép toán". Sau khi tính toán được thực hiện, các 
+giá trị được lưu trữ trong ngăn xếp sẽ được giải phóng.
+Bộ nhớ phép tính
+15
+===== PAGE 16 =====
+• Nhấn        /        để hiển thị
+vị trí gây ra lỗi và thực hiện
+các sửa đổi cần thiết.
+• Nhấn        /       để hiển thị
+con trỏ tại vị trí của lỗi, thực
+hiện các sửa đổi phù hợp.
+Thông báo lỗi Nguyên nhân Điều cần làm
+Math ERROR • Kết quả trung gian hoặc cuối cùng nằm ngoài phạm 
+vi tính toán cho phép.
+• Một cố gắng thực hiện tính 
+toán bằng cách sử dụng 
+một giá trị vượt quá phạm vi 
+đầu vào cho phép.
+• Một cố gắng thực hiện một 
+phép toán không hợp lý 
+(chia cho không, vv.).
+Kiểm tra các giá trị đầu vào
+và đảm bảo rằng chúng đều
+nằm trong phạm vi cho
+phép. Đặc biệt chú ý đến
+các giá trị trong bất kỳ vùng
+bộ nhớ nào đang được sử
+dụng.
+Stack ERROR • Dung lượng của ngăn xếp số hoặc ngăn xếp toán tử 
+đã vượt quá.
+• Đơn giản hóa phép tính.
+• Chia phép tính thành hai 
+hoặc nhiều phần riêng biệt.
+•  Một phép toán có lỗi về 
+toán học.
+• Kết quả tính toán của các 
+tham số trong chế độ Bảng 
+Hàm đã dẫn đến việc tạo ra 
+hơn 30 giá trị x cho một 
+bảng.
+   Thu phạm vi tính toán 
+bảng bằng cách thay đổi 
+các giá trị bắt đầu, kết thúc 
+và Step, sau đó thử lại.
+• Máy tính không thể giải 
+được phương trình
+• Phương trình không phải là 
+một phương trình đúng.
+• Phương trình không bao 
+gồm biến X.
+• Biến giải pháp không tương 
+tự như biến được chỉ định 
+trong biểu thức.
+• Kiểm tra lỗi trong phương 
+trình bạn nhập.
+• Nhập một giá trị cho biến 
+giải pháp gần với giải pháp 
+dự kiến và thử lại.
+• Nhấn        /        để hiển thị
+vị trí gây ra lỗi và thực hiện
+các sửa đổi cần thiết.
+•  Phép tính kết thúc mà 
+không đạt được điều kiện 
+kết thúc.
+•  Sử dụng đối số không đúng 
+cách
+• Kích thước (dòng, cột) vượt 
+quá.
+• Một cố gắng thực hiện một 
+phép toán ma trận/vector 
+không hợp lệ.
+Sửa lại điều kiện kết thúc và 
+thử lại.
+(xem trang 51-52)
+• Sửa đúng phương trình để
+bao gồm biến X.
+• Sửa đúng phương trình để
+phù hợp với biến giải pháp
+và biểu thức.
+(tham khảo trang 49)
+Syntax ERROR
+Insufficient 
+MEM
+Dimension 
+ERROR
+(only in Matrix 
+or Vector)
+Can’t Solve 
+ERROR 
+(only in SOLVE 
+function)
+Variable 
+ERROR
+(only in SOLVE 
+function)
+Time Out 
+ERROR
+(only in 
+Differential or 
+integration 
+Calculations 
+Argument 
+ERROR
+16
+===== PAGE 17 =====
+(-2.5)2
+                              
+4E75x
+25
+4
+1
+1250
+(-2.5)2
+(4 x 1075)(-2 x 
+10-79)
+Hiển thịThao tác phímVí dụ
+CHẾ ĐỘ MATHS:
+ Phép tính số học
+• Để tính các giá trị âm (loại bỏ số mũ âm), hãy đặt chúng 
+trong ngoặc.
+• Máy tính này hỗ trợ 99 cấp độ biểu thức ngoặc.
+ Nhấn                 để cài chế độ COMP.
+ Trong quá trình tính toán, máy tính hiển thị thông báo 
+[PROCESSING] (mà không có kết quả tính toán nào). 
+Nhấn phím "          " để ngắt quá trình tính toán.
+Tính toán cơ bản
+ Bộ nhớ biến
+• Có 19 biến bộ nhớ (0 – 9, A – F, M, X và Y), lưu trữ dữ 
+liệu, kết quả, hoặc các giá trị được chỉ định.
+• Lưu trữ giá trị bằng cách nhấn              + biến lưu giá trị.
+• Lấy lại giá trị đã gán cho biết bằng cách nhấn        + biến
+• Giá trị của biến có thể đặt lại toàn bộ khi nhấn
+        + Memory variable.
+Ví dụ:  23 + 7    A (30 lưu vào biến A), tính 2sinA rồi xóa bộ
+nhớ của A.
+Bộ nhớ máy tính
+17
+===== PAGE 18 =====
+Ans2
+ 335241
+789900-Ans
+ 454659
+123 + 456      M+,
+Ans2 = 335,241
+789900 – Ans = 
+454,659
+Hiển thị Thao tác phím  Ví dụ
+Bộ nhớ đáp án
+• Các giá trị đầu vào hoặc kết quả tính toán gần đây nhất 
+sẽ tự động được lưu vào bộ nhớ đáp án mỗi khi bạn 
+nhấn       ,              ,       ,             ,             . Bộ nhớ đáp 
+án có thể lưu lên tới 18 ký tự số.
+• Lấy và sử dụng bộ nhớ đáp án đã lưu gần đây nhất 
+bằng cách nhấn       .
+• Bộ nhớ đáp án không được cập nhật khi một phép tính 
+lỗi đã được thực hiện.
+• Nội dung bộ nhớ đáp án có thể được duy trì ngay cả sau 
+khi nhấn        , thay đổi chế độ tính toán hoặc tắt máy 
+tính.
+23+7     A
+ 30
+2sin(A
+ 1
+0     A
+ 0
+23 + 7      A
+2 x sin A = 1
+Xóa bộ nhớ
+Hiển thịThao tác phím  Ví dụ
+Bộ nhớ độc lập
+• Bộ nhớ độc lập       sử dụng cùng khu vực bộ nhớ với 
+biến M. Điều này tiện lợi cho việc tính tổng tích lũy bằng 
+cách nhấn         (thêm vào bộ nhớ) hoặc       (trừ từ bộ 
+nhớ).
+•   Nội dung bộ nhớ được giữ lại ngay cả khi máy tính được 
+tắt nguồn.
+•   Xóa bộ nhớ độc lập (M) bằng cách nhấn
+•   Xóa tất cả các giá trị bộ nhớ bằng cách nhấn          
+2(MCL)
+18
+CHẾ ĐỘ MATHS:
+===== PAGE 19 =====
+ Bỏ đi dấu ngoặc đóng cuối cùng trước dấu          ,          ,         ,
+         và
+2.333333333
+1 + =12
+(Phân số      Thập phân)
+(Số thập phân   
+          Hỗn số)
+Hiển thị Thao tác phím  Ví dụ
+ 
+5
+6 1 +12 56
+1 +12 56
+1 +12
+2 13
+22.333333333
+2.333333333
+1
+3
+7
+3
+5
+6
+7
+3
+7
+3
+ Nhấn          để chuyển đổi kết quả tính toán giữa định dạng 
+phân số và thập phân.
+ Nhấn                 để chuyển đổi kết quả tính toán giữa định 
+dạng phân số và hỗn số.
+ Kết quả sẽ được hiển thị dưới dạng thập phân tự động mỗi khi 
+tổng số chữ số của một giá trị phân số (số nguyên + tử số + 
+mẫu số + dấu phân cách) vượt quá 10. 
+ Khi một phép tính phân số kết hợp với các giá trị thập phân, 
+kết quả sẽ được hiển thị dưới dạng thập phân.
+Chế độ Maths
+Chế độ Line 3_|2_|311_|3
+Hỗn số (a b/c)Phân số (d/c)
+11
+3
+2
+33
+Chuyển đổi Phân số        Số thập phân 
+19
+  Tính toán phân số
+Máy tính hỗ trợ tính toán phân số và các chuyển đổi giữa Phân 
+số và Số thập phân, Hỗn số và Phân số.
+• Xác định định dạng hiển thị kết quả tính toán phân số bằng 
+cách chọn giữa hỗn số (       ) hoặc phân số (      ) trong menu 
+thiết lập.
+• Ở cài đặt mặc định, phân số được hiển thị dưới dạng phân số  
+(      ).
+• Kết quả hiển thị hỗn số chỉ có sẵn sau khi chọn (      ) trong 
+menu thiết lập.
+CHẾ ĐỘ MATHS:
+===== PAGE 20 =====
+Ở chế độ Maths, nhấn         để thay đổi hiển thị kết quả
+giữa các dạng Phân số      Số thập phân,          Số thập phân,
+         Số thập phân.
+ Ở chế độ Line, nhấn         CHỈ để thay đổi dạng giá trị kết
+quả giữa dạng Phân số      Số thập phân, các dạng hiển thị
+    và       sẽ chỉ biểu diễn dưới dạng số thập phân.   
+Chú ý:
+• Trong một số kết quả tính toán, việc nhấn         sẽ không 
+     chuyển đổi hiển thị kết quả.
+• Một số chuyển đổi kết quả hiển thị có thể mất thời gian.
+ =0.5773502692
+ =0.3926990817
+Hiển thịThao tác phím  Ví dụ
+÷ =
+0.5773502692
+0.3926990817
+ 3
+3
+1
+8
++2 8
+3
+2
+3
+ 2.666666667
++223
+CHẾ ĐỘ LINE:
+Hiển thịThao tác phím  Ví dụ
+2_|3+2
+ 8_|3
+2_|3+2
+ 2.666666667
+ Hiển thị chuyển đổi giá trị
+20
+CHẾ ĐỘ MATHS:
+===== PAGE 21 =====
+ Tính Phần trăm
+ Phép tính Độ - Phút - Giây
+Sử dụng phím độ (giờ), phút và giây để thực hiện tính toán 
+hệ thập lục phân (hệ số 60) hoặc chuyển đổi giá trị hệ thập 
+lục phân thành giá trị thập phân.
+Độ-Phút-Giây        Số thập phân
+820x25%
+ 205
+750÷1250%
+ 60
+Tính 25% của 820 
+Hiển thị  Thao tác phím Ví dụ
+750 là bao nhiêu 
+phần trăm của 
+1250
+86º37 º 34.2 º ÷ 0.7
+ 
+ 123º45’6”
+86º37 º 34.2 º ÷ 0.7
+ 123.7516667
+2.3456
+ 2º20’44.16”
+86º37’34.2” ÷ 0.7 = 
+123º45’6” 
+123º45’6”     123.7516667
+2.3456     2º20’44.16”
+Hiển thịThao tác phím  Ví dụ
+21
+CHẾ ĐỘ MATHS:
+CHẾ ĐỘ MATHS:
+===== PAGE 22 =====
+Phát lại và Tính đa nhiệm
+   Chức năng bộ nhớ phát lại
+• Bộ nhớ phát lại chỉ có sẵn trong chế độ COMP.
+• Sau khi tính toán được thực hiện, đầu vào tính toán và kết 
+quả sẽ được tự động lưu trong bộ nhớ phát lại.
+• Nhấn nút      (hoặc      ) để phát lại lịch sử dữ liệu đầu vào 
+và kết quả tính toán đã thực hiện.
+• Sau khi nhận được kết quả tính toán trên màn hình,
+   nhấn        /       để chỉnh sửa biểu thức đầu vào của kết quả 
+đó.
+• Nếu       chỉ báo ở phía bên phải của kết quả tính toán, bạn 
+cần nhấn         và sau đó      /     để cuộn tính toán.
+•  Bộ nhớ phát lại sẽ được xóa khi bạn:
+1. Reset cài đặt máy tính với: 
+2. Thay đổi chế độ hoặc cài đặt màn hình sang chế độ 
+khác.
+3. Nhấn
+4. Nhấn                để tắt máy.
+ Tính đa nhiệm
+• Dùng dấu        ghép hai hoặc nhiều biểu thức tính toán lại 
+với nhau.
+• Biểu thức tính toán được thực thi đầu tiên sẽ có thông báo 
+"Disp"; và biểu tượng "Disp" sẽ biến mất sau khi biểu thức 
+cuối cùng được thực thi.
+Disp
+1x12:2+25|
+1x12
+ 12
+2+25
+ 27
+1x12
+ 12
+1x12=12
+2+25=27
+Sử dụng một lệnh 
+tính đồng thời
+(1 x 12 = 12)
+Hiển thị Thao tác phím  Ví dụ
+Hiển thị các phép 
+tính trước đó
+22
+CHẾ ĐỘ MATHS:
+===== PAGE 23 =====
+Máy tính F-789SGA có tổng cộng 79 giá trị hằng số tích hợp, 
+bạn có thể nhập (hoặc thoát) khỏi menu lựa chọn giá trị hằng 
+số bằng cách nhấn            , màn hình sau sẽ hiển thị:
+• Bạn có thể tìm các giá trị tiếp theo hoặc trước đó bằng cách 
+nhấn        /
+• Để chọn một giá trị hằng số, nhấn      hoặc     . Con trỏ lựa 
+chọn sẽ dịch chuyển sang trái hoặc phải để gạch chân một ký 
+hiệu hằng số và dòng dưới cùng sẽ hiển thị giá trị của ký hiệu 
+hằng số được gạch chân.
+• Ký hiệu hằng số được gạch chân sẽ được chọn khi bạn nhấn
+   dấu:         .
+• Bạn có thể ngay lập tức nhận được giá trị hằng số nếu nhập 
+số mục giá trị hằng số và nhấn       khi con trỏ lựa chọn đang 
+gạch chân 0 0. 
+Giá trị hằng số khoa học
+(Màn hình danh mục)
+ Thao tác phím Hiển thị
+Input     1    79                 0  0
+   mp     mn      me      m     ao
+g|
+g+35
+              44.80665
+Ansx50
+ 2240.3325
+23
+===== PAGE 24 =====
+24
+Khối lượng Proton
+Khối lượng Notron
+Khối lượng Electron
+Khối lượng Muon
+Hằng số Planck
+Bán kính Bo
+Hệ số từ hạt nhân
+Bán kính Electron cổ điển
+Bước sóng Compton
+Hằng số Rydberg
+Đơn vị nguyên tử khối (quy ước)
+Moment từ trường Proton
+Moment từ trường Electron
+Moment từ trường Notron
+Moment từ trường Muon
+Hằng số khí lý tưởng
+Vận tốc ánh sáng trong trân không
+Hằng số Faraday
+Hằng số Avogadro
+Hằng số Bôi-men
+Hằng số bức xạ thứ 1
+Hằng số bức xạ thứ 2
+Thể tích khí lý tưởng Molar
+Điện tích nguyên tố
+Bước sóng Compton của proton
+Bước sóng Compton của notron
+Tỷ số giả định của proton gyrômagnetic
+Hằng số cấu trúc tinh tế
+Hệ số từ Bo
+NO. Đơn vịGiá trịHằng số
+Bảng hằng số
+1.672621777x10-27
+1.674927351 x10-27
+9.10938291x10-31
+1.883531475x10-28
+0.52917721092x10-10
+6.62606957 x10-34
+5.05078353 x10-27
+927.400968 x10-26
+1.054571726 x10-34
+7.2973525698x10-3
+2.8179403267x10-15
+2.4263102389 x10-12
+2.675222005 x108
+1.3195909068x10-15
+1.660538921 x10-27
+1.410606743x10-26
+-928.476430x10-26
+-0.96623647 x10-26
+-4.49044807 x10-26
+1.602176565x10-19
+1.3806488 x10-23
+22.413968 x10-3
+3.74177153x10-16
+1.4387770 x10-2
+8.3144621
+299792458
+6.02214129x1023
+96485.3365
+10973731.568539
+1.32140985623 x10-15
+Ký hiệu
+===== PAGE 25 =====
+25
+Hằng số Stefan - Boltsmann
+Kháng trở đặc trưng chân không
+Nhiệt độ Celsius tại 0 độ C
+Hằng số lực hấp dẫn
+Áp suất khí quyển
+Công lực điện nguyên tố
+Hằng số Planck hóa học
+Năng lượng Hartree
+Hằng số Josephson
+Hằng số
+Thiết điện Thomson
+Mô-men từ dị thường của Electron
+Hằng số Loschmidt
+Hằng số Định luật chuyển dịch Wien
+Tham số mạng tinh thể
+của Si (chân không, 22.5   )
+Khối lượng đơn vị nguyên tử
+Độ dài Planck
+Khối lượng Planck
+Thời gian Planck
+Hằng số Landé g
+Từ thông lượng tử
+Độ từ thẩm chân không
+Lượng tử độ dẫn điện
+Gia tốc trọng trường
+Hằng số điện thẩm chân không
+Dẫn điện lượng tử nghịch đảo
+Hằng số Landerg e
+Hằng số Landerg e
+Hệ số từ hổi chuyển của Electron
+Mô-men dị thường của Muon
+NO.
+5.670373x10-8
+8.854187817 x10-12
+12.566370614x10-7
+2.067833758 x10-15
+7.7480917346x10-5
+6.67384 x10-11
+0.21001941568x10-15
+1.616199x10-35
+5.39106x10-44
+2.17651 x10-8
+1.660538921 x10-27
+1.602176565x10-19
+3.9903127176x10-10
+2.8977721 x10-3
+543.1020504 x 10-12
+4.35974434 x10-18
+2.6867805 x1025
+12906.4037217
+483597.870 x109
+386.15926800x10-15
+0.6652458734 x10-28
+1.15965218076 x10-3
+1.760859708x1011
+1.16592091 x10-3
+-2.0023318418
+-2.00231930436153
+25812.8074434
+9.80665
+376.730313461
+273.15
+101325
+5.585694713
+Pa
+Hằng số Giá trị Đơn vịKý hiệu
+===== PAGE 26 =====
+26
+! Các giá trị hằng số không thể làm tròn.
+Bước sóng Compton Muon
+Bước sóng Compton Tau
+Mô-men từ trường hạt Deuteron
+Khối lượng hạt Tau
+Khối lượng hạt Deuteron
+Khối lượng hạt Helion
+Khối lượng hạt 
+Mô-men từ của Proton bị che
+chắn
+Mô-men từ của Helion bị che
+chắn
+Hằng số Landerg n
+Hệ số từ hồi chuyển Notron
+Hệ số từ hồi chuyển Helion
+Hệ số từ hồi chuyển Proton bị che
+(thể khí, hình cầu,     )
+hình cầu
+Nguồn:  CODATA Quốc tế 2010
+ http://physics.nist.gov/constants
+11.73444103x10-15
+1.867594294x10-15
+0.697787 x10-15
+0.111056 x10-15
+3.16747 x10-27
+1.410570499 x10-26
+1.83247179 x108
+2.037894659 x108
+2.675153268 x108
+3.34358348 x10-27
+0.433073489 x10-26
+-1.074553044 x10-26
+5.00641234 x10-27
+6.64465675 x10-27
+25.694 x10-6
+-3.82608545
+0.21030891047 x10-15
+NO.
+Hệ số điều chỉnh che chắn từ tính
+của
+Hằng số Giá trị Đơn vịKý hiệu
+===== PAGE 27 =====
+ Đổi đơn vị đo
+Máy tính có 172 cặp chuyển đổi cho phép bạn chuyển đổi một số từ
+và sang các đơn vị đo lường mét được chỉ định.
+• Nhấn        để vào menu chuyển đổi.
+• Có 8 trang loại hình (khoảng cách, diện tích, nhiệt độ, dung tích, 
+trọng lượng, năng lượng, áp suất và tốc độ) chứa 36 ký hiệu mét, 
+bạn có thể nhấn      /     để thay đổi trang lựa chọn loại hình.
+• Trong một trang loại hình, bạn có thể dịch chuyển con trỏ lựa chọn 
+cách nhấn       /      
+Trang Đơn vịKý hiệu
+ 1 feet feet
+ 1 m met
+ 1 mil mililit
+ 1 mm milimet
+ 1 in inch
+ 1 cm centimet
+ 1 yd yard
+ 1 mile dặm
+ 1 km kilomet
+ 2 ft2 feet vuông
+ 2 yd2 yard vuông
+ 2 m2 mét vuông
+ 2 mile2 dặm vuông
+ 2 km2 kilo mét vuông
+ 2 hectares héc ta
+ 2 acres acre
+ 3 oF độ F
+ 3 oC độ C
+ 4 gal gallon (U.K.)
+ 4 liter lít
+ 4 B.gal gallon (U.S.)
+ 4 pint pint
+ 4 fl.oz fluid ounces (U.S.)
+ 5 Tr.oz ounce (troy hoặc apothecary) 
+ 5 oz ounces
+ 5 lb libra
+ 5 Kg kilogam
+ 5 g gam
+ 6 J jun
+ 6 cal.f calo
+ 7 atm Áp sất khí quyển atm
+ 7 Kpa kilopascal
+ 7 mmHg milimet thủy ngân
+ 7 cmH2O centimet nước
+ 8 m/s met trên giây
+ 8 km/h kilomet trên giờ
+27
+===== PAGE 28 =====
+28
+• Quay lại chế độ tính toán bằng cách nhấn          trong menu lựa 
+chọn đại lượng. Sau đơn vị chuyển đổi cơ bản,      /      , hoặc    
+sẽ không còn có hiệu lực.
+Ví dụ: Đổi đơn vị 10 + (5 ft2     m2) = 10.4645152 ......
+• Nếu kết quả chuyển đổi vượt quá giới hạn, [Lỗi] sẽ được hiển thị ở 
+dòng dưới cùng. Nhấn       để chọn giá trị vượt quá; các trường hợp 
+sau đây sẽ có thể xảy ra:
+   + Trường hợp A - Tiếp tục lựa chọn giá trị chuyển đổi khác bằng 
+cách nhấn      hoặc      .
+   + Trường hợp B - Xóa màn hình và thoát khỏi lựa chọn bằng cách 
+nhấn        hoặc        .
+   + Trường hợp C - Quay trở lại màn hình tính toán trước bằng cách 
+nhấn        .
+   
+(danh mục lựa chọn)
+              (xác nhận lựa chọn ft  )2
+                    (xác nhận đơn vị
+chuyển thành m 2)
+ 
+Thao tác phím Hiển thị
+Unit (distanc e) 
+feet    m     mil   mm   in 
+cm    y d    mile   k m
+ft2     yd2     m2     mile2
+km2   ha     acres
+                             5
+ Bình phương, Căn bậc hai, Lập phương, Căn bậc ba,
+ Lũy thừa, Căn bậc thứ, Nghịch đảo và Pi
+ Nhấn                  để vào chế độ COMP
+    = 3.1415926535897932324
+ e = 2.7182818284590452324
+Chế độ tính toán khoa học
+= 0.6217559776
+0.6217559776
+7
+= 7 
+Hiển thịThao tác phímVí dụ
+CHẾ ĐỘ MATHS:
+CHẾ ĐỘ MATHS:
+)
+ 
+Ví dụ Thao tác phím Hiển thị
+Chế độ tính toán khoa học
+Bình phương, Căn bậc hai, Lập phương, Căn bậc ba,
+Lũy thừa,Căn bậc thứ, Nghịch đảo và Pi
+===== PAGE 29 =====
+29
+Logarit, Logarit tự nhiên, Nghịch đảo logarit
+ Đổi đơn vị góc
+Cài đặt mặc định cho đơn vị góc của máy tính là "Độ". Nhấn             
+để vào menu thiết lập để thay đổi đơn vị thành "Rad” hoặc “Gra”
+Nhấn phím số tương ứng , hoặc cho đơn vị góc bạn cần. Sau 
+đó màn hình sẽ hiển thị chỉ báo      ,     ,     tương ứng.
+Chuyển đổi đơn vị góc giữa "Độ", "Rad" và "Gra" bằng cách 
+nhấn  
+Sau đó  nhấn        ,        , hoặc          sẽ chuyển đổi giá trị hiển 
+thị thành đơn vị góc đã chọn.
+GRD
+e-3 + 101.2 + In3 = 
+16.99733128
+log381 – log1 = 4
+16.99733128
+4
+Hiển thịThao tác phím  Ví dụ
+Chuyển 180 
+độ sang radian 
+và gradian
+(180º =    Rad = 
+200Gad)
+180º
+180º
+ 200
+Hiển thịThao tác phím  Ví dụ
+CHẾ ĐỘ MATHS:
+CHẾ ĐỘ MATHS:
+===== PAGE 30 =====
+Deg
+Rad
+Gra
+Ước của 15º
+Bội của          radian
+Bội của       gradian
+Giá trị GócCài đặt đơn vị Góc Phạm vi đầu vào cho    kết quả
+ Tính toán lượng giác
+ Trước khi sử dụng các hàm lượng giác (ngoại trừ tính 
+toán hyperbolic), chọn đơn vị góc phù hợp 
+(Deg/Rad/Gra) bằng cách nhấn
+ 90º =     Radian = 100 Gradian.
+ Hàm Hypebol (sinh/ cosh/ tanh), Nghịch đảo hàm 
+Hypepol (sinh-1/cosh-1/tanh-1) 
+ Nhấn         để vào danh sách hàm Hypepol.
+Chế độ Độ
+Sin 60 = 
+       =Cosec 45º =  
+sin(60
+sin(45)-1
+Hiển thịThao tác phím  Ví dụ
+1
+Sin45o
+ 3
+2
+ 3
+2
+2
+sinh2.5 – cosh 2.5 
+= -0.082084998
+Cosh-145 
+= 4.499686191
+sinh(2.5) – cosh( 
+ 
+    -0.08208499862
+Hiển thịThao tác phím  Ví dụ
+cosh-1(45
+ 4.499686191
+30
+===== PAGE 31 =====
+ Số ngẫu nhiên
+                : Tạo một số ngẫu nhiên giữa 0.000 và 0.999. Kết 
+quả hiển thị sẽ ở định dạng phân số khi trong chế 
+độ toán học.
+                : Tạo một số ngẫu nhiên giữa hai số nguyên dương 
+được chỉ định. Số nhập vào sẽ được chia cho “.”
+*Giá trị chỉ là một mẫu, kết quả sẽ khác nhau mỗi lần.
+ Hoán vị:  
+ Tổ hợp:  
+ Giai thừa:  
+Hoán vị, Tổ hợp, Giai thừa và Ngẫu nhiên
+
+10P3 = 720
+5C2 = 10
+5! = 120
+10P3
+ 720
+5C2
+ 10
+5!
+ 120
+Hiển thịThao tác phím  Ví dụ
+Lấy một số ngẫu
+nhiên trong khoảng
+0.000 & 0.999
+Lấy một số nguyên
+ngẫu nhiên từ 1 đến
+100
+Hiển thịThao tác phím  Ví dụ
+Rand
+ 
+i~Rand(1,100
+ 33
+139
+1000
+31
+CHẾ ĐỘ MATHS:
+===== PAGE 32 =====
+Tích của tập hợp hoặc chuỗi (    )
+Nhấn               để vào mode COMP
+a= Giá trị khởi đầu   b= Giá trị kết thúc      c= Hàm số
+Chế độ Maths Chế độ Line :
+Ví dụ: Tích chuỗi của ( x+1) từ 0 đến 5
+Apps
+720
+(x + 1)
+=0
+Thao tác phím Hiển thị
+Nhấn               để vào chế độ COMP
+Giá trị lớn nhất và Giá trị nhỏ nhất
+Tổng của tập hợp hoặc chuỗi
+a= Giá trị khởi đầu   b= Giá trị kết thúc      c= Hàm số
+Chế độ Maths Chế độ Line
+Ví dụ: Tổng chuỗi của ( x+1) từ 0 đến 5
+Nhấn               để vào chế độ COMP
+Có thể so sánh tối đa 5 giá trị
+CHẾ ĐỘ LINE:
+Apps
+20
+Thao tác phím Hiển thị
+Tìm giá trị lớn nhất
+trong 3, sin30 và
+cos30
+Tìm giá trị nhỏ nhất
+trong 3, sin30 và
+cos30
+Max(3, sin(30), C
+Apps
+Min(3, sin(30), C
+Apps
+  Ví dụ Thao tác phím Hiển thị
+32
+CHẾ ĐỘ MATHS:
+===== PAGE 33 =====
+ LCM: Tính bội chung nhỏ nhất của (tối đa) ba số nguyên 
+dương.
+ GCD: Tính ước chung lớn nhất của (tối đa) ba số nguyên 
+dương.
+ Bội chung nhỏ nhất và Ước chung lớn nhất
+Tính toán phần dư sau phép chia (Mod)
+Nhấn               để vào chế độ COMP.
+Mod(23, 5
+Mod(-23, 5
+Apps
+Apps
+Tìm số dư của 
+phép chia 23 chia 5
+Tìm số dư của 
+phép chia -23 chia 5
+= 1755
+LCM(15,27,39
+ 
+ 1755
+GCD(12, 24, 60) 
+= 12
+GCD(12,24,60
+ 
+ 12
+Apps
+Apps
+CHẾ ĐỘ LINE:
+  Ví dụ Thao tác phím Hiển thị
+  Ví dụ Thao tác phím Hiển thị
+  Ví dụ Thao tác phím Hiển thị
+33
+CHẾ ĐỘ MATHS:
+CHẾ ĐỘ MATHS:
+===== PAGE 34 =====
+ Phân tích thành thừa số nguyên tố
+• Phân tích một số nguyên dương có tối đa 10 chữ số 
+thành các thừa số nguyên tố có tối đa 3 chữ số. 
+           Thừa số : 0 < X < 99999 99999 (X là số nguyên)
+     • Phần dư không thể phân tích thành thừa số nguyên tố 
+sẽ được đặt trong dấu ngoặc đơn trên màn hình. 
+Ví dụ:  99999 99999 = 32 x 11 x 41 x 271 x (9091) 
+                   
+NOTE:
+• Trong quá trình tính toán, nhấn                hoặc        , 
+           ,       sẽ làm màn hình thoát trạng thái hiển thị kết 
+quả phân tích thành thừa số nguyên tố.
+• Sử dụng menu thiết lập để thay đổi cài đặt đơn vị góc 
+(Độ, Radian, Gradian) hoặc cài đặt hiển thị chữ số (Cố 
+định, khoa học, bình thường).
+• [MATHS ERROR] sẽ được hiển thị nếu giá trị thập phân, 
+phân số, kết quả tính toán âm, hoặc Pol, Rec, Q...R 
+được hiển thị.
+Thao tác phím Hiển thị
+9999999999
+ 
+ 32x11x 41x 271x (9
+1777
+ 
+                             (1777)
+34
+CHẾ ĐỘ MATHS:
+===== PAGE 35 =====
+ “Thương” (Q) là kết quả của phép chia, “Phần dư” (r) là số 
+dư của phép chia số nguyên không chia hết.
+ Giá trị thương (Q) và số dư (r) sẽ được lưu lần lượt vào biến 
+bộ nhớ "C" và "D" tự động được gán sau phép chia.
+ Trong chế độ toán học Maths, nhấn      hoặc     để cuộn kết 
+quả tính toán dài.
+ Trong chế độ Dòng, giá trị phần nguyên (Q) và phần dư (r) 
+sẽ được hiển thị trên 2 dòng.
+ Chỉ có giá trị phần nguyên (Q) có thể tiếp tục được sử dụng 
+cho tính toán tiếp theo hoặc được lưu vào các biến bộ nhớ.
+ Tính toán Thương và Số dư
+LINE MODE:
+35 ÷ 10 = 3 x 10 +5
+Q=3
+R=5
+Thương  (Q) + 3 
+= 6
+Hiển thị lại thương (Q)
+Hiển thị lại số dư (r)
+Q…r(35, 10
+Q= 3
+R= 5
+Ans+3
+ 6
+C
+ 3
+D
+ 5
+Apps
+ Trong tọa độ polar, bạn có thể tính toán và hiển thị θ trong 
+khoảng -180º < θ ≤ 180º (Tương tự như Radian và Gradian).
+     
+     Trong chế độ Toán học, nhấn     /      để cuộn qua kết quả 
+tính toán.
+     Với chế độ Dòng, (x,y) hoặc (r, θ) sẽ được hiển thị trên 2 dòng.
+     Sau khi chuyển đổi, kết quả sẽ tự động được gán vào các 
+biến bộ nhớ X và Y. Nhấn               hoặc        để hiển thị kết 
+quả.
+ Chuyển đổi tọa độ
+Tọa độ hình chữ nhật 
+(Rec)
+Tọa độ cực (Pol)
+  Ví dụ Thao tác phím Hiển thị
+35
+===== PAGE 36 =====
+ Số thập phân kỹ thuật
+ Tính giá trị tuyệt đối
+: Chuyển đổi tọa độ hình chữ nhật (x, y) thành tọa độ 
+cực (r, θ); nhấn                  để hiển thị r, hoặc         
+          để hiển thị θ. 
+: Chuyển đổi tọa độ cực (r, θ) thành tọa độ hình chữ 
+nhật (x, y); nhấn               để hiển thị x,               để 
+hiển thị y .
+Với tọa độ chữ nhật
+Tìm tọa độ dạng 
+trục           ở chế 
+độ Deg
+ (x=1, y=
+X
+ 2
+Y
+ 60
+Rec(2, 60
+X= 1
+Y= 1.732050808
+X
+ 1
+Y
+ 1.732050808
+2.573442045
+1÷200 = 5x10-3 1÷200
+ 5x10-3
+1÷200
+ 5000x10-6
+1÷200
+ 5x10-3
+  Ví dụ Thao tác phím Hiển thị
+  Ví dụ Thao tác phím Hiển thị
+  Ví dụ Thao tác phím Hiển thị
+  Ví dụ Thao tác phím Hiển thị
+CHẾ ĐỘ LINES:
+CHẾ ĐỘ LINE:
+36
+CHẾ ĐỘ MATHS:
+Với tọa độ trục
+Tìm tọa độ dạng 
+chữ nhật (x,y) ở chế 
+độ Deg
+CHẾ ĐỘ MATHS:
+===== PAGE 37 =====
+37
+ Tính toán với Số phức
+Số phức có thể được biểu diễn bằng dạng đại số (z = a + bi) hoặc 
+dạng cực (r      ). Với " a " là phần, " bi " là phần ảo (với i là đơn vị 
+của phần ảo có giá trị i bằng căn bậc 2 của –1,   -1), " r " giá trị tuyệt 
+đối của số thực, và "   " hệ số góc của số phức.
+r
+4
+0 3 Phần thực
+Phần ảo ( i )
+ Nhấn                 để vào chế độ CPLX. 
+ Nhấn         để chọn kiểu tính toán.
+Lựa chọn kiểu số phức
+Có 6 loại tính toán số phức trên màn hình loại số phức. Nhấn số 
+tương ứng để chọn loại tính toán số phức:
+ Kiểm tra cài đặt đơn vị góc hiện tại. (Deg, Rad, Grad). 
+ [    ] Cho biết kết quả hiển thị là số ảo. 
+ [     ] Cho biết giá trị hiển thị là giá trị đối số  . 
+ Số ảo sẽ sử dụng hết bộ nhớ tái phát lại.
+Chuyển đổi giữa dạng trục và dạng đại số
+Nhấn                có thể chuyển đổi dạng số phức giữa dạng trục và 
+dạng đại số; và nhấn                để thay đổi định dạng chiều ngược 
+lại.
+3+4   =
+      5   53.13010235
+ 2<45=1+
+3+4    
+        5   53.13010235
+ 2   45= 
+                            1+ 
+Apps
+Apps
+  Ví dụ Thao tác phím Hiển thị
+CHẾ ĐỘ MATHS:
+===== PAGE 38 =====
+Giá trị tuyệt đối và Hệ số góc
+Với số phức ở dạng đại số, bạn có thể tính giá trị tuyệt đối (r) hay hệ 
+số góc (   ) bằng cách nhấn          hoặc                 tương ứng. 
+Số phức liên hợp
+Nếu  z = a + bi, giá trị của số phức liên hợp sẽ là z = a – bi. 
+Xác định phần Thực/Ảo của số phức
+Giá trị tuyệt đối (r) 
+và hệ số góc   (   ) 
+khi số phức là 6+8
+Abs (6+8  )    
+                              10
+Arg (6+8  ) 
+             53.13010235 
+Abs
+Apps
+3+4   is 3–4 Conjg (3+4  )    
+                              3
+                          - 4
+Apps
+Phần thực và ảo của
+của số phức 23  54 
+là 
+Real(23  54)    
+              13.5190608
+Imag(23  54) 
+            18.60739087 
+Apps
+Apps
+  Ví dụ Thao tác phím Hiển thị
+  Ví dụ Thao tác phím Hiển thị
+  Ví dụ Thao tác phím Hiển thị
+CHẾ ĐỘ LINE:
+CHẾ ĐỘ LINE:
+38
+CHẾ ĐỘ MATHS:
+===== PAGE 39 =====
+39
+  Phép tính với hệ số Base-n và Logic
+ Nhấn                   để vào chế độ Base-n . 
+ Thập phân (base 10), Thập lục phân (base 16), Nhị phân (base 
+2), Bát phân (base 8), hoặc những phép tính Logic. 
+ Để chọn một hệ thống số cụ thể trong chế độ cơ số, chỉ cần nhấn 
+       Thập phân [DEC],       Thập lục phân [HEX],       Nhị phân 
+[BIN] hay      Bát phân [OCT].
+ Nhấn         để biểu diễn các phép tính logic gồm: Cộng logic hoặc 
+Tuyển [and] / [or], Phép loại trừ hoặc [Xor], Loại trừ hoặc không 
+[Xnor], Bù hệ số [Not] and Nghịch đảo [Neg].
+ Nếu kết quả của phép toán nhị phân hoặc bát phân có hơn 8 chữ 
+số,           sẽ được hiển thị to để thông báo có thêm 1 ô chữ số. 
+Nhấn        để lặp kết quả giữa các ô chữ số.  
+ Trong chế độ Base-n, tất cả các chức năng khoa học không thể 
+được sử dụng và bạn không thể nhập giá trị với số thập phân 
+hoặc mũ.
+10101011+1100–
+1001x101÷10
+=10100001 
+(Hệ nhị phân)
+10101011+1100–1 
+BIN
+1010 0001
+645+321–23x7÷2
+=1064 
+(Hệ bát phân)
+645+321-23x7÷2 
+OCT
+00000001064
+(77A6C+D9)xB÷F
+=57C87
+(Hệ thập lục phân)
+(77A6C+D9)xB÷F 
+HEX
+00057C87
+  Ví dụ Thao tác phím Hiển thị
+CHẾ ĐỘ MATHS:
+===== PAGE 40 =====
+Biến đổi Base-n:
+12345+101=12446 12345+101 
+DEC
+12446
+12345+101 
+HEX
+000309E
+12345+101 
+OCT
+00000030236
+12345+101 
+    BIK 1/2           BIN
+1001 1110
+  Ví dụ Thao tác phím Hiển thị
+40
+===== PAGE 41 =====
+Tính toán Logic
+1 (SD) Thống kê 1 biến (x)
+2 (Lin) Hai biến, Hồi quy tuyến tính(y= A+Bx)
+3 (Quad) Hai biến, Hồi quy bậc 2 (y=A +Bx + Cx2)
+4 (Log) Hai biến, Hồi quy Logarit (y=AxBlnx)
+5 (e EXP) Hai biến, Hồi quy mũ E (y=AeBx)
+6 (ab EXP) Hai biến, Hồi quy mũ ab (y=ABx)
+7 (Pwr) Hai biến, Hồi quy lũy thừa (y=AxB)
+8 (Inv) Hai biến, Hồi quy nghịch đảo (y=A+B/x)
+Phép thống kêPhím ấn
+ Các kiểu tính thống kê
+Có 8 loại tính toán thống kê. Sau khi vào màn hình Lựa chọn 
+loại thống kê, nhấn số để chọn loại tính toán thống kê.
+ Nhấn                 để vào chế độ tính thống kê; Ký hiệu “STAT” 
+sẽ được hiển thị. 
+ Nhấn                 (Type) để chọn kiểu tính toán.
+Tính toán Thống kê
+789ABC Xnor 
+147258
+789ABC  nor147258 
+HEX
+FF93171B
+Ans or 789ABC Ansor789ABC 
+HEX
+FFFB9FBF
+Neg 789ABC Neg(789ABC 
+HEX
+FF876544
+Apps
+Apps
+Apps
+  Ví dụ Thao tác phím Hiển thị
+CHẾ ĐỘ TOÁN HỌC:
+41
+===== PAGE 42 =====
+ Nhập dữ liệu Thống kê
+Sau khi chọn kiểu thống kê cho máy tính tại Statistical Type 
+Selection hoặc bằng cách ấn               (Data) trong chế độ 
+STAT, màn hình nhập dữ liệu thống kê như sau sẽ xuất hiện.
+• Sau khi bật Tần số dữ liệu trong menu thiết lập, cột "FREQ" 
+sẽ được thêm vào màn hình trên.
+• Dưới đây là số dòng tối đa cho việc nhập dữ liệu.
+• Các biểu thức đầu vào và giá trị kết quả được hiển thị trên 
+màn hình Nhập dữ liệu thống kê ở chế độ Dòng (tương tự 
+như chế độ Tính toán với trạng thái chế độ Dòng).
+• Sau khi đã nhập dữ liệu, ấn           Để lưu giá trị vào các đăng 
+ký thống kê và hiển thị giá trị (tối đa 6 chữ số) trong mỗi ô. 
+Bạn có thể nhấn phím con trỏ để di chuyển con trỏ giữa từng 
+ô.
+FREQ OFFKiểu thống kê
+Một biến (chỉ nhập X) 40 80
+Hai biến ( nhập x & y) 26 40
+FREQ ON
+1 biến STAT 2 biến STAT 1 biến STAT 
+”FREQ ON”
+Chỉnh sửa Dữ liệu mẫu thống kê
+ Thay thế dữ liệu trong cột
+(1) Trong màn hình Nhập dữ liệu thống kê, di chuyển con 
+trỏ đến ô mà bạn muốn chỉnh sửa.
+(2) Nhập giá trị dữ liệu mới hoặc biểu thức, và nhấn        .
+ Xóa dòng dữ liệu
+(1) Trong màn hình Nhập dữ liệu thống kê, di chuyển con 
+trỏ đến dòng mà bạn muốn xóa.
+(2) Nhấn
+ Chèn một dòng
+(1) Trong màn hình Nhập dữ liệu thống kê, di chuyển con 
+trỏ đến dòng mà sẽ nằm dưới dòng đang được chèn vào.
+(2) Nhấn                (Edit)
+(3) Nhấn         (Ins)
+ Xóa toàn bộ dữ liệu thống kê
+(1) Nhấn               (Edit)
+(2) Nhấn        (Del-A)
+42
+===== PAGE 43 =====
+43
+ Màn hình Tính toán thống kê
+ Sau khi nhập dữ liệu STAT, nhấn        để nhập màn hình 
+Tính toán Thống kê.
+ Màn hình Tính toán thống kê ở chế độ Dòng cho việc 
+hiển thị và nhập dữ liệu.
+ Sử dụng Menu thống kê để tính toán kết quả thống kê. 
+(S-SUM, S-VAR, S-PTS, Reg).
+ Danh mục Thống kê
+Trong màn hình Nhập dữ liệu thống kê hoặc Màn hình 
+Tính toán thống kê, nhấn          để hiển thị màn hình 
+Menu thống kê.
+[1] Type Để vào màn hình loại tính toán thống kê
+[2] Data Để vào màn hình nhập dữ liệu thống kê
+[3] Edit Để chỉnh sửa nội dung màn hình biên tập STAT
+[4] S-SUM Để vào danh mục phụ S-Sum (Tính tổng)
+[5] S-VAR Để vào danh mục phụ S-Var (Tính biến)
+[6] S-PTS Để vào danh mục phụ S-PTS (Tính điểm)
+[7] Distr Để vào danh mục phụ Distr (Tính Phân phối)
+[8] Reg Để vào danh mục phụ Reg (Tính Hồi quy)
+Mô tảMục STAT
+1-variable STAT 2-variable STAT
+
+===== PAGE 44 =====
+Tính kết quả thống kê tại
+Danh mục phụ Kiểu STAT Giá trị Ký hiệu Cách ấn
+biến
+biến
+biến
+Chỉ 1 biến
+Chỉ 2 biến
+Chỉ
+Tổng của tất cả giá trị x3
+Tổng của tất cả giá trị x4
+Số lượng mẫu dữ liệu
+Giá trị trung bình của x
+Giá trị trung bình của y
+Độ lệch chuẩn của x
+Giá trị nhỏ nhất của X
+Giá trị nhỏ nhất của Y
+Giá trị lớn nhất của Y
+Hệ số hồi quy A
+Hệ số hồi quy A
+Hệ số hồi quy B
+Hệ số hồi quy B
+Hệ số hồi quy C
+Hệ số tương quan r
+Giá trị ước lượng của x
+Giá trị ước lượng của x2
+Giá trị ước lượng của x1
+Giá trị ước lượng của y
+Giá trị ước lượng của y
+Giá trị lớn nhất của X
+Trung vị
+Mode
+Giá trị phân vị thứ nhất
+Giá trị phân vị thứ ba
+Khoảng giá trị
+Độ lệch chuẩn của y
+Độ lệch chuẩn mẫu của x
+Độ lệch chuẩn mẫu của y
+Tổng của tất cả giá trị x2y
+Tổng của tất cả giá trị y2
+Tổng của tất cả giá trị y
+Tổng của tất cả cặp xy
+Tổng của tất cả giá trị x
+Chỉ 2 biến
+Hồi quy 
+bậc khác 2
+Hồi quy 
+bậc 2
+44
+===== PAGE 45 =====
+Ví dụ Tính toán thống kê hồi quy bậc hai: 
+Công ty ABC nghiên cứu về hiệu quả của chi phí quảng cáo 
+trong các đơn vị được ghi lại mã hóa, ta được bảng dữ liệu sau.
+Bạn có thể cung cấp dữ liệu cụ thể để chúng tôi có thể tiếp tục 
+giải thích ví dụ tính toán hồi quy bậc hai.
+Chi phí quảng cáo: X 18 35 40 21 19
+Sự hiệu quả: y (%) 38 54 59 40 38
+Ví dụ về kiểu Hồi quy 1 biến (SD): 
+Để tính ∑x2, ∑x, n, x, x   n, x   n-1, minX, maxX của dữ liệu: 75, 
+85, 90, 77, 79 ở chế độ SD = (Freq: OFF).
+Ví dụ Tính toán thống kê
+2
+33120
+406
+n
+5
+x
+81.2
+x   n
+5.528109984
+x   n-1
+6.180614856
+(SD)
+Hiển thịThao tác phím
+Apps
+Apps
+Apps
+Apps
+Apps
+Apps
+45
+===== PAGE 46 =====
+Hãy sử dụng hồi quy để ước lượng hiệu quả (ước lượng giá trị 
+của y) nếu chi phí quảng cáo X = 30, và ước lượng mức chi phí 
+quảng cáo (ước lượng giá trị của X1, X2) với độ hiệu quả 
+y = 50.
+ Phép tính phân phối
+ Sau khi dữ liệu mẫu được nhập vào chế độ Thống kê (SD) hoặc 
+Hồi quy (REG), bạn có thể thực hiện các phép tính phân phối 
+chuẩn hoặc phân phối xác suất như P(t), Q(t) và R(t), trong đó t là 
+biến của thí nghiệm xác suất.
+Biến ngẫu nhiên
+Giá trị trung bình mẫu
+Độ lệch chuẩn
+(Quad)
+  30y
+ 48.69615715
+  50x1
+ 31.30538226
+  50x2
+ -167.1096731
+Apps
+Apps
+Apps
+Hiển thịThao tác phím
+46
+===== PAGE 47 =====
+ Nhấn                 để hiển thị màn hình tính độ lệch chuẩn.
+ Nhấn        ,       ,       hay        Để tính các giá trị tương ứng P(t), 
+Q(t) và R(t) trong phân phối chuẩn.
+1: P( 2: Q(
+3: R( 4:    t
+Ví dụ: Tính toán phân phối xác suất P(t) cho dữ liệu mẫu: 20, 43, 26,
+46, 20, 43, khi x = 26.
+P(t): Xác xuất dưới điểm 
+đã cho
+Q(t): Xác xuất dưới điểm 
+đã cho và trên trung bình
+R(t): Xác xuất trên điểm 
+đã cho
+1
+  2
+P(t)= e           dt ,
+1 t – u
+2–   (       ) 2
+P(t )
+R ( t ) = 1 –  P ( t ),
+R(t )
+Q ( t ) = 0.5 –  R ( t ),
+Q(t )
+26   t
+ -0.6236095645
+P(Ans
+44662.0 
+Hiển thịThao tác phím
+Apps
+Apps
+47
+===== PAGE 48 =====
+ Giải phương trình
+ Nhấn                 để vào chế độ giải phương trình; Nhấn
+        /       để tới trang trước hoặc sau.
+[1] 2 unknow EQN  Hệ phương trình bậc 1, 2 ẩn 
+[2] 3 unknow EQN  Hệ phương trình bậc 1, 3 ẩn
+[3] 4 unknow EQN   Hệ phương trình bậc 1, 4 ẩn 
+[4] Quad EQN  Phương trình 1 ẩn bậc 2 
+[5] Cubic EQN  Phương trình 1 ẩn bậc 3
+[6] Quartic EQN   Phương trình 1 ẩn bậc 4
+Mô tảMục phương trình
+Nhấn  [      ]
+hoặc [      ] 
+Hệ phương trình bậc 1
+Hệ phương trình bậc 1 có 2 ẩn:
+ a 1x + b1y = c1
+ a 2x + b2y = c2
+Hệ phương trình bậc 1 có 3 ẩn:
+ a 1x + b1y + c1z = d1
+ a 2x + b2y + c2z = d2
+ a 3x + b3y + c3z = d3
+Hệ phương trình bậc 1 có 4 ẩn:
+ a 1w + b1x + c1y + d1z = e1
+ a 2w + b2x + c2y + d2z = e2
+ a 3w + b3x + c3y + d3z = e3
+ a 4w + b4x + c4y + d4z = e4
+48
+===== PAGE 49 =====
+Ví dụ: Giải phương trình bậc 1 có 3 ẩn như sau:    
+                        2x + 4y – 4z = 20
+  2x – 2y + 4z = 8
+  5x – 2y – 2z = 20 
+                       (3 unknowns)
+X=
+Y=
+Z=
+3
+3
+4
+11
+2
+Hiển thịThao tác phím
+49
+===== PAGE 50 =====
+Ví dụ: Giải phương trình bậc 3 sau 5x3 + 2x2 – 2x + 1 = 0
+Với phương trình bậc hai, ba hoặc bốn, tên biến thường bắt
+đầu bằng “X1”.
+Phương trình 1 ẩn bậc 2, 3, 4
+Phương trình bậc 2 : ax2 + bx + c = 0 (phương trình đa thức bậc hai 
+với một biến x)
+Phương trình bậc 3 : ax3 + bx2 + cx + d = 0 ( phương trình với đa 
+thức bậc ba)
+Phương trình bậc 4 : ax4 + bx3 + cx2 + dx + e = 0 
+  Tính năng Solve
+■ Solve - Giải các hàm bằng phương pháp Newton để đạt được 
+giải phương trình gần đúng.
+       Chú ý: SOLVE chỉ có thể sử dụng ở chế độ COMP
+■ Phần sau đây mô tả những loại biểu thức, phương trình có thể 
+được giải bằng SOLVE function.
+• Phương trình chứa ẩn X,
+ SOLVE tìm ra ẩn X, ví dụ như, X 2 + 2X – 2, X = Y + 3,
+     X – 5 = A + B, X = tan(C)
+ • Biến X cần giải phải được đặt ở phía bên trái của phương 
+trình..
+  Ví dụ một phương trình được nhập như sau: 
+         X2 + 5X = 24 or X2 + 5X –   24 = 0 
+  hoặc X 2 + 5X – 24
+ • Một biểu thức như X2 + 5X – 24 có thể được coi như phương trình
+         X2 + 5X – 24 = 0, mà không cần nhập “= 0”.
+• Đầu vào phương trình sử dụng cú pháp sau: 
+     {phương trình},{biến giải}
+ Nói chung, một phương trình được giải cho X, trừ khi được chỉ định khác. 
+Ví dụ, để giải phương trình ẩn Y cần nhập là: Y = X + 5, Y
+                                     
+(Phương trình bậc 2)
+X1=
+X2=
+X3=
+Hiển thịThao tác phím
+3
+10+0.331662479
+3
+10 -0.331662479
+-1
+50
+===== PAGE 51 =====
+• Độ chính xác của kết quả sau khi dò nghiệm khi giải phương trình 
+    tùy thuộc vào giá trị gán cho biến giải. Độ chính xác của nghiệm sẽ
+    cao hơn nếu giá trị này gần với 0.
+Màn hình “Tiếp tục”
+• Chức năng "SOLVE" thực hiện việc hội tụ một số lần được thiết 
+    lập trước. Nếu không thể tìm ra nghiệm, máy tính sẽ hiển thị màn
+    hình xác nhận với nội dung "Tiếp tục: [=]", hỏi bạn có muốn tiếp tục
+    không. Nhấn phím       để tiếp tục hoặc         để hủy bỏ SOLVE.
+Lưu ý quan trọng khi sử dụng chức năng “Solve”:
+• Những tính năng    ,     , ∑, ∏, Pol, Rec, Q…r, Rand, i-Rand hay 
+ Các câu lệnh đa dòng không được phép nhập vào một phương trình 
+    cho chức năng SOLVE.
+• SOLVE sử dụng Phương pháp Newton để tìm nghiệm, phương trình dù
+    có nhiều nghiệm thì SOLVE chỉ cho 1 nghiệm mỗi lần giải.
+• SOLVE  có thể không thể tìm được một giải pháp do giá trị ban đầu của 
+     biến giải được thiết lập trước. Trong trường hợp này xảy ra, hãy thử 
+     thay đổi giá trị ban đầu của biến giải.
+• SOLVE có thể không tìm ra nghiệm đúng dù phương trình có nghiệm.
+• Nếu một phương trình chứa các hàm đầu vào có dấu ngoặc mở, hãy
+     nhớ đóng ngoặc.
+• Màn hình sẽ hiển thị “Variable ERROR” khi biểu thức không chứa biến 
+    mà bạn muốn giải.
+• Phương pháp Newton có thể gặp vấn đề khi giải các loại hàm sau:
+     y = ex, y =     , y = sin(x), y =  x, etc.
+• Trong trường hợp phương trình mất thời gian để giải, máy tính sẽ hiển thị
+     màn hình "PROCESSING" ( Đang xử lý), bạn có thể hủy bỏ quá trình giải
+     phương trình bằng cách nhấn phím
+d
+dx
+1
+x
+Ví dụ: Để giải         X=       B2C (khi B=5; C=20) 13
+               
+X =         B 2C
+B?
+0
+C?
+0
+Solve for X
+0
+X =         B
+2
+C
+X=                                  523.5987756
+L-R =                                        0
+Hiển thịThao tác phím
+ Giá trị mẫu 
+1
+3
+ Biến số   Nghiệm 
+1
+3
+ Sai số của nghiệm 
+51
+===== PAGE 52 =====
+ Tính vi phân
+ 
+ Vi phân chỉ có thể được sử dụng trong chế độ COMP..
+ Để thực hiện một phép tính vi phân, bạn phải nhập biểu thức 
+dưới dạng                                  f(x)         a         ∆x 
+ Máy tính của bạn thực hiện các phép tính vi phân bằng cách ước 
+lượng đạo hàm dựa trên phương pháp ước lượng sai số trung tâm.
+Ví dụ: Để xác định đạo hàm tại điểm x = 10, ∆x = 10-8, 
+                 Với Phương trình f(x) = sin(3x + 30). ......
+ví dụ   : Cho phương trình Y = 5x2 –2x +1, tính giá trị của Y nếu
+              x = 5 or hoặc = 7.
+!          Biểu thức được lưu trữ sẽ bị xóa khi bạn bắt đầu một tính 
+toán mới, chuyển sang một chế độ khác, hoặc tắt máy tính.
+  Chức năng CALC 
+ Chức năng CALC là một khu vực bộ nhớ với tối đa 79 ký tự cho 
+một biểu thức toán học, có thể thực hiện lại và tính toán nhiều lần 
+với các giá trị biến thành phần khác nhau.
+     Sau khi nhập biểu thức tính toán và nhấn phím       , máy tính sẽ 
+yêu cầu bạn nhập giá trị hiện tại của các biến đầu vào.
+     CALC chỉ có thể sử dụng ở chế độ COMP hoặc CPLX.
+• f(x) : Hàm chứa X. (Tất cả các biến khác X được coi là là hằng số.)
+• a : Tọa độ vi phân. 
+• ∆x : Dung sai (độ biến thiên); Chỉ cho chế độ “Line”
+(COMP MODE) 0
+Y=5X2–X+1
+0
+Y=5X2–X+1
+116
+Y=5X2–X+1
+232
+CHẾ ĐỘ LINE:
+(COMP MODE) 0
+d/dx(sin(3X+30)
+                         
+0.02617993878
+                         
+Hiển thịThao tác phím
+Hiển thịThao tác phím
+52
+===== PAGE 53 =====
+  Tính toán tích phân
+ Tích phân chỉ tính được ở chế độ COMP.
+ Để thực hiện một phép tính tích phân, bạn cần nhập các yếu tố 
+sau:
+                          f(x)        a        b        n  
+• f(x) : Hàm chứa X. (Tất cả biến khác X được coi là hằng số)
+• a, b : Giá trị đầu cuối của tích phân trong tập xác định. 
+• n : Dung sai (độ biến thiên); Chỉ cho chế độ “Line”
+ 
+      Phép tính tích phân dựa trên phương pháp Gauss-Kronrod. 
+ Các tính toán tích phân nội bộ có thể mất một lúc đáng kể để 
+hoàn thành. Đối với một số trường hợp, ngay cả sau khi đã dành 
+nhiều thời gian để thực hiện một phép tính, kết quả có thể không 
+chính xác. Đặc biệt khi số chữ số có ý nghĩa ít hơn 1, một ERROR 
+(lỗi) có thể xảy ra.
+! Bạn có thể bỏ qua ∆x trong biểu thức vi phân và máy tính sẽ tự 
+động thay thế một giá trị cho ∆x.
+! Giá trị ∆x càng nhỏ, thời gian tính toán của máy để cho ra kết quả 
+càng cao, ∆x càng lớn, thời gian ước tính càng nhanh nhưng độ 
+chính xác sẽ thấp.
+! Kết quả có thể không chính xác và xuất hiện lỗi bởi các yếu tố sau:
+ • Biến x có giá trị không liên tục 
+ • x biến thiên quá cao
+ • Bao gồm điểm cực đại cục bộ và điểm cực tiểu cục bộ trong các giá trị x.  
+ • Bao gồm điểm cực trị đạo hàm =0
+ • Bao gồm các điểm không thể vi phân ở các giá trị x
+ • Kết quả tính toán vi phân tiến gần đến không
+! Khi thực hiện tính toán vi phân với các hàm lượng giác, hãy chọn 
+radian (Rad) làm cài đặt đơn vị góc.
+! Logab, i~Rand(, Rec( , Pol(, ∫(, d/dx(, ∑(, ∏(, Max( và Min( không 
+được xuất hiện trong biểu thức vi phân.
+! Bạn có thể ngưng quá trình tính vi phân của máy tính bằng nút 
+Ví dụ: Thực hiện phép tính tích phân sau, với n = 4.
+......
+Hiển thịThao tác phím
+                         
+   0
+236
+(5X ^(4)+ 3 X 2 + 2 X
+53
+===== PAGE 54 =====
+ Các phép tính với Ma trận 
+ Nhấn                 để vào chế độ.
+ Trước khi bắt đầu tính toán ma trận, bạn phải tạo ra một ma trận 
+hoặc tối đa bốn ma trận với tên là A, B, C và D vào một lúc. Kích 
+thước của ma trận có thể lên đến 4x4.
+ Kết quả tính toán ma trận được lưu vào bộ nhớ MatAns tự động. 
+Bạn có thể sử dụng bộ nhớ MatAns cho bất kỳ tính toán ma trận 
+nào sau này.
+Tạo một ma trận 
+ Nhấn                 Để vào chế độ Ma trận
+ Nhấn                  để sử dụng công cụ MATX; nhấn         /      để 
+chuyển trang trước/ sau
+ Nhấn          để thoát màn hình tạo ma trận.
+[1]  Dim 
+[2]  Data 
+[3]  MatA to MatD 
+[4]  MatAns 
+[5]  Det 
+[6]  Trn 
+[7]  Ide 
+[8]  Adj 
+[9]  Inv 
+Chỉ định bộ nhớ ma trận A đến D, và chỉ định kích 
+thước (lên đến 4 x 4)
+Chỉ định ma trận A-D để chỉnh sửa và phần tử ma 
+trận tương ứng
+Chọn ma trận A đến D
+Kết quả tính toán của Ma trận và lưu vào MatAns 
+Định thức của Ma trận A-D
+Dữ liệu chuyển vị trong Ma trận A-D
+Ma trận đơn vị 
+Ma trận chuyển vị chính phương 
+Nghịch đảo của ma trận 
+Mô tảDanh mục MATX
+Ấn   [      ]
+hoặc[      ]
+! Khi thực hiện các phép tính tích phân với hàm lượng giác, cần đưa
+   cài đặt đơn vị đo góc về radian (Rad).
+! Loga        b, i~Rand, Rec ( and Pol ( không thể xuất hiện ở trong hàm 
+lượng giác.
+54
+===== PAGE 55 =====
+! Các ma trận sẽ được cộng, trừ hoặc nhân phải có cùng kích 
+thước. Một lỗi sẽ xảy ra nếu bạn cố gắng cộng, trừ hoặc nhân các 
+ma trận có kích thước khác nhau. Ví dụ, bạn không thể cộng hoặc 
+trừ một ma trận 2 x 3 với một ma trận 2 x 2.
+    Phép cộng, trừ và nhân ma trận
+Ví dụ      : MatA =                  , MatB =                  , MatA x MatB=?
+1   2   3
+4   5   6
+7   8   9
+9   8   7
+6   5   4
+3   2   1
+Chỉnh sửa dữ liệu ma trận 
+ Nhấn                          (Data), Sau đó chỉ định ma trận A, B, C 
+hoặc D để chỉnh sửa và chỉ số phần tử ma trận tương ứng sẽ 
+được hiển thị.
+ Nhập giá trị mới và nhấn        để xác nhận chỉnh sửa. 
+ Nhấn         để thoát màn hình chỉnh sửa ma trận.
+Apps
+Apps
+Apps
+Hiển thịThao tác phím
+55
+===== PAGE 56 =====
+Ví dụ: Nhân ma trận   C =                với 2, kết quả là                
+ 3   -2
+-1    5
+ 6   -4
+-2    10
+     Tính tích vô hướng của một ma trận
+Mỗi vị trí trong ma trận được nhân với một giá trị duy nhất, dẫn đến 
+một ma trận cùng kích thước.
+     Định thức của một ma trận
+Ví dụ:    Tìm định thức của Ma trận:            C =                      
+ <Kết quả: - 471>                                
+10  -5    3
+-4    9    2
+1     7   -3
+Apps
+Apps
+Apps
+Apps
+Apps
+! Một lỗi sẽ xảy ra nếu bạn lấy định thức của một ma trận không vuông
+Hiển thịThao tác phím
+Hiển thịThao tác phím
+56
+===== PAGE 57 =====
+    Chuyển vị một Ma trận
+Ví dụ:  Chuyển vị Ma trận B =                     <Kết quả  :                  >
+9   5
+6   2
+8   4
+9   6   8
+5   2   4
+     Ma trận đơn vị
+Ví dụ :  Ma trận đơn vị D
+1    0
+0    1
+Apps
+Apps
+Apps
+Apps
+Hiển thịThao tác phím
+Hiển thịThao tác phím
+57
+===== PAGE 58 =====
+     Ma trận chuyển vị 
+Ví dụ: Tìm chuyển vị của A                   < Kết quả:                 >  
+2    3
+4    5
+5    -3
+-4    2
+Apps
+Apps
+Apps
+     Ma trận nghịch đảo
+Ví dụ: Nghịch đảo ma trận C =             
+ <Kết quả:                                                    >                 
+8   2
+3   6
+0.142857142    -0.047619047
+-0.071428571   0.19047619
+     Ma trận nghịch đảo
+Ví dụ: Nghịch đảo ma trận C =             
+ <Kết quả:                                                    >                 
+8   2
+3   6
+0.142857142    -0.047619047
+-0.071428571   0.19047619
+Apps
+Apps
+Apps
+Hiển thịThao tác phím
+Hiển thịThao tác phím
+58
+===== PAGE 59 =====
+      Xác định giá trị tuyệt đối của một ma trận      Xác định giá trị tuyệt đối của một ma trận
+Ví dụ: Để xác định giá trị tuyệt đối của ma trận nghịch đảo C trong 
+           ví dụ trước.
+Abs
+Apps
+Hiển thịThao tác phím
+59
+Tạo một Vector
+ Nhấn                 để vào chế độ vector
+ Nhấn                 để sử dụng các công 
+cụ vector 
+[1]  Dim 
+[2]  Data 
+[3]  VctA to VctD 
+[4]  VctAns 
+[5]  Dot
+Chỉ định tên vector A đến D, và chỉ định kích thước 
+(2D hoặc 3D)
+Chỉ định vector A đến D để chỉnh sửa và phần tử ma 
+trận tương ứng 
+Chọn vector từ A đến D
+Kết quả phép tính được lưu vào VctAns
+Nhập "•" để lấy tích vô hướng của một vector ngoài 
+ứng dụng VCTR MODE
+Mô tảDanh mục
+[1]  Dim 
+[2]  Data 
+[3]  VctA to VctD 
+[4]  VctAns 
+[5]  Dot
+Mô tảDanh mục
+ Nhấn          để thoát màn hình Tạo một vector.
+  Tính toán với Vector
+ Nhấn                 để vào chế độ Vector. 
+ Trước khi bắt đầu tính toán vector, bạn phải tạo ra một hoặc 
+nhiều vector với tên là A, B, C và D (tối đa bốn vector vào một 
+lúc).
+ Kết quả tính toán vector được lưu vào bộ nhớ VctAns tự động. 
+Bạn có thể sử dụng bộ nhớ vector VctAns cho bất kỳ tính toán 
+vector nào sau này.
+===== PAGE 60 =====
+Sửa thành phần của Vector
+ Nhấn                        (data), sau đó chỉ định ma trận A, B, C hoặc 
+D để chỉnh sửa, và chỉ số phần tử vector tương ứng sẽ được hiển 
+thị.
+ Nhập giá trị mới và nhấn        để xác nhận chỉnh sửa. 
+ Nhấn         để thoát khỏi màn hình chỉnh sửa vector.
+Sửa thành phần của Vector
+ Nhấn                        (data), sau đó chỉ định ma trận A, B, C hoặc 
+D để chỉnh sửa, và chỉ số phần tử vector tương ứng sẽ được hiển 
+thị.
+ Nhập giá trị mới và nhấn        để xác nhận chỉnh sửa. 
+ Nhấn         để thoát khỏi màn hình chỉnh sửa vector.
+! Một lỗi xảy ra nếu bạn cố gắng cộng hoặc trừ các vector có kích 
+thước khác nhau. Ví dụ, Vector A (a, b, c) không thể cộng hoặc trừ 
+với Vector B (d, e).
+Cộng và trừ Vector
+Ví dụ: Vector A = (9;5), Vector B = (7;3), Vector A – Vector B =?
+Apps
+Apps
+Apps
+Hiển thịThao tác phím
+60
+===== PAGE 61 =====
+Tích của Vector với giá trị đại số
+Mỗi vị trí trong vector được nhân với một giá trị duy nhất, dẫn đến 
+một vector cùng kích thước.     
+  s x VctA(a,b) = VctB(axs, bxs) 
+Ví dụ: Hãy nhân Vector C = (4,5,-6)  với 5.
+Tính tích vô hướng của 2 Vector
+Ví dụ: Tính tích vô hướng của Vector A và Vector B. 
+           Với Vector A = (4,5,-6) and Vector B = (-7,8,9). 
+Apps
+Apps
+Apps
+Apps
+Apps
+Apps
+Apps
+Hiển thịThao tác phím
+Hiển thịThao tác phím
+61
+===== PAGE 62 =====
+    Tính tích có hướng của 2 Vector
+Ví dụ: Tính tích có hướng của Vector A và Vector B. 
+           Với Vector A = (4,5,-6) and Vector B = (-7,8,9).
+! Một lỗi sẽ xảy ra nếu bạn cố gắng tính tích vô hướng hoặc tích có 
+hướng của hai vector có kích thước khác nhau.
+   Xác định trị tuyệt đối của Vector
+Ví dụ 1: Xác định trị tuyệt đối của Vector C. Với  
+                     Vector C = (4,5,-6) và đã được tạo bởi máy tính. 
+Apps
+Apps
+Apps
+Apps
+Abs
+CHẾ ĐỘ LINE:
+Apps
+Apps
+Hiển thịThao tác phím
+Hiển thịThao tác phím
+62
+===== PAGE 63 =====
+Ví dụ2: Cho Vector A=(-1, 0, 1) và Vector B=(1, 2, 0), xác định độ dài 
+và    (đơn vị là độ) và tìm Vector đơn vị vuông góc với cả  
+A và B.
+                         cos   =          , Suy ra      = cos -1 
+            Vector đơn vị 1 vuông góc với cả A và B=
+= 
+Abs
+Abs
+Abs
+Apps
+Apps
+Apps Apps Apps
+Apps
+Apps
+Apps
+Apps
+Apps Apps
+63
+Hiển thịThao tác phím
+===== PAGE 64 =====
+ Nhập f(x) (hàm chứa x) để tạo bảng giá trị cho cặp x & f(x).
+ Các bước để tạo một bảng số
+ 1. Nhấn                để vào chế độ Table.
+ 2. Màn hình nhập hàm
+  • Nhập hàm với biến X(              ) để tạo kết quả bảng 
+hàm
+  • Tất cả các biến khác (A, B, C, D, Y) và bộ nhớ độc lập 
+(M) được coi như các giá trị.
+Chức năng tính Bảng (x, y)
+  • Pol, Rec, Q…r, S,     không được xuất hiện trong hàm 
+khi nhập bảng
+  • Phép tính bảng hàm sẽ thay đổi biến X.
+ 3. Sau đó nhập thông tin bắt đầu, kết thúc, và bước.
+  • Nhập các giá trị, nhấn         để xác nhận trên các màn 
+hình tiếp theo
+  • Nhập biểu thức và hiển thị giá trị kết quả trên các màn 
+hình sau đều ở chế độ Line.
+  • Có tối đa 30 giá trị x trong việc tạo bảng hàm. "Lỗi không 
+đủ dung lượng" sẽ được hiển thị nếu tổ hợp giá trị bắt đầu, 
+kết thúc, bước nhảy tạo ra hơn 30 giá trị x.
+d
+dx
+ Trong màn hình Kết quả Bảng Hàm, bạn không thể chỉnh 
+sửa nội dung, nhấn         để quay lại màn hình Nhập hàm.
+Ví dụ    :                               để tạo bảng hàm cho 
+                 Khoảng              , công sai là 1.
+Start? Nhập giới hạn thấp nhất của X (Mặc định =1).
+End? Nhập giới hạn cao nhất của X (Mặc định = 5).
+ *Giá trị kết thúc phải lớn hơn giá trị bắt đầu.
+Step? Nhập bước tăng (Mặc định =1).
+Bạn nên nhậpMàn hình hiển thị
+f(x)=
+f(x)= X3+3X2-2X
+Hiển thịThao tác phím
+64
+===== PAGE 65 =====
+Thay pin ngay lập tức khi các ký tự trên màn hình trở nên mờ dần ngay 
+cả khi cài đặt độ tương phản màn hình LCD tối hơn HOẶC khi thông báo 
+sau xuất hiện trên màn hình. Tắt máy tính và thay pin lithium ngay lập 
+tức.
+Vui lòng thay pin lithium bằng các thao tác sau:
+1. Nhấn                  để tắt máy tính.
+2. Tháo ốc cố định nắp pin để giữ nắp pin chắc chắn vào vị trí.
+3. Tháp vỏ pin.
+4. Tháo pin cũ bằng vật dụng nhọn thích hợp.
+5. Lắp pin mới vào theo chiều cực dương hướng lên trên.
+6. Đặt nắp pin mới vào, vít, và nhấn         ,     
+ để khởi chạy máy tính.
+Chú ý: Rủi ro nổ nếu pin được thay bằng loại không đúng.  Nên tái 
+chế pin cũ để bảo vệ môi trường.
+     Nhiễu từ trường hoặc xả tĩnh điện có thể làm màn hình hoạt động 
+không đúng hoặc làm nội dung bộ nhớ bị mất hoặc thay đổi. Nếu điều 
+này xảy ra, nhấn         ,                                         để khởi động lại máy.
+Thay pin
+!
+Low Battery 
+Lời khuyên và Cảnh báo
+• Máy tính này chứa các thành phần chính xác như chip LSI và 
+không nên được sử dụng ở những nơi chịu biến động nhiệt độ 
+nhanh, độ ẩm cao, bụi bẩn, hoặc để chip tiếp xúc trực tiếp với 
+ánh nắng mặt trời.
+• Màn hình cấu tạo tinh thể lỏng, không nên tác động lực quá 
+mạnh.
+• Khi làm sạch thiết bị, không sử dụng khăn ẩm hoặc chất lỏng 
+bay hơi như chất làm mềm sơn. Thay vào đó, chỉ sử dụng một 
+chiếc khăn mềm và khô.
+• Không nên tự tháo máy ra để sửa (Trừ thay pin). Nếu bạn thấy 
+rằng máy tính không hoạt động hoặc có vấn đề, hãy gửi thiết bị 
+lỗi đến điểm mua hàng, hoặc gửi máy về Trạm bảo hành của 
+Canon theo hướng dẫn bảo hành có trong máy.
+• Không vứt bỏ máy tính một cách không đúng cách như đốt 
+cháy. Điều này có thể tạo ra nguy cơ gây thương tích, chấn 
+thương. Bạn nên vứt bỏ sản phẩm này theo đúng quy định về 
+rác công nghệ.
+• Nên thay pin hai năm một lần, ngay cả khi không sử dụng 
+thường xuyên.
+65
+===== PAGE 66 =====
+66
+Thông số kỹ thuật
+Nguồn điện : Pin mặt trời và pin Lithium (CR2032 x 1)
+Công suất tiêu thụ : DC 3.0V / 0.3mW
+Tuổi thọ pin : Khoảng 4 năm 
+   (Với cường độ hoạt động 1 giờ mỗi ngày)
+Tự động tắt : Sau 7 phút
+Nhiệt độ phù hợp : 0° ~ 40°C 
+Kích thước: 171 (L) × 86 (W) × 17.3 (H) mm ( bao gồm nắp trượt)
+            168 (L) × 80 (W) × 13.15 (H) mm (không gồm nắp trượt) 
+Khối lượng: 120 g (gồm nắp trượt) / 88 g (không gồm nắp trượt)
+*Các thông số kỹ thuật có thể thay đổi mà không cần báo trước.
+Cảnh báo pin!
+• Hãy giữ pin ngoài tầm tay của trẻ em. Nếu pin bị nuốt phải, liên 
+hệ ngay với bác sĩ.
+• Sử dụng sai cách pin có thể gây ra rò rỉ, nổ, thiệt hại hoặc 
+thương tích cá nhân.
+• Không nạp lại hoặc tháo rời pin, điều này có thể gây ra một 
+mạch ngắn.
+• Không tiếp xúc pin với nhiệt độ cao, nhiệt độ trực tiếp hoặc vứt 
+bỏ bằng cách đốt cháy.
+• Không bao giờ để một viên pin hết sạch trong máy tính của bạn 
+vì viên pin hết sạch có thể rò rỉ và gây ra hỏng hóc cho máy tính.
+• Việc sử dụng tiếp tục của máy tính trong tình trạng pin yếu có 
+thể dẫn đến hoạt động không đúng hoặc bộ nhớ đã lưu trữ có 
+thể bị hỏng hoặc mất hoàn toàn. Hãy luôn nhớ lưu các dữ liệu 
+quan trọng và thay pin thường xuyên định kỳ.
+===== PAGE 67 =====
+67
+MÁY TÍNH CẦM TAY CANON F-789SGA
+Sản phẩm được phân phối độc quyền 
+tại Việt Nam bởi Golden Pen.,Jsc
+Website: www.canoncalculator.com.vn
+Hotline:  1900.9486
